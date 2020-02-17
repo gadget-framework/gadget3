@@ -12,12 +12,39 @@ g3_time <- function(start_year, end_year, steps = c(12)) {
             NULL))
 }
 
+g3_stock <- function(stock_name, length_agg) {
+    assign(stock_name, rep.int(0, length(length_agg)))
+    list(
+        stock_name = stock_name,
+        length_agg = length_agg,
+        stock_action = function (f) {
+            f_substitute(f, list(s = as.symbol("parp")))  # TODO:
+        },
+        step = list())
+}
+
+g3s_age <- function(inner_stock, ages) {
+    # TODO: An implementation will need to use reference classes in R
+    out <- inner_stock
+    out$stock_action <- function (f) {
+        inner_stock$stock_action(
+            f_substitute(~for (a in ages) f, list(f = f, s = quote(s[[a]]))))
+    }
+    return(out)
+}
+
 g3s_growth <- function(inner_stock, delt_l) {
-    extend_stock(inner_stock, step = list(
-        f_set_var(inner_stock$name, 'delt_l', delt_l),
-        f_set_var(inner_stock$name, 'growth_ratio', ~moo),
-        delt_l
-    ))
+    # TODO: use innerstock to get a length aggregation, wrap action in it
+    out <- inner_stock
+    out$step <- c(out$step,
+        out$stock_action(s ~ s + delt_l))
+    return(out)
+
+    #extend_stock(inner_stock, step = list(
+    #    f_set_var(inner_stock$name, 'delt_l', delt_l),
+    #    f_set_var(inner_stock$name, 'growth_ratio', ~moo),
+    #    delt_l
+    #))
 
 # for (cur_area in inner_stock$areas) {
 #     delt_l = ...
@@ -36,8 +63,9 @@ g3s_growth <- function(inner_stock, delt_l) {
 # }
 }
 
-g3_model <- function(time) {
-    return(list(init = time$init, step = time$step))
+g3_model <- function(...) {
+    # Combine all steps into one list
+    list(step = do.call(c, lapply(list(...), function (x) x$step)))
 }
 
 # This is something that should be pulled out of data
@@ -58,11 +86,13 @@ g3_run <- function(g3m, data, param) {
     parse_line <- function (l, out_con = step_con) {
         # Parse formulae for any variables that need to be defined
         for (var_name in if (class(l) == 'formula') all.vars(l[[length(l)]]) else c()) {
-            var <- get(var_name, env = attr(l, '.Environment'))
-
             if (exists(var_name, envir = scope)) {
                 # Already init'ed this, ignore it.
-            } else if ('g3_data' %in% class(var)) {
+                next
+            }
+
+            var <- get(var_name, env = attr(l, '.Environment'))
+            if ('g3_data' %in% class(var)) {
                 cat(var_name, '<-', paste0('data$', var), '\n', file = init_con)
             } else if (is.numeric(var) || is.character(var)) {
                 # Defined as a literal
@@ -85,5 +115,11 @@ g3_run <- function(g3m, data, param) {
 
     close(init_con)
     close(step_con)
-    cat(paste(init_str, collapse = "\n"), '\nwhile (TRUE) {    \n', paste(step_str, collapse = "   \n"), '\n}\n')
+    writeLines(c(
+        "function (data, params) {",
+        paste("  ", init_str),
+        '  while (TRUE) {',
+        paste("    ", step_str),
+        '  }',
+        '}'))
 }
