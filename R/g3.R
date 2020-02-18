@@ -14,37 +14,38 @@ g3_time <- function(start_year, end_year, steps = c(12)) {
 
 g3_stock <- function(stock_name, length_agg) {
     assign(stock_name, rep.int(0, length(length_agg)))
+    stockextend <- c()
     list(
         stock_name = stock_name,
         length_agg = length_agg,
-        stock_action = function (f) {
-            f_substitute(f, list(s = as.symbol("parp")))  # TODO:
-        },
-        step = list())
+        step = as.formula(paste("~{stock <-", stock_name, "; stockextend}")))
 }
 
-g3s_age <- function(inner_stock, ages) {
-    # TODO: An implementation will need to use reference classes in R
+stock_extend <- function(inner_stock, ...) {
     out <- inner_stock
-    out$stock_action <- function (f) {
-        inner_stock$stock_action(
-            f_substitute(~for (a in ages) f, list(f = f, s = quote(s[[a]]))))
+    additions <- list(...)
+
+    for (n in names(additions)) {
+        if (is.formula(additions[[n]])) {
+            out[[n]] <- f_substitute(out[[n]], list(stockextend = additions[[n]]))
+        } else {
+            out[[n]] <- additions[[n]]
+        }
     }
     return(out)
 }
 
-g3s_growth <- function(inner_stock, delt_l) {
-    # TODO: use innerstock to get a length aggregation, wrap action in it
-    out <- inner_stock
-    out$step <- c(out$step,
-        out$stock_action(s ~ s + delt_l))
-    return(out)
+g3s_age <- function(inner_stock, ages) {
+    # TODO: An implementation will need to use reference classes in R
+    inner_stock %>% stock_extend(
+        step = ~for (a in ages) { stock <- stock[[a]] ; stockextend }
+    )
+}
 
-    #extend_stock(inner_stock, step = list(
-    #    f_set_var(inner_stock$name, 'delt_l', delt_l),
-    #    f_set_var(inner_stock$name, 'growth_ratio', ~moo),
-    #    delt_l
-    #))
+g3s_growth <- function(inner_stock, delt_l) {
+    inner_stock %>% stock_extend(
+        step = ~{stock <- stock + 1}
+    )
 
 # for (cur_area in inner_stock$areas) {
 #     delt_l = ...
@@ -85,13 +86,19 @@ g3_run <- function(g3m, data, param) {
     scope <- new.env()
     parse_line <- function (l, out_con = step_con) {
         # Parse formulae for any variables that need to be defined
-        for (var_name in if (class(l) == 'formula') all.vars(l[[length(l)]]) else c()) {
-            if (exists(var_name, envir = scope)) {
+        for (var_name in if (is.formula(l)) all.vars(l[[length(l)]]) else c()) {
+            if (exists(var_name, envir = scope, inherits = FALSE)) {
                 # Already init'ed this, ignore it.
                 next
             }
+            if (var_name %in% lapply(f_find(l, as.symbol("<-")), function (x) { x[[2]] }) ) {
+                next
+            }
+            if (var_name %in% lapply(f_find(l, as.symbol("for")), function (x) { x[[2]] }) ) {
+                next
+            }
 
-            var <- get(var_name, env = attr(l, '.Environment'))
+            var <- get(var_name, env = f_envir(l), inherit = TRUE)
             if ('g3_data' %in% class(var)) {
                 cat(var_name, '<-', paste0('data$', var), '\n', file = init_con)
             } else if (is.numeric(var) || is.character(var)) {
@@ -103,23 +110,23 @@ g3_run <- function(g3m, data, param) {
             assign(var_name, TRUE, envir = scope)
         }
 
-        if (class(l) == 'formula' && length(l) == 3) {
+        if (is.formula(l) && length(l) == 3) {
             cat(l[[2]], '<-', deparse(l[[3]]), "\n", file = out_con)
-        } else if (class(l) == 'formula') {
-            cat(deparse(l[[2]]), "\n", file = out_con)
+        } else if (is.formula(l)) {
+            cat(paste(deparse(l[[2]]), collapse = "\n"), "\n", file = out_con)
         } else if (is.language(l)) {
-            writeLines(deparse(l), con = out_con)
+            writeLines(paste(deparse(l), collapse = "\n"), con = out_con)
         }
     }
     for (l in g3m$step) parse_line(l)
 
     close(init_con)
     close(step_con)
-    writeLines(c(
+    c(
         "function (data, params) {",
         paste("  ", init_str),
         '  while (TRUE) {',
         paste("    ", step_str),
         '  }',
-        '}'))
+        '}')
 }
