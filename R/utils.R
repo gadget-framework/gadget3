@@ -74,7 +74,7 @@ f_substitute <- function (f, env) {
         sub_vals <- mget(all.vars(o), envir = f_envir(o), ifnotfound = 'NOTFOUND', inherits = TRUE)
         sub_vals <- sub_vals[sub_vals != 'NOTFOUND']
         for (sub_n in names(sub_vals)) {
-            assign(sub_n, sub_vals[sub_n], envir = combined_env)
+            assign(sub_n, sub_vals[[sub_n]], envir = combined_env)
         }
     }
 

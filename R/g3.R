@@ -44,7 +44,10 @@ g3s_age <- function(inner_stock, ages) {
 
 g3s_growth <- function(inner_stock, delt_l) {
     inner_stock %>% stock_extend(
-        step = ~{stock <- stock + 1}
+        step = f_substitute(~{
+            delt_l <- delt_l_defn
+            stock <- stock + delt_l
+        }, list(delt_l_defn = delt_l))
     )
 
 # for (cur_area in inner_stock$areas) {
@@ -116,6 +119,10 @@ g3_run <- function(g3m, data, param) {
             cat(paste(deparse(l[[2]]), collapse = "\n"), "\n", file = out_con)
         } else if (is.language(l)) {
             writeLines(paste(deparse(l), collapse = "\n"), con = out_con)
+        } else if (is.null(l)) {
+            # Do nothing
+        } else {
+            stop("Don't know how to output ", capture.output(str(l)))
         }
     }
     for (l in g3m$step) parse_line(l)
