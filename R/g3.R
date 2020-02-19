@@ -66,22 +66,6 @@ g3s_growth <- function(inner_stock, ages, delt_l) {
             }
         }, list(delt_l_defn = delt_l))
     )
-
-# for (cur_area in inner_stock$areas) {
-#     delt_l = ...
-#     growth_ratio = [zero-matrix of lxl]
-#     for (l in inner_stock$lengths) {
-#         growth_ratio(l+1)(l) = 1 / delt_l  # NB: target to source
-#     }
-# 
-#     for (cur_age_stock in inner_stock$ages) {
-#         tmp = [0-vector length-group long]
-#         for (target_l in inner_stock$lengths) {
-#             tmp(target_l) += cur_age_stock * growth_ratio(target);
-#         }
-#         cur_age_stock = tmp(l)
-#     }
-# }
 }
 
 g3_model <- function(...) {
