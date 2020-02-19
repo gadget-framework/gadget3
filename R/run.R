@@ -3,7 +3,9 @@ library(magrittr)
 source('g3.R')
 
 growth_rate <- 3
-ling_imm <- g3_stock('ling_imm', c(0, 10, 20, 30)) %>% g3s_age(c(1,2,3,4)) %>% g3s_growth(delt_l =~ growth_rate * cur_time)
+ling_imm <- (g3_stock('ling_imm', c(0, 10, 20, 30))
+    %>% g3s_livesonareas(areas = c(1,2,3))
+    %>% g3s_growth(ages = c(1,2,3,4), delt_l =~ growth_rate * cur_time))
 
 time <- g3_time(g3_data("strtyr"), g3_data("endyr"), 4)
 g3m <- g3_model(time, ling_imm)

@@ -12,22 +12,15 @@ g3_time <- function(start_year, end_year, steps = c(12)) {
             NULL))
 }
 
-g3_stock <- function(stock_name, length_agg) {
-    assign(stock_name, rep.int(0, length(length_agg)))
-    stockextend <- c()
-    list(
-        stock_name = stock_name,
-        length_agg = length_agg,
-        step = as.formula(paste("~{stock <-", stock_name, "; stockextend}")))
-}
-
+# Merge stock with it's parent, insert code at stockextend, replace stock with proper stock variable
 stock_extend <- function(inner_stock, ...) {
     out <- inner_stock
     additions <- list(...)
 
     for (n in names(additions)) {
         if (is.formula(additions[[n]])) {
-            out[[n]] <- f_substitute(out[[n]], list(stockextend = additions[[n]]))
+            out[[n]] <- f_substitute(out[[n]], list(
+                stockextend = f_substitute(additions[[n]], list(stock = inner_stock$stock))))
         } else {
             out[[n]] <- additions[[n]]
         }
@@ -35,18 +28,36 @@ stock_extend <- function(inner_stock, ...) {
     return(out)
 }
 
-g3s_age <- function(inner_stock, ages) {
+g3_stock <- function(stock_name, length_agg) {
+    assign(paste0(stock_name, '_state'), rep.int(0, length(length_agg)))
+    stockextend <- c()
+    list(
+        stock = as.symbol(paste0(stock_name, '_state')),
+        step = ~{stock_lengths <- length_agg; stockextend})
+}
+
+g3s_livesonareas <- function(inner_stock, areas) {
     # TODO: An implementation will need to use reference classes in R
     inner_stock %>% stock_extend(
-        step = ~for (a in ages) { stock <- stock[[a]] ; stockextend }
+        stock = call("[[", inner_stock$stock, as.symbol("area")),
+        step = ~for (area in areas) stockextend
     )
 }
 
-g3s_growth <- function(inner_stock, delt_l) {
+g3s_growth <- function(inner_stock, ages, delt_l) {
     inner_stock %>% stock_extend(
+        stock = call("[[", inner_stock$stock, as.symbol("age")),
         step = f_substitute(~{
             delt_l <- delt_l_defn
             stock <- stock + delt_l
+            growth_ratio <- matrix(0, length(stock_lengths), length(stock_lengths))
+            for (l in stock_lengths) {
+                growth_ratio[l+1, l] <- 1 / delt_l
+            }
+            for (age in ages) {
+                stock[[age]] <- stock[[age]] + delt_l
+                stockextend
+            }
         }, list(delt_l_defn = delt_l))
     )
 
