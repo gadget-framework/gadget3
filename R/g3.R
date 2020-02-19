@@ -54,8 +54,14 @@ g3s_growth <- function(inner_stock, ages, delt_l) {
             for (l in stock_lengths) {
                 growth_ratio[l+1, l] <- 1 / delt_l
             }
+            for (age in rev(ages)) {
+                # TODO: Plus group doesn't zero, bottom group doesn't have a lower group feeding in
+                stock[[age]] <- rep(0, length(stock_lengths))
+                for (target_l in stock_lengths) {
+                    stock[[age]] <- stock[[age]] + stock[[age - 1]] * growth_ratio[[target_l]]
+                }
+            }
             for (age in ages) {
-                stock[[age]] <- stock[[age]] + delt_l
                 stockextend
             }
         }, list(delt_l_defn = delt_l))
