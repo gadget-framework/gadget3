@@ -40,7 +40,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
     # TODO: An implementation will need to use reference classes in R
     inner_stock %>% stock_extend(
         stock = call("[[", inner_stock$stock, as.symbol("area")),
-        step = ~for (area in areas) extension_point
+        step = f_substitute(~for (area in areas) extension_point, list(areas = areas))
     )
 }
 
