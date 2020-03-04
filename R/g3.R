@@ -33,13 +33,23 @@ g3_stock <- function(stock_name, length_agg) {
     assign(paste0(stock_name, '_state'), rep.int(0, length(length_agg)))
     list(
         stock = as.symbol(paste0(stock_name, '_state')),
+        harvest = ~{stock_lengths <- length_agg; extension_point},
         step = ~{stock_lengths <- length_agg; extension_point})
+}
+
+g3s_fleet <- function(stock_name) {
+    extension_point <- c()
+    assign(paste0(stock_name, '_state'), 0)
+    list(
+        stock = as.symbol(paste0(stock_name, '_state')),
+        step = ~{extension_point})
 }
 
 g3s_livesonareas <- function(inner_stock, areas) {
     # TODO: An implementation will need to use reference classes in R
     inner_stock %>% stock_extend(
         stock = call("[[", inner_stock$stock, as.symbol("area")),
+        harvest = f_substitute(~if (area %in% areas) extension_point, list(areas = areas)),
         step = f_substitute(~for (area in areas) extension_point, list(areas = areas))
     )
 }
@@ -47,6 +57,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
 g3s_growth <- function(inner_stock, ages, delt_l) {
     inner_stock %>% stock_extend(
         stock = call("[[", inner_stock$stock, as.symbol("age")),
+        harvest = f_substitute(~for (age in ages) extension_point, list(ages = ages)),
         step = f_substitute(~{
             delt_l <- delt_l_defn
             stock <- stock + delt_l
@@ -64,6 +75,35 @@ g3s_growth <- function(inner_stock, ages, delt_l) {
             for (age in ages) extension_point
         }, list(delt_l_defn = delt_l))
     )
+}
+
+# ... is list of formula (prey_stock) ~ (selectivity)
+g3s_predator_number <- function(inner_stock, ...) {
+    out <- inner_stock
+
+    for (prey_f in list(...)) {
+        # Get stock from LHS of formula
+        prey_stock <- get(as.character(prey_f[[2]]), envir = f_envir(prey_f))
+        
+        prey_harvest <- f_substitute(prey_stock$harvest, list(
+            extension_point = f_substitute(~{
+                suitable_catch <- suitable_catch + suit * stock
+            }, list(
+                suit = f_substitute(prey_f, list(preylen = 9999)),  # TODO:
+                stock = prey_stock$stock
+            )), harvest_areas = as.symbol("areas")))
+
+        str(prey_harvest)
+        out <- stock_extend(out, step = f_substitute(~{
+            suitable_catch <- c();
+            prey_harvest;
+            suitable_catch <- E * suitable_catch;
+        }, list(
+            prey_harvest = prey_harvest,
+            E = 4 # TODO:
+        )))
+    }
+    return(out)
 }
 
 g3_model <- function(...) {

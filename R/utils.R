@@ -56,7 +56,7 @@ f_lhs <- function (name, f) {
 # Substitute within formulae
 f_substitute <- function (f, env) {
     env <- as.environment(env)
-    combined_env <- new.env(parent = f_envir(f))
+    combined_env <- if (is.null(f_envir(f))) new.env(emptyenv()) else new.env(parent = f_envir(f))
 
     # For all formula substitutions...
     for (n in all.vars(f)) {
