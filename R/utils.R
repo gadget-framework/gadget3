@@ -38,9 +38,23 @@ parse_tree <- function (o, prefix = "") {
 }
 # parse_tree(~{for (x in c(1,2,3)) {str(x) ; str(x+1)} })
 
+envir_tree <- function (o) {
+    if (is.formula(o)) return(envir_tree(f_envir(o)))
+
+    out <- as.list(o)
+    if (!(is_base_envir(parent.env(o)))) {
+        attr(out, '_parent') <- envir_tree(parent.env(o))
+    }
+    return(out)
+}
+
 # Pull out a formula's environment
 f_envir <- function (f) {
     attr(f, '.Environment')
+}
+
+is_base_envir <- function (env) {
+    environmentName(env) %in% c("R_GlobalEnv", "R_EmptyEnv")
 }
 
 # Replace the target of this formulae with what we really want.
@@ -53,10 +67,23 @@ f_lhs <- function (name, f) {
     return(f)
 }
 
-# Substitute within formulae
+f_rhs <- function (f) f[[length(f)]]
+
+environment_merge <- function (env, additions) {
+    for (n in ls(envir = additions)) {
+        if (!exists(n, envir = env)) {
+            assign(n, get(n, envir = additions), envir = env)
+        }
+    }
+    return(NULL)
+}
+
+# Substitute within formulae, merging all environments together
 f_substitute <- function (f, env) {
     env <- as.environment(env)
-    combined_env <- if (is.null(f_envir(f))) new.env(emptyenv()) else new.env(parent = f_envir(f))
+    # Copy f's environment to a new environment, ignore it's parent
+    combined_env <- new.env(emptyenv())
+    environment_merge(combined_env, f_envir(f))
 
     # For all formula substitutions...
     for (n in all.vars(f)) {
@@ -70,12 +97,20 @@ f_substitute <- function (f, env) {
             assign(n, o[[2]], envir = env)
         }
 
-        # Pull relevant parts out of it's environment into ours
-        sub_vals <- mget(all.vars(o), envir = f_envir(o), ifnotfound = 'NOTFOUND', inherits = TRUE)
-        sub_vals <- sub_vals[sub_vals != 'NOTFOUND']
-        for (sub_n in names(sub_vals)) {
-            assign(sub_n, sub_vals[[sub_n]], envir = combined_env)
-        }
+        # Combine it's environment with ours
+        environment_merge(combined_env, f_envir(o))
+#        if (is_base_envir(parent.env(combined_env))) {
+#            parent.env(combined_env) <- f_envir(o)
+#        } else {
+#            # TODO: Is this sensible? Probably not.
+#            stop("erk")
+#            # Pull relevant parts out of it's environment into ours
+#            sub_vals <- mget(all.vars(o), envir = f_envir(o), ifnotfound = 'NOTFOUND', inherits = TRUE)
+#            sub_vals <- sub_vals[sub_vals != 'NOTFOUND']
+#            for (sub_n in names(sub_vals)) {
+#                assign(sub_n, sub_vals[[sub_n]], envir = combined_env)
+#            }
+#        }
     }
 
     # Make a substitute call out of our unevaluated formulae
