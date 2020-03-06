@@ -130,3 +130,18 @@ f_find <- function (f, target_symbol) {
     return(list())
 }
 # str(f_find(~ (2+(3+1)) * (4+4), as.symbol("+")))
+
+# Descend through call f, when a symbol like key appears, call it's function to modify the call
+call_replace <- function (f, ...) {
+    modify_call_fns <- list(...)
+
+    if (!is.call(f)) return(f)
+
+    # If there's a modify_fn that matches the symbol of this call, call it.
+    modify_fn <- modify_call_fns[[as.character(f[[1]])]]
+    if (length(modify_fn) > 1) f <- modify_call_fns[[sym_char]](f)
+
+    # Recurse through all elements of this call
+    as.call(lapply(f, function (x) call_replace(x, ...)))
+}
+# call_replace(~ 2 + g3_data("woo"), g3_data = function (x) call('$', as.symbol("data"), x[[2]]))

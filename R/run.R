@@ -4,13 +4,13 @@ source('g3.R')
 
 end <- function (x) x
 
-growth_rate <- 3
 ling_imm <- g3_stock('ling_imm', c(0, 10, 20, 30)) %>%
-#    g3s_livesonareas(c(1,2,3)) %>% 
+    g3s_livesonareas(c(1,2,3)) %>% 
     g3s_age(c(1,2,3,4)) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
+growth_rate <- g3_param("growth_rate")
 ling_imm_actions <- c(list(),
     g3a_grow(ling_imm, delt_l =~ g3_param("growth_rate") * cur_time),
     g3a_age(ling_imm),
@@ -33,4 +33,5 @@ ling_mat_actions <- c(list(),
 #          )
 
 time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), 4)
-print(g3_compile(c(time, ling_mat_actions, ling_imm_actions)))
+out <- g3_compile(c(time, ling_mat_actions, ling_imm_actions))
+print(out)

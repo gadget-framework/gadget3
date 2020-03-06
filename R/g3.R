@@ -103,10 +103,10 @@ g3a_age <- function(stock) {
 }
 
 g3a_grow <- function(stock, delt_l_defn) {
-    delt_l <- g3_data("TODO:")
+    delt_l <- "TODO: A stock thing"  # NB: This is the definition of the vector (size), not delt_l itself
     growth_ratio <- g3_data("TODO:")
     list(
-        step055 = stock_step(stock, ~{
+        step055 = stock_step(stock, f_substitute(~{
             delt_l <- delt_l_defn
             stock_num <- stock_num + delt_l
             growth_ratio <- matrix(0, length(stock_lengths), length(stock_lengths))
@@ -122,7 +122,7 @@ g3a_grow <- function(stock, delt_l_defn) {
                     stock_num[[age]] <- stock_num[[age]] + stock_num[[age - 1]] * growth_ratio[[target_l]]
                 }
             }
-        }))
+        }, list(delt_l_defn = delt_l_defn))))
 }
 
 # This is something that should be pulled out of data
@@ -148,40 +148,51 @@ g3_compile <- function(steps) {
         out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))
         formula(call("~", out_call), env = out_env)
     }
+
+    var_defns <- function (code, env) {
+        scope <- list()
+        for (var_name in all.vars(code)) {
+            if (var_name %in% scope) {
+                # Already init'ed this, ignore it.
+                next
+            }
+            if (var_name %in% lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }) ) {
+                # It's an iterator
+                next
+            }
+            var_val <- get(var_name, env = env, inherits = TRUE)
+    
+            if (is.formula(var_val)) {
+                scope <- c(scope, var_defns(f_rhs(var_val), env))
+                defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
+            } else if ('g3_data' %in% class(var_val)) {
+                defn <- call("<-", as.symbol(var_name), as.symbol(paste0('data$', var_val)))
+            } else if ('g3_param' %in% class(var_val)) {
+                defn <- call("<-", as.symbol(var_name), as.symbol(paste0('param$', var_val)))
+            } else if (is.numeric(var_val) || is.character(var_val)) {
+                # Defined as a literal
+                defn <- call("<-", as.symbol(var_name), var_val)
+            } else {
+                stop("Don't know how to define ", var_name)
+            }
+            scope[[var_name]] <- defn
+        }
+        return(scope)
+    }
+
     steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
     all_steps <- f_combine(steps)
 
-    scope <- new.env()
-    for (var_name in all.vars(f_rhs(all_steps))) {
-        if (exists(var_name, envir = scope, inherits = FALSE)) {
-            # Already init'ed this, ignore it.
-            next
-        }
-        if (var_name %in% lapply(f_find(all_steps, as.symbol("for")), function (x) { x[[2]] }) ) {
-            # It's an iterator
-            next
-        }
-        var_val <- get(var_name, env = f_envir(all_steps), inherits = TRUE)
-
-        if (is.formula(var_val)) {
-            # TODO: Should be recursing to make sure everything the formula needs is defined
-            defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
-        } else if ('g3_data' %in% class(var_val)) {
-            defn <- call("<-", as.symbol(var_name), as.symbol(paste0('data$', var_val)))
-        } else if ('g3_param' %in% class(var_val)) {
-            defn <- call("<-", as.symbol(var_name), as.symbol(paste0('param$', var_val)))
-        } else if (is.numeric(var_val) || is.character(var_val)) {
-            # Defined as a literal
-            defn <- call("<-", as.symbol(var_name), var_val)
-        } else {
-            stop("Don't know how to define ", var_name)
-        }
-        assign(var_name, defn, envir = scope)
-    }
-
-    substitute(function (data, params) x, list(x = as.call(c(
+    out <- substitute(function (data, params) x, list(x = as.call(c(
         list(as.symbol("{")),
-        as.list(scope),
+        var_defns(f_rhs(all_steps), f_envir(all_steps)),
         as.call(c(list(as.symbol("while"), TRUE), f_rhs(all_steps))),
         NULL))))
+
+    # Replace any in-line g3 calls that may have been in formulae
+    # TODO: A bit ugly doing this twice
+    out <- call_replace(out,
+        g3_data = function (x) call('$', as.symbol("data"), x[[2]]),
+        g3_param = function (x) call('$', as.symbol("param"), x[[2]]))
+    return(out)
 }
