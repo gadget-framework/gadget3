@@ -10,13 +10,14 @@ ling_imm <- g3_stock('ling_imm', c(0, 10, 20, 30)) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
-growth_rate <- g3_param("growth_rate")
 ling_imm_actions <- c(list(),
+    # TODO: I should be able to refer to variables here, but I can't.
     g3a_grow(ling_imm, delt_l =~ g3_param("growth_rate") * cur_time),
     g3a_age(ling_imm),
     list())
 
 ling_mat <- g3_stock('ling_mat', c(0, 10, 20, 30, 50, 90)) %>%
+    g3s_livesonareas(c(1,2,3)) %>% 
     g3s_age(c(1,2,3,4)) %>%
     g3s_prey(energycontent = 5) %>%
     end()

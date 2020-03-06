@@ -43,6 +43,7 @@ stock_step <- function(stock, f) {
     return(f)
 }
 
+# TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
 g3_stock <- function(stock_name, stock_lengths) {
     stock_num <- rep(0, length(stock_lengths))
     stock_wgt <- rep(0, length(stock_lengths))
@@ -166,9 +167,9 @@ g3_compile <- function(steps) {
                 scope <- c(scope, var_defns(f_rhs(var_val), env))
                 defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
             } else if ('g3_data' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), as.symbol(paste0('data$', var_val)))
+                defn <- call("<-", as.symbol(var_name), call('$', as.symbol("data"), var_val))
             } else if ('g3_param' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), as.symbol(paste0('param$', var_val)))
+                defn <- call("<-", as.symbol(var_name), call('$', as.symbol("param"), var_val))
             } else if (is.numeric(var_val) || is.character(var_val)) {
                 # Defined as a literal
                 defn <- call("<-", as.symbol(var_name), var_val)
