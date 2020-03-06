@@ -99,18 +99,6 @@ f_substitute <- function (f, env) {
 
         # Combine it's environment with ours
         environment_merge(combined_env, f_envir(o))
-#        if (is_base_envir(parent.env(combined_env))) {
-#            parent.env(combined_env) <- f_envir(o)
-#        } else {
-#            # TODO: Is this sensible? Probably not.
-#            stop("erk")
-#            # Pull relevant parts out of it's environment into ours
-#            sub_vals <- mget(all.vars(o), envir = f_envir(o), ifnotfound = 'NOTFOUND', inherits = TRUE)
-#            sub_vals <- sub_vals[sub_vals != 'NOTFOUND']
-#            for (sub_n in names(sub_vals)) {
-#                assign(sub_n, sub_vals[[sub_n]], envir = combined_env)
-#            }
-#        }
     }
 
     # Make a substitute call out of our unevaluated formulae
@@ -143,5 +131,6 @@ call_replace <- function (f, ...) {
 
     # Recurse through all elements of this call
     as.call(lapply(f, function (x) call_replace(x, ...)))
+    # TODO: Stripping off formulae-ness, should preserve / re-add attributes
 }
 # call_replace(~ 2 + g3_data("woo"), g3_data = function (x) call('$', as.symbol("data"), x[[2]]))
