@@ -12,7 +12,9 @@ ling_imm <- g3_stock('ling_imm', c(0, 10, 20, 30)) %>%
 
 ling_imm_actions <- c(list(),
     # TODO: I should be able to refer to variables here, but I can't.
-    g3a_grow(ling_imm, delt_l =~ g3_param("growth_rate") * cur_time),
+    g3a_grow(ling_imm,
+        growth_fn = g3a_grow_lengthvbsimple(1, 2, 3, 4),
+        impl_fn = g3a_grow_impl_bbinom(1, 9)),
     g3a_age(ling_imm),
     list())
 
@@ -23,7 +25,9 @@ ling_mat <- g3_stock('ling_mat', c(0, 10, 20, 30, 50, 90)) %>%
     end()
 
 ling_mat_actions <- c(list(),
-    g3a_grow(ling_mat, delt_l =~ g3_param("mat_growth_rate") * cur_time),
+    g3a_grow(ling_mat,
+        growth_fn = g3a_grow_lengthvbsimple(1, 2, 3, 4),
+        impl_fn = g3a_grow_impl_bbinom(1, 9)),
     list())
 
 #si <- g3s_fleet('si') %>% 
@@ -33,6 +37,9 @@ ling_mat_actions <- c(list(),
 #          ling_mat = (~ 0.5 * preylen),
 #          )
 
-time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), 4)
-out <- g3_compile(c(time, ling_mat_actions, ling_imm_actions))
+time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
+out <- g3_compile(c(
+    ling_mat_actions,
+    ling_imm_actions,
+    time))
 print(out)

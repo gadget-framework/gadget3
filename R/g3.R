@@ -4,10 +4,12 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
     steps <- steps
     step_count <- length(steps)
     cur_time <- as.integer(0)
-    total_steps <- ~step_count * (end_year - start_year)
+    cur_step_len <- as.integer(0)
+    total_steps <- ~length(steps) * (end_year - start_year)
 
     list(step0 = ~{
         cur_time <- cur_time + 1
+        cur_step_len <- 55 # TODO: More realistic definition, can we remove if not required?
         if (cur_time < total_steps) break
     })
 }
@@ -25,13 +27,21 @@ stock_extend <- function(inner, ...) {
     as.list(out)
 }
 
-stock_step <- function(stock, f) {
+stock_step <- function(stock, f, init = quote({}), final = quote({})) {
     # Wrap f in the stock's iterate code
     f <- f_substitute(stock$iterate, list(
         stock_num = stock$stock_num,
         stock_wgt = stock$stock_wgt,
         extension_point = f))
-    subs <- new.env()
+    f <- f_substitute(~{
+        comment(stock_comment)
+        init
+        middle
+        final
+    }, list(stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
+        init = init, middle = f, final = final))
+
+    subs <- new.env(emptyenv())
     stock_vars <- all.vars(f_rhs(f))
     stock_vars <- stock_vars[startsWith(stock_vars, "stock_")]
     for (var_name in stock_vars) {
@@ -43,14 +53,29 @@ stock_step <- function(stock, f) {
     return(f)
 }
 
+# Pull the definition of the stock variable out of the stock object
+stock_definition <- function(stock, var_name) {
+    get(var_name, envir = f_envir(stock$iterate))
+}
+
 # TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
 g3_stock <- function(stock_name, stock_lengths) {
-    stock_num <- rep(0, length(stock_lengths))
+    stock_num <- rep(0, length(stock_lengths))  # TODO: These need to expand with each addition
     stock_wgt <- rep(0, length(stock_lengths))
+    stock_lenmid <- vapply(seq_along(stock_lengths), function (i) {
+        if (i < length(stock_lengths)) {
+            mean(c(stock_lengths[[i]], stock_lengths[[i+1]]))
+        } else {
+            stock_lengths[[i]]  # TODO: What is the midpoint of the plus-group?
+        }
+    }, 0)
+
     list(
+        name = stock_name,
         stock_num = as.symbol("stock_num"),
         stock_wgt = as.symbol("stock_wgt"),
         stock_name = stock_name,
+        lengths = stock_lengths,
         capture = ~{stock_lengths <- length_agg},
         iterate = ~extension_point)
 }
@@ -103,27 +128,34 @@ g3a_age <- function(stock) {
         }))
 }
 
-g3a_grow <- function(stock, delt_l_defn) {
-    delt_l <- "TODO: A stock thing"  # NB: This is the definition of the vector (size), not delt_l itself
-    growth_ratio <- g3_data("TODO:")
+g3a_grow_lengthvbsimple <- function (linf, kappa, alpha, beta) {
+    f_substitute(
+        ~(linf - stock_lenmid) * (1 - exp(-kappa * cur_step_len)),
+        list(linf = linf, kappa = kappa, alpha = alpha, beta = beta))
+}
+
+g3a_grow_impl_bbinom <- function (beta, maxlengthgroupgrowth) {
+    f_substitute(
+        ~growth_bbinom(beta, maxlengthgroupgrowth),
+        list(beta = beta, maxlengthgroupgrowth = maxlengthgroupgrowth))
+}
+
+g3a_grow <- function(stock, growth_fn, impl_fn) {
+    delt_l <- "TODO: vector lengthgroups long"
+    stock_growth_num <- stock_definition(stock, 'stock_num')
+    stock_growth_ratio <- matrix(nrow = length(stock$lengths), ncol = length(stock$lengths))
     list(
-        step055 = stock_step(stock, f_substitute(~{
-            delt_l <- delt_l_defn
-            stock_num <- stock_num + delt_l
-            growth_ratio <- matrix(0, length(stock_lengths), length(stock_lengths))
-            for (l in stock_lengths) {
-                growth_ratio[l+1, l] <- 1 / delt_l
-            }
-            
-            
-            for (age in rev(stock_ages)) {
-                # TODO: Plus group doesn't zero, bottom group doesn't have a lower group feeding in
-                stock_num[[age]] <- rep(0, length(stock_lengths))
-                for (target_l in stock_lengths) {
-                    stock_num[[age]] <- stock_num[[age]] + stock_num[[age - 1]] * growth_ratio[[target_l]]
-                }
-            }
-        }, list(delt_l_defn = delt_l_defn))))
+        step055b = stock_step(stock,
+            init = stock_growth_num ~ 0,
+            final = stock_num ~ stock_growth_num,
+            f_substitute(~{
+                delt_l <- growth_fn
+                stock_growth_ratio <- impl_fn
+
+                stock_growth_num <- stock_num * stock_growth_ratio
+            }, list(
+                growth_fn = growth_fn,
+                impl_fn = impl_fn))))
 }
 
 # This is something that should be pulled out of data
@@ -170,10 +202,14 @@ g3_compile <- function(steps) {
                 defn <- call("<-", as.symbol(var_name), call('$', as.symbol("data"), var_val))
             } else if ('g3_param' %in% class(var_val)) {
                 defn <- call("<-", as.symbol(var_name), call('$', as.symbol("param"), var_val))
+            } else if (is.array(var_val)) {
+                # Generate code to define matrix
+                defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
             } else if (is.numeric(var_val) || is.character(var_val)) {
                 # Defined as a literal
                 defn <- call("<-", as.symbol(var_name), var_val)
             } else {
+                print(code)  # TODO: Better debug
                 stop("Don't know how to define ", var_name)
             }
             scope[[var_name]] <- defn
