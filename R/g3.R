@@ -52,7 +52,7 @@ g3_compile <- function(steps) {
             } else if (is.array(var_val)) {
                 # Generate code to define matrix
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
-            } else if (is.numeric(var_val) || is.character(var_val)) {
+            } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
                 # Defined as a literal
                 defn <- call("<-", as.symbol(var_name), var_val)
             } else {

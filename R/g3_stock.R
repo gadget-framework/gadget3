@@ -11,7 +11,8 @@ stock_extend <- function(inner, ...) {
     as.list(out)
 }
 
-stock_step <- function(stock, f, init = quote({}), final = quote({})) {
+stock_step <- function(stock, f = ~{}, init = quote({}), final = quote({})) {
+    # TODO: Don't include any empty items
     # Wrap f in the stock's iterate code
     f <- f_substitute(f, list(
         stock_num = stock$stock_num,
