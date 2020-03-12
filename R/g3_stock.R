@@ -11,49 +11,6 @@ stock_extend <- function(inner, ...) {
     as.list(out)
 }
 
-stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = NULL) {
-    if (!is.null(iter)) {
-        # Wrap iter part in the stock's iterate code
-        iter <- f_substitute(iter, list(
-            stock_num = stock$stock_num,
-            stock_wgt = stock$stock_wgt))
-        iter <- f_substitute(stock$iterate, list(
-            extension_point = iter))
-    }
-
-    # Make a template with the parts this step uses, and fill in the gaps
-    templ <- as.call(c(
-        list(as.symbol("{")),
-        call("comment", as.symbol("stock_comment")),
-        if (!is.null(init)) as.symbol("init") else c(),
-        if (!is.null(iter)) as.symbol("iter") else c(),
-        if (!is.null(final)) as.symbol("final") else c(),
-        NULL))
-    if (!is.null(run_if)) {
-        templ <- call("if", as.symbol("run_if"), templ)
-    }
-    # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_ages
-    # are still available when iter isn't used
-    templ <- formula(call("~", templ), env = f_envir(stock$iterate))
-    f <- f_substitute(templ, list(
-        stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
-        run_if = run_if,
-        init = init,
-        iter = iter,
-        final = final))
-
-    subs <- new.env(emptyenv())
-    stock_vars <- all.vars(f_rhs(f))
-    stock_vars <- stock_vars[startsWith(stock_vars, "stock_")]
-    for (var_name in stock_vars) {
-        repl <- sub('^stock', stock$stock_name, var_name)
-        assign(repl, get(var_name, env = f_envir(f), inherits = TRUE), envir = f_envir(f))
-        assign(var_name, as.symbol(repl), envir = subs)
-    }
-    f <- f_substitute(f, as.list(subs))
-    return(f)
-}
-
 # Pull the definition of the stock variable out of the stock object
 stock_definition <- function(stock, var_name) {
     get(var_name, envir = f_envir(stock$iterate))
