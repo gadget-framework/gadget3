@@ -38,15 +38,14 @@ ling_mat_actions <- c(list(),
 #          )
 
 time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
-out <- g3_compile(c(
+g3m <- g3_compile(c(
     ling_mat_actions,
     ling_imm_actions,
     time))
-print(out)
-model_fn <- eval(out)
+print(g3m)
 
 writeLines("***** Running Model *****")
-result <- model_fn(data = list(
+result <- g3_run(g3m, data = list(
     a = 1,
     strtyr = 1990,
     endyr = 1995,

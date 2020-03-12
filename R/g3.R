@@ -80,3 +80,7 @@ g3_compile <- function(steps) {
         g3_param = function (x) call('$', as.symbol("param"), x[[2]]))
     return(out)
 }
+
+g3_run <- function (g3m, data, params) {
+    eval(g3m)(data, params)
+}
