@@ -5,6 +5,11 @@ is.formula <- function (o) {
     is.call(o) && 'formula' %in% class(o)
 }
 
+# Turn a call into a formula, with environment env
+call_to_formula <- function (c, env = parent.frame()) {
+    formula(call("~", c), env = env)
+}
+
 # Display the parse tree of a formulae / language object
 parse_tree <- function (o, prefix = "") {
     short_str <- function (x) {

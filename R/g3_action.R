@@ -21,7 +21,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
     }
     # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_ages
     # are still available when iter isn't used
-    templ <- formula(call("~", templ), env = f_envir(stock$iterate))
+    templ <- call_to_formula(templ, env = f_envir(stock$iterate))
     f <- f_substitute(templ, list(
         stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
         run_if = run_if,
