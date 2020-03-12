@@ -35,7 +35,7 @@ g3a_age <- function(stock) {
     }))
 
     list(
-        step125 = stock_step(stock, init = f_substitute(~if (cur_step_final) for (age in rev(stock_ages)) {
+        step125 = stock_step(stock, run_if = ~cur_step_final, init = f_substitute(~for (age in rev(stock_ages)) {
             if (age == stock_ages[length(stock_ages)]) {
                 comment("TODO: Plus group migration shenanigans")
             } else {
@@ -66,13 +66,13 @@ g3a_grow <- function(stock, growth_fn, impl_fn) {
     list(
         step055b = stock_step(stock,
             init = stock_growth_num ~ 0,
-            final = stock_num ~ stock_growth_num,
-            f_substitute(~{
+            iter = f_substitute(~{
                 stock_delt_l <- growth_fn
                 stock_growth_ratio <- impl_fn
 
                 stock_growth_num <- stock_num * stock_growth_ratio
             }, list(
                 growth_fn = growth_fn,
-                impl_fn = impl_fn))))
+                impl_fn = impl_fn)),
+            final = stock_num ~ stock_growth_num))
 }

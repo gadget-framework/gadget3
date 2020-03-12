@@ -11,21 +11,36 @@ stock_extend <- function(inner, ...) {
     as.list(out)
 }
 
-stock_step <- function(stock, f = ~{}, init = quote({}), final = quote({})) {
-    # TODO: Don't include any empty items
-    # Wrap f in the stock's iterate code
-    f <- f_substitute(f, list(
-        stock_num = stock$stock_num,
-        stock_wgt = stock$stock_wgt))
-    f <- f_substitute(stock$iterate, list(
-        extension_point = f))
-    f <- f_substitute(~{
-        comment(stock_comment)
-        init
-        middle
-        final
-    }, list(stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
-        init = init, middle = f, final = final))
+stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = NULL) {
+    if (!is.null(iter)) {
+        # Wrap iter part in the stock's iterate code
+        iter <- f_substitute(iter, list(
+            stock_num = stock$stock_num,
+            stock_wgt = stock$stock_wgt))
+        iter <- f_substitute(stock$iterate, list(
+            extension_point = iter))
+    }
+
+    # Make a template with the parts this step uses, and fill in the gaps
+    templ <- as.call(c(
+        list(as.symbol("{")),
+        call("comment", as.symbol("stock_comment")),
+        if (!is.null(init)) as.symbol("init") else c(),
+        if (!is.null(iter)) as.symbol("iter") else c(),
+        if (!is.null(final)) as.symbol("final") else c(),
+        NULL))
+    if (!is.null(run_if)) {
+        templ <- call("if", as.symbol("run_if"), templ)
+    }
+    # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_ages
+    # are still available when iter isn't used
+    templ <- formula(call("~", templ), env = f_envir(stock$iterate))
+    f <- f_substitute(templ, list(
+        stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
+        run_if = run_if,
+        init = init,
+        iter = iter,
+        final = final))
 
     subs <- new.env(emptyenv())
     stock_vars <- all.vars(f_rhs(f))
