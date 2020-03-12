@@ -43,3 +43,14 @@ out <- g3_compile(c(
     ling_imm_actions,
     time))
 print(out)
+model_fn <- eval(out)
+
+result <- model_fn(data = list(
+    a = 1,
+    strtyr = 1990,
+    endyr = 1995,
+    end = NULL
+), params = list(
+    b = 2,
+    end = NULL))
+str(result)
