@@ -45,6 +45,7 @@ out <- g3_compile(c(
 print(out)
 model_fn <- eval(out)
 
+writeLines("***** Running Model *****")
 result <- model_fn(data = list(
     a = 1,
     strtyr = 1990,

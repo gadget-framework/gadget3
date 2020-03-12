@@ -42,19 +42,26 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
 }
 
 g3a_time <- function(start_year, end_year, steps = c(12)) {
-    steps <- steps
+    if (sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
+
     step_count <- length(steps)
     cur_time <- as.integer(0)
+    cur_step <- as.integer(0)
     cur_step_len <- as.integer(0)
+    cur_year <- as.integer(0)
     cur_step_final <- FALSE
-    total_steps <- ~length(steps) * (end_year - start_year)
+    total_steps <- ~length(steps) * (end_year - start_year) + length(steps) - 1
 
     list(step0 = ~{
         comment("g3a_time")
+        if (cur_time > total_steps) break
+        cur_year <- start_year + (cur_time %/% step_count)
+        cur_step <- (cur_time %% step_count) + 1
+        cur_step_len <- steps[[cur_step]]
+        cur_step_final <- cur_step == step_count
+        writeLines(sprintf("** Tick: %d-%d", cur_year, cur_step))  # TODO: Proper debug
+    }, step999 = ~{
         cur_time <- cur_time + 1
-        cur_step_len <- 55 # TODO: More realistic definition, can we remove if not required?
-        cur_step_final <- (cur_time %% step_count) == step_count - 1
-        if (cur_time < total_steps) break
     })
 }
 
