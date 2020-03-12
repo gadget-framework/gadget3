@@ -17,16 +17,15 @@ stock_definition <- function(stock, var_name) {
 }
 
 # TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
-g3_stock <- function(stock_name, stock_lengths) {
-    stock_num <- array(dim = c(length(stock_lengths)))
-    stock_wgt <- array(dim = c(length(stock_lengths)))
-    stock_lenmid <- vapply(seq_along(stock_lengths), function (i) {
-        if (i < length(stock_lengths)) {
-            mean(c(stock_lengths[[i]], stock_lengths[[i+1]]))
-        } else {
-            stock_lengths[[i]]  # TODO: What is the midpoint of the plus-group?
-        }
-    }, 0)
+g3_stock <- function(stock_name, stock_minlength, stock_maxlength, stock_dl) {
+    # See LengthGroupDivision::LengthGroupDivision
+    stock_countlen <- (stock_maxlength - stock_minlength) %/% stock_dl
+    # TODO: These can't be formulae, since then we stop substituting stock name
+    stock_minlen <- stock_minlength + stock_dl * (seq_len(stock_countlen) - 1)
+    stock_meanlen <- stock_minlen + (stock_dl / 2)
+
+    stock_num <- array(dim = c(stock_countlen))
+    stock_wgt <- array(dim = c(stock_countlen))
 
     list(
         name = stock_name,
@@ -56,6 +55,7 @@ g3s_livesonareas <- function(inner_stock, stock_areas) {
 }
 
 g3s_age <- function(inner_stock, stock_ages) {
+    # TODO: This should be min/max age, not a vector
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_ages)))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_ages)))
     inner_stock <- stock_extend(inner_stock,
