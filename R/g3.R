@@ -92,7 +92,6 @@ g3_compile <- function(steps) {
         NULL))))
 
     # Replace any in-line g3 calls that may have been in formulae
-    # TODO: A bit ugly doing this twice
     out <- call_replace(out,
         g3_data = function (x) call('$', as.symbol("data"), x[[2]]),
         g3_param = function (x) call('$', as.symbol("param"), x[[2]]))
