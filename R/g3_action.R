@@ -162,14 +162,13 @@ g3a_grow <- function(stock, growth_fn, impl_fn) {
     stock_growth_ratio <- matrix(nrow = length(stock_grow_l), ncol = length(stock_grow_l))
     list(
         step055b = stock_step(stock,
-            init = stock_growth_num ~ 0,
             iter = f_substitute(~{
                 stock_grow_l <- growth_fn
                 stock_growth_ratio <- impl_fn
 
-                stock_growth_num <- stock_num * stock_growth_ratio
+                stock_num <- colSums(stock_num * stock_growth_ratio)
+                str(stock_num)
             }, list(
                 growth_fn = growth_fn,
-                impl_fn = impl_fn)),
-            final = stock_num ~ stock_growth_num))
+                impl_fn = impl_fn))))
 }
