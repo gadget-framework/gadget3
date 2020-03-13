@@ -104,51 +104,50 @@ g3a_grow_lengthvbsimple <- function (linf, kappa, alpha, beta) {
         list(linf = linf, kappa = kappa, alpha = alpha, beta = beta))
 }
 
-# TODO: Where do helpers go really?
-##' @param dmu mean growth for each lengthgroup
-##' @param lengthgrouplen i.e. dl, the step size for length groups
-##' @param binn Maximum updating length, i.e. # of length groups
-growth_bbinom <- function (dmu, lengthgrouplen, binn, beta) {
-    # See gadgetsim:R/function.R:growthprob:prob()
-    delt_l <- dmu / lengthgrouplen  # i.e. width of length groups
-    alpha <- (beta * delt_l) / (binn - delt_l)
-
-    ## possible length growth
-    x <- 0:binn
-
-    na <- length(alpha)
-    n <- length(x) - 1
-    alpha <- rep(alpha,n + 1)
-    x <- rep(x,each=na)
-    ## Create a probability matrix where the columns represent the
-    ## probability of growing x lengthgroups for each lengthgroup
-    ## length group jumps are distributed according to a beta-binomial
-    ## distribution
-    val <- exp(lgamma(n + 1)+
-               lgamma(alpha + beta) +
-               lgamma(n - x + beta) +
-               lgamma(x + alpha) -
-               lgamma(n - x + 1) -
-               lgamma(x + 1) -
-               lgamma(n + alpha + beta) -
-               lgamma(beta) -
-               lgamma(alpha))
-    dim(val) <- c(na,n + 1)
-    growth.matrix <- array(0,c(na,na))
-    for(lg in 1:na){
-      if(lg == na){
-        growth.matrix[na,na] <- 1
-      } else if(lg + n > na){
-        growth.matrix[lg,lg:(na-1)] <- val[lg,1:(na - lg )]
-        growth.matrix[lg,na] <- sum(val[lg,(na - lg + 1):(n + 1)])
-      } else {
-        growth.matrix[lg,lg:(n + lg)] <- val[lg,]
-      }
-    }
-    return(growth.matrix)
-}
-
 g3a_grow_impl_bbinom <- function (beta, maxlengthgroupgrowth) {
+    ##' @param dmu mean growth for each lengthgroup
+    ##' @param lengthgrouplen i.e. dl, the step size for length groups
+    ##' @param binn Maximum updating length, i.e. # of length groups
+    growth_bbinom <- g3_native(r = function (dmu, lengthgrouplen, binn, beta) {
+        # See gadgetsim:R/function.R:growthprob:prob()
+        delt_l <- dmu / lengthgrouplen  # i.e. width of length groups
+        alpha <- (beta * delt_l) / (binn - delt_l)
+
+        ## possible length growth
+        x <- 0:binn
+
+        na <- length(alpha)
+        n <- length(x) - 1
+        alpha <- rep(alpha,n + 1)
+        x <- rep(x,each=na)
+        ## Create a probability matrix where the columns represent the
+        ## probability of growing x lengthgroups for each lengthgroup
+        ## length group jumps are distributed according to a beta-binomial
+        ## distribution
+        val <- exp(lgamma(n + 1)+
+                   lgamma(alpha + beta) +
+                   lgamma(n - x + beta) +
+                   lgamma(x + alpha) -
+                   lgamma(n - x + 1) -
+                   lgamma(x + 1) -
+                   lgamma(n + alpha + beta) -
+                   lgamma(beta) -
+                   lgamma(alpha))
+        dim(val) <- c(na,n + 1)
+        growth.matrix <- array(0,c(na,na))
+        for(lg in 1:na){
+          if(lg == na){
+            growth.matrix[na,na] <- 1
+          } else if(lg + n > na){
+            growth.matrix[lg,lg:(na-1)] <- val[lg,1:(na - lg )]
+            growth.matrix[lg,na] <- sum(val[lg,(na - lg + 1):(n + 1)])
+          } else {
+            growth.matrix[lg,lg:(n + lg)] <- val[lg,]
+          }
+        }
+        return(growth.matrix)
+    }, cpp = "TODO:")
+
     f_substitute(
         ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta),
         list(beta = beta, maxlengthgroupgrowth = maxlengthgroupgrowth))

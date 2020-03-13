@@ -2,6 +2,11 @@ source('utils.R')
 source('g3_stock.R')
 source('g3_action.R')
 
+# This is a function with separate equivalent R and C++ implementations
+g3_native <- function(r, cpp) {
+    return(structure(list(r = r, cpp = cpp), class = "g3_native"))
+}
+
 # This is something that should be pulled out of data
 g3_data <- function(data_name) {
     return(structure(data_name, class = "g3_data"))
@@ -14,20 +19,33 @@ g3_param <- function(param_name) {
 
 g3_compile <- function(steps) {
     f_combine <- function (list_of_f) {
-        out_env <- emptyenv()
+        e <- emptyenv()
         # Stack environments together
         for (f in list_of_f) {
-            e <- f_envir(f)
-            parent.env(e) <- out_env
-            out_env <- e
+            # NB: Actions producing multiple steps will share environments. We
+            # have to clone environments so they have separate parents.
+            e <- rlang::env_clone(f_envir(f), parent = e)
         }
         # Combine all functions into one expression
         out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))
-        formula(call("~", out_call), env = out_env)
+        formula(call("~", out_call), env = e)
     }
 
     var_defns <- function (code, env) {
         scope <- list()
+
+        # Find all things that have definitions in our environment
+        all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
+        all_defns <- all_defns[!is.na(all_defns)]
+
+        # Find any native functions used, and add them
+        for (var_name in names(all_defns)) {
+            if ('g3_native' %in% class(all_defns[[var_name]])) {
+                scope[[var_name]] <- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
+            }
+        }
+
+        # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
             if (var_name %in% scope) {
                 # Already init'ed this, ignore it.
