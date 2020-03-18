@@ -11,7 +11,6 @@ ling_imm <- g3_stock('ling_imm', 20, 160, 4) %>%
     end()
 
 ling_imm_actions <- c(list(),
-    # TODO: I should be able to refer to variables here, but I can't.
     g3a_initialconditions(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param("lingimm.init.", age),

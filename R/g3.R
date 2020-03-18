@@ -76,8 +76,7 @@ g3_compile <- function(steps) {
                 # Defined as a literal
                 defn <- call("<-", as.symbol(var_name), var_val)
             } else {
-                print(code)  # TODO: Better debug
-                stop("Don't know how to define ", var_name)
+                stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
             scope[[var_name]] <- defn
         }
