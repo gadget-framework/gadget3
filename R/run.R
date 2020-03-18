@@ -76,7 +76,7 @@ ling_mat_actions <- c(list(),
 #          )
 
 time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
-ling_model <- g3_compile(c(
+ling_model <- g3_compile_r(c(
     ling_mat_actions,
     ling_imm_actions,
     time))

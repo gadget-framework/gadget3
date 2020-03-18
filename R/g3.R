@@ -19,7 +19,7 @@ g3_param <- function(param_name) {
     return(structure(param_name, class = "g3_param"))
 }
 
-g3_compile <- function(steps) {
+g3_collate <- function(steps) {
     f_combine <- function (list_of_f) {
         e <- emptyenv()
         # Stack environments together
@@ -32,6 +32,13 @@ g3_compile <- function(steps) {
         out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))
         formula(call("~", out_call), env = e)
     }
+
+    steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
+    return(f_combine(steps))
+}
+
+g3_compile_r <- function(steps) {
+    all_steps <- g3_collate(steps)
 
     var_defns <- function (code, env) {
         scope <- list()
@@ -83,8 +90,6 @@ g3_compile <- function(steps) {
         return(scope)
     }
 
-    steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
-    all_steps <- f_combine(steps)
 
     # Wrap all steps in a function call
     out <- call("function", pairlist(data = alist(y=)$y, param = alist(y=)$y), as.call(c(
