@@ -30,16 +30,42 @@ ling_imm_actions <- c(list(),
     g3a_age(ling_imm),
     list())
 
-ling_mat <- g3_stock('ling_mat', 0, 90, 10) %>%
-    g3s_livesonareas(c("1","2","3")) %>%
-    g3s_age(1, 4) %>%
+ling_mat <- g3_stock('ling_mat', 20, 160, 4) %>%
+    g3s_livesonareas(c("1")) %>%
+    g3s_age(5, 15) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
+
+ling_mat_stddev <- c(
+    "5" = 12.4081745588022,
+    "6" = 11.5741565728647,
+    "7" = 11.0523508874244,
+    "8" = 11.3447991170274,
+    "9" = 11.7721342759715,
+    "10" = 13.6152275606449,
+    "11" = 14.8004893270652,
+    "12" = 16.2753802766344,
+    "13" = 17.9426701121357,
+    "14" = 19.1787817582897,
+    "15" = 15.9776436358384)
 ling_mat_actions <- c(list(),
+    g3a_initialconditions(ling_mat,
+        # NB: area & age factor together (gadget2 just multiplied them)
+        factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param("lingmat.init.", age),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        stddev_f = ~ling_mat_stddev[[as.character(age)]],
+        alpha_f = ~g3_param("lingmat.walpha"),
+        beta_f = ~g3_param("lingmat.wbeta")),
     g3a_grow(ling_mat,
-        growth_f = g3a_grow_lengthvbsimple(1, 2, 3, 4),
-        impl_f = g3a_grow_impl_bbinom(1, 9)),
+        growth_f = g3a_grow_lengthvbsimple(
+            linf_f = ~g3_param("ling.Linf"),
+            kappa_f = ~g3_param("ling.k") * 0.001,
+            alpha_f = ~g3_param("lingmat.walpha"),
+            beta_f = ~g3_param("lingmat.wbeta")),
+        impl_f = g3a_grow_impl_bbinom(
+            beta_f = ~g3_param("ling.bbin") * 10,
+            maxlengthgroupgrowth = 15)),
     list())
 
 #si <- g3s_fleet('si') %>% 
@@ -51,7 +77,7 @@ ling_mat_actions <- c(list(),
 
 time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
 ling_model <- g3_compile(c(
-#    ling_mat_actions,
+    ling_mat_actions,
     ling_imm_actions,
     time))
 print(ling_model)
