@@ -12,6 +12,13 @@ ling_imm <- g3_stock('ling_imm', 0, 90, 10) %>%
 
 ling_imm_actions <- c(list(),
     # TODO: I should be able to refer to variables here, but I can't.
+    g3a_initialconditions(ling_imm,
+        # NB: area & age factor together (gadget2 just multiplied them)
+        factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param("lingimm.init.", age),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        stddev_f = ~switch(age, 3,8.25, 4,10.5644599516659, 5,12.4081745588022, 6,11.5741565728647, 7,11.0523508874244, 8,11.3447991170274, 9,11.7721342759715, 10,13.6152275606449),
+        alpha_f = ~g3_param("lingimm.walpha"),
+        beta_f = ~g3_param("lingimm.wbeta")),
     g3a_grow(ling_imm,
         growth_fn = g3a_grow_lengthvbsimple(1, 2, 3, 4),
         impl_fn = g3a_grow_impl_bbinom(1, 9)),
