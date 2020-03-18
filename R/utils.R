@@ -90,7 +90,7 @@ environment_merge <- function (env, additions) {
 f_substitute <- function (f, env) {
     env <- as.environment(env)
     # Copy f's environment to a new environment, ignore it's parent
-    combined_env <- new.env(emptyenv())
+    combined_env <- new.env(parent = emptyenv())
     environment_merge(combined_env, f_envir(f))
 
     # For all formula substitutions...

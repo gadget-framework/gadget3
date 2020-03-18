@@ -29,7 +29,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
         iter = iter,
         final = final))
 
-    subs <- new.env(emptyenv())
+    subs <- new.env(parent = emptyenv())
     stock_vars <- all.vars(f_rhs(f))
     stock_vars <- stock_vars[startsWith(stock_vars, "stock_")]
     for (var_name in stock_vars) {
