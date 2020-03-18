@@ -7,17 +7,10 @@ g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
 }
 
-# This is something that should be pulled out of data
-g3_data <- function(data_name) {
-    # TODO: Doesn't acknowledge auto-paste0-ing, needs combining with
-    # 2 messes below
-    return(structure(data_name, class = "g3_data"))
-}
-
-# This is something that should be pulled out of param
-g3_param <- function(param_name) {
-    return(structure(param_name, class = "g3_param"))
-}
+# g3_data / param calls shouldn't be directly evaluated, they're markers for the
+# g3_compile_* functions
+g3_data <- function(...) match.call()
+g3_param <- function(...) match.call()
 
 g3_collate <- function(steps) {
     f_combine <- function (list_of_f) {
@@ -69,10 +62,8 @@ g3_compile_r <- function(steps) {
             if (is.formula(var_val)) {
                 scope <- c(scope, var_defns(f_rhs(var_val), env))
                 defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
-            } else if ('g3_data' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), call("g3_data", var_val))
-            } else if ('g3_param' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), call("g3_param", var_val))
+            } else if (is.call(var_val)) {
+                defn <- call("<-", as.symbol(var_name), var_val)
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Just define dimensions
                 defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
