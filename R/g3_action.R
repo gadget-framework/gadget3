@@ -167,7 +167,6 @@ g3a_grow <- function(stock, growth_fn, impl_fn) {
                 stock_growth_ratio <- impl_fn
 
                 stock_num <- colSums(stock_num * stock_growth_ratio)
-                str(stock_num)
             }, list(
                 growth_fn = growth_fn,
                 impl_fn = impl_fn))))
