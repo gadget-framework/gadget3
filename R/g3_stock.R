@@ -54,15 +54,20 @@ g3s_livesonareas <- function(inner_stock, stock_areas) {
     )
 }
 
-g3s_age <- function(inner_stock, stock_ages) {
-    # TODO: This should be min/max age, not a vector
-    stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_ages)))
-    stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_ages)))
+g3s_age <- function(inner_stock, minage, maxage) {
+    stock_minage <- minage
+    stock_maxage <- maxage
+    stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), stock_maxage - stock_minage + 1))
+    stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), stock_maxage - stock_minage + 1))
+    age_idx <- 0L
     inner_stock <- stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("age"))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("age"))),
-        capture = f_substitute(~for (age in stock_ages) extension_point, list()),
-        iterate = f_substitute(~for (age in stock_ages) extension_point, list(extension_point = inner_stock$iterate)))
+        stock_num = as.call(c(as.list(inner_stock$stock_num), quote(age_idx))),
+        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), quote(age_idx))),
+        capture = f_substitute(~for (age in seq(stock_minage, stock_maxage)) extension_point, list()),
+        iterate = f_substitute(~for (age in seq(stock_minage, stock_maxage)) {
+            age_idx <- g3_idx(age - stock_minage + 1)
+            extension_point
+        }, list(extension_point = inner_stock$iterate)))
 }
 
 g3s_prey <- function(inner_stock, energycontent) {

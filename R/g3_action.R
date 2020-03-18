@@ -19,7 +19,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
     if (!is.null(run_if)) {
         templ <- call("if", as.symbol("run_if"), templ)
     }
-    # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_ages
+    # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_minage
     # are still available when iter isn't used
     templ <- call_to_formula(templ, env = f_envir(stock$iterate))
     f <- f_substitute(templ, list(
@@ -68,25 +68,21 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
 g3a_age <- function(stock) {
     # Mangle stock_num / stock_wgt to remove non-age parameters
     stock_num_age <- as.call(lapply(ling_imm$stock_num, function (x) {
-        if (as.character(x) %in% c("[", "stock_num", "age")) x else ling_imm$stock_num[[3]]
+        if (as.character(x) %in% c("[", "stock_num")) x
+        else if (as.character(x) %in% c("age_idx")) quote(age_idx)
+        else ling_imm$stock_num[[3]]
     }))
     stock_num_age_older <- as.call(lapply(ling_imm$stock_num, function (x) {
         if (as.character(x) %in% c("[", "stock_num")) x
-        else if (as.character(x) %in% c("age")) quote(age + 1)
+        else if (as.character(x) %in% c("age_idx")) quote(age_idx + 1)
         else ling_imm$stock_num[[3]]
-    }))
-    stock_wgt_age <- as.call(lapply(ling_imm$stock_wgt, function (x) {
-        if (as.character(x) %in% c("[", "stock_wgt", "age")) x else ling_imm$stock_wgt[[3]]
-    }))
-    stock_wgt_age_older <- as.call(lapply(ling_imm$stock_wgt, function (x) {
-        if (as.character(x) %in% c("[", "stock_wgt")) x
-        else if (as.character(x) %in% c("age")) quote(age + 1)
-        else ling_imm$stock_wgt[[3]]
     }))
 
     list(
-        step125 = stock_step(stock, run_if = ~cur_step_final, init = f_substitute(~for (age in rev(stock_ages)) {
-            if (age == stock_ages[length(stock_ages)]) {
+        step125 = stock_step(stock, run_if = ~cur_step_final, init = f_substitute(~for (age in seq(stock_maxage, stock_minage)) {
+            age_idx <- g3_idx(age - stock_minage + 1)
+
+            if (age == stock_maxage) {
                 comment("TODO: Plus group migration shenanigans")
             } else {
                 stock_num_older <- stock_num_older + stock_num

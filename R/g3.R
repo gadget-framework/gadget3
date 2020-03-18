@@ -108,7 +108,10 @@ g3_compile <- function(steps) {
             return(call('[[', as.symbol(sym_name), item_name))
         })
     }
-    out <- call_replace(out, g3_data = repl_fn("data"), g3_param = repl_fn("param"))
+    out <- call_replace(out,
+        g3_idx = function (x) x[[2]],  # R indices are 1-based, so just strip off call
+        g3_data = repl_fn("data"),
+        g3_param = repl_fn("param"))
     return(eval(out))
 }
 
