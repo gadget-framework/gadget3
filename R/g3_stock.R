@@ -44,6 +44,7 @@ g3s_fleet <- function(stock_name) {
 }
 
 g3s_livesonareas <- function(inner_stock, stock_areas) {
+    stock_areas <- as.character(stock_areas)
     area <- stock_areas[[1]]  # NB: To provide it with a type
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_areas)))

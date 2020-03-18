@@ -5,7 +5,7 @@ source('g3.R')
 end <- function (x) x
 
 ling_imm <- g3_stock('ling_imm', 20, 160, 4) %>%
-    g3s_livesonareas(c(1,2,3)) %>% 
+    g3s_livesonareas(c("1","2","3")) %>%
     g3s_age(3, 10) %>%
     g3s_prey(energycontent = 5) %>%
     end()
@@ -26,7 +26,7 @@ ling_imm_actions <- c(list(),
     list())
 
 ling_mat <- g3_stock('ling_mat', 0, 90, 10) %>%
-    g3s_livesonareas(c(1,2,3)) %>% 
+    g3s_livesonareas(c("1","2","3")) %>%
     g3s_age(1, 4) %>%
     g3s_prey(energycontent = 5) %>%
     end()
