@@ -38,19 +38,36 @@ ling_mat_actions <- c(list(),
 #          )
 
 time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
-g3m <- g3_compile(c(
-    ling_mat_actions,
+ling_model <- g3_compile(c(
+#    ling_mat_actions,
     ling_imm_actions,
     time))
-print(g3m)
+print(ling_model)
 
 writeLines("***** Running Model *****")
-result <- g3_run(g3m, data = list(
-    a = 1,
+ling_data <- list(
     strtyr = 1990,
     endyr = 1995,
     end = NULL
-), params = list(
-    b = 2,
-    end = NULL))
+)
+ling_param <- list(
+    lingimm.init.scalar = 200,
+    lingimm.M = 0.15,
+    ling.init.F = 0.4,
+    "lingimm.init.3" = 1,
+    "lingimm.init.4" = 1,
+    "lingimm.init.5" = 1,
+    "lingimm.init.6" = 1,
+    "lingimm.init.7" = 1,
+    "lingimm.init.8" = 1,
+    "lingimm.init.9" = 1,
+    "lingimm.init.10" = 1,
+    ling.Linf = 160,
+    ling.k = 90,
+    ling.recl = 12,
+    lingimm.walpha = 2.27567436711055e-06,
+    lingimm.wbeta = 3.20200445996187,
+    end = NULL)
+result <- ling_model(ling_data, ling_param)
 str(result)
+# NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_data, ling_param)
