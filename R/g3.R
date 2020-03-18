@@ -9,10 +9,12 @@ g3_native <- function(r, cpp) {
 
 # This is something that should be pulled out of data
 g3_data <- function(data_name) {
+    # TODO: Doesn't acknowledge auto-paste0-ing, needs combining with
+    # 2 messes below
     return(structure(data_name, class = "g3_data"))
 }
 
-# This is something that should be pulled out of params
+# This is something that should be pulled out of param
 g3_param <- function(param_name) {
     return(structure(param_name, class = "g3_param"))
 }
@@ -61,9 +63,9 @@ g3_compile <- function(steps) {
                 scope <- c(scope, var_defns(f_rhs(var_val), env))
                 defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
             } else if ('g3_data' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), call('$', as.symbol("data"), var_val))
+                defn <- call("<-", as.symbol(var_name), call("g3_data", var_val))
             } else if ('g3_param' %in% class(var_val)) {
-                defn <- call("<-", as.symbol(var_name), call('$', as.symbol("param"), var_val))
+                defn <- call("<-", as.symbol(var_name), call("g3_param", var_val))
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Just define dimensions
                 defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
@@ -85,19 +87,31 @@ g3_compile <- function(steps) {
     steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
     all_steps <- f_combine(steps)
 
-    out <- substitute(function (data, params) x, list(x = as.call(c(
+    # Wrap all steps in a function call
+    out <- call("function", pairlist(data = alist(y=)$y, param = alist(y=)$y), as.call(c(
         list(as.symbol("{")),
         var_defns(f_rhs(all_steps), f_envir(all_steps)),
         as.call(c(list(as.symbol("while"), TRUE), f_rhs(all_steps))),
-        NULL))))
+        NULL)))
 
     # Replace any in-line g3 calls that may have been in formulae
-    out <- call_replace(out,
-        g3_data = function (x) call('$', as.symbol("data"), x[[2]]),
-        g3_param = function (x) call('$', as.symbol("param"), x[[2]]))
-    return(out)
+    repl_fn <- function(sym_name) {
+        return(function (x) {
+            if (length(x) == 2) {
+                # Can lookup argument directly
+                item_name <- x[[2]]
+            } else {
+                # Add a paste call to work the required argument
+                item_name <- as.call(c(list(as.symbol('paste0')), as.list(x[2:length(x)])))
+            }
+            # Lookup item_name in whatever sym_name is called
+            return(call('[[', as.symbol(sym_name), item_name))
+        })
+    }
+    out <- call_replace(out, g3_data = repl_fn("data"), g3_param = repl_fn("param"))
+    return(eval(out))
 }
 
-g3_run <- function (g3m, data, params) {
-    eval(g3m)(data, params)
+g3_run <- function (g3m, data, param) {
+    g3m(data, param)
 }
