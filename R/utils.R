@@ -135,10 +135,15 @@ call_replace <- function (f, ...) {
 
     # If there's a modify_fn that matches the symbol of this call, call it.
     modify_fn <- modify_call_fns[[as.character(f[[1]])]]
-    if (length(modify_fn) > 1) f <- modify_call_fns[[sym_char]](f)
+    if (length(modify_fn) > 0) {
+        f <- modify_fn(f)
+    }
 
     # Recurse through all elements of this call
-    as.call(lapply(f, function (x) call_replace(x, ...)))
-    # TODO: Stripping off formulae-ness, should preserve / re-add attributes
+    out <- as.call(lapply(f, function (x) call_replace(x, ...)))
+
+    # Put back all attributes (i.e. keep formula-ness)
+    attributes(out) <- attributes(f)
+    return(out)
 }
 # call_replace(~ 2 + g3_data("woo"), g3_data = function (x) call('$', as.symbol("data"), x[[2]]))
