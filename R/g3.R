@@ -109,7 +109,7 @@ g3_compile <- function(steps) {
         })
     }
     out <- call_replace(out,
-        g3_idx = function (x) x[[2]],  # R indices are 1-based, so just strip off call
+        g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
         g3_data = repl_fn("data"),
         g3_param = repl_fn("param"))
     return(eval(out))
