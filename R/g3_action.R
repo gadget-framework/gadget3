@@ -93,14 +93,15 @@ g3a_age <- function(stock) {
             stock_num_older = stock_num_age_older))))
 }
 
-g3a_grow_lengthvbsimple <- function (linf, kappa, alpha, beta) {
+g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
+    # TODO: Where did alpha_f and beta_f go? Missing weight?
     f_substitute(
-        ~(linf - stock_meanlen) * (1 - exp(-kappa * cur_step_len)),
-        list(linf = linf, kappa = kappa, alpha = alpha, beta = beta))
+        ~(linf_f - stock_meanlen) * (1 - exp(-kappa_f * cur_step_len)),
+        list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
-g3a_grow_impl_bbinom <- function (beta, maxlengthgroupgrowth) {
+g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     ##' @param dmu mean growth for each lengthgroup
     ##' @param lengthgrouplen i.e. dl, the step size for length groups
     ##' @param binn Maximum updating length, i.e. # of length groups
@@ -145,11 +146,11 @@ g3a_grow_impl_bbinom <- function (beta, maxlengthgroupgrowth) {
     }, cpp = "TODO:")
 
     f_substitute(
-        ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta),
-        list(beta = beta, maxlengthgroupgrowth = maxlengthgroupgrowth))
+        ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta_f),
+        list(beta_f = beta_f))
 }
 
-g3a_grow <- function(stock, growth_fn, impl_fn) {
+g3a_grow <- function(stock, growth_f, impl_f) {
     # See AgeBandMatrix::Grow
     stock_growth_num <- stock_definition(stock, 'stock_num')
     stock_grow_l <- array(dim = dim(stock_growth_num)[[1]])
@@ -159,13 +160,13 @@ g3a_grow <- function(stock, growth_fn, impl_fn) {
     list(
         step055b = stock_step(stock,
             iter = f_substitute(~{
-                stock_grow_l <- growth_fn
-                stock_growth_ratio <- impl_fn
+                stock_grow_l <- growth_f
+                stock_growth_ratio <- impl_f
 
                 stock_num <- colSums(stock_num * stock_growth_ratio)
             }, list(
-                growth_fn = growth_fn,
-                impl_fn = impl_fn))))
+                growth_f = growth_f,
+                impl_f = impl_f))))
 }
 
 g3a_initialconditions <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f) {
