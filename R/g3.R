@@ -327,9 +327,9 @@ g3_compile_tmb <- function(steps) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Just define dimensions
-                defn <- c(
-                    cpp_definition('vector<Type>', var_name),
-                    sprintf('%s.resize(%s);', var_name, paste0(dim(var_val), collapse = ", ")))
+                defn <- cpp_definition(
+                    'vector<Type>',
+                    paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val)) {
                 # Generate code to define matrix
                 defn <- c(
