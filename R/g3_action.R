@@ -143,7 +143,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
           }
         }
         return(growth.matrix)
-    }, cpp = "TODO:")
+    }, cpp = "TODO: lambda growth_bbinom yadda yadda")
 
     f_substitute(
         ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta_f),

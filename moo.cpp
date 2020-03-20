@@ -6,21 +6,18 @@ Type objective_function<Type>::operator() () {
     DATA_INTEGER(run_years);
     DATA_INTEGER(run_steps);
 
-    vector<Type> ling_imm_status(10);
-    ling_imm_status = rnorm(10, 0, 10).cast<Type>();
+    array<Type> ling_imm_num(10, 10, 2);
+    ling_imm_num.col(0).col(0) = rnorm(10, 0, 10).cast<Type>();
+    ling_imm_num.col(1).col(0) = rnorm(10, 0, 100).cast<Type>();
+    ling_imm_num.col(1).col(0) *= 10;
+    REPORT(ling_imm_num);
+    Type ling_imm_num_sum = ling_imm_num.sum();
+    REPORT(ling_imm_num_sum);
 
-    for (int year = 0; year < run_years; year++) {
-        for (int step = 0; step < run_steps; step++) {
-            // Reassign growth to next length bin
-            vector<Type> growth = ling_imm_status * growth_rate;
-            ling_imm_status -= growth;
-            growth << 0, growth.segment(0, growth.size() - 1);
-            ling_imm_status += growth;
-        }
-    }
+    double parp = 1 + 2^2;
+    REPORT(parp);
 
-    REPORT(ling_imm_status);
-    return ling_imm_status.sum();
+    return 0;
 }
 
 /*

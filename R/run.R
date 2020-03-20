@@ -82,6 +82,12 @@ ling_model <- g3_compile_r(c(
     time))
 print(ling_model)
 
+tmb_ling <- g3_compile_tmb(c(
+    ling_mat_actions,
+    ling_imm_actions,
+    time))
+writeLines(tmb_ling)
+
 writeLines("***** Running Model *****")
 ling_data <- list(
     strtyr = 1983,
