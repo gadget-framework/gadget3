@@ -1,6 +1,7 @@
 library(magrittr)
 
-source('g3.R')
+# i.e. library(g3)
+for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)
 
 end <- function (x) x
 

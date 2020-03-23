@@ -2,7 +2,7 @@
 
 To run, do:
 
-    > source("R/run.R", chdir = TRUE)
+    > source("run.R", chdir = TRUE)
 
 Code is divided up into:
 

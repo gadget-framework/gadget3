@@ -1,7 +1,3 @@
-source('utils.R')
-source('g3_stock.R')
-source('g3_action.R')
-
 # This is a function with separate equivalent R and C++ implementations
 g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
