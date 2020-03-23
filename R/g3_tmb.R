@@ -255,4 +255,5 @@ Type objective_function<Type>::operator() () {
     %s
 }\n", paste(var_defns(f_rhs(all_steps), f_envir(all_steps)), collapse = "\n    "),
       cpp_code(f_rhs(all_steps), f_env(all_steps)))
+    # TODO: Attach data to this code string somehow? Wrap whole thing in a model runner R function?
 }

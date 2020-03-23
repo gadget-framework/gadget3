@@ -77,5 +77,8 @@ g3_compile_r <- function(steps) {
         g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
         g3_data = repl_fn("data"),
         g3_param = repl_fn("param"))
+    # TODO: Attach data to function via. closure environment
+    #       i.e. environment(out) <- new.env(); assign("data", envir = environment(out))
+    #       Then bin g3_data.
     return(eval(out))
 }
