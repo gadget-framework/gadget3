@@ -19,7 +19,7 @@ g3_collate <- function(steps) {
         }
         # Combine all functions into one expression
         out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))
-        formula(call("~", out_call), env = e)
+        formula(call("~", call("while", TRUE, out_call)), env = e)
     }
 
     steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order

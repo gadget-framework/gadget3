@@ -56,7 +56,7 @@ g3_compile_r <- function(steps) {
     out <- call("function", pairlist(data = alist(y=)$y, param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
         var_defns(f_rhs(all_steps), f_envir(all_steps)),
-        as.call(c(list(as.symbol("while"), TRUE), f_rhs(all_steps))),
+        f_rhs(all_steps),
         NULL)))
 
     # Replace any in-line g3 calls that may have been in formulae

@@ -78,6 +78,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[4]], env, next_indent)))
     }
 
+    if (call_name == 'while') {
+        # while loop
+        return(paste0(
+            "while (", cpp_code(in_call[[2]], env, next_indent), ") ",
+            cpp_code(in_call[[3]], env, next_indent)))
+    }
+
     if (call_name == '[') {
         # Array subsetting
         out <- paste0(c(in_call[[2]], vapply(rev(tail(in_call, -2)), function (d) {
@@ -244,7 +251,8 @@ g3_compile_tmb <- function(steps) {
 template<class Type>
 Type objective_function<Type>::operator() () {
     %s
-    for(;;) %s
+
+    %s
 }\n", paste(var_defns(f_rhs(all_steps), f_envir(all_steps)), collapse = "\n    "),
       cpp_code(f_rhs(all_steps), f_env(all_steps)))
 }
