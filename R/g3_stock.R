@@ -17,7 +17,12 @@ stock_definition <- function(stock, var_name) {
 }
 
 # TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
-g3_stock <- function(stock_name, stock_minlength, stock_maxlength, stock_dl) {
+g3_stock <- function(stock_name, minlength, maxlength, dl) {
+    # If these are literals, they should be integers
+    stock_minlength <- if(is.numeric(minlength)) as.integer(minlength) else minlength
+    stock_maxlength <- if(is.numeric(maxlength)) as.integer(maxlength) else maxlength
+    stock_dl <- if(is.numeric(dl)) as.integer(dl) else dl
+
     # See LengthGroupDivision::LengthGroupDivision
     stock_countlen <- (stock_maxlength - stock_minlength) %/% stock_dl
     # TODO: These can't be formulae, since then we stop substituting stock name
@@ -60,8 +65,9 @@ g3s_livesonareas <- function(inner_stock, stock_areas) {
 }
 
 g3s_age <- function(inner_stock, minage, maxage) {
-    stock_minage <- minage
-    stock_maxage <- maxage
+    # If these are literals, they should be integers
+    stock_minage <- if(is.numeric(minage)) as.integer(minage) else minage
+    stock_maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), stock_maxage - stock_minage + 1))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), stock_maxage - stock_minage + 1))
     age_idx <- 0L

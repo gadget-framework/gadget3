@@ -44,6 +44,9 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
 g3a_time <- function(start_year, end_year, steps = c(12)) {
     if (sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
 
+    # If these are literals, they should be integers
+    if (is.numeric(start_year)) start_year <- as.integer(start_year)
+    if (is.numeric(end_year)) start_year <- as.integer(end_year)
     step_count <- length(steps)
     cur_time <- as.integer(0)
     cur_step <- as.integer(0)

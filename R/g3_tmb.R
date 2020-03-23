@@ -233,7 +233,13 @@ g3_compile_tmb <- function(steps) {
                     cpp_definition('vector<Type>', var_name, cpp_code(var_val, env)),
                     sprintf('%s.resize(%s);', var_name, paste0(dim(var_val), collapse = ", "),
                     ))
-            } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
+            } else if (is.integer(var_val)) {
+                # Specifically an integer, define it as such
+                defn <- cpp_definition('int', var_name, cpp_code(var_val, env))
+            } else if (is.numeric(var_val)) {
+                # Doubles should be the template type
+                defn <- cpp_definition('Type', var_name, cpp_code(var_val, env))
+            } else if (is.character(var_val) || is.logical(var_val)) {
                 # Defined as a literal
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else {
