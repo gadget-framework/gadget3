@@ -1,3 +1,5 @@
+open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
+
 cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 
 cpp_code <- function(in_call, in_envir, indent = "\n    ") {
@@ -20,7 +22,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     call_name <- as.character(in_call[[1]])
     call_args <- tail(in_call, -1)
 
-    if (call_name == "{") {
+    if (call_name == open_curly_bracket) {
         # Recurse into code block
         lines <- vapply(
             call_args,

@@ -1,3 +1,5 @@
+open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
+
 g3_compile_r <- function(steps) {
     all_steps <- g3_collate(steps)
 
@@ -52,7 +54,7 @@ g3_compile_r <- function(steps) {
 
     # Wrap all steps in a function call
     out <- call("function", pairlist(data = alist(y=)$y, param = alist(y=)$y), as.call(c(
-        list(as.symbol("{")),
+        list(as.symbol(open_curly_bracket)),
         var_defns(f_rhs(all_steps), f_envir(all_steps)),
         as.call(c(list(as.symbol("while"), TRUE), f_rhs(all_steps))),
         NULL)))
