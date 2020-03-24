@@ -76,7 +76,7 @@ ling_mat_actions <- c(list(),
 #          ling_mat = (~ 0.5 * preylen),
 #          )
 
-time <- g3a_time(g3_data("strtyr"), g3_data("endyr"), c(3, 3, 3, 3))
+time <- g3a_time(start_year = 1983, end_year = 1985, c(3, 3, 3, 3))
 ling_model <- g3_compile_r(c(
     ling_mat_actions,
     ling_imm_actions,
@@ -90,11 +90,7 @@ tmb_ling <- g3_compile_tmb(c(
 writeLines(tmb_ling)
 
 writeLines("***** Running Model *****")
-ling_data <- list(
-    strtyr = 1983,
-    endyr = 1985,
-    end = NULL
-)
+ling_data <- list()
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.Linf" = 160,
     "ling.k" = 90,

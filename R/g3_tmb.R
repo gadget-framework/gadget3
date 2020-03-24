@@ -9,7 +9,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         # Literals
         if (length(in_call) == 1) {
             if (is.integer(in_call)) {
-                return(in_call)
+                return(toString(in_call))
             }
             return(deparse(in_call))
         }
@@ -233,15 +233,19 @@ g3_compile_tmb <- function(steps) {
                     cpp_definition('vector<Type>', var_name, cpp_code(var_val, env)),
                     sprintf('%s.resize(%s);', var_name, paste0(dim(var_val), collapse = ", "),
                     ))
-            } else if (is.integer(var_val)) {
-                # Specifically an integer, define it as such
-                defn <- cpp_definition('int', var_name, cpp_code(var_val, env))
-            } else if (is.numeric(var_val)) {
-                # Doubles should be the template type
-                defn <- cpp_definition('Type', var_name, cpp_code(var_val, env))
-            } else if (is.character(var_val) || is.logical(var_val)) {
+            } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
+                if (is.integer(var_val)) {
+                    cpp_type <- 'int'
+                } else if (is.numeric(var_val)) {
+                    cpp_type <- 'Type'
+                } else {
+                    cpp_type <- 'auto'
+                }
+                if (length(var_val) > 1) {
+                    cpp_type <- paste0('vector<', cpp_type, '>')
+                }
                 # Defined as a literal
-                defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
+                defn <- cpp_definition(cpp_type, var_name, cpp_code(var_val, env))
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
