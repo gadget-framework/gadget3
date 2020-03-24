@@ -105,7 +105,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ")"))
     }
 
-    if (call_name == 'break') {
+    if (call_name %in% c('break', 'next')) {
         # Flow-control
         return(call_name)
     }
