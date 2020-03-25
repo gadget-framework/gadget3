@@ -1,4 +1,6 @@
-open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
+# Pair of constants, so code editors don't get confused
+open_curly_bracket <- "{"
+close_curly_bracket <- "}"
 
 cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 
@@ -24,12 +26,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == open_curly_bracket) {
         # Recurse into code block
-        lines <- vapply(
-            call_args,
-            function (x) cpp_code(x, in_envir, next_indent),
-            character(1))
+        lines <- vapply(call_args, function (x) {
+            out <- cpp_code(x, in_envir, next_indent)
+            # Add semicolon for any line that needs one
+            if (!endsWith(out, paste0(close_curly_bracket, "\n"))) out <- paste0(out, ";")
+            return(out)
+        }, character(1))
         # Join the result together
-        out <- sprintf("{%s%s%s}\n", next_indent, paste(lines, collapse = next_indent), indent)
+        out <- sprintf("{%s%s%s}\n", next_indent, paste0(lines, collapse = next_indent), indent)
         return(out)
     }
 
