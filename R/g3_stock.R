@@ -48,19 +48,24 @@ g3s_fleet <- function(stock_name) {
         iterate = ~extension_point)
 }
 
-g3s_livesonareas <- function(inner_stock, stock_areas) {
-    stock_areas <- as.character(stock_areas)
-    area <- stock_areas[[1]]  # NB: To provide it with a type
+g3s_livesonareas <- function(inner_stock, areas) {
+    stopifnot('g3_areas' %in% class(areas))
+
+    stock_areas <- as.numeric(areas)
+    area <- areas[[1]]
+    area_idx <- 0
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_areas)))
     stock_extend(inner_stock,
         stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("area_idx"))),
         stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("area_idx"))),
         capture = f_substitute(~if (area %in% stock_areas) extension_point, list()),
-        iterate = f_substitute(~for (area_idx in seq_along(stock_areas)) {
-            area <- stock_areas[[g3_idx(area_idx)]]
+        iterate = f_substitute(~for (area_idx in area_seq) {
+            area <- stock_areas[[g3_idx(area)]]
             extension_point
-        }, list(extension_point = inner_stock$iterate))
+        }, list(
+            area_seq = seq_along(stock_areas),
+            extension_point = inner_stock$iterate))
     )
 }
 

@@ -5,8 +5,10 @@ for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)
 
 end <- function (x) x
 
+areas <- g3_areas('a', 'b', 'c')
+
 ling_imm <- g3_stock('ling_imm', 20, 160, 4) %>%
-    g3s_livesonareas(c("1")) %>%
+    g3s_livesonareas(areas[c('a')]) %>%
     g3s_age(3, 10) %>%
     g3s_prey(energycontent = 5) %>%
     end()
@@ -32,11 +34,10 @@ ling_imm_actions <- c(list(),
     list())
 
 ling_mat <- g3_stock('ling_mat', 20, 160, 4) %>%
-    g3s_livesonareas(c("1")) %>%
+    g3s_livesonareas(areas[c('a', 'b')]) %>%
     g3s_age(5, 15) %>%
     g3s_prey(energycontent = 5) %>%
     end()
-
 
 ling_mat_stddev <- c(
     "5" = 12.4081745588022,
@@ -70,7 +71,7 @@ ling_mat_actions <- c(list(),
     list())
 
 #si <- g3s_fleet('si') %>% 
-#    g3s_livesonareas(areas = c(1)) %>% 
+#    g3s_livesonareas(areas = g3_areas[c('a', 'b', 'c')]) %>%
 #    g3s_predator_number(
 #          ling_imm = (~ 0.5 * preylen),
 #          ling_mat = (~ 0.5 * preylen),
