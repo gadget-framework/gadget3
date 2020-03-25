@@ -72,9 +72,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     if (call_name == 'for') {
-        # for..in loop
+        # for-range loop
+        # NB: TMB vectors and bundled CPPAD vectors don't support iteration,
+        # so this will only work with for-range looping over a constant
+        iterator <- cpp_code(in_call[[3]], env, next_indent)
+        if (is.numeric(in_call[[3]]) && length(in_call[[3]]) == 1) {
+            # A single item won't be an iterator
+            iterator <- paste0("{", iterator, "}")
+        }
         return(paste(
-            "for (auto", in_call[[2]], "in", cpp_code(in_call[[3]], env, next_indent), ")",
+            "for (auto", in_call[[2]], ":", iterator, ")",
             cpp_code(in_call[[4]], env, next_indent)))
     }
 
