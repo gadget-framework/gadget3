@@ -12,6 +12,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         if (length(in_call) == 1) {
             if (is.integer(in_call)) {
                 return(toString(in_call))
+            } else if (is.logical(in_call)) {
+                return(if (in_call) 'true' else 'false')
             }
             return(deparse(in_call))
         }
