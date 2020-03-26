@@ -19,7 +19,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     # Ignore formulae tildes
-    if (is.formula(in_call)) return(cpp_code(f_rhs(in_call), env, indent))
+    if (is.formula(in_call)) return(cpp_code(f_rhs(in_call), in_envir, indent))
 
     call_name <- as.character(in_call[[1]])
     call_args <- tail(in_call, -1)
@@ -44,7 +44,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name %in% c("g3_idx")) {
         # Indices are 0-based, subtract 1
-        return(paste(cpp_code(in_call[[2]], env, next_indent), "- 1"))
+        return(paste(cpp_code(in_call[[2]], in_envir, next_indent), "- 1"))
     }
 
     if (call_name == '<-') {
@@ -61,39 +61,39 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         }
 
         return(paste(
-            cpp_code(assign_lhs, env, next_indent),  # NB: Should either be a sybol or a subset
+            cpp_code(assign_lhs, in_envir, next_indent),  # NB: Should either be a sybol or a subset
             assign_op,
-            cpp_code(assign_rhs, env, next_indent)))
+            cpp_code(assign_rhs, in_envir, next_indent)))
     }
 
     if (call_name == 'if') {
         # Conditional
         return(paste(
             "if (",
-            cpp_code(in_call[[2]], env, next_indent),
+            cpp_code(in_call[[2]], in_envir, next_indent),
             ") ",
-            cpp_code(in_call[[3]], env, next_indent)))
+            cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
     if (call_name == 'for') {
         # for-range loop
         # NB: TMB vectors and bundled CPPAD vectors don't support iteration,
         # so this will only work with for-range looping over a constant
-        iterator <- cpp_code(in_call[[3]], env, next_indent)
+        iterator <- cpp_code(in_call[[3]], in_envir, next_indent)
         if (is.numeric(in_call[[3]]) && length(in_call[[3]]) == 1) {
             # A single item won't be an iterator
             iterator <- paste0("{", iterator, "}")
         }
         return(paste(
             "for (auto", in_call[[2]], ":", iterator, ")",
-            cpp_code(in_call[[4]], env, next_indent)))
+            cpp_code(in_call[[4]], in_envir, next_indent)))
     }
 
     if (call_name == 'while') {
         # while loop
         return(paste0(
-            "while (", cpp_code(in_call[[2]], env, next_indent), ") ",
-            cpp_code(in_call[[3]], env, next_indent)))
+            "while (", cpp_code(in_call[[2]], in_envir, next_indent), ") ",
+            cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
     if (call_name == '[') {
@@ -110,9 +110,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     if (call_name == '[[') {
         # Select value from array
         return(paste(
-            cpp_code(in_call[[2]], env, next_indent),
+            cpp_code(in_call[[2]], in_envir, next_indent),
             "(",
-            cpp_code(in_call[[3]], env, next_indent),
+            cpp_code(in_call[[3]], in_envir, next_indent),
             ")"))
     }
 
@@ -124,17 +124,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     if (call_name == "%/%") {
         # Integer division
         return(paste0(
-            "((int) ", cpp_code(in_call[[2]], env, next_indent), ")",
+            "((int) ", cpp_code(in_call[[2]], in_envir, next_indent), ")",
             " / ",
-            "((int) ", cpp_code(in_call[[3]], env, next_indent), ")"))
+            "((int) ", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
     }
 
     if (call_name == "^") {
         # Power operator
         return(paste0(
             "pow(",
-            cpp_code(in_call[[2]], env, next_indent), ", ",
-            cpp_code(in_call[[3]], env, next_indent), ")"))
+            cpp_code(in_call[[2]], in_envir, next_indent), ", ",
+            cpp_code(in_call[[3]], in_envir, next_indent), ")"))
     }
 
     if (call_name %in% c("-", "+", "*", "/", "==", ">", "<", "%%")) {
@@ -143,13 +143,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
         if (call_name == "-" && length(in_call) == 2) {
             # Negative numeral, e.g.
-            return(paste0("-", cpp_code(in_call[[2]], env, next_indent)))
+            return(paste0("-", cpp_code(in_call[[2]], in_envir, next_indent)))
         }
         # TODO: "matrix * matrix" is matrix multiplication, "matrix.array() * matrix.array()" is element wise
         return(paste(
-            cpp_code(in_call[[2]], env, next_indent),
+            cpp_code(in_call[[2]], in_envir, next_indent),
             call_name,
-            cpp_code(in_call[[3]], env, next_indent)))
+            cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
     if (call_name %in% c("exp", "log", "seq", "seq_along", "sum")) {
@@ -159,21 +159,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "(",
             paste(vapply(
                 call_args,
-                function (x) cpp_code(x, env, next_indent),
+                function (x) cpp_code(x, in_envir, next_indent),
                 character(1)), collapse = ", "),
             ")"))
     }
 
     if (call_name == "(") {
-        return(paste0("(", cpp_code(in_call[[2]], env, next_indent), ")"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
     }
 
     if (call_name == "length") {
-        return(paste0("(", cpp_code(in_call[[2]], env, next_indent), ").size()"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
     }
 
     if (call_name == "colSums") {
-        return(paste0("(", cpp_code(in_call[[2]], env, next_indent), ")", ".colwise().sum()"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")", ".colwise().sum()"))
     }
 
     if (call_name == "comment") {
@@ -275,6 +275,6 @@ Type objective_function<Type>::operator() () {
 
     %s
 }\n", paste(var_defns(f_rhs(all_steps), f_envir(all_steps)), collapse = "\n    "),
-      cpp_code(f_rhs(all_steps), f_env(all_steps)))
+      cpp_code(f_rhs(all_steps), f_envir(all_steps)))
     # TODO: Attach data to this code string somehow? Wrap whole thing in a model runner R function?
 }
