@@ -93,12 +93,6 @@ ling_model <- g3_compile_r(c(
     time))
 print(ling_model)
 
-tmb_ling <- g3_compile_tmb(c(
-    ling_mat_actions,
-    ling_imm_actions,
-    time))
-writeLines(tmb_ling)
-
 writeLines("***** Running Model *****")
 ling_data <- list()
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
@@ -187,3 +181,10 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
 result <- ling_model(ling_data, ling_param)
 str(result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_data, ling_param)
+
+tmb_ling <- g3_precompile_tmb(c(
+    ling_mat_actions,
+    ling_imm_actions,
+    time))
+writeLines(tmb_ling)
+g3_compile_tmb(tmb_ling)
