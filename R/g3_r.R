@@ -2,6 +2,7 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 
 g3_compile_r <- function(steps) {
     all_steps <- g3_collate(steps)
+    model_data <- new.env(parent = emptyenv())
 
     var_defns <- function (code, env) {
         scope <- list()
@@ -41,8 +42,9 @@ g3_compile_r <- function(steps) {
                 # Generate code to define matrix
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
             } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
-                # Defined as a literal
-                defn <- call("<-", as.symbol(var_name), var_val)
+                # Set literal in data
+                defn <- call("<-", as.symbol(var_name), call("$", as.symbol("model_data"), as.symbol(var_name)))
+                assign(var_name, var_val, envir = model_data)
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
@@ -76,7 +78,11 @@ g3_compile_r <- function(steps) {
     out <- call_replace(out,
         g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
         g3_param = repl_fn("param"))
-    # TODO: Attach data to function via. closure environment
-    #       i.e. environment(out) <- new.env(); assign("data", envir = environment(out))
-    return(eval(out))
+    out <- eval(out)
+
+    # Attach data to model as closure
+    # NB: Needs to be globalenv() to evaluate core R
+    environment(out) <- new.env(parent = globalenv())
+    assign("model_data", model_data, envir = environment(out))
+    return(out)
 }

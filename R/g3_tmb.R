@@ -194,6 +194,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
 g3_compile_tmb <- function(steps) {
     all_steps <- g3_collate(steps)
+    model_data <- new.env(parent = emptyenv())
 
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr) {
         if (missing(cpp_expr)) {
@@ -249,11 +250,9 @@ g3_compile_tmb <- function(steps) {
                     'vector<Type>',
                     paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val)) {
-                # Generate code to define matrix
-                defn <- c(
-                    cpp_definition('vector<Type>', var_name, cpp_code(var_val, env)),
-                    sprintf('%s.resize(%s);', var_name, paste0(dim(var_val), collapse = ", "),
-                    ))
+                # Store matrix in model_data
+                defn <- paste0('DATA_MATRIX(', var_name , ')')
+                assign(var_name, var_val, envir = model_data)
             } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
                 if (is.integer(var_val)) {
                     cpp_type <- 'int'
@@ -262,11 +261,18 @@ g3_compile_tmb <- function(steps) {
                 } else {
                     cpp_type <- 'auto'
                 }
-                if (length(var_val) > 1) {
-                    cpp_type <- paste0('vector<', cpp_type, '>')
+                if (length(var_val) > 1 && cpp_type == 'Type') {
+                    # Store in DATA
+                    defn <- paste0('DATA_VECTOR(', var_name , ')')
+                    assign(var_name, var_val, envir = model_data)
+                } else if (length(var_val) > 1 && cpp_type == 'int') {
+                    # Store in DATA
+                    defn <- paste0('DATA_IVECTOR(', var_name , ')')
+                    assign(var_name, var_val, envir = model_data)
+                } else {
+                    # Define as a literal
+                    defn <- cpp_definition(cpp_type, var_name, cpp_code(var_val, env))
                 }
-                # Defined as a literal
-                defn <- cpp_definition(cpp_type, var_name, cpp_code(var_val, env))
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
@@ -277,7 +283,7 @@ g3_compile_tmb <- function(steps) {
         return(c(param_lines, "", unlist(scope)))
     }
 
-    sprintf("#include <TMB.hpp>
+    out <- sprintf("#include <TMB.hpp>
 #include <stdio.h>  // For debugf
 #include <stdarg.h>  // For debugf
 
@@ -288,5 +294,9 @@ Type objective_function<Type>::operator() () {
     %s
 }\n", paste(var_defns(f_rhs(all_steps), f_envir(all_steps)), collapse = "\n    "),
       cpp_code(f_rhs(all_steps), f_envir(all_steps)))
-    # TODO: Attach data to this code string somehow? Wrap whole thing in a model runner R function?
+
+    # Attach data to model as closure
+    environment(out) <- new.env(parent = emptyenv())
+    assign("model_data", model_data, envir = environment(out))
+    return(out)
 }
