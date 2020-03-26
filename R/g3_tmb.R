@@ -189,8 +189,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ")"))
     }
 
-    # TODO: This should be an exception.
-    return(paste0(c("TODO:", call_name ,":", deparse(in_call)), collapse = ""))
+    stop(c("TODO:", call_name ,":", deparse(in_call)))
 }
 
 g3_compile_tmb <- function(steps) {
