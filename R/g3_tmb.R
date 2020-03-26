@@ -180,6 +180,15 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(paste(c("// ", in_call[[2]]), collapse = ""))
     }
 
+    env_defn <- mget(call_name, envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+    if ('g3_native' %in% class(env_defn)) {
+        return(paste0(
+            call_name,
+            "(",
+            paste(vapply(call_args, function (a) cpp_code(a, in_envir, next_indent), character(1)), collapse = ", "),
+            ")"))
+    }
+
     # TODO: This should be an exception.
     return(paste0(c("TODO:", call_name ,":", deparse(in_call)), collapse = ""))
 }
@@ -206,7 +215,10 @@ g3_compile_tmb <- function(steps) {
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])) {
-                scope[[var_name]] <- all_defns[[var_name]]$cpp
+                scope[[var_name]] <- cpp_definition(
+                    'auto',
+                    var_name,
+                    trimws(all_defns[[var_name]]$cpp))
             }
         }
 

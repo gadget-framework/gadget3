@@ -148,7 +148,13 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
           }
         }
         return(growth.matrix)
-    }, cpp = "TODO: lambda growth_bbinom yadda yadda")
+    }, cpp = '
+        [](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> matrix<Type> {
+            matrix<Type> growth_matrix = Eigen::MatrixXd::Zero(lengthgrouplen, lengthgrouplen).cast<Type>();
+
+            // TODO: Actual implementation
+            return growth_matrix;
+        }')
 
     f_substitute(
         ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta_f),
