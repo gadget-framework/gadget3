@@ -247,7 +247,7 @@ g3_compile_tmb <- function(steps) {
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Just define dimensions
                 defn <- cpp_definition(
-                    'vector<Type>',
+                    'array<Type>',
                     paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val)) {
                 # Store matrix in model_data
