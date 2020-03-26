@@ -51,7 +51,7 @@ g3s_fleet <- function(stock_name) {
 g3s_livesonareas <- function(inner_stock, areas) {
     stopifnot('g3_areas' %in% class(areas))
 
-    stock_areas <- as.numeric(areas)
+    stock_areas <- as.integer(areas)
     area <- areas[[1]]
     area_idx <- 0
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
@@ -61,12 +61,12 @@ g3s_livesonareas <- function(inner_stock, areas) {
         stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("area_idx"))),
         capture = f_substitute(~if (area %in% stock_areas) extension_point, list()),
         iterate = f_substitute(~for (area_idx in area_seq) {
-            area <- stock_areas[[g3_idx(area)]]
+            area <- area_lookup
             extension_point
         }, list(
             area_seq = seq_along(stock_areas),
-            extension_point = inner_stock$iterate))
-    )
+            area_lookup = if (length(stock_areas) > 1) quote(stock_areas[[g3_idx(area)]]) else stock_areas,
+            extension_point = inner_stock$iterate)))
 }
 
 g3s_age <- function(inner_stock, minage, maxage) {
