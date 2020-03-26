@@ -10,7 +10,7 @@ g3_param <- function(...) match.call()
 
 g3_collate <- function(steps) {
     f_combine <- function (list_of_f) {
-        e <- emptyenv()
+        e <- g3_global_env
         # Stack environments together
         for (f in list_of_f) {
             # NB: Actions producing multiple steps will share environments. We

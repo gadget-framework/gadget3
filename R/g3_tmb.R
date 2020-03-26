@@ -280,6 +280,8 @@ g3_compile_tmb <- function(steps) {
     }
 
     sprintf("#include <TMB.hpp>
+#include <stdio.h>  // For debugf
+#include <stdarg.h>  // For debugf
 
 template<class Type>
 Type objective_function<Type>::operator() () {

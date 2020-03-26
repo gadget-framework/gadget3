@@ -64,7 +64,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
         cur_step <- (cur_time %% step_count) + 1
         cur_step_len <- steps[[cur_step]]
         cur_step_final <- cur_step == step_count
-        writeLines(sprintf("** Tick: %d-%d", cur_year, cur_step))  # TODO: Proper debug
+        debugf("** Tick: %d-%d\n", cur_year, cur_step)
     }, step999 = ~{
         cur_time <- cur_time + 1
     })
