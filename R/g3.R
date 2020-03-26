@@ -3,9 +3,8 @@ g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
 }
 
-# g3_data / param calls shouldn't be directly evaluated, they're markers for the
+# g3_param calls shouldn't be directly evaluated, they're markers for the
 # g3_compile_* functions
-g3_data <- function(...) match.call()
 g3_param <- function(...) match.call()
 
 g3_collate <- function(steps) {

@@ -37,8 +37,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(out)
     }
 
-    if (call_name %in% c("g3_data", "g3_param")) {
-        # data/params will end up being a variable
+    if (call_name %in% c("g3_param")) {
+        # params will end up being a variable
         return(cpp_escape_varname(in_call[[2]]))
     }
 
@@ -221,11 +221,10 @@ g3_compile_tmb <- function(steps) {
             }
         }
 
-        # Find any g3_param / g3_data and put it at the top
+        # Find any g3_param and put it at the top
         # TODO: Not considering type. Work out from example params?
         call_replace(code,
-            g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAM(", cpp_escape_varname(x[[2]]), ");"),
-            g3_data = function (x) param_lines[[x[[2]]]] <<- paste0("DATA(", cpp_escape_varname(x[[2]]), ");"))
+            g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAM(", cpp_escape_varname(x[[2]]), ");"))
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {

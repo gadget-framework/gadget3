@@ -146,4 +146,4 @@ call_replace <- function (f, ...) {
     attributes(out) <- attributes(f)
     return(out)
 }
-# call_replace(~ 2 + g3_data("woo"), g3_data = function (x) call('$', as.symbol("data"), x[[2]]))
+# call_replace(~ 2 + g3_param("woo"), g3_param = function (x) call('$', as.symbol("data"), x[[2]]))
