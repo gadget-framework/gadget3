@@ -225,7 +225,7 @@ g3_compile_tmb <- function(steps) {
         # Find any g3_param and put it at the top
         # TODO: Not considering type. Work out from example params?
         call_replace(code,
-            g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAM(", cpp_escape_varname(x[[2]]), ");"))
+            g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER(", cpp_escape_varname(x[[2]]), ");"))
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
