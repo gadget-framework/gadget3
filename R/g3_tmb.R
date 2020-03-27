@@ -316,8 +316,7 @@ Type objective_function<Type>::operator() () {
     return(out)
 }
 
-g3_compile_tmb <- function(cpp_code) {
-    cpp_path <- tempfile(fileext=".cpp")
+g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp")) {
     writeLines(cpp_code, con = cpp_path)
     out <- TMB::compile(cpp_path, "-Wno-ignored-attributes")
 
