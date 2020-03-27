@@ -112,12 +112,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == '[') {
         # Array subsetting
+        missings <- 0
         out <- paste0(c(in_call[[2]], vapply(rev(tail(in_call, -2)), function (d) {
             d <- as.character(d)
-            if (d == "") return("")  # Missing symbol
+            if (d == "") {
+                # Missing symbol
+                missings <<- missings + 1
+                return("")
+            }
             return(paste0(".col(", d, ")"))
         }, character(1))), collapse = "")
-        hijack(out)
+
+        if (missings == 1) {
+            # Only one dimension left, cast as vector
+            out <- paste0(out, ".vec()")
+        }
         return(out)
     }
 
