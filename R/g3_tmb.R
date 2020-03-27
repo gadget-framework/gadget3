@@ -259,9 +259,17 @@ g3_precompile_tmb <- function(steps) {
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is.array(var_val) && all(is.na(var_val))) {
+                if (length(dim(var_val)) == 1) {
+                    # NB: vector isn't just an alias, more goodies are available to the vector class
+                    cpp_type <- 'vector<Type>'
+                } else if (length(dim(var_val)) == 2) {
+                    cpp_type <- 'matrix<Type>'
+                } else {
+                    cpp_type <- 'array<Type>'
+                }
                 # Just define dimensions
                 defn <- cpp_definition(
-                    'array<Type>',
+                    cpp_type,
                     paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val)) {
                 # Store matrix in model_data
