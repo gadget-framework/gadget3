@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript --vanilla
 library(magrittr)
 
 # i.e. library(g3)
