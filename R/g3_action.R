@@ -183,7 +183,7 @@ g3a_grow <- function(stock, growth_f, impl_f) {
 g3a_initialconditions <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f) {
     # See InitialCond::Initialise
     # TODO: Scaling from initialcond values to "real" values
-    initcond_dnorm <- 0.0
+    initcond_dnorm <- array(dim = length(stock_definition(stock, 'stock_meanlen')))
     initcond_scaler <- 0.0
 
     list(
