@@ -351,8 +351,7 @@ g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp")) {
     writeLines(cpp_code, con = cpp_path)
     out <- TMB::compile(cpp_path, "-Wno-ignored-attributes")
 
-    # Attach data to model as closure
-    environment(out) <- new.env(parent = emptyenv())
-    assign("model_data", model_data, envir = environment(out))
+    # Attach data to model
+    environment(out) <- environment(cpp_code)
     return(out)
 }
