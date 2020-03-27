@@ -160,7 +160,23 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent), ")"))
     }
 
-    if (call_name %in% c("-", "+", "*", "/", "==", ">", "<", "%%")) {
+    if (call_name == "%*%") {
+        # (matrix) multiplication - cast what should be arrays into matrices
+        return(paste0(
+            cpp_code(in_call[[2]], in_envir, next_indent), ".matrix()",
+            call_name,
+            cpp_code(in_call[[3]], in_envir, next_indent), ".matrix()"))
+    }
+
+    if (call_name == "*") {
+        # Element-wise multiplication
+        return(paste0(
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            "*",
+            cpp_code(in_call[[3]], in_envir, next_indent)))
+    }
+
+    if (call_name %in% c("-", "+", "/", "==", ">", "<", "%%")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
 
@@ -168,7 +184,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             # Negative numeral, e.g.
             return(paste0("-", cpp_code(in_call[[2]], in_envir, next_indent)))
         }
-        # TODO: "matrix * matrix" is matrix multiplication, "matrix.array() * matrix.array()" is element wise
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
             call_name,
@@ -271,9 +286,8 @@ g3_precompile_tmb <- function(steps) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
                     cpp_type <- 'vector<Type>'
-                } else if (length(dim(var_val)) == 2) {
-                    cpp_type <- 'matrix<Type>'
                 } else {
+                    # NB: Otherwise array. We only use matrix<> when we know we want matrix multiplication
                     cpp_type <- 'array<Type>'
                 }
                 # Just define dimensions
@@ -281,8 +295,8 @@ g3_precompile_tmb <- function(steps) {
                     cpp_type,
                     paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val)) {
-                # Store matrix in model_data
-                defn <- paste0('DATA_MATRIX(', var_name , ')')
+                # Store array in model_data
+                defn <- paste0('DATA_ARRAY(', var_name , ')')
                 assign(var_name, var_val, envir = model_data)
             } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
                 if (is.integer(var_val)) {
