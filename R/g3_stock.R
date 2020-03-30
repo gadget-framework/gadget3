@@ -51,7 +51,7 @@ g3s_fleet <- function(stock_name) {
 g3s_livesonareas <- function(inner_stock, areas) {
     stopifnot('g3_areas' %in% class(areas))
 
-    stock_areas <- as.integer(areas)
+    stock_areas <- as.array(as.integer(areas))  # NB: Force stock_areas to be an array
     area <- areas[[1]]
     area_idx <- 0
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))

@@ -305,7 +305,7 @@ g3_precompile_tmb <- function(steps) {
                 defn <- cpp_definition(
                     cpp_type,
                     paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
-            } else if (is.array(var_val)) {
+            } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
                 defn <- paste0('DATA_ARRAY(', var_name , ')')
                 assign(var_name, var_val, envir = model_data)
@@ -317,13 +317,13 @@ g3_precompile_tmb <- function(steps) {
                 } else {
                     cpp_type <- 'auto'
                 }
-                if (length(var_val) > 1 && cpp_type == 'Type') {
+                if (length(var_val) > 1 || is.array(var_val)) {
                     # Store in DATA
-                    defn <- paste0('DATA_VECTOR(', var_name , ')')
-                    assign(var_name, var_val, envir = model_data)
-                } else if (length(var_val) > 1 && cpp_type == 'int') {
-                    # Store in DATA
-                    defn <- paste0('DATA_IVECTOR(', var_name , ')')
+                    if (cpp_type == 'int') {
+                        defn <- paste0('DATA_IVECTOR(', var_name , ')')
+                    } else {
+                        defn <- paste0('DATA_VECTOR(', var_name , ')')
+                    }
                     assign(var_name, var_val, envir = model_data)
                 } else {
                     # Define as a literal
