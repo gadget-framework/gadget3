@@ -62,7 +62,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
         if (cur_time > total_steps) break
         cur_year <- start_year + (cur_time %/% step_count)
         cur_step <- (cur_time %% step_count) + 1
-        cur_step_len <- steps[[cur_step]]
+        cur_step_len <- steps[[g3_idx(cur_step)]]
         cur_step_final <- cur_step == step_count
         debugf("** Tick: %d-%d\n", cur_year, cur_step)
     }, step999 = ~{
