@@ -89,6 +89,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[4]], in_envir, next_indent)))
     }
 
+    if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq_along") {
+        # for(x in seq_along(..)) loop, can expressed as a 3-part for loop
+        return(paste0(
+            "for (",
+            "auto ", call_args[[1]], " = 0; ",
+            call_args[[1]], " < ", cpp_code(call("length", call_args[[2]][[2]]), in_envir, next_indent), "; ",
+            call_args[[1]], "++) ",
+            cpp_code(in_call[[4]], in_envir, next_indent)))
+    }
+
     if (call_name == 'for') {
         # for-range loop
         # NB: TMB vectors and bundled CPPAD vectors don't support iteration,
