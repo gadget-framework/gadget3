@@ -24,7 +24,3 @@ g3_collate <- function(steps) {
     steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
     return(f_combine(steps))
 }
-
-g3_run <- function (g3m, data, param) {
-    g3m(data, param)
-}
