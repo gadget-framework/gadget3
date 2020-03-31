@@ -175,7 +175,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         # (matrix) multiplication - cast what should be arrays into matrices
         return(paste0(
             cpp_code(in_call[[2]], in_envir, next_indent), ".matrix()",
-            call_name,
+            " * ",
             cpp_code(in_call[[3]], in_envir, next_indent), ".matrix()"))
     }
 
