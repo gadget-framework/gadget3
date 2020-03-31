@@ -148,13 +148,57 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
           }
         }
         return(growth.matrix)
-    }, cpp = '
-        [](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> matrix<Type> {
-            matrix<Type> growth_matrix = Eigen::MatrixXd::Zero(lengthgrouplen, lengthgrouplen).cast<Type>();
+    }, cpp = '[](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> matrix<Type> {
+        using namespace Eigen;
 
-            // TODO: Actual implementation
-            return growth_matrix;
-        }')
+        vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
+        vector<Type> alpha = (beta * delt_l) / (binn - delt_l);
+
+        // possible length growth
+        int na = alpha.size();
+        int n = binn;
+        alpha = alpha.replicate(n + 1, 1);
+
+        vector<Type> x((n + 1) * na);
+        for (auto i = 0; i < x.size(); i++) x(i) = i / alpha.size();
+
+        // Create a probability matrix where the columns represent the
+        // probability of growing x lengthgroups for each lengthgroup
+        // length group jumps are distributed according to a beta-binomial
+        // distribution
+        vector<Type> val_vec(na * (n + 1));
+        vector<Type> lgamma_arg(na * (n + 1));
+
+        // NB: VECTORIZE1_t-ed lgamma needs a single symbol to work
+        val_vec = lgamma((Type) n);
+        lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);
+        lgamma_arg = n - x + beta; val_vec = val_vec + lgamma(lgamma_arg);
+        lgamma_arg = x + alpha; val_vec = val_vec + lgamma(lgamma_arg);
+        lgamma_arg = n - x + 1; val_vec = val_vec - lgamma(lgamma_arg);
+        lgamma_arg = x + 1; val_vec = val_vec - lgamma(lgamma_arg);
+        lgamma_arg = n + alpha + beta; val_vec = val_vec - lgamma(lgamma_arg);
+        val_vec = val_vec - lgamma(beta);
+        // NB: Straight lgamma(alpha) segfaults
+        lgamma_arg = alpha + 0; val_vec = val_vec - lgamma(lgamma_arg);
+
+        // Map val_vec into a matrix
+        Eigen::Map<Eigen::Matrix<Type, Dynamic, Dynamic>> val(val_vec.vec().data(), na, n);
+
+        matrix<Type> growth_matrix(na, na);
+        growth_matrix.setZero();
+        for(int lg = 0; lg < na ; lg++) {
+          if(lg == (na - 1)){
+            growth_matrix(lg, lg) = 1;
+          } else if(lg + n > na){
+            for (int i = 0 ; i < (na - lg); i++) growth_matrix(lg, lg + i) = val(lg, i);
+            growth_matrix(lg, na - 1) = val.block(lg, na - lg, 1, n - (na - lg)).sum();
+          } else {
+            growth_matrix.row(lg) = val.row(lg);
+          }
+        }
+
+        return growth_matrix;
+    }')
 
     f_substitute(
         ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta_f),
@@ -174,7 +218,7 @@ g3a_grow <- function(stock, growth_f, impl_f) {
                 stock_grow_l <- growth_f
                 stock_growth_ratio <- impl_f
 
-                stock_num <- colSums(stock_num * stock_growth_ratio)
+                stock_num <- colSums(stock_growth_ratio %*% stock_num)
             }, list(
                 growth_f = growth_f,
                 impl_f = impl_f))))
