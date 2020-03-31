@@ -31,8 +31,8 @@ g3_compile_r <- function(steps) {
             var_val <- get(var_name, env = env, inherits = TRUE)
 
             if (rlang::is_formula(var_val)) {
-                scope <- c(scope, var_defns(f_rhs(var_val), env))
-                defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
+                scope <- c(scope, var_defns(rlang::f_rhs(var_val), env))
+                defn <- call("<-", as.symbol(var_name), rlang::f_rhs(var_val))
             } else if (is.call(var_val)) {
                 defn <- call("<-", as.symbol(var_name), var_val)
             } else if (is.array(var_val) && all(is.na(var_val))) {
@@ -57,8 +57,8 @@ g3_compile_r <- function(steps) {
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
-        var_defns(f_rhs(all_steps), rlang::f_env(all_steps)),
-        f_rhs(all_steps),
+        var_defns(rlang::f_rhs(all_steps), rlang::f_env(all_steps)),
+        rlang::f_rhs(all_steps),
         NULL)))
 
     # Replace any in-line g3 calls that may have been in formulae

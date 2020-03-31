@@ -30,7 +30,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
         final = final))
 
     subs <- new.env(parent = emptyenv())
-    stock_vars <- all.vars(f_rhs(f))
+    stock_vars <- all.vars(rlang::f_rhs(f))
     stock_vars <- stock_vars[startsWith(stock_vars, "stock_")]
     for (var_name in stock_vars) {
         repl <- sub('^stock', stock$stock_name, var_name)

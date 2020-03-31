@@ -3,18 +3,6 @@ call_to_formula <- function (c, env = parent.frame()) {
     formula(call("~", c), env = env)
 }
 
-# Replace the target of this formulae with what we really want.
-f_lhs <- function (name, f) {
-    if (length(f) < 3) {
-        # Shunt RHS over one so there's space for LHS
-        f[[3]] <- f[[2]]
-    }
-    f[[2]] <- as.symbol(name)
-    return(f)
-}
-
-f_rhs <- function (f) f[[length(f)]]
-
 environment_merge <- function (env, additions) {
     for (n in ls(envir = additions)) {
         if (!exists(n, envir = env)) {

@@ -18,7 +18,7 @@ g3_collate <- function(steps) {
             e <- rlang::env_clone(rlang::f_env(f), parent = e)
         }
         # Combine all functions into one expression
-        out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))
+        out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), rlang::f_rhs)))
         formula(call("~", call("while", TRUE, out_call)), env = e)
     }
 
