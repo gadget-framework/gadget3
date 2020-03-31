@@ -187,4 +187,4 @@ tmb_ling <- g3_precompile_tmb(c(
     ling_imm_actions,
     time))
 writeLines(tmb_ling)
-g3_compile_tmb(tmb_ling)
+ling_model_tmb <- g3_compile_tmb(tmb_ling, "camel.cpp")

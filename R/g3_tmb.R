@@ -258,6 +258,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 g3_precompile_tmb <- function(steps) {
     all_steps <- g3_collate(steps)
     model_data <- new.env(parent = emptyenv())
+    model_parameters <- list()
 
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr) {
         if (missing(cpp_expr)) {
@@ -286,9 +287,10 @@ g3_precompile_tmb <- function(steps) {
         }
 
         # Find any g3_param and put it at the top
-        # TODO: Not considering type. Work out from example params?
+        # TODO: Not considering type. Extra functions, e.g. g3_param_vector()
         call_replace(code,
             g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER(", cpp_escape_varname(x[[2]]), ");"))
+        model_parameters <<- c(model_parameters, structure(as.list(rep(0, length(param_lines))), names = cpp_escape_varname(names(param_lines))))
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
@@ -369,14 +371,20 @@ Type objective_function<Type>::operator() () {
     # Attach data to model as closure
     environment(out) <- new.env(parent = emptyenv())
     assign("model_data", model_data, envir = environment(out))
+    assign("model_parameters", model_parameters, envir = environment(out))
     return(out)
 }
 
-g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp")) {
+g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp"), ...) {
+    cpp_dll <- gsub('\\.cpp$', '', cpp_path)
     writeLines(cpp_code, con = cpp_path)
     out <- TMB::compile(cpp_path, "-Wno-ignored-attributes")
+    dyn.load(dynlib(cpp_dll))
 
-    # Attach data to model
-    environment(out) <- environment(cpp_code)
-    return(out)
+    obj <- MakeADFun(
+        data = as.list(environment(cpp_code)$model_data),
+        parameters = as.list(environment(cpp_code)$model_parameters),
+        DLL = cpp_dll,
+        ...)
+    return(obj)
 }
