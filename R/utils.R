@@ -8,11 +8,6 @@ call_to_formula <- function (c, env = parent.frame()) {
     formula(call("~", c), env = env)
 }
 
-# Pull out a formula's environment
-f_envir <- function (f) {
-    attr(f, '.Environment')
-}
-
 # Replace the target of this formulae with what we really want.
 f_lhs <- function (name, f) {
     if (length(f) < 3) {
@@ -39,7 +34,7 @@ f_substitute <- function (f, env) {
     env <- as.environment(env)
     # Copy f's environment to a new environment, ignore it's parent
     combined_env <- new.env(parent = emptyenv())
-    environment_merge(combined_env, f_envir(f))
+    environment_merge(combined_env, rlang::f_env(f))
 
     # For all formula substitutions...
     for (n in all.vars(f)) {
@@ -54,7 +49,7 @@ f_substitute <- function (f, env) {
         }
 
         # Combine it's environment with ours
-        environment_merge(combined_env, f_envir(o))
+        environment_merge(combined_env, rlang::f_env(o))
     }
 
     # Make a substitute call out of our unevaluated formulae

@@ -15,7 +15,7 @@ g3_collate <- function(steps) {
         for (f in list_of_f) {
             # NB: Actions producing multiple steps will share environments. We
             # have to clone environments so they have separate parents.
-            e <- rlang::env_clone(f_envir(f), parent = e)
+            e <- rlang::env_clone(rlang::f_env(f), parent = e)
         }
         # Combine all functions into one expression
         out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), f_rhs)))

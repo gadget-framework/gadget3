@@ -13,7 +13,7 @@ stock_extend <- function(inner, ...) {
 
 # Pull the definition of the stock variable out of the stock object
 stock_definition <- function(stock, var_name) {
-    get(var_name, envir = f_envir(stock$iterate))
+    get(var_name, envir = rlang::f_env(stock$iterate))
 }
 
 # A vector of areas, subsetting preserves the full list

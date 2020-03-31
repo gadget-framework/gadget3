@@ -21,7 +21,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
     }
     # Turn into formula. NB: Use stock$iterate as environment so e.g. stock_minage
     # are still available when iter isn't used
-    templ <- call_to_formula(templ, env = f_envir(stock$iterate))
+    templ <- call_to_formula(templ, env = rlang::f_env(stock$iterate))
     f <- f_substitute(templ, list(
         stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
         run_if = run_if,
@@ -34,7 +34,7 @@ stock_step <- function(stock, init = NULL, iter = NULL, final = NULL, run_if = N
     stock_vars <- stock_vars[startsWith(stock_vars, "stock_")]
     for (var_name in stock_vars) {
         repl <- sub('^stock', stock$stock_name, var_name)
-        assign(repl, get(var_name, env = f_envir(f), inherits = TRUE), envir = f_envir(f))
+        assign(repl, get(var_name, env = rlang::f_env(f), inherits = TRUE), envir = rlang::f_env(f))
         assign(var_name, as.symbol(repl), envir = subs)
     }
     f <- f_substitute(f, as.list(subs))

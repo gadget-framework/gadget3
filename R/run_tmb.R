@@ -365,8 +365,8 @@ Type objective_function<Type>::operator() () {
 
     %s
     return 0;  // TODO:
-}\n", paste(var_defns(f_rhs(all_steps), f_envir(all_steps)), collapse = "\n    "),
-      cpp_code(f_rhs(all_steps), f_envir(all_steps)))
+}\n", paste(var_defns(f_rhs(all_steps), rlang::f_env(all_steps)), collapse = "\n    "),
+      cpp_code(f_rhs(all_steps), rlang::f_env(all_steps)))
 
     # Attach data to model as closure
     environment(out) <- new.env(parent = emptyenv())

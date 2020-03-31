@@ -37,7 +37,7 @@ parse_tree <- function (o, prefix = "") {
 # parse_tree(~{for (x in c(1,2,3)) {str(x) ; str(x+1)} })
 
 envir_tree <- function (o) {
-    if (is.formula(o)) return(envir_tree(f_envir(o)))
+    if (is.formula(o)) return(envir_tree(rlang::f_env(o)))
 
     out <- as.list(o)
     if (!(is_base_envir(parent.env(o)))) {
