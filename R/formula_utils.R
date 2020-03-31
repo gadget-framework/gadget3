@@ -1,3 +1,5 @@
+# formula_utils: Tools for manipulating calls/formula
+
 # Turn a call into a formula, with environment env
 call_to_formula <- function (c, env = parent.frame()) {
     formula(call("~", c), env = env)
