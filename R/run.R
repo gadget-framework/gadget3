@@ -1,12 +1,13 @@
-# This is a function with separate equivalent R and C++ implementations
-g3_native <- function(r, cpp) {
-    return(structure(list(r = r, cpp = cpp), class = "g3_native"))
+# run: Common utilities from turning a set of steps into code
+
+# Define a scalar parameter, e.g. g3_param("woo")
+g3_param <- function(...) {
+    # NB: g3_param calls shouldn't be directly evaluated, they're markers for
+    #     the g3_compile_* functions
+    match.call()
 }
 
-# g3_param calls shouldn't be directly evaluated, they're markers for the
-# g3_compile_* functions
-g3_param <- function(...) match.call()
-
+# Collate: Combine list of (steps) into a single while loop formula, with a combined environment
 g3_collate <- function(steps) {
     f_combine <- function (list_of_f) {
         e <- g3_global_env
