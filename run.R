@@ -95,7 +95,6 @@ ling_model <- g3_compile_r(c(
 print(ling_model)
 
 writeLines("***** Running Model *****")
-ling_data <- list()
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.Linf" = 160,
     "ling.k" = 90,
@@ -179,7 +178,7 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.gil.alpha" = 0.5,
     "ling.gil.l50" = 50,
     end = NULL)
-result <- ling_model(ling_data, ling_param)
+result <- ling_model(ling_param)
 str(result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_data, ling_param)
 
