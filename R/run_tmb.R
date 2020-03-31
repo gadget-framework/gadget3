@@ -23,7 +23,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     # Ignore formulae tildes
-    if (is.formula(in_call)) return(cpp_code(f_rhs(in_call), in_envir, indent))
+    if (rlang::is_formula(in_call)) return(cpp_code(f_rhs(in_call), in_envir, indent))
 
     call_name <- as.character(in_call[[1]])
     call_args <- tail(in_call, -1)
@@ -304,7 +304,7 @@ g3_precompile_tmb <- function(steps) {
             }
             var_val <- get(var_name, env = env, inherits = TRUE)
 
-            if (is.formula(var_val)) {
+            if (rlang::is_formula(var_val)) {
                 scope <- c(scope, var_defns(f_rhs(var_val), env))
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is.call(var_val)) {

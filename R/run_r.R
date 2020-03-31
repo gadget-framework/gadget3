@@ -30,7 +30,7 @@ g3_compile_r <- function(steps) {
             }
             var_val <- get(var_name, env = env, inherits = TRUE)
 
-            if (is.formula(var_val)) {
+            if (rlang::is_formula(var_val)) {
                 scope <- c(scope, var_defns(f_rhs(var_val), env))
                 defn <- call("<-", as.symbol(var_name), f_rhs(var_val))
             } else if (is.call(var_val)) {

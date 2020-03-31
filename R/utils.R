@@ -1,8 +1,3 @@
-# Add missing is.formula
-is.formula <- function (o) {
-    is.call(o) && 'formula' %in% class(o)
-}
-
 # Turn a call into a formula, with environment env
 call_to_formula <- function (c, env = parent.frame()) {
     formula(call("~", c), env = env)
@@ -39,7 +34,7 @@ f_substitute <- function (f, env) {
     # For all formula substitutions...
     for (n in all.vars(f)) {
         o <- mget(n, envir = env, ifnotfound = list(NULL))[[1]]
-        if (!is.formula(o)) next
+        if (!rlang::is_formula(o)) next
 
         # Replace formulae with the inner expression
         if (length(o) == 3) {
