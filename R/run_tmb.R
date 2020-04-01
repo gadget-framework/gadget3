@@ -378,7 +378,10 @@ Type objective_function<Type>::operator() () {
 g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp"), ...) {
     cpp_dll <- gsub('\\.cpp$', '', cpp_path)
     writeLines(cpp_code, con = cpp_path)
-    out <- TMB::compile(cpp_path, "-Wno-ignored-attributes")
+    out <- TMB::compile(cpp_path, flags = paste(
+        "-std=c++1y",
+        "-Wno-ignored-attributes",
+        ""))
     dyn.load(dynlib(cpp_dll))
 
     obj <- MakeADFun(
