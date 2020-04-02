@@ -62,7 +62,8 @@ call_replace <- function (f, ...) {
     if (!is.call(f)) return(f)
 
     # If there's a modify_fn that matches the symbol of this call, call it.
-    modify_fn <- modify_call_fns[[as.character(f[[1]])]]
+    # NB: Use deparse() to generate useful output for, e.g. Matrix::Matrix
+    modify_fn <- modify_call_fns[[deparse(f[[1]])]]
     if (length(modify_fn) > 0) {
         f <- modify_fn(f)
     }

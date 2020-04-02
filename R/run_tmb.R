@@ -25,7 +25,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     # Ignore formulae tildes
     if (rlang::is_formula(in_call)) return(cpp_code(rlang::f_rhs(in_call), in_envir, indent))
 
-    call_name <- as.character(in_call[[1]])
+    call_name <- deparse(in_call[[1]])
     call_args <- tail(in_call, -1)
 
     if (call_name == open_curly_bracket) {
@@ -173,14 +173,30 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == "%*%") {
         # (matrix) multiplication - cast what should be arrays into matrices
-        return(paste0(
-            cpp_code(in_call[[2]], in_envir, next_indent), ".matrix()",
-            " * ",
-            cpp_code(in_call[[3]], in_envir, next_indent), ".matrix()"))
+        to_matrix <- function (x) {
+            inner <- cpp_code(x, in_envir, next_indent)
+            if (is.symbol(x)) {
+                # If we're multiplying a symbol already defined as a sparse matrix, no need for .matrix()
+                env_defn <- mget(as.character(x), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+                if (is(env_defn, 'sparseMatrix')) {
+                    return(inner)
+                }
+                return(paste0(inner, '.matrix()'))
+            }
+            return(paste0('(', inner, ').matrix()'))
+        }
+        return(paste0(to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]])))
     }
 
     if (call_name == "*") {
         # Element-wise multiplication
+        if (is.symbol(in_call[[2]])) {
+            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+            if (is(env_defn, 'sparseMatrix')) {
+                stop("Don't know how to do cwiseProduct for sparse matrix ", in_call[[2]])
+            }
+            # NB: Would use .cwiseProduct() for dense matrices
+        }
         return(paste0(
             cpp_code(in_call[[2]], in_envir, next_indent),
             "*",
@@ -229,7 +245,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").rows()"))
     }
 
-    if (call_name == "colSums") {
+    if (call_name %in% c("colSums", "Matrix::colSums")) {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")", ".colwise().sum()"))
     }
 
@@ -309,6 +325,11 @@ g3_precompile_tmb <- function(steps) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
+            } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
+                # Define empty sparseMatrix
+                defn <- cpp_definition(
+                    'Eigen::SparseMatrix<Type>',
+                    paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class

@@ -38,6 +38,12 @@ g3_compile_r <- function(steps) {
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Just define dimensions
                 defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
+            } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
+                # Define empty sparseMatrix
+                defn <- call(
+                    "<-",
+                    as.symbol(var_name),
+                    substitute(Matrix::sparseMatrix(dims = x, x=numeric(0), i={}, j={}), list(x = dim(var_val))))
             } else if (is.array(var_val)) {
                 # Generate code to define matrix
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
