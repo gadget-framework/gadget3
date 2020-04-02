@@ -187,5 +187,5 @@ tmb_ling <- g3_precompile_tmb(c(
     ling_imm_actions,
     time))
 writeLines(tmb_ling)
-ling_model_tmb <- g3_compile_tmb(tmb_ling)
+ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
 # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_compile_tmb(tmb_ling)

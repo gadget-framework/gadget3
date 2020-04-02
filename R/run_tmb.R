@@ -409,7 +409,13 @@ edit.g3_cpp <- function(name = NULL, file = "", title = NULL, editor = getOption
     return(out)
 }
 
-g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp"), ...) {
+g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(fileext=".cpp"), ...) {
+    # Map incoming parameters with names and order we expect
+    model_parameters <- environment(cpp_code)$model_parameters
+    names(parameters) <- cpp_escape_varname(names(parameters))
+    parameters <- parameters[intersect(names(parameters), names(model_parameters))]
+    model_parameters[names(parameters)] <- parameters
+
     cpp_dll <- gsub('\\.cpp$', '', cpp_path)
     writeLines(cpp_code, con = cpp_path)
     out <- TMB::compile(cpp_path, flags = paste(
@@ -420,8 +426,7 @@ g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp"), ...) {
 
     obj <- MakeADFun(
         data = as.list(environment(cpp_code)$model_data),
-        parameters = as.list(environment(cpp_code)$model_parameters),
-        DLL = basename(cpp_dll),
-        ...)
+        parameters = model_parameters,
+        DLL = basename(cpp_dll))
     return(obj)
 }
