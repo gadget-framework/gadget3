@@ -180,11 +180,12 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     end = NULL)
 result <- ling_model(ling_param)
 str(result)
-# NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_data, ling_param)
+# NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
 tmb_ling <- g3_precompile_tmb(c(
     ling_mat_actions,
     ling_imm_actions,
     time))
 writeLines(tmb_ling)
-ling_model_tmb <- g3_compile_tmb(tmb_ling, "camel.cpp")
+ling_model_tmb <- g3_compile_tmb(tmb_ling)
+# NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_compile_tmb(tmb_ling)

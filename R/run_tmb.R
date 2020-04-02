@@ -367,11 +367,24 @@ Type objective_function<Type>::operator() () {
     return 0;  // TODO:
 }\n", paste(var_defns(rlang::f_rhs(all_steps), rlang::f_env(all_steps)), collapse = "\n    "),
       cpp_code(rlang::f_rhs(all_steps), rlang::f_env(all_steps)))
+    out <- strsplit(out, "\n")[[1]]
+    class(out) <- c("g3_cpp", class(out))
 
     # Attach data to model as closure
     environment(out) <- new.env(parent = emptyenv())
     assign("model_data", model_data, envir = environment(out))
     assign("model_parameters", model_parameters, envir = environment(out))
+    return(out)
+}
+
+# cpp source should be edited without deparsing
+edit.g3_cpp <- function(name = NULL, file = "", title = NULL, editor = getOption("editor"), ...) {
+    if (file == "") file <- tempfile(fileext = ".cpp")
+    writeLines(name, con = file)
+    utils::file.edit(file, title = title, editor = editor)
+    out <- readLines(file)
+    attributes(out) <- attributes(name)
+    environment(out) <- environment(name)
     return(out)
 }
 
