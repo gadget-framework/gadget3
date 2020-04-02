@@ -421,7 +421,7 @@ g3_compile_tmb <- function(cpp_code, cpp_path = tempfile(fileext=".cpp"), ...) {
     obj <- MakeADFun(
         data = as.list(environment(cpp_code)$model_data),
         parameters = as.list(environment(cpp_code)$model_parameters),
-        DLL = cpp_dll,
+        DLL = basename(cpp_dll),
         ...)
     return(obj)
 }
