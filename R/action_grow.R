@@ -36,7 +36,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
                    lgamma(beta) -
                    lgamma(alpha))
         dim(val) <- c(na,n + 1)
-        growth.matrix <- array(0,c(na,na))
+        growth.matrix <- Matrix::sparseMatrix(dims = c(na, na), x=numeric(0), i={}, j={})
         for(lg in 1:na){
           if(lg == na){
             growth.matrix[na,na] <- 1
@@ -48,7 +48,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
           }
         }
         return(growth.matrix)
-    }, cpp = '[](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> matrix<Type> {
+    }, cpp = '[](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> Eigen::SparseMatrix<Type> {
         using namespace Eigen;
 
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
@@ -84,18 +84,18 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
         // Map val_vec into a matrix
         Eigen::Map<Eigen::Matrix<Type, Dynamic, Dynamic>> val(val_vec.vec().data(), na, n);
 
-        matrix<Type> growth_matrix(na, na);
-        growth_matrix.setZero();
+        Eigen::SparseMatrix<Type> growth_matrix(na, na);
         for(int lg = 0; lg < na ; lg++) {
           if(lg == (na - 1)){
-            growth_matrix(lg, lg) = 1;
+            growth_matrix.coeffRef(lg, lg) = 1;
           } else if(lg + n > na){
-            for (int i = 0 ; i < (na - lg); i++) growth_matrix(lg, lg + i) = val(lg, i);
-            growth_matrix(lg, na - 1) = val.block(lg, na - lg, 1, n - (na - lg)).sum();
+            for (int i = 0 ; i < (na - lg); i++) growth_matrix.coeffRef(lg, lg + i) = val(lg, i);
+            growth_matrix.coeffRef(lg, na - 1) = val.block(lg, na - lg, 1, n - (na - lg)).sum();
           } else {
-            growth_matrix.row(lg) = val.row(lg);
+            for (int i = 0; i < n; i++) growth_matrix.coeffRef(lg, i) = val(lg, i);
           }
         }
+        growth_matrix.makeCompressed();
 
         return growth_matrix;
     }')
@@ -111,14 +111,14 @@ g3a_grow <- function(stock, growth_f, impl_f) {
     stock_grow_l <- array(dim = dim(stock_growth_num)[[1]])
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
-    stock_growth_ratio <- matrix(nrow = length(stock_grow_l), ncol = length(stock_grow_l))
+    stock_growth_ratio <- Matrix::sparseMatrix(dims = c(length(stock_grow_l), length(stock_grow_l)), i={}, j={})
     list(
         step055b = stock_step(stock,
             iter = f_substitute(~{
                 stock_grow_l <- growth_f
                 stock_growth_ratio <- impl_f
 
-                stock_num <- colSums(stock_growth_ratio %*% stock_num)
+                stock_num <- Matrix::colSums(stock_growth_ratio %*% stock_num)
             }, list(
                 growth_f = growth_f,
                 impl_f = impl_f))))
