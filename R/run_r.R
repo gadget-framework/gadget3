@@ -1,7 +1,9 @@
 open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
 
-g3_compile_r <- function(steps) {
-    all_steps <- g3_collate(steps)
+# Compile actions together into a single R function, the attached environment contains:
+# - model_data: Fixed values refered to within function
+g3_compile_r <- function(actions) {
+    all_actions <- g3_collate(actions)
     model_data <- new.env(parent = emptyenv())
 
     var_defns <- function (code, env) {
@@ -63,8 +65,8 @@ g3_compile_r <- function(steps) {
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
-        var_defns(rlang::f_rhs(all_steps), rlang::f_env(all_steps)),
-        rlang::f_rhs(all_steps),
+        var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)),
+        rlang::f_rhs(all_actions),
         NULL)))
 
     # Replace any in-line g3 calls that may have been in formulae

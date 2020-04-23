@@ -1,3 +1,4 @@
+# Steps to set up initial states of stocks on first step
 g3a_initialconditions <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f) {
     # See InitialCond::Initialise
     # TODO: Scaling from initialcond values to "real" values

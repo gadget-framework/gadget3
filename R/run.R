@@ -7,8 +7,9 @@ g3_param <- function(...) {
     match.call()
 }
 
-# Collate: Combine list of (steps) into a single while loop formula, with a combined environment
-g3_collate <- function(steps) {
+# Combine actions into a single while loop formula, with a combined environment
+# Order all steps alphanumerically by name
+g3_collate <- function(actions) {
     f_combine <- function (list_of_f) {
         e <- g3_global_env
         # Stack environments together
@@ -22,6 +23,6 @@ g3_collate <- function(steps) {
         formula(call("~", call("while", TRUE, out_call)), env = e)
     }
 
-    steps <- steps[order(names(steps))]  # Steps should be in alphanumeric order
-    return(f_combine(steps))
+    actions <- actions[order(names(actions))]  # Steps should be in alphanumeric order
+    return(f_combine(actions))
 }

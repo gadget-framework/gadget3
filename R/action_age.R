@@ -1,3 +1,4 @@
+# On final step of year, move stock into the next age bracket
 g3a_age <- function(stock) {
     # Mangle stock_num / stock_wgt to remove non-age parameters
     stock_num_age <- as.call(lapply(ling_imm$stock_num, function (x) {

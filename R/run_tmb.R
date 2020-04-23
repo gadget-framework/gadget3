@@ -271,8 +271,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     stop(c("TODO:", call_name ,":", deparse(in_call)))
 }
 
-g3_precompile_tmb <- function(steps) {
-    all_steps <- g3_collate(steps)
+g3_precompile_tmb <- function(actions) {
+    all_actions <- g3_collate(actions)
     model_data <- new.env(parent = emptyenv())
     model_parameters <- list()
 
@@ -386,8 +386,8 @@ Type objective_function<Type>::operator() () {
 
     %s
     return 0;  // TODO:
-}\n", paste(var_defns(rlang::f_rhs(all_steps), rlang::f_env(all_steps)), collapse = "\n    "),
-      cpp_code(rlang::f_rhs(all_steps), rlang::f_env(all_steps)))
+}\n", paste(var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)), collapse = "\n    "),
+      cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions)))
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 

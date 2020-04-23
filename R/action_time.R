@@ -1,5 +1,11 @@
-# action_time: General timekeeping step
-
+# Timekeeping step, advances clock and stops when time is up
+# Once added to a model, the following variables will be available:
+# - cur_time: Current iteration of model, starts at 0 and increments until finished
+# - cur_step: Current step within individual year
+# - cur_step_len: How many months long this step is
+# - cur_year: Current year
+# - cur_step_final: TRUE iff this is the final step of the year
+# - total_steps: Total # of iterations before model stops
 g3a_time <- function(start_year, end_year, steps = c(12)) {
     if (sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
 

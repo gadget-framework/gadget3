@@ -1,3 +1,4 @@
+# Returns formula for lengthvbsimple growth function
 g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     # TODO: Where did alpha_f and beta_f go? Missing weight?
@@ -6,6 +7,7 @@ g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
         list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
+# Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     ##' @param dmu mean growth for each lengthgroup
     ##' @param lengthgrouplen i.e. dl, the step size for length groups
@@ -105,6 +107,9 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
         list(beta_f = beta_f))
 }
 
+# Growth step for a stock
+# - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
+# - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
 g3a_grow <- function(stock, growth_f, impl_f) {
     # See AgeBandMatrix::Grow
     stock_growth_num <- stock_definition(stock, 'stock_num')
