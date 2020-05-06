@@ -135,12 +135,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         # Array subsetting
         missings <- 0
         out <- paste0(c(in_call[[2]], vapply(rev(tail(in_call, -2)), function (d) {
-            d <- as.character(d)
-            if (d == "") {
+            if (identical(as.character(d), "")) {
                 # Missing symbol
                 missings <<- missings + 1
                 return("")
             }
+            d <- cpp_code(d, in_envir, next_indent)
             return(paste0(".col(", d, ")"))
         }, character(1))), collapse = "")
 
