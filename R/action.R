@@ -1,7 +1,7 @@
 # Turn a formulae into one that works on a given stock by...
 # - replacing all "stock_*" variables with a matching name for the stock, e.g. "ling_imm_wgt"
 # - wrap iter formula with loops to iterate over all lengthgroups for that stock
-#   and add array lookups to stock_num/stock_wgt, e.g. ing_mat_num[, area_idx, age_idx]
+#   and add array lookups to stock_num/stock_wgt, e.g. ing_mat_num[, stock_area_idx, stock_age_idx]
 # - init: formula code to run before iter loops
 # - final: formula code to run after iter loops
 # - run_if: Wrap entire step with if statement, e.g. run_if = ~cur_time == 0 to only run on the first step of the model

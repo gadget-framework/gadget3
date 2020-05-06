@@ -75,17 +75,17 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     stock_areas <- as.array(as.integer(areas))  # NB: Force stock_areas to be an array
     area <- areas[[1]]
-    area_idx <- 0
+    stock_area_idx <- 0
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_areas)))
     stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("area_idx"))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("area_idx"))),
-        iterate = f_substitute(~for (area_idx in seq_along(stock_areas)) {
+        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("stock_area_idx"))),
+        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("stock_area_idx"))),
+        iterate = f_substitute(~for (stock_area_idx in seq_along(stock_areas)) {
             area <- area_lookup
             extension_point
         }, list(
-            area_lookup = if (length(stock_areas) > 1) quote(stock_areas[[g3_idx(area)]]) else stock_areas,
+            area_lookup = if (length(stock_areas) > 1) quote(stock_areas[[stock_area_idx]]) else stock_areas,
             extension_point = inner_stock$iterate)))
 }
 
@@ -95,12 +95,12 @@ g3s_age <- function(inner_stock, minage, maxage) {
     stock_maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), stock_maxage - stock_minage + 1))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), stock_maxage - stock_minage + 1))
-    age_idx <- 0L
+    stock_age_idx <- 0L
     inner_stock <- stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), quote(age_idx))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), quote(age_idx))),
+        stock_num = as.call(c(as.list(inner_stock$stock_num), quote(stock_age_idx))),
+        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), quote(stock_age_idx))),
         iterate = f_substitute(~for (age in seq(stock_minage, stock_maxage)) {
-            age_idx <- g3_idx(age - stock_minage + 1)
+            stock_age_idx <- g3_idx(age - stock_minage + 1)
             extension_point
         }, list(extension_point = inner_stock$iterate)))
 }
