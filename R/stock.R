@@ -57,8 +57,8 @@ g3_stock <- function(stock_name, minlength, maxlength, dl) {
 
     list(
         name = stock_name,
-        stock_num = parse(text = "stock_num[]")[[1]],
-        stock_wgt = parse(text = "stock_wgt[]")[[1]],
+        stock_num = call("[", as.symbol(paste0(stock_name, "_num")), parse(text = "a[]")[[1]][[3]]),
+        stock_wgt = call("[", as.symbol(paste0(stock_name, "_wgt")), parse(text = "a[]")[[1]][[3]]),
         stock_name = stock_name,
         iterate = ~extension_point)
 }
@@ -79,8 +79,8 @@ g3s_livesonareas <- function(inner_stock, areas) {
     stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_areas)))
     stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("stock_area_idx"))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("stock_area_idx"))),
+        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol(paste0(inner_stock$name, "_area_idx")))),
+        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol(paste0(inner_stock$name, "_area_idx")))),
         iterate = f_substitute(~for (stock_area_idx in seq_along(stock_areas)) {
             area <- area_lookup
             extension_point
@@ -97,8 +97,8 @@ g3s_age <- function(inner_stock, minage, maxage) {
     stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), stock_maxage - stock_minage + 1))
     stock_age_idx <- 0L
     inner_stock <- stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), quote(stock_age_idx))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), quote(stock_age_idx))),
+        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol(paste0(inner_stock$name, "_age_idx")))),
+        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol(paste0(inner_stock$name, "_age_idx")))),
         iterate = f_substitute(~for (age in seq(stock_minage, stock_maxage)) {
             stock_age_idx <- g3_idx(age - stock_minage + 1)
             extension_point

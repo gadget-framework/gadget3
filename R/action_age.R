@@ -2,13 +2,13 @@
 g3a_age <- function(stock) {
     # Mangle stock_num / stock_wgt to remove non-age parameters
     stock_num_age <- as.call(lapply(ling_imm$stock_num, function (x) {
-        if (as.character(x) %in% c("[", "stock_num")) x
-        else if (as.character(x) %in% c("stock_age_idx")) quote(stock_age_idx)
+        if (as.character(x) %in% c("[", paste0(stock$name, "_num"))) x
+        else if (as.character(x) %in% c(paste0(stock$name, "_age_idx"))) as.symbol(paste0(stock$name, "_age_idx"))
         else ling_imm$stock_num[[3]]
     }))
     stock_num_age_older <- as.call(lapply(ling_imm$stock_num, function (x) {
-        if (as.character(x) %in% c("[", "stock_num")) x
-        else if (as.character(x) %in% c("stock_age_idx")) quote(stock_age_idx + 1)
+        if (as.character(x) %in% c("[", paste0(stock$name, "_num"))) x
+        else if (as.character(x) %in% c(paste0(stock$name, "_age_idx"))) call("+", as.symbol(paste0(stock$name, "_age_idx")), 1)
         else ling_imm$stock_num[[3]]
     }))
 
