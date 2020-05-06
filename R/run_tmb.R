@@ -70,7 +70,18 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(assign_rhs, in_envir, next_indent)))
     }
 
-    if (call_name == 'if') {
+    if (call_name == 'if' && length(in_call) == 4) {
+        # Conditional w/else
+        return(paste0(
+            "if (",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ") ",
+            cpp_code(in_call[[3]], in_envir, next_indent),
+            " else ",
+            cpp_code(in_call[[4]], in_envir, next_indent)))
+    }
+
+    if (call_name == 'if' && length(in_call) == 3) {
         # Conditional
         return(paste(
             "if (",
