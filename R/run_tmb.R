@@ -56,6 +56,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         assign_lhs <- in_call[[2]]
         assign_rhs <- in_call[[3]]
 
+        # Are we assigning to an array-like object?
+        if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
+            lhs_is_array <- TRUE
+        } else if (is.symbol(assign_lhs)) {
+            env_defn <- mget(as.character(assign_lhs), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+            lhs_is_array <- is.array(env_defn)
+        }
+
+        if (identical(in_call[[3]], 0) && lhs_is_array) {
+            # Set to zero
+            return(paste0(
+                cpp_code(assign_lhs, in_envir, next_indent),
+                ".setZero()"))
+        }
+
         # Add += operators if possible
         assign_op <- "="
         if (is.call(assign_rhs) && identical(assign_lhs, assign_rhs[[2]])) {
