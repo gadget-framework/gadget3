@@ -60,7 +60,6 @@ g3_stock <- function(stock_name, minlength, maxlength, dl) {
         stock_num = parse(text = "stock_num[]")[[1]],
         stock_wgt = parse(text = "stock_wgt[]")[[1]],
         stock_name = stock_name,
-        capture = ~{stock_lengths <- length_agg},
         iterate = ~extension_point)
 }
 
@@ -82,7 +81,6 @@ g3s_livesonareas <- function(inner_stock, areas) {
     stock_extend(inner_stock,
         stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol("area_idx"))),
         stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol("area_idx"))),
-        capture = f_substitute(~if (area %in% stock_areas) extension_point, list()),
         iterate = f_substitute(~for (area_idx in seq_along(stock_areas)) {
             area <- area_lookup
             extension_point
@@ -101,7 +99,6 @@ g3s_age <- function(inner_stock, minage, maxage) {
     inner_stock <- stock_extend(inner_stock,
         stock_num = as.call(c(as.list(inner_stock$stock_num), quote(age_idx))),
         stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), quote(age_idx))),
-        capture = f_substitute(~for (age in seq(stock_minage, stock_maxage)) extension_point, list()),
         iterate = f_substitute(~for (age in seq(stock_minage, stock_maxage)) {
             age_idx <- g3_idx(age - stock_minage + 1)
             extension_point
