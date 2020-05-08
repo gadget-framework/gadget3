@@ -10,7 +10,7 @@ f_substitute <- function (f, env) {
     environment_merge <- function (env, additions) {
         for (n in ls(envir = additions)) {
             if (!exists(n, envir = env)) {
-                assign(n, get(n, envir = additions), envir = env)
+                assign(n, get(n, envir = additions, inherits = FALSE), envir = env)
             }
         }
         return(NULL)
