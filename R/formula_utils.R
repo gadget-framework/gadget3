@@ -59,6 +59,16 @@ f_find <- function (f, target_symbol) {
 call_replace <- function (f, ...) {
     modify_call_fns <- list(...)
 
+    if (is.symbol(f)) {
+        # Found a lone symbol, check if that needs translating
+        modify_fn <- modify_call_fns[[as.character(f)]]
+        if (length(modify_fn) > 0) {
+            f <- modify_fn(f)
+        }
+
+        return(f)
+    }
+
     if (!is.call(f)) return(f)
 
     # If there's a modify_fn that matches the symbol of this call, call it.
@@ -66,6 +76,7 @@ call_replace <- function (f, ...) {
     modify_fn <- modify_call_fns[[deparse(f[[1]])]]
     if (length(modify_fn) > 0) {
         f <- modify_fn(f)
+        return(f)
     }
 
     # Recurse through all elements of this call
