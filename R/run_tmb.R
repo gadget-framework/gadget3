@@ -229,7 +229,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
-    if (call_name %in% c("-", "+", "/", "==", ">", "<", "%%")) {
+    if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
 
