@@ -14,6 +14,12 @@ ling_imm <- g3_stock('ling_imm', 20, 160, 4) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
+ling_mat <- g3_stock('ling_mat', 20, 160, 4) %>%
+    g3s_livesonareas(areas[c('a', 'b')]) %>%
+    g3s_age(5, 15) %>%
+    g3s_prey(energycontent = 5) %>%
+    end()
+
 ling_imm_stddev <- c(
     8.25,
     10.5644599516659,
@@ -41,13 +47,8 @@ ling_imm_actions <- c(list(),
             beta_f = ~g3_param("ling.bbin") * 10,
             maxlengthgroupgrowth = 15)),
     g3a_age(ling_imm),
+    g3a_mature(ling_imm, ling_mat, ~1),
     list())
-
-ling_mat <- g3_stock('ling_mat', 20, 160, 4) %>%
-    g3s_livesonareas(areas[c('a', 'b')]) %>%
-    g3s_age(5, 15) %>%
-    g3s_prey(energycontent = 5) %>%
-    end()
 
 ling_mat_stddev <- c(
     12.4081745588022,
