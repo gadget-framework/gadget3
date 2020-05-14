@@ -40,32 +40,31 @@ g3_areas <- function (...) {
 }
 
 # TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
-g3_stock <- function(stock_name, minlength, maxlength, dl) {
+g3_stock <- function(var_name, minlength, maxlength, dl) {
     # If these are literals, they should be integers
-    stock_minlength <- if(is.numeric(minlength)) as.integer(minlength) else minlength
-    stock_maxlength <- if(is.numeric(maxlength)) as.integer(maxlength) else maxlength
-    stock_dl <- if(is.numeric(dl)) as.integer(dl) else dl
+    stock__minlength <- if(is.numeric(minlength)) as.integer(minlength) else minlength
+    stock__maxlength <- if(is.numeric(maxlength)) as.integer(maxlength) else maxlength
+    stock__dl <- if(is.numeric(dl)) as.integer(dl) else dl
 
     # See LengthGroupDivision::LengthGroupDivision
-    stock_countlen <- (stock_maxlength - stock_minlength) %/% stock_dl
+    stock__countlen <- (stock__maxlength - stock__minlength) %/% stock__dl
     # TODO: These can't be formulae, since then we stop substituting stock name
-    stock_minlen <- stock_minlength + stock_dl * (seq_len(stock_countlen) - 1)
-    stock_meanlen <- stock_minlen + (stock_dl / 2)
+    stock__minlen <- stock__minlength + stock__dl * (seq_len(stock__countlen) - 1)
+    stock__meanlen <- stock__minlen + (stock__dl / 2)
 
-    stock_num <- array(dim = c(stock_countlen))
-    stock_wgt <- array(dim = c(stock_countlen))
+    stock__num <- array(dim = c(stock__countlen))
+    stock__wgt <- array(dim = c(stock__countlen))
 
     list(
-        name = stock_name,
-        stock_num = call("[", as.symbol(paste0(stock_name, "_num")), parse(text = "a[]")[[1]][[3]]),
-        stock_wgt = call("[", as.symbol(paste0(stock_name, "_wgt")), parse(text = "a[]")[[1]][[3]]),
-        stock_name = stock_name,
-        iterate = ~extension_point)
+        iterate = ~extension_point,
+        iter_ss = as.call(head(quote(.[,1]), -1)),  # i.e. .[(missing),]
+        translate = ~extension_point,
+        name = var_name)
 }
 
-g3s_fleet <- function(stock_name) {
+g3s_fleet <- function(var_name) {
     extension_point <- c()
-    assign(paste0(stock_name, '_state'), 0)
+    assign(paste0(var_name, '_state'), 0)
     list(
         iterate = ~extension_point)
 }
@@ -73,36 +72,55 @@ g3s_fleet <- function(stock_name) {
 g3s_livesonareas <- function(inner_stock, areas) {
     stopifnot('g3_areas' %in% class(areas))
 
-    stock_areas <- as.array(as.integer(areas))  # NB: Force stock_areas to be an array
+    stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     area <- areas[[1]]
-    stock_area_idx <- 0
-    stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), length(stock_areas)))
-    stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), length(stock_areas)))
-    stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol(paste0(inner_stock$name, "_area_idx")))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol(paste0(inner_stock$name, "_area_idx")))),
-        iterate = f_substitute(~for (stock_area_idx in seq_along(stock_areas)) {
+    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), length(stock__areas)))
+    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), length(stock__areas)))
+    stock__area_idx <- 0L
+
+    list(
+        iterate = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) {
             area <- area_lookup
             extension_point
         }, list(
-            area_lookup = if (length(stock_areas) > 1) quote(stock_areas[[stock_area_idx]]) else stock_areas,
-            extension_point = inner_stock$iterate)))
+            area_lookup = if (length(stock__areas) > 1) quote(stock__areas[[stock__area_idx]]) else stock__areas,
+            extension_point = inner_stock$iterate)),
+        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
+        translate = f_substitute(~{
+            for (possible_area in seq_along(stock__areas)) {
+                if (stock__areas[[possible_area]] == area) {
+                    stock__area_idx <- possible_area
+                    break
+                }
+            }
+            extension_point
+            # TODO: What if we fall off the end?
+        }, list(
+            extension_point = inner_stock$translate)),
+        name = inner_stock$name)
 }
 
 g3s_age <- function(inner_stock, minage, maxage) {
     # If these are literals, they should be integers
-    stock_minage <- if(is.numeric(minage)) as.integer(minage) else minage
-    stock_maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
-    stock_num <- array(dim = c(dim(stock_definition(inner_stock, 'stock_num')), stock_maxage - stock_minage + 1))
-    stock_wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock_wgt')), stock_maxage - stock_minage + 1))
-    stock_age_idx <- 0L
-    inner_stock <- stock_extend(inner_stock,
-        stock_num = as.call(c(as.list(inner_stock$stock_num), as.symbol(paste0(inner_stock$name, "_age_idx")))),
-        stock_wgt = as.call(c(as.list(inner_stock$stock_wgt), as.symbol(paste0(inner_stock$name, "_age_idx")))),
-        iterate = f_substitute(~for (age in seq(stock_minage, stock_maxage)) {
-            stock_age_idx <- g3_idx(age - stock_minage + 1)
+    stock__minage <- if(is.numeric(minage)) as.integer(minage) else minage
+    stock__maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
+    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), stock__maxage - stock__minage + 1))
+    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), stock__maxage - stock__minage + 1))
+    stock__age_idx <- 0L
+
+    list(
+        iterate = f_substitute(~for (age in seq(stock__minage, stock__maxage)) {
+            stock__age_idx <- g3_idx(age - stock__minage + 1)
             extension_point
-        }, list(extension_point = inner_stock$iterate)))
+        }, list(
+            extension_point = inner_stock$iterate)),
+        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__age_idx"))),
+        translate = f_substitute(~if (age <= stock__maxage) {
+            stock__age_idx <- g3_idx(age - stock__minage + 1)
+            extension_point
+        }, list(
+            extension_point = inner_stock$translate)),
+        name = inner_stock$name)
 }
 
 g3s_prey <- function(inner_stock, energycontent) {

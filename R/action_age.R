@@ -1,28 +1,27 @@
 # On final step of year, move stock into the next age bracket
 g3a_age <- function(stock) {
     # Mangle stock_num / stock_wgt to remove non-age parameters
-    stock_num_age <- as.call(lapply(ling_imm$stock_num, function (x) {
-        if (as.character(x) %in% c("[", paste0(stock$name, "_num"))) x
-        else if (as.character(x) %in% c(paste0(stock$name, "_age_idx"))) as.symbol(paste0(stock$name, "_age_idx"))
-        else ling_imm$stock_num[[3]]
+    age_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
+        if (as.character(x) %in% c("[", ".", "stock__age_idx")) x
+        else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
-    stock_num_age_older <- as.call(lapply(ling_imm$stock_num, function (x) {
-        if (as.character(x) %in% c("[", paste0(stock$name, "_num"))) x
-        else if (as.character(x) %in% c(paste0(stock$name, "_age_idx"))) call("+", as.symbol(paste0(stock$name, "_age_idx")), 1)
-        else ling_imm$stock_num[[3]]
+    age_older_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
+        if (as.character(x) %in% c("[", ".")) x
+        else if (as.character(x) %in% c("stock__age_idx")) call("+", x, 1)  # Add 1 to age paramter
+        else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
     list(
-        step125 = stock_step(stock, run_if = ~cur_step_final, init = f_substitute(~for (age in seq(stock_maxage, stock_minage)) {
-            stock_age_idx <- g3_idx(age - stock_minage + 1)
+        step125 = stock_step(stock, run_if = ~cur_step_final, init = fix_subsets(f_substitute(~for (age in seq(stock__maxage, stock__minage)) {
+            stock__age_idx <- g3_idx(age - stock__minage + 1)
 
-            if (age == stock_maxage) {
+            if (age == stock__maxage) {
                 comment("TODO: Plus group migration shenanigans")
             } else {
-                stock_num_older <- stock_num_older + stock_num
-                stock_num <- 0
+                stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
+                stock__num[age_iter_ss] <- 0
             }
         }, list(
-            stock_num = stock_num_age,
-            stock_num_older = stock_num_age_older))))
+            age_iter_ss = age_iter_ss,
+            age_older_iter_ss = age_older_iter_ss)))))
 }

@@ -3,7 +3,7 @@ g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     # TODO: Where did alpha_f and beta_f go? Missing weight?
     f_substitute(
-        ~(linf_f - stock_meanlen) * (1 - exp(-kappa_f * cur_step_len)),
+        ~(linf_f - stock__meanlen) * (1 - exp(-kappa_f * cur_step_len)),
         list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
@@ -103,7 +103,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     }')
 
     f_substitute(
-        ~growth_bbinom(stock_grow_l, stock_dl, stock_countlen, beta_f),
+        ~growth_bbinom(stock__grow_l, stock__dl, stock__countlen, beta_f),
         list(beta_f = beta_f))
 }
 
@@ -112,18 +112,18 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
 g3a_grow <- function(stock, growth_f, impl_f) {
     # See AgeBandMatrix::Grow
-    stock_growth_num <- stock_definition(stock, 'stock_num')
-    stock_grow_l <- array(dim = dim(stock_growth_num)[[1]])
+    stock__growth_num <- stock_definition(stock, 'stock__num')
+    stock__grow_l <- array(dim = dim(stock__growth_num)[[1]])
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
-    stock_growth_ratio <- Matrix::sparseMatrix(dims = c(length(stock_grow_l), length(stock_grow_l)), i={}, j={})
+    stock__growth_ratio <- Matrix::sparseMatrix(dims = c(length(stock__grow_l), length(stock__grow_l)), i={}, j={})
     list(
         step055b = stock_step(stock,
             iter = f_substitute(~{
-                stock_grow_l <- growth_f
-                stock_growth_ratio <- impl_f
+                stock__grow_l <- growth_f
+                stock__growth_ratio <- impl_f
 
-                stock_num <- Matrix::colSums(stock_growth_ratio %*% stock_num)
+                stock__num[stock__iter] <- Matrix::colSums(stock__growth_ratio %*% stock__num[stock__iter])
             }, list(
                 growth_f = growth_f,
                 impl_f = impl_f))))

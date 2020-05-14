@@ -28,7 +28,7 @@ ling_imm_actions <- c(list(),
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param("lingimm.init.", age),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_imm_stddev[[ling_imm_age_idx]],  # TODO: age_idx is already corrected, but expecting it to work for anything is a bit of a landmine
+        stddev_f = ~ling_imm_stddev[[ling_imm__age_idx]],  # TODO: age_idx is already corrected, but expecting it to work for anything is a bit of a landmine
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_grow(ling_imm,
@@ -66,7 +66,7 @@ ling_mat_actions <- c(list(),
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param("lingmat.init.", age),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_mat_stddev[[ling_mat_age_idx]],
+        stddev_f = ~ling_mat_stddev[[ling_mat__age_idx]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
     g3a_grow(ling_mat,
