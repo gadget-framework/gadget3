@@ -16,10 +16,8 @@ g3a_mature <- function(input_stock, output_stocks, maturity_f, maturity_steps = 
     out <- new.env(parent = emptyenv())
     out$step056 <- stock_step(input_stock, extra_stock = matured, iter_f = f_substitute(~{
         comment(stock_comment)
-        matured__num[matured__iter] <- input_stock__num[input_stock__iter] * maturity_f
-        input_stock__num[input_stock__iter] <- input_stock__num[input_stock__iter] - matured__num[matured__iter]
-        matured__wgt[matured__iter] <- input_stock__wgt[input_stock__iter] * maturity_f
-        input_stock__wgt[input_stock__iter] <- input_stock__wgt[input_stock__iter] - matured__wgt[matured__iter]
+        input_stock__num[input_stock__iter] <- input_stock__num[input_stock__iter] - (matured__num[matured__iter] <- input_stock__num[input_stock__iter] * maturity_f)
+        input_stock__wgt[input_stock__iter] <- input_stock__wgt[input_stock__iter] - (matured__wgt[matured__iter] <- input_stock__wgt[input_stock__iter] * maturity_f)
     }, list(
         stock_comment = paste0("Move matured ", input_stock$name ," into temporary storage"),
         maturity_f = maturity_f)))
