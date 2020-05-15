@@ -12,9 +12,7 @@ g3a_mature <- function(input_stock, output_stocks, maturity_f, maturity_steps = 
     # TODO: Multi-stock list, evenly spread across all
 
     # Make a temporary stock to store the outputs
-    # TODO: This needs to live somewhere in stock at least
-    matured <- input_stock
-    matured$name <- paste0('matured_', input_stock$name)
+    matured <- stock_clone(input_stock, name = paste0('matured_', input_stock$name))
 
     out <- new.env(parent = emptyenv())
     out$step056 <- stock_step(input_stock, extra_stock = matured, iter_f = f_substitute(~{

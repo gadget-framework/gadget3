@@ -16,6 +16,16 @@ stock_definition <- function(stock, var_name) {
     get(var_name, envir = rlang::f_env(stock$iterate))
 }
 
+# Copy a stock definition, change the name.
+stock_clone <- function(stock, name) {
+    new_stock <- stock
+    new_stock$name <- name
+    # NB: new_stock will share stock's environment, but (probably?) okay,
+    # since these will get used with f_substitute which will create a new one
+    # anyway.
+    return(new_stock)
+}
+
 # A vector of areas, subsetting preserves the full list
 g3_areas <- function (...) {
     structure(
