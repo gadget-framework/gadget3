@@ -426,7 +426,10 @@ Type objective_function<Type>::operator() () {
 
 # cpp source should be edited without deparsing
 edit.g3_cpp <- function(name = NULL, file = "", title = NULL, editor = getOption("editor"), ...) {
-    if (file == "") file <- tempfile(fileext = ".cpp")
+    if (file == "") {
+        file <- tempfile(fileext = ".cpp")
+        on.exit(unlink(file))
+    }
     writeLines(name, con = file)
     utils::file.edit(file, title = title, editor = editor)
     out <- readLines(file)
