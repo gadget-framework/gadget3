@@ -92,5 +92,20 @@ g3_compile_r <- function(actions) {
     # NB: Needs to be globalenv() to evaluate core R
     environment(out) <- new.env(parent = globalenv())
     assign("model_data", model_data, envir = environment(out))
+    class(out) <- c("g3_r", class(out))
+    return(out)
+}
+
+# Set a much higher width-cutoff for R source
+edit.g3_r <- function(name = NULL, file = "", title = NULL, editor = getOption("editor"), ...) {
+    if (file == "") {
+        file <- tempfile(fileext = ".R")
+        on.exit(unlink(file))
+    }
+    writeLines(deparse(name, width.cutoff = 500L), con = file)
+    utils::file.edit(file, title = title, editor = editor)
+    out <- parse(file = file)
+    attributes(out) <- attributes(name)
+    environment(out) <- environment(name)
     return(out)
 }
