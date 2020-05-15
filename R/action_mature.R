@@ -9,7 +9,6 @@ g3a_mature_continuous <- function (alpha, l50, beta, a50) {
 g3a_mature <- function(input_stock, output_stocks, maturity_f, maturity_steps = NULL) {
     # Single stock case, turn back into data.frame
     if (!is.data.frame(output_stocks)) output_stocks <- data.frame(stocks = I(list(output_stocks)), ratios = 1)
-    # TODO: Multi-stock list, evenly spread across all
 
     # Make a temporary stock to store the outputs
     matured <- stock_clone(input_stock, name = paste0('matured_', input_stock$name))
