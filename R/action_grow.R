@@ -117,14 +117,15 @@ g3a_grow <- function(stock, growth_f, impl_f) {
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
     stock__growth_ratio <- Matrix::sparseMatrix(dims = c(length(stock__grow_l), length(stock__grow_l)), i={}, j={})
-    list(
-        step055b = stock_step(stock,
-            iter = f_substitute(~{
-                stock__grow_l <- growth_f
-                stock__growth_ratio <- impl_f
+    out <- list()
+    out[[paste0("050:", stock$name)]] <- stock_step(stock,
+        iter = f_substitute(~{
+            stock__grow_l <- growth_f
+            stock__growth_ratio <- impl_f
 
-                stock__num[stock__iter] <- Matrix::colSums(stock__growth_ratio %*% stock__num[stock__iter])
-            }, list(
-                growth_f = growth_f,
-                impl_f = impl_f))))
+            stock__num[stock__iter] <- Matrix::colSums(stock__growth_ratio %*% stock__num[stock__iter])
+        }, list(
+            growth_f = growth_f,
+            impl_f = impl_f)))
+    return(out)
 }

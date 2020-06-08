@@ -22,7 +22,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
     cur_step_final <- FALSE
     total_steps <- ~length(steps) * (end_year - start_year) + length(steps) - 1
 
-    list(step0 = ~{
+    list("000" = ~{
         comment("g3a_time")
         if (cur_time > total_steps) break
         cur_year <- start_year + (cur_time %/% step_count)
@@ -30,7 +30,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
         cur_step_len <- steps[[g3_idx(cur_step)]]
         cur_step_final <- cur_step == step_count
         debugf("** Tick: %d-%d\n", cur_year, cur_step)
-    }, step999 = ~{
+    }, "990" = ~{
         cur_time <- cur_time + 1
     })
 }

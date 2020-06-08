@@ -11,17 +11,18 @@ g3a_age <- function(stock) {
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
-    list(
-        step125 = stock_step(stock, run_if = ~cur_step_final, init = fix_subsets(f_substitute(~for (age in seq(stock__maxage, stock__minage)) {
-            stock__age_idx <- g3_idx(age - stock__minage + 1)
+    out <- list()
+    out[[paste0("120:", stock$name)]] <- stock_step(stock, run_if = ~cur_step_final, init = fix_subsets(f_substitute(~for (age in seq(stock__maxage, stock__minage)) {
+        stock__age_idx <- g3_idx(age - stock__minage + 1)
 
-            if (age == stock__maxage) {
-                comment("TODO: Plus group migration shenanigans")
-            } else {
-                stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
-                stock__num[age_iter_ss] <- 0
-            }
-        }, list(
-            age_iter_ss = age_iter_ss,
-            age_older_iter_ss = age_older_iter_ss)))))
+        if (age == stock__maxage) {
+            comment("TODO: Plus group migration shenanigans")
+        } else {
+            stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
+            stock__num[age_iter_ss] <- 0
+        }
+    }, list(
+        age_iter_ss = age_iter_ss,
+        age_older_iter_ss = age_older_iter_ss))))
+    return(out)
 }

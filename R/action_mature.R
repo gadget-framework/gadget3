@@ -40,7 +40,7 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
     matured <- stock_clone(stock, name = paste0('matured_', stock$name))
 
     out <- new.env(parent = emptyenv())
-    out$step056 <- stock_step(stock, extra_stock = matured, iter_f = f_substitute(~{
+    out[[paste0('070:1:', stock$stock_name)]] <- stock_step(stock, extra_stock = matured, iter_f = f_substitute(~{
         comment(stock_comment)
         stock__num[stock__iter] <- stock__num[stock__iter] - (matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f)
         stock__wgt[stock__iter] <- stock__wgt[stock__iter] - (matured__wgt[matured__iter] <- stock__wgt[stock__iter] * maturity_f)
@@ -52,7 +52,7 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
         output_stock <- output_stocks$stocks[[n]]
         output_ratio <- output_stocks$ratios[[n]]
 
-        assign(paste0('step075:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter = f_substitute(~{
+        assign(paste0('070:2:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter = f_substitute(~{
             comment(stock_comment)
             output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + matured__num[matured__iter] * output_ratio
             output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] + matured__wgt[matured__iter] * output_ratio
