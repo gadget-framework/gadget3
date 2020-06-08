@@ -29,7 +29,7 @@ ling_imm_stddev <- c(
     11.3447991170274,
     11.7721342759715,
     13.6152275606449)
-ling_imm_actions <- c(list(),
+ling_imm_actions <- g3_collate(
     g3a_initialconditions(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param("lingimm.init.", age),
@@ -62,7 +62,7 @@ ling_mat_stddev <- c(
      17.9426701121357,
      19.1787817582897,
      15.9776436358384)
-ling_mat_actions <- c(list(),
+ling_mat_actions <- g3_collate(
     g3a_initialconditions(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param("lingmat.init.", age),
@@ -89,7 +89,7 @@ ling_mat_actions <- c(list(),
 #          )
 
 time <- g3a_time(start_year = 1983, end_year = 1985, c(3, 3, 3, 3))
-ling_model <- g3_compile_r(c(
+ling_model <- g3_compile_r(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
     time))

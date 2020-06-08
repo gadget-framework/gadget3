@@ -298,7 +298,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 }
 
 g3_precompile_tmb <- function(actions) {
-    all_actions <- g3_collate(actions)
+    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     model_parameters <- list()
 

@@ -7,22 +7,18 @@ g3_param <- function(...) {
     match.call()
 }
 
-# Combine actions into a single while loop formula, with a combined environment
-# Order all steps alphanumerically by name
-g3_collate <- function(actions) {
-    f_combine <- function (list_of_f) {
-        e <- g3_global_env
-        # Stack environments together
-        for (f in list_of_f) {
-            # NB: Actions producing multiple steps will share environments. We
-            # have to clone environments so they have separate parents.
-            e <- rlang::env_clone(rlang::f_env(f), parent = e)
+# Combine all provided action lists into one action list, throwing away duplicates
+g3_collate <- function(...) {
+    # Combine all lists into an environment, later lists win over previous
+    # TODO: Just concatenate the lists backwards?
+    actions <- new.env(parent = emptyenv())
+    for (l in list(...)) {
+        for (n in names(l)) {
+            actions[[n]] <- l[[n]]
         }
-        # Combine all functions into one expression
-        out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), rlang::f_rhs)))
-        formula(call("~", call("while", TRUE, out_call)), env = e)
     }
+    actions <- as.list(actions)
 
-    actions <- actions[order(names(actions))]  # Steps should be in alphanumeric order
-    return(f_combine(actions))
+    # Order items in alphanumeric order
+    return(actions[order(names(actions))])
 }

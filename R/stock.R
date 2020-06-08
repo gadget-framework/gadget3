@@ -72,20 +72,26 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
         name = var_name)
 }
 
-g3s_fleet <- function(var_name) {
-    extension_point <- c()
-    assign(paste0(var_name, '_state'), 0)
+g3_fleet <- function(var_name) {
     list(
-        iterate = ~extension_point)
+        iterate = ~extension_point,
+        iter_ss = quote(`[`(.)),  # NB: No dimensions yet
+        translate ~extension_point,
+        name = var_name)
 }
 
 g3s_livesonareas <- function(inner_stock, areas) {
     stopifnot('g3_areas' %in% class(areas))
+    stock_env <- rlang::f_env(inner_stock$iterate)
 
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     area <- areas[[1]]
-    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), length(stock__areas)))
-    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), length(stock__areas)))
+    if (exists("stock__num", envir = stock_env)) {
+        stock__num <- array(dim = c(dim(stock_env[['stock__num']]), length(stock__areas)))
+    }
+    if (exists("stock__wgt", envir = stock_env)) {
+        stock__wgt <- array(dim = c(dim(stock_env[['stock__wgt']]), length(stock__areas)))
+    }
     stock__area_idx <- 0L
 
     list(
