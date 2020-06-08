@@ -105,3 +105,24 @@ fix_subsets <- function (in_f) {
         }
     })
 }
+
+
+f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
+    # Stack environments together
+    e <- parent
+    for (f in list_of_f) {
+        # NB: Actions producing multiple steps will share environments. We
+        # have to clone environments so they have separate parents.
+        e <- rlang::env_clone(rlang::f_env(f), parent = e)
+    }
+
+    # Combine all functions into one expression
+    out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), rlang::f_rhs)))
+    if (!is.null(wrap_call)) {
+        # Wrap inner call with outer
+        out_call <- as.call(c(
+            as.list(wrap_call),
+            out_call))
+    }
+    formula(call("~", out_call), env = e)
+}
