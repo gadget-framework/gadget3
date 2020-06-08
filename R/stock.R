@@ -67,7 +67,7 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
 
     list(
         iterate = ~extension_point,
-        iter_ss = as.call(head(quote(.[,1]), -1)),  # i.e. .[(missing),]
+        iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
         translate = ~extension_point,
         name = var_name)
 }
