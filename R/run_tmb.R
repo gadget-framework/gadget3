@@ -287,7 +287,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     if (call_name == "comment") {
-        return(paste(c("// ", in_call[[2]]), collapse = ""))
+        # return(paste(c('debugf("// ', gsub("\n", " ", in_call[[2]], fixed = TRUE), '\\n")'), collapse = ""))
+        return(paste(c("// ", gsub("\n", " ", in_call[[2]], fixed = TRUE)), collapse = ""))
     }
 
     env_defn <- mget(call_name, envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
