@@ -112,11 +112,11 @@ g3s_livesonareas <- function(inner_stock, areas) {
             for (possible_area in seq_along(stock__areas)) {
                 if (stock__areas[[possible_area]] == area) {
                     stock__area_idx <- possible_area
+
+                    extension_point
                     break
                 }
             }
-            extension_point
-            # TODO: What if we fall off the end?
         }, list(
             extension_point = inner_stock$translate)),
         name = inner_stock$name)
