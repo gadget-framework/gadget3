@@ -73,6 +73,8 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
 }
 
 g3_fleet <- function(var_name) {
+    stock__catch <- 0.0
+
     list(
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
@@ -91,6 +93,9 @@ g3s_livesonareas <- function(inner_stock, areas) {
     }
     if (exists("stock__wgt", envir = stock_env)) {
         stock__wgt <- array(dim = c(dim(stock_env[['stock__wgt']]), length(stock__areas)))
+    }
+    if (exists("stock__catch", envir = stock_env)) {
+        stock__wgt <- array(dim = c(dim(stock_env[['stock__catch']]), length(stock__areas)))
     }
     stock__area_idx <- 0L
 
