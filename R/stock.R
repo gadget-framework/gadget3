@@ -49,6 +49,11 @@ g3_areas <- function (...) {
     return(y)
 }
 
+as.data.frame.g3_areas <- function(x, ...) {
+    # Just store numeric area values in data frames
+    return(as.data.frame(as.numeric(x), ...))
+}
+
 # TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
 g3_stock <- function(var_name, minlength, maxlength, dl) {
     # If these are literals, they should be integers
