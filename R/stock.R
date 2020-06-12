@@ -95,7 +95,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
         stock__wgt <- array(dim = c(dim(stock_env[['stock__wgt']]), length(stock__areas)))
     }
     if (exists("stock__catch", envir = stock_env)) {
-        stock__wgt <- array(dim = c(dim(stock_env[['stock__catch']]), length(stock__areas)))
+        stock__catch <- array(dim = c(dim(stock_env[['stock__catch']]), length(stock__areas)))
     }
     stock__area_idx <- 0L
 
