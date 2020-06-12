@@ -163,6 +163,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             # Only one dimension left, cast as vector
             out <- paste0(out, ".vec()")
         }
+        if (missings == 0) {
+            # No dimensions left, retrieve content from our single-value array
+            # TODO: Rewrite to use (x, y, z) instead of .col(x).col(y).col(z)(0)
+            out <- paste0(out, "(0)")
+        }
         return(out)
     }
 
