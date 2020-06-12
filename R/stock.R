@@ -76,7 +76,7 @@ g3_fleet <- function(var_name) {
     list(
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
-        translate ~extension_point,
+        translate = ~extension_point,
         name = var_name)
 }
 
