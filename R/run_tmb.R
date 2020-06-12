@@ -320,7 +320,7 @@ g3_precompile_tmb <- function(actions) {
 
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]])) {
+            if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
                 scope[[var_name]] <- cpp_definition(
                     'auto',
                     var_name,
@@ -336,7 +336,7 @@ g3_precompile_tmb <- function(actions) {
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
-            if (var_name %in% scope) {
+            if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
                 next
             }

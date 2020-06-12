@@ -15,14 +15,14 @@ g3_compile_r <- function(actions) {
 
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]])) {
+            if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
                 scope[[var_name]] <- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
             }
         }
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
-            if (var_name %in% scope) {
+            if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
                 next
             }
