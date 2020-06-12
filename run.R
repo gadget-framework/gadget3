@@ -20,6 +20,12 @@ ling_mat <- g3_stock('ling_mat', 20, 160, 4) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
+igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('a')])
+lln <- g3_fleet('lln') %>% g3s_livesonareas(areas[c('a')])
+bmt <- g3_fleet('bmt') %>% g3s_livesonareas(areas[c('a')])
+gil <- g3_fleet('gil') %>% g3s_livesonareas(areas[c('a')])
+foreign <- g3_fleet('foreign') %>% g3s_livesonareas(areas[c('a')])
+
 ling_imm_stddev <- c(
     8.25,
     10.5644599516659,
@@ -81,17 +87,25 @@ ling_mat_actions <- g3_collate(
             maxlengthgroupgrowth = 15)),
     list())
 
-#si <- g3s_fleet('si') %>% 
-#    g3s_livesonareas(areas = g3_areas[c('a', 'b', 'c')]) %>%
-#    g3s_predator_number(
-#          ling_imm = (~ 0.5 * preylen),
-#          ling_mat = (~ 0.5 * preylen),
-#          )
+igfs_totaldata <- data.frame(
+    year = c(rep(1983, 4), rep(1984, 4), rep(1985, 4)),
+    step = 1:4,
+    area = areas['a'],
+    value = 1:4)
+
+consumption_actions <- g3_collate(
+    g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
+        suitabilities = list(
+            ling_imm = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50')),
+            ling_mat = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50'))),
+        amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
+    list())
 
 time <- g3a_time(start_year = 1983, end_year = 1985, c(3, 3, 3, 3))
 ling_model <- g3_compile_r(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
+    consumption_actions,
     time))
 print(ling_model)
 
@@ -186,6 +200,7 @@ str(result)
 tmb_ling <- g3_precompile_tmb(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
+    consumption_actions,
     time))
 writeLines(tmb_ling)
 ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
