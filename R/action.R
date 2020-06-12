@@ -60,7 +60,10 @@ stock_step <- function(stock, init_f = NULL, iter_f = NULL, final_f = NULL, run_
 stock_rename <- function(f, old_name, new_name) {
    old_name <- as.character(old_name)
    if (length(old_name) != 1) stop("Stocks should be variable references")
-   f_vars <- if (rlang::is_formula(f)) ls(rlang::f_env(f)) else all.vars(f)
+   f_vars <- all.vars(f)
+   if (rlang::is_formula(f)) {
+       f_vars <- union(f_vars, ls(rlang::f_env(f)))
+   }
    stock_re <- paste0("^", old_name, "__")
 
    # Find all vars matching stock_re
@@ -74,9 +77,11 @@ stock_rename <- function(f, old_name, new_name) {
    if (rlang::is_formula(f)) {
        new_env <- rlang::env_clone(rlang::f_env(f))
        for (old_var in f_vars[grepl(stock_re, f_vars)]) {
-           new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
-           remove(list = old_var, envir = new_env)
-           assign(new_var, get(old_var, env = rlang::f_env(f), inherits = FALSE), envir = new_env)
+           if (exists(old_var, envir = rlang::f_env(f), inherits = FALSE)) {
+               new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
+               remove(list = old_var, envir = new_env)
+               assign(new_var, get(old_var, env = rlang::f_env(f), inherits = FALSE), envir = new_env)
+           }
        }
        f <- f_substitute(f, as.list(subs))
        rlang::f_env(f) <- new_env
