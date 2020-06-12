@@ -88,6 +88,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     area <- areas[[1]]
+    possible_area <- areas[[1]]
     if (exists("stock__num", envir = stock_env)) {
         stock__num <- array(dim = c(dim(stock_env[['stock__num']]), length(stock__areas)))
     }
