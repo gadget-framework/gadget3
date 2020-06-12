@@ -183,7 +183,7 @@ result <- ling_model(ling_param)
 str(result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
-tmb_ling <- g3_precompile_tmb(c(
+tmb_ling <- g3_precompile_tmb(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
     time))
