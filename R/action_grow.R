@@ -38,7 +38,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
                    lgamma(beta) -
                    lgamma(alpha))
         dim(val) <- c(na,n + 1)
-        growth.matrix <- Matrix::sparseMatrix(dims = c(na, na), x=numeric(0), i={}, j={})
+        growth.matrix <- array(0,c(na,na))  # TODO: Disable sparse matrix for ++speed Matrix::sparseMatrix(dims = c(na, na), x=numeric(0), i={}, j={})
         for(lg in 1:na){
           if(lg == na){
             growth.matrix[na,na] <- 1
