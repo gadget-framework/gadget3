@@ -395,10 +395,14 @@ g3_precompile_tmb <- function(actions) {
                     # NB: Otherwise array. We only use matrix<> when we know we want matrix multiplication
                     cpp_type <- 'array<Type>'
                 }
-                # Just define dimensions
-                defn <- cpp_definition(
-                    cpp_type,
-                    paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
+                if (all(dim(var_val) == 0)) {
+                    defn <- cpp_definition(cpp_type, var_name)
+                } else {
+                    # Define fixed dimensions
+                    defn <- cpp_definition(
+                        cpp_type,
+                        paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
+                }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
                 defn <- paste0('DATA_ARRAY(', var_name , ')')
