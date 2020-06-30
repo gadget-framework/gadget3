@@ -42,7 +42,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
     # Return a list of steps
     list(step0 = ~{
         # Here we use both definitions above
-        if (cur_time > total_steps) break
+        if (cur_time > total_steps) return(nll)
     })
 }    
 ```
@@ -64,7 +64,7 @@ Type objective_function<Type>::operator() () {
     auto total_steps = (steps).size()*(end_year - start_year) + (steps).size() - 1;
       . . .
     while (true) {
-          if ( cur_time > total_steps )  break;
+          if ( cur_time > total_steps ) return(nll);
     }
 }
 ```

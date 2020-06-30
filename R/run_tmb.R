@@ -185,6 +185,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(call_name)
     }
 
+    if (call_name %in% c('return')) {
+        # Exiting function, no brackets in C++
+        return(paste0(
+            "return ",
+            cpp_code(in_call[[2]], in_envir, next_indent)))
+    }
+
     if (call_name == "%/%") {
         # Integer division
         return(paste0(
@@ -427,7 +434,7 @@ Type objective_function<Type>::operator() () {
     %s
 
     %s
-    return 0;  // TODO:
+    abort();  // Should have returned somewhere in the loop
 }\n", paste(var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)), collapse = "\n    "),
       cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions)))
     out <- strsplit(out, "\n")[[1]]

@@ -89,6 +89,7 @@ Type objective_function<Type>::operator() () {
     int end_year = 1985;
     int start_year = 1983;
     auto total_steps = (steps).size()*(end_year - start_year) + (steps).size() - 1;
+    Type nll = 0;
     int cur_year = 0;
     int step_count = 4;
     int cur_step = 0;
@@ -155,7 +156,7 @@ Type objective_function<Type>::operator() () {
     while (true) {
         {
           // g3a_time;
-          if ( cur_time > total_steps )  break;
+          if ( cur_time > total_steps )  return nll;
           cur_year = start_year + (((int) cur_time) / ((int) step_count));
           cur_step = (cur_time % step_count) + 1;
           cur_step_len = steps ( cur_step - 1 );
@@ -557,5 +558,5 @@ Type objective_function<Type>::operator() () {
 
       }
 
-    return 0;  // TODO:
+    abort();  // Should have returned somewhere in the loop
 }

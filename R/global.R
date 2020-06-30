@@ -18,3 +18,5 @@ assign('debugf', g3_native(r = function(...) {
        va_end(argptr);
    }
 '), envir = g3_global_env)
+
+assign('nll', 0.0, envir = g3_global_env)

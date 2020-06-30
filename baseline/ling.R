@@ -44,6 +44,7 @@ structure(function (param)
     end_year <- model_data$end_year
     start_year <- model_data$start_year
     total_steps <- length(steps) * (end_year - start_year) + length(steps) - 1
+    nll <- model_data$nll
     cur_year <- model_data$cur_year
     step_count <- model_data$step_count
     cur_step <- model_data$cur_step
@@ -108,7 +109,7 @@ structure(function (param)
         {
             comment("g3a_time")
             if (cur_time > total_steps) 
-                break
+                return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1
             cur_step_len <- steps[[(cur_step)]]

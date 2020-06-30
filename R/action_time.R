@@ -24,7 +24,7 @@ g3a_time <- function(start_year, end_year, steps = c(12)) {
 
     list("000" = ~{
         comment("g3a_time")
-        if (cur_time > total_steps) break
+        if (cur_time > total_steps) return(nll)
         cur_year <- start_year + (cur_time %/% step_count)
         cur_step <- (cur_time %% step_count) + 1
         cur_step_len <- steps[[g3_idx(cur_step)]]
