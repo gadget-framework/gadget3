@@ -41,7 +41,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(out)
     }
 
-    if (call_name %in% c("g3_param")) {
+    if (call_name %in% c("g3_param", "g3_param_array", "g3_param_matrix", "g3_param_vector")) {
         # params will end up being a variable
         return(cpp_escape_varname(in_call[[2]]))
     }
@@ -357,8 +357,10 @@ g3_precompile_tmb <- function(actions) {
         }
 
         # Find any g3_param and put it at the top
-        # TODO: Not considering type. Extra functions, e.g. g3_param_vector()
         call_replace(code,
+            g3_param_array = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_ARRAY(", cpp_escape_varname(x[[2]]), ");"),
+            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_MATRIX(", cpp_escape_varname(x[[2]]), ");"),
+            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_VECTOR(", cpp_escape_varname(x[[2]]), ");"),
             g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER(", cpp_escape_varname(x[[2]]), ");"))
         model_parameters <<- c(model_parameters, structure(as.list(rep(0, length(param_lines))), names = cpp_escape_varname(names(param_lines))))
 

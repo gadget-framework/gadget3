@@ -86,6 +86,9 @@ g3_compile_r <- function(actions) {
     out <- call_replace(out,
         g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
         g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
+        g3_param_array = repl_fn("param"),
+        g3_param_matrix = repl_fn("param"),
+        g3_param_vector = repl_fn("param"),
         g3_param = repl_fn("param"))
     out <- eval(out)
 
