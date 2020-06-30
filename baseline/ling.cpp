@@ -207,7 +207,7 @@ Type objective_function<Type>::operator() () {
         {
           // g3a_predate_totalfleet for igfs;
           {
-            igfs__catch.vec().setZero();
+            igfs__catch.setZero();
           }
 
         }
@@ -215,7 +215,7 @@ Type objective_function<Type>::operator() () {
         {
           // g3a_predate_totalfleet for ling_imm;
           {
-            ling_imm__totalpredate.vec().setZero();
+            ling_imm__totalpredate.setZero();
           }
 
         }
@@ -223,7 +223,7 @@ Type objective_function<Type>::operator() () {
         {
           // g3a_predate_totalfleet for ling_mat;
           {
-            ling_mat__totalpredate.vec().setZero();
+            ling_mat__totalpredate.setZero();
           }
 
         }
@@ -232,7 +232,7 @@ Type objective_function<Type>::operator() () {
           // g3a_predate_totalfleet for ling_imm;
           {
             // Zero counter of biomass caught for this fleet;
-            igfs__ling_imm.vec().setZero();
+            igfs__ling_imm.setZero();
           }
 
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
@@ -266,7 +266,7 @@ Type objective_function<Type>::operator() () {
           // g3a_predate_totalfleet for ling_mat;
           {
             // Zero counter of biomass caught for this fleet;
-            igfs__ling_mat.vec().setZero();
+            igfs__ling_mat.setZero();
           }
 
           for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {

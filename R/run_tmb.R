@@ -164,8 +164,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             return(paste0(".col(", d, ")"))
         }, character(1))), collapse = "")
 
-        if (missings == 1) {
-            # Only one dimension left, cast as vector
+        if (missings == 1 && length(in_call) > 3) {
+            # Only one dimension left, and didn't start out as vector, cast as vector
+            # NB: moo.vec() = ... won't actually change moo.
             out <- paste0(out, ".vec()")
         }
         if (missings == 0) {
