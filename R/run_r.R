@@ -109,8 +109,7 @@ edit.g3_r <- function(name = NULL, file = "", title = NULL, editor = getOption("
     }
     writeLines(deparse(name, width.cutoff = 500L), con = file)
     utils::file.edit(file, title = title, editor = editor)
-    out <- parse(file = file)
-    attributes(out) <- attributes(name)
+    out <- eval(parse(file = file))  # NB: Evaluate returned expression, that contains function / structure call
     environment(out) <- environment(name)
     return(out)
 }
