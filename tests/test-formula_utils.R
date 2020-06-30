@@ -1,6 +1,6 @@
 library(unittest)
 
-source('R/formula_utils.R')  # TODO: Import library
+for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)  # TODO: library(g3)
 
 deep_ls <- function (env) {
     if (environmentName(env) == "R_EmptyEnv") {
