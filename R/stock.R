@@ -67,8 +67,8 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
     stock__minlen <- stock__minlength + stock__dl * (seq_len(stock__countlen) - 1)
     stock__meanlen <- stock__minlen + (stock__dl / 2)
 
-    stock__num <- array(dim = c(stock__countlen))
-    stock__wgt <- array(dim = c(stock__countlen))
+    stock__num <- array(dim = c(stock__countlen))  # Number of individuals
+    stock__wgt <- array(dim = c(stock__countlen))  # Mean weight of individuals
 
     list(
         iterate = ~extension_point,
