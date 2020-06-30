@@ -24,20 +24,26 @@ structure(function (param)
         x <- rep(x, each = na)
         val <- exp(lgamma(n + 1) + lgamma(alpha + beta) + lgamma(n - x + beta) + lgamma(x + alpha) - lgamma(n - x + 1) - lgamma(x + 1) - lgamma(n + alpha + beta) - lgamma(beta) - lgamma(alpha))
         dim(val) <- c(na, n + 1)
+        return(val)
+    }
+    g3a_grow_apply <- function (lg_deltas, input_num) 
+    {
+        na <- dim(lg_deltas)[[1]]
+        n <- dim(lg_deltas)[[2]] - 1
         growth.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
             if (lg == na) {
                 growth.matrix[na, na] <- 1
             }
             else if (lg + n > na) {
-                growth.matrix[lg, lg:(na - 1)] <- val[lg, 1:(na - lg)]
-                growth.matrix[lg, na] <- sum(val[lg, (na - lg + 1):(n + 1)])
+                growth.matrix[lg, lg:(na - 1)] <- lg_deltas[lg, 1:(na - lg)]
+                growth.matrix[lg, na] <- sum(lg_deltas[lg, (na - lg + 1):(n + 1)])
             }
             else {
-                growth.matrix[lg, lg:(n + lg)] <- val[lg, ]
+                growth.matrix[lg, lg:(n + lg)] <- lg_deltas[lg, ]
             }
         }
-        return(growth.matrix)
+        return(Matrix::colSums(growth.matrix * input_num))
     }
     cur_time <- model_data$cur_time
     steps <- model_data$steps
@@ -86,18 +92,14 @@ structure(function (param)
     igfs_totaldata__lookup <- intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
-    ling_imm__grow_l <- array(dim = 35L)
-    ling_imm__growth_ratio <- Matrix::sparseMatrix(dims = c(35L, 35L), x = numeric(0), i = {
-    }, j = {
-    })
+    ling_imm__growth_l <- array(dim = c(0L, 0L))
     ling_imm__dl <- model_data$ling_imm__dl
     ling_imm__countlen <- model_data$ling_imm__countlen
-    ling_mat__grow_l <- array(dim = 35L)
-    ling_mat__growth_ratio <- Matrix::sparseMatrix(dims = c(35L, 35L), x = numeric(0), i = {
-    }, j = {
-    })
+    ling_imm__growth_w <- array(dim = 35L)
+    ling_mat__growth_l <- array(dim = c(0L, 0L))
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__countlen <- model_data$ling_mat__countlen
+    ling_mat__growth_w <- array(dim = 35L)
     matured_ling_imm__maxage <- model_data$matured_ling_imm__maxage
     matured_ling_imm__age_idx <- model_data$matured_ling_imm__age_idx
     matured_ling_imm__minage <- model_data$matured_ling_imm__minage
@@ -331,9 +333,12 @@ structure(function (param)
                 for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
                   area <- ling_imm__areas[[(1)]]
                   {
-                    ling_imm__grow_l <- (param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))
-                    ling_imm__growth_ratio <- growth_bbinom(ling_imm__grow_l, ling_imm__dl, ling_imm__countlen, param[["ling.bbin"]] * 10)
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- Matrix::colSums(ling_imm__growth_ratio %*% ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
+                    comment("Calculate increase in length/weight for each lengthgroup")
+                    ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, ling_imm__countlen, param[["ling.bbin"]] * 10)
+                    ling_imm__growth_w <- param[["lingimm.walpha"]] * ((ling_imm__meanlen - (param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingimm.wbeta"]] - ling_imm__meanlen^param[["lingimm.wbeta"]])
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
             }
@@ -345,9 +350,12 @@ structure(function (param)
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
                   {
-                    ling_mat__grow_l <- (param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))
-                    ling_mat__growth_ratio <- growth_bbinom(ling_mat__grow_l, ling_mat__dl, ling_mat__countlen, param[["ling.bbin"]] * 10)
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- Matrix::colSums(ling_mat__growth_ratio %*% ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
+                    comment("Calculate increase in length/weight for each lengthgroup")
+                    ling_mat__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, ling_mat__countlen, param[["ling.bbin"]] * 10)
+                    ling_mat__growth_w <- param[["lingmat.walpha"]] * ((ling_mat__meanlen - (param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingmat.wbeta"]] - ling_mat__meanlen^param[["lingmat.wbeta"]])
+                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
+                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }
             }

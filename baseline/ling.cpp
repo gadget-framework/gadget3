@@ -32,19 +32,22 @@ Type objective_function<Type>::operator() () {
         assert(lookup.count(key) > 0);
         return lookup[key];
     };
-    auto growth_bbinom = [](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> Eigen::SparseMatrix<Type> {
+    auto growth_bbinom = [](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
-        vector<Type> alpha = (beta * delt_l) / (binn - delt_l);
+        vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
         // possible length growth
-        int na = alpha.size();
+        int na = alpha_1.size();
         int n = binn;
-        alpha = alpha.replicate(n + 1, 1);
+
+        vector<Type> alpha(na * (n + 1));
+        // TODO: alpha.replicate(n + 1, 1) should do this, but first entry is zero?
+        for (auto i = 0; i < alpha.size(); i++) alpha(i) = alpha_1(i % alpha_1.size());
 
         vector<Type> x((n + 1) * na);
-        for (auto i = 0; i < x.size(); i++) x(i) = i / alpha.size();
+        for (auto i = 0; i < x.size(); i++) x(i) = i / n;
 
         // Create a probability matrix where the columns represent the
         // probability of growing x lengthgroups for each lengthgroup
@@ -54,7 +57,7 @@ Type objective_function<Type>::operator() () {
         vector<Type> lgamma_arg(na * (n + 1));
 
         // NB: VECTORIZE1_t-ed lgamma needs a single symbol to work
-        val_vec = lgamma((Type) n);
+        val_vec = lgamma((Type) n + 1);
         lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);
         lgamma_arg = n - x + beta; val_vec = val_vec + lgamma(lgamma_arg);
         lgamma_arg = x + alpha; val_vec = val_vec + lgamma(lgamma_arg);
@@ -64,24 +67,35 @@ Type objective_function<Type>::operator() () {
         val_vec = val_vec - lgamma(beta);
         // NB: Straight lgamma(alpha) segfaults
         lgamma_arg = alpha + 0; val_vec = val_vec - lgamma(lgamma_arg);
+        val_vec = val_vec.exp();
 
         // Map val_vec into a matrix
-        Eigen::Map<Eigen::Matrix<Type, Dynamic, Dynamic>> val(val_vec.vec().data(), na, n);
+        array<Type> val(na, n + 1);
+        val = val_vec;
+        return(val);
+    };
+    auto g3a_grow_apply = [](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
+        lg_deltas = lg_deltas.transpose();
+        int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
+        int total_lgs = lg_deltas.cols(); // # Length groups
+        vector<Type> lg_growth;
+        vector<Type> out;
 
-        Eigen::SparseMatrix<Type> growth_matrix(na, na);
-        for(int lg = 0; lg < na ; lg++) {
-          if(lg == (na - 1)){
-            growth_matrix.coeffRef(lg, lg) = 1;
-          } else if(lg + n > na){
-            for (int i = 0 ; i < (na - lg); i++) growth_matrix.coeffRef(lg, lg + i) = val(lg, i);
-            growth_matrix.coeffRef(lg, na - 1) = val.block(lg, na - lg, 1, n - (na - lg)).sum();
-          } else {
-            for (int i = 0; i < n; i++) growth_matrix.coeffRef(lg, i) = val(lg, i);
+        lg_growth.resize(total_lgs);
+        out.resize(total_lgs);
+        out.setZero();
+        for (int lg = 0; lg < total_lgs; lg++) {
+          // Cant shrink
+          lg_growth.head(lg) = 0;
+          // Add any that have an appropriate group
+          lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
+          if (total_deltas - (total_lgs - lg) > 0) {
+              // Add any remaining to plus-group
+              lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
           }
+          out += lg_growth * input_num(lg);
         }
-        growth_matrix.makeCompressed();
-
-        return growth_matrix;
+        return out;
     };
     int cur_time = 0;
     
@@ -137,14 +151,14 @@ Type objective_function<Type>::operator() () {
     auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_mat__overconsumption(35,2,11);
     array<Type> ling_imm__overconsumption(35,1,8);
-    vector<Type> ling_imm__grow_l(35);
-    Eigen::SparseMatrix<Type> ling_imm__growth_ratio(35,35);
+    array<Type> ling_imm__growth_l;
     int ling_imm__dl = 4;
     int ling_imm__countlen = 35;
-    vector<Type> ling_mat__grow_l(35);
-    Eigen::SparseMatrix<Type> ling_mat__growth_ratio(35,35);
+    vector<Type> ling_imm__growth_w(35);
+    array<Type> ling_mat__growth_l;
     int ling_mat__dl = 4;
     int ling_mat__countlen = 35;
+    vector<Type> ling_mat__growth_w(35);
     int matured_ling_imm__maxage = 10;
     int matured_ling_imm__age_idx = 0;
     int matured_ling_imm__minage = 3;
@@ -441,9 +455,12 @@ Type objective_function<Type>::operator() () {
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
                   area = ling_imm__areas ( 1 - 1 );
                   {
-                    ling_imm__grow_l = (ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len));
-                    ling_imm__growth_ratio = growth_bbinom(ling_imm__grow_l, ling_imm__dl, ling_imm__countlen, ling__bbin*10);
-                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = (ling_imm__growth_ratio * (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()).matrix()).colwise().sum();
+                    // Calculate increase in length/weight for each lengthgroup;
+                    ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, ling_imm__countlen, ling__bbin*10);
+                    ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__meanlen - (ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__meanlen, (Type)lingimm__wbeta));
+                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec();
+                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec());
+                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() + ling_imm__growth_w) / ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec();
                   }
 
                 }
@@ -459,9 +476,12 @@ Type objective_function<Type>::operator() () {
               for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
                   area = ling_mat__areas ( ling_mat__area_idx );
                   {
-                    ling_mat__grow_l = (ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len));
-                    ling_mat__growth_ratio = growth_bbinom(ling_mat__grow_l, ling_mat__dl, ling_mat__countlen, ling__bbin*10);
-                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__growth_ratio * (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()).matrix()).colwise().sum();
+                    // Calculate increase in length/weight for each lengthgroup;
+                    ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, ling_mat__countlen, ling__bbin*10);
+                    ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__meanlen - (ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__meanlen, (Type)lingmat__wbeta));
+                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
+                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec());
+                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() + ling_mat__growth_w) / ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
                   }
 
                 }
