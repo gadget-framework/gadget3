@@ -30,7 +30,7 @@ g3_compile_r <- function(actions) {
                 # It's an iterator
                 next
             }
-            var_val <- get(var_name, env = env, inherits = TRUE)
+            var_val <- get(var_name, envir = env, inherits = TRUE)
 
             if (rlang::is_formula(var_val)) {
                 scope <- c(scope, var_defns(rlang::f_rhs(var_val), env))

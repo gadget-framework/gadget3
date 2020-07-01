@@ -80,7 +80,7 @@ stock_rename <- function(f, old_name, new_name) {
            if (exists(old_var, envir = rlang::f_env(f), inherits = FALSE)) {
                new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
                remove(list = old_var, envir = new_env)
-               assign(new_var, get(old_var, env = rlang::f_env(f), inherits = FALSE), envir = new_env)
+               assign(new_var, get(old_var, envir = rlang::f_env(f), inherits = FALSE), envir = new_env)
            }
        }
        f <- f_substitute(f, as.list(subs))

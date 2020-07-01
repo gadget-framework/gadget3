@@ -146,7 +146,7 @@ g3a_grow <- function(stock, growth_f, impl_f) {
 
     out <- list()
     out[[paste0("050:", stock$name)]] <- stock_step(stock,
-        iter = f_substitute(~{
+        iter_f = f_substitute(~{
             comment("Calculate increase in length/weight for each lengthgroup")
             stock__growth_l <- impl_l_f
             stock__growth_w <- growth_w_f

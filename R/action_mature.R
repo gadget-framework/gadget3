@@ -52,7 +52,7 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
         output_stock <- output_stocks$stocks[[n]]
         output_ratio <- output_stocks$ratios[[n]]
 
-        assign(paste0('070:2:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter = f_substitute(~{
+        assign(paste0('070:2:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter_f = f_substitute(~{
             comment(stock_comment)
             output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + matured__num[matured__iter] * output_ratio
             output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] + matured__wgt[matured__iter] * output_ratio

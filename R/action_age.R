@@ -12,7 +12,7 @@ g3a_age <- function(stock) {
     }))
 
     out <- list()
-    out[[paste0("120:", stock$name)]] <- stock_step(stock, run_if = ~cur_step_final, init = fix_subsets(f_substitute(~for (age in seq(stock__maxage, stock__minage)) {
+    out[[paste0("120:", stock$name)]] <- stock_step(stock, run_if = ~cur_step_final, init_f = fix_subsets(f_substitute(~for (age in seq(stock__maxage, stock__minage)) {
         stock__age_idx <- g3_idx(age - stock__minage + 1)
 
         if (age == stock__maxage) {
