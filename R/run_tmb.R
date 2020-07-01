@@ -255,6 +255,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ")"))
     }
 
+    if (call_name == "pmax") {
+        # TODO: First parameter has to be an array, second could be single value, can we enforce this?
+        return(paste0(
+            "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ").cwiseMax(",
+            cpp_code(in_call[[3]], in_envir, next_indent),
+            ")"))
+    }
+
     if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"

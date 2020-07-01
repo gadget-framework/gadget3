@@ -153,7 +153,7 @@ g3a_grow <- function(stock, growth_f, impl_f) {
 
             stock__wgt[stock__iter] <- stock__wgt[stock__iter] * stock__num[stock__iter]  # Convert to total weight
             stock__num[stock__iter] <- g3a_grow_apply(stock__growth_l, stock__num[stock__iter])
-            stock__wgt[stock__iter] <- (stock__wgt[stock__iter] + stock__growth_w) / stock__num[stock__iter]  # Add extra weight, back to mean
+            stock__wgt[stock__iter] <- (stock__wgt[stock__iter] + stock__growth_w) / pmax(stock__num[stock__iter], 0.00001)  # Add extra weight, back to mean
         }, list(
             impl_l_f = f_substitute(impl_f, list(stock__grow_f = growth_f$len)),
             growth_w_f = growth_f$wgt)))
