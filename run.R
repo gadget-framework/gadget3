@@ -1,8 +1,7 @@
 #!/usr/bin/Rscript --vanilla
 library(magrittr)
 
-# i.e. library(g3)
-for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)
+library(gadget3)
 
 end <- function (x) x
 

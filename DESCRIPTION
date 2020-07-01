@@ -1,0 +1,28 @@
+Package: gadget3
+Type: Package
+Title: TMB-Based Ecosystem Modelling Framework
+Version: 0.3.999
+Date: 2020-07-01
+Authors@R: c(person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut", "cre")),
+            person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut")),
+            person("Marine and Freshwater Research Institute (Iceland)", role = c("cph")))
+Maintainer: Jamie Lentin <lentinj@shuttlethread.com>
+Copyright: see file COPYRIGHTS
+Description: A framework to assist creation of ecosystem models, generating TMB
+             code to optimise model runs.
+             Designed to be able to reproduce gadget2 models, but able to
+             utilise TMB enhancements such as AD. For more details see
+             <https://hafro.github.io/gadget2>.
+Encoding: UTF-8
+Imports:
+    Matrix (>= 1.2-0),
+    methods,
+    rlang (>= 0.4.5),
+    stats,
+    TMB (>= 1.7.0),
+    utils,
+Suggests:
+    unittest (>= 1.4)
+License: GPL-2
+RoxygenNote: 7.0.2
+Biarch: yes

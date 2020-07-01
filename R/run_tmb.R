@@ -1,5 +1,3 @@
-library(TMB)
-
 # Pair of constants, so code editors don't get confused
 open_curly_bracket <- "{"
 close_curly_bracket <- "}"
@@ -486,9 +484,9 @@ g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(file
         "-std=c++1y",
         "-Wno-ignored-attributes",
         ""))
-    dyn.load(dynlib(cpp_dll))
+    dyn.load(TMB::dynlib(cpp_dll))
 
-    obj <- MakeADFun(
+    obj <- TMB::MakeADFun(
         data = as.list(environment(cpp_code)$model_data),
         parameters = model_parameters,
         DLL = basename(cpp_dll))

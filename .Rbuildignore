@@ -1,0 +1,14 @@
+\.git
+\.travis.yml
+^Makefile
+^[^/]+\.tar\.gz
+^.bash_history
+^do-release\.sh$
+^LICENSE$
+^[^/]+\.cpp$
+^[^/]+\.R$
+\.so$
+\.o$
+
+^baseline$
+^doc$

@@ -1,6 +1,6 @@
 library(unittest)
 
-for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)  # TODO: library(g3)
+library(gadget3)
 
 teststock <- g3_stock('teststock', 10, 40, 5)
 teststock__num <- rep(NA, 6)  # TODO: Bodge around not being available yet, should use proper initialconditions

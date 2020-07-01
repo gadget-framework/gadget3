@@ -1,6 +1,6 @@
 library(unittest)
 
-for (f in list.files('R', pattern = '*.R', full.names = TRUE)) source(f)  # TODO: library(g3)
+library(gadget3)
 
 ok_group('edit.g3_r - Round-trip through an editor results in working code', {
     model_fn <- g3_compile_r(list(~{

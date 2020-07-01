@@ -1,2 +1,5 @@
+/*.Rcheck/
 /.Rhistory
 /.Rprofile
+/*_*.tar.gz
+^cran-comments$
