@@ -159,13 +159,13 @@ Type objective_function<Type>::operator() () {
     int ling_mat__dl = 4;
     int ling_mat__countlen = 35;
     vector<Type> ling_mat__growth_w(35);
+    array<Type> matured_ling_imm__wgt(35,1,8);
     int matured_ling_imm__maxage = 10;
     int matured_ling_imm__age_idx = 0;
     int matured_ling_imm__minage = 3;
     DATA_IVECTOR(matured_ling_imm__areas)
     int matured_ling_imm__area_idx = 0;
     array<Type> matured_ling_imm__num(35,1,8);
-    array<Type> matured_ling_imm__wgt(35,1,8);
 
     while (true) {
         {
@@ -492,6 +492,10 @@ Type objective_function<Type>::operator() () {
 
         {
           // g3a_mature for ling_imm;
+          {
+            matured_ling_imm__wgt = ling_imm__wgt;
+          }
+
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
@@ -505,7 +509,6 @@ Type objective_function<Type>::operator() () {
                                 {
                                   // Move matured ling_imm into temporary storage;
                                   ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() -= (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec() = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()*1);
-                                  ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() -= (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec() = ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()*1);
                                 }
 
                                 break;
@@ -537,8 +540,9 @@ Type objective_function<Type>::operator() () {
                                 matured_ling_imm__area_idx = possible_area;
                                 {
                                   // Move matured ling_imm to ling_mat;
-                                  ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1;
-                                  ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1;
+                                  ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
+                                  ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
+                                  ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
                                 }
 
                                 break;

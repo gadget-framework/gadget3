@@ -100,13 +100,13 @@ structure(function (param)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__countlen <- model_data$ling_mat__countlen
     ling_mat__growth_w <- array(dim = 35L)
+    matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__maxage <- model_data$matured_ling_imm__maxage
     matured_ling_imm__age_idx <- model_data$matured_ling_imm__age_idx
     matured_ling_imm__minage <- model_data$matured_ling_imm__minage
     matured_ling_imm__areas <- structure(1L, .Dim = 1L)
     matured_ling_imm__area_idx <- model_data$matured_ling_imm__area_idx
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
-    matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     while (TRUE) {
         {
             comment("g3a_time")
@@ -362,6 +362,9 @@ structure(function (param)
         }
         {
             comment("g3a_mature for ling_imm")
+            {
+                matured_ling_imm__wgt <- ling_imm__wgt
+            }
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
@@ -375,7 +378,6 @@ structure(function (param)
                           {
                             comment("Move matured ling_imm into temporary storage")
                             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * 1)
-                            ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 1)
                           }
                           break
                         }
@@ -399,8 +401,9 @@ structure(function (param)
                           matured_ling_imm__area_idx <- possible_area
                           {
                             comment("Move matured ling_imm to ling_mat")
-                            ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1
-                            ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1
+                            ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
+                            ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
+                            ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                           }
                           break
                         }

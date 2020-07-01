@@ -40,10 +40,12 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
     matured <- stock_clone(stock, name = paste0('matured_', stock$name))
 
     out <- new.env(parent = emptyenv())
-    out[[paste0('070:1:', stock$stock_name)]] <- stock_step(stock, extra_stock = matured, iter_f = f_substitute(~{
+    out[[paste0('070:1:', stock$stock_name)]] <- stock_step(stock, extra_stock = matured, init_f = ~{
+        # Matured stock will weigh the same
+        matured__wgt <- stock__wgt
+    }, iter_f = f_substitute(~{
         comment(stock_comment)
         stock__num[stock__iter] <- stock__num[stock__iter] - (matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f)
-        stock__wgt[stock__iter] <- stock__wgt[stock__iter] - (matured__wgt[matured__iter] <- stock__wgt[stock__iter] * maturity_f)
     }, list(
         stock_comment = paste0("Move matured ", stock$name ," into temporary storage"),
         maturity_f = maturity_f)))
@@ -54,8 +56,13 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
 
         assign(paste0('070:2:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter_f = f_substitute(~{
             comment(stock_comment)
-            output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + matured__num[matured__iter] * output_ratio
-            output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] + matured__wgt[matured__iter] * output_ratio
+            # Total biomass
+            output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
+                (matured__wgt[matured__iter] * matured__num[matured__iter] * output_ratio)
+            # Add numbers together
+            output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + (matured__num[matured__iter] * output_ratio)
+            # Back down to mean biomass
+            output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / output_stock__num[output_stock__iter]
         }, list(
             stock_comment = paste0("Move matured ", stock$name ," to ", output_stock$name),
             output_ratio = output_ratio))), envir = out)
