@@ -67,7 +67,7 @@ g3_compile_r <- function(actions) {
         list(as.symbol(open_curly_bracket)),
         var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)),
         rlang::f_rhs(all_actions),
-        NULL)))
+        quote(stop("Should have return()ed somewhere in the loop")))))
 
     # Replace any in-line g3 calls that may have been in formulae
     repl_fn <- function(sym_name) {

@@ -430,4 +430,5 @@ structure(function (param)
             cur_time <- cur_time + 1
         }
     }
+    stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"))
