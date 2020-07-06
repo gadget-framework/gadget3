@@ -73,7 +73,7 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
     list(
         iterate = ~extension_point,
         iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
-        translate = ~extension_point,
+        intersect = ~extension_point,
         name = var_name)
 }
 
@@ -83,7 +83,7 @@ g3_fleet <- function(var_name) {
     list(
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
-        translate = ~extension_point,
+        intersect = ~extension_point,
         name = var_name)
 }
 
@@ -114,7 +114,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
             area_lookup = if (length(stock__areas) > 1) quote(stock__areas[[stock__area_idx]]) else quote(stock__areas[[g3_idx(1)]]),
             extension_point = inner_stock$iterate)),
         iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
-        translate = f_substitute(~for (possible_area in seq_along(stock__areas)) {
+        intersect = f_substitute(~for (possible_area in seq_along(stock__areas)) {
             if (stock__areas[[possible_area]] == area) {
                 stock__area_idx <- possible_area
 
@@ -122,7 +122,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 break
             }
         }, list(
-            extension_point = inner_stock$translate)),
+            extension_point = inner_stock$intersect)),
         name = inner_stock$name)
 }
 
@@ -141,11 +141,11 @@ g3s_age <- function(inner_stock, minage, maxage) {
         }, list(
             extension_point = inner_stock$iterate)),
         iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__age_idx"))),
-        translate = f_substitute(~if (age <= stock__maxage) {
+        intersect = f_substitute(~if (age <= stock__maxage) {
             stock__age_idx <- g3_idx(age - stock__minage + 1)
             extension_point
         }, list(
-            extension_point = inner_stock$translate)),
+            extension_point = inner_stock$intersect)),
         name = inner_stock$name)
 }
 

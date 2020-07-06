@@ -15,7 +15,7 @@ stock_step <- function(stock, init_f = NULL, iter_f = NULL, final_f = NULL, run_
     if (!is.null(extra_stock)) {
         # Loop over first stock, then translate indices to second
         loop_f <- f_substitute(loop_f, list(
-            extension_point = stock_rename(extra_stock$translate, "stock", our_args$extra_stock)))
+            extension_point = stock_rename(extra_stock$intersect, "stock", our_args$extra_stock)))
     }
 
     # Replace __iter with correct code, wrap iter_f part in the stock's iterate code
