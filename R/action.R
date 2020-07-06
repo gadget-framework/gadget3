@@ -5,6 +5,43 @@
 # - stock_rename(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 stock_step <- function(step_f) {
+    # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
+    stock_rename <- function(f, old_name, new_name) {
+        old_name <- as.character(old_name)
+        if (length(old_name) != 1) stop("Stocks should be variable references")
+        f_vars <- all.vars(f)
+        if (rlang::is_formula(f)) {
+            f_vars <- union(f_vars, ls(rlang::f_env(f)))
+        }
+        stock_re <- paste0("^", old_name, "__")
+
+        # Find all vars matching stock_re
+        subs <- new.env(parent = emptyenv())
+        for (old_var in f_vars[grepl(stock_re, f_vars)]) {
+            new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
+            assign(old_var, as.symbol(new_var), envir = subs)
+        }
+
+        # Update environment with new names of variables
+        if (rlang::is_formula(f)) {
+            new_env <- rlang::env_clone(rlang::f_env(f))
+            for (old_var in f_vars[grepl(stock_re, f_vars)]) {
+                if (exists(old_var, envir = rlang::f_env(f), inherits = FALSE)) {
+                    new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
+                    remove(list = old_var, envir = new_env)
+                    assign(new_var, get(old_var, envir = rlang::f_env(f), inherits = FALSE), envir = new_env)
+                }
+            }
+            f <- f_substitute(f, as.list(subs))
+            rlang::f_env(f) <- new_env
+        } else {
+            # Just use regular substitute
+            f <- eval(call("substitute", f, as.list(subs)))
+        }
+
+        return(f)
+    }
+
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
         stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
@@ -58,41 +95,4 @@ stock_step <- function(step_f) {
         stock_intersect = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'intersect'))
         }))
-}
-
-# For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
-stock_rename <- function(f, old_name, new_name) {
-   old_name <- as.character(old_name)
-   if (length(old_name) != 1) stop("Stocks should be variable references")
-   f_vars <- all.vars(f)
-   if (rlang::is_formula(f)) {
-       f_vars <- union(f_vars, ls(rlang::f_env(f)))
-   }
-   stock_re <- paste0("^", old_name, "__")
-
-   # Find all vars matching stock_re
-   subs <- new.env(parent = emptyenv())
-   for (old_var in f_vars[grepl(stock_re, f_vars)]) {
-       new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
-       assign(old_var, as.symbol(new_var), envir = subs)
-   }
-
-   # Update environment with new names of variables
-   if (rlang::is_formula(f)) {
-       new_env <- rlang::env_clone(rlang::f_env(f))
-       for (old_var in f_vars[grepl(stock_re, f_vars)]) {
-           if (exists(old_var, envir = rlang::f_env(f), inherits = FALSE)) {
-               new_var <- sub(stock_re, paste0(new_name, "__"), old_var)
-               remove(list = old_var, envir = new_env)
-               assign(new_var, get(old_var, envir = rlang::f_env(f), inherits = FALSE), envir = new_env)
-           }
-       }
-       f <- f_substitute(f, as.list(subs))
-       rlang::f_env(f) <- new_env
-   } else {
-       # Just use regular substitute
-       f <- eval(call("substitute", f, as.list(subs)))
-   }
-
-   return(f)
 }
