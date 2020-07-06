@@ -10,6 +10,21 @@ deep_ls <- function (env) {
     }
 }
 
+ok_group("call_replace", {
+    call_replace <- gadget3:::call_replace
+    ok(ut_cmp_equal(
+        call_replace(~ 2 + g3_param("woo"), g3_param = function (x) call('$', as.symbol("data"), x[[2]])),
+        ~2 + data$woo), "Manipulated params to call as part of function")
+
+    ok(ut_cmp_equal(
+        call_replace(~c(moo, oink, baa), moo = function (x) "oink"),
+        ~c("oink", oink, baa)), "Can replace bare symbols")
+
+    ok(ut_cmp_equal(
+        call_replace(~c(1, potato(c(2, potato(3), 4))), potato = function (x) call("parsnip", x[2])),
+        ~c(1, parsnip(c(2, potato(3), 4)()))), "Make no attempt to recurse implictly---replacement function would have to call_replace too")
+})
+
 out_f <- gadget3:::f_concatenate(list(
     ~statement_1,
     ~statement_2,

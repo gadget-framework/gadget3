@@ -86,7 +86,6 @@ call_replace <- function (f, ...) {
     attributes(out) <- attributes(f)
     return(out)
 }
-# call_replace(~ 2 + g3_param("woo"), g3_param = function (x) call('$', as.symbol("data"), x[[2]]))
 
 # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
 fix_subsets <- function (in_f) {
