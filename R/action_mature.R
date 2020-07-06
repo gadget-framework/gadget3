@@ -40,22 +40,24 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
     matured <- stock_clone(stock, name = paste0('matured_', stock$name))
 
     out <- new.env(parent = emptyenv())
-    out[[paste0('070:1:', stock$stock_name)]] <- stock_step(stock, extra_stock = matured, init_f = ~{
+    out[[paste0('070:1:', stock$stock_name)]] <- stock_step(f_substitute(~{
+        stock_comment("g3a_mature for ", stock)
         # Matured stock will weigh the same
-        matured__wgt <- stock__wgt
-    }, iter_f = f_substitute(~{
-        comment(stock_comment)
-        stock__num[stock__iter] <- stock__num[stock__iter] - (matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f)
-    }, list(
-        stock_comment = paste0("Move matured ", stock$name ," into temporary storage"),
-        maturity_f = maturity_f)))
+        stock_rename(stock, stock_rename(matured, matured__wgt <- stock__wgt))
+
+        stock_iterate(stock, stock_intersect(matured, {
+            stock_comment("Move matured ", stock, " into temporary storage")
+            stock__num[stock__iter] <- stock__num[stock__iter] - (matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f)
+        }))
+    }, list(maturity_f = maturity_f)))
 
     for (n in seq_len(nrow(output_stocks))) {
         output_stock <- output_stocks$stocks[[n]]
         output_ratio <- output_stocks$ratios[[n]]
 
-        assign(paste0('070:2:', output_stock$name), stock_step(output_stock, extra_stock = matured, iter_f = f_substitute(~{
-            comment(stock_comment)
+        assign(paste0('070:2:', output_stock$name), stock_step(f_substitute(~{
+            stock_comment("Move matured ", stock ," to ", output_stock)
+            stock_iterate(output_stock, stock_intersect(matured, {
             # Total biomass
             output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
                 (matured__wgt[matured__iter] * matured__num[matured__iter] * output_ratio)
@@ -63,9 +65,8 @@ g3a_mature <- function(stock, output_stocks, maturity_f, maturity_steps = NULL) 
             output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + (matured__num[matured__iter] * output_ratio)
             # Back down to mean biomass
             output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / output_stock__num[output_stock__iter]
-        }, list(
-            stock_comment = paste0("Move matured ", stock$name ," to ", output_stock$name),
-            output_ratio = output_ratio))), envir = out)
+            }))
+        }, list(output_ratio = output_ratio))), envir = out)
     }
 
     return(as.list(out))

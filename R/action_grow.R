@@ -145,8 +145,9 @@ g3a_grow <- function(stock, growth_f, impl_f) {
     }')
 
     out <- list()
-    out[[paste0("050:", stock$name)]] <- stock_step(stock,
-        iter_f = f_substitute(~{
+    out[[paste0("050:", stock$name)]] <- stock_step(f_substitute(~{
+        stock_comment("g3a_grow for ", stock)
+        stock_iterate(stock, {
             comment("Calculate increase in length/weight for each lengthgroup")
             stock__growth_l <- impl_l_f
             stock__growth_w <- growth_w_f
@@ -154,7 +155,8 @@ g3a_grow <- function(stock, growth_f, impl_f) {
             stock__wgt[stock__iter] <- stock__wgt[stock__iter] * stock__num[stock__iter]  # Convert to total weight
             stock__num[stock__iter] <- g3a_grow_apply(stock__growth_l, stock__num[stock__iter])
             stock__wgt[stock__iter] <- (stock__wgt[stock__iter] + stock__growth_w) / pmax(stock__num[stock__iter], 0.00001)  # Add extra weight, back to mean
-        }, list(
+        })
+    }, list(
             impl_l_f = f_substitute(impl_f, list(stock__grow_f = growth_f$len)),
             growth_w_f = growth_f$wgt)))
     return(out)

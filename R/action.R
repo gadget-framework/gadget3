@@ -1,59 +1,63 @@
-# Turn a formulae into one that works on a given stock by...
-# - replacing all "stock__*" variables with a matching name for the stock, e.g. "ling_imm__wgt"
-# - replace (stock variable)__iter with apprpriate subsets so stock arrays can be treated as 1 dimensional lengthgroups
-# - wrap iter_f formula with loops to iterate over all lengthgroups for that stock
-# - Add code to translate indices for main stock to extra_stock
-# - init_f: formula code to run before iter_f loops
-# - final_f: formula code to run after iter_f loops
-# - run_if: Wrap entire step with if statement, e.g. run_if = ~cur_time == 0 to only run on the first step of the model
-stock_step <- function(stock, init_f = NULL, iter_f = NULL, final_f = NULL, run_if = NULL, extra_stock = NULL) {
-    # Get names of arguents
-    our_args <- as.list(sys.call())
+# Adapt a formulae into one that will iterate over stocks. Will replace the following functions:
+# - stock_comment(...) - Replace any stock arguments with the stock name, paste all args together
+# - stock_iterate(stock, block) - wrap (block) with code to iterate over (stock) lengthgroup vectors
+# - stock_intersect(stock, block) - wrap (block) with code to intersect with an outer stock we're iterating over
+# - stock_rename(stock, block) - Make sure any references to (stock) in (block) uses the right name
+# References to the stock will also be renamed to their final name
+stock_step <- function(step_f) {
+    repl_stock_fn <- function (x, to_replace) {
+        stock_var <- x[[2]]
+        stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
 
-    # Build loop, translating "stock" to caller's names for things
-    loop_f <- stock_rename(stock$iterate, "stock",  our_args[[2]])
-    if (!is.null(extra_stock)) {
-        # Loop over first stock, then translate indices to second
-        loop_f <- f_substitute(loop_f, list(
-            extension_point = stock_rename(extra_stock$intersect, "stock", our_args$extra_stock)))
-    }
+        # Recurse first, filling out any inner functions
+        inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
+        inner_f <- stock_step(inner_f)
 
-    # Replace __iter with correct code, wrap iter_f part in the stock's iterate code
-    if (!is.null(iter_f)) {
+        # Replace __iter marker with proper subsetting
         subs <- list()
-        subs[[paste0(our_args[[2]], "__iter")]] <- stock_rename(stock$iter_ss, "stock", our_args[[2]])
-        if (!is.null(extra_stock)) {
-            subs[[paste0(our_args$extra_stock, "__iter")]] <- stock_rename(extra_stock$iter_ss, "stock", our_args$extra_stock)
-        }
-        iter_f <- fix_subsets(f_substitute(iter_f, subs))
-        iter_f <- f_substitute(loop_f, list(extension_point = iter_f))
+        subs[[paste0(stock_var, "__iter")]] <- stock_rename(stock$iter_ss, "stock", stock_var)
+        inner_f <- fix_subsets(f_substitute(inner_f, subs))
+
+        # Wrap with stock's code
+        out_f <- f_substitute(stock_rename(stock[[to_replace]], "stock",  stock_var), list(
+            extension_point = inner_f))
+        out_f <- stock_rename(out_f, stock_var, stock$name)
+
+        # Add environment to formulae's environment, return inner call
+        environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+        return(rlang::f_rhs(out_f))
     }
 
-    # Make a template with the parts this step uses, and fill in the gaps
-    templ <- as.call(c(
-        list(as.symbol("{")),
-        call("comment", as.symbol("stock_comment")),
-        if (!is.null(init_f)) as.symbol("init_f") else c(),
-        if (!is.null(iter_f)) as.symbol("iter_f") else c(),
-        if (!is.null(final_f)) as.symbol("final_f") else c(),
-        NULL))
-    if (!is.null(run_if)) {
-        templ <- call("if", as.symbol("run_if"), templ)
-    }
-    # Turn into formula. NB: Use stock$iterate as environment so e.g. stock__minage
-    # are still available when iter_f isn't used
-    templ <- call_to_formula(templ, env = rlang::f_env(stock$iterate))
-    f <- f_substitute(templ, list(
-        stock_comment = paste(as.list(sys.call(-1))[[1]], "for", stock$name),
-        run_if = run_if,
-        init_f = init_f,
-        iter_f = iter_f,
-        final_f = final_f))
-    f <- stock_rename(f, our_args[[2]], stock$name)
-    if (!is.null(extra_stock)) {
-        f <- stock_rename(f, our_args$extra_stock, extra_stock$name)
-    }
-    return(f)
+    return(call_replace(step_f,
+        stock_comment = function (x) {  # Arguments: stock variable, comment
+            comment_str <- paste(vapply(tail(x, -1), function (a) {
+                if (is.character(a)) return (a)
+                stock <- get(as.character(a), envir = rlang::f_env(step_f))
+                return(stock$name)
+            }, character(1)), collapse = "")
+
+            return(call("comment", comment_str))
+        },
+        stock_rename = function (x) {
+            stock_var <- x[[2]]
+            stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+
+            # Recurse first, filling out any inner functions
+            inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
+            inner_f <- stock_step(inner_f)
+
+            out_f <- stock_rename(inner_f, stock_var, stock$name)
+
+            # Add environment to formulae's environment, return inner call
+            environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+            return(rlang::f_rhs(out_f))
+        },
+        stock_iterate = function (x) {  # Arguments: stock variable, inner code block
+            return(repl_stock_fn(x, 'iterate'))
+        },
+        stock_intersect = function (x) {  # Arguments: stock variable, inner code block
+            return(repl_stock_fn(x, 'intersect'))
+        }))
 }
 
 # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match

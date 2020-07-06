@@ -220,35 +220,23 @@ Type objective_function<Type>::operator() () {
 
         {
           // g3a_predate_totalfleet for igfs;
-          {
-            igfs__catch.setZero();
-          }
-
+          igfs__catch.setZero();
         }
 
         {
           // g3a_predate_totalfleet for ling_imm;
-          {
-            ling_imm__totalpredate.setZero();
-          }
-
+          ling_imm__totalpredate.setZero();
         }
 
         {
           // g3a_predate_totalfleet for ling_mat;
-          {
-            ling_mat__totalpredate.setZero();
-          }
-
+          ling_mat__totalpredate.setZero();
         }
 
         {
           // g3a_predate_totalfleet for ling_imm;
-          {
-            // Zero counter of biomass caught for this fleet;
-            igfs__ling_imm.setZero();
-          }
-
+          // Zero counter of biomass caught for this fleet;
+          igfs__ling_imm.setZero();
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
@@ -275,11 +263,8 @@ Type objective_function<Type>::operator() () {
 
         {
           // g3a_predate_totalfleet for ling_mat;
-          {
-            // Zero counter of biomass caught for this fleet;
-            igfs__ling_mat.setZero();
-          }
-
+          // Zero counter of biomass caught for this fleet;
+          igfs__ling_mat.setZero();
           for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
               ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
               for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
@@ -474,10 +459,7 @@ Type objective_function<Type>::operator() () {
 
         {
           // g3a_mature for ling_imm;
-          {
-            matured_ling_imm__wgt = ling_imm__wgt;
-          }
-
+          matured_ling_imm__wgt = ling_imm__wgt;
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
@@ -506,7 +488,7 @@ Type objective_function<Type>::operator() () {
         }
 
         {
-          // assign for ling_mat;
+          // Move matured ling_imm to ling_mat;
           for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
               ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
               for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
@@ -517,7 +499,6 @@ Type objective_function<Type>::operator() () {
                           if ( matured_ling_imm__areas ( possible_area ) == area )  {
                               matured_ling_imm__area_idx = possible_area;
                               {
-                                // Move matured ling_imm to ling_mat;
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
                                 ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
