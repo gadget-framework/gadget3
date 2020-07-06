@@ -114,14 +114,12 @@ g3s_livesonareas <- function(inner_stock, areas) {
             area_lookup = if (length(stock__areas) > 1) quote(stock__areas[[stock__area_idx]]) else quote(stock__areas[[g3_idx(1)]]),
             extension_point = inner_stock$iterate)),
         iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
-        translate = f_substitute(~{
-            for (possible_area in seq_along(stock__areas)) {
-                if (stock__areas[[possible_area]] == area) {
-                    stock__area_idx <- possible_area
+        translate = f_substitute(~for (possible_area in seq_along(stock__areas)) {
+            if (stock__areas[[possible_area]] == area) {
+                stock__area_idx <- possible_area
 
-                    extension_point
-                    break
-                }
+                extension_point
+                break
             }
         }, list(
             extension_point = inner_stock$translate)),
