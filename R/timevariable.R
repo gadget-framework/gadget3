@@ -1,7 +1,6 @@
 # Turn a year/step/area/value data.frame into a formula
 g3_timeareadata <- function(lookup_name, df, missing = 0) {
     intlookup_zip <- g3_native(r = function (keys, values) {
-        # NB: Using an environment as a hashmap turns the keys into character
         list(keys = keys, values = values)
     }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
         std::map<int, Type> lookup = {};
