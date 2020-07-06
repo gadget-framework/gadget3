@@ -338,7 +338,7 @@ structure(function (param)
                     ling_imm__growth_w <- param[["lingimm.walpha"]] * ((ling_imm__meanlen - (param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingimm.wbeta"]] - ling_imm__meanlen^param[["lingimm.wbeta"]])
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/pmax(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 1e-05)
                   }
                 }
             }
@@ -355,7 +355,7 @@ structure(function (param)
                     ling_mat__growth_w <- param[["lingmat.walpha"]] * ((ling_mat__meanlen - (param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingmat.wbeta"]] - ling_mat__meanlen^param[["lingmat.wbeta"]])
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
-                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
+                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
                   }
                 }
             }
