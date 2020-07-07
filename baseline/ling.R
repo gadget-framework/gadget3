@@ -256,7 +256,7 @@ structure(function (param)
                   area <- ling_mat__areas[[ling_mat__area_idx]]
                   {
                     comment("Prey overconsumption coefficient")
-                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- min((ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 1)
+                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- pmin((ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 1)
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }

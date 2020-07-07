@@ -258,7 +258,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
-    if (call_name == "min") {
+    if (call_name == "pmin") {
         # TODO: First parameter has to be an array, second could be single value, can we enforce this?
         return(paste0(
             "(",
