@@ -179,7 +179,7 @@ Type objective_function<Type>::operator() () {
         }
 
         if ( cur_time == 0 )  {
-            // g3a_initialconditions for ling_imm;
+            // g3a_initialconditions_normalparam for ling_imm;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
                 for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
@@ -199,7 +199,7 @@ Type objective_function<Type>::operator() () {
           }
 
         if ( cur_time == 0 )  {
-            // g3a_initialconditions for ling_mat;
+            // g3a_initialconditions_normalparam for ling_mat;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {

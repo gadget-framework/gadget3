@@ -35,7 +35,7 @@ ling_imm_stddev <- c(
     11.7721342759715,
     13.6152275606449)
 ling_imm_actions <- g3_collate(
-    g3a_initialconditions(ling_imm,
+    g3a_initialconditions_normalparam(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param("lingimm.init.", age),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
@@ -68,7 +68,7 @@ ling_mat_stddev <- c(
      19.1787817582897,
      15.9776436358384)
 ling_mat_actions <- g3_collate(
-    g3a_initialconditions(ling_mat,
+    g3a_initialconditions_normalparam(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param("lingmat.init.", age),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),

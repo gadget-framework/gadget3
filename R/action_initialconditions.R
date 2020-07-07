@@ -1,13 +1,26 @@
+# Assign number / mean weight based on formulae
+g3a_initialconditions <- function (stock, num_f, wgt_f) {
+    out <- list()
+    out[[paste0("000:", stock$name)]] <- stock_step(f_substitute(~if (cur_time == 0L) {
+        stock_comment("g3a_initialconditions for ", stock)
+        stock_iterate(stock, {
+            stock__num[stock__iter] <- num_f
+            stock__wgt[stock__iter] <- wgt_f
+        })
+    }, list(num_f = num_f, wgt_f = wgt_f)))
+    return(out)
+}
+
 # Steps to set up initial states of stocks on first step
-g3a_initialconditions <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f) {
+g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f) {
     # See InitialCond::Initialise
     # TODO: Scaling from initialcond values to "real" values
     initcond_dnorm <- array(dim = length(stock_definition(stock, 'stock__meanlen')))
     initcond_scaler <- 0.0
 
     out <- list()
-    out[[paste0("000:", stock$name)]] <- stock_step(f_substitute(~if (cur_time == 0) {
-        stock_comment("g3a_initialconditions for ", stock)
+    out[[paste0("000:", stock$name)]] <- stock_step(f_substitute(~if (cur_time == 0L) {
+        stock_comment("g3a_initialconditions_normalparam for ", stock)
         stock_iterate(stock, {
             initcond_dnorm <- (stock__meanlen - mean_f) * (1.0 / stddev_f)
             stock__num[stock__iter] <- exp(-(initcond_dnorm ** 2) * 0.5)

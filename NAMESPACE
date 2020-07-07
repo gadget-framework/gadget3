@@ -15,6 +15,7 @@ export(g3a_mature)
 
 # R/action_initialconditions.R
 export(g3a_initialconditions)
+export(g3a_initialconditions_normalparam)
 
 # R/action_predate.R
 export(g3a_predate_totalfleet)

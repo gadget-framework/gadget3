@@ -118,8 +118,8 @@ structure(function (param)
             cur_step_final <- cur_step == step_count
             debugf("** Tick: %d-%d\n", cur_year, cur_step)
         }
-        if (cur_time == 0) {
-            comment("g3a_initialconditions for ling_imm")
+        if (cur_time == 0L) {
+            comment("g3a_initialconditions_normalparam for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
@@ -134,8 +134,8 @@ structure(function (param)
                 }
             }
         }
-        if (cur_time == 0) {
-            comment("g3a_initialconditions for ling_mat")
+        if (cur_time == 0L) {
+            comment("g3a_initialconditions_normalparam for ling_mat")
             for (age in seq(ling_mat__minage, ling_mat__maxage)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
