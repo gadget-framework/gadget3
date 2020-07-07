@@ -51,6 +51,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name %in% c("g3_idx")) {
         # Indices are 0-based, subtract 1
+        if (is.numeric(in_call[[2]])) {
+            # Hard-coded integer, so can subtract now (and avoid double conversion)
+            return(toString(in_call[[2]] - 1))
+        }
         return(paste(cpp_code(in_call[[2]], in_envir, next_indent), "- 1"))
     }
 
@@ -61,7 +65,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
-            lhs_is_array <- TRUE
+            # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
+            # and turn it into a scalar
+            # TODO: Ideally we share something with "Array subsetting" below, instead of working it out again
+            lhs_is_array <- any(vapply(tail(assign_lhs, -2), deparse, character(1)) == "")
         } else if (is.symbol(assign_lhs)) {
             env_defn <- mget(as.character(assign_lhs), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             lhs_is_array <- is.array(env_defn)
@@ -72,6 +79,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             return(paste0(
                 cpp_code(assign_lhs, in_envir, next_indent),
                 ".setZero()"))
+        }
+        if (is.numeric(in_call[[3]]) && length(in_call[[3]]) == 1 && lhs_is_array) {
+            # Set array to a const
+            # TODO: discover the type of the inner expression, instead of just supporting single values
+            return(paste0(
+                cpp_code(assign_lhs, in_envir, next_indent),
+                ".setConstant(", cpp_code(in_call[[3]], in_envir, next_indent) , ")"))
         }
 
         # Add += operators if possible
@@ -158,15 +172,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
                 missings <<- missings + 1
                 return("")
             }
+            if (missings > 0) {
+                # We only have the .col() operator to work with, there isn't a .row()
+                stop("Missing values must be at start of subset, can't restructure array: ", deparse(in_call))
+            }
             d <- cpp_code(d, in_envir, next_indent)
             return(paste0(".col(", d, ")"))
         }, character(1))), collapse = "")
 
-        if (missings == 1 && length(in_call) > 3) {
-            # Only one dimension left, and didn't start out as vector, cast as vector
-            # NB: moo.vec() = ... won't actually change moo.
-            out <- paste0(out, ".vec()")
-        }
         if (missings == 0) {
             # No dimensions left, retrieve content from our single-value array
             # TODO: Rewrite to use (x, y, z) instead of .col(x).col(y).col(z)(0)

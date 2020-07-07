@@ -183,13 +183,13 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
                 for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                    area = ling_imm__areas ( 1 - 1 );
+                    area = ling_imm__areas ( 0 );
                     {
                       initcond_dnorm = (ling_imm__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
-                      ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
-                      initcond_scaler = 10000 / sum(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec());
-                      ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()*initcond_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init__;
-                      ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = lingimm__walpha*pow(ling_imm__meanlen, (Type)lingimm__wbeta);
+                      ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
+                      initcond_scaler = 10000 / sum(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                      ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*initcond_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init__;
+                      ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__meanlen, (Type)lingimm__wbeta);
                     }
 
                   }
@@ -206,10 +206,10 @@ Type objective_function<Type>::operator() () {
                     area = ling_mat__areas ( ling_mat__area_idx );
                     {
                       initcond_dnorm = (ling_mat__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
-                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
-                      initcond_scaler = 10000 / sum(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec());
-                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*initcond_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init__;
-                      ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = lingmat__walpha*pow(ling_mat__meanlen, (Type)lingmat__wbeta);
+                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
+                      initcond_scaler = 10000 / sum(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*initcond_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init__;
+                      ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = lingmat__walpha*pow(ling_mat__meanlen, (Type)lingmat__wbeta);
                     }
 
                   }
@@ -240,14 +240,14 @@ Type objective_function<Type>::operator() () {
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                  area = ling_imm__areas ( 1 - 1 );
+                  area = ling_imm__areas ( 0 );
                   for (auto possible_area = 0; possible_area < (igfs__areas).size(); possible_area++) {
                       if ( igfs__areas ( possible_area ) == area )  {
                           igfs__area_idx = possible_area;
                           {
                             // Collect all suitable biomass for fleet;
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__meanlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec());
-                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()));
+                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__meanlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
                           }
 
                           break;
@@ -274,8 +274,8 @@ Type objective_function<Type>::operator() () {
                           igfs__area_idx = possible_area;
                           {
                             // Collect all suitable biomass for fleet;
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__meanlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec());
-                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()));
+                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__meanlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
                           }
 
                           break;
@@ -294,15 +294,15 @@ Type objective_function<Type>::operator() () {
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                  area = ling_imm__areas ( 1 - 1 );
+                  area = ling_imm__areas ( 0 );
                   for (auto possible_area = 0; possible_area < (igfs__areas).size(); possible_area++) {
                       if ( igfs__areas ( possible_area ) == area )  {
                           igfs__area_idx = possible_area;
                           {
                             // Scale fleet amount by total expected catch;
                             predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() / igfs__catch.col(igfs__area_idx)(0);
-                            ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() += igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec();
+                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch.col(igfs__area_idx)(0);
+                            ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx);
                           }
 
                           break;
@@ -328,8 +328,8 @@ Type objective_function<Type>::operator() () {
                           {
                             // Scale fleet amount by total expected catch;
                             predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() / igfs__catch.col(igfs__area_idx)(0);
-                            ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
+                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch.col(igfs__area_idx)(0);
+                            ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx);
                           }
 
                           break;
@@ -351,8 +351,8 @@ Type objective_function<Type>::operator() () {
                   area = ling_mat__areas ( ling_mat__area_idx );
                   {
                     // Prey overconsumption coefficient;
-                    ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = ((ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*0.95) / ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()).cwiseMin(1);
-                    ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
+                    ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx) = ((ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*0.95) / ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMin(1);
+                    ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
                   }
 
                 }
@@ -366,15 +366,15 @@ Type objective_function<Type>::operator() () {
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                  area = ling_imm__areas ( 1 - 1 );
+                  area = ling_imm__areas ( 0 );
                   for (auto possible_area = 0; possible_area < (igfs__areas).size(); possible_area++) {
                       if ( igfs__areas ( possible_area ) == area )  {
                           igfs__area_idx = possible_area;
                           {
                             // Scale caught amount by overconsumption, update variables;
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx).vec();
-                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()));
-                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() -= (ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() / ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec());
+                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                           }
 
                           break;
@@ -399,9 +399,9 @@ Type objective_function<Type>::operator() () {
                           igfs__area_idx = possible_area;
                           {
                             // Scale caught amount by overconsumption, update variables;
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
-                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()));
-                            ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() -= (ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() / ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec());
+                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                            igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
+                            ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) -= (ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                           }
 
                           break;
@@ -420,14 +420,14 @@ Type objective_function<Type>::operator() () {
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                  area = ling_imm__areas ( 1 - 1 );
+                  area = ling_imm__areas ( 0 );
                   {
                     // Calculate increase in length/weight for each lengthgroup;
                     ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, ling_imm__countlen, ling__bbin*10);
                     ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__meanlen - (ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__meanlen, (Type)lingimm__wbeta));
-                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec();
-                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec());
-                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() = (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() + ling_imm__growth_w) / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()).cwiseMax(1e-05);
+                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                    ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) + ling_imm__growth_w) / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).cwiseMax(1e-05);
                   }
 
                 }
@@ -446,9 +446,9 @@ Type objective_function<Type>::operator() () {
                     // Calculate increase in length/weight for each lengthgroup;
                     ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, ling_mat__countlen, ling__bbin*10);
                     ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__meanlen - (ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__meanlen, (Type)lingmat__wbeta));
-                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
-                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec());
-                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() + ling_mat__growth_w) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()).cwiseMax(1e-05);
+                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) + ling_mat__growth_w) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
                   }
 
                 }
@@ -463,7 +463,7 @@ Type objective_function<Type>::operator() () {
           for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               for (auto ling_imm__area_idx = 0; ling_imm__area_idx < (ling_imm__areas).size(); ling_imm__area_idx++) {
-                  area = ling_imm__areas ( 1 - 1 );
+                  area = ling_imm__areas ( 0 );
                   if ( age <= matured_ling_imm__maxage )  {
                       matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
                       for (auto possible_area = 0; possible_area < (matured_ling_imm__areas).size(); possible_area++) {
@@ -471,7 +471,7 @@ Type objective_function<Type>::operator() () {
                               matured_ling_imm__area_idx = possible_area;
                               {
                                 // Move matured ling_imm into temporary storage;
-                                ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec() -= (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec() = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx).vec()*1);
+                                ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
                               }
 
                               break;
@@ -499,9 +499,9 @@ Type objective_function<Type>::operator() () {
                           if ( matured_ling_imm__areas ( possible_area ) == area )  {
                               matured_ling_imm__area_idx = possible_area;
                               {
-                                ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec()) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
-                                ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx).vec()*1);
-                                ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx).vec() /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx).vec();
+                                ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
+                                ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
+                                ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                               }
 
                               break;
