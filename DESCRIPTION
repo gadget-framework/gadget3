@@ -22,6 +22,7 @@ Imports:
     TMB (>= 1.7.0),
     utils,
 Suggests:
+    magrittr (>= 1.5),
     unittest (>= 1.4)
 License: GPL-2
 RoxygenNote: 7.0.2
