@@ -318,7 +318,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     if (call_name == "comment") {
-        # return(paste(c('debugf("// ', gsub("\n", " ", in_call[[2]], fixed = TRUE), '\\n")'), collapse = ""))
         return(paste(c("// ", gsub("\n", " ", in_call[[2]], fixed = TRUE)), collapse = ""))
     }
 
@@ -334,10 +333,20 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     stop(c("TODO:", call_name ,":", deparse(in_call)))
 }
 
-g3_precompile_tmb <- function(actions) {
+g3_precompile_tmb <- function(actions, trace = FALSE) {
     all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     model_parameters <- list()
+
+    if (isTRUE(trace)) {
+        all_actions <- call_replace(all_actions, comment = function (x) {
+            # Turn comment calls into debugf calls
+            return(call("debugf", paste0(
+                "// ",
+                gsub("\n", " ", x[[2]], fixed = TRUE),
+                "\n")))
+        })
+    }
 
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr) {
         if (missing(cpp_expr)) {
