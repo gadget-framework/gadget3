@@ -57,6 +57,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
             intersect = f_substitute(~if (area == stock__area) {
                 extension_point
             }, list(extension_point = inner_stock$intersect)),
+            rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
             name = inner_stock$name)
     } else {
         stock__area_idx <- ~g3_idx(1)
@@ -72,6 +73,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                     break
                 }
             }, list(extension_point = inner_stock$intersect)),
+            rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
             name = inner_stock$name)
     }
 }

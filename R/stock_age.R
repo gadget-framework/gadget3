@@ -18,5 +18,6 @@ g3s_age <- function(inner_stock, minage, maxage) {
             extension_point
         }, list(
             extension_point = inner_stock$intersect)),
+        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
         name = inner_stock$name)
 }

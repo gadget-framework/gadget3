@@ -75,19 +75,8 @@ stock_step <- function(step_f) {
 
             return(call("comment", comment_str))
         },
-        stock_rename = function (x) {
-            stock_var <- x[[2]]
-            stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
-
-            # Recurse first, filling out any inner functions
-            inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-            inner_f <- stock_step(inner_f)
-
-            out_f <- stock_rename(inner_f, stock_var, stock$name)
-
-            # Add environment to formulae's environment, return inner call
-            environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
-            return(rlang::f_rhs(out_f))
+        stock_rename = function (x) {  # Arguments: stock variable, inner code block
+            return(repl_stock_fn(x, 'rename'))
         },
         stock_iterate = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'iterate'))
