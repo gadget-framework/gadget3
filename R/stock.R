@@ -26,7 +26,6 @@ stock_clone <- function(stock, name) {
     return(new_stock)
 }
 
-# TODO: Using this directly on top of others won't produce valid code. Should they be collapsed together?
 g3_stock <- function(var_name, minlength, maxlength, dl) {
     # If these are literals, they should be integers
     stock__minlength <- if(is.numeric(minlength)) as.integer(minlength) else minlength
