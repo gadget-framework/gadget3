@@ -19,15 +19,15 @@ actions <- g3_collate(
     list(
         '5' = gadget3:::stock_step(~{
             stock_iterate(stock_a, stock_intersect(stock_ac, {
-                stock_sum_a_ac <- sum(stock_a__num[stock_a__iter]) + sum(stock_ac__num[stock_ac__iter])
+                stock_sum_a_ac <- stock_sum_a_ac + sum(stock_a__num[stock_a__iter]) + sum(stock_ac__num[stock_ac__iter])
             }))
             g3_report(stock_sum_a_ac)
             stock_iterate(stock_ac, stock_intersect(stock_a, {
-                stock_sum_ac_a <- sum(stock_ac__num[stock_ac__iter]) + sum(stock_a__num[stock_a__iter])
+                stock_sum_ac_a <- stock_sum_ac_a + sum(stock_ac__num[stock_ac__iter]) + sum(stock_a__num[stock_a__iter])
             }))
             g3_report(stock_sum_ac_a)
             stock_iterate(stock_ac, stock_intersect(stock_bcd, {
-                stock_sum_ac_bcd <- sum(stock_ac__num[stock_ac__iter]) + sum(stock_bcd__num[stock_bcd__iter])
+                stock_sum_ac_bcd <- stock_sum_ac_bcd + sum(stock_ac__num[stock_ac__iter]) + sum(stock_bcd__num[stock_bcd__iter])
             }))
             g3_report(stock_sum_ac_bcd)
         }),
