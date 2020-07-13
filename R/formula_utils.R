@@ -88,25 +88,6 @@ call_replace <- function (f, ...) {
     return(out)
 }
 
-# Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
-fix_subsets <- function (in_f) {
-    call_replace(in_f, "[" = function (subset_call) {
-        if (length(subset_call) == 3 &&
-                is.call(subset_call[[3]]) &&
-                subset_call[[3]][[1]] == as.symbol("[") &&
-                subset_call[[3]][[2]] == quote(.)) {
-            # Call of form summat[.[1,2, .. ]], remove nesting
-            as.call(c(
-                head(as.list(subset_call), -1),
-                tail(as.list(subset_call[[3]]), -2)))
-        } else {
-            # Leave alone
-            subset_call
-        }
-    })
-}
-
-
 f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
     # Stack environments together
     e <- parent

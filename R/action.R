@@ -5,6 +5,24 @@
 # - stock_rename(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 stock_step <- function(step_f) {
+    # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
+    fix_subsets <- function (in_f) {
+        call_replace(in_f, "[" = function (subset_call) {
+            if (length(subset_call) == 3 &&
+                    is.call(subset_call[[3]]) &&
+                    subset_call[[3]][[1]] == as.symbol("[") &&
+                    subset_call[[3]][[2]] == quote(.)) {
+                # Call of form summat[.[1,2, .. ]], remove nesting
+                as.call(c(
+                    head(as.list(subset_call), -1),
+                    tail(as.list(subset_call[[3]]), -2)))
+            } else {
+                # Leave alone
+                subset_call
+            }
+        })
+    }
+
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)

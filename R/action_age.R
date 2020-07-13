@@ -12,8 +12,7 @@ g3a_age <- function(stock) {
     }))
 
     out <- list()
-    # TODO: Should stock_step be doing the iter mangling here?
-    out[[paste0("120:", stock$name)]] <- stock_step(fix_subsets(f_substitute(~if (cur_step_final) {
+    out[[paste0("120:", stock$name)]] <- stock_step(f_substitute(~if (cur_step_final) {
         stock_comment("g3a_age for ", stock)
         stock_rename(stock, for (age in seq(stock__maxage, stock__minage)) {
            stock__age_idx <- g3_idx(age - stock__minage + 1)
@@ -27,6 +26,6 @@ g3a_age <- function(stock) {
         })
     }, list(
         age_iter_ss = age_iter_ss,
-        age_older_iter_ss = age_older_iter_ss))))
+        age_older_iter_ss = age_older_iter_ss)))
     return(out)
 }
