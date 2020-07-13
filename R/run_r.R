@@ -37,24 +37,22 @@ g3_compile_r <- function(actions) {
                 defn <- call("<-", as.symbol(var_name), rlang::f_rhs(var_val))
             } else if (is.call(var_val)) {
                 defn <- call("<-", as.symbol(var_name), var_val)
-            } else if (is.array(var_val) && all(is.na(var_val))) {
-                # Just define dimensions
-                defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
             } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
                 # Define empty sparseMatrix
                 defn <- call(
                     "<-",
                     as.symbol(var_name),
                     substitute(Matrix::sparseMatrix(dims = x, x=numeric(0), i={}, j={}), list(x = dim(var_val))))
-            } else if (is.array(var_val)) {
-                # Generate code to define matrix
+            } else if (is.array(var_val) && all(is.na(var_val))) {
+                # Define dimensions for empty matrix
+                defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
+            } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
+                # Add single-value literal to code
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
-            } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
-                # Set literal in data
+            } else {
+                # Bung in model_data
                 defn <- call("<-", as.symbol(var_name), call("$", as.symbol("model_data"), as.symbol(var_name)))
                 assign(var_name, var_val, envir = model_data)
-            } else {
-                stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
             scope[[var_name]] <- defn
         }

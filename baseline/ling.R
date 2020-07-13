@@ -45,34 +45,34 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * input_num))
     }
-    cur_time <- model_data$cur_time
+    cur_time <- 0L
     steps <- model_data$steps
-    end_year <- model_data$end_year
-    start_year <- model_data$start_year
+    end_year <- 1985L
+    start_year <- 1983L
     total_steps <- length(steps) * (end_year - start_year) + length(steps) - 1
-    nll <- model_data$nll
-    cur_year <- model_data$cur_year
-    step_count <- model_data$step_count
-    cur_step <- model_data$cur_step
-    cur_step_len <- model_data$cur_step_len
-    cur_step_final <- model_data$cur_step_final
-    ling_imm__minage <- model_data$ling_imm__minage
-    ling_imm__maxage <- model_data$ling_imm__maxage
-    ling_imm__age_idx <- model_data$ling_imm__age_idx
-    area <- model_data$area
-    ling_imm__area <- model_data$ling_imm__area
+    nll <- 0
+    cur_year <- 0L
+    step_count <- 4L
+    cur_step <- 0L
+    cur_step_len <- 0L
+    cur_step_final <- FALSE
+    ling_imm__minage <- 3L
+    ling_imm__maxage <- 10L
+    ling_imm__age_idx <- 0L
+    area <- 1L
+    ling_imm__area <- 1L
     initcond_dnorm <- array(dim = 35L)
-    ling_imm__meanlen <- structure(c(22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158), .Dim = 35L)
+    ling_imm__meanlen <- model_data$ling_imm__meanlen
     ling_imm_stddev <- model_data$ling_imm_stddev
     ling_imm__num <- array(dim = c(35L, 1L, 8L))
     ling_imm__area_idx <- (1)
-    initcond_scaler <- model_data$initcond_scaler
+    initcond_scaler <- 0
     ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
-    ling_mat__minage <- model_data$ling_mat__minage
-    ling_mat__maxage <- model_data$ling_mat__maxage
-    ling_mat__age_idx <- model_data$ling_mat__age_idx
-    ling_mat__areas <- structure(1:2, .Dim = 2L)
-    ling_mat__meanlen <- structure(c(22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158), .Dim = 35L)
+    ling_mat__minage <- 5L
+    ling_mat__maxage <- 15L
+    ling_mat__age_idx <- 0L
+    ling_mat__areas <- model_data$ling_mat__areas
+    ling_mat__meanlen <- model_data$ling_mat__meanlen
     ling_mat_stddev <- model_data$ling_mat_stddev
     ling_mat__num <- array(dim = c(35L, 2L, 11L))
     ling_mat__wgt <- array(dim = c(35L, 2L, 11L))
@@ -80,10 +80,10 @@ structure(function (param)
     ling_imm__totalpredate <- array(dim = c(35L, 1L, 8L))
     ling_mat__totalpredate <- array(dim = c(35L, 2L, 11L))
     igfs__ling_imm <- array(dim = c(35L, 1L, 8L))
-    igfs__area <- model_data$igfs__area
+    igfs__area <- 1L
     igfs__area_idx <- (1)
     igfs__ling_mat <- array(dim = c(35L, 2L, 11L))
-    predate_totalfleet_E <- model_data$predate_totalfleet_E
+    predate_totalfleet_E <- 0
     intlookup_zip <- function (keys, values) 
     {
         list(keys = keys, values = values)
@@ -94,18 +94,18 @@ structure(function (param)
     ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
     ling_imm__growth_l <- array(dim = c(0L, 0L))
-    ling_imm__dl <- model_data$ling_imm__dl
-    ling_imm__countlen <- model_data$ling_imm__countlen
+    ling_imm__dl <- 4L
+    ling_imm__countlen <- 35L
     ling_imm__growth_w <- array(dim = 35L)
     ling_mat__growth_l <- array(dim = c(0L, 0L))
-    ling_mat__dl <- model_data$ling_mat__dl
-    ling_mat__countlen <- model_data$ling_mat__countlen
+    ling_mat__dl <- 4L
+    ling_mat__countlen <- 35L
     ling_mat__growth_w <- array(dim = 35L)
     matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
-    matured_ling_imm__maxage <- model_data$matured_ling_imm__maxage
-    matured_ling_imm__age_idx <- model_data$matured_ling_imm__age_idx
-    matured_ling_imm__minage <- model_data$matured_ling_imm__minage
-    matured_ling_imm__area <- model_data$matured_ling_imm__area
+    matured_ling_imm__maxage <- 10L
+    matured_ling_imm__age_idx <- 0L
+    matured_ling_imm__minage <- 3L
+    matured_ling_imm__area <- 1L
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__area_idx <- (1)
     while (TRUE) {
