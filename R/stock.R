@@ -35,8 +35,9 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
     # See LengthGroupDivision::LengthGroupDivision
     stock__countlen <- (stock__maxlength - stock__minlength) %/% stock__dl
     # TODO: These can't be formulae, since then we stop substituting stock name
-    stock__minlen <- stock__minlength + stock__dl * (seq_len(stock__countlen) - 1)
-    stock__meanlen <- stock__minlen + (stock__dl / 2)
+    # Force array so type is stable in TMB
+    stock__minlen <- as.array(stock__minlength + stock__dl * (seq_len(stock__countlen) - 1))
+    stock__meanlen <- as.array(stock__minlen + (stock__dl / 2))
 
     stock__num <- array(dim = c(stock__countlen))  # Number of individuals
     stock__wgt <- array(dim = c(stock__countlen))  # Mean weight of individuals

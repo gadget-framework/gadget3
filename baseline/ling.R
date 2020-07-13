@@ -59,19 +59,20 @@ structure(function (param)
     ling_imm__minage <- model_data$ling_imm__minage
     ling_imm__maxage <- model_data$ling_imm__maxage
     ling_imm__age_idx <- model_data$ling_imm__age_idx
-    ling_imm__areas <- structure(1L, .Dim = 1L)
     area <- model_data$area
+    ling_imm__area <- model_data$ling_imm__area
     initcond_dnorm <- array(dim = 35L)
-    ling_imm__meanlen <- model_data$ling_imm__meanlen
+    ling_imm__meanlen <- structure(c(22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158), .Dim = 35L)
     ling_imm_stddev <- model_data$ling_imm_stddev
     ling_imm__num <- array(dim = c(35L, 1L, 8L))
+    ling_imm__area_idx <- (1)
     initcond_scaler <- model_data$initcond_scaler
     ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     ling_mat__minage <- model_data$ling_mat__minage
     ling_mat__maxage <- model_data$ling_mat__maxage
     ling_mat__age_idx <- model_data$ling_mat__age_idx
     ling_mat__areas <- structure(1:2, .Dim = 2L)
-    ling_mat__meanlen <- model_data$ling_mat__meanlen
+    ling_mat__meanlen <- structure(c(22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126, 130, 134, 138, 142, 146, 150, 154, 158), .Dim = 35L)
     ling_mat_stddev <- model_data$ling_mat_stddev
     ling_mat__num <- array(dim = c(35L, 2L, 11L))
     ling_mat__wgt <- array(dim = c(35L, 2L, 11L))
@@ -79,8 +80,8 @@ structure(function (param)
     ling_imm__totalpredate <- array(dim = c(35L, 1L, 8L))
     ling_mat__totalpredate <- array(dim = c(35L, 2L, 11L))
     igfs__ling_imm <- array(dim = c(35L, 1L, 8L))
-    igfs__areas <- structure(1L, .Dim = 1L)
-    igfs__area_idx <- model_data$igfs__area_idx
+    igfs__area <- model_data$igfs__area
+    igfs__area_idx <- (1)
     igfs__ling_mat <- array(dim = c(35L, 2L, 11L))
     predate_totalfleet_E <- model_data$predate_totalfleet_E
     intlookup_zip <- function (keys, values) 
@@ -104,9 +105,9 @@ structure(function (param)
     matured_ling_imm__maxage <- model_data$matured_ling_imm__maxage
     matured_ling_imm__age_idx <- model_data$matured_ling_imm__age_idx
     matured_ling_imm__minage <- model_data$matured_ling_imm__minage
-    matured_ling_imm__areas <- structure(1L, .Dim = 1L)
-    matured_ling_imm__area_idx <- model_data$matured_ling_imm__area_idx
+    matured_ling_imm__area <- model_data$matured_ling_imm__area
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
+    matured_ling_imm__area_idx <- (1)
     while (TRUE) {
         {
             comment("g3a_time")
@@ -122,8 +123,8 @@ structure(function (param)
             comment("g3a_initialconditions_normalparam for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
+                {
+                  area <- ling_imm__area
                   {
                     initcond_dnorm <- (ling_imm__meanlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_imm_stddev[[ling_imm__age_idx]])
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(initcond_dnorm^2) * 0.5)
@@ -168,17 +169,13 @@ structure(function (param)
             igfs__ling_imm[] <- 0
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Collect all suitable biomass for fleet")
-                        igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__meanlen - param[["ling.igfs.l50"]]))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
-                        igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
-                      }
-                      break
+                {
+                  area <- ling_imm__area
+                  if (area == igfs__area) {
+                    {
+                      comment("Collect all suitable biomass for fleet")
+                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__meanlen - param[["ling.igfs.l50"]]))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
                     }
                   }
                 }
@@ -192,15 +189,11 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Collect all suitable biomass for fleet")
-                        igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__meanlen - param[["ling.igfs.l50"]]))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
-                        igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
-                      }
-                      break
+                  if (area == igfs__area) {
+                    {
+                      comment("Collect all suitable biomass for fleet")
+                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__meanlen - param[["ling.igfs.l50"]]))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
                     }
                   }
                 }
@@ -210,18 +203,14 @@ structure(function (param)
             comment("g3a_predate_totalfleet for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Scale fleet amount by total expected catch")
-                        predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
-                        igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
-                        ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]
-                      }
-                      break
+                {
+                  area <- ling_imm__area
+                  if (area == igfs__area) {
+                    {
+                      comment("Scale fleet amount by total expected catch")
+                      predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
+                      ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
                 }
@@ -233,16 +222,12 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Scale fleet amount by total expected catch")
-                        predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
-                        igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
-                        ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]
-                      }
-                      break
+                  if (area == igfs__area) {
+                    {
+                      comment("Scale fleet amount by total expected catch")
+                      predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
+                      ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
                 }
@@ -266,18 +251,14 @@ structure(function (param)
             comment("g3a_predate_totalfleet for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Scale caught amount by overconsumption, update variables")
-                        igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
-                        igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
-                        ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
-                      }
-                      break
+                {
+                  area <- ling_imm__area
+                  if (area == igfs__area) {
+                    {
+                      comment("Scale caught amount by overconsumption, update variables")
+                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
+                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                     }
                   }
                 }
@@ -289,16 +270,12 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
-                  for (possible_area in seq_along(igfs__areas)) {
-                    if (igfs__areas[[possible_area]] == area) {
-                      igfs__area_idx <- possible_area
-                      {
-                        comment("Scale caught amount by overconsumption, update variables")
-                        igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
-                        igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
-                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
-                      }
-                      break
+                  if (area == igfs__area) {
+                    {
+                      comment("Scale caught amount by overconsumption, update variables")
+                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
+                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
                     }
                   }
                 }
@@ -308,8 +285,8 @@ structure(function (param)
             comment("g3a_grow for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
+                {
+                  area <- ling_imm__area
                   {
                     comment("Calculate increase in length/weight for each lengthgroup")
                     ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, ling_imm__countlen, param[["ling.bbin"]] * 10)
@@ -343,18 +320,14 @@ structure(function (param)
             matured_ling_imm__wgt <- ling_imm__wgt
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
-                  area <- ling_imm__areas[[(1)]]
+                {
+                  area <- ling_imm__area
                   if (age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
-                    for (possible_area in seq_along(matured_ling_imm__areas)) {
-                      if (matured_ling_imm__areas[[possible_area]] == area) {
-                        matured_ling_imm__area_idx <- possible_area
-                        {
-                          comment("Move matured ling_imm into temporary storage")
-                          ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * 1)
-                        }
-                        break
+                    if (area == matured_ling_imm__area) {
+                      {
+                        comment("Move matured ling_imm into temporary storage")
+                        ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * 1)
                       }
                     }
                   }
@@ -369,15 +342,11 @@ structure(function (param)
                   area <- ling_mat__areas[[ling_mat__area_idx]]
                   if (age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
-                    for (possible_area in seq_along(matured_ling_imm__areas)) {
-                      if (matured_ling_imm__areas[[possible_area]] == area) {
-                        matured_ling_imm__area_idx <- possible_area
-                        {
-                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
-                          ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
-                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
-                        }
-                        break
+                    if (area == matured_ling_imm__area) {
+                      {
+                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
+                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
+                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                       }
                     }
                   }
