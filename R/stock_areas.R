@@ -32,7 +32,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
-    area <- areas[[1]]
+    area <- as.integer(areas[[1]])  # Don't leak g3_areas into model
 
     if (exists("stock__num", envir = stock_env)) {
         stock__num <- array(dim = c(dim(stock_env[['stock__num']]), stock__totalareas))
@@ -46,7 +46,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     if (stock__totalareas == 1) {
         # Stock only in one area, so simplify
-        stock__area <- areas[[1]]
+        stock__area <- as.integer(areas[[1]])  # Don't leak g3_areas into model
         stock__area_idx <- ~g3_idx(1)
         list(
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
