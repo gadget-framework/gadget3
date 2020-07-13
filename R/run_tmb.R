@@ -278,7 +278,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ")"))
     }
 
-    if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%")) {
+    if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%", "&&", "||")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
 
