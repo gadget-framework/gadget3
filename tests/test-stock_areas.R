@@ -58,7 +58,7 @@ ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_sum_a_ac,
     110 + 1010), "stock_sum_a_ac: Only includes area a")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_sum_a_ac,
+    environment(model_fn)$model_report$stock_sum_ac_a,
     110 + 1010), "stock_sum_ac_a: Only includes area a")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_sum_ac_bcd,
