@@ -102,9 +102,9 @@ structure(function (param)
     ling_mat__countlen <- 35L
     ling_mat__growth_w <- array(dim = 35L)
     matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
+    matured_ling_imm__minage <- 3L
     matured_ling_imm__maxage <- 10L
     matured_ling_imm__age_idx <- 0L
-    matured_ling_imm__minage <- 3L
     matured_ling_imm__area <- 1L
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__area_idx <- (1)
@@ -322,7 +322,7 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  if (age <= matured_ling_imm__maxage) {
+                  if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
                     if (area == matured_ling_imm__area) {
                       {
@@ -340,7 +340,7 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
-                  if (age <= matured_ling_imm__maxage) {
+                  if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
                     if (area == matured_ling_imm__area) {
                       {

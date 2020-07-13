@@ -163,9 +163,9 @@ Type objective_function<Type>::operator() () {
     int ling_mat__countlen = 35;
     vector<Type> ling_mat__growth_w(35);
     array<Type> matured_ling_imm__wgt(35,1,8);
+    int matured_ling_imm__minage = 3;
     int matured_ling_imm__maxage = 10;
     int matured_ling_imm__age_idx = 0;
-    int matured_ling_imm__minage = 3;
     int matured_ling_imm__area = 1;
     array<Type> matured_ling_imm__num(35,1,8);
     
@@ -438,7 +438,7 @@ Type objective_function<Type>::operator() () {
               ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
               {
                 area = ling_imm__area;
-                if ( age <= matured_ling_imm__maxage )  {
+                if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage )  {
                     matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
                     if ( area == matured_ling_imm__area )  {
                         {
@@ -462,7 +462,7 @@ Type objective_function<Type>::operator() () {
               ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
               for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
                   area = ling_mat__areas ( ling_mat__area_idx );
-                  if ( age <= matured_ling_imm__maxage )  {
+                  if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage )  {
                       matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
                       if ( area == matured_ling_imm__area )  {
                           {
