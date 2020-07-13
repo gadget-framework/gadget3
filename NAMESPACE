@@ -40,15 +40,17 @@ S3method(edit, g3_cpp)
 export(g3_suitability_exponentiall50)
 
 # R/stock.R
+export(g3_stock)
+export(g3_fleet)
+export(g3s_age)
+export(g3s_prey)
+
+# R/stock_areas.R
 export(g3_areas)
 S3method(`[`, g3_areas)
 S3method(`[[`, g3_areas)
 S3method(as.data.frame, g3_areas)
-export(g3_stock)
-export(g3_fleet)
 export(g3s_livesonareas)
-export(g3s_age)
-export(g3s_prey)
 
 # R/timevariable.R
 export(g3_timeareadata)
