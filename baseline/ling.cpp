@@ -114,13 +114,13 @@ Type objective_function<Type>::operator() () {
     int ling_imm__age_idx = 0;
     int area = 1;
     int ling_imm__area = 1;
-    vector<Type> initcond_dnorm(35);
+    vector<Type> renewal_dnorm(35);
     DATA_VECTOR(ling_imm__meanlen)
     DATA_VECTOR(ling_imm_stddev)
     array<Type> ling_imm__num(35,1,8);
     
     auto ling_imm__area_idx = 0;
-    Type initcond_scaler = 0;
+    Type renewal_scaler = 0;
     array<Type> ling_imm__wgt(35,1,8);
     int ling_mat__minage = 5;
     int ling_mat__maxage = 15;
@@ -184,16 +184,16 @@ Type objective_function<Type>::operator() () {
         }
 
         if ( cur_time == 0 )  {
-            // g3a_initialconditions_normalparam for ling_imm;
+            // g3a_renewal_normalparam for ling_imm;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
                 {
                   area = ling_imm__area;
                   {
-                    initcond_dnorm = (ling_imm__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
-                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
-                    initcond_scaler = 10000 / sum(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
-                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*initcond_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init__;
+                    renewal_dnorm = (ling_imm__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
+                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
+                    renewal_scaler = 10000 / sum(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*renewal_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init__;
                     ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__meanlen, (Type)lingimm__wbeta);
                   }
 
@@ -204,16 +204,16 @@ Type objective_function<Type>::operator() () {
           }
 
         if ( cur_time == 0 )  {
-            // g3a_initialconditions_normalparam for ling_mat;
+            // g3a_renewal_normalparam for ling_mat;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
                     area = ling_mat__areas ( ling_mat__area_idx );
                     {
-                      initcond_dnorm = (ling_mat__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
-                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(initcond_dnorm, (Type)2))*0.5);
-                      initcond_scaler = 10000 / sum(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
-                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*initcond_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init__;
+                      renewal_dnorm = (ling_mat__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
+                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
+                      renewal_scaler = 10000 / sum(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                      ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*renewal_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init__;
                       ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = lingmat__walpha*pow(ling_mat__meanlen, (Type)lingmat__wbeta);
                     }
 
