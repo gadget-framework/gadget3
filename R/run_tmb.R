@@ -165,26 +165,34 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == '[') {
         # Array subsetting
-        missings <- 0
+
+        # Which bits of the subset aren't empty values?
+        not_missing <- vapply(tail(in_call, -2), function (d) !identical(as.character(d), ""), logical(1))
+
+        if (all(not_missing)) {
+            # Nothing missing i.e a value lookup from vector/array
+            return(paste0(
+                in_call[[2]], '(',
+                paste(vapply(
+                    tail(in_call, -2),
+                    function (d) cpp_code(d, in_envir, next_indent),
+                    character(1)), collapse = ", "),
+                ')'))
+        }
+
+        if (!identical(not_missing, sort(not_missing))) {
+            # We only have the .col() operator to work with, there isn't a .row()
+            stop("Missing values must be at start of subset, can't restructure array: ", deparse(in_call))
+        }
+        
+        # Strip off all required dimensions from array
         out <- paste0(c(in_call[[2]], vapply(rev(tail(in_call, -2)), function (d) {
             if (identical(as.character(d), "")) {
                 # Missing symbol
-                missings <<- missings + 1
                 return("")
             }
-            if (missings > 0) {
-                # We only have the .col() operator to work with, there isn't a .row()
-                stop("Missing values must be at start of subset, can't restructure array: ", deparse(in_call))
-            }
-            d <- cpp_code(d, in_envir, next_indent)
-            return(paste0(".col(", d, ")"))
+            return(paste0(".col(", cpp_code(d, in_envir, next_indent), ")"))
         }, character(1))), collapse = "")
-
-        if (missings == 0) {
-            # No dimensions left, retrieve content from our single-value array
-            # TODO: Rewrite to use (x, y, z) instead of .col(x).col(y).col(z)(0)
-            out <- paste0(out, "(0)")
-        }
         return(out)
     }
 

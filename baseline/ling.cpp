@@ -250,7 +250,7 @@ Type objective_function<Type>::operator() () {
                     {
                       // Collect all suitable biomass for fleet;
                       igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__meanlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
-                      igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
+                      igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
                     }
 
                   }
@@ -273,7 +273,7 @@ Type objective_function<Type>::operator() () {
                       {
                         // Collect all suitable biomass for fleet;
                         igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__meanlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
-                        igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
+                        igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
                       }
 
                     }
@@ -294,7 +294,7 @@ Type objective_function<Type>::operator() () {
                     {
                       // Scale fleet amount by total expected catch;
                       predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                      igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch.col(igfs__area_idx)(0);
+                      igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
                       ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
 
@@ -316,7 +316,7 @@ Type objective_function<Type>::operator() () {
                       {
                         // Scale fleet amount by total expected catch;
                         predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                        igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch.col(igfs__area_idx)(0);
+                        igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx);
                       }
 
@@ -356,7 +356,7 @@ Type objective_function<Type>::operator() () {
                     {
                       // Scale caught amount by overconsumption, update variables;
                       igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                      igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
+                      igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
                       ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
 
@@ -378,7 +378,7 @@ Type objective_function<Type>::operator() () {
                       {
                         // Scale caught amount by overconsumption, update variables;
                         igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
-                        igfs__catch.col(igfs__area_idx)(0) = (igfs__catch.col(igfs__area_idx)(0) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
+                        igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) -= (ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                       }
 
