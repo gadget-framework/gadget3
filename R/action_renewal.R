@@ -33,9 +33,9 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     renewal_scaler <- 0.0
 
     out <- list()
-    out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (run_f) {
+    out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_renewal_normalparam for ", stock)
-        stock_iterate(stock, {
+        stock_iterate(stock, if (run_f) {
             renewal_dnorm <- (stock__meanlen - mean_f) * (1.0 / stddev_f)
             stock__num[stock__iter] <- exp(-(renewal_dnorm ** 2) * 0.5)
             renewal_scaler <- 10000.0 / sum(stock__num[stock__iter])

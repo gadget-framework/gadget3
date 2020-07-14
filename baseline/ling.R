@@ -120,13 +120,13 @@ structure(function (param)
             cur_step_final <- cur_step == step_count
             debugf("** Tick: %d-%d\n", cur_year, cur_step)
         }
-        if (cur_time == 0L) {
+        {
             comment("g3a_renewal_normalparam for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  {
+                  if (cur_time == 0L) {
                     renewal_dnorm <- (ling_imm__meanlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_imm_stddev[[ling_imm__age_idx]])
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(renewal_dnorm^2) * 0.5)
                     renewal_scaler <- 10000/sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
@@ -136,13 +136,13 @@ structure(function (param)
                 }
             }
         }
-        if (cur_time == 0L) {
+        {
             comment("g3a_renewal_normalparam for ling_mat")
             for (age in seq(ling_mat__minage, ling_mat__maxage)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
-                  {
+                  if (cur_time == 0L) {
                     renewal_dnorm <- (ling_mat__meanlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_mat_stddev[[ling_mat__age_idx]])
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- exp(-(renewal_dnorm^2) * 0.5)
                     renewal_scaler <- 10000/sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])

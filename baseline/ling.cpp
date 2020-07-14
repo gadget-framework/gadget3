@@ -183,13 +183,13 @@ Type objective_function<Type>::operator() () {
           debugf("** Tick: %d-%d\n", cur_year, cur_step);
         }
 
-        if ( cur_time == 0 )  {
-            // g3a_renewal_normalparam for ling_imm;
-            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
-                ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
-                {
-                  area = ling_imm__area;
-                  {
+        {
+          // g3a_renewal_normalparam for ling_imm;
+          for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+              ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+              {
+                area = ling_imm__area;
+                if ( cur_time == 0 )  {
                     renewal_dnorm = (ling_imm__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
                     ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
                     renewal_scaler = 10000 / sum(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
@@ -197,19 +197,19 @@ Type objective_function<Type>::operator() () {
                     ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__meanlen, (Type)lingimm__wbeta);
                   }
 
-                }
-
               }
 
-          }
+            }
 
-        if ( cur_time == 0 )  {
-            // g3a_renewal_normalparam for ling_mat;
-            for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
-                ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
-                    {
+        }
+
+        {
+          // g3a_renewal_normalparam for ling_mat;
+          for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+              ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+              for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
+                  area = ling_mat__areas ( ling_mat__area_idx );
+                  if ( cur_time == 0 )  {
                       renewal_dnorm = (ling_mat__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
                       ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
                       renewal_scaler = 10000 / sum(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
@@ -217,11 +217,11 @@ Type objective_function<Type>::operator() () {
                       ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = lingmat__walpha*pow(ling_mat__meanlen, (Type)lingmat__wbeta);
                     }
 
-                  }
+                }
 
-              }
+            }
 
-          }
+        }
 
         {
           // g3a_predate_totalfleet for igfs;
