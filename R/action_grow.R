@@ -94,7 +94,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
 # Growth step for a stock
 # - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
-g3a_grow <- function(stock, growth_f, impl_f) {
+g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
     # See AgeBandMatrix::Grow
     stock__growth_num <- stock_definition(stock, 'stock__num')
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
@@ -145,7 +145,7 @@ g3a_grow <- function(stock, growth_f, impl_f) {
     }')
 
     out <- list()
-    out[[paste0("050:", stock$name)]] <- stock_step(f_substitute(~{
+    out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_grow for ", stock)
         stock_iterate(stock, {
             comment("Calculate increase in length/weight for each lengthgroup")

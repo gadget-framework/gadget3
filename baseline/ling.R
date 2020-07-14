@@ -45,7 +45,7 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * input_num))
     }
-    cur_time <- 0L
+    cur_time <- -1L
     steps <- model_data$steps
     end_year <- 1985L
     start_year <- 1983L
@@ -111,6 +111,7 @@ structure(function (param)
     while (TRUE) {
         {
             comment("g3a_time")
+            cur_time <- cur_time + 1
             if (cur_time > total_steps) 
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
@@ -365,9 +366,6 @@ structure(function (param)
                   ling_imm__num[, , ling_imm__age_idx] <- 0
                 }
             }
-        }
-        {
-            cur_time <- cur_time + 1
         }
     }
     stop("Should have return()ed somewhere in the loop")

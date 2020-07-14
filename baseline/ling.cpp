@@ -97,7 +97,7 @@ Type objective_function<Type>::operator() () {
         }
         return out;
     };
-    int cur_time = 0;
+    int cur_time = -1;
     
     DATA_IVECTOR(steps)
     int end_year = 1985;
@@ -174,6 +174,7 @@ Type objective_function<Type>::operator() () {
     while (true) {
         {
           // g3a_time;
+          cur_time += 1;
           if ( cur_time > total_steps )  return nll;
           cur_year = start_year + (((int) cur_time) / ((int) step_count));
           cur_step = (cur_time % step_count) + 1;
@@ -496,10 +497,6 @@ Type objective_function<Type>::operator() () {
               }
 
           }
-
-        {
-          cur_time += 1;
-        }
 
       }
 

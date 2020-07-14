@@ -1,5 +1,5 @@
 # On final step of year, move stock into the next age bracket
-g3a_age <- function(stock) {
+g3a_age <- function(stock, run_at = 12) {
     # Mangle stock_num / stock_wgt to remove non-age parameters
     age_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
         if (as.character(x) %in% c("[", ".", "stock__age_idx")) x
@@ -12,7 +12,7 @@ g3a_age <- function(stock) {
     }))
 
     out <- list()
-    out[[paste0("120:", stock$name)]] <- stock_step(f_substitute(~if (cur_step_final) {
+    out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (cur_step_final) {
         stock_comment("g3a_age for ", stock)
         stock_rename(stock, for (age in seq(stock__maxage, stock__minage)) {
            stock__age_idx <- g3_idx(age - stock__minage + 1)

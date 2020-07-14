@@ -1,4 +1,4 @@
-g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amount_f) {
+g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amount_f, run_at = 3) {
     out <- new.env(parent = emptyenv())
     predate_totalfleet_E <- 0.0
 
@@ -19,20 +19,20 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
 
         # Make sure counter for this fleet is zeroed
         # NB: We only have one of these per-fleet (we replace it a few times though)
-        out[[paste0('030:0:', fleet_stock$name)]] <- stock_step(~{
+        out[[step_id(run_at, 0, fleet_stock)]] <- stock_step(~{
             stock_comment("g3a_predate_totalfleet for ", fleet_stock)
             stock_rename(fleet_stock, fleet_stock__catch[] <- 0)
         })
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
-        out[[paste0('030:0:', prey_stock$name)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 0, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_rename(prey_stock, prey_stock__totalpredate[] <- 0)
         }, list(amount_f = amount_f)))
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
-        out[[paste0('030:1:', fleet_stock$name, ":", prey_stock$name)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 1, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             comment("Zero counter of biomass caught for this fleet")
             fleet_stock__prey_stock[] <- 0
@@ -50,7 +50,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             fleet_stock__prey_stock = fleet_stock_var)))
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
-        out[[paste0('030:2:', fleet_stock$name, ":", prey_stock$name)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 2, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Scale fleet amount by total expected catch")
@@ -63,13 +63,13 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             fleet_stock__prey_stock = fleet_stock_var)))
 
         # Overconsumption: Zero catch counter again, so we can sum adjusted values this time
-        out[[paste0('030:3:', fleet_stock$name)]] <- stock_step(~{
+        out[[step_id(run_at, 3, fleet_stock)]] <- stock_step(~{
             comment("Zero fleet catch before working out post-adjustment value")
             stock_rename(fleet_stock, fleet_stock__catch[] <- 0)
         })
 
         # Overconsumption: Prey adjustments
-        out[[paste0('030:3:', fleet_stock$name)]] <- stock_step(~{
+        out[[step_id(run_at, 3, fleet_stock)]] <- stock_step(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, {
                 comment("Prey overconsumption coefficient")
@@ -80,7 +80,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         })
 
         # Overconsumption: if we went over the limit, scale back, remove from prey_stock
-        out[[paste0('030:3:', fleet_stock$name, ":", prey_stock$name)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 3, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Scale caught amount by overconsumption, update variables")

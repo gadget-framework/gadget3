@@ -103,3 +103,23 @@ stock_step <- function(step_f) {
             return(repl_stock_fn(x, 'intersect'))
         }))
 }
+
+# Turn number/stock/string params into a single string indentifying that step
+step_id <- function (...) {
+    parts <- vapply(list(...), function (part) {
+        if (is.numeric(part)) {
+            # Number, format with leading zeros
+            return(sprintf("%03d", part))
+        }
+        if (is.list(part) && !is.null(part$name)) {
+            # Stock, extract name
+            return(part$name)
+        }
+        if (is.character(part)) {
+            # Character, pass through
+            return(part[[1]])
+        }
+        stop("Invalid parameter to step_id: ", deparse(part))
+    }, character(1))
+    paste(parts, collapse = ":")
+}
