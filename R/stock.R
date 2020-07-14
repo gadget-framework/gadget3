@@ -1,16 +1,3 @@
-stock_extend <- function(inner, ...) {
-    out <- as.environment(inner)
-    additions <- list(...)
-
-    for (n in names(additions)) {
-        new_val <- additions[[n]]
-
-        assign(n, new_val, envir = out)
-    }
-
-    as.list(out)
-}
-
 # Pull the definition of the stock variable out of the stock object
 stock_definition <- function(stock, var_name) {
     get(var_name, envir = rlang::f_env(stock$iterate))
