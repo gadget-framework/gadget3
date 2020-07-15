@@ -8,7 +8,7 @@ g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
 }
 
-assign('debugf', g3_native(r = function(...) {
+g3_global_env$debugf <- g3_native(r = function(...) {
     cat(sprintf(...))
 }, cpp = '
    [](const char* format, ...) -> void {
@@ -17,6 +17,6 @@ assign('debugf', g3_native(r = function(...) {
        vprintf(format, argptr);
        va_end(argptr);
    }
-'), envir = g3_global_env)
+')
 
-assign('nll', 0.0, envir = g3_global_env)
+g3_global_env$nll <- 0.0
