@@ -72,7 +72,7 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb_report <- model_tmb$report()
     for (n in ls(environment(model_fn)$model_report)) {
         ok(ut_cmp_equal(
-            model_tmb$report()[[n]],
+            model_tmb_report[[n]],
             environment(model_fn)$model_report[[n]],
             tolerance = 1e-5), paste("TMB and R match", n))
     }

@@ -6,7 +6,7 @@ teststock <- g3_stock('teststock', 10, 40, 5)
 teststock__num <- rep(NA, 6)  # TODO: Bodge around not being available yet, should use proper initialconditions
 teststock__wgt <- rep(NA, 6)  # TODO: Bodge around not being available yet, should use proper initialconditions
 
-ok_group("g3a_grow_impl_bbinom", for (allow_break in 1) {
+ok_group("g3a_grow_impl_bbinom", {
     actions <- g3_collate(  # dmu, lengthgrouplen, binn, beta
         g3a_grow(teststock,
             growth_f = list(len = ~g3_param_vector('dmu'), wgt = ~0),
@@ -34,17 +34,23 @@ ok_group("g3a_grow_impl_bbinom", for (allow_break in 1) {
         0.089543, 0.089543, 0.021952, 0.021952, 0.021952, 0.021952, 0.021952,
         0.021952, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439), dim = c(6,7)), tolerance = 1e-5), "Matches baseline")
 
-    if (!nzchar(Sys.getenv('G3_TEST_TMB'))) { writeLines("# skip: not running TMB tests") ; break }
-    model_cpp <- g3_precompile_tmb(actions)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params)
-    ok(ut_cmp_equal(
-        model_tmb$report()$teststock__growth_l,
-        environment(model_fn)$model_report$teststock__growth_l,
-        tolerance = 1e-5), "C++ and R match")
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_precompile_tmb(actions)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params)
+        model_tmb_report <- model_tmb$report()
+        for (n in ls(environment(model_fn)$model_report)) {
+            ok(ut_cmp_equal(
+                model_tmb_report[[n]],
+                environment(model_fn)$model_report[[n]],
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
 })
 
-ok_group("g3a_grow", for (allow_break in 1) {
+ok_group("g3a_grow", {
     actions <- g3_collate(
         g3a_grow(teststock,
             growth_f = list(len = ~0, wgt = ~g3_param_vector('growth_w')),
@@ -90,14 +96,18 @@ ok_group("g3a_grow", for (allow_break in 1) {
         ((500 * 10000) + 5) / 5000,
         ((600 * 100000) + 6) / 100000)), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
-    if (!nzchar(Sys.getenv('G3_TEST_TMB'))) { writeLines("# skip: not running TMB tests") ; break }
-    model_cpp <- g3_precompile_tmb(actions)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params)
-    ok(ut_cmp_identical(
-        environment(model_fn)$model_report$teststock__num,
-        model_tmb$report()$teststock__num), "Stock individuals are the same in C++ and R")
-    ok(ut_cmp_identical(
-        environment(model_fn)$model_report$teststock__growth_l,
-        model_tmb$report()$teststock__growth_l), "Stock growth matrix is the same in C++ and R")
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_precompile_tmb(actions)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params)
+        model_tmb_report <- model_tmb$report()
+        for (n in ls(environment(model_fn)$model_report)) {
+            ok(ut_cmp_equal(
+                model_tmb_report[[n]],
+                environment(model_fn)$model_report[[n]],
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
 })
