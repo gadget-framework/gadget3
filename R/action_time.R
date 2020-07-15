@@ -1,4 +1,7 @@
 # Timekeeping step, advances clock and stops when time is up
+# - start_year: Year to start counting from
+# - end_year: Stop at the end of this year (i.e. inclusive)
+# - steps: Vector of steps in a year, each element is a number of months, should sum to 12
 # Once added to a model, the following variables will be available:
 # - cur_time: Current iteration of model, starts at 0 and increments until finished
 # - cur_step: Current step within individual year
