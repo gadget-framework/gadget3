@@ -106,7 +106,6 @@ ling_model <- g3_compile_r(g3_collate(
     ling_imm_actions,
     consumption_actions,
     time))
-print(ling_model)
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'baseline/ling.R')
 
 writeLines("***** Running Model *****")
@@ -202,7 +201,6 @@ tmb_ling <- g3_precompile_tmb(g3_collate(
     ling_imm_actions,
     consumption_actions,
     time))
-writeLines(tmb_ling)
 writeLines(tmb_ling, con = 'baseline/ling.cpp')
 ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
 # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling)
