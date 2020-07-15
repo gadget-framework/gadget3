@@ -3,18 +3,17 @@ library(unittest)
 library(gadget3)
 
 teststock <- g3_stock('teststock', 10, 40, 5)
-teststock__num <- rep(NA, 6)  # TODO: Bodge around not being available yet, should use proper initialconditions
-teststock__wgt <- rep(NA, 6)  # TODO: Bodge around not being available yet, should use proper initialconditions
+
+cur_time <- 0L  # Initialconditions needs to know what the time is
 
 ok_group("g3a_grow_impl_bbinom", {
     actions <- g3_collate(  # dmu, lengthgrouplen, binn, beta
+        g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
         g3a_grow(teststock,
             growth_f = list(len = ~g3_param_vector('dmu'), wgt = ~0),
             impl_f = g3a_grow_impl_bbinom(~g3_param('beta'), ~g3_param('maxlengthgroupgrowth'))),
         list(
-            "0" = ~{teststock__num <- g3_param_vector("initial")},
             "999" = ~{
-                g3_report("teststock__num")
                 g3_report("teststock__growth_l")
                 return(0)
             }))
@@ -52,18 +51,16 @@ ok_group("g3a_grow_impl_bbinom", {
 
 ok_group("g3a_grow", {
     actions <- g3_collate(
+        g3a_initialconditions(teststock,
+            ~g3_param_vector("initial_num"),
+            ~g3_param_vector("initial_wgt")),
         g3a_grow(teststock,
             growth_f = list(len = ~0, wgt = ~g3_param_vector('growth_w')),
             impl_f = ~g3_param_array('growth_matrix')),
         list(
-            "0" = ~{
-                teststock__num <- g3_param_vector("initial_num")
-                teststock__wgt <- g3_param_vector("initial_wgt")
-            },
             "999" = ~{
                 g3_report("teststock__num")
                 g3_report("teststock__wgt")
-                g3_report("teststock__growth_l")
                 return(0)
             }))
 
@@ -86,9 +83,9 @@ ok_group("g3a_grow", {
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
     ok(ut_cmp_identical(
-        environment(model_fn)$model_report$teststock__num,
+        as.vector(environment(model_fn)$model_report$teststock__num),
         c(0, 25, 1010, 575, 5000, 100000)), "Stock individuals have been scaled by matrix")
-    ok(ut_cmp_equal(environment(model_fn)$model_report$teststock__wgt, c(
+    ok(ut_cmp_equal(as.vector(environment(model_fn)$model_report$teststock__wgt), c(
         ((100 * 10) + 1) / 0.00001,
         ((200 * 100) + 2) / 25,
         ((300 * 1000) + 3) / 1010,
@@ -104,7 +101,7 @@ ok_group("g3a_grow", {
         for (n in ls(environment(model_fn)$model_report)) {
             ok(ut_cmp_equal(
                 model_tmb_report[[n]],
-                environment(model_fn)$model_report[[n]],
+                as.vector(environment(model_fn)$model_report[[n]]),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {

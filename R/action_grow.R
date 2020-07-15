@@ -119,7 +119,7 @@ g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
             growth.matrix[lg,lg:(n + lg)] <- lg_deltas[lg,]
           }
         }
-        return(Matrix::colSums(growth.matrix * input_num))
+        return(Matrix::colSums(growth.matrix * as.vector(input_num)))  # NB: Cant matrix-multiply with a 1xn array
     }, cpp = '[](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
         lg_deltas = lg_deltas.transpose();
         int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)

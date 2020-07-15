@@ -43,7 +43,7 @@ structure(function (param)
                 growth.matrix[lg, lg:(n + lg)] <- lg_deltas[lg, ]
             }
         }
-        return(Matrix::colSums(growth.matrix * input_num))
+        return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
     cur_time <- -1L
     steps <- model_data$steps
