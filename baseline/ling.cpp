@@ -442,10 +442,10 @@ Type objective_function<Type>::operator() () {
                 if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage )  {
                     matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
                     if ( area == matured_ling_imm__area )  {
-                        {
-                          // Move matured ling_imm into temporary storage;
-                          ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
-                        }
+                        if ( true )  {
+                            // Move matured ling_imm into temporary storage;
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
+                          }
 
                       }
 
@@ -466,11 +466,11 @@ Type objective_function<Type>::operator() () {
                   if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage )  {
                       matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
                       if ( area == matured_ling_imm__area )  {
-                          {
-                            ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
-                            ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
-                            ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
-                          }
+                          if ( true )  {
+                              ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
+                              ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
+                              ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                            }
 
                         }
 

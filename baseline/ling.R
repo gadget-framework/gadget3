@@ -326,7 +326,7 @@ structure(function (param)
                   if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
                     if (area == matured_ling_imm__area) {
-                      {
+                      if (TRUE) {
                         comment("Move matured ling_imm into temporary storage")
                         ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * 1)
                       }
@@ -344,7 +344,7 @@ structure(function (param)
                   if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
                     matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
                     if (area == matured_ling_imm__area) {
-                      {
+                      if (TRUE) {
                         ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
                         ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
                         ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
