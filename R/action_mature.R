@@ -18,10 +18,10 @@ g3a_mature_constant <- function (alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma 
     }
 
     if (gamma > 0) {
-        if (is.na(k50)) stop("l50 must be supplied if gamma > 0")
+        if (is.na(k50)) stop("k50 must be supplied if gamma > 0")
         inner_code <- substitute(inner_code - gamma*(stock__wgt[stock__iter] - k50), list(
-            beta = beta,
-            a50 = a50,
+            gamma = gamma,
+            k50 = k50,
             inner_code = inner_code))
     }
 

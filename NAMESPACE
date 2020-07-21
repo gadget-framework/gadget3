@@ -11,6 +11,7 @@ export(g3a_grow_impl_bbinom)
 export(g3a_grow)
 
 # R/action_mature.R
+export(g3a_mature_constant)
 export(g3a_mature)
 
 # R/action_predate.R
