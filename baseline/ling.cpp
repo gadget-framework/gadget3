@@ -469,7 +469,7 @@ Type objective_function<Type>::operator() () {
                           if ( true )  {
                               ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (matured_ling_imm__wgt.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
                               ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (matured_ling_imm__num.col(matured_ling_imm__age_idx).col(matured_ling_imm__area_idx)*1);
-                              ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                              ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
                             }
 
                         }
