@@ -32,7 +32,7 @@ Type objective_function<Type>::operator() () {
         assert(lookup.count(key) > 0);
         return lookup[key];
     };
-    auto growth_bbinom = [](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> array<Type> {
+    auto growth_bbinom = [](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
@@ -155,12 +155,10 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__overconsumption(35,2,11);
     array<Type> ling_imm__overconsumption(35,1,8);
     array<Type> ling_imm__growth_l;
-    int ling_imm__dl = 4;
-    int ling_imm__countlen = 35;
+    DATA_VECTOR(ling_imm__dl)
     vector<Type> ling_imm__growth_w(35);
     array<Type> ling_mat__growth_l;
-    int ling_mat__dl = 4;
-    int ling_mat__countlen = 35;
+    DATA_VECTOR(ling_mat__dl)
     vector<Type> ling_mat__growth_w(35);
     array<Type> matured_ling_imm__wgt(35,1,8);
     int matured_ling_imm__minage = 3;
@@ -398,7 +396,7 @@ Type objective_function<Type>::operator() () {
                 area = ling_imm__area;
                 {
                   // Calculate increase in length/weight for each lengthgroup;
-                  ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, ling_imm__countlen, ling__bbin*10);
+                  ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
                   ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__meanlen - (ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__meanlen, (Type)lingimm__wbeta));
                   ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                   ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
@@ -419,7 +417,7 @@ Type objective_function<Type>::operator() () {
                   area = ling_mat__areas ( ling_mat__area_idx );
                   {
                     // Calculate increase in length/weight for each lengthgroup;
-                    ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, ling_mat__countlen, ling__bbin*10);
+                    ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
                     ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__meanlen - (ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__meanlen, (Type)lingmat__wbeta));
                     ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                     ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));

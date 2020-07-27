@@ -13,22 +13,19 @@ stock_clone <- function(stock, name) {
     return(new_stock)
 }
 
-g3_stock <- function(var_name, minlength, maxlength, dl) {
-    # If these are literals, they should be integers
-    stock__minlength <- if(is.numeric(minlength)) as.integer(minlength) else minlength
-    stock__maxlength <- if(is.numeric(maxlength)) as.integer(maxlength) else maxlength
-    stock__dl <- if(is.numeric(dl)) as.integer(dl) else dl
-
+g3_stock <- function(var_name, lengthgroups) {
     # See LengthGroupDivision::LengthGroupDivision
-    stock__countlen <- (stock__maxlength - stock__minlength) %/% stock__dl
-    if (stock__countlen < 1) stop("Should be at least 1 lengthgroup")
-    # TODO: These can't be formulae, since then we stop substituting stock name
-    # Force array so type is stable in TMB
-    stock__minlen <- as.array(stock__minlength + stock__dl * (seq_len(stock__countlen) - 1))
-    stock__meanlen <- as.array(stock__minlen + (stock__dl / 2))
 
-    stock__num <- array(dim = c(stock__countlen))  # Number of individuals
-    stock__wgt <- array(dim = c(stock__countlen))  # Mean weight of individuals
+    # stock__dl is size of each lengthgroup
+    plus_group_max <- tail(lengthgroups, 1) + (if (length(lengthgroups) > 1) mean(diff(lengthgroups)) else 1)
+    stock__dl <- diff(c(lengthgroups, plus_group_max))
+
+    # Force array so type is stable in TMB
+    stock__minlen <- as.array(lengthgroups)
+    stock__meanlen <- as.array(lengthgroups + (stock__dl / 2))
+
+    stock__num <- array(dim = length(lengthgroups))  # Number of individuals
+    stock__wgt <- array(dim = length(lengthgroups))  # Mean weight of individuals
 
     list(
         iterate = ~extension_point,

@@ -4,8 +4,8 @@ library(unittest)
 library(gadget3)
 
 areas <- g3_areas('a', 'b', 'c', 'd')
-stock_a <- g3_stock('stock_a', 10, 15, 5) %>% g3s_livesonareas(areas[c('a')])
-stock_ac <- g3_stock('stock_ac', 10, 15, 5) %>% g3s_livesonareas(areas[c('a', 'c')])
+stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])
+stock_ac <- g3_stock('stock_ac', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a', 'c')])
     
 cur_time <- 0L  # Initialconditions needs to know what the time is
 actions <- g3_collate(

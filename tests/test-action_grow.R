@@ -2,7 +2,7 @@ library(unittest)
 
 library(gadget3)
 
-teststock <- g3_stock('teststock', 10, 40, 5)
+teststock <- g3_stock('teststock', seq(10, 35, 5))
 
 cur_time <- 0L  # Initialconditions needs to know what the time is
 

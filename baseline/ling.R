@@ -94,12 +94,10 @@ structure(function (param)
     ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
     ling_imm__growth_l <- array(dim = c(0L, 0L))
-    ling_imm__dl <- 4L
-    ling_imm__countlen <- 35L
+    ling_imm__dl <- model_data$ling_imm__dl
     ling_imm__growth_w <- array(dim = 35L)
     ling_mat__growth_l <- array(dim = c(0L, 0L))
-    ling_mat__dl <- 4L
-    ling_mat__countlen <- 35L
+    ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L)
     matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__minage <- 3L
@@ -290,7 +288,7 @@ structure(function (param)
                   area <- ling_imm__area
                   {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, ling_imm__countlen, param[["ling.bbin"]] * 10)
+                    ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- param[["lingimm.walpha"]] * ((ling_imm__meanlen - (param[["ling.Linf"]] - ling_imm__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingimm.wbeta"]] - ling_imm__meanlen^param[["lingimm.wbeta"]])
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
@@ -307,7 +305,7 @@ structure(function (param)
                   area <- ling_mat__areas[[ling_mat__area_idx]]
                   {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_mat__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, ling_mat__countlen, param[["ling.bbin"]] * 10)
+                    ling_mat__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
                     ling_mat__growth_w <- param[["lingmat.walpha"]] * ((ling_mat__meanlen - (param[["ling.Linf"]] - ling_mat__meanlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingmat.wbeta"]] - ling_mat__meanlen^param[["lingmat.wbeta"]])
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])

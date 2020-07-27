@@ -43,7 +43,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
                    lgamma(alpha))
         dim(val) <- c(na,n + 1)
         return(val)
-    }, cpp = '[](vector<Type> dmu, int lengthgrouplen, int binn, Type beta) -> array<Type> {
+    }, cpp = '[](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
@@ -87,7 +87,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     }')
 
     f_substitute(
-        ~growth_bbinom(stock__grow_f, stock__dl, stock__countlen, beta_f),
+        ~growth_bbinom(stock__grow_f, stock__dl, length(stock__dl), beta_f),
         list(beta_f = beta_f))
 }
 

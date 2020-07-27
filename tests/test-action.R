@@ -4,8 +4,8 @@ library(gadget3)
 
 ok_group("step_id", {
     step_id <- gadget3:::step_id
-    stock_a <- g3_stock('stock_aaa', 10, 40, 5)
-    stock_b <- g3_stock('stock_bbb', 10, 40, 5)
+    stock_a <- g3_stock('stock_aaa', seq(10, 35, 5))
+    stock_b <- g3_stock('stock_bbb', seq(10, 35, 5))
 
     ok(ut_cmp_identical(step_id("camel"), "camel"), "String: camel")
     ok(ut_cmp_error({
@@ -24,11 +24,11 @@ ok_group("step_id", {
 })
 
 ok_group("stock_step:stock_reshape", {
-    source <- g3_stock('source', 10, 50, 10)
-    dest_even <- g3_stock('dest_even', 10, 50, 10)  # Input == output
-    dest_combine <- g3_stock('dest_combine', 10, 50, 40)  # All input combined
-    dest_2group <- g3_stock('dest_2group', 10, 50, 20)  # 2 groups
-    dest_wider <- g3_stock('dest_wider', 0, 100, 10)  # Wider top and bottom
+    source <- g3_stock('source', seq(10, 40, 10))
+    dest_even <- g3_stock('dest_even', seq(10, 40, 10))  # Input == output
+    dest_combine <- g3_stock('dest_combine', seq(10, 40, 40))  # All input combined
+    dest_2group <- g3_stock('dest_2group', seq(10, 40, 20))  # 2 groups
+    dest_wider <- g3_stock('dest_wider', seq(0, 90, 10))  # Wider top and bottom
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
     actions <- g3_collate(

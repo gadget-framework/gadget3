@@ -41,9 +41,9 @@ ok_group('g3a_mature_constant', {
 })
 
 ok_group('g3a_mature', {
-    stock_imm <- g3_stock('stock_imm', 10, 50, 10)
-    stock_mat1 <- g3_stock('stock_mat1', 10, 50, 10)
-    stock_mat2 <- g3_stock('stock_mat2', 10, 50, 10)
+    stock_imm <- g3_stock('stock_imm', seq(10, 40, 10))
+    stock_mat1 <- g3_stock('stock_mat1', seq(10, 40, 10))
+    stock_mat2 <- g3_stock('stock_mat2', seq(10, 40, 10))
 
     ok(ut_cmp_error(
         g3a_mature(stock_imm, list(stock_mat1, stock_mat2), ~g3_param_vector("maturity"), output_ratios = c(9,9,9)),

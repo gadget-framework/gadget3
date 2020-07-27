@@ -3,9 +3,9 @@ library(unittest)
 
 library(gadget3)
 
-stock_young <- g3_stock('stock_young', 10, 15, 5) %>% g3s_age(1, 3)
-stock_old <- g3_stock('stock_old', 10, 15, 5) %>% g3s_age(4, 6)
-stock_inbetween <- g3_stock('stock_inbetween', 10, 15, 5) %>% g3s_age(2, 5)
+stock_young <- g3_stock('stock_young', c(10)) %>% g3s_age(1, 3)
+stock_old <- g3_stock('stock_old', c(10)) %>% g3s_age(4, 6)
+stock_inbetween <- g3_stock('stock_inbetween', c(10)) %>% g3s_age(2, 5)
 
 cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_young_inbetween <- 0.0
