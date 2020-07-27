@@ -8,7 +8,10 @@ stock_step <- function(step_f) {
     # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
     fix_subsets <- function (in_f) {
         call_replace(in_f, "[" = function (subset_call) {
-            if (length(subset_call) == 3 &&
+            if (!is.call(subset_call)) {
+                # Raw [ symbol, just return it
+                subset_call
+            } else if (length(subset_call) == 3 &&
                     is.call(subset_call[[3]]) &&
                     subset_call[[3]][[1]] == as.symbol("[") &&
                     subset_call[[3]][[2]] == quote(.)) {
@@ -17,8 +20,8 @@ stock_step <- function(step_f) {
                     head(as.list(subset_call), -1),
                     tail(as.list(subset_call[[3]]), -2)))
             } else {
-                # Leave alone
-                subset_call
+                # Recurse through subsetting call
+                as.call(lapply(as.list(subset_call), fix_subsets))
             }
         })
     }
