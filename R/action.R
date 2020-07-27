@@ -110,26 +110,31 @@ stock_step <- function(step_f) {
             source_stock <- get(source_stock_var, envir = rlang::f_env(step_f))
             source_lg <- stock_definition(source_stock, 'stock__minlen')
 
-            # Generate a matrix to transform one to the other
-            matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
-            assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
-                # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
-                plus_group <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
+            if (isTRUE(all.equal(source_lg, dest_lg))) {
+                # Source == dest, so no point doing a transform
+                out_f <- inner_f
+            } else {
+                # Generate a matrix to transform one to the other
+                matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
+                assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
+                    # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
+                    plus_group <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
 
-                lower_s <- source_lg[[source_idx]]
-                upper_s <- if (source_idx >= length(source_lg)) tail(source_lg, 1) + 1 else source_lg[[source_idx + 1]]
+                    lower_s <- source_lg[[source_idx]]
+                    upper_s <- if (source_idx >= length(source_lg)) tail(source_lg, 1) + 1 else source_lg[[source_idx + 1]]
 
-                lower_d <- dest_lg[[dest_idx]]
-                upper_d <- if (dest_idx >= length(dest_lg)) plus_group else dest_lg[[dest_idx + 1]]
+                    lower_d <- dest_lg[[dest_idx]]
+                    upper_d <- if (dest_idx >= length(dest_lg)) plus_group else dest_lg[[dest_idx + 1]]
 
-                intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
-                return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
-            }, numeric(1)))))
+                    intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
+                    return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
+                }, numeric(1)))))
 
-            # Formulae to apply matrix
-            out_f <- f_substitute(~(lg_matrix %*% inner_f)[,g3_idx(1)], list(
-                lg_matrix = as.symbol(matrix_name),
-                inner_f = inner_f))
+                # Formulae to apply matrix
+                out_f <- f_substitute(~(lg_matrix %*% inner_f)[,g3_idx(1)], list(
+                    lg_matrix = as.symbol(matrix_name),
+                    inner_f = inner_f))
+            }
 
             # Add environment to formulae's environment, return inner call
             environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))

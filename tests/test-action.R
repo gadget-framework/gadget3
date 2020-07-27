@@ -67,6 +67,12 @@ ok_group("stock_step:stock_reshape", {
     # model_fn <- edit(model_fn)
     model_fn(params)
 
+    ok(ut_cmp_identical(
+        grep("lgmatrix", ls(environment(model_fn)$model_data), value = TRUE, fixed = TRUE),
+        c("source_dest_2group_lgmatrix",
+            "source_dest_combine_lgmatrix",
+            "source_dest_wider_lgmatrix")), "Generated matrices for mismatched stocks, not dest_even")
+
     # str(as.list(environment(model_fn)$model_report))
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$dest_even__num),
