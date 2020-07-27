@@ -21,6 +21,7 @@ g3_stock <- function(var_name, minlength, maxlength, dl) {
 
     # See LengthGroupDivision::LengthGroupDivision
     stock__countlen <- (stock__maxlength - stock__minlength) %/% stock__dl
+    if (stock__countlen < 1) stop("Should be at least 1 lengthgroup")
     # TODO: These can't be formulae, since then we stop substituting stock name
     # Force array so type is stable in TMB
     stock__minlen <- as.array(stock__minlength + stock__dl * (seq_len(stock__countlen) - 1))

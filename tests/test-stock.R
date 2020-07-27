@@ -3,6 +3,10 @@ library(unittest)
 
 library(gadget3)
 
+ok(ut_cmp_error(
+    g3_stock('stock_a', 10, 10, 5),
+    "at least 1"), "Can't create stock with 0 length groups")
+
 stock_a <- g3_stock('stock_a', 10, 15, 5)
 stock_b <- g3_stock('stock_b', 50, 55, 1)
 
