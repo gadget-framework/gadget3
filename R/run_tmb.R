@@ -166,13 +166,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     if (call_name == '[') {
         # Array subsetting
 
+        # Thing to array subset, either a symbol or an expression, which we should probably bracket
+        subject <- if (is.symbol(in_call[[2]])) in_call[[2]] else paste0(
+            "(", cpp_code(in_call[[2]], in_envir, next_indent), ")")
+
         # Which bits of the subset aren't empty values?
         not_missing <- vapply(tail(in_call, -2), function (d) !identical(as.character(d), ""), logical(1))
 
         if (all(not_missing)) {
             # Nothing missing i.e a value lookup from vector/array
             return(paste0(
-                in_call[[2]], '(',
+                subject, '(',
                 paste(vapply(
                     tail(in_call, -2),
                     function (d) cpp_code(d, in_envir, next_indent),
@@ -186,7 +190,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         }
         
         # Strip off all required dimensions from array
-        out <- paste0(c(in_call[[2]], vapply(rev(tail(in_call, -2)), function (d) {
+        out <- paste0(c(subject, vapply(rev(tail(in_call, -2)), function (d) {
             if (identical(as.character(d), "")) {
                 # Missing symbol
                 return("")
