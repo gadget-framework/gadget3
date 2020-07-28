@@ -15,6 +15,7 @@ stock_clone <- function(stock, name) {
 
 g3_stock <- function(var_name, lengthgroups) {
     # See LengthGroupDivision::LengthGroupDivision
+    stopifnot(length(lengthgroups) > 0)
 
     # stock__dl is size of each lengthgroup
     plus_group_max <- tail(lengthgroups, 1) + (if (length(lengthgroups) > 1) mean(diff(lengthgroups)) else 1)
