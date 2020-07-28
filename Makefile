@@ -20,6 +20,9 @@ build:
 test: install
 	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
 
+inttest: install test
+	for f in run.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
+
 check: build
 	R CMD check "$(TARBALL)"
 
@@ -30,4 +33,4 @@ wincheck: build
 	# See https://win-builder.r-project.org/ for more information
 	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
 
-.PHONY: all install build test check check-as-cran wincheck
+.PHONY: all install build test inttest check check-as-cran wincheck
