@@ -18,7 +18,7 @@ build:
 	R CMD build .
 
 test: install
-	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || break; done
+	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
 
 check: build
 	R CMD check "$(TARBALL)"
