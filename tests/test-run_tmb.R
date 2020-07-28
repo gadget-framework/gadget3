@@ -66,6 +66,16 @@ actions <- c(actions, ~{
 })
 expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
 
+# mean() --> .mean()
+mean_vector <- array(c(1, 2, 88, 99))
+mean_vector_result <- 0
+actions <- c(actions, ~{
+    comment('mean_vector')
+    mean_vector_result <- mean(mean_vector)
+    g3_report(mean_vector_result)
+})
+expecteds$mean_vector_result <- mean(mean_vector)
+
 ###############################################################################
 
 actions <- c(actions, ~{
