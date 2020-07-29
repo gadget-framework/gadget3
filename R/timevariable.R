@@ -1,6 +1,5 @@
-# Turn a year/step/area/value data.frame into a formula
-g3_timeareadata <- function(lookup_name, df, missing = 0) {
-    intlookup_zip <- g3_native(r = function (keys, values) {
+g3_intlookup <- function (lookup_name, keys, values) {
+    inttypelookup_zip <- g3_native(r = function (keys, values) {
         list(keys = keys, values = values)
     }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
         std::map<int, Type> lookup = {};
@@ -12,8 +11,7 @@ g3_timeareadata <- function(lookup_name, df, missing = 0) {
         return lookup;
     }')
 
-    # TODO: How would you implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
-    intlookup_get <- g3_native(r = function (lookup, key) {
+    inttypelookup_get <- g3_native(r = function (lookup, key) {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
         if (length(out) < 1) {
             our_args <- as.list(sys.call())
@@ -25,14 +23,44 @@ g3_timeareadata <- function(lookup_name, df, missing = 0) {
         return lookup[key];
     }')
 
-    # Define keys, values, and combining the two
-    # TODO: Ideally the generation of of the key would be dynamic, based on DF columns
-    assign(paste0(lookup_name, '__keys'), as.integer(df$area * 1000000L + df$year * 100L + df$step))
-    assign(paste0(lookup_name, '__values'), as.numeric(df$value))  # NB: Needs to be numeric since we use Type above
-    assign(paste0(lookup_name, '__lookup'), f_substitute(~intlookup_zip(l__keys, l__values), list(
-        l__keys = as.symbol(paste0(lookup_name, '__keys')),
-        l__values = as.symbol(paste0(lookup_name, '__values')))))
-    return(f_substitute(~intlookup_get(lookup,  area * 1000000L + cur_year * 100L + cur_step), list(
-        lookup = as.symbol(paste0(lookup_name, '__lookup')))))
+    intintlookup_zip <- inttypelookup_zip
+    intintlookup_zip$cpp <- gsub('Type', 'int', intintlookup_zip$cpp, fixed = TRUE)
+    intintlookup_get <- inttypelookup_get
+    intintlookup_get$cpp <- gsub('Type', 'int', intintlookup_get$cpp, fixed = TRUE)
+
+    inttype_fn <- function(postfix) {
+        as.symbol(paste0(
+            if (is.integer(values)) 'intintlookup' else 'inttypelookup',
+            '_',
+            postfix))
+    }
+
+    # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
+    return(function (req_type, inner_f) {
+        # Copy functions from parent into here
+        assign('inttypelookup_zip', inttypelookup_zip)
+        assign('inttypelookup_get', inttypelookup_get)
+
+        assign(paste0(lookup_name, '__keys'), as.integer(keys))
+        assign(paste0(lookup_name, '__values'), values)
+        assign(paste0(lookup_name, '__lookup'), f_substitute(~intlookup_zip(l__keys, l__values), list(
+            intlookup_zip = inttype_fn('zip'),
+            l__keys = as.symbol(paste0(lookup_name, '__keys')),
+            l__values = as.symbol(paste0(lookup_name, '__values')))))
+
+        f_substitute(~fn(l, inner_f), list(
+            fn = inttype_fn(req_type),
+            l = as.symbol(paste0(lookup_name, '__lookup')),
+            inner_f = inner_f))
+    })
+}
+
+# Turn a year/step/area/value data.frame into a formula
+g3_timeareadata <- function(lookup_name, df) {
+    lookup <- g3_intlookup(lookup_name,
+        keys = as.integer(df$area * 1000000L + df$year * 100L + df$step),
+        values = as.numeric(df$value))
         
+    # Return formula that does the lookup
+    return(lookup('get', ~area * 1000000L + cur_year * 100L + cur_step))
 }

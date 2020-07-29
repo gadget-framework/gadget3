@@ -28,7 +28,7 @@ Type objective_function<Type>::operator() () {
        vprintf(format, argptr);
        va_end(argptr);
    };
-    auto intlookup_get = [](std::map<int, Type> lookup, int key) -> Type {
+    auto inttypelookup_get = [](std::map<int, Type> lookup, int key) -> Type {
         assert(lookup.count(key) > 0);
         return lookup[key];
     };
@@ -140,7 +140,7 @@ Type objective_function<Type>::operator() () {
     array<Type> igfs__ling_mat(35,2,11);
     Type predate_totalfleet_E = 0;
     
-    auto intlookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
+    auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
         std::map<int, Type> lookup = {};
 
         assert(keys.size() == values.size());
@@ -151,7 +151,7 @@ Type objective_function<Type>::operator() () {
     };
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_VECTOR(igfs_totaldata__values)
-    auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_mat__overconsumption(35,2,11);
     array<Type> ling_imm__overconsumption(35,1,8);
     array<Type> ling_imm__growth_l;
@@ -291,7 +291,7 @@ Type objective_function<Type>::operator() () {
                 if ( area == igfs__area )  {
                     {
                       // Scale fleet amount by total expected catch;
-                      predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
+                      predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
                       igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
                       ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
@@ -313,7 +313,7 @@ Type objective_function<Type>::operator() () {
                   if ( area == igfs__area )  {
                       {
                         // Scale fleet amount by total expected catch;
-                        predate_totalfleet_E = (intlookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
+                        predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
                         igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx);
                       }

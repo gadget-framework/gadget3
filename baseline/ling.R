@@ -4,7 +4,7 @@ structure(function (param)
     {
         cat(sprintf(...))
     }
-    intlookup_get <- function (lookup, key) 
+    inttypelookup_get <- function (lookup, key) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
         if (length(out) < 1) {
@@ -84,13 +84,13 @@ structure(function (param)
     igfs__area_idx <- (1)
     igfs__ling_mat <- array(dim = c(35L, 2L, 11L))
     predate_totalfleet_E <- 0
-    intlookup_zip <- function (keys, values) 
+    inttypelookup_zip <- function (keys, values) 
     {
         list(keys = keys, values = values)
     }
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
     igfs_totaldata__values <- model_data$igfs_totaldata__values
-    igfs_totaldata__lookup <- intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
+    igfs_totaldata__lookup <- inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
     ling_imm__growth_l <- array(dim = c(0L, 0L))
@@ -207,7 +207,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale fleet amount by total expected catch")
-                      predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
                       igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]
                     }
@@ -224,7 +224,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale fleet amount by total expected catch")
-                      predate_totalfleet_E <- (intlookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
                       igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]
                     }
