@@ -89,7 +89,7 @@ ling_mat_actions <- g3_collate(
 igfs_totaldata <- data.frame(
     year = c(rep(1983, 4), rep(1984, 4), rep(1985, 4)),
     step = 1:4,
-    area = areas['a'],
+    area = 'a',
     value = 1:4)
 
 consumption_actions <- g3_collate(
@@ -97,7 +97,7 @@ consumption_actions <- g3_collate(
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
+        amount_f = g3_timeareadata('igfs_totaldata', areas, igfs_totaldata)),
     list())
 
 time <- g3a_time(start_year = 1983, end_year = 1985, c(3, 3, 3, 3))
