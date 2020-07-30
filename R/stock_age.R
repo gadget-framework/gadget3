@@ -16,3 +16,29 @@ g3s_age <- function(inner_stock, minage, maxage) {
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
         name = inner_stock$name)
 }
+
+# - agegroups: list(1:3, 4:10)
+g3s_agegroup <- function(inner_stock, agegroups) {
+    stock__agegroup_lookup <- g3_intlookup(
+        inner_stock$name,
+        keys = as.integer(unlist(agegroups)),
+        values = unlist(lapply(seq_along(agegroups),
+        function (i) rep(i, times = length(agegroups[[i]])))))
+    stock__minages <- vapply(agegroups, function (x) x[[1]], integer(1))
+
+    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), length(agegroups)))
+    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), length(agegroups)))
+
+    list(
+        iterate = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
+            age, stock__minages[[stock__agegroup_idx]], extension_point), list(
+            extension_point = inner_stock$iterate)),
+        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__agegroup_idx"))),
+        intersect = f_substitute(~g3_with(
+            stock__agegroup_idx, g3_idx(lookup),
+            if (stock__agegroup_idx > g3_idx(-1)) extension_point), list(
+                lookup = stock__agegroup_lookup('getdefault', ~age),
+                extension_point = inner_stock$intersect)),
+        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
+        name = inner_stock$name)
+}

@@ -32,6 +32,13 @@ g3_intlookup <- function (lookup_name, keys, values) {
             return lookup[key];
         }')
 
+        inttypelookup_getdefault <- g3_native(r = function (lookup, key) {
+            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
+            return(if (length(out) < 1) -1 else out)
+        }, cpp = '[](std::map<int, Type> lookup, int key) -> Type {
+            return lookup.count(key) > 0 ? lookup[key] : -1;
+        }')
+
         # Make intint versions of all lookup functions
         for (n in ls(environment())) {
             if (startsWith(n, "inttypelookup")) {
