@@ -58,7 +58,6 @@ structure(function (param)
     cur_step_final <- FALSE
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
-    ling_imm__age_idx <- 0L
     area <- 1L
     ling_imm__area <- 1L
     renewal_dnorm <- array(dim = 35L)
@@ -70,7 +69,6 @@ structure(function (param)
     ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     ling_mat__minage <- 5L
     ling_mat__maxage <- 15L
-    ling_mat__age_idx <- 0L
     ling_mat__areas <- model_data$ling_mat__areas
     ling_mat__meanlen <- model_data$ling_mat__meanlen
     ling_mat_stddev <- model_data$ling_mat_stddev
@@ -102,7 +100,6 @@ structure(function (param)
     matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__minage <- 3L
     matured_ling_imm__maxage <- 10L
-    matured_ling_imm__age_idx <- 0L
     matured_ling_imm__area <- 1L
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__area_idx <- (1)
@@ -356,12 +353,14 @@ structure(function (param)
             comment("g3a_age for ling_imm")
             for (age in seq(ling_imm__maxage, ling_imm__minage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
-                if (age == ling_imm__maxage) {
-                  comment("TODO: Plus group migration shenanigans")
-                }
-                else {
-                  ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
-                  ling_imm__num[, , ling_imm__age_idx] <- 0
+                {
+                  if (age == ling_imm__maxage) {
+                    comment("TODO: Plus group migration shenanigans")
+                  }
+                  else {
+                    ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
+                    ling_imm__num[, , ling_imm__age_idx] <- 0
+                  }
                 }
             }
         }

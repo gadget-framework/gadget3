@@ -14,8 +14,9 @@ g3a_age <- function(stock, run_at = 12) {
     out <- list()
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (cur_step_final) {
         stock_comment("g3a_age for ", stock)
-        stock_rename(stock, for (age in seq(stock__maxage, stock__minage)) {
-           stock__age_idx <- g3_idx(age - stock__minage + 1)
+
+        stock_rename(stock, for (age in seq(stock__maxage, stock__minage)) g3_with(
+                stock__age_idx, g3_idx(age - stock__minage + 1), {
 
             if (age == stock__maxage) {
                 comment("TODO: Plus group migration shenanigans")
@@ -23,7 +24,7 @@ g3a_age <- function(stock, run_at = 12) {
                 stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
                 stock__num[age_iter_ss] <- 0
             }
-        })
+        }))
     }, list(
         age_iter_ss = age_iter_ss,
         age_older_iter_ss = age_older_iter_ss)))
