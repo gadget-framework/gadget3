@@ -1,33 +1,4 @@
 g3_intlookup <- function (lookup_name, keys, values) {
-    inttypelookup_zip <- g3_native(r = function (keys, values) {
-        list(keys = keys, values = values)
-    }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
-        std::map<int, Type> lookup = {};
-
-        assert(keys.size() == values.size());
-        for (size_t i = 0; i < keys.size(); ++i) {
-            lookup[keys[i]] = values[i];
-        }
-        return lookup;
-    }')
-
-    inttypelookup_get <- g3_native(r = function (lookup, key) {
-        out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-        if (length(out) < 1) {
-            our_args <- as.list(sys.call())
-            stop(key, " not in ", our_args[[2]])
-        }
-        return(out)
-    }, cpp = '[](std::map<int, Type> lookup, int key) -> Type {
-        assert(lookup.count(key) > 0);
-        return lookup[key];
-    }')
-
-    intintlookup_zip <- inttypelookup_zip
-    intintlookup_zip$cpp <- gsub('Type', 'int', intintlookup_zip$cpp, fixed = TRUE)
-    intintlookup_get <- inttypelookup_get
-    intintlookup_get$cpp <- gsub('Type', 'int', intintlookup_get$cpp, fixed = TRUE)
-
     inttype_fn <- function(postfix) {
         as.symbol(paste0(
             if (is.integer(values)) 'intintlookup' else 'inttypelookup',
@@ -37,9 +8,38 @@ g3_intlookup <- function (lookup_name, keys, values) {
 
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
     return(function (req_type, inner_f) {
-        # Copy functions from parent into here
-        assign('inttypelookup_zip', inttypelookup_zip)
-        assign('inttypelookup_get', inttypelookup_get)
+        inttypelookup_zip <- g3_native(r = function (keys, values) {
+            list(keys = keys, values = values)
+        }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
+            std::map<int, Type> lookup = {};
+
+            assert(keys.size() == values.size());
+            for (size_t i = 0; i < keys.size(); ++i) {
+                lookup[keys[i]] = values[i];
+            }
+            return lookup;
+        }')
+
+        inttypelookup_get <- g3_native(r = function (lookup, key) {
+            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
+            if (length(out) < 1) {
+                our_args <- as.list(sys.call())
+                stop(key, " not in ", our_args[[2]])
+            }
+            return(out)
+        }, cpp = '[](std::map<int, Type> lookup, int key) -> Type {
+            assert(lookup.count(key) > 0);
+            return lookup[key];
+        }')
+
+        # Make intint versions of all lookup functions
+        for (n in ls(environment())) {
+            if (startsWith(n, "inttypelookup")) {
+                fn <- get(n)
+                fn$cpp <- gsub('Type', 'int', fn$cpp, fixed = TRUE)
+                assign(gsub("inttypelookup", "intintlookup", n, fixed = TRUE), fn)
+            }
+        }
 
         assign(paste0(lookup_name, '__keys'), as.integer(keys))
         assign(paste0(lookup_name, '__values'), values)
