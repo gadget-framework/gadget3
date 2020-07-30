@@ -380,7 +380,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 g3_precompile_tmb <- function(actions, trace = FALSE) {
     all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
-    model_parameters <- list()
+    scope <- list()  # NB: Order is important, can't be an env.
+    param_lines <- list()  # NB: Order is important, can't be an env.
 
     if (isTRUE(trace)) {
         all_actions <- call_replace(all_actions, comment = function (x) {
@@ -401,9 +402,6 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
     }
 
     var_defns <- function (code, env) {
-        scope <- list()
-        param_lines <- list()
-
         # Find all things that have definitions in our environment
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
@@ -411,7 +409,7 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
-                scope[[var_name]] <- cpp_definition(
+                scope[[var_name]] <<- cpp_definition(
                     'auto',
                     var_name,
                     trimws(all_defns[[var_name]]$cpp))
@@ -424,7 +422,6 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
             g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_MATRIX(", cpp_escape_varname(x[[2]]), ");"),
             g3_param_vector = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_VECTOR(", cpp_escape_varname(x[[2]]), ");"),
             g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER(", cpp_escape_varname(x[[2]]), ");"))
-        model_parameters <<- c(model_parameters, structure(as.list(rep(0, length(param_lines))), names = cpp_escape_varname(names(param_lines))))
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
@@ -443,7 +440,7 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
             var_val <- get(var_name, envir = env, inherits = TRUE)
 
             if (rlang::is_formula(var_val)) {
-                scope <- c(scope, var_defns(rlang::f_rhs(var_val), env))
+                var_defns(rlang::f_rhs(var_val), env)
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
@@ -495,12 +492,12 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
-            scope[[var_name]] <- defn
+            scope[[var_name]] <<- defn
         }
 
-        # Merge all groups of lines together
-        return(c(param_lines, "", unlist(scope)))
     }
+    # Define all vars, populating param_lines and scope
+    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     out <- sprintf("#include <TMB.hpp>
 #include <stdio.h>  // For debugf
@@ -512,15 +509,17 @@ Type objective_function<Type>::operator() () {
 
     %s
     abort();  // Should have returned somewhere in the loop
-}\n", paste(var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)), collapse = "\n    "),
+}\n", paste(c(param_lines, "", unlist(scope)), collapse = "\n    "),
       cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions)))
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
     # Attach data to model as closure
     environment(out) <- new.env(parent = emptyenv())
-    assign("model_data", model_data, envir = environment(out))
-    assign("model_parameters", model_parameters, envir = environment(out))
+    environment(out)$model_data <- model_data
+    environment(out)$model_parameters <- structure(
+        as.list(rep(0, length(param_lines))),
+        names = cpp_escape_varname(names(param_lines)))
     return(out)
 }
 

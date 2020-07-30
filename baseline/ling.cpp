@@ -29,9 +29,9 @@ Type objective_function<Type>::operator() () {
        va_end(argptr);
    };
     auto inttypelookup_get = [](std::map<int, Type> lookup, int key) -> Type {
-        assert(lookup.count(key) > 0);
-        return lookup[key];
-    };
+            assert(lookup.count(key) > 0);
+            return lookup[key];
+        };
     auto growth_bbinom = [](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
@@ -98,7 +98,6 @@ Type objective_function<Type>::operator() () {
         return out;
     };
     int cur_time = -1;
-    
     DATA_IVECTOR(steps)
     int end_year = 1985;
     int start_year = 1983;
@@ -117,7 +116,6 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(ling_imm__meanlen)
     DATA_VECTOR(ling_imm_stddev)
     array<Type> ling_imm__num(35,1,8);
-    
     auto ling_imm__area_idx = 0;
     Type renewal_scaler = 0;
     array<Type> ling_imm__wgt(35,1,8);
@@ -133,20 +131,18 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__totalpredate(35,2,11);
     array<Type> igfs__ling_imm(35,1,8);
     int igfs__area = 1;
-    
     auto igfs__area_idx = 0;
     array<Type> igfs__ling_mat(35,2,11);
     Type predate_totalfleet_E = 0;
-    
     auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
-        std::map<int, Type> lookup = {};
+            std::map<int, Type> lookup = {};
 
-        assert(keys.size() == values.size());
-        for (size_t i = 0; i < keys.size(); ++i) {
-            lookup[keys[i]] = values[i];
-        }
-        return lookup;
-    };
+            assert(keys.size() == values.size());
+            for (size_t i = 0; i < keys.size(); ++i) {
+                lookup[keys[i]] = values[i];
+            }
+            return lookup;
+        };
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_VECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
@@ -163,7 +159,6 @@ Type objective_function<Type>::operator() () {
     int matured_ling_imm__maxage = 10;
     int matured_ling_imm__area = 1;
     array<Type> matured_ling_imm__num(35,1,8);
-    
     auto matured_ling_imm__area_idx = 0;
 
     while (true) {
