@@ -30,6 +30,10 @@ g3_compile_r <- function(actions) {
                 # It's an iterator
                 next
             }
+            if (var_name %in% lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }) ) {
+                # It's a with variable
+                next
+            }
             var_val <- get(var_name, envir = env, inherits = TRUE)
 
             if (rlang::is_formula(var_val)) {
@@ -78,6 +82,10 @@ g3_compile_r <- function(actions) {
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
+            g3_with = function (x) call(
+                open_curly_bracket,
+                call("<-", x[[2]], g3_functions(x[[3]])),
+                g3_functions(x[[4]])),
             g3_param_array = repl_fn("param"),
             g3_param_matrix = repl_fn("param"),
             g3_param_vector = repl_fn("param"),

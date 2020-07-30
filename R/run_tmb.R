@@ -58,6 +58,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(paste(cpp_code(in_call[[2]], in_envir, next_indent), "- 1"))
     }
 
+    if (call_name %in% c("g3_with")) {
+        # Combine the variable definition with the rest of the code
+        return(paste0(
+            "{",
+            next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, paste0(next_indent, "  ")), ";",
+            "\n",
+            next_indent, cpp_code(in_call[[4]], in_envir, paste0(next_indent, "  ")),
+            indent, "}\n"))
+    }
+
     if (call_name == '<-') {
         # Assignment
         assign_lhs <- in_call[[2]]
@@ -424,6 +434,10 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
             }
             if (var_name %in% lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }) ) {
                 # It's an iterator
+                next
+            }
+            if (var_name %in% lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }) ) {
+                # It's a with variable
                 next
             }
             var_val <- get(var_name, envir = env, inherits = TRUE)

@@ -76,6 +76,20 @@ actions <- c(actions, ~{
 })
 expecteds$mean_vector_result <- mean(mean_vector)
 
+# g3_with()
+g3_with_result <- 0L
+# NB: We don't define g3_with_iterator, it's defined within the block
+actions <- c(actions, ~{
+    comment('g3_with')
+    g3_with(
+        g3_with_iterator, g3_idx(2L),  # NB: Tests we can use g3 functions in definition
+        {
+            g3_with_result <- g3_with_iterator - g3_idx(1)  # NB: Reverse g3_idx from definition
+            g3_report(g3_with_result)
+        })
+})
+expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
+
 ###############################################################################
 
 actions <- c(actions, ~{
