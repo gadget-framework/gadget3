@@ -5,7 +5,7 @@ close_curly_bracket <- "}"
 cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 
 cpp_code <- function(in_call, in_envir, indent = "\n    ") {
-    next_indent <- paste0(indent, "  ")
+    next_indent <- paste0(indent, "    ")
 
     if (!is.call(in_call)) {
         # Literals
@@ -31,11 +31,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         lines <- vapply(call_args, function (x) {
             out <- cpp_code(x, in_envir, next_indent)
             # Add semicolon for any line that needs one
-            if (!endsWith(out, paste0(close_curly_bracket, "\n"))) out <- paste0(out, ";")
+            if (!endsWith(out, close_curly_bracket)) out <- paste0(out, ";")
             return(out)
         }, character(1))
         # Join the result together
-        out <- sprintf("{%s%s%s}\n", next_indent, paste0(lines, collapse = next_indent), indent)
+        out <- sprintf("{%s%s%s}", next_indent, paste0(lines, collapse = next_indent), indent)
         return(out)
     }
 
@@ -62,10 +62,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         # Combine the variable definition with the rest of the code
         return(paste0(
             "{",
-            next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, paste0(next_indent, "  ")), ";",
+            next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, next_indent), ";",
             "\n",
-            next_indent, cpp_code(in_call[[4]], in_envir, paste0(next_indent, "  ")),
-            indent, "}\n"))
+            next_indent, cpp_code(in_call[[4]], in_envir, next_indent),
+            indent, "}"))
     }
 
     if (call_name == '<-') {
@@ -120,7 +120,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ") ",
             cpp_code(in_call[[3]], in_envir, next_indent),
             " else ",
-            cpp_code(in_call[[4]], in_envir, next_indent)))
+            cpp_code(in_call[[4]], in_envir, indent)))
     }
 
     if (call_name == 'if' && length(in_call) == 3) {
@@ -128,8 +128,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         return(paste(
             "if (",
             cpp_code(in_call[[2]], in_envir, next_indent),
-            ") ",
-            cpp_code(in_call[[3]], in_envir, next_indent)))
+            ")",
+            cpp_code(in_call[[3]], in_envir, indent)))
     }
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq") {
@@ -139,7 +139,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "auto ", call_args[[1]], " = ", cpp_code(call_args[[2]][[2]], in_envir, next_indent), "; ",
             call_args[[1]], " <= ", cpp_code(call_args[[2]][[3]], in_envir, next_indent), "; ",
             call_args[[1]], "++) ",
-            cpp_code(in_call[[4]], in_envir, next_indent)))
+            cpp_code(in_call[[4]], in_envir, indent)))
     }
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq_along") {
@@ -149,7 +149,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "auto ", call_args[[1]], " = 0; ",
             call_args[[1]], " < ", cpp_code(call("length", call_args[[2]][[2]]), in_envir, next_indent), "; ",
             call_args[[1]], "++) ",
-            cpp_code(in_call[[4]], in_envir, next_indent)))
+            cpp_code(in_call[[4]], in_envir, indent)))
     }
 
     if (call_name == 'for') {
@@ -163,14 +163,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         }
         return(paste(
             "for (auto", in_call[[2]], ":", iterator, ")",
-            cpp_code(in_call[[4]], in_envir, next_indent)))
+            cpp_code(in_call[[4]], in_envir, indent)))
     }
 
     if (call_name == 'while') {
         # while loop
         return(paste0(
             "while (", cpp_code(in_call[[2]], in_envir, next_indent), ") ",
-            cpp_code(in_call[[3]], in_envir, next_indent)))
+            cpp_code(in_call[[3]], in_envir, indent)))
     }
 
     if (call_name == '[') {
