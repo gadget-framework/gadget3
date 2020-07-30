@@ -59,6 +59,30 @@ g3_compile_r <- function(actions) {
         return(scope)
     }
 
+    g3_functions <- function (in_code) {
+        # Replace any in-line g3 calls that may have been in formulae
+        repl_fn <- function(sym_name) {
+            return(function (x) {
+                if (length(x) == 2) {
+                    # Can lookup argument directly
+                    item_name <- x[[2]]
+                } else {
+                    # Add a paste call to work the required argument
+                    item_name <- as.call(c(list(as.symbol('paste0')), as.list(x[2:length(x)])))
+                }
+                # Lookup item_name in whatever sym_name is called
+                return(call('[[', as.symbol(sym_name), item_name))
+            })
+        }
+
+        call_replace(in_code,
+            g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
+            g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
+            g3_param_array = repl_fn("param"),
+            g3_param_matrix = repl_fn("param"),
+            g3_param_vector = repl_fn("param"),
+            g3_param = repl_fn("param"))
+    }
 
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
@@ -67,27 +91,7 @@ g3_compile_r <- function(actions) {
         rlang::f_rhs(all_actions),
         quote(stop("Should have return()ed somewhere in the loop")))))
 
-    # Replace any in-line g3 calls that may have been in formulae
-    repl_fn <- function(sym_name) {
-        return(function (x) {
-            if (length(x) == 2) {
-                # Can lookup argument directly
-                item_name <- x[[2]]
-            } else {
-                # Add a paste call to work the required argument
-                item_name <- as.call(c(list(as.symbol('paste0')), as.list(x[2:length(x)])))
-            }
-            # Lookup item_name in whatever sym_name is called
-            return(call('[[', as.symbol(sym_name), item_name))
-        })
-    }
-    out <- call_replace(out,
-        g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
-        g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
-        g3_param_array = repl_fn("param"),
-        g3_param_matrix = repl_fn("param"),
-        g3_param_vector = repl_fn("param"),
-        g3_param = repl_fn("param"))
+    out <- g3_functions(out)
     out <- eval(out)
 
     # Attach data to model as closure
