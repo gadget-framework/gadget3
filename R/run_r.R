@@ -5,10 +5,9 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 g3_compile_r <- function(actions) {
     all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
+    scope <- list()
 
     var_defns <- function (code, env) {
-        scope <- list()
-
         # Find all things that have definitions in our environment
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
@@ -16,7 +15,7 @@ g3_compile_r <- function(actions) {
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
-                scope[[var_name]] <- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
+                scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
             }
         }
 
@@ -37,7 +36,7 @@ g3_compile_r <- function(actions) {
             var_val <- get(var_name, envir = env, inherits = TRUE)
 
             if (rlang::is_formula(var_val)) {
-                scope <- c(scope, var_defns(rlang::f_rhs(var_val), env))
+                var_defns(rlang::f_rhs(var_val), env)
                 defn <- call("<-", as.symbol(var_name), rlang::f_rhs(var_val))
             } else if (is.call(var_val)) {
                 defn <- call("<-", as.symbol(var_name), var_val)
@@ -58,9 +57,8 @@ g3_compile_r <- function(actions) {
                 defn <- call("<-", as.symbol(var_name), call("$", as.symbol("model_data"), as.symbol(var_name)))
                 assign(var_name, var_val, envir = model_data)
             }
-            scope[[var_name]] <- defn
+            scope[[var_name]] <<- defn
         }
-        return(scope)
     }
 
     g3_functions <- function (in_code) {
@@ -91,11 +89,13 @@ g3_compile_r <- function(actions) {
             g3_param_vector = repl_fn("param"),
             g3_param = repl_fn("param"))
     }
+    # Populate scope for code block
+    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
-        var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions)),
+        scope,
         rlang::f_rhs(all_actions),
         quote(stop("Should have return()ed somewhere in the loop")))))
 
