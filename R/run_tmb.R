@@ -136,8 +136,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         # for(x in seq(..)) loop, can expressed as a 3-part for loop
         return(paste0(
             "for (",
-            "auto ", call_args[[1]], " = ", call_args[[2]][[2]], "; ",
-            call_args[[1]], " <= ", call_args[[2]][[3]], "; ",
+            "auto ", call_args[[1]], " = ", cpp_code(call_args[[2]][[2]], in_envir, next_indent), "; ",
+            call_args[[1]], " <= ", cpp_code(call_args[[2]][[3]], in_envir, next_indent), "; ",
             call_args[[1]], "++) ",
             cpp_code(in_call[[4]], in_envir, next_indent)))
     }
