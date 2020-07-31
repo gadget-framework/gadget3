@@ -28,20 +28,17 @@ as.data.frame.g3_areas <- function(x, ...) {
 
 g3s_livesonareas <- function(inner_stock, areas) {
     stopifnot('g3_areas' %in% class(areas))
-    stock_env <- rlang::f_env(inner_stock$iterate)
 
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
     area <- as.integer(areas[[1]])  # Don't leak g3_areas into model
 
-    if (exists("stock__num", envir = stock_env)) {
-        stock__num <- array(dim = c(dim(stock_env[['stock__num']]), stock__totalareas))
-    }
-    if (exists("stock__wgt", envir = stock_env)) {
-        stock__wgt <- array(dim = c(dim(stock_env[['stock__wgt']]), stock__totalareas))
-    }
-    if (exists("stock__catch", envir = stock_env)) {
-        stock__catch <- array(dim = c(dim(stock_env[['stock__catch']]), stock__totalareas))
+    # Expand all storage with extra dimension
+    stock_env <- rlang::f_env(inner_stock$iterate)
+    for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
+        if (exists(var_name, envir = stock_env)) {
+            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), stock__totalareas)))
+        }
     }
 
     if (stock__totalareas == 1) {

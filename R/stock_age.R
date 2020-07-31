@@ -2,8 +2,14 @@ g3s_age <- function(inner_stock, minage, maxage) {
     # If these are literals, they should be integers
     stock__minage <- if(is.numeric(minage)) as.integer(minage) else minage
     stock__maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
-    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), stock__maxage - stock__minage + 1))
-    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), stock__maxage - stock__minage + 1))
+
+    # Expand all storage with extra dimension
+    stock_env <- rlang::f_env(inner_stock$iterate)
+    for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
+        if (exists(var_name, envir = stock_env)) {
+            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), stock__maxage - stock__minage + 1)))
+        }
+    }
 
     list(
         iterate = f_substitute(~for (age in seq(stock__minage, stock__maxage)) g3_with(
@@ -26,8 +32,13 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         function (i) rep(i, times = length(agegroups[[i]])))))
     stock__minages <- vapply(agegroups, function (x) x[[1]], integer(1))
 
-    stock__num <- array(dim = c(dim(stock_definition(inner_stock, 'stock__num')), length(agegroups)))
-    stock__wgt <- array(dim = c(dim(stock_definition(inner_stock, 'stock__wgt')), length(agegroups)))
+    # Expand all storage with extra dimension
+    stock_env <- rlang::f_env(inner_stock$iterate)
+    for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
+        if (exists(var_name, envir = stock_env)) {
+            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), length(agegroups))))
+        }
+    }
 
     list(
         iterate = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
