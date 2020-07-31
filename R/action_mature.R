@@ -3,7 +3,7 @@ g3a_mature_constant <- function (alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma 
 
     if (alpha > 0) {
         if (is.na(l50)) stop("l50 must be supplied if alpha > 0")
-        inner_code <- substitute(inner_code - alpha*(stock__meanlen - l50), list(
+        inner_code <- substitute(inner_code - alpha*(stock__midlen - l50), list(
             alpha = alpha,
             l50 = l50,
             inner_code = inner_code))

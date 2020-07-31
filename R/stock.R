@@ -23,7 +23,7 @@ g3_stock <- function(var_name, lengthgroups) {
 
     # Force array so type is stable in TMB
     stock__minlen <- as.array(lengthgroups)
-    stock__meanlen <- as.array(lengthgroups + (stock__dl / 2))
+    stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
 
     stock__num <- array(dim = length(lengthgroups))  # Number of individuals
     stock__wgt <- array(dim = length(lengthgroups))  # Mean weight of individuals
