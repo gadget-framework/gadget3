@@ -58,7 +58,6 @@ structure(function (param)
     cur_step_final <- FALSE
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
-    area <- 1L
     ling_imm__area <- 1L
     renewal_dnorm <- array(dim = 35L)
     ling_imm__meanlen <- model_data$ling_imm__meanlen

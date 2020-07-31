@@ -31,7 +31,6 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
-    area <- as.integer(areas[[1]])  # Don't leak g3_areas into model
 
     # Expand all storage with extra dimension
     stock_env <- rlang::f_env(inner_stock$iterate)
@@ -47,23 +46,20 @@ g3s_livesonareas <- function(inner_stock, areas) {
         stock__area_idx <- ~g3_idx(1)
         list(
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
-            iterate = f_substitute(~{
-                area <- stock__area
-                extension_point
-            }, list(extension_point = inner_stock$iterate)),
+            iterate = f_substitute(~g3_with(area, stock__area, extension_point), list(
+                extension_point = inner_stock$iterate)),
             intersect = f_substitute(~if (area == stock__area) {
                 extension_point
             }, list(extension_point = inner_stock$intersect)),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
             name = inner_stock$name)
     } else {
-        stock__area_idx <- ~g3_idx(1)
         list(
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
-            iterate = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) {
-                area <- stock__areas[[stock__area_idx]]
-                extension_point
-            }, list(extension_point = inner_stock$iterate)),
+            iterate = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) g3_with(
+                area, stock__areas[[stock__area_idx]],
+                extension_point), list(
+                    extension_point = inner_stock$iterate)),
             intersect = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) {
                 if (stock__areas[[stock__area_idx]] == area) {
                     extension_point

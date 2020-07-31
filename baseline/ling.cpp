@@ -110,7 +110,6 @@ Type objective_function<Type>::operator() () {
     auto cur_step_final = false;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
-    int area = 1;
     int ling_imm__area = 1;
     vector<Type> renewal_dnorm(35);
     DATA_VECTOR(ling_imm__meanlen)
@@ -178,7 +177,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     if ( cur_time == 0 ) {
                         renewal_dnorm = (ling_imm__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
@@ -195,7 +195,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     if ( cur_time == 0 ) {
                         renewal_dnorm = (ling_mat__meanlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
@@ -226,7 +227,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
@@ -245,7 +247,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
@@ -262,7 +265,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     if ( area == igfs__area ) {
                         {
                             // Scale fleet amount by total expected catch;
@@ -280,7 +284,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     if ( area == igfs__area ) {
                         {
                             // Scale fleet amount by total expected catch;
@@ -298,7 +303,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     {
                         // Prey overconsumption coefficient;
                         ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx) = ((ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*0.95) / ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMin(1);
@@ -313,7 +319,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     if ( area == igfs__area ) {
                         {
                             // Scale caught amount by overconsumption, update variables;
@@ -331,7 +338,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     if ( area == igfs__area ) {
                         {
                             // Scale caught amount by overconsumption, update variables;
@@ -349,7 +357,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
@@ -367,7 +376,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__meanlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
@@ -386,7 +396,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {
-                    area = ling_imm__area;
+                    auto area = ling_imm__area;
+
                     if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage ) {
                         auto matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
 
@@ -406,7 +417,8 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                 for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    area = ling_mat__areas ( ling_mat__area_idx );
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
                     if ( age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage ) {
                         auto matured_ling_imm__age_idx = age - matured_ling_imm__minage + 1 - 1;
 
