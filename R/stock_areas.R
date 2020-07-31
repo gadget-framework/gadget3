@@ -70,3 +70,36 @@ g3s_livesonareas <- function(inner_stock, areas) {
             name = inner_stock$name)
     }
 }
+
+# - areagroups: list(areas[c('a', 'b')], areas[c('c')])
+g3s_areagroup <- function(inner_stock, areagroups) {
+    stopifnot(vapply(areagroups, function (a) 'g3_areas' %in% class(a), logical(1)))
+
+    stock__areagroup_lookup <- g3_intlookup(
+        inner_stock$name,
+        keys = as.integer(unlist(areagroups)),
+        values = unlist(lapply(seq_along(areagroups),
+        function (i) rep(i, times = length(areagroups[[i]])))))
+    stock__minareas <- vapply(areagroups, function (x) x[[1]], integer(1))
+
+    # Expand all storage with extra dimension
+    stock_env <- rlang::f_env(inner_stock$iterate)
+    for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
+        if (exists(var_name, envir = stock_env)) {
+            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), length(areagroups))))
+        }
+    }
+
+    list(
+        iterate = f_substitute(~for (stock__areagroup_idx in seq_along(stock__minareas)) g3_with(
+            area, stock__minareas[[stock__areagroup_idx]], extension_point), list(
+            extension_point = inner_stock$iterate)),
+        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__areagroup_idx"))),
+        intersect = f_substitute(~g3_with(
+            stock__areagroup_idx, g3_idx(lookup),
+            if (stock__areagroup_idx > g3_idx(-1)) extension_point), list(
+                lookup = stock__areagroup_lookup('getdefault', ~area),
+                extension_point = inner_stock$intersect)),
+        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
+        name = inner_stock$name)
+}

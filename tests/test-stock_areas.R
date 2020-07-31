@@ -7,6 +7,7 @@ areas <- g3_areas('a', 'b', 'c', 'd')
 stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(areas[c('a', 'c')])
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])
+stock_aggregated <- g3_stock('stock_aggregated', c(10)) %>% g3s_areagroup(list(areas[c('b', 'c')], areas[c('d')]))
     
 cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_a_ac <- 0.0
@@ -16,25 +17,53 @@ actions <- g3_collate(
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~0),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
     g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
+    g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
     list(
         '5' = gadget3:::stock_step(~{
+            comment("stock_sum_a_ac")
             stock_iterate(stock_a, stock_intersect(stock_ac, {
                 stock_sum_a_ac <- stock_sum_a_ac + sum(stock_a__num[stock_a__iter]) + sum(stock_ac__num[stock_ac__iter])
             }))
             g3_report(stock_sum_a_ac)
+
+            comment("stock_sum_ac_a")
             stock_iterate(stock_ac, stock_intersect(stock_a, {
                 stock_sum_ac_a <- stock_sum_ac_a + sum(stock_ac__num[stock_ac__iter]) + sum(stock_a__num[stock_a__iter])
             }))
             g3_report(stock_sum_ac_a)
+
+            comment("stock_sum_ac_bcd")
             stock_iterate(stock_ac, stock_intersect(stock_bcd, {
                 stock_sum_ac_bcd <- stock_sum_ac_bcd + sum(stock_ac__num[stock_ac__iter]) + sum(stock_bcd__num[stock_bcd__iter])
             }))
             g3_report(stock_sum_ac_bcd)
+
+            comment("stock_aggregated stock_a")
+            stock_iterate(stock_a, stock_intersect(stock_aggregated, {
+                stock_aggregated__num[stock_aggregated__iter] <-
+                    stock_aggregated__num[stock_aggregated__iter] +
+                    stock_a__num[stock_a__iter]
+            }))
+
+            comment("stock_aggregated stock_ac")
+            stock_iterate(stock_ac, stock_intersect(stock_aggregated, {
+                stock_aggregated__num[stock_aggregated__iter] <-
+                    stock_aggregated__num[stock_aggregated__iter] +
+                    stock_ac__num[stock_ac__iter]
+            }))
+
+            comment("stock_aggregated stock_bcd")
+            stock_iterate(stock_bcd, stock_intersect(stock_aggregated, {
+                stock_aggregated__num[stock_aggregated__iter] <-
+                    stock_aggregated__num[stock_aggregated__iter] +
+                    stock_bcd__num[stock_bcd__iter]
+            }))
         }),
         '999' = ~{
             g3_report("stock_a__num")
             g3_report("stock_ac__num")
             g3_report("stock_bcd__num")
+            g3_report("stock_aggregated__num")
             return(g3_param('x'))
         }))
 params <- list(x=1.0)
@@ -52,6 +81,14 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_bcd__num,
     array(c(20010, 30010, 40010), dim = c(1,3))), "stock_bcd__num populated")
+
+ok(ut_cmp_identical(
+    environment(model_fn)$model_report$stock_aggregated__num,
+    array(c(
+        # NB: Areas b & c --> init + stock_ac + stock_bcd
+        (12) + (3010) + (20010 + 30010),
+        # NB: Area d --> init + stock_bcd
+        14 + 40010), dim = c(1,2))), "stock_aggregated__num combination of all stocks")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
