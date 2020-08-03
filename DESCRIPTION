@@ -22,8 +22,11 @@ Imports:
     TMB (>= 1.7.0),
     utils,
 Suggests:
+    knitr,
     magrittr (>= 1.5),
+    rmarkdown,
     unittest (>= 1.4)
+VignetteBuilder: knitr
 License: GPL-2
 RoxygenNote: 7.0.2
 Biarch: yes

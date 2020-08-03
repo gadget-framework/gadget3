@@ -1,0 +1,184 @@
+---
+title: "Structure of a gadget3 model"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Model Structure}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, message=FALSE, echo=FALSE}
+library(gadget3)
+```
+
+The following describes the structure of a gadget3 model, from the bottom up.
+
+## R formula, or the tilde operator
+
+Crucial to gadget3 is the [R formula](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html),
+created using the tilde operator (``~``). These get used in several places in R for
+various things, but at their core the tilde operator stores the R code on the
+left and right hand sides, as well as the environment it was created in, which
+amounts to all variables defined at the time. For example:
+
+```{r}
+get_formula <- function (size) {
+    # NB: Because this is in a function, it gets it's own environment
+    cows <- size * 2
+    pigs <- size * 4
+    return(~cows + pigs)
+}
+f <- get_formula(8)
+g <- get_formula(5)
+```
+
+```{r}
+str(f)
+```
+
+```{r}
+str(f[[2]])
+```
+
+```{r}
+str(as.list(environment(f)))
+```
+
+```{r}
+str(as.list(environment(g)))
+```
+
+Note that:
+
+* R hasn't at any point worked out ``cows + pigs``, the code was stored for
+  later use.
+* The environment (i.e. all variables defined at that point) is "remembered"
+
+A g3 model at it's core is a list of formula. We can compile our simple example
+above into code:
+
+```{r}
+g3_compile_r(list(f))
+
+g3_precompile_tmb(list(f))
+```
+
+Obviously this in itself isn't a very useful function, but you can see that the
+environment for the formula has provided the initial values for the variables,
+and the code itself has been put into the main loop. 
+
+Also note that, despite appearances, we're not generically converting R into
+C++. There's a subset of R that gadget3 understands and knows how to convert.
+Using R libraries isn't possible, for example. To simplify scoping rules, we
+assume variables are either global, and should have different names, or are
+iterators in loops, in which case they will be local to that loop.
+
+## Actions
+
+In reality you will never be providing formulae to insert into models directly,
+you'd be using the g3 action functions to generate these for you. All action
+functions, prefixed with ``g3a_``, produce a list of formula objects. One of the
+simplest is ``g3a_time``, which produces code that will count years/steps, and
+stop when the end of the time period is reached. For example:
+
+```{r}
+g3a_time(1990, 1999)
+```
+
+Like in the example above, the definitions are part of the formula's
+environment, and if we compile it we see our years ending up in the code.
+
+```{r}
+g3_compile_r(g3a_time(1990, 1999))
+```
+
+In this case our years have been hard-coded, but their definitions could
+themselves be formula and the end result will be added to the model. For
+example:
+
+```{r}
+g3_compile_r(g3a_time(1990, ~start_year + 4 ))
+```
+
+TODO: This example rapidly runs out of steam since we don't substitute the
+formula's environment into the output expression. Fix it or stop suggesting it.
+
+### Combining actions
+
+Any useful model will have multiple actions, so the outputs from the ``g3a_``
+functions need to be combined. Whilst the lists could be done with the standard
+R function ``c()``, we also need to make sure that:
+
+* Steps within actions aren't repeated
+* Actions need to be in an appropriate order, matching Gadget's order of
+operations.
+
+To do this, use ``g3_collate()``. For example:
+
+```{r, eval=FALSE}
+ling_model <- g3_compile_r(g3_collate(
+    ling_mat_actions,
+    ling_imm_actions,
+    consumption_actions,
+    time))
+```
+
+## Stocks
+
+Many g3 actions require *stocks*, these represent data storage for
+anything within the operating model.
+
+They can be created with either ``g3_stock()`` or ``g3_fleet()``. The former
+will store number of individuals and their weight by length, the latter catch.
+
+Stocks can be broken down further by applying either ``g3s_livesonareas()`` or
+``g3s_age()``, which adds area or age dimensions to a stock.
+
+## Advanced topics
+
+Beyond this point, we mostly discuss features that are only relevant to
+devloping gadget3.
+
+## g3 Functions
+
+There are also special g3 functions that can be used in formula that affect the
+resulting code, rather than just being called when run.
+
+g3_idx(i)
+
+: Arrays in R are 1-based, TMB arrays are 0-based. To avoid off-by-one errors,
+  any variable that gets used as an array index should be converted by
+  ``g3_idx()``, for example: ``steps[[g3_idx(cur_step)]]``. Making this
+  explicit results in cleaner output code.
+
+g3_param(n) / g3_param_array(n) / g3_param_matrix(n) / g3_param_vector(n)
+
+: Defines a parameter with a given name n to be used in the model, e.g.
+  ``g3_param("linf")``.
+
+  Under TMB produces an equivalent ``PARAMETER(n)`` definition.
+  Under R produces ``param[["linf"]]``, where param is the single argument to
+  the function.
+
+g3_report(var)
+
+: Appends the state of var to the report, e.g. ``g3_report(cur_time)``.
+
+  Under TMB produces ``REPORT(cur_time)``. See TMB docs for how to get the
+  value.
+
+  Under R reported values can be got using
+  ``environment(model_fn)$model_report``.
+
+g3_with(var, expr, code)
+
+: We stated earlier that variables are either global or iterators in loops,
+  sometimes it's useful to define a variable in a local scope too, for
+  example, we often define both ``area`` and ``stock__area_idx`` variables,
+  where one is calculated using the other. We can use:
+
+      g3_with(area, stock__areas[stock__area_idx], {...} )
+
+  ...to define ``area`` in a local scope too.

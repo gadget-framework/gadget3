@@ -33,4 +33,7 @@ wincheck: build
 	# See https://win-builder.r-project.org/ for more information
 	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
 
-.PHONY: all install build test inttest check check-as-cran wincheck
+build-docs:
+	R --vanilla -e 'pkgdown::build_site()'
+
+.PHONY: all install build test inttest check check-as-cran wincheck build-docs
