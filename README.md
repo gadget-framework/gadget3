@@ -1,4 +1,4 @@
-# G3 Experiments
+# Gadget3
 
 To run, do:
 
