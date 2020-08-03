@@ -537,6 +537,12 @@ edit.g3_cpp <- function(name = NULL, file = "", title = NULL, editor = getOption
     return(out)
 }
 
+# Print all lines directly
+print.g3_cpp <- function(x, ...) {
+    writeLines(x)
+    return(invisible(x))
+}
+
 g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(fileext=".cpp"), ...) {
     # Map incoming parameters with names and order we expect
     model_parameters <- environment(cpp_code)$model_parameters

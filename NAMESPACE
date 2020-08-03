@@ -36,6 +36,7 @@ S3method(edit, g3_r)
 export(g3_precompile_tmb)
 export(g3_tmb_adfun)
 S3method(edit, g3_cpp)
+S3method(print, g3_cpp)
 
 # R/suitability.R
 export(g3_suitability_exponentiall50)
