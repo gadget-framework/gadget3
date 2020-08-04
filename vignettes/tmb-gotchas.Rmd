@@ -1,0 +1,75 @@
+---
+title: "Gotchas and quirks of TMB"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{TMB Gotchas}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, message=FALSE, echo=FALSE}
+library(gadget3)
+library(magrittr)
+```
+
+A grab-bag of things to be aware of when writing code that will get used in TMB.
+
+## Arrays are one dimensional under the hood
+
+A ``tmbutils::Array``, whilst based on an Eigen array, manages dimensions
+itself. As a result if you call any inherited Eigen methods, dimensions can
+disappear.
+
+From https://kaskr.github.io/adcomp/structtmbutils_1_1array.html:
+
+> Methods that are not documented here are inherited from the Eigen library and applied on the underlying n-by-1 array. In general this will yield surprising results for 2D specific array methods.
+
+## Has to be some kind of return value
+
+The return value in a g3 model, ``nll'', can't just be a hard coded value, has
+to be e.g. a parameter There has to be at least 1 parameter, otherwise there
+will be an Eigen error on return.
+
+Obviously not a huge practical problem, but easily crops up in unit tests.
+
+## Autofilling vectors
+
+Can't do ``vector = single_value``, have to use ``vector.setConstant(single_value)``.
+
+g3 will mostly handle this automatically, but seems like something that could
+be fixed in TMB.
+
+## Parameter ordering
+
+When parameters are provided to TMB, they are flattened into one big vector. As
+a result they need to be flattened in the expected order. When providing
+defaults TMB will do this for you, but when calling the model it expects it to
+be already done.
+
+Also, in ``?MakeADFun``:
+
+```
+Do not rely upon the default arguments of any of the functions in
+the model object ‘obj$fn’, ‘obj$gr’, ‘obj$he’, ‘obj$report’. I.e.
+always use the explicit form ‘obj$fn(obj$par)’ rather than
+‘obj$fn()’.
+```
+
+The following seems to re-order in the expected way, but seems naff:
+
+    params <- list(... unordered params ...)
+    par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+
+We could abstract, but there's probably a better solution.
+
+## VECTORIZE1_t macros
+
+The "R-like" functions TMB provides, such as ``lgamma()`` are defined using the
+``VECTORIZE`` macros. These macros expect a single symbol, and will produce
+mysterious errors if an expression is used.
+
+Instead of ``lgamma(alpha + beta)``, do something like:
+
+    lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);
