@@ -11,6 +11,7 @@ vignette: >
 
 ```{r, message=FALSE, echo=FALSE}
 library(gadget3)
+library(magrittr)
 ```
 
 The following describes the structure of a gadget3 model, from the bottom up.
@@ -119,11 +120,15 @@ To do this, use ``g3_collate()``. For example:
 
 ```{r, eval=FALSE}
 ling_model <- g3_compile_r(g3_collate(
-    ling_mat_actions,
-    ling_imm_actions,
-    consumption_actions,
+    g3a_age(ling_imm),
+    g3a_age(ling_mat),
+    g3a_mature(ling_imm, ling_mat, maturity_f),
     time))
 ```
+
+``g3_collate()`` just orders actions by name, the actions themselves set the
+name based on the standard order of actions. This can be altered with the
+``run_at`` parameter if required.
 
 ## Stocks
 
@@ -136,10 +141,44 @@ will store number of individuals and their weight by length, the latter catch.
 Stocks can be broken down further by applying either ``g3s_livesonareas()`` or
 ``g3s_age()``, which adds area or age dimensions to a stock.
 
+```{r}
+areas <- g3_areas('a', 'b', 'c')
+
+ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
+    g3s_livesonareas(areas[c('a')]) %>%
+    g3s_age(3, 10)
+```
+
+Variables that the stock uses within the model will be named based on the name
+given to ``g3_stock()``, in the case above ``ling_imm__num`` and
+``ling_imm__wgt`` will be defined.
+
+When you use an action such as ``g3a_grow()``, you provide formulae to fill in
+the gaps. These will iterate over any dimensions the stock has, such as age and
+area, and will be available to you when writing these formulae.
+
+```{r}
+g3_compile_r(g3a_grow(
+    ling_imm,
+    growth_f = list(
+        len = ~age * 10,
+        wgt = ~area * 20),
+    impl_f = g3a_grow_impl_bbinom(
+        beta_f = ~g3_param("ling.bbin"),
+        maxlengthgroupgrowth = 4)))
+```
+
+...you can see our provided formula have been used to calculate
+``ling_imm__growth_l`` and ``ling_imm__growth_w``, and ``age`` and ``area`` are
+available to us thanks to the loops provided by the stock.
+
 ## Advanced topics
 
 Beyond this point, we mostly discuss features that are only relevant to
 devloping gadget3.
+
+TODO: Most of this is internal to gadget3, I'm not sure when/if it should be
+exposed and allow others to have at it.
 
 ## g3 Functions
 
@@ -182,3 +221,43 @@ g3_with(var, expr, code)
       g3_with(area, stock__areas[stock__area_idx], {...} )
 
   ...to define ``area`` in a local scope too.
+
+## Stock steps
+
+Most actions interact with stocks, and fill out abstract formulae with the
+stocks provided to the function. To do this you need to do a series of
+substitutions, which are handled by ``stock_step()``. This takes a formula,
+looks for ``stock_*`` named functions and mangles the formula as appropriate.
+For example, a snippet from ``action_mature.R``.
+
+```{r, eval=FALSE}
+    out <- new.env(parent = emptyenv())
+    out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
+        stock_comment("g3a_mature for ", stock)
+        # Matured stock will weigh the same
+        stock_rename(stock, stock_rename(matured, matured__wgt <- stock__wgt))
+
+        stock_iterate(stock, stock_intersect(matured, if (run_f) {
+            stock_comment("Move matured ", stock, " into temporary storage")
+            matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f
+            stock__num[stock__iter] <- stock__num[stock__iter] - matured__num[matured__iter]
+        }))
+    }, list(run_f = run_f, maturity_f = maturity_f)))
+```
+
+Assume that ``stock`` has name "ling_imm" and ``matured`` has name "ling_imm_maturing".
+
+The first line uses ``stock_comment()`` to produce a ``comment()`` function
+call, ``comment("g3a_mature for ling_imm")``.
+
+Next ``stock_rename()`` is used to to transform ``matured__wgt <- stock__wgt``
+to use the proper stock names. We don't care about dimensions since we're
+copying over all the data.
+
+Finally, we use a combination of ``stock_iterate()`` and ``stock_intersect()``.
+``stock_iterate()`` will create a loop that loops over all of the stock's
+dimensions, and replace ``[stock__iter]`` with a subset that will provide a
+1-dimension lengthgroup vector.  ``stock_intersect()``.
+
+These iterators will then be available to the ``maturity_f`` that the users
+provide, as demonstrated in the [Stocks] section.
