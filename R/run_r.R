@@ -2,10 +2,20 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 
 # Compile actions together into a single R function, the attached environment contains:
 # - model_data: Fixed values refered to within function
-g3_compile_r <- function(actions) {
+g3_compile_r <- function(actions, trace = FALSE) {
     all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
+
+    if (isTRUE(trace)) {
+        all_actions <- call_replace(all_actions, comment = function (x) {
+            # Turn comment calls into debugf calls
+            return(call("debugf", paste0(
+                "// ",
+                gsub("\n", " ", x[[2]], fixed = TRUE),
+                "\n")))
+        })
+    }
 
     var_defns <- function (code, env) {
         # Find all things that have definitions in our environment
