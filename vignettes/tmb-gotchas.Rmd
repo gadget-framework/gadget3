@@ -73,3 +73,16 @@ mysterious errors if an expression is used.
 Instead of ``lgamma(alpha + beta)``, do something like:
 
     lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);
+
+## No vector<int> to vector<Type> conversion
+
+Can't do ``stock__num.col(...) = (integer vector)``, since this needs an
+explicit cast. This is problematic for e.g:
+
+    g3a_initialconditions(prey_a, ~10 * prey_a__minlen)
+
+This case is a somewhat artifical construct, and not a problem for midlen
+(which isn't integer), a more likely scenario.
+
+No easy solutions, since gadget3 doesn't have enough type information and Eigen
+needs explicit casts.
