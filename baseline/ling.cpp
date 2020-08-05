@@ -145,8 +145,8 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_VECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
-    array<Type> ling_mat__overconsumption(35,2,11);
     array<Type> ling_imm__overconsumption(35,1,8);
+    array<Type> ling_mat__overconsumption(35,2,11);
     array<Type> ling_imm__growth_l;
     DATA_VECTOR(ling_imm__dl)
     vector<Type> ling_imm__growth_w(35);
@@ -293,6 +293,26 @@ Type objective_function<Type>::operator() () {
                             igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
+                    }
+                }
+            }
+        }
+        {
+            // Zero fleet catch before working out post-adjustment value;
+            igfs__catch.setZero();
+        }
+        {
+            // g3a_predate_totalfleet for ling_imm;
+            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                {
+                    auto area = ling_imm__area;
+
+                    {
+                        // Prey overconsumption coefficient;
+                        ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx) = ((ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*0.95) / ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx)).cwiseMin(1);
+                        ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
                 }
             }

@@ -69,7 +69,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         })
 
         # Overconsumption: Prey adjustments
-        out[[step_id(run_at, 3, fleet_stock)]] <- stock_step(~{
+        out[[step_id(run_at, 3, prey_stock)]] <- stock_step(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, {
                 comment("Prey overconsumption coefficient")
@@ -80,7 +80,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         })
 
         # Overconsumption: if we went over the limit, scale back, remove from prey_stock
-        out[[step_id(run_at, 3, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 4, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Scale caught amount by overconsumption, update variables")

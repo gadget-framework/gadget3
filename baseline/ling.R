@@ -88,8 +88,8 @@ structure(function (param)
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
     igfs_totaldata__values <- model_data$igfs_totaldata__values
     igfs_totaldata__lookup <- inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
-    ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
+    ling_mat__overconsumption <- array(dim = c(35L, 2L, 11L))
     ling_imm__growth_l <- array(dim = c(0L, 0L))
     ling_imm__dl <- model_data$ling_imm__dl
     ling_imm__growth_w <- array(dim = 35L)
@@ -224,6 +224,24 @@ structure(function (param)
                       igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]
                     }
+                  }
+                }
+            }
+        }
+        {
+            comment("Zero fleet catch before working out post-adjustment value")
+            igfs__catch[] <- 0
+        }
+        {
+            comment("g3a_predate_totalfleet for ling_imm")
+            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+                ling_imm__age_idx <- age - ling_imm__minage + 1
+                {
+                  area <- ling_imm__area
+                  {
+                    comment("Prey overconsumption coefficient")
+                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- pmin((ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 1)
+                    ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
             }
