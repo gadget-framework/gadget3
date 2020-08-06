@@ -242,6 +242,7 @@ structure(function (param)
                     comment("Prey overconsumption coefficient")
                     ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- pmin((ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 1)
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                   }
                 }
             }
@@ -256,6 +257,7 @@ structure(function (param)
                     comment("Prey overconsumption coefficient")
                     ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- pmin((ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 1)
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
                   }
                 }
             }
@@ -271,7 +273,6 @@ structure(function (param)
                       comment("Scale caught amount by overconsumption, update variables")
                       igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
                       igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                     }
                   }
                 }
@@ -288,7 +289,6 @@ structure(function (param)
                       comment("Scale caught amount by overconsumption, update variables")
                       igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
                       igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
-                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
                     }
                   }
                 }

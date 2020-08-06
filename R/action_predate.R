@@ -76,6 +76,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
                 # TODO: Should replace pmin() here with something differentiable
                 prey_stock__overconsumption[prey_stock__iter] <- pmin((prey_stock__num[prey_stock__iter] * prey_stock__wgt[prey_stock__iter] * 0.95) / prey_stock__totalpredate[prey_stock__iter], 1)
                 prey_stock__totalpredate[prey_stock__iter] <- prey_stock__totalpredate[prey_stock__iter] * prey_stock__overconsumption[prey_stock__iter]
+                prey_stock__num[prey_stock__iter] <- prey_stock__num[prey_stock__iter] - (prey_stock__totalpredate[prey_stock__iter] / prey_stock__wgt[prey_stock__iter])
             })
         })
 
@@ -87,9 +88,6 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
                 fleet_stock__prey_stock[prey_stock__iter] <- fleet_stock__prey_stock[prey_stock__iter] * prey_stock__overconsumption[prey_stock__iter]
                 fleet_stock__catch[fleet_stock__iter] <- (fleet_stock__catch[fleet_stock__iter]
                     + sum(fleet_stock__prey_stock[prey_stock__iter]))
-
-                # TODO: Have we officially documented if stock__wgt is total biomass or mean weight?
-                prey_stock__num[prey_stock__iter] <- prey_stock__num[prey_stock__iter] - (prey_stock__totalpredate[prey_stock__iter] / prey_stock__wgt[prey_stock__iter])
             }))
         }, list(
             fleet_stock__prey_stock = fleet_stock_var)))
