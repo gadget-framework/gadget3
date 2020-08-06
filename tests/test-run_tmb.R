@@ -3,6 +3,22 @@ library(unittest)
 
 library(gadget3)
 
+tmb_r_compare <- function (model_fn, model_tmb, params) {
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        # Reformat params into a single vector in expected order
+        par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+        model_tmb_report <- model_tmb$report(par)
+        for (n in ls(environment(model_fn)$model_report)) {
+            ok(ut_cmp_equal(
+                model_tmb_report[[n]],
+                environment(model_fn)$model_report[[n]],
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+}
+
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
 
@@ -98,22 +114,21 @@ actions <- c(actions, ~{
 })
 params <- list(rv=0)
 
-model_fn <- g3_compile_r(actions)
+# Compile model
+model_fn <- g3_compile_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
-result <- model_fn(params)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
+    # model_cpp <- edit(model_cpp)
+    model_tmb <- g3_tmb_adfun(model_cpp, params)
+} else {
+    writeLines("# skip: not compiling TMB model")
+}
 
 # Compare everything we've been told to compare
+result <- model_fn(params)
+# str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(environment(model_fn)$model_report[[n]], expecteds[[n]]), n)
 }
-
-model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
-if (!nzchar(Sys.getenv('G3_TEST_TMB'))) { writeLines("# skip: not running TMB tests") ; break }
-# model_cpp <- edit(model_cpp)
-model_tmb <- g3_tmb_adfun(model_cpp, params)
-
-# Compare everything we've been told to compare
-report <- model_tmb$report()
-for (n in ls(expecteds)) {
-    ok(ut_cmp_equal(report[[n]], expecteds[[n]]), n)
-}
+tmb_r_compare(model_fn, model_tmb, params)
