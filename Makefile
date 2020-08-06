@@ -29,6 +29,10 @@ check: build
 check-as-cran: build
 	R CMD check --as-cran "$(TARBALL)"
 
+coverage:
+	# NB: TMB transpiling and covr clash badly
+	G3_TEST_TMB="" R --vanilla -e 'covr::package_coverage(type = "all", line_exclusions = list("R/run_tmb.R"))'
+
 wincheck: build
 	# See https://win-builder.r-project.org/ for more information
 	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
@@ -36,4 +40,4 @@ wincheck: build
 build-docs:
 	R --vanilla -e 'pkgdown::build_site()'
 
-.PHONY: all install build test inttest check check-as-cran wincheck build-docs
+.PHONY: all install build test inttest check check-as-cran coverage wincheck build-docs
