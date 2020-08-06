@@ -113,7 +113,7 @@ ok_group("No overconsumption", {
         amount_bc = 50,
         x=1.0)
     result <- model_fn(params)
-    str(as.list(environment(model_fn)$model_report), vec.len = 10000) # TODO:
+    # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 
     # Fleet_ab
     ok(ut_cmp_identical(
