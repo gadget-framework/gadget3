@@ -118,7 +118,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "if (",
             cpp_code(in_call[[2]], in_envir, next_indent),
             ") ",
-            cpp_code(in_call[[3]], in_envir, next_indent),
+            cpp_code(in_call[[3]], in_envir, indent),
             " else ",
             cpp_code(in_call[[4]], in_envir, indent)))
     }
