@@ -1,0 +1,7 @@
+pandoc: 2.2.1
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  model_structure: model_structure.html
+  tmb-gotchas: tmb-gotchas.html
+
