@@ -37,7 +37,15 @@ wincheck: build
 	# See https://win-builder.r-project.org/ for more information
 	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
 
-build-docs:
+gh-pages:
+	[ -d docs ] && rm -r docs || true
+	sh /usr/share/doc/git/contrib/workdir/git-new-workdir . docs gh-pages
 	R --vanilla -e 'pkgdown::build_site()'
+	sed -Ei 's/environment: 0x[0-9a-f]+/environment: 0xnnnnnnnnnnnn/g' docs/articles/*.html
+	git -C docs diff
+	git diff-index --quiet HEAD || { echo "Working dir dirty, not committing"; false; }
+	[ -n "$(GH_COMMIT)" ] || { echo "Do GH_COMMIT=1 make gh-pages to commit the above"; false; }
+	git -C docs add -A .
+	git -C docs commit -m "Docs for $(shell git rev-parse --short HEAD)"
 
-.PHONY: all install build test inttest check check-as-cran coverage wincheck build-docs
+.PHONY: all install build test inttest check check-as-cran coverage wincheck gh-pages
