@@ -128,10 +128,10 @@ Type objective_function<Type>::operator() () {
     vector<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
     array<Type> ling_mat__totalpredate(35,2,11);
-    array<Type> igfs__ling_imm(35,1,8);
+    array<Type> ling_imm__igfs(35,1,8);
     int igfs__area = 1;
     auto igfs__area_idx = 0;
-    array<Type> igfs__ling_mat(35,2,11);
+    array<Type> ling_mat__igfs(35,2,11);
     Type predate_totalfleet_E = 0;
     auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
@@ -222,7 +222,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_predate_totalfleet for ling_imm;
             // Zero counter of biomass caught for this fleet;
-            igfs__ling_imm.setZero();
+            ling_imm__igfs.setZero();
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -232,8 +232,8 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
-                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)));
                         }
                     }
                 }
@@ -242,7 +242,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_predate_totalfleet for ling_mat;
             // Zero counter of biomass caught for this fleet;
-            igfs__ling_mat.setZero();
+            ling_mat__igfs.setZero();
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
@@ -252,8 +252,8 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
-                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)));
                         }
                     }
                 }
@@ -271,8 +271,8 @@ Type objective_function<Type>::operator() () {
                         {
                             // Scale fleet amount by total expected catch;
                             predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
-                            ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
+                            ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
                     }
                 }
@@ -290,8 +290,8 @@ Type objective_function<Type>::operator() () {
                         {
                             // Scale fleet amount by total expected catch;
                             predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
-                            ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
+                            ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
                     }
                 }
@@ -346,8 +346,8 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Scale caught amount by overconsumption, update variables;
-                            igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_imm.col(ling_imm__age_idx).col(ling_imm__area_idx)));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)));
                         }
                     }
                 }
@@ -364,8 +364,8 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Scale caught amount by overconsumption, update variables;
-                            igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
-                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(igfs__ling_mat.col(ling_mat__age_idx).col(ling_mat__area_idx)));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                            igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + sum(ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)));
                         }
                     }
                 }

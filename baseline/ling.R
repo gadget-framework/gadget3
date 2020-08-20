@@ -76,10 +76,10 @@ structure(function (param)
     igfs__catch <- array(dim = 1L)
     ling_imm__totalpredate <- array(dim = c(35L, 1L, 8L))
     ling_mat__totalpredate <- array(dim = c(35L, 2L, 11L))
-    igfs__ling_imm <- array(dim = c(35L, 1L, 8L))
+    ling_imm__igfs <- array(dim = c(35L, 1L, 8L))
     igfs__area <- 1L
     igfs__area_idx <- (1)
-    igfs__ling_mat <- array(dim = c(35L, 2L, 11L))
+    ling_mat__igfs <- array(dim = c(35L, 2L, 11L))
     predate_totalfleet_E <- 0
     inttypelookup_zip <- function (keys, values) 
     {
@@ -161,7 +161,7 @@ structure(function (param)
         {
             comment("g3a_predate_totalfleet for ling_imm")
             comment("Zero counter of biomass caught for this fleet")
-            igfs__ling_imm[] <- 0
+            ling_imm__igfs[] <- 0
             for (age in seq(ling_imm__minage, ling_imm__maxage)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
@@ -169,8 +169,8 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Collect all suitable biomass for fleet")
-                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
-                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
                     }
                   }
                 }
@@ -179,7 +179,7 @@ structure(function (param)
         {
             comment("g3a_predate_totalfleet for ling_mat")
             comment("Zero counter of biomass caught for this fleet")
-            igfs__ling_mat[] <- 0
+            ling_mat__igfs[] <- 0
             for (age in seq(ling_mat__minage, ling_mat__maxage)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
@@ -187,8 +187,8 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Collect all suitable biomass for fleet")
-                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
-                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
                     }
                   }
                 }
@@ -204,8 +204,8 @@ structure(function (param)
                     {
                       comment("Scale fleet amount by total expected catch")
                       predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
-                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
-                      ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
+                      ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
                 }
@@ -221,8 +221,8 @@ structure(function (param)
                     {
                       comment("Scale fleet amount by total expected catch")
                       predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
-                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
-                      ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
+                      ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
                 }
@@ -271,8 +271,8 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale caught amount by overconsumption, update variables")
-                      igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] <- igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
-                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_imm[, ling_imm__area_idx, ling_imm__age_idx]))
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
                     }
                   }
                 }
@@ -287,8 +287,8 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale caught amount by overconsumption, update variables")
-                      igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] <- igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
-                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(igfs__ling_mat[, ling_mat__area_idx, ling_mat__age_idx]))
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
+                      igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
                     }
                   }
                 }

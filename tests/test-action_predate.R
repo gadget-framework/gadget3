@@ -67,14 +67,14 @@ actions <- g3_collate(
             g3_report(prey_c__totalpredate)
             g3_report(prey_c__overconsumption)
 
-            g3_report(fleet_ab__prey_a)
-            g3_report(fleet_ab__prey_b)
-            g3_report(fleet_ab__prey_c)
+            g3_report(prey_a__fleet_ab)
+            g3_report(prey_b__fleet_ab)
+            g3_report(prey_c__fleet_ab)
             g3_report(fleet_ab__catch)
 
-            g3_report(fleet_bc__prey_a)
-            g3_report(fleet_bc__prey_b)
-            g3_report(fleet_bc__prey_c)
+            g3_report(prey_a__fleet_bc)
+            g3_report(prey_b__fleet_bc)
+            g3_report(prey_c__fleet_bc)
             g3_report(fleet_bc__catch)
 
             return(g3_param('x'))
@@ -123,63 +123,63 @@ ok_group("No overconsumption", {
     prey_a_catch_55 <- 0.2 * 55 * 550
     prey_a_catch_65 <- 0.1 * 65 * 650
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_a),
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab),
         c(
             0, 0, 0,
             100 * prey_a_catch_45 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             100 * prey_a_catch_55 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             100 * prey_a_catch_65 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
-            0, 0, 0, 0)), "fleet_ab__prey_a: Scaled to match suitability")
+            0, 0, 0, 0)), "prey_a__fleet_ab: Scaled to match suitability")
     ok(ut_cmp_equal(
-        sum(as.vector(environment(model_fn)$model_report$fleet_ab__prey_a)),
-        100), "fleet_ab__prey_a: Totals 100")
+        sum(as.vector(environment(model_fn)$model_report$prey_a__fleet_ab)),
+        100), "prey_a__fleet_ab: Totals 100")
     prey_b_catch_65 <- 0.1 * 65 * 650
     prey_b_catch_75 <- 0.2 * 75 * 750
     prey_b_catch_85 <- 0.1 * 85 * 850
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_b),
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab),
         c(
             0, 0, 0, 0, 0,
             200 * prey_b_catch_65 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
             200 * prey_b_catch_75 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
             200 * prey_b_catch_85 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
-            0, 0)), "fleet_ab__prey_b: Scaled to match suitability")
+            0, 0)), "prey_b__fleet_ab: Scaled to match suitability")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_c),
-        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "fleet_ab__prey_c: None, in wrong area")
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab),
+        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_c__fleet_ab: None, in wrong area")
 
     # Fleet_bc
     ok(ut_cmp_identical(
         as.vector(environment(model_fn)$model_report$fleet_bc__catch),
         c(2 * 50, 3 * 50)), "fleet_bc__catch: 50 * (area) in total")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_a),
-        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "fleet_bc__prey_a: None, in wrong area")
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc),
+        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_a__fleet_bc: None, in wrong area")
     prey_b_catch_1 <- 0.1 * 75 * 750
     prey_b_catch_2 <- 0.2 * 85 * 850
     prey_b_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_b),
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc),
         c(
             0, 0, 0, 0, 0, 0,
             100 * prey_b_catch_1 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
             100 * prey_b_catch_2 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
             100 * prey_b_catch_3 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
-            0)), "fleet_bc__prey_b: Scaled to match suitability")
+            0)), "prey_b__fleet_bc: Scaled to match suitability")
     prey_c_catch_1 <- 0.1 * 75 * 750
     prey_c_catch_2 <- 0.2 * 85 * 850
     prey_c_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_c),
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc),
         c(
             0, 0, 0, 0, 0, 0,
             150 * prey_c_catch_1 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
             150 * prey_c_catch_2 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
             150 * prey_c_catch_3 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
-            0)), "fleet_bc__prey_c: Scaled to match suitability")
+            0)), "prey_c__fleet_bc: Scaled to match suitability")
     ok(ut_cmp_equal(
-        sum(as.vector(environment(model_fn)$model_report$fleet_bc__prey_c)),
-        150), "fleet_bc__prey_c: Totals 150")
+        sum(as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)),
+        150), "prey_c__fleet_bc: Totals 150")
 
     # prey_a
     ok(ut_cmp_equal(
@@ -187,8 +187,8 @@ ok_group("No overconsumption", {
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_a__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_a__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_a) + 
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_a)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab) + 
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_a__num),
         c(15.00000, 25.00000, 35.00000, 44.96341, 54.91057, 64.94715, 75.00000, 85.00000, 95.00000, 105.00000),
@@ -200,8 +200,8 @@ ok_group("No overconsumption", {
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_b__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_b__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_b) + 
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_b)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab) + 
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_b__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 64.94273, 74.84207, 84.86669, 94.96735, 105.00000),
@@ -213,8 +213,8 @@ ok_group("No overconsumption", {
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_c__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_c) + 
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_c)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab) + 
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_c__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
@@ -245,8 +245,8 @@ ok_group("Overconsumption", {
         tolerance = 1e-5), "prey_a__overconsumption: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_a__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_a) +
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_a)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab) +
+        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_a__num),
         c(15, 25, 35, 45 - (45 * 0.95), 55 - (55 * 0.95), 65 - (65 * 0.95), 75, 85, 95, 105),
@@ -259,8 +259,8 @@ ok_group("Overconsumption", {
         tolerance = 1e-5), "prey_b__overconsumption: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_b__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_b) +
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_b)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab) +
+        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_b__num),
         c(15, 25, 35, 45, 55, 65 - (65 * 0.95), 75 - (75 * 0.95), 85 - (85 * 0.95), 94.96735, 105),
@@ -272,8 +272,8 @@ ok_group("Overconsumption", {
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_c__totalpredate),
-        as.vector(environment(model_fn)$model_report$fleet_ab__prey_c) +
-        as.vector(environment(model_fn)$model_report$fleet_bc__prey_c)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab) +
+        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(environment(model_fn)$model_report$prey_c__num),
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
