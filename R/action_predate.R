@@ -12,7 +12,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
     # For each prey stock...
     for (prey_stock in prey_stocks) {
         # Create variable to store biomass of stock caught
-        fleet_stock_var <- as.symbol(paste0(prey_stock$name, '__', fleet_stock$name))
+        fleet_stock_var <- as.symbol(paste0('prey_stock__', fleet_stock$name))
         assign(as.character(fleet_stock_var), stock_definition(prey_stock, 'stock__num'))
         prey_stock__totalpredate <- stock_definition(prey_stock, 'stock__wgt')
         prey_stock__overconsumption <- stock_definition(prey_stock, 'stock__wgt')
@@ -35,7 +35,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         out[[step_id(run_at, 1, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             comment("Zero counter of biomass caught for this fleet")
-            prey_stock__fleet_stock[] <- 0
+            stock_rename(prey_stock, prey_stock__fleet_stock[] <- 0)
 
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Collect all suitable biomass for fleet")
