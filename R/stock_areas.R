@@ -80,7 +80,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         keys = as.integer(unlist(areagroups)),
         values = unlist(lapply(seq_along(areagroups),
         function (i) rep(i, times = length(areagroups[[i]])))))
-    stock__minareas <- vapply(areagroups, function (x) x[[1]], integer(1))
+    stock__minareas <- as.array(vapply(areagroups, function (x) x[[1]], integer(1)))
 
     # Expand all storage with extra dimension
     stock_env <- rlang::f_env(inner_stock$iterate)
