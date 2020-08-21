@@ -88,7 +88,7 @@ g3_compile_r <- function(actions, trace = FALSE) {
         }
 
         call_replace(in_code,
-            g3_idx = function (x) if (is.call(x[[2]])) x[[2]] else call("(", x[[2]]),  # R indices are 1-based, so just strip off call
+            g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
             g3_with = function (x) call(
                 open_curly_bracket,
