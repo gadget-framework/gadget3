@@ -46,10 +46,10 @@ structure(function (param)
         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
     cur_time <- -1L
-    steps <- model_data$steps
+    step_lengths <- model_data$step_lengths
     end_year <- 1985L
     start_year <- 1983L
-    total_steps <- length(steps) * (end_year - start_year) + length(steps) - 1
+    total_steps <- length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1
     nll <- 0
     cur_year <- 0L
     step_count <- 4L
@@ -110,7 +110,7 @@ structure(function (param)
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1
-            cur_step_len <- steps[[(cur_step)]]
+            cur_step_len <- step_lengths[[(cur_step)]]
             cur_step_final <- cur_step == step_count
             debugf("** Tick: %d-%d\n", cur_year, cur_step)
         }

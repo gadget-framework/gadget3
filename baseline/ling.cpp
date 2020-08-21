@@ -98,10 +98,10 @@ Type objective_function<Type>::operator() () {
         return out;
     };
     int cur_time = -1;
-    DATA_IVECTOR(steps)
+    DATA_IVECTOR(step_lengths)
     int end_year = 1985;
     int start_year = 1983;
-    auto total_steps = (steps).size()*(end_year - start_year) + (steps).size() - 1;
+    auto total_steps = (step_lengths).size()*(end_year - start_year) + (step_lengths).size() - 1;
     Type nll = 0;
     int cur_year = 0;
     int step_count = 4;
@@ -167,7 +167,7 @@ Type objective_function<Type>::operator() () {
             if ( cur_time > total_steps ) return nll;
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_step = (cur_time % step_count) + 1;
-            cur_step_len = steps ( cur_step - 1 );
+            cur_step_len = step_lengths ( cur_step - 1 );
             cur_step_final = cur_step == step_count;
             debugf("** Tick: %d-%d\n", cur_year, cur_step);
         }
