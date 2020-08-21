@@ -323,7 +323,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
-    if (call_name %in% c("exp", "log", "seq", "seq_along", "sum")) {
+    if (call_name %in% c("exp", "log", "seq", "seq_along")) {
         # TMB-defined or built-in functions
         return(paste0(
             call_name,
@@ -349,6 +349,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == "nrow") {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").rows()"))
+    }
+
+    if (call_name == "sum") {
+        # NB: TMB has a sum(), but it doesn't work in all cases and this is all it does anyway.
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").sum()"))
     }
 
     if (call_name %in% c("colSums", "Matrix::colSums")) {
