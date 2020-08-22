@@ -131,7 +131,7 @@ stock_step <- function(step_f) {
                 }, numeric(1)))))
 
                 # Formulae to apply matrix
-                out_f <- f_substitute(~(lg_matrix %*% inner_f)[,g3_idx(1)], list(
+                out_f <- f_substitute(~g3_matrix_vec(lg_matrix, inner_f), list(
                     lg_matrix = as.symbol(matrix_name),
                     inner_f = inner_f))
             }
