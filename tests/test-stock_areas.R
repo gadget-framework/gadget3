@@ -3,7 +3,7 @@ library(unittest)
 
 library(gadget3)
 
-areas <- g3_areas('a', 'b', 'c', 'd')
+areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(areas[c('a', 'c')])
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])

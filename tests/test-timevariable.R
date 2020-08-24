@@ -24,21 +24,20 @@ expecteds <- new.env(parent = emptyenv())
 
 ###############################################################################
 
-areas <- g3_areas('a', 'b', 'c')
 area <- 1L
 cur_step <- 1L
 cur_year <- 1980L
 
-tad_lookup <- g3_timeareadata('tad', areas, read.table(header = TRUE, text = "
+tad_lookup <- g3_timeareadata('tad', read.table(header = TRUE, text = "
 year	step	area	value
-1983	1	a	198311
-1983	2	a	198321
-1984	1	a	198411
-1984	2	a	198421
-1983	1	b	198312
-1983	2	b	198322
-1984	1	b	198412
-1984	2	b	198422
+1983	1	1	198311
+1983	2	1	198321
+1984	1	1	198411
+1984	2	1	198421
+1983	1	2	198312
+1983	2	2	198322
+1984	1	2	198412
+1984	2	2	198422
 "))
 
 tad_get_1 <- 0

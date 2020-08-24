@@ -1,34 +1,4 @@
-# A vector of areas, subsetting preserves the full list
-g3_areas <- function (...) {
-    structure(
-        seq_along(c(...)),
-        names = c(...),
-        all_areas = c(...),
-        class = 'g3_areas')
-}
-
-`[.g3_areas` <- function (x, ..., drop = FALSE) {
-    y <- NextMethod("[")
-    attr(y, "all_areas") <- attr(x, "all_areas")
-    class(y) <- oldClass(x)
-    return(y)
-}
-
-`[[.g3_areas` <- function (x, ..., drop = FALSE) {
-    y <- NextMethod("[[")
-    attr(y, "all_areas") <- attr(x, "all_areas")
-    class(y) <- oldClass(x)
-    return(y)
-}
-
-as.data.frame.g3_areas <- function(x, ...) {
-    # Just store numeric area values in data frames
-    return(as.data.frame(as.numeric(x), ...))
-}
-
 g3s_livesonareas <- function(inner_stock, areas) {
-    stopifnot('g3_areas' %in% class(areas))
-
     stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
 
@@ -42,7 +12,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
     if (stock__totalareas == 1) {
         # Stock only in one area, so simplify
-        stock__area <- as.integer(areas[[1]])  # Don't leak g3_areas into model
+        stock__area <- as.integer(areas[[1]])
         stock__area_idx <- ~g3_idx(1)
         list(
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
@@ -71,16 +41,14 @@ g3s_livesonareas <- function(inner_stock, areas) {
     }
 }
 
-# - areagroups: list(areas[c('a', 'b')], areas[c('c')])
+# - areagroups: list(1:2, 3)
 g3s_areagroup <- function(inner_stock, areagroups) {
-    stopifnot(vapply(areagroups, function (a) 'g3_areas' %in% class(a), logical(1)))
-
     stock__areagroup_lookup <- g3_intlookup(
         inner_stock$name,
         keys = as.integer(unlist(areagroups)),
         values = unlist(lapply(seq_along(areagroups),
         function (i) rep(i, times = length(areagroups[[i]])))))
-    stock__minareas <- as.array(vapply(areagroups, function (x) x[[1]], integer(1)))
+    stock__minareas <- as.array(vapply(areagroups, function (x) as.integer(x[[1]]), integer(1)))
 
     # Expand all storage with extra dimension
     stock_env <- rlang::f_env(inner_stock$iterate)

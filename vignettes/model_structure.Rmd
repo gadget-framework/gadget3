@@ -142,10 +142,8 @@ Stocks can be broken down further by applying either ``g3s_livesonareas()`` or
 ``g3s_age()``, which adds area or age dimensions to a stock.
 
 ```{r}
-areas <- g3_areas('a', 'b', 'c')
-
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('a')]) %>%
+    g3s_livesonareas(c(1)) %>%
     g3s_age(3, 10)
 ```
 

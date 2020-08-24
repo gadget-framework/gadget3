@@ -53,10 +53,6 @@ export(g3s_age)
 export(g3s_agegroup)
 
 # R/stock_areas.R
-export(g3_areas)
-S3method(`[`, g3_areas)
-S3method(`[[`, g3_areas)
-S3method(as.data.frame, g3_areas)
 export(g3s_livesonareas)
 export(g3s_areagroup)
 

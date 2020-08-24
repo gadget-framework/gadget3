@@ -19,7 +19,7 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
-areas <- g3_areas('a', 'b', 'c')
+areas <- list(a=1, b=2, c=3)
 
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])
