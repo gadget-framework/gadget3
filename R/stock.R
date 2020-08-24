@@ -31,6 +31,7 @@ g3_stock <- function(var_name, lengthgroups) {
     list(
         iterate = ~extension_point,
         iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
+        iter_ss_names = 'length',
         intersect = ~extension_point,
         rename = ~extension_point,
         name = var_name)
@@ -42,6 +43,7 @@ g3_fleet <- function(var_name) {
     list(
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
+        iter_ss_names = c(),
         intersect = ~extension_point,
         rename = ~extension_point,
         name = var_name)
