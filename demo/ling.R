@@ -19,7 +19,6 @@ ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
-igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('a')])
 lln <- g3_fleet('lln') %>% g3s_livesonareas(areas[c('a')])
 bmt <- g3_fleet('bmt') %>% g3s_livesonareas(areas[c('a')])
 gil <- g3_fleet('gil') %>% g3s_livesonareas(areas[c('a')])
@@ -86,26 +85,34 @@ ling_mat_actions <- g3_collate(
             maxlengthgroupgrowth = 15)),
     list())
 
+igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('a')])
 igfs_totaldata <- data.frame(
-    year = c(rep(1983, 4), rep(1984, 4), rep(1985, 4)),
+    year = rep(1994:2018, each = 4),
     step = 1:4,
     area = areas[['a']],
     value = 1:4)
-
-consumption_actions <- g3_collate(
+igfs_obs_data <- read.table('inst/extdata/ling/catchdistribution_ldist_lln.txt', header = TRUE)
+igfs_actions <- g3_collate(
     g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50'))),
         amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
+    g3l_catchdistribution(
+        'ldist_lln',
+        igfs_obs_data,
+        fleets = list(igfs),
+        stocks = list(ling_imm, ling_mat),
+        g3l_catchdistribution_sumofsquares(),
+        missing = 0),  # Use 0 for any missing values
     list())
 
-time <- g3a_time(start_year = 1983, end_year = 1985, c(3, 3, 3, 3))
+time <- g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3))
 ling_model <- g3_compile_r(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
-    consumption_actions,
-    time))
+    igfs_actions,
+    time), trace = FALSE)  # NB: "trace" turns comments into debug statements
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-baseline/ling.R')
 
 writeLines("***** Running Model *****")
@@ -199,7 +206,7 @@ str(result)
 tmb_ling <- g3_precompile_tmb(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
-    consumption_actions,
+    igfs_actions,
     time))
 writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
 ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)

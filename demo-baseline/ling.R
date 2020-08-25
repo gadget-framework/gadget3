@@ -45,10 +45,14 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
+    g3_matrix_vec <- function (tf, vec) 
+    {
+        return((tf %*% vec)[, 1])
+    }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
-    end_year <- 1985L
-    start_year <- 1983L
+    end_year <- 2018L
+    start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1
     nll <- 0
     cur_year <- 0L
@@ -102,6 +106,13 @@ structure(function (param)
     matured_ling_imm__area <- 1L
     matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
     matured_ling_imm__area_idx <- (1)
+    cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L))
+    ldist_lln_number <- model_data$ldist_lln_number
+    cdist_ldist_lln_pred__num <- array(dim = 35L)
+    ling_imm_cdist_ldist_lln_pred_lgmatrix <- model_data$ling_imm_cdist_ldist_lln_pred_lgmatrix
+    ling_mat_cdist_ldist_lln_pred_lgmatrix <- model_data$ling_mat_cdist_ldist_lln_pred_lgmatrix
+    cdist_ldist_lln_obs__totalsteps <- 4L
+    cdist_ldist_lln_obs__steplookup <- model_data$cdist_ldist_lln_obs__steplookup
     while (TRUE) {
         {
             comment("g3a_time")
@@ -364,6 +375,49 @@ structure(function (param)
                     }
                   }
                 }
+            }
+        }
+        {
+            comment("Initial data / reset observations for ldist_lln")
+            if (cur_time == 0) {
+                cdist_ldist_lln_obs__num[] <- ldist_lln_number
+                cdist_ldist_lln_pred__num[] <- 0
+            }
+        }
+        {
+            comment("Collect catch fromigfs/ling_imm for cdist_ldist_lln_pred")
+            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+                ling_imm__age_idx <- age - ling_imm__minage + 1
+                {
+                  area <- ling_imm__area
+                  {
+                    cdist_ldist_lln_pred__num[] <- cdist_ldist_lln_pred__num[] + g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx])/g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                  }
+                }
+            }
+        }
+        {
+            comment("Collect catch fromigfs/ling_mat for cdist_ldist_lln_pred")
+            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+                ling_mat__age_idx <- age - ling_mat__minage + 1
+                for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
+                  area <- ling_mat__areas[[ling_mat__area_idx]]
+                  {
+                    cdist_ldist_lln_pred__num[] <- cdist_ldist_lln_pred__num[] + g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx])/g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                  }
+                }
+            }
+        }
+        {
+            if (TRUE) {
+                comment("Collect catchdistribution nll")
+                {
+                  cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[(cur_step)]]
+                  if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {
+                    nll <- nll + 1 * sum((cdist_ldist_lln_pred__num[]/sum(cdist_ldist_lln_pred__num[]) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]))^2)
+                  }
+                }
+                cdist_ldist_lln_pred__num[] <- 0
             }
         }
         if (cur_step_final) {
