@@ -30,7 +30,8 @@ g3s_time <- function(inner_stock, minyear, maxyear, steps = c()) {
         iterate = ~stop("Not implemented"),
         iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__time_idx"))),
         iter_ss_names = c(inner_stock$iter_ss_names, 'time'),
-        intersect = f_substitute(~g3_with(stock__time_idx, idx_f, extension_point), list(
+        intersect = f_substitute(~g3_with(stock__time_idx, idx_f, if (stock__time_idx >= g3_idx(1) && stock__time_idx <= g3_idx(dimsize)) extension_point), list(
+                dimsize = (maxyear - minyear + 1) * stock__totalsteps,
                 idx_f = idx_f,
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
