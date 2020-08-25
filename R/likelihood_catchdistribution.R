@@ -4,7 +4,7 @@ g3l_catchdistribution_sumofsquares <- function () {
         obsstock__num[obsstock__iter] / sum(stock_ssinv(obsstock__num, 'time', 'area'))) ** 2)
 }
 
-g3l_likelihood_data <- function (nll_name, data) {
+g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     grid_args <- list()
 
     # Turn incoming data into stocks with correct dimensions
@@ -41,7 +41,12 @@ g3l_likelihood_data <- function (nll_name, data) {
     full_table <- merge(full_table, data, all.x = TRUE, sort = TRUE, by = names(grid_args))
 
     # TODO: More fancy NA-handling (i.e. random effects) goes here
-    if (any(is.na(full_table$number))) stop("Missing values in data")
+    if (missing == 'stop') {
+        if (any(is.na(full_table$number))) stop("Missing values in data")
+    } else {
+        # Fill in missing values with given value
+        full_table$number[is.na(full_table$number)] <- missing
+    }
     
     return(list(
         predstock = predstock,
@@ -64,11 +69,11 @@ g3l_likelihood_data <- function (nll_name, data) {
 # - stocks: Gather catch (by fleets) for these stocks
 # - function_f: Comparison function to compare predstock__num[predstock__iter] & obsstock__num[obsstock__iter]
 # - weight: Weighting of parameter in final nll
-g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, weight = 1.0, run_f = ~TRUE, run_at = 10) {
+g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing = 'stop', weight = 1.0, run_f = ~TRUE, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing = missing)
     predstock <- ld$predstock
     obsstock <- ld$obsstock
     assign(paste0(nll_name, '_number'), ld$number)
