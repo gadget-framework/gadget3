@@ -21,21 +21,21 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         # NB: We only have one of these per-fleet (we replace it a few times though)
         out[[step_id(run_at, 0, fleet_stock)]] <- stock_step(~{
             stock_comment("g3a_predate_totalfleet for ", fleet_stock)
-            stock_rename(fleet_stock, fleet_stock__catch[] <- 0)
+            stock_with(fleet_stock, fleet_stock__catch[] <- 0)
         })
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
         out[[step_id(run_at, 0, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
-            stock_rename(prey_stock, prey_stock__totalpredate[] <- 0)
+            stock_with(prey_stock, prey_stock__totalpredate[] <- 0)
         }, list(amount_f = amount_f)))
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
         out[[step_id(run_at, 1, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             comment("Zero counter of biomass caught for this fleet")
-            stock_rename(prey_stock, prey_stock__fleet_stock[] <- 0)
+            stock_with(prey_stock, prey_stock__fleet_stock[] <- 0)
 
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Collect all suitable biomass for fleet")
@@ -65,7 +65,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         # Overconsumption: Zero catch counter again, so we can sum adjusted values this time
         out[[step_id(run_at, 3, fleet_stock)]] <- stock_step(~{
             comment("Zero fleet catch before working out post-adjustment value")
-            stock_rename(fleet_stock, fleet_stock__catch[] <- 0)
+            stock_with(fleet_stock, fleet_stock__catch[] <- 0)
         })
 
         # Overconsumption: Prey adjustments

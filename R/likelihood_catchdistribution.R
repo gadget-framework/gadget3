@@ -82,8 +82,8 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         comment(step_comment)
         if (cur_time == 0) {
             # Populate stock with data
-            stock_rename(obsstock, obsstock__num[] <- obsnumber)
-            stock_rename(predstock, predstock__num[] <- 0)
+            stock_with(obsstock, obsstock__num[] <- obsnumber)
+            stock_with(predstock, predstock__num[] <- 0)
         }
     }, list(
         step_comment = paste0("Initial data / reset observations for ", nll_name),
@@ -108,7 +108,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             stock_iterate(predstock, stock_intersect(obsstock, {
                 nll <- nll + weight * function_f
             }))
-            stock_rename(predstock, predstock__num[] <- 0)
+            stock_with(predstock, predstock__num[] <- 0)
         }
     }, list(
         done_aggregating_f = ld$done_aggregating_f,

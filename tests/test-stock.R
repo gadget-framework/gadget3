@@ -14,20 +14,20 @@ stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 1000))
 actions <- g3_collate(
     list(
         '999' = gadget3:::stock_step(~{
-            # NB: stock_rename also includes the stock environment, which is why we need it
-            stock_rename(stock_a, {
+            # NB: stock_with also includes the stock environment, which is why we need it
+            stock_with(stock_a, {
                 g3_report(stock_a__minlen)
                 g3_report(stock_a__midlen)
                 g3_report(stock_a__dl)
             })
 
-            stock_rename(stock_b, {
+            stock_with(stock_b, {
                 g3_report(stock_b__minlen)
                 g3_report(stock_b__midlen)
                 g3_report(stock_b__dl)
             })
 
-            stock_rename(stock_wonky, {
+            stock_with(stock_wonky, {
                 g3_report(stock_wonky__minlen)
                 g3_report(stock_wonky__midlen)
                 g3_report(stock_wonky__dl)

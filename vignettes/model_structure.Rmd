@@ -233,7 +233,7 @@ For example, a snippet from ``action_mature.R``.
     out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_mature for ", stock)
         # Matured stock will weigh the same
-        stock_rename(stock, stock_rename(matured, matured__wgt <- stock__wgt))
+        stock_with(stock, stock_with(matured, matured__wgt <- stock__wgt))
 
         stock_iterate(stock, stock_intersect(matured, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
@@ -248,7 +248,7 @@ Assume that ``stock`` has name "ling_imm" and ``matured`` has name "ling_imm_mat
 The first line uses ``stock_comment()`` to produce a ``comment()`` function
 call, ``comment("g3a_mature for ling_imm")``.
 
-Next ``stock_rename()`` is used to to transform ``matured__wgt <- stock__wgt``
+Next ``stock_with()`` is used to to transform ``matured__wgt <- stock__wgt``
 to use the proper stock names. We don't care about dimensions since we're
 copying over all the data.
 

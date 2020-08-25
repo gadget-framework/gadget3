@@ -2,7 +2,7 @@
 # - stock_comment(...) - Replace any stock arguments with the stock name, paste all args together
 # - stock_iterate(stock, block) - wrap (block) with code to iterate over (stock) lengthgroup vectors
 # - stock_intersect(stock, block) - wrap (block) with code to intersect with an outer stock we're iterating over
-# - stock_rename(stock, block) - Make sure any references to (stock) in (block) uses the right name
+# - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 stock_step <- function(step_f) {
     # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
@@ -154,7 +154,7 @@ stock_step <- function(step_f) {
             ss[!(stock$iter_ss_names %in% wanted_dims)] <- list(quote(x[])[[3]])
             return(as.call(c(list(as.symbol("["), stock_data_var), ss)))
         },
-        stock_rename = function (x) {  # Arguments: stock variable, inner code block
+        stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))
         },
         stock_iterate = function (x) {  # Arguments: stock variable, inner code block

@@ -52,7 +52,7 @@ g3a_mature <- function(stock, output_stocks, maturity_f, output_ratios = rep(1 /
     out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_mature for ", stock)
         # Matured stock will weigh the same
-        stock_rename(stock, stock_rename(matured, matured__wgt <- stock__wgt))
+        stock_with(stock, stock_with(matured, matured__wgt <- stock__wgt))
 
         stock_iterate(stock, stock_intersect(matured, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
