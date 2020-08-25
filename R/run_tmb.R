@@ -231,6 +231,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[2]], in_envir, next_indent)))
     }
 
+    if (call_name %in% c('stop')) {
+        # Fatal error, drop message and treat as abort
+        return("abort()")
+    }
+
     if (call_name == "%/%") {
         # Integer division
         return(paste0(
