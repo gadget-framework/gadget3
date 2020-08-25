@@ -392,7 +392,7 @@ Type objective_function<Type>::operator() () {
                     {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
-                        ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__midlen - (ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__midlen, (Type)lingimm__wbeta));
+                        ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__midlen + (ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__midlen, (Type)lingimm__wbeta));
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) + ling_imm__growth_w) / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).cwiseMax(1e-05);
@@ -411,7 +411,7 @@ Type objective_function<Type>::operator() () {
                     {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
-                        ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__midlen - (ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__midlen, (Type)lingmat__wbeta));
+                        ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__midlen + (ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__midlen, (Type)lingmat__wbeta));
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) + ling_mat__growth_w) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
