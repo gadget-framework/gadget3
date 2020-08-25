@@ -29,9 +29,11 @@ g3l_likelihood_data <- function (nll_name, data) {
         obsstock <- g3s_areagroup(obsstock, area_group)
     }
 
-    grid_args$step <- sort(unique(data$step))
+    if ('step' %in% names(data)) {
+        grid_args$step <- sort(unique(data$step))
+    }
     grid_args$year <- seq(min(data$year), max(data$year))
-    obsstock <- g3s_time(obsstock, min(data$year), max(data$year), grid_args$step)
+    obsstock <- g3s_time(obsstock, min(data$year), max(data$year), if (is.null(grid_args$step)) c() else grid_args$step)
 
     # Regenerate table, making sure any gaps are filled (with NA)
     full_table <- do.call('expand.grid', c(grid_args, list(stringsAsFactors = FALSE)))
@@ -44,14 +46,16 @@ g3l_likelihood_data <- function (nll_name, data) {
     return(list(
         predstock = predstock,
         obsstock = obsstock,
+        done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         data = array(full_table$number,
             dim = dim(stock_definition(obsstock, 'stock__num'))),
         nll_name = nll_name))
 }
 
 # Compare numbers caught by fleets to observation data
-# - obs_data: Real-world observations. data.frame containing:
-#    - year & step columns
+# - obs_data: Real-world observations. data.frame containing colums:
+#    - year
+#    - (optional) step (otherwise data summed over the current year)
 #    - (optional) area (otherwise all areas summed)
 #    - (optional) age (otherwise all ages summed)
 #    - length
@@ -76,7 +80,6 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             stock_rename(obsstock, obsstock__num[] <- obsdata)
             stock_rename(predstock, predstock__num[] <- 0)
         }
-        stock_rename(predstock, predstock__num[] <- 0)
     }, list(
         step_comment = paste0("Initial data / reset observations for ", nll_name),
         obsdata = as.symbol(paste0(nll_name, '_data')))))
@@ -95,11 +98,15 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     }
 
     out[[step_id(run_at, nll_name, 2)]] <- stock_step(f_substitute(~{
-        stock_comment("Collect catchdistribution nll")
-        stock_iterate(predstock, stock_intersect(obsstock, {
-            nll <- nll + weight * function_f
-        }))
+        if (done_aggregating_f) {
+            stock_comment("Collect catchdistribution nll")
+            stock_iterate(predstock, stock_intersect(obsstock, {
+                nll <- nll + weight * function_f
+            }))
+            stock_rename(predstock, predstock__num[] <- 0)
+        }
     }, list(
+        done_aggregating_f = ld$done_aggregating_f,
         weight = weight,
         function_f = function_f)))
 

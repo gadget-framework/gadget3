@@ -62,26 +62,30 @@ actions <- g3_collate(
         list(prey_a, prey_b, prey_c),
         g3l_catchdistribution_sumofsquares()),
     list(
-        '999' = ~{
+        '010:utcd:001:zzzz' = ~{  # Capture data just before final step erases it
             if (cur_time == 0) {
                 step0_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
+                g3_report(step0_cdist_utcd_pred__num)
+            } else if (cur_time == 1) {
+                step1_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
+                g3_report(step1_cdist_utcd_pred__num)
+            }
+        },
+        '999' = ~{
+            if (cur_time == 0) {
                 step0_prey_a__fleet_ab[] <- prey_a__fleet_ab
                 step0_prey_b__fleet_ab[] <- prey_b__fleet_ab
                 step0_prey_c__fleet_ab[] <- prey_c__fleet_ab
                 step0_nll <- nll
-                g3_report(step0_cdist_utcd_pred__num)
                 g3_report(step0_prey_a__fleet_ab)
                 g3_report(step0_prey_b__fleet_ab)
                 g3_report(step0_prey_c__fleet_ab)
                 g3_report(step0_nll)
-            }
-            if (cur_time == 1) {
-                step1_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
+            } else if (cur_time == 1) {
                 step1_prey_a__fleet_ab[] <- prey_a__fleet_ab
                 step1_prey_b__fleet_ab[] <- prey_b__fleet_ab
                 step1_prey_c__fleet_ab[] <- prey_c__fleet_ab
                 step1_nll <- nll
-                g3_report(step1_cdist_utcd_pred__num)
                 g3_report(step1_prey_a__fleet_ab)
                 g3_report(step1_prey_b__fleet_ab)
                 g3_report(step1_prey_c__fleet_ab)
