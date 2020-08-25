@@ -151,7 +151,7 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     writeLines("# skip: not compiling TMB model")
 }
 
-ok_group("Likelihood", {
+ok_group("Likelihood per step", {
     params <- list(
         fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
         fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
@@ -223,6 +223,91 @@ ok_group("Likelihood", {
             r$cdist_utcd_obs__num[,,4][[1]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2 +
         (r$step3_cdist_utcd_pred__num[[2]] / sum(r$step3_cdist_utcd_pred__num) -
             r$cdist_utcd_obs__num[,,4][[2]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2), "step3_nll: Sum of squares, including step2_nll")
+    ok(ut_cmp_equal(r$step3_nll, result), "result: Reported final nll")
+
+    tmb_r_compare(model_fn, model_tmb, params)
+})
+
+ok_group("Likelihood per year", {
+    # Change model to aggregate over a year
+    cd_data <- expand.grid(year = 1999:2000, area = 'x', length = c(1,6))  # NB: No step column now
+    cd_data$number <- c(271, 166, 882, 781)
+    attr(cd_data, 'area') <- list(x = c(areas[c('a', 'b', 'c')]))
+    actions <- g3_collate(
+        actions,
+        g3l_catchdistribution(
+            'utcd',
+            cd_data,
+            list(fleet_ab),
+            list(prey_a, prey_b, prey_c),
+            g3l_catchdistribution_sumofsquares()))
+
+    # Compile model
+    model_fn <- g3_compile_r(actions, trace = FALSE)
+    # model_fn <- edit(model_fn)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params)
+    } else {
+        writeLines("# skip: not compiling TMB model")
+    }
+
+    params <- list(
+        fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
+        fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
+        fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
+        amount_ab = 1000000,
+        x=1.0)
+    result <- model_fn(params)
+    r <- environment(model_fn)$model_report
+    # str(result)
+    # str(as.list(r), vec.len = 10000)
+
+    ok(ut_cmp_equal(
+        as.vector(r$cdist_utcd_obs__num),
+        cd_data$number), "cdist_utcd_obs__num: Imported from data.frame")
+    ok(ut_cmp_equal(
+        as.vector(r$step1_cdist_utcd_pred__num),
+        c(sum(r$step0_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step0_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step0_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step0_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step0_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step0_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,])) +
+        c(sum(r$step1_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step1_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step1_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step1_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step1_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step1_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_pred__num: Summed catch values as individuals over year")
+    ok(ut_cmp_equal(
+        as.vector(r$step3_cdist_utcd_pred__num),
+        c(sum(r$step2_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step2_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step2_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step2_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step2_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step2_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,])) +
+        c(sum(r$step3_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step3_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step3_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step3_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step3_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step3_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_pred__num: Summed catch values as individuals over year")
+
+    ok(ut_cmp_equal(
+        r$step1_nll,
+        (r$step1_cdist_utcd_pred__num[[1]] / sum(r$step1_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,1][[1]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2 +
+        (r$step1_cdist_utcd_pred__num[[2]] / sum(r$step1_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,1][[2]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2), "step1_nll: Sum of squares")
+    ok(ut_cmp_equal(
+        r$step3_nll - r$step1_nll,
+        (r$step3_cdist_utcd_pred__num[[1]] / sum(r$step3_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,2][[1]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2 +
+        (r$step3_cdist_utcd_pred__num[[2]] / sum(r$step3_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,2][[2]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2), "step3_nll: Sum of squares, including step1_nll")
     ok(ut_cmp_equal(r$step3_nll, result), "result: Reported final nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
