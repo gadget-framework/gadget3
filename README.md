@@ -2,7 +2,7 @@
 
 To run, do:
 
-    > source("run.R", chdir = TRUE)
+    > demo("ling", package = "gadget3")
 
 ## Development
 
