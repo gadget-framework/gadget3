@@ -23,7 +23,7 @@ g3_global_env$nll <- 0.0
 
 # Transform a vector using matrix, return vec again
 g3_global_env$g3_matrix_vec <- g3_native(r = function(tf, vec) {
-    return (tf %*% vec)[,1]
+    return((tf %*% vec)[,1])
 }, cpp = '
    [](array<Type>tf, vector<Type> vec) -> vector<Type> {
        return (tf.matrix() * vec.matrix()).array();
