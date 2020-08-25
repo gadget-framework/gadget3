@@ -27,7 +27,7 @@ check: build
 	R CMD check "$(TARBALL)"
 
 check-as-cran: build
-	R CMD check --as-cran "$(TARBALL)"
+	G3_TEST_TMB="" R CMD check --as-cran "$(TARBALL)"
 
 coverage:
 	# NB: TMB transpiling and covr clash badly
