@@ -47,7 +47,7 @@ g3l_likelihood_data <- function (nll_name, data) {
         predstock = predstock,
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
-        data = array(full_table$number,
+        number = array(full_table$number,
             dim = dim(stock_definition(obsstock, 'stock__num'))),
         nll_name = nll_name))
 }
@@ -71,18 +71,18 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     ld <- g3l_likelihood_data(nll_name, obs_data)
     predstock <- ld$predstock
     obsstock <- ld$obsstock
-    assign(paste0(nll_name, '_data'), ld$data)
+    assign(paste0(nll_name, '_number'), ld$number)
 
     out[[step_id(run_at, nll_name, 0)]] <- stock_step(f_substitute(~{
         comment(step_comment)
         if (cur_time == 0) {
             # Populate stock with data
-            stock_rename(obsstock, obsstock__num[] <- obsdata)
+            stock_rename(obsstock, obsstock__num[] <- obsnumber)
             stock_rename(predstock, predstock__num[] <- 0)
         }
     }, list(
         step_comment = paste0("Initial data / reset observations for ", nll_name),
-        obsdata = as.symbol(paste0(nll_name, '_data')))))
+        obsnumber = as.symbol(paste0(nll_name, '_number')))))
     
     for (fleet_stock in fleets) for (prey_stock in stocks) {
         # Collect all of fleet's sampling of prey and dump it in predstock
