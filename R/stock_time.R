@@ -1,7 +1,7 @@
 # Time dimension, useful for data objects
 # - steps: Which steps get added to the data, e.g. c(4) for final step in quarter
 g3s_time <- function(inner_stock, minyear, maxyear, steps) {
-    total_steps <- length(steps)
+    stock__totalsteps <- length(steps)
     # i.e. for all steps, return array lookup of cur_step -> stock__time_idx
     stock__steplookup <- vapply(1:12, function (x) { out <- which(steps <= x); if (length(out) > 0) max(out) else NA}, integer(1))
 
@@ -10,7 +10,7 @@ g3s_time <- function(inner_stock, minyear, maxyear, steps) {
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
             assign(var_name, array(
-                dim = c(dim(stock_env[[var_name]]), (maxyear - minyear + 1) * total_steps)))
+                dim = c(dim(stock_env[[var_name]]), (maxyear - minyear + 1) * stock__totalsteps)))
         }
     }
 
@@ -20,7 +20,7 @@ g3s_time <- function(inner_stock, minyear, maxyear, steps) {
         iter_ss_names = c(inner_stock$iter_ss_names, 'time'),
         intersect = f_substitute(~g3_with(
             stock__time_idx,
-            g3_idx(((cur_year - minyear) * total_steps) + stock__steplookup[[g3_idx(cur_step)]]),
+            g3_idx(((cur_year - minyear) * stock__totalsteps) + stock__steplookup[[g3_idx(cur_step)]]),
             extension_point), list(
                 minyear = minyear,
                 maxyear = maxyear,
