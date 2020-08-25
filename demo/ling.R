@@ -209,5 +209,7 @@ tmb_ling <- g3_precompile_tmb(g3_collate(
     igfs_actions,
     time))
 writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
-ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
-# NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
+    # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling)
+}
