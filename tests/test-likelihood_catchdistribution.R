@@ -26,24 +26,34 @@ prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
 fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
 
 # Generate observation data
-cd_data <- expand.grid(year = 1999:2000, step = 1, area = 'x', length = c(1,6))
-cd_data$number <- c(383, 271, 166, 882)
+cd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = 'x', length = c(1,6))
+cd_data$number <- c(383, 271, 166, 882, 781, 837, 639, 465)
 attr(cd_data, 'area') <- list(x = c(areas[c('a', 'b', 'c')]))
 
 # Variables to store intermediate output
 step0_cdist_utcd_pred__num <- array(dim = c(2L, 1L))  # Length, area (Aggregated into one bucket)
 step1_cdist_utcd_pred__num <- array(dim = c(2L, 1L))
+step2_cdist_utcd_pred__num <- array(dim = c(2L, 1L))
+step3_cdist_utcd_pred__num <- array(dim = c(2L, 1L))
 step0_prey_a__fleet_ab <- array(dim = c(10L, 1L))
 step0_prey_b__fleet_ab <- array(dim = c(10L, 1L))
 step0_prey_c__fleet_ab <- array(dim = c(10L, 1L))
 step1_prey_a__fleet_ab <- array(dim = c(10L, 1L))
 step1_prey_b__fleet_ab <- array(dim = c(10L, 1L))
 step1_prey_c__fleet_ab <- array(dim = c(10L, 1L))
+step2_prey_a__fleet_ab <- array(dim = c(10L, 1L))
+step2_prey_b__fleet_ab <- array(dim = c(10L, 1L))
+step2_prey_c__fleet_ab <- array(dim = c(10L, 1L))
+step3_prey_a__fleet_ab <- array(dim = c(10L, 1L))
+step3_prey_b__fleet_ab <- array(dim = c(10L, 1L))
+step3_prey_c__fleet_ab <- array(dim = c(10L, 1L))
 step0_nll <- 0.0
 step1_nll <- 0.0
+step2_nll <- 0.0
+step3_nll <- 0.0
 
 actions <- g3_collate(
-    g3a_time(1999,2000),
+    g3a_time(1999,2000, steps = c(6, 6)),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
@@ -69,6 +79,12 @@ actions <- g3_collate(
             } else if (cur_time == 1) {
                 step1_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
                 g3_report(step1_cdist_utcd_pred__num)
+            } else if (cur_time == 2) {
+                step2_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
+                g3_report(step2_cdist_utcd_pred__num)
+            } else if (cur_time == 3) {
+                step3_cdist_utcd_pred__num[] <- cdist_utcd_pred__num
+                g3_report(step3_cdist_utcd_pred__num)
             }
         },
         '999' = ~{
@@ -90,6 +106,24 @@ actions <- g3_collate(
                 g3_report(step1_prey_b__fleet_ab)
                 g3_report(step1_prey_c__fleet_ab)
                 g3_report(step1_nll)
+            } else if (cur_time == 2) {
+                step2_prey_a__fleet_ab[] <- prey_a__fleet_ab
+                step2_prey_b__fleet_ab[] <- prey_b__fleet_ab
+                step2_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step2_nll <- nll
+                g3_report(step2_prey_a__fleet_ab)
+                g3_report(step2_prey_b__fleet_ab)
+                g3_report(step2_prey_c__fleet_ab)
+                g3_report(step2_nll)
+            } else if (cur_time == 3) {
+                step3_prey_a__fleet_ab[] <- prey_a__fleet_ab
+                step3_prey_b__fleet_ab[] <- prey_b__fleet_ab
+                step3_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step3_nll <- nll
+                g3_report(step3_prey_a__fleet_ab)
+                g3_report(step3_prey_b__fleet_ab)
+                g3_report(step3_prey_c__fleet_ab)
+                g3_report(step3_nll)
             }
             g3_report(cdist_utcd_obs__num)
             g3_report(prey_a__wgt)
@@ -148,6 +182,22 @@ ok_group("Likelihood", {
           sum(r$step1_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
           sum(r$step1_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
           sum(r$step1_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_pred__num: Summed catch values as individuals")
+    ok(ut_cmp_equal(
+        as.vector(r$step2_cdist_utcd_pred__num),
+        c(sum(r$step2_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step2_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step2_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step2_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step2_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step2_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step2_cdist_utcd_pred__num: Summed catch values as individuals")
+    ok(ut_cmp_equal(
+        as.vector(r$step3_cdist_utcd_pred__num),
+        c(sum(r$step3_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
+          sum(r$step3_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
+          sum(r$step3_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
+          sum(r$step3_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
+          sum(r$step3_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
+          sum(r$step3_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_pred__num: Summed catch values as individuals")
 
     ok(ut_cmp_equal(
         r$step0_nll,
@@ -161,7 +211,19 @@ ok_group("Likelihood", {
             r$cdist_utcd_obs__num[,,2][[1]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2 +
         (r$step1_cdist_utcd_pred__num[[2]] / sum(r$step1_cdist_utcd_pred__num) -
             r$cdist_utcd_obs__num[,,2][[2]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2), "step1_nll: Sum of squares, including step0_nll")
-    ok(ut_cmp_equal(r$step1_nll, result), "result: Reported final nll")
+    ok(ut_cmp_equal(
+        r$step2_nll - r$step1_nll,
+        (r$step2_cdist_utcd_pred__num[[1]] / sum(r$step2_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,3][[1]] / sum(r$cdist_utcd_obs__num[,,3])) ** 2 +
+        (r$step2_cdist_utcd_pred__num[[2]] / sum(r$step2_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,3][[2]] / sum(r$cdist_utcd_obs__num[,,3])) ** 2), "step2_nll: Sum of squares, including step1_nll")
+    ok(ut_cmp_equal(
+        r$step3_nll - r$step2_nll,
+        (r$step3_cdist_utcd_pred__num[[1]] / sum(r$step3_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,4][[1]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2 +
+        (r$step3_cdist_utcd_pred__num[[2]] / sum(r$step3_cdist_utcd_pred__num) -
+            r$cdist_utcd_obs__num[,,4][[2]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2), "step3_nll: Sum of squares, including step2_nll")
+    ok(ut_cmp_equal(r$step3_nll, result), "result: Reported final nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })
