@@ -513,7 +513,7 @@ Type objective_function<Type>::operator() () {
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;
-            for (auto age = ling_imm__maxage; age <= ling_imm__minage; age++) {
+            for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                 {

@@ -127,7 +127,7 @@ structure(function (param)
         }
         {
             comment("g3a_renewal_normalparam for ling_imm")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -143,7 +143,7 @@ structure(function (param)
         }
         {
             comment("g3a_renewal_normalparam for ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -173,7 +173,7 @@ structure(function (param)
             comment("g3a_predate_totalfleet for ling_imm")
             comment("Zero counter of biomass caught for this fleet")
             ling_imm__igfs[] <- 0
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -191,7 +191,7 @@ structure(function (param)
             comment("g3a_predate_totalfleet for ling_mat")
             comment("Zero counter of biomass caught for this fleet")
             ling_mat__igfs[] <- 0
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -207,7 +207,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_imm")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -224,7 +224,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -245,7 +245,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_imm")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -260,7 +260,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -275,7 +275,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_imm")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -291,7 +291,7 @@ structure(function (param)
         }
         {
             comment("g3a_predate_totalfleet for ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -307,7 +307,7 @@ structure(function (param)
         }
         {
             comment("g3a_grow for ling_imm")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -324,7 +324,7 @@ structure(function (param)
         }
         {
             comment("g3a_grow for ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -342,7 +342,7 @@ structure(function (param)
         {
             comment("g3a_mature for ling_imm")
             matured_ling_imm__wgt <- ling_imm__wgt
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -360,7 +360,7 @@ structure(function (param)
         }
         {
             comment("Move matured ling_imm to ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -386,7 +386,7 @@ structure(function (param)
         }
         {
             comment("Collect catch fromigfs/ling_imm for cdist_ldist_lln_pred")
-            for (age in seq(ling_imm__minage, ling_imm__maxage)) {
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
@@ -398,7 +398,7 @@ structure(function (param)
         }
         {
             comment("Collect catch fromigfs/ling_mat for cdist_ldist_lln_pred")
-            for (age in seq(ling_mat__minage, ling_mat__maxage)) {
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
                   area <- ling_mat__areas[[ling_mat__area_idx]]
@@ -422,7 +422,7 @@ structure(function (param)
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")
-            for (age in seq(ling_imm__maxage, ling_imm__minage)) {
+            for (age in seq(ling_imm__maxage, ling_imm__minage, by = -1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   if (age == ling_imm__maxage) {

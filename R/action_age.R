@@ -15,7 +15,7 @@ g3a_age <- function(stock, run_f = ~cur_step_final, run_at = 12) {
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (run_f) {
         stock_comment("g3a_age for ", stock)
 
-        stock_with(stock, for (age in seq(stock__maxage, stock__minage)) g3_with(
+        stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
                 stock__age_idx, g3_idx(age - stock__minage + 1), {
 
             if (age == stock__maxage) {

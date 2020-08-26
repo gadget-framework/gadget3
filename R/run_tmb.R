@@ -134,11 +134,15 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq") {
         # for(x in seq(..)) loop, can expressed as a 3-part for loop
+        seq_call <- call_args[[2]]
+        if (is.null(seq_call$by)) stop("'by' is required in a for(seq(0, 10, by = 1)) loop: ", deparse(in_call)[[1]])
+        check_operator <- if (seq_call$by > 0) " <= " else " >= "
+        iterate_operator <- if (seq_call$by == 1) "++" else if (seq_call$by == -1) "--" else sprintf(" += %d", seq_call$by)
         return(paste0(
             "for (",
-            "auto ", call_args[[1]], " = ", cpp_code(call_args[[2]][[2]], in_envir, next_indent), "; ",
-            call_args[[1]], " <= ", cpp_code(call_args[[2]][[3]], in_envir, next_indent), "; ",
-            call_args[[1]], "++) ",
+            "auto ", call_args[[1]], " = ", cpp_code(seq_call[[2]], in_envir, next_indent), "; ",
+            call_args[[1]], check_operator, cpp_code(seq_call[[3]], in_envir, next_indent), "; ",
+            call_args[[1]], iterate_operator, ") ",
             cpp_code(in_call[[4]], in_envir, indent)))
     }
 
