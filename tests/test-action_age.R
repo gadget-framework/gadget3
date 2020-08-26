@@ -121,15 +121,22 @@ ok_group("age", {
 
     # Step 1
     ok(ut_cmp_identical(r$step1_prey_a__num, array(c(0, 10,20,30,40 + 50), dim=c(1,5))), "step1_prey_a__num: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step1_prey_a__wgt, array(c(1e-05, 100,200,300,400 + 500), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Numbers rotated by 1, final group a plus group")
     ok(ut_cmp_identical(r$step1_prey_b__num, array(c(0, 10,20 + 30), dim=c(1,3))), "step1_prey_b__num: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step1_prey_b__wgt, array(c(1e-05, 100,200 + 300), dim=c(1,3)), tolerance = 1e-5), "step1_prey_b__wgt: Numbers rotated by 1, final group a plus group")
 
     # Step 2
     ok(ut_cmp_identical(r$step2_prey_a__num, array(c(0, 10,20,30,40 + 50), dim=c(1,5))), "step2_prey_a__num: Not final step, nothing changed")
+    ok(ut_cmp_equal(r$step2_prey_a__wgt, array(c(1e-05, 100,200,300,400 + 500), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Not final step, nothing changed")
     ok(ut_cmp_identical(r$step2_prey_b__num, array(c(0, 10,20 + 30), dim=c(1,3))), "step2_prey_b__num: Not final step, nothing changed")
+    ok(ut_cmp_equal(r$step2_prey_b__wgt, array(c(1e-05, 100,200 + 300), dim=c(1,3)), tolerance = 1e-5), "step2_prey_b__wgt: Not final step, nothing changed")
 
     # Step 3
+    # NB: The tiny amounts are summing. This isn't ideal, but these should be erased by renewal in practice
     ok(ut_cmp_identical(r$step3_prey_a__num, array(c(0, 0, 10,20,30 + 40 + 50), dim=c(1,5))), "step3_prey_a__num: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step3_prey_a__wgt, array(c(1e-05, 2e-05, 100,200,300 + 400 + 500), dim=c(1,5)), tolerance = 1e-5), "step3_prey_a__wgt: Numbers rotated by 1, final group a plus group")
     ok(ut_cmp_identical(r$step3_prey_b__num, array(c(0, 0, 10 + 20 + 30), dim=c(1,3))), "step3_prey_b__num: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step3_prey_b__wgt, array(c(1e-05, 2e-05, 100 + 200 + 300), dim=c(1,3)), tolerance = 1e-5), "step3_prey_b__wgt: Numbers rotated by 1, final group a plus group")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

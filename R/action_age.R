@@ -23,6 +23,8 @@ g3a_age <- function(stock, run_f = ~cur_step_final, run_at = 12) {
             } else {
                 stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
                 stock__num[age_iter_ss] <- 0
+                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] + stock__wgt[age_iter_ss]
+                stock__wgt[age_iter_ss] <- 1e-05  # NB: In theory undefined, as num is 0, but we do similar elsewhere.
             }
         }))
     }, list(
