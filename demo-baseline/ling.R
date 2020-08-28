@@ -299,6 +299,30 @@ structure(function (param)
                 }
             }
         }
+        if (TRUE) {
+            comment("Natural mortality for ling_imm")
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
+                ling_imm__age_idx <- age - ling_imm__minage + 1
+                {
+                  area <- ling_imm__area
+                  {
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * exp(-param[["lingimm.M"]] * cur_step_len)
+                  }
+                }
+            }
+        }
+        if (TRUE) {
+            comment("Natural mortality for ling_mat")
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
+                ling_mat__age_idx <- age - ling_mat__minage + 1
+                for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
+                  area <- ling_mat__areas[[ling_mat__area_idx]]
+                  {
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * exp(-param[["lingmat.M"]] * cur_step_len)
+                  }
+                }
+            }
+        }
         {
             comment("g3a_grow for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {

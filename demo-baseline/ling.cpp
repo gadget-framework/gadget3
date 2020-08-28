@@ -377,6 +377,34 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
+        if ( true ) {
+            // Natural mortality for ling_imm;
+            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                {
+                    auto area = ling_imm__area;
+
+                    {
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= exp(-lingimm__M*cur_step_len);
+                    }
+                }
+            }
+        }
+        if ( true ) {
+            // Natural mortality for ling_mat;
+            for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+
+                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
+                    auto area = ling_mat__areas ( ling_mat__area_idx );
+
+                    {
+                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= exp(-lingmat__M*cur_step_len);
+                    }
+                }
+            }
+        }
         {
             // g3a_grow for ling_imm;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
