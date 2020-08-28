@@ -21,6 +21,8 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__igfs__alpha);
     PARAMETER(ling__igfs__l50);
     PARAMETER(ling__bbin);
+    PARAMETER(ling__rec__scalar);
+    PARAMETER_VECTOR(ling__rec);
     
     auto debugf = [](const char* format, ...) -> void {
        va_list argptr;
@@ -409,6 +411,24 @@ Type objective_function<Type>::operator() () {
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) + ling_mat__growth_w) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
+                    }
+                }
+            }
+        }
+        {
+            // g3a_renewal_normalparam for ling_imm;
+            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                {
+                    auto area = ling_imm__area;
+
+                    if ( cur_step == 1 && age == 3 ) {
+                        renewal_dnorm = (ling_imm__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
+                        renewal_scaler = 10000 / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*renewal_scaler*ling__rec__scalar*ling__rec ( cur_year - start_year + 1 - 1 );
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                     }
                 }
             }

@@ -334,6 +334,22 @@ structure(function (param)
             }
         }
         {
+            comment("g3a_renewal_normalparam for ling_imm")
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
+                ling_imm__age_idx <- age - ling_imm__minage + 1
+                {
+                  area <- ling_imm__area
+                  if (cur_step == 1 && age == 3) {
+                    renewal_dnorm <- (ling_imm__midlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_imm_stddev[[age - 3 + 1]])
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(renewal_dnorm^2) * 0.5)
+                    renewal_scaler <- 10000/sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * renewal_scaler * (param[["ling.rec.scalar"]] * param[["ling.rec"]][[cur_year - start_year + 1]])
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
+                  }
+                }
+            }
+        }
+        {
             comment("Initial data / reset observations for ldist_lln")
             if (cur_time == 0) {
                 cdist_ldist_lln_obs__num[] <- ldist_lln_number

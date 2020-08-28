@@ -41,6 +41,13 @@ ling_imm_actions <- g3_collate(
         stddev_f = ~ling_imm_stddev[[g3_idx(age - 3 + 1)]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
+    g3a_renewal_normalparam(ling_imm,
+        factor_f = ~g3_param("ling.rec.scalar") * g3_param_vector("ling.rec")[[g3_idx(cur_year - start_year + 1)]],
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        stddev_f = ~ling_imm_stddev[[g3_idx(age - 3 + 1)]],
+        alpha_f = ~g3_param("lingimm.walpha"),
+        beta_f = ~g3_param("lingimm.wbeta"),
+        run_f = ~cur_step == 1 && age == 3),
     g3a_grow(ling_imm,
         growth_f = g3a_grow_lengthvbsimple(
             linf_f = ~g3_param("ling.Linf"),
