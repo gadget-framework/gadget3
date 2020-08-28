@@ -51,7 +51,6 @@ ling_imm_actions <- g3_collate(
             beta_f = ~g3_param("ling.bbin") * 10,
             maxlengthgroupgrowth = 15)),
     g3a_age(ling_imm),
-    g3a_mature(ling_imm, ling_mat, ~1),
     list())
 
 ling_mat_stddev <- c(
