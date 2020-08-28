@@ -10,12 +10,12 @@ Type objective_function<Type>::operator() () {
     PARAMETER(lingimm__init__scalar);
     PARAMETER(lingimm__M);
     PARAMETER(ling__init__F);
-    PARAMETER(lingimm__init__);
+    PARAMETER_VECTOR(lingimm__init);
     PARAMETER(lingimm__walpha);
     PARAMETER(lingimm__wbeta);
     PARAMETER(lingmat__init__scalar);
     PARAMETER(lingmat__M);
-    PARAMETER(lingmat__init__);
+    PARAMETER_VECTOR(lingmat__init);
     PARAMETER(lingmat__walpha);
     PARAMETER(lingmat__wbeta);
     PARAMETER(ling__igfs__alpha);
@@ -187,7 +187,7 @@ Type objective_function<Type>::operator() () {
                         renewal_dnorm = (ling_imm__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( ling_imm__age_idx ));
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
                         renewal_scaler = 10000 / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*renewal_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init__;
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*renewal_scaler*lingimm__init__scalar*exp(-1*(lingimm__M + ling__init__F)*age)*lingimm__init ( age - 3 + 1 - 1 );
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                     }
                 }
@@ -205,7 +205,7 @@ Type objective_function<Type>::operator() () {
                         renewal_dnorm = (ling_mat__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( ling_mat__age_idx ));
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(renewal_dnorm, (Type)2))*0.5);
                         renewal_scaler = 10000 / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*renewal_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init__;
+                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*renewal_scaler*lingmat__init__scalar*exp(-1*(lingmat__M + ling__init__F)*age)*lingmat__init ( age - 5 + 1 - 1 );
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = lingmat__walpha*pow(ling_mat__midlen, (Type)lingmat__wbeta);
                     }
                 }
