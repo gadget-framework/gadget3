@@ -41,6 +41,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     if (call_name %in% c("g3_param", "g3_param_array", "g3_param_matrix", "g3_param_vector")) {
         # params will end up being a variable
+        if (!(is.character(in_call[[2]]) && length(in_call) == 2)) stop("Parameter names need to be a single string, not ", deparse(in_call))
         return(cpp_escape_varname(in_call[[2]]))
     }
 

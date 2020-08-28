@@ -27,6 +27,11 @@ ok(ut_cmp_error({
     g3_precompile_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
 
+ok(ut_cmp_error({
+    start_year <- 1998
+    g3_precompile_tmb(list(~{g3_param("moo", start_year)}))
+}, "g3_param.*moo"), "Complained about dynamic param, we don't support")
+
 ###############################################################################
 
 # Can assign a single value to 1x1 array
