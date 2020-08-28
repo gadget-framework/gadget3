@@ -478,6 +478,23 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
+        if ( cur_step_final ) {
+            // g3a_age for ling_mat;
+            for (auto age = ling_mat__maxage; age >= ling_mat__minage; age--) {
+                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+
+                {
+                    if (age == ling_mat__maxage) {
+                        // TODO: Plus group migration shenanigans;
+                    } else {
+                        ling_mat__num.col(ling_mat__age_idx + 1) += ling_mat__num.col(ling_mat__age_idx);
+                        ling_mat__num.col(ling_mat__age_idx).setZero();
+                        ling_mat__wgt.col(ling_mat__age_idx + 1) += ling_mat__wgt.col(ling_mat__age_idx);
+                        ling_mat__wgt.col(ling_mat__age_idx).setConstant(1e-05);
+                    }
+                }
+            }
+        }
     }
     abort();  // Should have returned somewhere in the loop
 }

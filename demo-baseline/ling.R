@@ -393,6 +393,23 @@ structure(function (param)
                 }
             }
         }
+        if (cur_step_final) {
+            comment("g3a_age for ling_mat")
+            for (age in seq(ling_mat__maxage, ling_mat__minage, by = -1)) {
+                ling_mat__age_idx <- age - ling_mat__minage + 1
+                {
+                  if (age == ling_mat__maxage) {
+                    comment("TODO: Plus group migration shenanigans")
+                  }
+                  else {
+                    ling_mat__num[, , ling_mat__age_idx + 1] <- ling_mat__num[, , ling_mat__age_idx + 1] + ling_mat__num[, , ling_mat__age_idx]
+                    ling_mat__num[, , ling_mat__age_idx] <- 0
+                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + ling_mat__wgt[, , ling_mat__age_idx]
+                    ling_mat__wgt[, , ling_mat__age_idx] <- 1e-05
+                  }
+                }
+            }
+        }
     }
     stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"))

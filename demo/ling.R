@@ -82,6 +82,7 @@ ling_mat_actions <- g3_collate(
         impl_f = g3a_grow_impl_bbinom(
             beta_f = ~g3_param("ling.bbin") * 10,
             maxlengthgroupgrowth = 15)),
+    g3a_age(ling_mat),
     list())
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('a')])
