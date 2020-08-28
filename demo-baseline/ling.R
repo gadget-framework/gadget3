@@ -100,12 +100,6 @@ structure(function (param)
     ling_mat__growth_l <- array(dim = c(0L, 0L))
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L)
-    matured_ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
-    matured_ling_imm__minage <- 3L
-    matured_ling_imm__maxage <- 10L
-    matured_ling_imm__area <- 1L
-    matured_ling_imm__num <- array(dim = c(35L, 1L, 8L))
-    matured_ling_imm__area_idx <- (1)
     cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L))
     ldist_lln_number <- model_data$ldist_lln_number
     cdist_ldist_lln_pred__num <- array(dim = 35L)
@@ -340,44 +334,6 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_mature for ling_imm")
-            matured_ling_imm__wgt <- ling_imm__wgt
-            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
-                ling_imm__age_idx <- age - ling_imm__minage + 1
-                {
-                  area <- ling_imm__area
-                  if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
-                    matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
-                    if (area == matured_ling_imm__area) {
-                      if (TRUE) {
-                        comment("Move matured ling_imm into temporary storage")
-                        ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * 1)
-                      }
-                    }
-                  }
-                }
-            }
-        }
-        {
-            comment("Move matured ling_imm to ling_mat")
-            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
-                ling_mat__age_idx <- age - ling_mat__minage + 1
-                for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
-                  area <- ling_mat__areas[[ling_mat__area_idx]]
-                  if (age >= matured_ling_imm__minage && age <= matured_ling_imm__maxage) {
-                    matured_ling_imm__age_idx <- age - matured_ling_imm__minage + 1
-                    if (area == matured_ling_imm__area) {
-                      if (TRUE) {
-                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + (matured_ling_imm__wgt[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
-                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + (matured_ling_imm__num[, matured_ling_imm__area_idx, matured_ling_imm__age_idx] * 1)
-                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
-                      }
-                    }
-                  }
-                }
-            }
-        }
-        {
             comment("Initial data / reset observations for ldist_lln")
             if (cur_time == 0) {
                 cdist_ldist_lln_obs__num[] <- ldist_lln_number
@@ -431,6 +387,8 @@ structure(function (param)
                   else {
                     ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
                     ling_imm__num[, , ling_imm__age_idx] <- 0
+                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + ling_imm__wgt[, , ling_imm__age_idx]
+                    ling_imm__wgt[, , ling_imm__age_idx] <- 1e-05
                   }
                 }
             }
