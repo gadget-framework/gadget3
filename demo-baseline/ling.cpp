@@ -544,7 +544,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_ldist_lln_obs__time_idx = ((cur_year - 1994)*cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup ( cur_step - 1 ) - 1;
 
                     if ( cdist_ldist_lln_obs__time_idx >= 0 && cdist_ldist_lln_obs__time_idx <= 99 ) {
-                        nll += 1*(pow((cdist_ldist_lln_pred__num / (cdist_ldist_lln_pred__num).sum() - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / (cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum()), (Type)2)).sum();
+                        nll += 1*(pow((cdist_ldist_lln_pred__num / std::max( (Type)(cdist_ldist_lln_pred__num).sum(), (Type)1e-05) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / std::max( (Type)(cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum(), (Type)1e-05)), (Type)2)).sum();
                     }
                 }
                 cdist_ldist_lln_pred__num.setZero();

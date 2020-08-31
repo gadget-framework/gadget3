@@ -1,7 +1,7 @@
 g3l_catchdistribution_sumofsquares <- function () {
     ~sum((
-        predstock__num[predstock__iter] / sum(stock_ssinv(predstock__num, 'area')) -
-        obsstock__num[obsstock__iter] / sum(stock_ssinv(obsstock__num, 'time', 'area'))) ** 2)
+        predstock__num[predstock__iter] / max(sum(stock_ssinv(predstock__num, 'area')), 0.00001) -
+        obsstock__num[obsstock__iter] / max(sum(stock_ssinv(obsstock__num, 'time', 'area')), 0.00001)) ** 2)
 }
 
 g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {

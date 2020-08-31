@@ -446,7 +446,7 @@ structure(function (param)
                 {
                   cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[(cur_step)]]
                   if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {
-                    nll <- nll + 1 * sum((cdist_ldist_lln_pred__num[]/sum(cdist_ldist_lln_pred__num[]) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]))^2)
+                    nll <- nll + 1 * sum((cdist_ldist_lln_pred__num[]/max(sum(cdist_ldist_lln_pred__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
                   }
                 }
                 cdist_ldist_lln_pred__num[] <- 0
