@@ -5,7 +5,7 @@ library(gadget3)
 
 end <- function (x) x
 
-areas <- list(a=1, b=2, c=3)
+areas <- list(a=1)
 
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
     g3s_livesonareas(areas[c('a')]) %>%
@@ -14,7 +14,7 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
     end()
 
 ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('a', 'b')]) %>%
+    g3s_livesonareas(areas[c('a')]) %>%
     g3s_age(5, 15) %>%
     g3s_prey(energycontent = 5) %>%
     end()

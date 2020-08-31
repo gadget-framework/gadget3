@@ -125,18 +125,19 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__wgt(35,1,8);
     int ling_mat__minage = 5;
     int ling_mat__maxage = 15;
-    DATA_IVECTOR(ling_mat__areas)
+    int ling_mat__area = 1;
     DATA_VECTOR(ling_mat__midlen)
     DATA_VECTOR(ling_mat_stddev)
-    array<Type> ling_mat__num(35,2,11);
-    array<Type> ling_mat__wgt(35,2,11);
+    array<Type> ling_mat__num(35,1,11);
+    auto ling_mat__area_idx = 0;
+    array<Type> ling_mat__wgt(35,1,11);
     vector<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
-    array<Type> ling_mat__totalpredate(35,2,11);
+    array<Type> ling_mat__totalpredate(35,1,11);
     array<Type> ling_imm__igfs(35,1,8);
     int igfs__area = 1;
     auto igfs__area_idx = 0;
-    array<Type> ling_mat__igfs(35,2,11);
+    array<Type> ling_mat__igfs(35,1,11);
     Type predate_totalfleet_E = 0;
     auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
@@ -151,7 +152,7 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_imm__overconsumption(35,1,8);
-    array<Type> ling_mat__overconsumption(35,2,11);
+    array<Type> ling_mat__overconsumption(35,1,11);
     array<Type> ling_imm__growth_l;
     DATA_VECTOR(ling_imm__dl)
     vector<Type> ling_imm__growth_w(35);
@@ -200,8 +201,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     if ( cur_time == 0 ) {
                         renewal_dnorm = (ling_mat__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_mat_stddev ( age - 5 + 1 - 1 ));
@@ -252,8 +253,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
                         {
@@ -289,8 +290,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
                         {
@@ -329,8 +330,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     {
                         // Prey overconsumption coefficient;
@@ -364,8 +365,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
                         {
@@ -396,8 +397,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     {
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= exp(-lingmat__M*cur_step_len);
@@ -438,8 +439,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     {
                         // Calculate increase in length/weight for each lengthgroup;
@@ -499,8 +500,8 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                for (auto ling_mat__area_idx = 0; ling_mat__area_idx < (ling_mat__areas).size(); ling_mat__area_idx++) {
-                    auto area = ling_mat__areas ( ling_mat__area_idx );
+                {
+                    auto area = ling_mat__area;
 
                     {
                         cdist_ldist_lln_pred__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)) / g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
