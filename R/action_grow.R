@@ -174,7 +174,7 @@ g3a_growmature <- function(stock,
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_grow for ", stock)
 
-        maturity_init_f
+        stock_with(stock, maturity_init_f)
 
         stock_iterate(stock, {
             comment("Calculate increase in length/weight for each lengthgroup")
