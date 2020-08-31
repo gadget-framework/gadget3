@@ -29,12 +29,37 @@ g3a_mature_constant <- function (alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma 
         inner_code = inner_code))
 }
 
+
+# Finish a growth / age maturity step, add transitioned fish to new stock
+g3a_step_transition <- function(input_stock,
+                           output_stocks,
+                           output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+                           run_f = TRUE) {
+    return(f_concatenate(lapply(seq_along(output_stocks), function (n) {
+        input_stock <- input_stock
+        output_stock <- output_stocks[[n]]
+
+        stock_step(f_substitute(~{
+            stock_comment("Move ", input_stock ," to ", output_stock)
+            stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
+                # Total biomass
+                output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
+                    (input_stock__transitioning_wgt[input_stock__iter] * input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                # Add numbers together
+                output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + (input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                # Back down to mean biomass
+                output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / pmax(output_stock__num[output_stock__iter], 0.00001)
+            }))
+        }, list(run_f = run_f, output_ratio = output_ratios[[n]])))
+    })))
+}
+
 # Growth step for a stock
 # - stock: Input stock to mature
 # - output_stocks: g3_stock / list of g3_stocks that mature individuals end up in
 # - maturity_f: formula for proportion of length vector maturing
 # - output_ratios: Proportions of matured fish that end up in each output stock. Either a list of formulae or values summing to 1. Default evenly spread across all.
-g3a_mature <- function(stock, output_stocks, maturity_f, output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f =~TRUE, run_at = 7) {
+g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f =~TRUE, run_at = 5, transition_at = 7) {
     # Single stock --> list
     if (!is.null(output_stocks$name)) output_stocks <- list(output_stocks)
 
@@ -45,37 +70,23 @@ g3a_mature <- function(stock, output_stocks, maturity_f, output_ratios = rep(1 /
     list_of_formulae <- function (x) all(vapply(x, rlang::is_formula, logical(1)))
     stopifnot(list_of_formulae(output_ratios) || sum(output_ratios) == 1)
 
-    # Make a temporary stock to store the outputs
-    matured <- stock_clone(stock, name = paste0('matured_', stock$name))
+    stock__transitioning_num <- stock_definition(stock, 'stock__num')
+    stock__transitioning_wgt <- stock_definition(stock, 'stock__wgt')
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_mature for ", stock)
-        # Matured stock will weigh the same
-        stock_with(stock, stock_with(matured, matured__wgt <- stock__wgt))
+        # Reset transitioning stock
+        stock_with(stock, stock__transitioning_num[] <- 0)
+        stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
 
-        stock_iterate(stock, stock_intersect(matured, if (run_f) {
+        stock_iterate(stock, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
-            stock__num[stock__iter] <- stock__num[stock__iter] - (matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f)
-        }))
+            stock__num[stock__iter] <- stock__num[stock__iter] - (stock__transitioning_num[stock__iter] <- stock__num[stock__iter] * maturity_f)
+        })
     }, list(run_f = run_f, maturity_f = maturity_f)))
 
-    for (n in seq_along(output_stocks)) {
-        output_stock <- output_stocks[[n]]
-
-        out[[step_id(run_at, 2, stock, output_stock)]] <- stock_step(f_substitute(~{
-            stock_comment("Move matured ", stock ," to ", output_stock)
-            stock_iterate(output_stock, stock_intersect(matured, if (run_f) {
-                # Total biomass
-                output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
-                    (matured__wgt[matured__iter] * matured__num[matured__iter] * output_ratio)
-                # Add numbers together
-                output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + (matured__num[matured__iter] * output_ratio)
-                # Back down to mean biomass
-                output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / pmax(output_stock__num[output_stock__iter], 0.00001)
-            }))
-        }, list(run_f = run_f, output_ratio = output_ratios[[n]])))
-    }
-
+    # Shunt matured into their own stock
+    out[[step_id(transition_at, 2, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = run_f)
     return(as.list(out))
 }
