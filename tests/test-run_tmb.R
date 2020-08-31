@@ -111,6 +111,19 @@ actions <- c(actions, ~{
 })
 expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
 
+# min() & max()
+min_result <- 0.0
+max_result <- 0.0
+actions <- c(actions, ~{
+    comment('min/max')
+    min_result <- min(4, 9)
+    max_result <- max(sum(mean_vector), 2)  # NB: sum gets cast to Type
+    g3_report(min_result)
+    g3_report(max_result)
+})
+expecteds$min_result <- 4
+expecteds$max_result <- sum(mean_vector)
+
 ###############################################################################
 
 actions <- c(actions, ~{

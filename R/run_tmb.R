@@ -319,6 +319,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ").mean()"))
     }
 
+    if (call_name %in% c("min", "max")) {
+        # Use std:: versions to replace min/max
+        if (length(in_call) != 3) stop(call_name, " expects 2 arguments")
+        return(paste0(
+            "std::", call_name, "( (Type)",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ", (Type)",
+            cpp_code(in_call[[3]], in_envir, next_indent),
+            ")"))
+    }
+
     if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%", "&&", "||")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
