@@ -518,9 +518,11 @@ Type objective_function<Type>::operator() () {
                     if (age == ling_imm__maxage) {
                         // Oldest ling_imm is a plus-group;
                     } else {
+                        ling_imm__wgt.col(ling_imm__age_idx + 1) *= ling_imm__num.col(ling_imm__age_idx + 1);
                         ling_imm__num.col(ling_imm__age_idx + 1) += ling_imm__num.col(ling_imm__age_idx);
+                        ling_imm__wgt.col(ling_imm__age_idx + 1) += (ling_imm__wgt.col(ling_imm__age_idx)*ling_imm__num.col(ling_imm__age_idx));
+                        ling_imm__wgt.col(ling_imm__age_idx + 1) /= (ling_imm__num.col(ling_imm__age_idx + 1)).cwiseMax(1e-05);
                         ling_imm__num.col(ling_imm__age_idx).setZero();
-                        ling_imm__wgt.col(ling_imm__age_idx + 1) += ling_imm__wgt.col(ling_imm__age_idx);
                         ling_imm__wgt.col(ling_imm__age_idx).setConstant(1e-05);
                     }
                 }
@@ -535,9 +537,11 @@ Type objective_function<Type>::operator() () {
                     if (age == ling_mat__maxage) {
                         // Oldest ling_mat is a plus-group;
                     } else {
+                        ling_mat__wgt.col(ling_mat__age_idx + 1) *= ling_mat__num.col(ling_mat__age_idx + 1);
                         ling_mat__num.col(ling_mat__age_idx + 1) += ling_mat__num.col(ling_mat__age_idx);
+                        ling_mat__wgt.col(ling_mat__age_idx + 1) += (ling_mat__wgt.col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__age_idx));
+                        ling_mat__wgt.col(ling_mat__age_idx + 1) /= (ling_mat__num.col(ling_mat__age_idx + 1)).cwiseMax(1e-05);
                         ling_mat__num.col(ling_mat__age_idx).setZero();
-                        ling_mat__wgt.col(ling_mat__age_idx + 1) += ling_mat__wgt.col(ling_mat__age_idx);
                         ling_mat__wgt.col(ling_mat__age_idx).setConstant(1e-05);
                     }
                 }

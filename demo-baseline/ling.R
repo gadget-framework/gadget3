@@ -425,9 +425,11 @@ structure(function (param)
                     comment("Oldest ling_imm is a plus-group")
                   }
                   else {
+                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] * ling_imm__num[, , ling_imm__age_idx + 1]
                     ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
+                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + (ling_imm__wgt[, , ling_imm__age_idx] * ling_imm__num[, , ling_imm__age_idx])
+                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1]/pmax(ling_imm__num[, , ling_imm__age_idx + 1], 1e-05)
                     ling_imm__num[, , ling_imm__age_idx] <- 0
-                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + ling_imm__wgt[, , ling_imm__age_idx]
                     ling_imm__wgt[, , ling_imm__age_idx] <- 1e-05
                   }
                 }
@@ -442,9 +444,11 @@ structure(function (param)
                     comment("Oldest ling_mat is a plus-group")
                   }
                   else {
+                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] * ling_mat__num[, , ling_mat__age_idx + 1]
                     ling_mat__num[, , ling_mat__age_idx + 1] <- ling_mat__num[, , ling_mat__age_idx + 1] + ling_mat__num[, , ling_mat__age_idx]
+                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + (ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx])
+                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1]/pmax(ling_mat__num[, , ling_mat__age_idx + 1], 1e-05)
                     ling_mat__num[, , ling_mat__age_idx] <- 0
-                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + ling_mat__wgt[, , ling_mat__age_idx]
                     ling_mat__wgt[, , ling_mat__age_idx] <- 1e-05
                   }
                 }

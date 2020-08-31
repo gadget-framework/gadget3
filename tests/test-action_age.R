@@ -84,29 +84,27 @@ ok_group("age", {
 
     # Step 1
     ok(ut_cmp_identical(r$step1_prey_a__num, array(c(0, 10,20,30,40 + 50), dim=c(1,5))), "step1_prey_a__num: Numbers rotated by 1, final group a plus group")
-    ok(ut_cmp_equal(r$step1_prey_a__wgt, array(c(1e-05, 100,200,300,400 + 500), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step1_prey_a__wgt, array(c(1e-05, 100,200,300, (400 * 40 + 500 * 50) / (40 + 50)), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Numbers rotated by 1, final group averaged plus-group")
     ok(ut_cmp_identical(r$step1_prey_b__num, array(c(0, 10,20), dim=c(1,3))), "step1_prey_b__num: Numbers rotated by 1, final group transitioned")
-    ok(ut_cmp_equal(r$step1_prey_b__wgt, array(c(1e-05, 100,200 + 300), dim=c(1,3)), tolerance = 1e-5), "step1_prey_b__wgt: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step1_prey_b__wgt, array(c(1e-05, 100, 200), dim=c(1,3)), tolerance = 1e-5), "step1_prey_b__wgt: Numbers rotated by 1, final group a plus group")
     ok(ut_cmp_identical(r$step1_prey_c__num, array(c(0, 0, 30, 0, 0, 0, 0), dim=c(1,7))), "step1_prey_c__num: Final age of prey_b transferred")
-    # TODO: wgt
+    ok(ut_cmp_identical(r$step1_prey_c__wgt, array(c(0, 0, 300, 0, 0, 0, 0), dim=c(1,7))), "step1_prey_c__wgt: Final weight of prey_b transferred")
 
     # Step 2
     ok(ut_cmp_identical(r$step2_prey_a__num, array(c(0, 10,20,30,40 + 50), dim=c(1,5))), "step2_prey_a__num: Not final step, nothing changed")
-    ok(ut_cmp_equal(r$step2_prey_a__wgt, array(c(1e-05, 100,200,300,400 + 500), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Not final step, nothing changed")
+    ok(ut_cmp_equal(r$step2_prey_a__wgt, array(c(1e-05, 100,200,300, (400 * 40 + 500 * 50) / (40 + 50)), dim=c(1,5)), tolerance = 1e-5), "step1_prey_a__wgt: Not final step, nothing changed")
     ok(ut_cmp_identical(r$step2_prey_b__num, array(c(0, 10, 20), dim=c(1,3))), "step2_prey_b__num: Not final step, nothing changed")
-    ok(ut_cmp_equal(r$step2_prey_b__wgt, array(c(1e-05, 100,200 + 300), dim=c(1,3)), tolerance = 1e-5), "step2_prey_b__wgt: Not final step, nothing changed")
+    ok(ut_cmp_equal(r$step2_prey_b__wgt, array(c(1e-05, 100, 200), dim=c(1,3)), tolerance = 1e-5), "step2_prey_b__wgt: Not final step, nothing changed")
     ok(ut_cmp_identical(r$step2_prey_c__num, array(c(0, 0, 30, 0, 0, 0, 0), dim=c(1,7))), "step2_prey_c__num: Not final step, nothing changed")
-    # TODO: wgt
+    ok(ut_cmp_identical(r$step2_prey_c__wgt, array(c(0, 0, 300, 0, 0, 0, 0), dim=c(1,7))), "step2_prey_c__wgt: Not final step, nothing changed")
 
     # Step 3
-    # NB: The tiny amounts are summing. This isn't ideal, but these should be erased by renewal in practice
     ok(ut_cmp_identical(r$step3_prey_a__num, array(c(0, 0, 10,20,30 + 40 + 50), dim=c(1,5))), "step3_prey_a__num: Numbers rotated by 1, final group a plus group")
-    # TODO: Summing wgt? Supposed to be mean
-    ok(ut_cmp_equal(r$step3_prey_a__wgt, array(c(1e-05, 2e-05, 100,200,300 + 400 + 500), dim=c(1,5)), tolerance = 1e-5), "step3_prey_a__wgt: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step3_prey_a__wgt, array(c(1e-05, 0, 100,200, (300 * 30 + 400 * 40 + 500 * 50) / (30 + 40 + 50)), dim=c(1,5)), tolerance = 1e-5), "step3_prey_a__wgt: Numbers rotated by 1, final group a averaged plus group")
     ok(ut_cmp_identical(r$step3_prey_b__num, array(c(0, 0, 10), dim=c(1,3))), "step3_prey_b__num: Numbers rotated by 1, final group transitioned")
-    ok(ut_cmp_equal(r$step3_prey_b__wgt, array(c(1e-05, 2e-05, 100 + 200 + 300), dim=c(1,3)), tolerance = 1e-5), "step3_prey_b__wgt: Numbers rotated by 1, final group a plus group")
+    ok(ut_cmp_equal(r$step3_prey_b__wgt, array(c(1e-05, 0, 100), dim=c(1,3)), tolerance = 1e-5), "step3_prey_b__wgt: Numbers rotated by 1, final group a plus group")
     ok(ut_cmp_identical(r$step3_prey_c__num, array(c(0, 0, 20, 30, 0, 0, 0), dim=c(1,7))), "step3_prey_c__num: Final age of prey_b transferred, numbers rotated")
-    # TODO: wgt
+    ok(ut_cmp_identical(r$step3_prey_c__wgt, array(c(0, 0, 200, 300, 0, 0, 0), dim=c(1,7))), "step3_prey_c__wgt: Final age of prey_b transferred")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

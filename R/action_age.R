@@ -43,9 +43,13 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             if (age == stock__maxage) {
                 final_year_f
             } else {
+                # To total weight
+                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] * stock__num[age_older_iter_ss]
                 stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
+                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] + (stock__wgt[age_iter_ss] * stock__num[age_iter_ss])
+                # Back to mean weight
+                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] / pmax(stock__num[age_older_iter_ss], 0.00001)
                 stock__num[age_iter_ss] <- 0
-                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] + stock__wgt[age_iter_ss]
                 stock__wgt[age_iter_ss] <- 1e-05  # NB: In theory undefined, as num is 0, but we do similar elsewhere.
             }
         }))
