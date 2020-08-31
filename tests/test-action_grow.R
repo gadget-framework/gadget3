@@ -9,7 +9,7 @@ cur_time <- 0L  # Initialconditions needs to know what the time is
 ok_group("g3a_grow_impl_bbinom", {
     actions <- g3_collate(  # dmu, lengthgrouplen, binn, beta
         g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
-        g3a_grow(teststock,
+        g3a_growmature(teststock,
             growth_f = list(len = ~g3_param_vector('dmu'), wgt = ~0),
             impl_f = g3a_grow_impl_bbinom(~g3_param('beta'), ~g3_param('maxlengthgroupgrowth'))),
         list(
@@ -49,12 +49,12 @@ ok_group("g3a_grow_impl_bbinom", {
     }
 })
 
-ok_group("g3a_grow", {
+ok_group("g3a_growmature", {
     actions <- g3_collate(
         g3a_initialconditions(teststock,
             ~g3_param_vector("initial_num"),
             ~g3_param_vector("initial_wgt")),
-        g3a_grow(teststock,
+        g3a_growmature(teststock,
             growth_f = list(len = ~0, wgt = ~g3_param_vector('growth_w')),
             impl_f = ~g3_param_array('growth_matrix')),
         list(

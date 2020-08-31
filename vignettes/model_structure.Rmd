@@ -151,12 +151,12 @@ Variables that the stock uses within the model will be named based on the name
 given to ``g3_stock()``, in the case above ``ling_imm__num`` and
 ``ling_imm__wgt`` will be defined.
 
-When you use an action such as ``g3a_grow()``, you provide formulae to fill in
+When you use an action such as ``g3a_growmature()``, you provide formulae to fill in
 the gaps. These will iterate over any dimensions the stock has, such as age and
 area, and will be available to you when writing these formulae.
 
 ```{r}
-g3_compile_r(g3a_grow(
+g3_compile_r(g3a_growmature(
     ling_imm,
     growth_f = list(
         len = ~age * 10,

@@ -48,7 +48,7 @@ ling_imm_actions <- g3_collate(
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
         run_f = ~cur_step == 1 && age == 3),
-    g3a_grow(ling_imm,
+    g3a_growmature(ling_imm,
         growth_f = g3a_grow_lengthvbsimple(
             linf_f = ~g3_param("ling.Linf"),
             kappa_f = ~g3_param("ling.k") * 0.001,
@@ -82,7 +82,7 @@ ling_mat_actions <- g3_collate(
         stddev_f = ~ling_mat_stddev[[g3_idx(age - 5 + 1)]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
-    g3a_grow(ling_mat,
+    g3a_growmature(ling_mat,
         growth_f = g3a_grow_lengthvbsimple(
             linf_f = ~g3_param("ling.Linf"),
             kappa_f = ~g3_param("ling.k") * 0.001,

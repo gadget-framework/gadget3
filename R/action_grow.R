@@ -132,10 +132,19 @@ g3_global_env$g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
     return out;
 }')
 
-# Growth step for a stock
+# Combined growth / maturity step for a stock
 # - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
-g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
+g3a_growmature <- function(stock,
+                     growth_f,
+                     impl_f,
+                     maturity_f = ~0,
+                     output_stocks = list(),
+                     output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f = ~cur_step_final,
+                     run_at = 5,
+                     transition_at = 7) {
+    out <- new.env(parent = emptyenv())
+
     # See AgeBandMatrix::Grow
     stock__growth_num <- stock_definition(stock, 'stock__num')
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
@@ -144,13 +153,35 @@ g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
 
-    out <- list()
+    # Add transition steps if output_stocks provided
+    if (length(output_stocks) == 0) {
+        maturity_init_f <- ~{}
+        maturity_iter_f <- ~{}
+    } else {
+        maturity_init_f <- ~{
+            comment("Reset transitioning arrays")
+            stock__transitioning_num[] <- 0
+            stock__transitioning_wgt[] <- stock__wgt[]
+        }
+        maturity_iter_f <- f_substitute(~{
+            stock__num[stock__iter] <- stock__num[stock__iter] -
+                (stock__transitioning_num[stock__iter] <- stock__num[stock__iter] * maturity_f)
+            # NB: Mean __wgt unchanged
+        }, list(maturity_f = maturity_f))
+        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = run_f)
+    }
+
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_grow for ", stock)
+
+        maturity_init_f
+
         stock_iterate(stock, {
             comment("Calculate increase in length/weight for each lengthgroup")
             stock__growth_l <- impl_l_f
             stock__growth_w <- growth_w_f
+
+            maturity_iter_f
 
             stock__wgt[stock__iter] <- stock__wgt[stock__iter] * stock__num[stock__iter]  # Convert to total weight
             stock__num[stock__iter] <- g3a_grow_apply(stock__growth_l, stock__num[stock__iter])
@@ -158,6 +189,8 @@ g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
         })
     }, list(
             impl_l_f = f_substitute(impl_f, list(stock__grow_f = growth_f$len)),
+            maturity_init_f = maturity_init_f,
+            maturity_iter_f = maturity_iter_f,
             growth_w_f = growth_f$wgt)))
-    return(out)
+    return(as.list(out))
 }

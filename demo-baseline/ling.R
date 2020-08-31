@@ -325,6 +325,8 @@ structure(function (param)
         }
         {
             comment("g3a_grow for ling_imm")
+            {
+            }
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
@@ -333,6 +335,8 @@ structure(function (param)
                     comment("Calculate increase in length/weight for each lengthgroup")
                     ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- param[["lingimm.walpha"]] * ((ling_imm__midlen + (param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingimm.wbeta"]] - ling_imm__midlen^param[["lingimm.wbeta"]])
+                    {
+                    }
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/pmax(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 1e-05)
@@ -342,6 +346,8 @@ structure(function (param)
         }
         {
             comment("g3a_grow for ling_mat")
+            {
+            }
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 for (ling_mat__area_idx in seq_along(ling_mat__areas)) {
@@ -350,6 +356,8 @@ structure(function (param)
                     comment("Calculate increase in length/weight for each lengthgroup")
                     ling_mat__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
                     ling_mat__growth_w <- param[["lingmat.walpha"]] * ((ling_mat__midlen + (param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingmat.wbeta"]] - ling_mat__midlen^param[["lingmat.wbeta"]])
+                    {
+                    }
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
