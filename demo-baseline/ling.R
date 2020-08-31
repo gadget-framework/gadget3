@@ -422,7 +422,7 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   if (age == ling_imm__maxage) {
-                    comment("TODO: Plus group migration shenanigans")
+                    comment("Oldest ling_imm is a plus-group")
                   }
                   else {
                     ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
@@ -439,7 +439,7 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
                   if (age == ling_mat__maxage) {
-                    comment("TODO: Plus group migration shenanigans")
+                    comment("Oldest ling_mat is a plus-group")
                   }
                   else {
                     ling_mat__num[, , ling_mat__age_idx + 1] <- ling_mat__num[, , ling_mat__age_idx + 1] + ling_mat__num[, , ling_mat__age_idx]

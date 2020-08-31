@@ -516,7 +516,7 @@ Type objective_function<Type>::operator() () {
 
                 {
                     if (age == ling_imm__maxage) {
-                        // TODO: Plus group migration shenanigans;
+                        // Oldest ling_imm is a plus-group;
                     } else {
                         ling_imm__num.col(ling_imm__age_idx + 1) += ling_imm__num.col(ling_imm__age_idx);
                         ling_imm__num.col(ling_imm__age_idx).setZero();
@@ -533,7 +533,7 @@ Type objective_function<Type>::operator() () {
 
                 {
                     if (age == ling_mat__maxage) {
-                        // TODO: Plus group migration shenanigans;
+                        // Oldest ling_mat is a plus-group;
                     } else {
                         ling_mat__num.col(ling_mat__age_idx + 1) += ling_mat__num.col(ling_mat__age_idx);
                         ling_mat__num.col(ling_mat__age_idx).setZero();
