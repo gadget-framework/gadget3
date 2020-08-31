@@ -22,75 +22,33 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
 prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(1, 3)
 
-step0_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step0_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step0_prey_b__num <- gadget3:::stock_definition(prey_b, 'stock__num')
-step0_prey_b__wgt <- gadget3:::stock_definition(prey_b, 'stock__wgt')
-step1_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step1_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step1_prey_b__num <- gadget3:::stock_definition(prey_b, 'stock__num')
-step1_prey_b__wgt <- gadget3:::stock_definition(prey_b, 'stock__wgt')
-step2_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step2_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step2_prey_b__num <- gadget3:::stock_definition(prey_b, 'stock__num')
-step2_prey_b__wgt <- gadget3:::stock_definition(prey_b, 'stock__wgt')
-step3_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step3_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step3_prey_b__num <- gadget3:::stock_definition(prey_b, 'stock__num')
-step3_prey_b__wgt <- gadget3:::stock_definition(prey_b, 'stock__wgt')
+# Store stock state in temporary variables labelled stock 0..n
+report_action <- list()
+for (step in 0:3) for (s in list(prey_a, prey_b)) {
+    assign(paste0("step", step, '_', s$name, '__num'), gadget3:::stock_definition(s, 'stock__num'))
+    assign(paste0("step", step, '_', s$name, '__wgt'), gadget3:::stock_definition(s, 'stock__wgt'))
+    report_action[[paste0("999:step", step, ':', s$name)]] <- gadget3:::f_substitute(~if (cur_time == step) {
+        stepnum[] <- curnum
+        stepwgt[] <- curwgt
+        g3_report(stepnum)
+        g3_report(stepwgt)
+    }, list(
+        stepnum = as.symbol(paste0("step", step, '_', s$name, '__num')),
+        stepwgt = as.symbol(paste0("step", step, '_', s$name, '__wgt')),
+        curnum = as.symbol(paste0(s$name, '__num')),
+        curwgt = as.symbol(paste0(s$name, '__wgt')),
+        step = step))
+}
 
 actions <- g3_collate(
     g3a_time(2000, 2002, steps = c(6, 6)),
+    # TODO: This is getting ugly.
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_initialconditions(prey_b, ~10 * age + prey_b__midlen * 0, ~100 * age + prey_b__midlen * 0),
     g3a_age(prey_a),
     g3a_age(prey_b),
-    list(
-        '999' = ~{
-            if (cur_time == 0) {
-                step0_prey_a__num[] <- prey_a__num
-                step0_prey_a__wgt[] <- prey_a__wgt
-                step0_prey_b__num[] <- prey_b__num
-                step0_prey_b__wgt[] <- prey_b__wgt
-                g3_report(step0_prey_a__num)
-                g3_report(step0_prey_a__wgt)
-                g3_report(step0_prey_b__num)
-                g3_report(step0_prey_b__wgt)
-            } else if (cur_time == 1) {
-                step1_prey_a__num[] <- prey_a__num
-                step1_prey_a__wgt[] <- prey_a__wgt
-                step1_prey_b__num[] <- prey_b__num
-                step1_prey_b__wgt[] <- prey_b__wgt
-                g3_report(step1_prey_a__num)
-                g3_report(step1_prey_a__wgt)
-                g3_report(step1_prey_b__num)
-                g3_report(step1_prey_b__wgt)
-            } else if (cur_time == 2) {
-                step2_prey_a__num[] <- prey_a__num
-                step2_prey_a__wgt[] <- prey_a__wgt
-                step2_prey_b__num[] <- prey_b__num
-                step2_prey_b__wgt[] <- prey_b__wgt
-                g3_report(step2_prey_a__num)
-                g3_report(step2_prey_a__wgt)
-                g3_report(step2_prey_b__num)
-                g3_report(step2_prey_b__wgt)
-            } else if (cur_time == 3) {
-                step3_prey_a__num[] <- prey_a__num
-                step3_prey_a__wgt[] <- prey_a__wgt
-                step3_prey_b__num[] <- prey_b__num
-                step3_prey_b__wgt[] <- prey_b__wgt
-                g3_report(step3_prey_a__num)
-                g3_report(step3_prey_a__wgt)
-                g3_report(step3_prey_b__num)
-                g3_report(step3_prey_b__wgt)
-            }
-            g3_report(step3_prey_a__num)
-            g3_report(step3_prey_a__wgt)
-            g3_report(step3_prey_b__num)
-            g3_report(step3_prey_b__wgt)
-
-            nll <- g3_param('x')
-        }))
+    report_action,
+    list('999' = ~{ nll <- g3_param('x') }))
 params <- list(
     x=1.0)
             
