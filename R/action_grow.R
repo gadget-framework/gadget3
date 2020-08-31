@@ -91,6 +91,47 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
         list(beta_f = beta_f))
 }
 
+# Apply a lgroup x lgroup-delta matrix to vector of length groups
+g3_global_env$g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
+    na <- dim(lg_deltas)[[1]]
+    n <- dim(lg_deltas)[[2]] - 1
+
+    growth.matrix <- array(0,c(na,na))
+    for(lg in 1:na){
+      if(lg == na){
+        growth.matrix[na,na] <- 1
+      } else if(lg + n > na){
+        growth.matrix[lg,lg:(na-1)] <- lg_deltas[lg,1:(na - lg )]
+        growth.matrix[lg,na] <- sum(lg_deltas[lg,(na - lg + 1):(n + 1)])
+      } else {
+        growth.matrix[lg,lg:(n + lg)] <- lg_deltas[lg,]
+      }
+    }
+    return(Matrix::colSums(growth.matrix * as.vector(input_num)))  # NB: Cant matrix-multiply with a 1xn array
+}, cpp = '[](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
+    lg_deltas = lg_deltas.transpose();
+    int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = lg_deltas.cols(); // # Length groups
+    vector<Type> lg_growth;
+    vector<Type> out;
+
+    lg_growth.resize(total_lgs);
+    out.resize(total_lgs);
+    out.setZero();
+    for (int lg = 0; lg < total_lgs; lg++) {
+      // Cant shrink
+      lg_growth.head(lg) = 0;
+      // Add any that have an appropriate group
+      lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
+      if (total_deltas - (total_lgs - lg) > 0) {
+          // Add any remaining to plus-group
+          lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
+      }
+      out += lg_growth * input_num(lg);
+    }
+    return out;
+}')
+
 # Growth step for a stock
 # - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
@@ -102,47 +143,6 @@ g3a_grow <- function(stock, growth_f, impl_f, run_at = 5) {
 
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
-
-    # Apply a lgroup x lgroup-delta matrix to vector of length groups
-    g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
-        na <- dim(lg_deltas)[[1]]
-        n <- dim(lg_deltas)[[2]] - 1
-
-        growth.matrix <- array(0,c(na,na))
-        for(lg in 1:na){
-          if(lg == na){
-            growth.matrix[na,na] <- 1
-          } else if(lg + n > na){
-            growth.matrix[lg,lg:(na-1)] <- lg_deltas[lg,1:(na - lg )]
-            growth.matrix[lg,na] <- sum(lg_deltas[lg,(na - lg + 1):(n + 1)])
-          } else {
-            growth.matrix[lg,lg:(n + lg)] <- lg_deltas[lg,]
-          }
-        }
-        return(Matrix::colSums(growth.matrix * as.vector(input_num)))  # NB: Cant matrix-multiply with a 1xn array
-    }, cpp = '[](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
-        lg_deltas = lg_deltas.transpose();
-        int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
-        int total_lgs = lg_deltas.cols(); // # Length groups
-        vector<Type> lg_growth;
-        vector<Type> out;
-
-        lg_growth.resize(total_lgs);
-        out.resize(total_lgs);
-        out.setZero();
-        for (int lg = 0; lg < total_lgs; lg++) {
-          // Cant shrink
-          lg_growth.head(lg) = 0;
-          // Add any that have an appropriate group
-          lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
-          if (total_deltas - (total_lgs - lg) > 0) {
-              // Add any remaining to plus-group
-              lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
-          }
-          out += lg_growth * input_num(lg);
-        }
-        return out;
-    }')
 
     out <- list()
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{

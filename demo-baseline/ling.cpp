@@ -77,28 +77,28 @@ Type objective_function<Type>::operator() () {
         return(val);
     };
     auto g3a_grow_apply = [](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
-        lg_deltas = lg_deltas.transpose();
-        int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
-        int total_lgs = lg_deltas.cols(); // # Length groups
-        vector<Type> lg_growth;
-        vector<Type> out;
+    lg_deltas = lg_deltas.transpose();
+    int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = lg_deltas.cols(); // # Length groups
+    vector<Type> lg_growth;
+    vector<Type> out;
 
-        lg_growth.resize(total_lgs);
-        out.resize(total_lgs);
-        out.setZero();
-        for (int lg = 0; lg < total_lgs; lg++) {
-          // Cant shrink
-          lg_growth.head(lg) = 0;
-          // Add any that have an appropriate group
-          lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
-          if (total_deltas - (total_lgs - lg) > 0) {
-              // Add any remaining to plus-group
-              lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
-          }
-          out += lg_growth * input_num(lg);
-        }
-        return out;
-    };
+    lg_growth.resize(total_lgs);
+    out.resize(total_lgs);
+    out.setZero();
+    for (int lg = 0; lg < total_lgs; lg++) {
+      // Cant shrink
+      lg_growth.head(lg) = 0;
+      // Add any that have an appropriate group
+      lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
+      if (total_deltas - (total_lgs - lg) > 0) {
+          // Add any remaining to plus-group
+          lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
+      }
+      out += lg_growth * input_num(lg);
+    }
+    return out;
+};
     auto g3_matrix_vec = [](array<Type>tf, vector<Type> vec) -> vector<Type> {
        return (tf.matrix() * vec.matrix()).array();
    };
