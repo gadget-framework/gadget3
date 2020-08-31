@@ -74,9 +74,9 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             stock_iterate(prey_stock, {
                 comment("Prey overconsumption coefficient")
                 # TODO: Should replace pmin() here with something differentiable
-                prey_stock__overconsumption[prey_stock__iter] <- pmin((prey_stock__num[prey_stock__iter] * prey_stock__wgt[prey_stock__iter] * 0.95) / prey_stock__totalpredate[prey_stock__iter], 1)
+                prey_stock__overconsumption[prey_stock__iter] <- pmin((prey_stock__num[prey_stock__iter] * prey_stock__wgt[prey_stock__iter] * 0.95) / pmax(prey_stock__totalpredate[prey_stock__iter], 0.00001), 1)
                 prey_stock__totalpredate[prey_stock__iter] <- prey_stock__totalpredate[prey_stock__iter] * prey_stock__overconsumption[prey_stock__iter]
-                prey_stock__num[prey_stock__iter] <- prey_stock__num[prey_stock__iter] - (prey_stock__totalpredate[prey_stock__iter] / prey_stock__wgt[prey_stock__iter])
+                prey_stock__num[prey_stock__iter] <- prey_stock__num[prey_stock__iter] - (prey_stock__totalpredate[prey_stock__iter] / pmax(prey_stock__wgt[prey_stock__iter], 0.00001))
             })
         })
 
