@@ -95,7 +95,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             stock_comment("Collect catch from", fleet_stock, "/", prey_stock, " for ", predstock)
             stock_iterate(prey_stock, stock_intersect(predstock, {
                 # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
-                predstock__num[predstock__iter] <- predstock__num[predstock__iter] + stock_reshape(predstock, prey_stock__fleet_stock[prey_stock__iter]) / stock_reshape(predstock, prey_stock__wgt[prey_stock__iter])
+                predstock__num[predstock__iter] <- predstock__num[predstock__iter] + stock_reshape(predstock, prey_stock__fleet_stock[prey_stock__iter]) / pmax(stock_reshape(predstock, prey_stock__wgt[prey_stock__iter]), 0.00001)
             }))
         }, list(
             # Find catch from predation step

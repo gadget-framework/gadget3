@@ -518,7 +518,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     {
-                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)) / g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)) / (g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx))).cwiseMax(1e-05);
                     }
                 }
             }
@@ -532,7 +532,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     {
-                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)) / g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)) / (g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx))).cwiseMax(1e-05);
                     }
                 }
             }
