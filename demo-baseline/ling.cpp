@@ -153,6 +153,8 @@ Type objective_function<Type>::operator() () {
     auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_imm__overconsumption(35,1,8);
     array<Type> ling_mat__overconsumption(35,1,11);
+    array<Type> ling_imm__transitioning_num(35,1,8);
+    array<Type> ling_imm__transitioning_wgt(35,1,8);
     array<Type> ling_imm__growth_l;
     DATA_VECTOR(ling_imm__dl)
     vector<Type> ling_imm__growth_w(35);
@@ -409,7 +411,9 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_grow for ling_imm;
             {
-                
+                // Reset transitioning arrays;
+                ling_imm__transitioning_num.setZero();
+                ling_imm__transitioning_wgt = ling_imm__wgt;
             }
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
@@ -422,7 +426,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
                         ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__midlen + (ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__midlen, (Type)lingimm__wbeta));
                         {
-                            
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1 / (1 + exp(0)));
                         }
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
@@ -452,6 +456,30 @@ Type objective_function<Type>::operator() () {
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
                         ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) + ling_mat__growth_w) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
+                    }
+                }
+            }
+        }
+        {
+            {
+                // Move ling_imm to ling_mat;
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+
+                    {
+                        auto area = ling_mat__area;
+
+                        if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
+                            auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                            if ( area == ling_imm__area ) {
+                                if ( cur_step_final ) {
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
+                                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -529,7 +557,13 @@ Type objective_function<Type>::operator() () {
 
                 {
                     if (age == ling_imm__maxage) {
-                        // Oldest ling_imm is a plus-group;
+                        {
+                            // Move oldest ling_imm;
+                            ling_imm__transitioning_num.setZero();
+                            ling_imm__transitioning_wgt = ling_imm__wgt;
+                            ling_imm__transitioning_num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx);
+                            ling_imm__num.col(ling_imm__age_idx).setZero();
+                        }
                     } else {
                         ling_imm__wgt.col(ling_imm__age_idx + 1) *= ling_imm__num.col(ling_imm__age_idx + 1);
                         ling_imm__num.col(ling_imm__age_idx + 1) += ling_imm__num.col(ling_imm__age_idx);
@@ -556,6 +590,30 @@ Type objective_function<Type>::operator() () {
                         ling_mat__wgt.col(ling_mat__age_idx + 1) /= (ling_mat__num.col(ling_mat__age_idx + 1)).cwiseMax(1e-05);
                         ling_mat__num.col(ling_mat__age_idx).setZero();
                         ling_mat__wgt.col(ling_mat__age_idx).setConstant(1e-05);
+                    }
+                }
+            }
+        }
+        {
+            {
+                // Move ling_imm to ling_mat;
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+
+                    {
+                        auto area = ling_mat__area;
+
+                        if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
+                            auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                            if ( area == ling_imm__area ) {
+                                if ( cur_step_final ) {
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + (ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
+                                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1);
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
+                                }
+                            }
+                        }
                     }
                 }
             }

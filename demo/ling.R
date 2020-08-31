@@ -56,10 +56,15 @@ ling_imm_actions <- g3_collate(
             beta_f = ~g3_param("lingimm.wbeta")),
         impl_f = g3a_grow_impl_bbinom(
             beta_f = ~g3_param("ling.bbin") * 10,
-            maxlengthgroupgrowth = 15)),
+            maxlengthgroupgrowth = 15),
+        maturity_f = g3a_mature_constant(
+            alpha = ~0.001 * g3_param("ling.mat1"),
+            l50 = ~g3_param("ling.mat2")),
+        output_stocks = list(ling_mat)),
     g3a_naturalmortality(ling_imm,
         g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
-    g3a_age(ling_imm),
+    g3a_age(ling_imm,
+        output_stocks = list(ling_mat)),
     list())
 
 ling_mat_stddev <- c(
