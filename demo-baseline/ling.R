@@ -105,9 +105,9 @@ structure(function (param)
     ling_mat__growth_w <- array(dim = 35L)
     cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L))
     ldist_lln_number <- model_data$ldist_lln_number
-    cdist_ldist_lln_pred__num <- array(dim = 35L)
-    ling_imm_cdist_ldist_lln_pred_lgmatrix <- model_data$ling_imm_cdist_ldist_lln_pred_lgmatrix
-    ling_mat_cdist_ldist_lln_pred_lgmatrix <- model_data$ling_mat_cdist_ldist_lln_pred_lgmatrix
+    cdist_ldist_lln_model__num <- array(dim = 35L)
+    ling_imm_cdist_ldist_lln_model_lgmatrix <- model_data$ling_imm_cdist_ldist_lln_model_lgmatrix
+    ling_mat_cdist_ldist_lln_model_lgmatrix <- model_data$ling_mat_cdist_ldist_lln_model_lgmatrix
     cdist_ldist_lln_obs__totalsteps <- 4L
     cdist_ldist_lln_obs__steplookup <- model_data$cdist_ldist_lln_obs__steplookup
     while (TRUE) {
@@ -413,29 +413,29 @@ structure(function (param)
             comment("Initial data / reset observations for ldist_lln")
             if (cur_time == 0) {
                 cdist_ldist_lln_obs__num[] <- ldist_lln_number
-                cdist_ldist_lln_pred__num[] <- 0
+                cdist_ldist_lln_model__num[] <- 0
             }
         }
         {
-            comment("Collect catch fromigfs/ling_imm for cdist_ldist_lln_pred")
+            comment("Collect catch fromigfs/ling_imm for cdist_ldist_lln_model")
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
                   {
-                    cdist_ldist_lln_pred__num[] <- cdist_ldist_lln_pred__num[] + g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx])/pmax(g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]), 1e-05)
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx])/pmax(g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]), 1e-05)
                   }
                 }
             }
         }
         {
-            comment("Collect catch fromigfs/ling_mat for cdist_ldist_lln_pred")
+            comment("Collect catch fromigfs/ling_mat for cdist_ldist_lln_model")
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
                   area <- ling_mat__area
                   {
-                    cdist_ldist_lln_pred__num[] <- cdist_ldist_lln_pred__num[] + g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx])/pmax(g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]), 1e-05)
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx])/pmax(g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]), 1e-05)
                   }
                 }
             }
@@ -446,10 +446,10 @@ structure(function (param)
                 {
                   cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[(cur_step)]]
                   if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {
-                    nll <- nll + 1 * sum((cdist_ldist_lln_pred__num[]/max(sum(cdist_ldist_lln_pred__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
+                    nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/max(sum(cdist_ldist_lln_model__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
                   }
                 }
-                cdist_ldist_lln_pred__num[] <- 0
+                cdist_ldist_lln_model__num[] <- 0
             }
         }
         if (cur_step_final) {

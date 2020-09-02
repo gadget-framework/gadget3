@@ -163,9 +163,9 @@ Type objective_function<Type>::operator() () {
     vector<Type> ling_mat__growth_w(35);
     array<Type> cdist_ldist_lln_obs__num(35,100);
     DATA_ARRAY(ldist_lln_number)
-    vector<Type> cdist_ldist_lln_pred__num(35);
-    DATA_ARRAY(ling_imm_cdist_ldist_lln_pred_lgmatrix)
-    DATA_ARRAY(ling_mat_cdist_ldist_lln_pred_lgmatrix)
+    vector<Type> cdist_ldist_lln_model__num(35);
+    DATA_ARRAY(ling_imm_cdist_ldist_lln_model_lgmatrix)
+    DATA_ARRAY(ling_mat_cdist_ldist_lln_model_lgmatrix)
     int cdist_ldist_lln_obs__totalsteps = 4;
     DATA_IVECTOR(cdist_ldist_lln_obs__steplookup)
 
@@ -506,11 +506,11 @@ Type objective_function<Type>::operator() () {
             // Initial data / reset observations for ldist_lln;
             if ( cur_time == 0 ) {
                 cdist_ldist_lln_obs__num = ldist_lln_number;
-                cdist_ldist_lln_pred__num.setZero();
+                cdist_ldist_lln_model__num.setZero();
             }
         }
         {
-            // Collect catch fromigfs/ling_imm for cdist_ldist_lln_pred;
+            // Collect catch fromigfs/ling_imm for cdist_ldist_lln_model;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -518,13 +518,13 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     {
-                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)) / (g3_matrix_vec(ling_imm_cdist_ldist_lln_pred_lgmatrix, ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx))).cwiseMax(1e-05);
+                        cdist_ldist_lln_model__num += g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)) / (g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx))).cwiseMax(1e-05);
                     }
                 }
             }
         }
         {
-            // Collect catch fromigfs/ling_mat for cdist_ldist_lln_pred;
+            // Collect catch fromigfs/ling_mat for cdist_ldist_lln_model;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
@@ -532,7 +532,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     {
-                        cdist_ldist_lln_pred__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)) / (g3_matrix_vec(ling_mat_cdist_ldist_lln_pred_lgmatrix, ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx))).cwiseMax(1e-05);
+                        cdist_ldist_lln_model__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)) / (g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx))).cwiseMax(1e-05);
                     }
                 }
             }
@@ -544,10 +544,10 @@ Type objective_function<Type>::operator() () {
                     auto cdist_ldist_lln_obs__time_idx = ((cur_year - 1994)*cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup ( cur_step - 1 ) - 1;
 
                     if ( cdist_ldist_lln_obs__time_idx >= 0 && cdist_ldist_lln_obs__time_idx <= 99 ) {
-                        nll += 1*(pow((cdist_ldist_lln_pred__num / std::max( (Type)(cdist_ldist_lln_pred__num).sum(), (Type)1e-05) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / std::max( (Type)(cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum(), (Type)1e-05)), (Type)2)).sum();
+                        nll += 1*(pow((cdist_ldist_lln_model__num / std::max( (Type)(cdist_ldist_lln_model__num).sum(), (Type)1e-05) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / std::max( (Type)(cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum(), (Type)1e-05)), (Type)2)).sum();
                     }
                 }
-                cdist_ldist_lln_pred__num.setZero();
+                cdist_ldist_lln_model__num.setZero();
             }
         }
         if ( cur_step_final ) {
