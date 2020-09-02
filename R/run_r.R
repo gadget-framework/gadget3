@@ -9,8 +9,8 @@ g3_compile_r <- function(actions, trace = FALSE) {
 
     if (isTRUE(trace)) {
         all_actions <- call_replace(all_actions, comment = function (x) {
-            # Turn comment calls into debugf calls
-            return(call("debugf", paste0(
+            # Turn comment calls into Rprintf calls
+            return(call("Rprintf", paste0(
                 "// ",
                 gsub("\n", " ", x[[2]], fixed = TRUE),
                 "\n")))
@@ -88,6 +88,9 @@ g3_compile_r <- function(actions, trace = FALSE) {
         }
 
         call_replace(in_code,
+            # Rprintf(...) -> cat(printf(...))
+            Rprintf = function (x) call("cat", as.call(c(list(as.symbol("sprintf")), tail(as.list(x), -1)))),
+            REprintf = function (x) call("cat", as.call(c(list(as.symbol("sprintf")), tail(as.list(x), -1)))),
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
             g3_with = function (x) call(

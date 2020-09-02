@@ -344,7 +344,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
-    if (call_name %in% c("exp", "log", "seq", "seq_along")) {
+    if (call_name %in% c("exp", "log", "seq", "seq_along", "Rprintf", "REprintf")) {
         # TMB-defined or built-in functions
         return(paste0(
             call_name,
@@ -411,8 +411,8 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
 
     if (isTRUE(trace)) {
         all_actions <- call_replace(all_actions, comment = function (x) {
-            # Turn comment calls into debugf calls
-            return(call("debugf", paste0(
+            # Turn comment calls into Rprintf calls
+            return(call("Rprintf", paste0(
                 "// ",
                 gsub("\n", " ", x[[2]], fixed = TRUE),
                 "\n")))
@@ -526,9 +526,6 @@ g3_precompile_tmb <- function(actions, trace = FALSE) {
     var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     out <- sprintf("#include <TMB.hpp>
-#include <stdio.h>  // For debugf
-#include <stdarg.h>  // For debugf
-
 template<class Type>
 Type objective_function<Type>::operator() () {
     %s
