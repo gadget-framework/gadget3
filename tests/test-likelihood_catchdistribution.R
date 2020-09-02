@@ -168,36 +168,36 @@ ok_group("Likelihood per step", {
         cd_data$number), "cdist_utcd_obs__num: Imported from data.frame")
     ok(ut_cmp_equal(
         as.vector(r$step0_cdist_utcd_model__num),
-        c(sum(r$step0_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step0_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step0_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step0_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step0_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step0_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step0_cdist_utcd_model__num: Summed catch values as individuals")
+        c(sum(r$step0_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step0_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step0_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step0_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step0_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step0_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_utcd_model__num: Summed catch values as individuals")
     ok(ut_cmp_equal(
         as.vector(r$step1_cdist_utcd_model__num),
-        c(sum(r$step1_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step1_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step1_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step1_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step1_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step1_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals")
+        c(sum(r$step1_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step1_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step1_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step1_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step1_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step1_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals")
     ok(ut_cmp_equal(
         as.vector(r$step2_cdist_utcd_model__num),
-        c(sum(r$step2_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step2_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step2_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step2_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step2_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step2_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step2_cdist_utcd_model__num: Summed catch values as individuals")
+        c(sum(r$step2_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step2_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step2_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step2_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step2_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step2_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_utcd_model__num: Summed catch values as individuals")
     ok(ut_cmp_equal(
         as.vector(r$step3_cdist_utcd_model__num),
-        c(sum(r$step3_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step3_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step3_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step3_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step3_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step3_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals")
+        c(sum(r$step3_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step3_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step3_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step3_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step3_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step3_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals")
 
     ok(ut_cmp_equal(
         r$step0_nll,
@@ -269,32 +269,32 @@ ok_group("Likelihood per year", {
         cd_data$number), "cdist_utcd_obs__num: Imported from data.frame")
     ok(ut_cmp_equal(
         as.vector(r$step1_cdist_utcd_model__num),
-        c(sum(r$step0_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step0_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step0_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step0_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step0_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step0_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,])) +
-        c(sum(r$step1_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step1_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step1_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step1_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step1_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step1_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals over year")
+        c(sum(r$step0_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step0_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step0_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step0_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step0_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step0_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,])) +
+        c(sum(r$step1_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step1_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step1_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step1_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step1_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step1_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals over year")
     ok(ut_cmp_equal(
         as.vector(r$step3_cdist_utcd_model__num),
-        c(sum(r$step2_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step2_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step2_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step2_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step2_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step2_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,])) +
-        c(sum(r$step3_prey_a__fleet_ab[1:5,]) / sum(r$prey_a__wgt[1:5,]) +
-          sum(r$step3_prey_b__fleet_ab[1:5,]) / sum(r$prey_b__wgt[1:5,]) +
-          sum(r$step3_prey_c__fleet_ab[1:5,]) / sum(r$prey_c__wgt[1:5,]),
-          sum(r$step3_prey_a__fleet_ab[6:10,]) / sum(r$prey_a__wgt[6:10,]) +
-          sum(r$step3_prey_b__fleet_ab[6:10,]) / sum(r$prey_b__wgt[6:10,]) +
-          sum(r$step3_prey_c__fleet_ab[6:10,]) / sum(r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals over year")
+        c(sum(r$step2_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step2_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step2_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step2_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step2_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step2_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,])) +
+        c(sum(r$step3_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
+          sum(r$step3_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
+          sum(r$step3_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
+          sum(r$step3_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
+          sum(r$step3_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
+          sum(r$step3_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals over year")
 
     ok(ut_cmp_equal(
         r$step1_nll,

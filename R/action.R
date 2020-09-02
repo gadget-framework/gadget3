@@ -96,7 +96,7 @@ stock_step <- function(step_f) {
 
             return(call("comment", comment_str))
         },
-        stock_reshape = function (x) {  # Arguments: dest_stock, source variable
+        stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
             dest_lg <- stock_definition(stock, 'stock__minlen')
