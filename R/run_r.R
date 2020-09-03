@@ -43,7 +43,12 @@ g3_compile_r <- function(actions, trace = FALSE) {
                 # It's a with variable
                 next
             }
-            var_val <- get(var_name, envir = env, inherits = TRUE)
+            tryCatch({
+                var_val <- get(var_name, envir = env, inherits = TRUE)
+            }, error = function (e) {
+                lines <- trimws(grep(var_name, deparse(code, width.cutoff = 500), fixed = TRUE, value = TRUE))
+                stop(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))
+            })
 
             if (rlang::is_formula(var_val)) {
                 var_defns(rlang::f_rhs(var_val), env)
