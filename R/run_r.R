@@ -63,7 +63,9 @@ g3_compile_r <- function(actions, trace = FALSE) {
                     substitute(Matrix::sparseMatrix(dims = x, x=numeric(0), i={}, j={}), list(x = dim(var_val))))
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 # Define dimensions for empty matrix
-                defn <- call("<-", as.symbol(var_name), substitute(array(dim = x), list(x = dim(var_val))))
+                defn <- call("<-", as.symbol(var_name), substitute(array(dim = x, dimnames = y), list(
+                    x = dim(var_val),
+                    y = dimnames(var_val))))
             } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
                 # Add single-value literal to code
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])

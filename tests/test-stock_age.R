@@ -65,22 +65,22 @@ result <- model_fn(params)
 # We iterated over the stock and populated using the area variable
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_young__num,
-    array(c(110, 210, 310), dim = c(1,3))), "stock_young__num populated")
+    array(c(110, 210, 310), dim = c(1,3), dimnames = list("len10", c("age1","age2","age3")))), "stock_young__num populated")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_old__num,
-    array(c(4010, 5010, 6010), dim = c(1,3))), "stock_old__num populated")
+    array(c(4010, 5010, 6010), dim = c(1,3), dimnames = list("len10", c("age4","age5","age6")))), "stock_old__num populated")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_inbetween__num,
-    array(c(20010, 30010, 40010, 50010), dim = c(1,4))), "stock_inbetween__num populated")
+    array(c(20010, 30010, 40010, 50010), dim = c(1,4), dimnames = list("len10", c("age2","age3","age4","age5")))), "stock_inbetween__num populated")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_aggregated__num,
-    array(c(1000010, 5000010), dim = c(1,2))), "stock_aggregated__num populated")
+    array(c(1000010, 5000010), dim = c(1,2), dimnames = list("len10", c("age1","age5")))), "stock_aggregated__num populated")
 
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_inbetween_old_aggregated__num,
     array(c(
         20010,
-        50010 + 5010 + 6010), dim = c(1,2))), "stock_inbetween_old_aggregated__num populated")
+        50010 + 5010 + 6010), dim = c(1,2), dimnames = list("len10", c("age1","age5")))), "stock_inbetween_old_aggregated__num populated")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
@@ -100,8 +100,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb_report <- model_tmb$report()
     for (n in ls(environment(model_fn)$model_report)) {
         ok(ut_cmp_equal(
-            model_tmb_report[[n]],
-            environment(model_fn)$model_report[[n]],
+            unname(model_tmb_report[[n]]),
+            unname(environment(model_fn)$model_report[[n]]),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

@@ -26,19 +26,19 @@ result <- model_fn(params)
 
 # Populated numbers
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__num,
-    array(c(110), dim = c(1,1))), "stock_a__num populated")
+    as.vector(environment(model_fn)$model_report$stock_a__num),
+    c(110)), "stock_a__num populated")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_ac__num,
-    array(c(1010, 3010), dim = c(1,2))), "stock_ac__num populated")
+    as.vector(environment(model_fn)$model_report$stock_ac__num),
+    c(1010, 3010)), "stock_ac__num populated")
 
 # Populated mean weights
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__wgt,
-    array(c(110), dim = c(1,1))), "stock_a__wgt populated")
+    as.vector(environment(model_fn)$model_report$stock_a__wgt),
+    c(110)), "stock_a__wgt populated")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_ac__wgt,
-    array(c(210, 210), dim = c(1,2))), "stock_ac__wgt populated")
+    as.vector(environment(model_fn)$model_report$stock_ac__wgt),
+    c(210, 210)), "stock_ac__wgt populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_precompile_tmb(actions)
@@ -47,8 +47,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb_report <- model_tmb$report()
     for (n in ls(environment(model_fn)$model_report)) {
         ok(ut_cmp_equal(
-            model_tmb_report[[n]],
-            environment(model_fn)$model_report[[n]],
+            unname(model_tmb_report[[n]]),
+            unname(environment(model_fn)$model_report[[n]]),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

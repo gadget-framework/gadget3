@@ -7,7 +7,13 @@ g3s_age <- function(inner_stock, minage, maxage) {
     stock_env <- rlang::f_env(inner_stock$iterate)
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
-            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), stock__maxage - stock__minage + 1)))
+            assign(var_name, array(
+                dim = c(
+                    dim(stock_env[[var_name]]),
+                    stock__maxage - stock__minage + 1),
+                dimnames = c(
+                    dimnames(stock_env[[var_name]]),
+                    list(paste0('age', seq(stock__minage, stock__maxage, by = 1))))))
         }
     }
 
@@ -37,7 +43,13 @@ g3s_agegroup <- function(inner_stock, agegroups) {
     stock_env <- rlang::f_env(inner_stock$iterate)
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
-            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), length(agegroups))))
+            assign(var_name, array(
+                dim = c(
+                    dim(stock_env[[var_name]]),
+                    length(agegroups)),
+                dimnames = c(
+                    dimnames(stock_env[[var_name]]),
+                    list(paste0('age', vapply(agegroups, function (ag) ag[[1]], integer(1)))))))
         }
     }
 

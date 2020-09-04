@@ -59,28 +59,32 @@ structure(function (param)
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
     ling_imm__area <- 1L
-    renewal_dnorm <- array(dim = 35L)
+    renewal_dnorm <- array(dim = 35L, dimnames = NULL)
     ling_imm__midlen <- model_data$ling_imm__midlen
     ling_imm_stddev <- model_data$ling_imm_stddev
-    ling_imm__num <- array(dim = c(35L, 1L, 8L))
+    ling_imm__num <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_imm__area_idx <- (1)
     renewal_scaler <- 0
-    ling_imm__wgt <- array(dim = c(35L, 1L, 8L))
+    ling_imm__wgt <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_mat__minage <- 5L
     ling_mat__maxage <- 15L
     ling_mat__area <- 1L
     ling_mat__midlen <- model_data$ling_mat__midlen
     ling_mat_stddev <- model_data$ling_mat_stddev
-    ling_mat__num <- array(dim = c(35L, 1L, 11L))
+    ling_mat__num <- array(dim = c(35L, 1L, 11L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"
+    )))
     ling_mat__area_idx <- (1)
-    ling_mat__wgt <- array(dim = c(35L, 1L, 11L))
-    igfs__catch <- array(dim = 1L)
-    ling_imm__totalpredate <- array(dim = c(35L, 1L, 8L))
-    ling_mat__totalpredate <- array(dim = c(35L, 1L, 11L))
-    ling_imm__igfs <- array(dim = c(35L, 1L, 8L))
+    ling_mat__wgt <- array(dim = c(35L, 1L, 11L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"
+    )))
+    igfs__catch <- array(dim = 1L, dimnames = list("area1"))
+    ling_imm__totalpredate <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    ling_mat__totalpredate <- array(dim = c(35L, 1L, 11L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", 
+    "age15")))
+    ling_imm__igfs <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     igfs__area <- 1L
     igfs__area_idx <- (1)
-    ling_mat__igfs <- array(dim = c(35L, 1L, 11L))
+    ling_mat__igfs <- array(dim = c(35L, 1L, 11L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"
+    )))
     predate_totalfleet_E <- 0
     inttypelookup_zip <- function (keys, values) 
     {
@@ -89,19 +93,22 @@ structure(function (param)
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
     igfs_totaldata__values <- model_data$igfs_totaldata__values
     igfs_totaldata__lookup <- inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
-    ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L))
-    ling_mat__overconsumption <- array(dim = c(35L, 1L, 11L))
-    ling_imm__transitioning_num <- array(dim = c(35L, 1L, 8L))
-    ling_imm__transitioning_wgt <- array(dim = c(35L, 1L, 8L))
-    ling_imm__growth_l <- array(dim = c(0L, 0L))
+    ling_imm__overconsumption <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    ling_mat__overconsumption <- array(dim = c(35L, 1L, 11L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", 
+    "age15")))
+    ling_imm__transitioning_num <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    ling_imm__transitioning_wgt <- array(dim = c(35L, 1L, 8L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), "area1", c("age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    ling_imm__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__dl <- model_data$ling_imm__dl
-    ling_imm__growth_w <- array(dim = 35L)
-    ling_mat__growth_l <- array(dim = c(0L, 0L))
+    ling_imm__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
-    ling_mat__growth_w <- array(dim = 35L)
-    cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L))
+    ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
+    cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L), dimnames = list(c("len100", "len104", "len108", "len112", "len116", "len120", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len124", "len128", "len140", "len144", "len132", "len136", "len148", "len156", "len40", "len44", "len152", "len28", "len32", "len20", "len36", "len24"), c("1994.1", "1994.2", "1994.3", "1994.4", "1995.1", "1995.2", "1995.3", "1995.4", "1996.1", "1996.2", 
+    "1996.3", "1996.4", "1997.1", "1997.2", "1997.3", "1997.4", "1998.1", "1998.2", "1998.3", "1998.4", "1999.1", "1999.2", "1999.3", "1999.4", "2000.1", "2000.2", "2000.3", "2000.4", "2001.1", "2001.2", "2001.3", "2001.4", "2002.1", "2002.2", "2002.3", "2002.4", "2003.1", "2003.2", "2003.3", "2003.4", "2004.1", "2004.2", "2004.3", "2004.4", "2005.1", "2005.2", "2005.3", "2005.4", "2006.1", "2006.2", "2006.3", "2006.4", "2007.1", "2007.2", "2007.3", "2007.4", "2008.1", "2008.2", "2008.3", "2008.4", 
+    "2009.1", "2009.2", "2009.3", "2009.4", "2010.1", "2010.2", "2010.3", "2010.4", "2011.1", "2011.2", "2011.3", "2011.4", "2012.1", "2012.2", "2012.3", "2012.4", "2013.1", "2013.2", "2013.3", "2013.4", "2014.1", "2014.2", "2014.3", "2014.4", "2015.1", "2015.2", "2015.3", "2015.4", "2016.1", "2016.2", "2016.3", "2016.4", "2017.1", "2017.2", "2017.3", "2017.4", "2018.1", "2018.2", "2018.3", "2018.4")))
     ldist_lln_number <- model_data$ldist_lln_number
-    cdist_ldist_lln_model__num <- array(dim = 35L)
+    cdist_ldist_lln_model__num <- array(dim = 35L, dimnames = list(c("len100", "len104", "len108", "len112", "len116", "len120", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len124", "len128", "len140", "len144", "len132", "len136", "len148", "len156", "len40", "len44", "len152", "len28", "len32", "len20", "len36", "len24")))
     ling_imm_cdist_ldist_lln_model_lgmatrix <- model_data$ling_imm_cdist_ldist_lln_model_lgmatrix
     ling_mat_cdist_ldist_lln_model_lgmatrix <- model_data$ling_mat_cdist_ldist_lln_model_lgmatrix
     cdist_ldist_lln_obs__totalsteps <- 4L

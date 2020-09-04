@@ -10,7 +10,15 @@ g3s_time <- function(inner_stock, minyear, maxyear, steps = c()) {
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
             assign(var_name, array(
-                dim = c(dim(stock_env[[var_name]]), (maxyear - minyear + 1) * stock__totalsteps)))
+                dim = c(
+                    dim(stock_env[[var_name]]),
+                    (maxyear - minyear + 1) * stock__totalsteps),
+                dimnames = c(
+                    dimnames(stock_env[[var_name]]),
+                    list(paste(
+                        rep(seq(minyear, maxyear), each = max(length(steps), 1)),
+                        rep(steps, times = maxyear - minyear + 1),
+                        sep = '.')))))
         }
     }
 

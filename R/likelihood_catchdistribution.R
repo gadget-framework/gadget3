@@ -53,7 +53,8 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         number = array(full_table$number,
-            dim = dim(stock_definition(obsstock, 'stock__num'))),
+            dim = dim(stock_definition(obsstock, 'stock__num')),
+            dimnames = dimnames(stock_definition(obsstock, 'stock__num'))),
         nll_name = nll_name))
 }
 

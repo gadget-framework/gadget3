@@ -15,8 +15,12 @@ g3_stock <- function(var_name, lengthgroups) {
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
 
-    stock__num <- array(dim = length(lengthgroups))  # Number of individuals
-    stock__wgt <- array(dim = length(lengthgroups))  # Mean weight of individuals
+    stock__num <- array(  # Number of individuals
+        dim = length(lengthgroups),
+        dimnames = list(paste0('len', lengthgroups)))
+    stock__wgt <- array(  # Mean weight of individuals
+        dim = length(lengthgroups),
+        dimnames = list(paste0('len', lengthgroups)))
 
     list(
         iterate = ~extension_point,

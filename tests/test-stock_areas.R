@@ -74,13 +74,13 @@ result <- model_fn(params)
 # We iterated over the stock and populated using the area variable
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_a__num,
-    array(c(110), dim = c(1,1))), "stock_a__num populated")
+    array(c(110), dim = c(1,1), dimnames = list("len10", "area1"))), "stock_a__num populated")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_ac__num,
-    array(c(1010, 3010), dim = c(1,2))), "stock_ac__num populated")
+    array(c(1010, 3010), dim = c(1,2), dimnames = list("len10", c("area1","area3")))), "stock_ac__num populated")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_bcd__num,
-    array(c(20010, 30010, 40010), dim = c(1,3))), "stock_bcd__num populated")
+    array(c(20010, 30010, 40010), dim = c(1,3), dimnames = list("len10", c("area2","area3","area4")))), "stock_bcd__num populated")
 
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_aggregated__num,
@@ -88,7 +88,7 @@ ok(ut_cmp_identical(
         # NB: Areas b & c --> init + stock_ac + stock_bcd
         (12) + (3010) + (20010 + 30010),
         # NB: Area d --> init + stock_bcd
-        14 + 40010), dim = c(1,2))), "stock_aggregated__num combination of all stocks")
+        14 + 40010), dim = c(1,2), dimnames = list("len10", c("area2", "area4")))), "stock_aggregated__num combination of all stocks")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
@@ -108,8 +108,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb_report <- model_tmb$report()
     for (n in ls(environment(model_fn)$model_report)) {
         ok(ut_cmp_equal(
-            model_tmb_report[[n]],
-            environment(model_fn)$model_report[[n]],
+            unname(model_tmb_report[[n]]),
+            unname(environment(model_fn)$model_report[[n]]),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

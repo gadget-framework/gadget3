@@ -6,7 +6,13 @@ g3s_livesonareas <- function(inner_stock, areas) {
     stock_env <- rlang::f_env(inner_stock$iterate)
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
-            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), stock__totalareas)))
+            assign(var_name, array(
+                dim = c(
+                    dim(stock_env[[var_name]]),
+                    stock__totalareas),
+                dimnames = c(
+                    dimnames(stock_env[[var_name]]),
+                    list(paste0('area', stock__areas)))))
         }
     }
 
@@ -54,9 +60,22 @@ g3s_areagroup <- function(inner_stock, areagroups) {
 
     # Expand all storage with extra dimension
     stock_env <- rlang::f_env(inner_stock$iterate)
+    if (is.null(names(areagroups))) {
+        # Name group by first item
+        area_dimnames <- list(paste0('area', vapply(areagroups, function (ag) ag[[1]], numeric(1))))
+    } else {
+        # Use group names
+        area_dimnames <- list(paste0('area_', names(areagroups)))
+    }
     for (var_name in c("stock__num", "stock__wgt", "stock__catch")) {
         if (exists(var_name, envir = stock_env)) {
-            assign(var_name, array(dim = c(dim(stock_env[[var_name]]), length(areagroups))))
+            assign(var_name, array(
+                dim = c(
+                    dim(stock_env[[var_name]]),
+                    length(areagroups)),
+                dimnames = c(
+                    dimnames(stock_env[[var_name]]),
+                    area_dimnames)))
         }
     }
 
