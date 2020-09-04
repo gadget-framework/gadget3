@@ -1,7 +1,4 @@
 #include <TMB.hpp>
-#include <stdio.h>  // For debugf
-#include <stdarg.h>  // For debugf
-
 template<class Type>
 Type objective_function<Type>::operator() () {
     PARAMETER(ling__Linf);
@@ -24,12 +21,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__scalar);
     PARAMETER_VECTOR(ling__rec);
     
-    auto debugf = [](const char* format, ...) -> void {
-       va_list argptr;
-       va_start(argptr, format);
-       vprintf(format, argptr);
-       va_end(argptr);
-   };
     auto inttypelookup_get = [](std::map<int, Type> lookup, int key) -> Type {
             assert(lookup.count(key) > 0);
             return lookup[key];
@@ -178,7 +169,7 @@ Type objective_function<Type>::operator() () {
             cur_step = (cur_time % step_count) + 1;
             cur_step_len = step_lengths ( cur_step - 1 );
             cur_step_final = cur_step == step_count;
-            debugf("** Tick: %d-%d\n", cur_year, cur_step);
+            Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
         }
         {
             // g3a_renewal_normalparam for ling_imm;

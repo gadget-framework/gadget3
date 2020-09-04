@@ -1,9 +1,5 @@
 structure(function (param) 
 {
-    debugf <- function (...) 
-    {
-        cat(sprintf(...))
-    }
     inttypelookup_get <- function (lookup, key) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
@@ -120,7 +116,7 @@ structure(function (param)
             cur_step <- (cur_time%%step_count) + 1
             cur_step_len <- step_lengths[[(cur_step)]]
             cur_step_final <- cur_step == step_count
-            debugf("** Tick: %d-%d\n", cur_year, cur_step)
+            cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
         }
         {
             comment("g3a_renewal_normalparam for ling_imm")
