@@ -23,30 +23,55 @@ areas <- c(a = 1, b = 2, c = 3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])
 prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
-fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
+fleet_abc <- g3_fleet('fleet_abc') %>% g3s_livesonareas(areas[c('a', 'b', 'c')])
 
-# Generate observation data
-cd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = 'x', length = c(1,6))
-cd_data$number <- c(383, 271, 166, 882, 781, 837, 639, 465)
-attr(cd_data, 'area') <- list(x = c(areas[c('a', 'b', 'c')]))
+# Generate observation data for stock distribution
+# NB: No prey_b, only compare prey_a and prey_c
+sd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), stock = c("prey_a", "prey_c"), length = c(1,6))
+sd_data$number <- floor(runif(length(sd_data$year), min=100, max=999))
+attr(sd_data, 'area') <- list(
+    x = areas[c('a', 'b')],
+    y = areas[c('c')])
+
+# Generate observation data for catch distribution
+cd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), length = c(1,6))
+cd_data$number <- floor(runif(length(cd_data$year), min=100, max=999))
+attr(cd_data, 'area') <- list(
+    x = areas[c('a', 'b')],
+    y = areas[c('c')])
 
 # Variables to store intermediate output
-step0_cdist_utcd_model__num <- array(dim = c(2L, 1L))  # Length, area (Aggregated into one bucket)
-step1_cdist_utcd_model__num <- array(dim = c(2L, 1L))
-step2_cdist_utcd_model__num <- array(dim = c(2L, 1L))
-step3_cdist_utcd_model__num <- array(dim = c(2L, 1L))
-step0_prey_a__fleet_ab <- array(dim = c(10L, 1L))
-step0_prey_b__fleet_ab <- array(dim = c(10L, 1L))
-step0_prey_c__fleet_ab <- array(dim = c(10L, 1L))
-step1_prey_a__fleet_ab <- array(dim = c(10L, 1L))
-step1_prey_b__fleet_ab <- array(dim = c(10L, 1L))
-step1_prey_c__fleet_ab <- array(dim = c(10L, 1L))
-step2_prey_a__fleet_ab <- array(dim = c(10L, 1L))
-step2_prey_b__fleet_ab <- array(dim = c(10L, 1L))
-step2_prey_c__fleet_ab <- array(dim = c(10L, 1L))
-step3_prey_a__fleet_ab <- array(dim = c(10L, 1L))
-step3_prey_b__fleet_ab <- array(dim = c(10L, 1L))
-step3_prey_c__fleet_ab <- array(dim = c(10L, 1L))
+step0_cdist_utsd_model__num <- array(
+    # NB: Lift definition from deparse(r$cdist_utsd_model__num)
+    dim = c(2L, 2L, 2L),
+    dimnames = list(
+        c("len1", "len6"),
+        c("prey_a", "prey_c"),
+        c("area1", "area3")))
+step1_cdist_utsd_model__num <- step0_cdist_utsd_model__num
+step2_cdist_utsd_model__num <- step0_cdist_utsd_model__num
+step3_cdist_utsd_model__num <- step0_cdist_utsd_model__num
+step0_cdist_utcd_model__num <- array(
+    # NB: Lift definition from deparse(r$cdist_utcd_model__num)
+    dim = c(2L, 2L),
+    dimnames = list(
+        c("len1", "len6"),
+        c("area1", "area3")))
+step1_cdist_utcd_model__num <- step0_cdist_utcd_model__num
+step2_cdist_utcd_model__num <- step0_cdist_utcd_model__num
+step3_cdist_utcd_model__num <- step0_cdist_utcd_model__num
+step0_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step0_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step0_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step1_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step1_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step1_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step2_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step2_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step2_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step3_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step3_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step3_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
 step0_nll <- 0.0
 step1_nll <- 0.0
 step2_nll <- 0.0
@@ -58,17 +83,23 @@ actions <- g3_collate(
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
     g3a_predate_totalfleet(
-        fleet_ab,
+        fleet_abc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
-            prey_a = ~g3_param_vector("fleet_ab_a"),
-            prey_b = ~g3_param_vector("fleet_ab_b"),
-            prey_c = ~g3_param_vector("fleet_ab_c")),
+            prey_a = ~g3_param_vector("fleet_abc_a"),
+            prey_b = ~g3_param_vector("fleet_abc_b"),
+            prey_c = ~g3_param_vector("fleet_abc_c")),
         amount_f = ~g3_param('amount_ab') * area),
     g3l_catchdistribution(
         'utcd',
         cd_data,
-        list(fleet_ab),
+        list(fleet_abc),
+        list(prey_a, prey_b, prey_c),
+        g3l_catchdistribution_sumofsquares()),
+    g3l_catchdistribution(
+        'utsd',
+        sd_data,
+        list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         g3l_catchdistribution_sumofsquares()),
     list(
@@ -87,45 +118,63 @@ actions <- g3_collate(
                 g3_report(step3_cdist_utcd_model__num)
             }
         },
+        '010:utsd:001:zzzz' = ~{  # Capture data just before final step erases it
+            if (cur_time == 0) {
+                step0_cdist_utsd_model__num[] <- cdist_utsd_model__num
+                g3_report(step0_cdist_utsd_model__num)
+            } else if (cur_time == 1) {
+                step1_cdist_utsd_model__num[] <- cdist_utsd_model__num
+                g3_report(step1_cdist_utsd_model__num)
+            } else if (cur_time == 2) {
+                step2_cdist_utsd_model__num[] <- cdist_utsd_model__num
+                g3_report(step2_cdist_utsd_model__num)
+            } else if (cur_time == 3) {
+                step3_cdist_utsd_model__num[] <- cdist_utsd_model__num
+                g3_report(step3_cdist_utsd_model__num)
+            }
+        },
         '999' = ~{
             if (cur_time == 0) {
-                step0_prey_a__fleet_ab[] <- prey_a__fleet_ab
-                step0_prey_b__fleet_ab[] <- prey_b__fleet_ab
-                step0_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step0_prey_a__fleet_abc[] <- prey_a__fleet_abc
+                step0_prey_b__fleet_abc[] <- prey_b__fleet_abc
+                step0_prey_c__fleet_abc[] <- prey_c__fleet_abc
                 step0_nll <- nll
-                g3_report(step0_prey_a__fleet_ab)
-                g3_report(step0_prey_b__fleet_ab)
-                g3_report(step0_prey_c__fleet_ab)
+                g3_report(step0_prey_a__fleet_abc)
+                g3_report(step0_prey_b__fleet_abc)
+                g3_report(step0_prey_c__fleet_abc)
                 g3_report(step0_nll)
             } else if (cur_time == 1) {
-                step1_prey_a__fleet_ab[] <- prey_a__fleet_ab
-                step1_prey_b__fleet_ab[] <- prey_b__fleet_ab
-                step1_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step1_prey_a__fleet_abc[] <- prey_a__fleet_abc
+                step1_prey_b__fleet_abc[] <- prey_b__fleet_abc
+                step1_prey_c__fleet_abc[] <- prey_c__fleet_abc
                 step1_nll <- nll
-                g3_report(step1_prey_a__fleet_ab)
-                g3_report(step1_prey_b__fleet_ab)
-                g3_report(step1_prey_c__fleet_ab)
+                g3_report(step1_prey_a__fleet_abc)
+                g3_report(step1_prey_b__fleet_abc)
+                g3_report(step1_prey_c__fleet_abc)
                 g3_report(step1_nll)
             } else if (cur_time == 2) {
-                step2_prey_a__fleet_ab[] <- prey_a__fleet_ab
-                step2_prey_b__fleet_ab[] <- prey_b__fleet_ab
-                step2_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step2_prey_a__fleet_abc[] <- prey_a__fleet_abc
+                step2_prey_b__fleet_abc[] <- prey_b__fleet_abc
+                step2_prey_c__fleet_abc[] <- prey_c__fleet_abc
                 step2_nll <- nll
-                g3_report(step2_prey_a__fleet_ab)
-                g3_report(step2_prey_b__fleet_ab)
-                g3_report(step2_prey_c__fleet_ab)
+                g3_report(step2_prey_a__fleet_abc)
+                g3_report(step2_prey_b__fleet_abc)
+                g3_report(step2_prey_c__fleet_abc)
                 g3_report(step2_nll)
             } else if (cur_time == 3) {
-                step3_prey_a__fleet_ab[] <- prey_a__fleet_ab
-                step3_prey_b__fleet_ab[] <- prey_b__fleet_ab
-                step3_prey_c__fleet_ab[] <- prey_c__fleet_ab
+                step3_prey_a__fleet_abc[] <- prey_a__fleet_abc
+                step3_prey_b__fleet_abc[] <- prey_b__fleet_abc
+                step3_prey_c__fleet_abc[] <- prey_c__fleet_abc
                 step3_nll <- nll
-                g3_report(step3_prey_a__fleet_ab)
-                g3_report(step3_prey_b__fleet_ab)
-                g3_report(step3_prey_c__fleet_ab)
+                g3_report(step3_prey_a__fleet_abc)
+                g3_report(step3_prey_b__fleet_abc)
+                g3_report(step3_prey_c__fleet_abc)
                 g3_report(step3_nll)
             }
+            g3_report(cdist_utcd_model__num)
             g3_report(cdist_utcd_obs__num)
+            g3_report(cdist_utsd_model__num)
+            g3_report(cdist_utsd_obs__num)
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
@@ -134,9 +183,9 @@ actions <- g3_collate(
             g3_report(nll)
         }))
 params <- list(
-    fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-    fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-    fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
+    fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
+    fleet_abc_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
+    fleet_abc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
     amount_ab = 100,
     x=1.0)
 
@@ -153,9 +202,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 
 ok_group("Likelihood per step", {
     params <- list(
-        fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-        fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-        fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
+        # Randomly catch, but get something everywhere
+        fleet_abc_a = runif(10, min=0.1, max=0.9),
+        fleet_abc_b = runif(10, min=0.1, max=0.9),
+        fleet_abc_c = runif(10, min=0.1, max=0.9),
         amount_ab = 1000000,
         x=1.0)
     result <- model_fn(params)
@@ -164,81 +214,242 @@ ok_group("Likelihood per step", {
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        as.vector(r$cdist_utcd_obs__num),
-        cd_data$number), "cdist_utcd_obs__num: Imported from data.frame")
-    ok(ut_cmp_equal(
-        as.vector(r$step0_cdist_utcd_model__num),
-        c(sum(r$step0_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step0_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step0_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step0_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step0_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step0_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_utcd_model__num: Summed catch values as individuals")
-    ok(ut_cmp_equal(
-        as.vector(r$step1_cdist_utcd_model__num),
-        c(sum(r$step1_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step1_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step1_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step1_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step1_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step1_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals")
-    ok(ut_cmp_equal(
-        as.vector(r$step2_cdist_utcd_model__num),
-        c(sum(r$step2_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step2_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step2_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step2_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step2_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step2_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_utcd_model__num: Summed catch values as individuals")
-    ok(ut_cmp_equal(
-        as.vector(r$step3_cdist_utcd_model__num),
-        c(sum(r$step3_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step3_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step3_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step3_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step3_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step3_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals")
+        sort(as.vector(r$cdist_utsd_obs__num)),
+        sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
-    ok(ut_cmp_equal(
-        r$step0_nll,
-        (r$step0_cdist_utcd_model__num[[1]] / sum(r$step0_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,1][[1]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2 +
-        (r$step0_cdist_utcd_model__num[[2]] / sum(r$step0_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,1][[2]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2), "step0_nll: Sum of squares")
-    ok(ut_cmp_equal(
-        r$step1_nll - r$step0_nll,
-        (r$step1_cdist_utcd_model__num[[1]] / sum(r$step1_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,2][[1]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2 +
-        (r$step1_cdist_utcd_model__num[[2]] / sum(r$step1_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,2][[2]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2), "step1_nll: Sum of squares, including step0_nll")
-    ok(ut_cmp_equal(
-        r$step2_nll - r$step1_nll,
-        (r$step2_cdist_utcd_model__num[[1]] / sum(r$step2_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,3][[1]] / sum(r$cdist_utcd_obs__num[,,3])) ** 2 +
-        (r$step2_cdist_utcd_model__num[[2]] / sum(r$step2_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,3][[2]] / sum(r$cdist_utcd_obs__num[,,3])) ** 2), "step2_nll: Sum of squares, including step1_nll")
-    ok(ut_cmp_equal(
-        r$step3_nll - r$step2_nll,
-        (r$step3_cdist_utcd_model__num[[1]] / sum(r$step3_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,4][[1]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2 +
-        (r$step3_cdist_utcd_model__num[[2]] / sum(r$step3_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,4][[2]] / sum(r$cdist_utcd_obs__num[,,4])) ** 2), "step3_nll: Sum of squares, including step2_nll")
-    ok(ut_cmp_equal(r$step3_nll, result), "result: Reported final nll")
+    ######## cdist_utsd_model__num
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_a', 1]), c(
+        sum(r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step0_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_c', 1]), c(
+        0,
+        0)), "step0_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0,
+        0)), "step0_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_c', 2]), c(
+        sum(r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(
+        sum(r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step1_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 1]), c(
+        0,
+        0)), "step1_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0,
+        0)), "step1_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 2]), c(
+        sum(r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_a', 1]), c(
+        sum(r$step2_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step2_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step2_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_c', 1]), c(
+        0,
+        0)), "step2_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0,
+        0)), "step2_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_c', 2]), c(
+        sum(r$step2_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step2_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_a', 1]), c(
+        sum(r$step3_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step3_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step3_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_c', 1]), c(
+        0,
+        0)), "step3_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0,
+        0)), "step3_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_c', 2]), c(
+        sum(r$step3_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step3_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+    ########
+
+    ######## cdist_utcd_model__num
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utcd_model__num[,1]), c(
+         sum(
+             sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+         sum(
+             sum(r$step0_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+         NULL)), "step0_cdist_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_utcd_model__num[,2]), c(
+         sum(
+             sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+         sum(
+             sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+         NULL)), "step0_cdist_utsd_model__num[,2]: all prey in area c")
+
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,1]), c(
+         sum(
+             sum(r$step1_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step1_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+         sum(
+             sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+         NULL)), "step1_cdist_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,2]), c(
+         sum(
+             sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+         sum(
+             sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+         NULL)), "step1_cdist_utsd_model__num[,2]: all prey in area c")
+
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utcd_model__num[,1]), c(
+         sum(
+             sum(r$step2_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step2_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+         sum(
+             sum(r$step2_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step2_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+         NULL)), "step2_cdist_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_utcd_model__num[,2]), c(
+         sum(
+             sum(r$step2_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+         sum(
+             sum(r$step2_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+         NULL)), "step2_cdist_utsd_model__num[,2]: all prey in area c")
+
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utcd_model__num[,1]), c(
+         sum(
+             sum(r$step3_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step3_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+         sum(
+             sum(r$step3_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step3_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+         NULL)), "step3_cdist_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_utcd_model__num[,2]), c(
+         sum(
+             sum(r$step3_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+         sum(
+             sum(r$step3_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+         NULL)), "step3_cdist_utsd_model__num[,2]: all prey in area c")
+    ########
+
+    ok(ut_cmp_equal(r$step0_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step0_cdist_utsd_model__num[,1,1] / sum(r$step0_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,1,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step0_cdist_utsd_model__num[,2,1] / sum(r$step0_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step0_cdist_utsd_model__num[,1,2] / sum(r$step0_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,1] / sum(r$cdist_utsd_obs__num[,,2,1])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step0_cdist_utsd_model__num[,2,2] / sum(r$step0_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,1] / sum(r$cdist_utsd_obs__num[,,2,1])) ** 2,
+        # utcd: area 1
+        (r$step0_cdist_utcd_model__num[,1] / sum(r$step0_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,1] / sum(r$cdist_utcd_obs__num[,1,1])) ** 2,
+        # utcd: area 2
+        (r$step0_cdist_utcd_model__num[,2] / sum(r$step0_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        0)), "step0_nll: Sum of squares")
+
+    ok(ut_cmp_equal(r$step1_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step1_cdist_utsd_model__num[,1,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step1_cdist_utsd_model__num[,2,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step1_cdist_utsd_model__num[,1,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step1_cdist_utsd_model__num[,2,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        # utcd: area 1
+        (r$step1_cdist_utcd_model__num[,1] / sum(r$step1_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        # utcd: area 2
+        (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
+
+    ok(ut_cmp_equal(r$step2_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step2_cdist_utsd_model__num[,1,1] / sum(r$step2_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,1,1,3] / sum(r$cdist_utsd_obs__num[,,1,3])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step2_cdist_utsd_model__num[,2,1] / sum(r$step2_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,3] / sum(r$cdist_utsd_obs__num[,,1,3])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step2_cdist_utsd_model__num[,1,2] / sum(r$step2_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,3] / sum(r$cdist_utsd_obs__num[,,2,3])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step2_cdist_utsd_model__num[,2,2] / sum(r$step2_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,3] / sum(r$cdist_utsd_obs__num[,,2,3])) ** 2,
+        # utcd: area 1
+        (r$step2_cdist_utcd_model__num[,1] / sum(r$step2_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,3] / sum(r$cdist_utcd_obs__num[,1,3])) ** 2,
+        # utcd: area 2
+        (r$step2_cdist_utcd_model__num[,2] / sum(r$step2_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,3] / sum(r$cdist_utcd_obs__num[,2,3])) ** 2,
+        r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
+
+    ok(ut_cmp_equal(r$step3_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step3_cdist_utsd_model__num[,1,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,1,1,4] / sum(r$cdist_utsd_obs__num[,,1,4])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step3_cdist_utsd_model__num[,2,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,4] / sum(r$cdist_utsd_obs__num[,,1,4])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step3_cdist_utsd_model__num[,1,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,4] / sum(r$cdist_utsd_obs__num[,,2,4])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step3_cdist_utsd_model__num[,2,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,4] / sum(r$cdist_utsd_obs__num[,,2,4])) ** 2,
+        # utcd: area 1
+        (r$step3_cdist_utcd_model__num[,1] / sum(r$step3_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,4] / sum(r$cdist_utcd_obs__num[,1,4])) ** 2,
+        # utcd: area 2
+        (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,4] / sum(r$cdist_utcd_obs__num[,2,4])) ** 2,
+        r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })
 
 ok_group("Likelihood per year", {
     # Change model to aggregate over a year
-    cd_data <- expand.grid(year = 1999:2000, area = 'x', length = c(1,6))  # NB: No step column now
-    cd_data$number <- c(271, 166, 882, 781)
-    attr(cd_data, 'area') <- list(x = c(areas[c('a', 'b', 'c')]))
+    # NB: No prey_b, only compare prey_a and prey_c
+    # NB: No step column now
+    sd_data <- expand.grid(year = 1999:2000, area = c('x', 'y'), stock = c("prey_a", "prey_c"), length = c(1,6))
+    sd_data$number <- floor(runif(length(sd_data$year), min=100, max=999))
+    attr(sd_data, 'area') <- list(
+        x = areas[c('a', 'b')],
+        y = areas[c('c')])
+
+    # Change model to aggregate over a year
+    # NB: No step column now
+    cd_data <- expand.grid(year = 1999:2000, area = c('x', 'y'), length = c(1,6))
+    cd_data$number <- floor(runif(length(cd_data$year), min=100, max=999))
+    attr(cd_data, 'area') <- list(
+        x = areas[c('a', 'b')],
+        y = areas[c('c')])
+
     actions <- g3_collate(
         actions,
         g3l_catchdistribution(
             'utcd',
             cd_data,
-            list(fleet_ab),
+            list(fleet_abc),
+            list(prey_a, prey_b, prey_c),
+            g3l_catchdistribution_sumofsquares()),
+        g3l_catchdistribution(
+            'utsd',
+            sd_data,
+            list(fleet_abc),
             list(prey_a, prey_b, prey_c),
             g3l_catchdistribution_sumofsquares()))
 
@@ -254,9 +465,9 @@ ok_group("Likelihood per year", {
     }
 
     params <- list(
-        fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-        fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-        fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
+        fleet_abc_a = runif(10, min=0.1, max=0.9),
+        fleet_abc_b = runif(10, min=0.1, max=0.9),
+        fleet_abc_c = runif(10, min=0.1, max=0.9),
         amount_ab = 1000000,
         x=1.0)
     result <- model_fn(params)
@@ -265,50 +476,105 @@ ok_group("Likelihood per year", {
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        as.vector(r$cdist_utcd_obs__num),
-        cd_data$number), "cdist_utcd_obs__num: Imported from data.frame")
-    ok(ut_cmp_equal(
-        as.vector(r$step1_cdist_utcd_model__num),
-        c(sum(r$step0_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step0_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step0_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step0_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step0_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step0_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,])) +
-        c(sum(r$step1_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step1_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step1_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step1_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step1_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step1_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utcd_model__num: Summed catch values as individuals over year")
-    ok(ut_cmp_equal(
-        as.vector(r$step3_cdist_utcd_model__num),
-        c(sum(r$step2_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step2_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step2_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step2_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step2_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step2_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,])) +
-        c(sum(r$step3_prey_a__fleet_ab[1:5,] / r$prey_a__wgt[1:5,]) +
-          sum(r$step3_prey_b__fleet_ab[1:5,] / r$prey_b__wgt[1:5,]) +
-          sum(r$step3_prey_c__fleet_ab[1:5,] / r$prey_c__wgt[1:5,]),
-          sum(r$step3_prey_a__fleet_ab[6:10,] / r$prey_a__wgt[6:10,]) +
-          sum(r$step3_prey_b__fleet_ab[6:10,] / r$prey_b__wgt[6:10,]) +
-          sum(r$step3_prey_c__fleet_ab[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utcd_model__num: Summed catch values as individuals over year")
+        as.vector(r$cdist_utsd_obs__num),
+        sd_data$number), "cdist_utsd_obs__num: Imported from data.frame")
 
-    ok(ut_cmp_equal(
-        r$step1_nll,
-        (r$step1_cdist_utcd_model__num[[1]] / sum(r$step1_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,1][[1]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2 +
-        (r$step1_cdist_utcd_model__num[[2]] / sum(r$step1_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,1][[2]] / sum(r$cdist_utcd_obs__num[,,1])) ** 2), "step1_nll: Sum of squares")
-    ok(ut_cmp_equal(
-        r$step3_nll - r$step1_nll,
-        (r$step3_cdist_utcd_model__num[[1]] / sum(r$step3_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,2][[1]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2 +
-        (r$step3_cdist_utcd_model__num[[2]] / sum(r$step3_cdist_utcd_model__num) -
-            r$cdist_utcd_obs__num[,,2][[2]] / sum(r$cdist_utcd_obs__num[,,2])) ** 2), "step3_nll: Sum of squares, including step1_nll")
-    ok(ut_cmp_equal(r$step3_nll, result), "result: Reported final nll")
+    ######## cdist_utsd_model__num
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(
+        sum(
+            (r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+            (r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,])),
+        sum(
+            sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]),
+            sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,])),
+        NULL)), "step1_cdist_utsd_model__num[,'prey_a',1]: prey_a summed over year")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 1]), c(
+        0,
+        0,
+        NULL)), "step1_cdist_utsd_model__num[,'prey_c',1]: No prey_c in first area")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0,
+        0,
+        NULL)), "step1_cdist_utsd_model__num[,'prey_a',2]: No prey_a in second area")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 2]), c(
+        sum(
+            (r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+            (r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,])),
+        sum(
+            sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]),
+            sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,])),
+        NULL)), "step1_cdist_utsd_model__num[,'prey_c',2]: prey_c summed over year")
+    ########
+
+    ######## cdist_utcd_model__num
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,1]), c(
+         sum(
+             sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1]),
+             sum(r$step1_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step1_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+         sum(
+             sum(r$step0_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1]),
+             sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+         NULL)), "step1_cdist_utsd_model__num[,1]: all prey from a/b and steps 0 & 1")
+
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,2]), c(
+         sum(
+             sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1]),
+             sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+         sum(
+             sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1]),
+             sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+         NULL)), "step1_cdist_utsd_model__num[,2]: all prey from c and steps 0/1")
+    ########
+
+    ok(ut_cmp_equal(r$step0_nll, 0), "step0_nll: nll not calculated yet")
+
+    ok(ut_cmp_equal(r$step1_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step1_cdist_utsd_model__num[,1,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
+            # NB: Still using first time data, unlike per-step example
+            r$cdist_utsd_obs__num[,1,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step1_cdist_utsd_model__num[,2,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step1_cdist_utsd_model__num[,1,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,1] / sum(r$cdist_utsd_obs__num[,,2,1])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step1_cdist_utsd_model__num[,2,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,1] / sum(r$cdist_utsd_obs__num[,,2,1])) ** 2,
+        # utcd: area 1
+        (r$step1_cdist_utcd_model__num[,1] / sum(r$step1_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,1] / sum(r$cdist_utcd_obs__num[,1,1])) ** 2,
+        # utcd: area 2
+        (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        0)), "step1_nll: Sum of squares")
+
+    ok(ut_cmp_equal(r$step3_nll, sum(
+        # utsd: stock 1 / area 1
+        (r$step3_cdist_utsd_model__num[,1,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
+            # NB: Second time data, not 4th as in per-step example
+            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        # utsd: stock 2 / area 1
+        (r$step3_cdist_utsd_model__num[,2,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
+            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        # utsd: stock 1 / area 2
+        (r$step3_cdist_utsd_model__num[,1,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,1,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        # utsd: stock 2 / area 2
+        (r$step3_cdist_utsd_model__num[,2,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
+            r$cdist_utsd_obs__num[,2,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        # utcd: area 1
+        (r$step3_cdist_utcd_model__num[,1] / sum(r$step3_cdist_utcd_model__num[,1]) -
+            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        # utcd: area 2
+        (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
+            r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

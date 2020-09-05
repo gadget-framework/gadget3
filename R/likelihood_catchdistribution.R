@@ -20,6 +20,17 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
         obsstock <- g3s_agegroup(obsstock, grid_args$age)
     }
 
+    if ('stock' %in% names(data)) {
+        grid_args$stock <- levels(as.factor(data$stock))
+        stock_map <- structure(as.list(seq_along(grid_args$stock)), names = grid_args$stock)
+        # NB: We have to replace stockidx_f later whenever we intersect over these
+        modelstock <- g3s_manual(modelstock, 'stock', grid_args$stock, ~stockidx_f)
+        obsstock <- g3s_manual(obsstock, 'stock', grid_args$stock, ~stockidx_f)
+    } else {
+        stock_map <- NULL
+    }
+
+    # NB: area has to be last, so we can sum for the entire area/time
     if ('area' %in% names(data)) {
         # Do area via. MFDB-style attributes
         area_group <- attr(data, 'area')
@@ -52,6 +63,7 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
         modelstock = modelstock,
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
+        stock_map = stock_map,
         number = array(full_table$number,
             dim = dim(stock_definition(obsstock, 'stock__num')),
             dimnames = dimnames(stock_definition(obsstock, 'stock__num'))),
@@ -91,6 +103,17 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         obsnumber = as.symbol(paste0(nll_name, '_number')))))
     
     for (fleet_stock in fleets) for (prey_stock in stocks) {
+        # Work out stock index for obs/model variables
+        if (!is.null(ld$stock_map)) {
+            # Skip over stocks not part of the observation data, map to an index
+            # NB: This is what stock_iterate() would do for us
+            if (is.null(ld$stock_map[[prey_stock$name]])) next
+            stockidx_f <- f_substitute(~g3_idx(x), list(x = ld$stock_map[[prey_stock$name]]))
+        } else {
+            # Not using stock grouping, __stock_idx variable not needed
+            stockidx_f <- ~-1
+        }
+
         # Collect all of fleet's sampling of prey and dump it in modelstock
         out[[step_id(run_at, nll_name, 1, prey_stock)]] <- stock_step(f_substitute(~{
             stock_comment("Collect catch from", fleet_stock, "/", prey_stock, " for ", modelstock)
@@ -102,6 +125,10 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         }, list(
             # Find catch from predation step
             prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
+
+        # Fix-up stock intersection, add in stockidx_f
+        out[[step_id(run_at, nll_name, 1, prey_stock)]] <- f_substitute(out[[step_id(run_at, nll_name, 1, prey_stock)]], list(
+            stockidx_f = stockidx_f))
     }
 
     out[[step_id(run_at, nll_name, 2)]] <- stock_step(f_substitute(~{
@@ -116,6 +143,9 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         done_aggregating_f = ld$done_aggregating_f,
         weight = weight,
         function_f = function_f)))
+    # Fix-up stock intersection: index should be the same as observation
+    out[[step_id(run_at, nll_name, 2)]] <- f_substitute(out[[step_id(run_at, nll_name, 2)]], list(
+        stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     return(out)
 }
