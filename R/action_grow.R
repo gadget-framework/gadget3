@@ -135,12 +135,15 @@ g3_global_env$g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
 # Combined growth / maturity step for a stock
 # - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
+# - transition_f: formula producing TRUE/FALSE for when maturity should also be run
 g3a_growmature <- function(stock,
                      growth_f,
                      impl_f,
                      maturity_f = ~0,
                      output_stocks = list(),
-                     output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f = ~cur_step_final,
+                     output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+                     transition_f = ~cur_step_final,
+                     run_f = ~TRUE,
                      run_at = 5,
                      transition_at = 7) {
     out <- new.env(parent = emptyenv())
@@ -168,15 +171,15 @@ g3a_growmature <- function(stock,
                 (stock__transitioning_num[stock__iter] <- stock__num[stock__iter] * maturity_f)
             # NB: Mean __wgt unchanged
         }, list(maturity_f = maturity_f))
-        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = run_f)
+        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_grow for ", stock)
 
-        stock_with(stock, maturity_init_f)
+        if (transition_f) stock_with(stock, maturity_init_f)
 
-        stock_iterate(stock, {
+        stock_iterate(stock, if (run_f) {
             comment("Calculate increase in length/weight for each lengthgroup")
             stock__growth_l <- impl_l_f
             stock__growth_w <- growth_w_f
@@ -188,6 +191,8 @@ g3a_growmature <- function(stock,
             stock__wgt[stock__iter] <- (stock__wgt[stock__iter] + stock__growth_w) / pmax(stock__num[stock__iter], 0.00001)  # Add extra weight, back to mean
         })
     }, list(
+            run_f = run_f,
+            transition_f = transition_f,
             impl_l_f = f_substitute(impl_f, list(stock__grow_f = growth_f$len)),
             maturity_init_f = maturity_init_f,
             maturity_iter_f = maturity_iter_f,

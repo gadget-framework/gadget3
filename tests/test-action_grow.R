@@ -4,10 +4,9 @@ library(gadget3)
 
 teststock <- g3_stock('teststock', seq(10, 35, 5))
 
-cur_time <- 0L  # Initialconditions needs to know what the time is
-
 ok_group("g3a_grow_impl_bbinom", {
     actions <- g3_collate(  # dmu, lengthgrouplen, binn, beta
+        g3a_time(2000, 2001),
         g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
         g3a_growmature(teststock,
             growth_f = list(len = ~g3_param_vector('dmu'), wgt = ~0),
@@ -51,6 +50,7 @@ ok_group("g3a_grow_impl_bbinom", {
 
 ok_group("g3a_growmature", {
     actions <- g3_collate(
+        g3a_time(2000, 2001),
         g3a_initialconditions(teststock,
             ~g3_param_vector("initial_num"),
             ~g3_param_vector("initial_wgt")),

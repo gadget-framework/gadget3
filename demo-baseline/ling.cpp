@@ -401,7 +401,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3a_grow for ling_imm;
-            {
+            if ( cur_step_final ) {
                 // Reset transitioning arrays;
                 ling_imm__transitioning_num.setZero();
                 ling_imm__transitioning_wgt = ling_imm__wgt;
@@ -412,7 +412,7 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    {
+                    if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
                         ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__midlen + (ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__midlen, (Type)lingimm__wbeta));
@@ -428,7 +428,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3a_grow for ling_mat;
-            {
+            if ( cur_step_final ) {
                 
             }
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
@@ -437,7 +437,7 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_mat__area;
 
-                    {
+                    if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
                         ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__midlen + (ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__midlen, (Type)lingmat__wbeta));
