@@ -116,7 +116,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
 
         # Collect all of fleet's sampling of prey and dump it in modelstock
         out[[step_id(run_at, nll_name, 1, prey_stock)]] <- stock_step(f_substitute(~{
-            stock_comment("Collect catch from", fleet_stock, "/", prey_stock, " for ", modelstock)
+            stock_comment("Collect catch from ", fleet_stock, "/", prey_stock, " for ", modelstock)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
                 modelstock__num[modelstock__iter] <- modelstock__num[modelstock__iter] +
@@ -133,7 +133,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
 
     out[[step_id(run_at, nll_name, 2)]] <- stock_step(f_substitute(~{
         if (done_aggregating_f) {
-            stock_comment("Collect catchdistribution nll")
+            stock_comment("Compare ", modelstock, " to ", obsstock)
             stock_iterate(modelstock, stock_intersect(obsstock, {
                 nll <- nll + weight * function_f
             }))

@@ -420,7 +420,7 @@ structure(function (param)
             }
         }
         {
-            comment("Collect catch fromigfs/ling_imm for cdist_ldist_lln_model")
+            comment("Collect catch from igfs/ling_imm for cdist_ldist_lln_model")
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
@@ -432,7 +432,7 @@ structure(function (param)
             }
         }
         {
-            comment("Collect catch fromigfs/ling_mat for cdist_ldist_lln_model")
+            comment("Collect catch from igfs/ling_mat for cdist_ldist_lln_model")
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
@@ -445,7 +445,7 @@ structure(function (param)
         }
         {
             if (TRUE) {
-                comment("Collect catchdistribution nll")
+                comment("Compare cdist_ldist_lln_model to cdist_ldist_lln_obs")
                 {
                   cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[(cur_step)]]
                   if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {

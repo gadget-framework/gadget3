@@ -500,7 +500,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // Collect catch fromigfs/ling_imm for cdist_ldist_lln_model;
+            // Collect catch from igfs/ling_imm for cdist_ldist_lln_model;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -514,7 +514,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // Collect catch fromigfs/ling_mat for cdist_ldist_lln_model;
+            // Collect catch from igfs/ling_mat for cdist_ldist_lln_model;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
@@ -529,7 +529,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             if ( true ) {
-                // Collect catchdistribution nll;
+                // Compare cdist_ldist_lln_model to cdist_ldist_lln_obs;
                 {
                     auto cdist_ldist_lln_obs__time_idx = ((cur_year - 1994)*cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup ( cur_step - 1 ) - 1;
 
