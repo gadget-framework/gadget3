@@ -82,7 +82,7 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
 # - stocks: Gather catch (by fleets) for these stocks
 # - function_f: Comparison function to compare modelstock__num[modelstock__iter] & obsstock__num[obsstock__iter]
 # - weight: Weighting of parameter in final nll
-g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing = 'stop', weight = 1.0, run_f = ~TRUE, run_at = 10) {
+g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing = 'stop', weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
     # Convert data to stocks
