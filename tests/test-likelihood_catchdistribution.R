@@ -40,42 +40,24 @@ attr(cd_data, 'area') <- list(
     x = areas[c('a', 'b')],
     y = areas[c('c')])
 
-# Variables to store intermediate output
-step0_cdist_utsd_model__num <- array(
-    # NB: Lift definition from deparse(r$cdist_utsd_model__num)
-    dim = c(2L, 2L, 2L),
-    dimnames = list(
-        c("len1", "len6"),
-        c("prey_a", "prey_c"),
-        c("area1", "area3")))
-step1_cdist_utsd_model__num <- step0_cdist_utsd_model__num
-step2_cdist_utsd_model__num <- step0_cdist_utsd_model__num
-step3_cdist_utsd_model__num <- step0_cdist_utsd_model__num
-step0_cdist_utcd_model__num <- array(
-    # NB: Lift definition from deparse(r$cdist_utcd_model__num)
-    dim = c(2L, 2L),
-    dimnames = list(
-        c("len1", "len6"),
-        c("area1", "area3")))
-step1_cdist_utcd_model__num <- step0_cdist_utcd_model__num
-step2_cdist_utcd_model__num <- step0_cdist_utcd_model__num
-step3_cdist_utcd_model__num <- step0_cdist_utcd_model__num
-step0_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step0_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step0_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step1_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step1_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step1_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step2_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step2_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step2_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step3_prey_a__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step3_prey_b__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step3_prey_c__fleet_abc <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step0_nll <- 0.0
-step1_nll <- 0.0
-step2_nll <- 0.0
-step3_nll <- 0.0
+# Generate a step that reports the value of (var_name) into separate variable (steps) times
+# (initial_val) provides a definition to use to set variable type
+report_step <- function (var_name, steps, initial_val) {
+    out <- ~{}
+    for (i in seq(steps - 1, 0, by = -1)) {
+        step_var_name <- paste0("step", i, "_", var_name)
+        assign(step_var_name, initial_val)
+        out <- gadget3:::f_substitute(~if (cur_time == i) {
+            step_var[] <- var
+            g3_report(step_var)
+        } else rest, list(
+            step_var = as.symbol(step_var_name),
+            var = as.symbol(var_name),
+            i = i,
+            rest = out))
+    }
+    return(out)
+}
 
 actions <- g3_collate(
     g3a_time(1999,2000, steps = c(6, 6)),
@@ -103,74 +85,25 @@ actions <- g3_collate(
         list(prey_a, prey_b, prey_c),
         g3l_catchdistribution_sumofsquares()),
     list(
-        '010:utcd:001:zzzz' = ~{  # Capture data just before final step erases it
-            if (cur_time == 0) {
-                step0_cdist_utcd_model__num[] <- cdist_utcd_model__num
-                g3_report(step0_cdist_utcd_model__num)
-            } else if (cur_time == 1) {
-                step1_cdist_utcd_model__num[] <- cdist_utcd_model__num
-                g3_report(step1_cdist_utcd_model__num)
-            } else if (cur_time == 2) {
-                step2_cdist_utcd_model__num[] <- cdist_utcd_model__num
-                g3_report(step2_cdist_utcd_model__num)
-            } else if (cur_time == 3) {
-                step3_cdist_utcd_model__num[] <- cdist_utcd_model__num
-                g3_report(step3_cdist_utcd_model__num)
-            }
-        },
-        '010:utsd:001:zzzz' = ~{  # Capture data just before final step erases it
-            if (cur_time == 0) {
-                step0_cdist_utsd_model__num[] <- cdist_utsd_model__num
-                g3_report(step0_cdist_utsd_model__num)
-            } else if (cur_time == 1) {
-                step1_cdist_utsd_model__num[] <- cdist_utsd_model__num
-                g3_report(step1_cdist_utsd_model__num)
-            } else if (cur_time == 2) {
-                step2_cdist_utsd_model__num[] <- cdist_utsd_model__num
-                g3_report(step2_cdist_utsd_model__num)
-            } else if (cur_time == 3) {
-                step3_cdist_utsd_model__num[] <- cdist_utsd_model__num
-                g3_report(step3_cdist_utsd_model__num)
-            }
-        },
+        # Capture data just before final step erases it
+        '010:utcd:001:zzzz' = report_step('cdist_utcd_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_utcd_model__num)
+            dim = c(2L, 2L),
+            dimnames = list(
+                c("len1", "len6"),
+                c("area1", "area3")))),
+        '010:utsd:001:zzzz' = report_step('cdist_utsd_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_utsd_model__num)
+            dim = c(2L, 2L, 2L),
+            dimnames = list(
+                c("len1", "len6"),
+                c("prey_a", "prey_c"),
+                c("area1", "area3")))),
+        '990:prey_a__fleet_abc' = report_step('prey_a__fleet_abc', 4, gadget3:::stock_definition(prey_a, 'stock__wgt')),
+        '990:prey_b__fleet_abc' = report_step('prey_b__fleet_abc', 4, gadget3:::stock_definition(prey_b, 'stock__wgt')),
+        '990:prey_c__fleet_abc' = report_step('prey_c__fleet_abc', 4, gadget3:::stock_definition(prey_c, 'stock__wgt')),
+        '990:nll' = report_step('nll', 4, 0.0),
         '999' = ~{
-            if (cur_time == 0) {
-                step0_prey_a__fleet_abc[] <- prey_a__fleet_abc
-                step0_prey_b__fleet_abc[] <- prey_b__fleet_abc
-                step0_prey_c__fleet_abc[] <- prey_c__fleet_abc
-                step0_nll <- nll
-                g3_report(step0_prey_a__fleet_abc)
-                g3_report(step0_prey_b__fleet_abc)
-                g3_report(step0_prey_c__fleet_abc)
-                g3_report(step0_nll)
-            } else if (cur_time == 1) {
-                step1_prey_a__fleet_abc[] <- prey_a__fleet_abc
-                step1_prey_b__fleet_abc[] <- prey_b__fleet_abc
-                step1_prey_c__fleet_abc[] <- prey_c__fleet_abc
-                step1_nll <- nll
-                g3_report(step1_prey_a__fleet_abc)
-                g3_report(step1_prey_b__fleet_abc)
-                g3_report(step1_prey_c__fleet_abc)
-                g3_report(step1_nll)
-            } else if (cur_time == 2) {
-                step2_prey_a__fleet_abc[] <- prey_a__fleet_abc
-                step2_prey_b__fleet_abc[] <- prey_b__fleet_abc
-                step2_prey_c__fleet_abc[] <- prey_c__fleet_abc
-                step2_nll <- nll
-                g3_report(step2_prey_a__fleet_abc)
-                g3_report(step2_prey_b__fleet_abc)
-                g3_report(step2_prey_c__fleet_abc)
-                g3_report(step2_nll)
-            } else if (cur_time == 3) {
-                step3_prey_a__fleet_abc[] <- prey_a__fleet_abc
-                step3_prey_b__fleet_abc[] <- prey_b__fleet_abc
-                step3_prey_c__fleet_abc[] <- prey_c__fleet_abc
-                step3_nll <- nll
-                g3_report(step3_prey_a__fleet_abc)
-                g3_report(step3_prey_b__fleet_abc)
-                g3_report(step3_prey_c__fleet_abc)
-                g3_report(step3_nll)
-            }
             g3_report(cdist_utcd_model__num)
             g3_report(cdist_utcd_obs__num)
             g3_report(cdist_utsd_model__num)
