@@ -46,6 +46,14 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     }, cpp = '[](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
+        // Redefine lgamma with stricter types
+        // NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
+        //     an expression). Eigen evaluates lazily, and any expression needs
+        //     to be evaluated before we decide what type the lgamma function is.
+        auto lgamma_vec = [](vector<Type> vec) -> vector<Type> {
+            return lgamma(vec);
+        };
+
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
@@ -64,25 +72,16 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
         // probability of growing x lengthgroups for each lengthgroup
         // length group jumps are distributed according to a beta-binomial
         // distribution
-        vector<Type> val_vec(na * (n + 1));
-        vector<Type> lgamma_arg(na * (n + 1));
-
-        // NB: VECTORIZE1_t-ed lgamma needs a single symbol to work
-        val_vec = lgamma((Type) n + 1);
-        lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);
-        lgamma_arg = n - x + beta; val_vec = val_vec + lgamma(lgamma_arg);
-        lgamma_arg = x + alpha; val_vec = val_vec + lgamma(lgamma_arg);
-        lgamma_arg = n - x + 1; val_vec = val_vec - lgamma(lgamma_arg);
-        lgamma_arg = x + 1; val_vec = val_vec - lgamma(lgamma_arg);
-        lgamma_arg = n + alpha + beta; val_vec = val_vec - lgamma(lgamma_arg);
-        val_vec = val_vec - lgamma(beta);
-        // NB: Straight lgamma(alpha) segfaults
-        lgamma_arg = alpha + 0; val_vec = val_vec - lgamma(lgamma_arg);
-        val_vec = val_vec.exp();
-
-        // Map val_vec into a matrix
         array<Type> val(na, n + 1);
-        val = val_vec;
+        val = (lgamma((Type) n + 1) +
+            lgamma_vec(alpha + beta) +
+            lgamma_vec(n - x + beta) +
+            lgamma_vec(x + alpha) -
+            lgamma_vec(n - x + 1) -
+            lgamma_vec(x + 1) -
+            lgamma_vec(n + alpha + beta) -
+            lgamma(beta) -
+            lgamma_vec(alpha)).exp();
         return(val);
     }')
 
