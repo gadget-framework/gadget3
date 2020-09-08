@@ -32,6 +32,7 @@ export(g3a_time)
 
 # R/likelihood_catchdistribution.R
 export(g3l_catchdistribution_sumofsquares)
+export(g3l_catchdistribution_multinomial)
 export(g3l_catchdistribution)
 
 # R/run.R

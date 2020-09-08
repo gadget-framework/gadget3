@@ -49,6 +49,10 @@ attr(cd_data, 'area') <- list(
     x = areas[c('a', 'b')],
     y = areas[c('c')])
 
+# Generate observation data for catch distribution (multinomial)
+multinomial_data <- expand.grid(year = 1999:2000, step = c(1, 2), length = c(1,6))
+multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, max=999))
+
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
 report_step <- function (var_name, steps, initial_val) {
@@ -93,6 +97,12 @@ actions <- g3_collate(
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         g3l_catchdistribution_sumofsquares()),
+    g3l_catchdistribution(
+        'multinom',
+        multinomial_data,
+        list(fleet_abc),
+        list(prey_a),
+        g3l_catchdistribution_multinomial()),
     list(
         # Capture data just before final step erases it
         '010:utcd:001:zzzz' = report_step('cdist_utcd_model__num', 4, array(
@@ -108,6 +118,11 @@ actions <- g3_collate(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("area1", "area3")))),
+        '010:multinom:001:zzzz' = report_step('cdist_multinom_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_multinom_model__num)
+            dim = c(2L),
+            dimnames = list(
+                c("len1", "len6")))),
         '990:prey_a__fleet_abc' = report_step('prey_a__fleet_abc', 4, gadget3:::stock_definition(prey_a, 'stock__wgt')),
         '990:prey_b__fleet_abc' = report_step('prey_b__fleet_abc', 4, gadget3:::stock_definition(prey_b, 'stock__wgt')),
         '990:prey_c__fleet_abc' = report_step('prey_c__fleet_abc', 4, gadget3:::stock_definition(prey_c, 'stock__wgt')),
@@ -117,6 +132,8 @@ actions <- g3_collate(
             g3_report(cdist_utcd_obs__num)
             g3_report(cdist_utsd_model__num)
             g3_report(cdist_utsd_obs__num)
+            g3_report(cdist_multinom_model__num)
+            g3_report(cdist_multinom_obs__num)
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
@@ -294,6 +311,11 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step0_cdist_utcd_model__num[,2] / sum(r$step0_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
+            sum(r$cdist_multinom_obs__num[,1] * log(
+                r$step0_cdist_multinom_model__num / sum(r$step0_cdist_multinom_model__num))))),
         0)), "step0_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
@@ -315,6 +337,11 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
+            sum(r$cdist_multinom_obs__num[,2] * log(
+                r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
@@ -336,6 +363,11 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step2_cdist_utcd_model__num[,2] / sum(r$step2_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,3] / sum(r$cdist_utcd_obs__num[,2,3])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,3] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
+            sum(r$cdist_multinom_obs__num[,3] * log(
+                r$step2_cdist_multinom_model__num / sum(r$step2_cdist_multinom_model__num))))),
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -357,6 +389,11 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,4] / sum(r$cdist_utcd_obs__num[,2,4])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,4] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
+            sum(r$cdist_multinom_obs__num[,4] * log(
+                r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
@@ -380,6 +417,11 @@ ok_group("Likelihood per year", {
         x = areas[c('a', 'b')],
         y = areas[c('c')])
 
+    # Change model to aggregate over a year
+    # NB: No step column now
+    multinomial_data <- expand.grid(year = 1999:2000, length = c(1,6))
+    multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, max=999))
+
     actions <- g3_collate(
         actions,
         g3l_catchdistribution(
@@ -393,7 +435,13 @@ ok_group("Likelihood per year", {
             sd_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
-            g3l_catchdistribution_sumofsquares()))
+            g3l_catchdistribution_sumofsquares()),
+        g3l_catchdistribution(
+            'multinom',
+            multinomial_data,
+            list(fleet_abc),
+            list(prey_a),
+            g3l_catchdistribution_multinomial()))
 
     # Compile model
     model_fn <- g3_compile_r(actions, trace = FALSE)
@@ -494,6 +542,11 @@ ok_group("Likelihood per year", {
         # utcd: area 2
         (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
+            sum(r$cdist_multinom_obs__num[,1] * log(
+                r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -516,6 +569,11 @@ ok_group("Likelihood per year", {
         # utcd: area 2
         (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        # multinom:
+        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
+            sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
+            sum(r$cdist_multinom_obs__num[,2] * log(
+                r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)

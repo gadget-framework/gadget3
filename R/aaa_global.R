@@ -18,3 +18,13 @@ g3_global_env$g3_matrix_vec <- g3_native(r = function(tf, vec) {
        return (tf.matrix() * vec.matrix()).array();
    }
 ')
+
+# Redefine lgamma for vectors with stricter types
+# NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
+#     an expression). Eigen evaluates lazily, and any expression needs
+#     to be evaluated before we decide what type the lgamma function is.
+g3_global_env$lgamma_vec <- g3_native(r = lgamma, cpp = '
+   [](vector<Type> vec) -> vector<Type> {
+       return lgamma(vec);
+   }
+')

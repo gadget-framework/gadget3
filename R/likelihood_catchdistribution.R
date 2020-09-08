@@ -8,6 +8,14 @@ g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
             obsstock_total_f = call_append(stock_ssinv(obsstock__num, 'time'), over)))
 }
 
+g3l_catchdistribution_multinomial <- function () {
+    ~2 * (lgamma(1 + sum(obsstock__num[obsstock__iter])) -
+        sum(lgamma_vec(1 + obsstock__num[obsstock__iter])) +
+        sum(obsstock__num[obsstock__iter] * log(
+            modelstock__num[modelstock__iter] / sum(modelstock__num[modelstock__iter])))
+    )
+}
+
 g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     grid_args <- list()
 
