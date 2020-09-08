@@ -10,6 +10,6 @@
 \.so$
 \.o$
 
-^baseline$
+^demo-baseline$
 ^doc$
 ^docs$
