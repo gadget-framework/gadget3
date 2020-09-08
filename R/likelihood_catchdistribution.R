@@ -1,11 +1,11 @@
 g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
-    call_append <- function (call, extra) as.call(c(as.list(sys.call(0)[[2]]), extra))
+    call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
     f_substitute(~sum((
         modelstock__num[modelstock__iter] / max(sum(modelstock_total_f), 0.00001) -
         obsstock__num[obsstock__iter] / max(sum(obsstock_total_f), 0.00001)) ** 2), list(
-            modelstock_total_f = call_append(stock_ssinv(modelstock__num), over),
-            obsstock_total_f = call_append(stock_ssinv(obsstock__num, 'time'), over)))
+            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__num)), over),
+            obsstock_total_f = call_append(quote(stock_ssinv(obsstock__num, 'time')), over)))
 }
 
 g3l_catchdistribution_multinomial <- function () {
