@@ -32,6 +32,17 @@ ok(ut_cmp_error({
     g3_precompile_tmb(list(~{g3_param("moo", start_year)}))
 }, "g3_param.*moo"), "Complained about dynamic param, we don't support")
 
+ok(grepl(
+    "unknown_func(2)",
+    paste(g3_precompile_tmb(list(~{
+        unknown_func(2)
+    })), collapse = "\n"),
+    fixed = TRUE), "Unknown functions that are valid C++ get included")
+
+ok(ut_cmp_error({
+    g3_precompile_tmb(list(~`0unknown0`(2)))
+}, "0unknown0"), "An unknown function has to at least be a valid C++ function")
+
 ###############################################################################
 
 # Can assign a single value to 1x1 array

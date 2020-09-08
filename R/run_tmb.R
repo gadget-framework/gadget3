@@ -344,18 +344,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(in_call[[3]], in_envir, next_indent)))
     }
 
-    if (call_name %in% c("exp", "log", "seq", "seq_along", "Rprintf", "REprintf")) {
-        # TMB-defined or built-in functions
-        return(paste0(
-            call_name,
-            "(",
-            paste(vapply(
-                call_args,
-                function (x) cpp_code(x, in_envir, next_indent),
-                character(1)), collapse = ", "),
-            ")"))
-    }
-
     if (call_name == "(") {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
     }
@@ -400,7 +388,23 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             ")"))
     }
 
-    stop(c("TODO:", call_name ,":", deparse(in_call)))
+    if (grepl("^[a-zA-Z_][a-zA-Z0-9_]*", call_name)) {
+        # If this looks like a function call, assume TMB has defined an equivalent
+        # function. e.g. lgamma, exp, log, seq, seq_along, Rprintf, REprintf
+        return(paste0(
+            call_name,
+            "(",
+            paste(vapply(
+                call_args,
+                function (x) cpp_code(x, in_envir, next_indent),
+                character(1)), collapse = ", "),
+            ")"))
+    }
+
+    # Unknown call that can't be a C++ function, give up.
+    stop(
+        "Cannot translate ", call_name ," from expression: ",
+        paste(deparse(in_call), collapse = "\n"))
 }
 
 g3_precompile_tmb <- function(actions, trace = FALSE) {
