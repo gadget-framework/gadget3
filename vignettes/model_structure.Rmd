@@ -163,7 +163,8 @@ g3_compile_r(g3a_growmature(
         wgt = ~area * 20),
     impl_f = g3a_grow_impl_bbinom(
         beta_f = ~g3_param("ling.bbin"),
-        maxlengthgroupgrowth = 4)))
+        maxlengthgroupgrowth = 4),
+    transition_f = ~TRUE))
 ```
 
 ...you can see our provided formula have been used to calculate
