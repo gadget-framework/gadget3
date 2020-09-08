@@ -18,8 +18,17 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         writeLines("# skip: not running TMB tests")
     }
 }
-areas <- c(a = 1, b = 2, c = 3)
 
+ok(grepl(
+    'stock_ssinv\\(modelstock__num,\\s+"area",\\s+"age"\\)',
+    paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
+    perl = TRUE), "Added custom totals to sumofsquares modelstock__num")
+ok(grepl(
+    'stock_ssinv\\(obsstock__num,\\s+"time",\\s+"area",\\s+"age"\\)',
+    paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
+    perl = TRUE), "Added custom totals to sumofsquares obsstock__num")
+
+areas <- c(a = 1, b = 2, c = 3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])
 prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
