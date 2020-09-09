@@ -86,9 +86,9 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     }
 
     # NB: area has to be last, so we can sum for the entire area/time
-    if ('area' %in% names(data)) {
+    if (!is.null(attr(data, 'area', exact = TRUE))) {
         # Do area via. MFDB-style attributes
-        area_group <- attr(data, 'area')
+        area_group <- attr(data, 'area', exact = TRUE)
         area_group <- area_group[order(names(area_group))]  # Dimension order should match data
         grid_args$area <- names(area_group)
         modelstock <- g3s_areagroup(modelstock, area_group)
