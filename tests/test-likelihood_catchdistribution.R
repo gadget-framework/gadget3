@@ -53,6 +53,9 @@ attr(cd_data, 'area') <- list(
 multinomial_data <- expand.grid(year = 1999:2000, step = c(1, 2), length = c(1,6))
 multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, max=999))
 
+surveyindices_data <- expand.grid(year = 1999:2000, step = c(1, 2))
+surveyindices_data$number <- floor(runif(length(surveyindices_data$year), min=100, max=999))
+
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
 report_step <- function (var_name, steps, initial_val) {
@@ -103,6 +106,12 @@ actions <- g3_collate(
         list(fleet_abc),
         list(prey_a),
         g3l_catchdistribution_multinomial()),
+    g3l_catchdistribution(
+        'surveyindices',
+        surveyindices_data,
+        list(fleet_abc),
+        list(prey_b),
+        g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))),
     list(
         # Capture data just before final step erases it
         '010:utcd:001:zzzz' = report_step('cdist_utcd_model__num', 4, array(
@@ -123,6 +132,11 @@ actions <- g3_collate(
             dim = c(2L),
             dimnames = list(
                 c("len1", "len6")))),
+        '010:surveyindices:001:zzzz' = report_step('cdist_surveyindices_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_surveyindices_model__num)
+            dim = c(1L),
+            dimnames = list(
+                c("len0")))),
         '990:prey_a__fleet_abc' = report_step('prey_a__fleet_abc', 4, gadget3:::stock_definition(prey_a, 'stock__wgt')),
         '990:prey_b__fleet_abc' = report_step('prey_b__fleet_abc', 4, gadget3:::stock_definition(prey_b, 'stock__wgt')),
         '990:prey_c__fleet_abc' = report_step('prey_c__fleet_abc', 4, gadget3:::stock_definition(prey_c, 'stock__wgt')),
@@ -134,6 +148,8 @@ actions <- g3_collate(
             g3_report(cdist_utsd_obs__num)
             g3_report(cdist_multinom_model__num)
             g3_report(cdist_multinom_obs__num)
+            g3_report(cdist_surveyindices_model__num)
+            g3_report(cdist_surveyindices_obs__num)
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
@@ -146,6 +162,8 @@ params <- list(
     fleet_abc_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
     fleet_abc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
     amount_ab = 100,
+    si_alpha = 0,
+    si_beta = 0,
     x=1.0)
 
 # Compile model
@@ -166,6 +184,8 @@ ok_group("Likelihood per step", {
         fleet_abc_b = runif(10, min=0.1, max=0.9),
         fleet_abc_c = runif(10, min=0.1, max=0.9),
         amount_ab = 1000000,
+        si_alpha = 4,
+        si_beta = 2,
         x=1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
@@ -316,6 +336,10 @@ ok_group("Likelihood per step", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
             sum(r$cdist_multinom_obs__num[,1] * log(
                 r$step0_cdist_multinom_model__num / sum(r$step0_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step0_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,1])),
         0)), "step0_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
@@ -342,6 +366,10 @@ ok_group("Likelihood per step", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
             sum(r$cdist_multinom_obs__num[,2] * log(
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,2])),
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
@@ -368,6 +396,10 @@ ok_group("Likelihood per step", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
             sum(r$cdist_multinom_obs__num[,3] * log(
                 r$step2_cdist_multinom_model__num / sum(r$step2_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step2_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,3])),
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -394,6 +426,10 @@ ok_group("Likelihood per step", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
             sum(r$cdist_multinom_obs__num[,4] * log(
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,4])),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
@@ -422,6 +458,10 @@ ok_group("Likelihood per year", {
     multinomial_data <- expand.grid(year = 1999:2000, length = c(1,6))
     multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, max=999))
 
+    # NB: No step column now
+    surveyindices_data <- expand.grid(year = 1999:2000)
+    surveyindices_data$number <- floor(runif(length(surveyindices_data$year), min=100, max=999))
+
     actions <- g3_collate(
         actions,
         g3l_catchdistribution(
@@ -441,7 +481,13 @@ ok_group("Likelihood per year", {
             multinomial_data,
             list(fleet_abc),
             list(prey_a),
-            g3l_catchdistribution_multinomial()))
+            g3l_catchdistribution_multinomial()),
+        g3l_catchdistribution(
+            'surveyindices',
+            surveyindices_data,
+            list(fleet_abc),
+            list(prey_b),
+            g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))))
 
     # Compile model
     model_fn <- g3_compile_r(actions, trace = FALSE)
@@ -459,6 +505,8 @@ ok_group("Likelihood per year", {
         fleet_abc_b = runif(10, min=0.1, max=0.9),
         fleet_abc_c = runif(10, min=0.1, max=0.9),
         amount_ab = 1000000,
+        si_alpha = 1.82,
+        si_beta = 3.74,
         x=1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
@@ -547,6 +595,10 @@ ok_group("Likelihood per year", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
             sum(r$cdist_multinom_obs__num[,1] * log(
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,1])),
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -574,6 +626,10 @@ ok_group("Likelihood per year", {
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
             sum(r$cdist_multinom_obs__num[,2] * log(
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
+        # surveyindices:
+        sum(params$si_alpha +
+            params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
+            log(r$cdist_surveyindices_obs__num[,2])),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)

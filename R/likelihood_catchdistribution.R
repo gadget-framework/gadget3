@@ -37,13 +37,35 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
                 sigma_f = sigma_f))
 }
 
+g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta = 1) {
+    if (mode == 'log') {
+        f_substitute(~sum(alpha +
+            beta * log(modelstock__num[modelstock__iter]) -
+            log(obsstock__num[obsstock__iter])), list(
+                alpha = alpha,
+                beta = beta))
+    } else if (mode == 'linear') {
+        f_substitute(~sum(alpha +
+            beta * modelstock__num[modelstock__iter] -
+            obsstock__num[obsstock__iter]), list(
+                alpha = alpha,
+                beta = beta))
+    }
+}
+
 g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     grid_args <- list()
 
     # Turn incoming data into stocks with correct dimensions
-    grid_args$length = sort(unique(data$length))
-    modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), unique(data$length))
-    obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), unique(data$length))
+    if ('length' %in% names(data)) {
+        grid_args$length = sort(unique(data$length))
+        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), unique(data$length))
+        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), unique(data$length))
+    } else {
+        # Stocks currently have to have a length vector, even if it only has one element
+        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))
+        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), c(0))
+    }
 
     # TODO: Stock dimensions should be managing their parts
     if ('age' %in% names(data)) {
