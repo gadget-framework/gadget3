@@ -28,6 +28,21 @@ ok(grepl(
     paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
     perl = TRUE), "Added custom totals to sumofsquares obsstock__num")
 
+
+ok_group('g3l_likelihood_data:time', {
+    generate_ld <- function (tbl, ...) gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    stock_dims <- function(ld) dimnames(gadget3:::stock_definition(ld$modelstock, 'stock__num'))
+
+    ok(ut_cmp_error({
+        ld <- generate_ld(
+            data.frame(
+                number = 1:3,
+                stringsAsFactors = FALSE),
+            end = NULL)
+    }, "year column"), "Noticed lack of year column")
+})
+
+
 areas <- c(a = 1, b = 2, c = 3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])

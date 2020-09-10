@@ -98,7 +98,11 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     if ('step' %in% names(data)) {
         grid_args$step <- sort(unique(data$step))
     }
-    grid_args$year <- seq(min(data$year), max(data$year))
+    if ('year' %in% names(data)) {
+        grid_args$year <- seq(min(data$year), max(data$year))
+    } else {
+        stop("Data must contain a year column")
+    }
     obsstock <- g3s_time(obsstock, min(data$year), max(data$year), if (is.null(grid_args$step)) c() else grid_args$step)
 
     # Regenerate table, making sure any gaps are filled (with NA)
