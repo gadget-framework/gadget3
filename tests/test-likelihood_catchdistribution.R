@@ -43,6 +43,40 @@ ok_group('g3l_likelihood_data:time', {
 })
 
 
+ok_group('g3l_likelihood_data:age', {
+    generate_ld <- function (tbl, ...) gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    stock_dims <- function(ld) dimnames(gadget3:::stock_definition(ld$modelstock, 'stock__num'))
+
+    ld <- generate_ld(
+        expand.grid(
+            year = 1999:2001,
+            age = c(3,4,9),
+            number = c(1)),
+        end = NULL)
+    ok(ut_cmp_identical(dimnames(ld$number), list(
+        "len0",
+        c("age3", "age4", "age9"),
+        c("1999.", "2000.", "2001."))), "Worked out age dimensions from data")
+    ok(ut_cmp_identical(stock_dims(ld), list(
+        "len0",
+        c("age3", "age4", "age9"))), "modelstock got same dimensions")
+
+    ld <- generate_ld(
+        expand.grid(
+            year = 1999:2001,
+            age = c('x', 'y'),
+            number = c(1)),
+        age = list(x = 1:3, y = 4:5),
+        end = NULL)
+    ok(ut_cmp_identical(dimnames(ld$number), list(
+        "len0",
+        c("age1", "age4"),
+        c("1999.", "2000.", "2001."))), "Worked out age dimensions from attribute")
+    ok(ut_cmp_identical(stock_dims(ld), list(
+        "len0",
+        c("age1", "age4"))), "modelstock got same dimensions")
+})
+
 areas <- c(a = 1, b = 2, c = 3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])

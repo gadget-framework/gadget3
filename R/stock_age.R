@@ -37,7 +37,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         keys = as.integer(unlist(agegroups)),
         values = unlist(lapply(seq_along(agegroups),
         function (i) rep(i, times = length(agegroups[[i]])))))
-    stock__minages <- vapply(agegroups, function (x) x[[1]], integer(1))
+    stock__minages <- vapply(agegroups, function (x) as.integer(x[[1]]), integer(1))
 
     # Expand all storage with extra dimension
     stock_env <- rlang::f_env(inner_stock$iterate)
@@ -49,7 +49,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
                     length(agegroups)),
                 dimnames = c(
                     dimnames(stock_env[[var_name]]),
-                    list(paste0('age', vapply(agegroups, function (ag) ag[[1]], integer(1)))))))
+                    list(paste0('age', vapply(agegroups, function (ag) as.integer(ag[[1]]), integer(1)))))))
         }
     }
 

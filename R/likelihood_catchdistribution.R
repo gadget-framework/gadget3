@@ -68,8 +68,12 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     }
 
     # TODO: Stock dimensions should be managing their parts
-    if ('age' %in% names(data)) {
-        # TODO: MFDB-style attribute
+    if (!is.null(attr(data, 'age', exact = TRUE))) {
+        age_groups <- attr(data, 'age', exact = TRUE)
+        grid_args$age <- names(age_groups)
+        modelstock <- g3s_agegroup(modelstock, age_groups)
+        obsstock <- g3s_agegroup(obsstock, age_groups)
+    } else if ('age' %in% names(data)) {
         grid_args$age <- sort(unique(data$age))
         modelstock <- g3s_agegroup(modelstock, grid_args$age)
         obsstock <- g3s_agegroup(obsstock, grid_args$age)
