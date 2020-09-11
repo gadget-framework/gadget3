@@ -36,15 +36,15 @@ ling_imm_stddev <- c(
 ling_imm_actions <- g3_collate(
     g3a_initialconditions_normalparam(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
-        factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init")[[g3_idx(age - 3 + 1)]],
+        factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init")[[age - 3 + 1]],
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_imm_stddev[[g3_idx(age - 3 + 1)]],
+        stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
-        factor_f = ~g3_param("ling.rec.scalar") * g3_param_vector("ling.rec")[[g3_idx(cur_year - start_year + 1)]],
+        factor_f = ~g3_param("ling.rec.scalar") * g3_param_vector("ling.rec")[[cur_year - start_year + 1]],
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_imm_stddev[[g3_idx(age - 3 + 1)]],
+        stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
         run_f = ~cur_step == 1 && age == 3),
@@ -82,9 +82,9 @@ ling_mat_stddev <- c(
 ling_mat_actions <- g3_collate(
     g3a_initialconditions_normalparam(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
-        factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init")[[g3_idx(age - 5 + 1)]],
+        factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init")[[age - 5 + 1]],
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_mat_stddev[[g3_idx(age - 5 + 1)]],
+        stddev_f = ~ling_mat_stddev[[age - 5 + 1]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
     g3a_growmature(ling_mat,

@@ -216,11 +216,20 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     if (call_name == '[[') {
-        # Select value from array
+        if (is.symbol(in_call[[3]]) && endsWith(as.character(in_call[[3]]), "_idx")) {
+            # Already 0-based, nothing to do
+            ind <- in_call[[3]]
+        } else if (is.numeric(in_call[[3]])) {
+            # Indices are 0-based, subtract from value
+            ind <- in_call[[3]] - 1
+        } else {
+            # Add a subtract-1 operator
+            ind <- call("-", in_call[[3]], 1)
+        }
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
             "(",
-            cpp_code(in_call[[3]], in_envir, next_indent),
+            cpp_code(ind, in_envir, next_indent),
             ")"))
     }
 

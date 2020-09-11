@@ -29,7 +29,7 @@ g3s_time <- function(inner_stock, minyear, maxyear, steps = c()) {
             maxyear = maxyear))
     } else {
         # Year & step
-        idx_f <- f_substitute(~g3_idx(((cur_year - minyear) * stock__totalsteps) + stock__steplookup[[g3_idx(cur_step)]]), list(
+        idx_f <- f_substitute(~g3_idx(((cur_year - minyear) * stock__totalsteps) + stock__steplookup[[cur_step]]), list(
             minyear = as.integer(minyear),
             maxyear = as.integer(maxyear)))
     }

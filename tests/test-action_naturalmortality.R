@@ -40,7 +40,7 @@ actions <- g3_collate(
         ~100 * age + prey_a__midlen * 0),
     g3a_naturalmortality(
         prey_a,
-        g3a_naturalmortality_exp(~naturalmortality_prey_a[[g3_idx(age - 3 + 1)]]),
+        g3a_naturalmortality_exp(~naturalmortality_prey_a[[age - 3 + 1]]),
         run_f = ~cur_time > 0),  # NB: No mortality on the first step
     list(
         '999' = ~{

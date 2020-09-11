@@ -115,7 +115,7 @@ structure(function (param)
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1
-            cur_step_len <- step_lengths[[(cur_step)]]
+            cur_step_len <- step_lengths[[cur_step]]
             cur_step_final <- cur_step == step_count
             cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
         }
@@ -441,7 +441,7 @@ structure(function (param)
             if (TRUE) {
                 comment("Compare cdist_ldist_lln_model to cdist_ldist_lln_obs")
                 {
-                  cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[(cur_step)]]
+                  cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[cur_step]]
                   if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {
                     nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/max(sum(cdist_ldist_lln_model__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
                   }
