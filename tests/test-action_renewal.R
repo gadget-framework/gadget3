@@ -20,7 +20,7 @@ actions <- g3_collate(
             return(g3_param('x'))
         }))
 params <- list(x=1.0)
-model_fn <- g3_compile_r(actions)
+model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
 
@@ -41,7 +41,7 @@ ok(ut_cmp_identical(
     c(210, 210)), "stock_ac__wgt populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_precompile_tmb(actions)
+    model_cpp <- g3_to_tmb(actions)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params)
     model_tmb_report <- model_tmb$report()

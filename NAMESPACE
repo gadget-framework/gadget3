@@ -42,11 +42,11 @@ export(g3_param)
 export(g3_collate)
 
 # R/run_r.R
-export(g3_compile_r)
+export(g3_to_r)
 S3method(edit, g3_r)
 
 # R/run_tmb.R
-export(g3_precompile_tmb)
+export(g3_to_tmb)
 export(g3_tmb_adfun)
 S3method(edit, g3_cpp)
 S3method(print, g3_cpp)

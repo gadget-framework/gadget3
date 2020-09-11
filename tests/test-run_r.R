@@ -3,7 +3,7 @@ library(unittest)
 library(gadget3)
 
 ok_group('edit.g3_r - Round-trip through an editor results in working code', {
-    model_fn <- g3_compile_r(list(~{
+    model_fn <- g3_to_r(list(~{
         nll <- g3_param('nll')
         return(nll)
     }))

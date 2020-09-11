@@ -21,7 +21,7 @@ ok_group("g3a_grow_impl_bbinom", {
         initial = c(10, 100, 1000, 1000, 10000, 100000),
         maxlengthgroupgrowth = 100,
         dmu = c(10, 10, 10, 10, 10, 10))
-    model_fn <- g3_compile_r(actions)
+    model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
     ok(ut_cmp_equal(environment(model_fn)$model_report$teststock__growth_l, array(c(
@@ -33,7 +33,7 @@ ok_group("g3a_grow_impl_bbinom", {
         0.021952, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439), dim = c(6,7)), tolerance = 1e-5), "Matches baseline")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_precompile_tmb(actions)
+        model_cpp <- g3_to_tmb(actions)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params)
         model_tmb_report <- model_tmb$report()
@@ -79,7 +79,7 @@ ok_group("g3a_growmature", {
         growth_w = c(1,2,3,4,5,6),
         growth_matrix = gm)
 
-    model_fn <- g3_compile_r(actions)
+    model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
     ok(ut_cmp_identical(
@@ -94,7 +94,7 @@ ok_group("g3a_growmature", {
         ((600 * 100000) + 6) / 100000)), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_precompile_tmb(actions)
+        model_cpp <- g3_to_tmb(actions)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params)
         model_tmb_report <- model_tmb$report()

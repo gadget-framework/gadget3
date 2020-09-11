@@ -32,7 +32,7 @@ actions <- g3_collate(
             nll <- g3_param('x')  # ...or TMB falls over
         }))
 params <- list(x=1.0)
-model_fn <- g3_compile_r(actions)
+model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
 # str(as.list(environment(model_fn)$model_report))
@@ -54,7 +54,7 @@ ok(ut_cmp_identical(
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_precompile_tmb(actions)
+    model_cpp <- g3_to_tmb(actions)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params)
     model_tmb_report <- model_tmb$report()

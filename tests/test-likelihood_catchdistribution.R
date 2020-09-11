@@ -275,10 +275,10 @@ params <- list(
     x=1.0)
 
 # Compile model
-model_fn <- g3_compile_r(actions, trace = FALSE)
+model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params)
 } else {
@@ -598,10 +598,10 @@ ok_group("Likelihood per year", {
             g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))))
 
     # Compile model
-    model_fn <- g3_compile_r(actions, trace = FALSE)
+    model_fn <- g3_to_r(actions, trace = FALSE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params)
     } else {

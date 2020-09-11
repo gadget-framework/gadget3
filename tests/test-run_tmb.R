@@ -24,23 +24,23 @@ expecteds <- new.env(parent = emptyenv())
 
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2))
-    g3_precompile_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
+    g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
 
 ok(ut_cmp_error({
     start_year <- 1998
-    g3_precompile_tmb(list(~{g3_param("moo", start_year)}))
+    g3_to_tmb(list(~{g3_param("moo", start_year)}))
 }, "g3_param.*moo"), "Complained about dynamic param, we don't support")
 
 ok(grepl(
     "unknown_func(2)",
-    paste(g3_precompile_tmb(list(~{
+    paste(g3_to_tmb(list(~{
         unknown_func(2)
     })), collapse = "\n"),
     fixed = TRUE), "Unknown functions that are valid C++ get included")
 
 ok(ut_cmp_error({
-    g3_precompile_tmb(list(~`0unknown0`(2)))
+    g3_to_tmb(list(~`0unknown0`(2)))
 }, "0unknown0"), "An unknown function has to at least be a valid C++ function")
 
 ###############################################################################
@@ -144,10 +144,10 @@ actions <- c(actions, ~{
 params <- list(rv=0)
 
 # Compile model
-model_fn <- g3_compile_r(actions, trace = FALSE)
+model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_precompile_tmb(actions, trace = FALSE)
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params)
 } else {

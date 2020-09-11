@@ -407,7 +407,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         paste(deparse(in_call), collapse = "\n"))
 }
 
-g3_precompile_tmb <- function(actions, trace = FALSE) {
+g3_to_tmb <- function(actions, trace = FALSE) {
     all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.

@@ -124,7 +124,7 @@ igfs_actions <- g3_collate(
     list())
 
 time <- g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3))
-ling_model <- g3_compile_r(g3_collate(
+ling_model <- g3_to_r(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
@@ -167,7 +167,7 @@ result <- ling_model(ling_param)
 str(result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
-tmb_ling <- g3_precompile_tmb(g3_collate(
+tmb_ling <- g3_to_tmb(g3_collate(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
