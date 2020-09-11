@@ -16,6 +16,12 @@ library(magrittr)
 
 A grab-bag of things to be aware of when writing code that will get used in TMB.
 
+## Links that are useful when getting to grips with TMB:
+
+* http://kaskr.github.io/adcomp/matrix_arrays_8cpp-example.html
+* https://kaskr.github.io/adcomp/structtmbutils_1_1array.html - TMB defines it's own array and vector classes. A vector isn't just a 1 dimensional array, it's got lots of extra methods.
+* https://github.com/kaskr/adcomp/wiki/Code--snippets
+
 ## Arrays are one dimensional under the hood
 
 A ``tmbutils::Array``, whilst based on an Eigen array, manages dimensions
