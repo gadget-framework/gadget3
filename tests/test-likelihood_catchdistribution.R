@@ -30,7 +30,10 @@ ok(grepl(
 
 
 ok_group('g3l_likelihood_data:time', {
-    generate_ld <- function (tbl, ...) gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    generate_ld <- function (tbl, ...) {
+        tbl$number <- as.numeric(seq_len(nrow(tbl)))
+        gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    }
     stock_dims <- function(ld) dimnames(gadget3:::stock_definition(ld$modelstock, 'stock__num'))
 
     ok(ut_cmp_error({
@@ -40,6 +43,20 @@ ok_group('g3l_likelihood_data:time', {
                 stringsAsFactors = FALSE),
             end = NULL)
     }, "year column"), "Noticed lack of year column")
+
+    ld <- generate_ld(expand.grid(year = c(1998, 2002, 2001)))
+    ok(ut_cmp_identical(ld$number, structure(
+        c(1, NA, NA, 3, 2),
+        .Dimnames = list("len0", c("1998.", "1999.", "2000.", "2001.", "2002.")),
+        .Dim = c(1L, 5L))), "Gap in years resulted in NA padding, perserved wonky year order")
+
+    ld <- generate_ld(data.frame(
+        year = c(1998, 1998, 1999, 2000, 2000),
+        step = c(1,2,1,1,2)))
+    ok(ut_cmp_identical(ld$number, structure(
+        c(1, 2, 3, NA, 4, 5),
+        .Dimnames = list("len0", c("1998.1", "1998.2", "1999.1", "1999.2", "2000.1", "2000.2")),
+        .Dim = c(1L, 6L))), "Gap in years resulted in NA padding, perserved wonky year order")
 })
 
 
