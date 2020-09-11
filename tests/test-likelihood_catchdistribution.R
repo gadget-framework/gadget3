@@ -43,6 +43,48 @@ ok_group('g3l_likelihood_data:time', {
 })
 
 
+ok_group('g3l_likelihood_data:length', {
+    generate_ld <- function (tbl, ...) gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    stock_dims <- function(ld) dimnames(gadget3:::stock_definition(ld$modelstock, 'stock__num'))
+
+    ld <- generate_ld(
+        expand.grid(
+            year = 1999:2001,
+            number = c(1)),
+        end = NULL)
+    ok(ut_cmp_identical(dimnames(ld$number), list(
+        "len0",
+        c("1999.", "2000.", "2001."))), "Default single length dimension")
+    ok(ut_cmp_identical(stock_dims(ld), list(
+        "len0")), "modelstock got default length dimension")
+
+    ld <- generate_ld(
+        expand.grid(
+            year = 1999:2001,
+            length = c(1,5,10,30),
+            number = c(1)),
+        end = NULL)
+    ok(ut_cmp_identical(dimnames(ld$number), list(
+        c("len1", "len5", "len10", "len30"),
+        c("1999.", "2000.", "2001."))), "Lengths read from data")
+    ok(ut_cmp_identical(stock_dims(ld), list(
+        c("len1", "len5", "len10", "len30"))), "modelstock got lengths read from data")
+
+    ld <- generate_ld(
+        expand.grid(
+            year = 1999:2001,
+            length = c(1,10, 20),
+            number = c(1)),
+        length = list(len0 = c(1,10), len10 = c(10,20), len20 = c(20,30), len30 = c(30,40)),
+        end = NULL)
+    ok(ut_cmp_identical(dimnames(ld$number), list(
+        c("len1", "len10", "len20", "len30"),
+        c("1999.", "2000.", "2001."))), "Lengths read from attr")
+    ok(ut_cmp_identical(stock_dims(ld), list(
+        c("len1", "len10", "len20", "len30"))), "modelstock got lengths read from attr")
+})
+
+
 ok_group('g3l_likelihood_data:age', {
     generate_ld <- function (tbl, ...) gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
     stock_dims <- function(ld) dimnames(gadget3:::stock_definition(ld$modelstock, 'stock__num'))

@@ -57,10 +57,18 @@ g3l_likelihood_data <- function (nll_name, data, missing = 'stop') {
     grid_args <- list()
 
     # Turn incoming data into stocks with correct dimensions
-    if ('length' %in% names(data)) {
-        grid_args$length = sort(unique(data$length))
-        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), unique(data$length))
-        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), unique(data$length))
+    if (!is.null(attr(data, 'length', exact = TRUE))) {
+        length_groups <- attr(data, 'length', exact = TRUE)
+        # Ditch upper bound from length groups
+        # TODO: Should be filling in any gaps
+        length_groups <- vapply(length_groups, function (x) x[[1]], numeric(1))
+        grid_args$length <- names(length_groups)
+        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups)
+        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups)
+    } else if ('length' %in% names(data)) {
+        grid_args$length <- sort(unique(data$length))
+        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), grid_args$length)
+        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), grid_args$length)
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))

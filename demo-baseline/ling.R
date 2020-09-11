@@ -41,10 +41,6 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
-    g3_matrix_vec <- function (tf, vec) 
-    {
-        return((tf %*% vec)[, 1])
-    }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
     end_year <- 2018L
@@ -104,13 +100,11 @@ structure(function (param)
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
-    cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L), dimnames = list(c("len100", "len104", "len108", "len112", "len116", "len120", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len124", "len128", "len140", "len144", "len132", "len136", "len148", "len156", "len40", "len44", "len152", "len28", "len32", "len20", "len36", "len24"), c("1994.1", "1994.2", "1994.3", "1994.4", "1995.1", "1995.2", "1995.3", "1995.4", "1996.1", "1996.2", 
+    cdist_ldist_lln_obs__num <- array(dim = c(35L, 100L), dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), c("1994.1", "1994.2", "1994.3", "1994.4", "1995.1", "1995.2", "1995.3", "1995.4", "1996.1", "1996.2", 
     "1996.3", "1996.4", "1997.1", "1997.2", "1997.3", "1997.4", "1998.1", "1998.2", "1998.3", "1998.4", "1999.1", "1999.2", "1999.3", "1999.4", "2000.1", "2000.2", "2000.3", "2000.4", "2001.1", "2001.2", "2001.3", "2001.4", "2002.1", "2002.2", "2002.3", "2002.4", "2003.1", "2003.2", "2003.3", "2003.4", "2004.1", "2004.2", "2004.3", "2004.4", "2005.1", "2005.2", "2005.3", "2005.4", "2006.1", "2006.2", "2006.3", "2006.4", "2007.1", "2007.2", "2007.3", "2007.4", "2008.1", "2008.2", "2008.3", "2008.4", 
     "2009.1", "2009.2", "2009.3", "2009.4", "2010.1", "2010.2", "2010.3", "2010.4", "2011.1", "2011.2", "2011.3", "2011.4", "2012.1", "2012.2", "2012.3", "2012.4", "2013.1", "2013.2", "2013.3", "2013.4", "2014.1", "2014.2", "2014.3", "2014.4", "2015.1", "2015.2", "2015.3", "2015.4", "2016.1", "2016.2", "2016.3", "2016.4", "2017.1", "2017.2", "2017.3", "2017.4", "2018.1", "2018.2", "2018.3", "2018.4")))
     ldist_lln_number <- model_data$ldist_lln_number
-    cdist_ldist_lln_model__num <- array(dim = 35L, dimnames = list(c("len100", "len104", "len108", "len112", "len116", "len120", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len124", "len128", "len140", "len144", "len132", "len136", "len148", "len156", "len40", "len44", "len152", "len28", "len32", "len20", "len36", "len24")))
-    ling_imm_cdist_ldist_lln_model_lgmatrix <- model_data$ling_imm_cdist_ldist_lln_model_lgmatrix
-    ling_mat_cdist_ldist_lln_model_lgmatrix <- model_data$ling_mat_cdist_ldist_lln_model_lgmatrix
+    cdist_ldist_lln_model__num <- array(dim = 35L, dimnames = list(c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
     cdist_ldist_lln_obs__totalsteps <- 4L
     cdist_ldist_lln_obs__steplookup <- model_data$cdist_ldist_lln_obs__steplookup
     while (TRUE) {
@@ -426,7 +420,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   {
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/pmax(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 1e-05))
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/pmax(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 1e-05)
                   }
                 }
             }
@@ -438,7 +432,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   {
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 1e-05))
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
                   }
                 }
             }

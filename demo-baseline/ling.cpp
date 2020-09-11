@@ -89,9 +89,6 @@ Type objective_function<Type>::operator() () {
     }
     return out;
 };
-    auto g3_matrix_vec = [](array<Type>tf, vector<Type> vec) -> vector<Type> {
-       return (tf.matrix() * vec.matrix()).array();
-   };
     int cur_time = -1;
     DATA_IVECTOR(step_lengths)
     int end_year = 2018;
@@ -154,8 +151,6 @@ Type objective_function<Type>::operator() () {
     array<Type> cdist_ldist_lln_obs__num(35,100);
     DATA_ARRAY(ldist_lln_number)
     vector<Type> cdist_ldist_lln_model__num(35);
-    DATA_ARRAY(ling_imm_cdist_ldist_lln_model_lgmatrix)
-    DATA_ARRAY(ling_mat_cdist_ldist_lln_model_lgmatrix)
     int cdist_ldist_lln_obs__totalsteps = 4;
     DATA_IVECTOR(cdist_ldist_lln_obs__steplookup)
 
@@ -508,7 +503,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     {
-                        cdist_ldist_lln_model__num += g3_matrix_vec(ling_imm_cdist_ldist_lln_model_lgmatrix, ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)).cwiseMax(1e-05));
+                        cdist_ldist_lln_model__num += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)).cwiseMax(1e-05);
                     }
                 }
             }
@@ -522,7 +517,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     {
-                        cdist_ldist_lln_model__num += g3_matrix_vec(ling_mat_cdist_ldist_lln_model_lgmatrix, ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05));
+                        cdist_ldist_lln_model__num += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)).cwiseMax(1e-05);
                     }
                 }
             }
