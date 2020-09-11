@@ -119,8 +119,7 @@ igfs_actions <- g3_collate(
         igfs_obs_data,
         fleets = list(igfs),
         stocks = list(ling_imm, ling_mat),
-        g3l_catchdistribution_sumofsquares(),
-        missing = 0),  # Use 0 for any missing values
+        g3l_catchdistribution_sumofsquares()),
     list())
 
 time <- g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3))

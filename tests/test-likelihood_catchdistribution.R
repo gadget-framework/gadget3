@@ -46,17 +46,17 @@ ok_group('g3l_likelihood_data:time', {
 
     ld <- generate_ld(expand.grid(year = c(1998, 2002, 2001)))
     ok(ut_cmp_identical(ld$number, structure(
-        c(1, NA, NA, 3, 2),
+        c(1, 0, 0, 3, 2),
         .Dimnames = list("len0", c("1998.", "1999.", "2000.", "2001.", "2002.")),
-        .Dim = c(1L, 5L))), "Gap in years resulted in NA padding, perserved wonky year order")
+        .Dim = c(1L, 5L))), "Gap in years resulted in 0 padding, perserved wonky year order")
 
     ld <- generate_ld(data.frame(
         year = c(1998, 1998, 1999, 2000, 2000),
         step = c(1,2,1,1,2)))
     ok(ut_cmp_identical(ld$number, structure(
-        c(1, 2, 3, NA, 4, 5),
+        c(1, 2, 3, 0, 4, 5),
         .Dimnames = list("len0", c("1998.1", "1998.2", "1999.1", "1999.2", "2000.1", "2000.2")),
-        .Dim = c(1L, 6L))), "Gap in years resulted in NA padding, perserved wonky year order")
+        .Dim = c(1L, 6L))), "Gap in years resulted in 0 padding, perserved wonky year order")
 })
 
 
