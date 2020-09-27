@@ -142,8 +142,8 @@ stock_step <- function(step_f) {
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
-            stock_data_var <- x[[2]]  # NB: A "stock__num", not "stock"
-            stock_var <- gsub('__.*$', '', stock_data_var)
+            stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
+            stock_var <- gsub('__.*$', '', stock_instance)
             stock <- get(stock_var, envir = rlang::f_env(step_f))
             wanted_dims <- as.character(tail(x, -2))
 
@@ -151,8 +151,8 @@ stock_step <- function(step_f) {
             ss <- tail(as.list(stock_rename(stock$iter_ss, "stock", stock_var)), -2)
 
             # Replace unwanted dimensions with missing symbol
-            ss[!(stock$iter_ss_names %in% wanted_dims)] <- list(quote(x[])[[3]])
-            return(as.call(c(list(as.symbol("["), stock_data_var), ss)))
+            ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
+            return(as.call(c(list(as.symbol("["), stock_instance), ss)))
         },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))

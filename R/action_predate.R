@@ -8,14 +8,17 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
     # prey_stock__totalpredate: Biomass predated for that stock (prey matrix)
     # prey_stock__overconsumption: Factor to scale prey_stock__fleet_stock: / fleet_stock__catch / prey_stock__totalpredate
     #                              to bring it down to 95% of current stock
+    fleet_stock__catch <- stock_instance(fleet_stock)
 
     # For each prey stock...
     for (prey_stock in prey_stocks) {
         # Create variable to store biomass of stock caught
         fleet_stock_var <- as.symbol(paste0('prey_stock__', fleet_stock$name))
-        assign(as.character(fleet_stock_var), stock_definition(prey_stock, 'stock__num'))
-        prey_stock__totalpredate <- stock_definition(prey_stock, 'stock__wgt')
-        prey_stock__overconsumption <- stock_definition(prey_stock, 'stock__wgt')
+        prey_stock__num <- stock_instance(prey_stock)
+        prey_stock__wgt <- stock_instance(prey_stock)
+        assign(as.character(fleet_stock_var), stock_instance(prey_stock))
+        prey_stock__totalpredate <- stock_instance(prey_stock)
+        prey_stock__overconsumption <- stock_instance(prey_stock)
 
         # Make sure counter for this fleet is zeroed
         # NB: We only have one of these per-fleet (we replace it a few times though)

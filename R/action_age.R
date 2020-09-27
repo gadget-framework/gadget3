@@ -13,8 +13,10 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
-    stock__transitioning_num <- stock_definition(stock, 'stock__num')
-    stock__transitioning_wgt <- stock_definition(stock, 'stock__wgt')
+    stock__num <- stock_instance(stock)
+    stock__wgt <- stock_instance(stock)
+    stock__transitioning_num <- stock_instance(stock)
+    stock__transitioning_wgt <- stock_instance(stock)
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {

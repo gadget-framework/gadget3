@@ -136,8 +136,8 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         stock_map = stock_map,
         number = array(full_table$number,
-            dim = dim(stock_definition(obsstock, 'stock__num')),
-            dimnames = dimnames(stock_definition(obsstock, 'stock__num'))),
+            dim = obsstock$dim,
+            dimnames = obsstock$dimnames),
         nll_name = nll_name))
 }
 
@@ -160,6 +160,8 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
+    modelstock__num <- stock_instance(modelstock)
+    obsstock__num <- stock_instance(obsstock)
     assign(paste0(nll_name, '_number'), ld$number)
 
     out[[step_id(run_at, nll_name, 0)]] <- stock_step(f_substitute(~{

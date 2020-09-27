@@ -25,10 +25,20 @@ ok_group("step_id", {
 
 ok_group("stock_step:stock_reshape", {
     source <- g3_stock('source', seq(10, 40, 10))
+    source__num <- gadget3:::stock_instance(source)
+    source__wgt <- gadget3:::stock_instance(source)
     dest_even <- g3_stock('dest_even', seq(10, 40, 10))  # Input == output
+    dest_even__num <- gadget3:::stock_instance(dest_even)
+    dest_even__wgt <- gadget3:::stock_instance(dest_even)
     dest_combine <- g3_stock('dest_combine', seq(10, 40, 40))  # All input combined
+    dest_combine__num <- gadget3:::stock_instance(dest_combine)
+    dest_combine__wgt <- gadget3:::stock_instance(dest_combine)
     dest_2group <- g3_stock('dest_2group', seq(10, 40, 20))  # 2 groups
+    dest_2group__num <- gadget3:::stock_instance(dest_2group)
+    dest_2group__wgt <- gadget3:::stock_instance(dest_2group)
     dest_wider <- g3_stock('dest_wider', seq(0, 90, 10))  # Wider top and bottom
+    dest_wider__num <- gadget3:::stock_instance(dest_wider)
+    dest_wider__wgt <- gadget3:::stock_instance(dest_wider)
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
     actions <- g3_collate(

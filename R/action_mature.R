@@ -70,8 +70,10 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
     list_of_formulae <- function (x) all(vapply(x, rlang::is_formula, logical(1)))
     stopifnot(list_of_formulae(output_ratios) || sum(output_ratios) == 1)
 
-    stock__transitioning_num <- stock_definition(stock, 'stock__num')
-    stock__transitioning_wgt <- stock_definition(stock, 'stock__wgt')
+    stock__num <- stock_instance(stock)
+    stock__wgt <- stock_instance(stock)
+    stock__transitioning_num <- stock_instance(stock)
+    stock__transitioning_wgt <- stock_instance(stock)
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{

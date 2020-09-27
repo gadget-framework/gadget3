@@ -23,14 +23,14 @@ prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(3, 5)
 # NB: 1 per age, starting at 3
 naturalmortality_prey_a <- c(0.6, 0.7, 0.1)
 
-step0_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step0_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step1_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step1_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step2_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step2_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
-step3_prey_a__num <- gadget3:::stock_definition(prey_a, 'stock__num')
-step3_prey_a__wgt <- gadget3:::stock_definition(prey_a, 'stock__wgt')
+step0_prey_a__num <- gadget3:::stock_instance(prey_a)
+step0_prey_a__wgt <- gadget3:::stock_instance(prey_a)
+step1_prey_a__num <- gadget3:::stock_instance(prey_a)
+step1_prey_a__wgt <- gadget3:::stock_instance(prey_a)
+step2_prey_a__num <- gadget3:::stock_instance(prey_a)
+step2_prey_a__wgt <- gadget3:::stock_instance(prey_a)
+step3_prey_a__num <- gadget3:::stock_instance(prey_a)
+step3_prey_a__wgt <- gadget3:::stock_instance(prey_a)
 
 actions <- g3_collate(
     g3a_time(2000, 2000, steps = c(3, 3, 5, 1)),

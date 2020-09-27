@@ -148,7 +148,9 @@ g3a_growmature <- function(stock,
     out <- new.env(parent = emptyenv())
 
     # See AgeBandMatrix::Grow
-    stock__growth_num <- stock_definition(stock, 'stock__num')
+    stock__num <- stock_instance(stock)
+    stock__wgt <- stock_instance(stock)
+    stock__growth_num <- stock_instance(stock)
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
     stock__growth_w <- array(dim = dim(stock__growth_num)[[1]])
 

@@ -3,6 +3,12 @@ stock_definition <- function(stock, var_name) {
     get(var_name, envir = rlang::f_env(stock$iterate))
 }
 
+# Define an array that matches stock
+stock_instance <- function (stock) {
+    # TODO: Don't make it yet, defer until g3 needs it
+    return(array(dim = stock$dim, dimnames = stock$dimnames))
+}
+
 g3_stock <- function(var_name, lengthgroups) {
     # See LengthGroupDivision::LengthGroupDivision
     stopifnot(length(lengthgroups) > 0)
@@ -15,29 +21,24 @@ g3_stock <- function(var_name, lengthgroups) {
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
 
-    stock__num <- array(  # Number of individuals
-        dim = length(lengthgroups),
-        dimnames = list(paste0('len', lengthgroups)))
-    stock__wgt <- array(  # Mean weight of individuals
-        dim = length(lengthgroups),
-        dimnames = list(paste0('len', lengthgroups)))
-
     list(
+        dim = c(
+            length = length(lengthgroups)),
+        dimnames = list(
+            length = paste0('len', lengthgroups)),
         iterate = ~extension_point,
         iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
-        iter_ss_names = 'length',
         intersect = ~extension_point,
         rename = ~extension_point,
         name = var_name)
 }
 
 g3_fleet <- function(var_name) {
-    stock__catch <- 0.0
-
     list(
+        dim = c(),
+        dimnames = list(),
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
-        iter_ss_names = c(),
         intersect = ~extension_point,
         rename = ~extension_point,
         name = var_name)
