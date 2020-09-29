@@ -110,6 +110,13 @@ stock_step <- function(step_f) {
             source_stock <- get(source_stock_var, envir = rlang::f_env(step_f))
             source_lg <- stock_definition(source_stock, 'stock__minlen')
 
+            # Get upper bound for length groups, if infinite guess something that should work
+            # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
+            source_upperlen <- stock_definition(source_stock, 'stock__upperlen')
+            if (is.infinite(source_upperlen)) source_upperlen <- tail(source_lg, 1) + 1
+            dest_upperlen <- stock_definition(stock, 'stock__upperlen')
+            if (is.infinite(dest_upperlen)) dest_upperlen <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
+
             if (isTRUE(all.equal(source_lg, dest_lg))) {
                 # Source == dest, so no point doing a transform
                 out_f <- inner_f
@@ -117,14 +124,11 @@ stock_step <- function(step_f) {
                 # Generate a matrix to transform one to the other
                 matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
                 assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
-                    # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
-                    plus_group <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
-
                     lower_s <- source_lg[[source_idx]]
-                    upper_s <- if (source_idx >= length(source_lg)) tail(source_lg, 1) + 1 else source_lg[[source_idx + 1]]
+                    upper_s <- if (source_idx >= length(source_lg)) source_upperlen else source_lg[[source_idx + 1]]
 
                     lower_d <- dest_lg[[dest_idx]]
-                    upper_d <- if (dest_idx >= length(dest_lg)) plus_group else dest_lg[[dest_idx + 1]]
+                    upper_d <- if (dest_idx >= length(dest_lg)) dest_upperlen else dest_lg[[dest_idx + 1]]
 
                     intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
                     return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)

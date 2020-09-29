@@ -4,18 +4,33 @@ stock_definition <- function(stock, var_name) {
 }
 
 # Define an array that matches stock
-stock_instance <- function (stock) {
+stock_instance <- function (stock, init_value = NA) {
     # TODO: Don't make it yet, defer until g3 needs it
-    return(array(dim = stock$dim, dimnames = stock$dimnames))
+    return(array(init_value, dim = stock$dim, dimnames = stock$dimnames))
 }
 
-g3_stock <- function(var_name, lengthgroups) {
+g3_stock <- function(var_name, lengthgroups, open_ended = TRUE) {
     # See LengthGroupDivision::LengthGroupDivision
     stopifnot(length(lengthgroups) > 0)
 
+    # If no names given, make some up
+    if (is.null(names(lengthgroups))) {
+        names(lengthgroups) <- paste0('len', lengthgroups)
+    }
+
     # stock__dl is size of each lengthgroup
-    plus_group_max <- tail(lengthgroups, 1) + (if (length(lengthgroups) > 1) mean(diff(lengthgroups)) else 1)
-    stock__dl <- diff(c(lengthgroups, plus_group_max))
+    # stock__upperlen is the final upper bound of the groups
+    if (isTRUE(open_ended)) {
+        # plus-group infinite, guess next value in sequence for semi-sane __dl
+        stock__dl <- unname(diff(c(lengthgroups,
+            tail(lengthgroups, 1) + (if (length(lengthgroups) > 1) mean(diff(lengthgroups)) else 1))))
+        stock__upperlen <- Inf
+    } else {
+        # Split off final value for absolute max
+        stock__dl <- unname(diff(lengthgroups))
+        stock__upperlen <- unname(tail(lengthgroups, 1))
+        lengthgroups <- head(lengthgroups, -1)
+    }
 
     # Force array so type is stable in TMB
     stock__minlen <- as.array(lengthgroups)
@@ -25,7 +40,7 @@ g3_stock <- function(var_name, lengthgroups) {
         dim = c(
             length = length(lengthgroups)),
         dimnames = list(
-            length = paste0('len', lengthgroups)),
+            length = names(lengthgroups)),
         iterate = ~extension_point,
         iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
         intersect = ~extension_point,

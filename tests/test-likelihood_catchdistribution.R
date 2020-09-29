@@ -515,8 +515,8 @@ ok_group("Likelihood per year", {
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        as.vector(r$cdist_utsd_obs__num),
-        sd_data$number), "cdist_utsd_obs__num: Imported from data.frame")
+        sort(as.vector(r$cdist_utsd_obs__num)),
+        sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
     ######## cdist_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(

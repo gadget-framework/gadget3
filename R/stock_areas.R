@@ -43,6 +43,11 @@ g3s_livesonareas <- function(inner_stock, areas) {
 
 # - areagroups: list(1:2, 3)
 g3s_areagroup <- function(inner_stock, areagroups) {
+    # If no names given, make some up
+    if (is.null(names(areagroups))) {
+        names(areagroups) <- paste0('area', vapply(areagroups, function (ag) ag[[1]], numeric(1)))
+    }
+
     stock__areagroup_lookup <- g3_intlookup(
         inner_stock$name,
         keys = as.integer(unlist(areagroups)),
@@ -50,19 +55,11 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         function (i) rep(i, times = length(areagroups[[i]])))))
     stock__minareas <- as.array(vapply(areagroups, function (x) as.integer(x[[1]]), integer(1)))
 
-    if (is.null(names(areagroups))) {
-        # Name group by first item
-        area_dimnames <- paste0('area', vapply(areagroups, function (ag) ag[[1]], numeric(1)))
-    } else {
-        # Use group names
-        area_dimnames <- paste0('area_', names(areagroups))
-    }
-
     list(
         dim = c(inner_stock$dim,
             area = length(areagroups)),
         dimnames = c(inner_stock$dimnames, list(
-            area = area_dimnames)),
+            area = names(areagroups))),
         iterate = f_substitute(~for (stock__areagroup_idx in seq_along(stock__minareas)) g3_with(
             area, stock__minareas[[stock__areagroup_idx]], extension_point), list(
             extension_point = inner_stock$iterate)),

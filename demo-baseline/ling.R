@@ -41,6 +41,11 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
+    intintlookup_getdefault <- function (lookup, key) 
+    {
+        out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
+        return(if (length(out) < 1) -1 else out)
+    }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
     end_year <- 2018L
@@ -107,13 +112,18 @@ structure(function (param)
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
-    cdist_ldist_lln_obs__num <- array(dim = c(length = 35L, time = 100L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), time = c("1994.1", "1994.2", "1994.3", "1994.4", "1995.1", "1995.2", 
-    "1995.3", "1995.4", "1996.1", "1996.2", "1996.3", "1996.4", "1997.1", "1997.2", "1997.3", "1997.4", "1998.1", "1998.2", "1998.3", "1998.4", "1999.1", "1999.2", "1999.3", "1999.4", "2000.1", "2000.2", "2000.3", "2000.4", "2001.1", "2001.2", "2001.3", "2001.4", "2002.1", "2002.2", "2002.3", "2002.4", "2003.1", "2003.2", "2003.3", "2003.4", "2004.1", "2004.2", "2004.3", "2004.4", "2005.1", "2005.2", "2005.3", "2005.4", "2006.1", "2006.2", "2006.3", "2006.4", "2007.1", "2007.2", "2007.3", "2007.4", 
-    "2008.1", "2008.2", "2008.3", "2008.4", "2009.1", "2009.2", "2009.3", "2009.4", "2010.1", "2010.2", "2010.3", "2010.4", "2011.1", "2011.2", "2011.3", "2011.4", "2012.1", "2012.2", "2012.3", "2012.4", "2013.1", "2013.2", "2013.3", "2013.4", "2014.1", "2014.2", "2014.3", "2014.4", "2015.1", "2015.2", "2015.3", "2015.4", "2016.1", "2016.2", "2016.3", "2016.4", "2017.1", "2017.2", "2017.3", "2017.4", "2018.1", "2018.2", "2018.3", "2018.4")))
+    cdist_ldist_lln_obs__num <- array(dim = c(length = 35L, time = 92L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), time = c("1994004", "1995001", "1995003", "1995004", "1996001", "1996003", 
+    "1996004", "1997001", "1997002", "1997003", "1997004", "1998001", "1998002", "1998003", "1998004", "1999001", "1999002", "1999003", "1999004", "2000001", "2000002", "2000003", "2000004", "2001001", "2001003", "2001004", "2002001", "2002002", "2002003", "2002004", "2003001", "2003002", "2003003", "2003004", "2004001", "2004002", "2004003", "2004004", "2005001", "2005002", "2005003", "2005004", "2006001", "2006002", "2006003", "2006004", "2007001", "2007002", "2007003", "2007004", "2008001", "2008002", 
+    "2008003", "2008004", "2009001", "2009002", "2009003", "2009004", "2010001", "2010002", "2010003", "2010004", "2011001", "2011002", "2011003", "2011004", "2012001", "2012002", "2012003", "2012004", "2013001", "2013002", "2013003", "2013004", "2014001", "2014002", "2014003", "2014004", "2015001", "2015002", "2015003", "2015004", "2016001", "2016002", "2016003", "2016004", "2017002", "2017003", "2017004", "2018001", "2018002", "2018003")))
     ldist_lln_number <- model_data$ldist_lln_number
     cdist_ldist_lln_model__num <- array(dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
-    cdist_ldist_lln_obs__totalsteps <- 4L
-    cdist_ldist_lln_obs__steplookup <- model_data$cdist_ldist_lln_obs__steplookup
+    intintlookup_zip <- function (keys, values) 
+    {
+        list(keys = keys, values = values)
+    }
+    times_cdist_ldist_lln_obs__keys <- model_data$times_cdist_ldist_lln_obs__keys
+    times_cdist_ldist_lln_obs__values <- model_data$times_cdist_ldist_lln_obs__values
+    times_cdist_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values)
     while (TRUE) {
         {
             comment("g3a_time")
@@ -448,8 +458,8 @@ structure(function (param)
             if (TRUE) {
                 comment("Compare cdist_ldist_lln_model to cdist_ldist_lln_obs")
                 {
-                  cdist_ldist_lln_obs__time_idx <- ((cur_year - 1994L) * cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup[[cur_step]]
-                  if (cdist_ldist_lln_obs__time_idx >= (1) && cdist_ldist_lln_obs__time_idx <= (100)) {
+                  cdist_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year * 1000 + cur_step)
+                  if (cdist_ldist_lln_obs__time_idx >= (1)) {
                     nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/max(sum(cdist_ldist_lln_model__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
                   }
                 }

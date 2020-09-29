@@ -89,6 +89,9 @@ Type objective_function<Type>::operator() () {
     }
     return out;
 };
+    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key) -> int {
+            return lookup.count(key) > 0 ? lookup[key] : -1;
+        };
     int cur_time = -1;
     DATA_IVECTOR(step_lengths)
     int end_year = 2018;
@@ -148,11 +151,21 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__growth_l;
     DATA_VECTOR(ling_mat__dl)
     vector<Type> ling_mat__growth_w(35);
-    array<Type> cdist_ldist_lln_obs__num(35,100);
+    array<Type> cdist_ldist_lln_obs__num(35,92);
     DATA_ARRAY(ldist_lln_number)
     vector<Type> cdist_ldist_lln_model__num(35);
-    int cdist_ldist_lln_obs__totalsteps = 4;
-    DATA_IVECTOR(cdist_ldist_lln_obs__steplookup)
+    auto intintlookup_zip = [](vector<int> keys, vector<int> values) -> std::map<int, int> {
+            std::map<int, int> lookup = {};
+
+            assert(keys.size() == values.size());
+            for (size_t i = 0; i < keys.size(); ++i) {
+                lookup[keys[i]] = values[i];
+            }
+            return lookup;
+        };
+    DATA_IVECTOR(times_cdist_ldist_lln_obs__keys)
+    DATA_IVECTOR(times_cdist_ldist_lln_obs__values)
+    auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
 
     while (true) {
         {
@@ -526,9 +539,9 @@ Type objective_function<Type>::operator() () {
             if ( true ) {
                 // Compare cdist_ldist_lln_model to cdist_ldist_lln_obs;
                 {
-                    auto cdist_ldist_lln_obs__time_idx = ((cur_year - 1994)*cdist_ldist_lln_obs__totalsteps) + cdist_ldist_lln_obs__steplookup ( cur_step - 1 ) - 1;
+                    auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step) - 1;
 
-                    if ( cdist_ldist_lln_obs__time_idx >= 0 && cdist_ldist_lln_obs__time_idx <= 99 ) {
+                    if ( cdist_ldist_lln_obs__time_idx >= 0 ) {
                         nll += 1*(pow((cdist_ldist_lln_model__num / std::max( (Type)(cdist_ldist_lln_model__num).sum(), (Type)1e-05) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / std::max( (Type)(cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum(), (Type)1e-05)), (Type)2)).sum();
                     }
                 }

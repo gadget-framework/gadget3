@@ -21,6 +21,11 @@ g3s_age <- function(inner_stock, minage, maxage) {
 
 # - agegroups: list(1:3, 4:10)
 g3s_agegroup <- function(inner_stock, agegroups) {
+    # If no names given, make some up
+    if (is.null(names(agegroups))) {
+        names(agegroups) <- paste0('age', vapply(agegroups, function (ag) ag[[1]], numeric(1)))
+    }
+
     stock__agegroup_lookup <- g3_intlookup(
         inner_stock$name,
         keys = as.integer(unlist(agegroups)),
@@ -32,7 +37,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         dim = c(inner_stock$dim,
             age = length(agegroups)),
         dimnames = c(inner_stock$dimnames, list(
-            age = paste0('age', vapply(agegroups, function (ag) as.integer(ag[[1]]), integer(1))))),
+            age = names(agegroups))),
         iterate = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
             age, stock__minages[[stock__agegroup_idx]], extension_point), list(
             extension_point = inner_stock$iterate)),
