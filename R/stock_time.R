@@ -13,10 +13,10 @@ g3s_time <- function(inner_stock, times) {
 
     if (any(times > 9999)) {
         # Year + step
-        idx_f <- timelookup('getdefault', ~cur_year * 1000 + cur_step)
+        idx_f <- timelookup('getdefault', ~cur_year * 1000 + cur_step, -1)
     } else {
         # Just year
-        idx_f <- timelookup('getdefault', ~cur_year)
+        idx_f <- timelookup('getdefault', ~cur_year, -1)
     }
 
     list(

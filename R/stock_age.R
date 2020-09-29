@@ -45,7 +45,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         intersect = f_substitute(~g3_with(
             stock__agegroup_idx, g3_idx(lookup),
             if (stock__agegroup_idx > g3_idx(-1)) extension_point), list(
-                lookup = stock__agegroup_lookup('getdefault', ~age),
+                lookup = stock__agegroup_lookup('getdefault', ~age, -1),
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
         name = inner_stock$name)

@@ -1,13 +1,9 @@
 structure(function (param) 
 {
-    inttypelookup_get <- function (lookup, key) 
+    inttypelookup_getdefault <- function (lookup, key, def) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-        if (length(out) < 1) {
-            our_args <- as.list(sys.call())
-            stop(key, " not in ", our_args[[2]])
-        }
-        return(out)
+        return(if (length(out) < 1) def else out)
     }
     growth_bbinom <- function (dmu, lengthgrouplen, binn, beta) 
     {
@@ -41,10 +37,10 @@ structure(function (param)
         }
         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
     }
-    intintlookup_getdefault <- function (lookup, key) 
+    intintlookup_getdefault <- function (lookup, key, def) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-        return(if (length(out) < 1) -1 else out)
+        return(if (length(out) < 1) def else out)
     }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
@@ -225,7 +221,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale fleet amount by total expected catch")
-                      predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      predate_totalfleet_E <- (inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0))
                       ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- predate_totalfleet_E * ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/igfs__catch[igfs__area_idx]
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
@@ -242,7 +238,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Scale fleet amount by total expected catch")
-                      predate_totalfleet_E <- (inttypelookup_get(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step))
+                      predate_totalfleet_E <- (inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0))
                       ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- predate_totalfleet_E * ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/igfs__catch[igfs__area_idx]
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
@@ -458,7 +454,7 @@ structure(function (param)
             if (TRUE) {
                 comment("Compare cdist_ldist_lln_model to cdist_ldist_lln_obs")
                 {
-                  cdist_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year * 1000 + cur_step)
+                  cdist_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year * 1000 + cur_step, -1)
                   if (cdist_ldist_lln_obs__time_idx >= (1)) {
                     nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/max(sum(cdist_ldist_lln_model__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
                   }

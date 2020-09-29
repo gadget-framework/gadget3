@@ -21,9 +21,8 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__scalar);
     PARAMETER_VECTOR(ling__rec);
     
-    auto inttypelookup_get = [](std::map<int, Type> lookup, int key) -> Type {
-            assert(lookup.count(key) > 0);
-            return lookup[key];
+    auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
+            return lookup.count(key) > 0 ? lookup[key] : def;
         };
     auto growth_bbinom = [](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
@@ -89,8 +88,8 @@ Type objective_function<Type>::operator() () {
     }
     return out;
 };
-    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key) -> int {
-            return lookup.count(key) > 0 ? lookup[key] : -1;
+    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
+            return lookup.count(key) > 0 ? lookup[key] : def;
         };
     int cur_time = -1;
     DATA_IVECTOR(step_lengths)
@@ -277,7 +276,7 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Scale fleet amount by total expected catch;
-                            predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
+                            predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
                             ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
                             ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
@@ -296,7 +295,7 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Scale fleet amount by total expected catch;
-                            predate_totalfleet_E = (inttypelookup_get(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step));
+                            predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
                             ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
@@ -539,7 +538,7 @@ Type objective_function<Type>::operator() () {
             if ( true ) {
                 // Compare cdist_ldist_lln_model to cdist_ldist_lln_obs;
                 {
-                    auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step) - 1;
+                    auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step, -1) - 1;
 
                     if ( cdist_ldist_lln_obs__time_idx >= 0 ) {
                         nll += 1*(pow((cdist_ldist_lln_model__num / std::max( (Type)(cdist_ldist_lln_model__num).sum(), (Type)1e-05) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / std::max( (Type)(cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum(), (Type)1e-05)), (Type)2)).sum();

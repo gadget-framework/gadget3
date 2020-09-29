@@ -62,6 +62,17 @@ actions <- c(actions, gadget3:::f_substitute(~{
 }, list(lookup_f = tad_lookup)))
 expecteds$tad_get_2 <- 198421
 
+tad_get_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('tad_get_3')
+    cur_year <- 2008  # NB: 2008 not in table
+    cur_step <- 2
+    area <- 1
+    tad_get_3 <- lookup_f
+    g3_report(tad_get_3)
+}, list(lookup_f = tad_lookup)))
+expecteds$tad_get_3 <- 0  # i.e. missing value
+
 ###############################################################################
 
 actions <- c(actions, ~{

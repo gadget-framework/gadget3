@@ -7,7 +7,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
     }
 
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
-    return(function (req_type, inner_f) {
+    return(function (req_type, inner_f, extra_arg = NULL) {
         inttypelookup_zip <- g3_native(r = function (keys, values) {
             list(keys = keys, values = values)
         }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
@@ -32,11 +32,11 @@ g3_intlookup <- function (lookup_name, keys, values) {
             return lookup[key];
         }')
 
-        inttypelookup_getdefault <- g3_native(r = function (lookup, key) {
+        inttypelookup_getdefault <- g3_native(r = function (lookup, key, def) {
             out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-            return(if (length(out) < 1) -1 else out)
-        }, cpp = '[](std::map<int, Type> lookup, int key) -> Type {
-            return lookup.count(key) > 0 ? lookup[key] : -1;
+            return(if (length(out) < 1) def else out)
+        }, cpp = '[](std::map<int, Type> lookup, int key, Type def) -> Type {
+            return lookup.count(key) > 0 ? lookup[key] : def;
         }')
 
         # Make intint versions of all lookup functions
@@ -55,10 +55,18 @@ g3_intlookup <- function (lookup_name, keys, values) {
             l__keys = as.symbol(paste0(lookup_name, '__keys')),
             l__values = as.symbol(paste0(lookup_name, '__values')))))
 
-        f_substitute(~fn(l, inner_f), list(
-            fn = inttype_fn(req_type),
-            l = as.symbol(paste0(lookup_name, '__lookup')),
-            inner_f = inner_f))
+        if (!is.null(extra_arg)) {
+            f_substitute(~fn(l, inner_f, extra_arg), list(
+                fn = inttype_fn(req_type),
+                l = as.symbol(paste0(lookup_name, '__lookup')),
+                inner_f = inner_f,
+                extra_arg = extra_arg))
+        } else {
+            f_substitute(~fn(l, inner_f), list(
+                fn = inttype_fn(req_type),
+                l = as.symbol(paste0(lookup_name, '__lookup')),
+                inner_f = inner_f))
+        }
     })
 }
 
@@ -69,5 +77,5 @@ g3_timeareadata <- function(lookup_name, df) {
         values = as.numeric(df$value))
         
     # Return formula that does the lookup
-    return(lookup('get', ~area * 1000000L + cur_year * 100L + cur_step))
+    return(lookup('getdefault', ~area * 1000000L + cur_year * 100L + cur_step, 0))
 }
