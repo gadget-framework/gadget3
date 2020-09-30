@@ -1,6 +1,7 @@
 g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
+    mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
 
     # Turn incoming data into stocks with correct dimensions
     if (!is.null(attr(data, 'length', exact = TRUE))) {
@@ -32,6 +33,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
     # TODO: Stock dimensions should be managing their parts
     if (!is.null(attr(data, 'age', exact = TRUE))) {
         age_groups <- attr(data, 'age', exact = TRUE)
+        age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
         modelstock <- g3s_agegroup(modelstock, age_groups)
         obsstock <- g3s_agegroup(obsstock, age_groups)
     } else if ('age' %in% names(data)) {

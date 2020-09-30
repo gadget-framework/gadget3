@@ -197,7 +197,10 @@ ok_group('g3l_likelihood_data:age', {
           x 2001      2001.1
           y 2001      2001.2
         ",
-        age = list(x = 1:3, y = 4:6, z = 7:10))
+        age = list(
+            x = structure(quote(seq(1, 3)), min = 1, max = 3),
+            y = structure(quote(seq(4, 6)), min = 4, max = 6),
+            z = structure(quote(seq(7, 10)), min = 7, max = 10)))
     ok(cmp_array(ld$number, "
         length  age time   Freq
           len0   x 1999 1999.1
