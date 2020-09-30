@@ -114,14 +114,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     }
 
     if (call_name == 'if' && length(in_call) == 4) {
+        # Make sure x has a brace call around it (otherwise our C++ is nonsense)
+        embrace <- function (x) {
+            if (!is.call(x) || x[[1]] != open_curly_bracket) {
+                return(call(open_curly_bracket, x))
+            }
+            return(x)
+        }
         # Conditional w/else
         return(paste0(
             "if (",
             cpp_code(in_call[[2]], in_envir, next_indent),
             ") ",
-            cpp_code(in_call[[3]], in_envir, indent),
+            cpp_code(embrace(in_call[[3]]), in_envir, indent),
             " else ",
-            cpp_code(in_call[[4]], in_envir, indent)))
+            cpp_code(embrace(in_call[[4]]), in_envir, indent)))
     }
 
     if (call_name == 'if' && length(in_call) == 3) {

@@ -108,6 +108,15 @@ actions <- c(actions, ~{
 })
 expecteds$mean_vector_result <- mean(mean_vector)
 
+# if statement without braces
+if_no_brace_result <- 0.0
+actions <- c(actions, ~{
+    comment('if_without_braces')
+    if (FALSE) if_no_brace_result <- 1 else if_no_brace_result <- 0.2
+    g3_report(if_no_brace_result)
+})
+expecteds$if_no_brace_result <- 0.2
+
 # g3_with()
 g3_with_result <- 0L
 # NB: We don't define g3_with_iterator, it's defined within the block
