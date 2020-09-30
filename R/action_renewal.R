@@ -14,8 +14,8 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
 
 # Assign number / mean weight based on formulae
 g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
-    stock__num <- gadget3:::stock_instance(stock)
-    stock__wgt <- gadget3:::stock_instance(stock)
+    stock__num <- stock_instance(stock)
+    stock__wgt <- stock_instance(stock)
 
     out <- list()
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (cur_time == 0L) {
@@ -35,8 +35,8 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     renewal_dnorm <- array(dim = length(stock_definition(stock, 'stock__midlen')))
     renewal_scaler <- 0.0
 
-    stock__num <- gadget3:::stock_instance(stock)
-    stock__wgt <- gadget3:::stock_instance(stock)
+    stock__num <- stock_instance(stock)
+    stock__wgt <- stock_instance(stock)
 
     out <- list()
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
