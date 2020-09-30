@@ -44,9 +44,9 @@ g3a_step_transition <- function(input_stock,
             stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
                 # Total biomass
                 output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
-                    (input_stock__transitioning_wgt[input_stock__iter] * input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                    stock_reshape(output_stock, input_stock__transitioning_wgt[input_stock__iter] * input_stock__transitioning_num[input_stock__iter] * output_ratio)
                 # Add numbers together
-                output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + (input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + stock_reshape(output_stock, input_stock__transitioning_num[input_stock__iter] * output_ratio)
                 # Back down to mean biomass
                 output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / pmax(output_stock__num[output_stock__iter], 0.00001)
             }))
