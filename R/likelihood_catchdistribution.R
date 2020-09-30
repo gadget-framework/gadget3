@@ -132,5 +132,5 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     out[[step_id(run_at, nll_name, 2)]] <- f_substitute(out[[step_id(run_at, nll_name, 2)]], list(
         stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
-    return(out)
+    return(as.list(out))
 }
