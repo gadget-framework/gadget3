@@ -53,7 +53,7 @@ ok_group('g3a_mature', {
         "output_ratios"), "output_ratios must sum to 1")
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
-    actions <- g3_collate(
+    actions <- list(
         g3a_initialconditions(stock_imm, ~g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
         g3a_initialconditions(stock_mat1, ~g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
         g3a_initialconditions(stock_mat2, ~g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),

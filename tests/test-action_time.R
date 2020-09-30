@@ -10,7 +10,7 @@ all_step_len <- array(dim = c(expected_steps))
 all_year <- array(dim = c(expected_steps))
 all_step_final <- array(FALSE, dim = c(expected_steps))
 
-actions <- g3_collate(
+actions <- list(
     g3a_time(1990, 1997, steps = c(3,3,6)),
     list(
         '999' = ~{

@@ -11,7 +11,7 @@ stock_a <- g3_stock('stock_a', seq(10, 10, 5))
 stock_b <- g3_stock('stock_b', seq(50, 54, 1))
 stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 1000))
 
-actions <- g3_collate(
+actions <- list(
     list(
         '999' = gadget3:::stock_step(~{
             # NB: stock_with also includes the stock environment, which is why we need it

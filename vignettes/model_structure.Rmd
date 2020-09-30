@@ -109,26 +109,21 @@ formula's environment into the output expression. Fix it or stop suggesting it.
 ### Combining actions
 
 Any useful model will have multiple actions, so the outputs from the ``g3a_``
-functions need to be combined. Whilst the lists could be done with the standard
-R function ``c()``, we also need to make sure that:
-
-* Steps within actions aren't repeated
-* Actions need to be in an appropriate order, matching Gadget's order of
-operations.
-
-To do this, use ``g3_collate()``. For example:
+functions need to be combined. To do this, you can pass a list of actions to
+any of the ``g3_to_*`` functions, for example:
 
 ```{r, eval=FALSE}
-ling_model <- g3_to_r(g3_collate(
+ling_model <- g3_to_r(list(
     g3a_age(ling_imm),
     g3a_age(ling_mat),
     g3a_mature(ling_imm, ling_mat, maturity_f),
     time))
 ```
 
-``g3_collate()`` just orders actions by name, the actions themselves set the
-name based on the standard order of actions. This can be altered with the
-``run_at`` parameter if required.
+All steps within the actions you provide will be ordered by name, and any
+repeated names will be removed. Actions will give each step names based on the
+standard order of operations for Gadget, although these can be altered by the
+common ``run_at`` parameter if needed.
 
 ## Stocks
 

@@ -76,7 +76,7 @@ report_step <- function (var_name, steps, initial_val) {
     return(out)
 }
 
-actions <- g3_collate(
+base_actions <- list(
     g3a_time(1999,2000, steps = c(6, 6)),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
@@ -89,30 +89,6 @@ actions <- g3_collate(
             prey_b = ~g3_param_vector("fleet_abc_b"),
             prey_c = ~g3_param_vector("fleet_abc_c")),
         amount_f = ~g3_param('amount_ab') * area),
-    g3l_catchdistribution(
-        'utcd',
-        cd_data,
-        list(fleet_abc),
-        list(prey_a, prey_b, prey_c),
-        g3l_catchdistribution_sumofsquares()),
-    g3l_catchdistribution(
-        'utsd',
-        sd_data,
-        list(fleet_abc),
-        list(prey_a, prey_b, prey_c),
-        g3l_catchdistribution_sumofsquares()),
-    g3l_catchdistribution(
-        'multinom',
-        multinomial_data,
-        list(fleet_abc),
-        list(prey_a),
-        g3l_catchdistribution_multinomial()),
-    g3l_catchdistribution(
-        'surveyindices',
-        surveyindices_data,
-        list(fleet_abc),
-        list(prey_b),
-        g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))),
     list(
         # Capture data just before final step erases it
         '010:utcd:001:zzzz' = report_step('cdist_utcd_model__num', 4, array(
@@ -158,6 +134,32 @@ actions <- g3_collate(
             # NB: In theory we could inspect the return value, but TMB doesn't give an easy public method for that
             g3_report(nll)
         }))
+actions <- c(base_actions, list(
+    g3l_catchdistribution(
+        'utcd',
+        cd_data,
+        list(fleet_abc),
+        list(prey_a, prey_b, prey_c),
+        g3l_catchdistribution_sumofsquares()),
+    g3l_catchdistribution(
+        'utsd',
+        sd_data,
+        list(fleet_abc),
+        list(prey_a, prey_b, prey_c),
+        g3l_catchdistribution_sumofsquares()),
+    g3l_catchdistribution(
+        'multinom',
+        multinomial_data,
+        list(fleet_abc),
+        list(prey_a),
+        g3l_catchdistribution_multinomial()),
+    g3l_catchdistribution(
+        'surveyindices',
+        surveyindices_data,
+        list(fleet_abc),
+        list(prey_b),
+        g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+
 params <- list(
     fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
     fleet_abc_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
@@ -463,8 +465,7 @@ ok_group("Likelihood per year", {
     surveyindices_data <- expand.grid(year = 1999:2000)
     surveyindices_data$number <- floor(runif(length(surveyindices_data$year), min=100, max=999))
 
-    actions <- g3_collate(
-        actions,
+    actions <- c(base_actions, list(
         g3l_catchdistribution(
             'utcd',
             cd_data,
@@ -488,7 +489,7 @@ ok_group("Likelihood per year", {
             surveyindices_data,
             list(fleet_abc),
             list(prey_b),
-            g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))))
+            g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)

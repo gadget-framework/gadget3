@@ -28,7 +28,7 @@ fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
 fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 
 cur_time <- 0L
-actions <- g3_collate(
+actions <- list(
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),

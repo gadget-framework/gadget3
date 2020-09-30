@@ -41,7 +41,7 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
         step = step))
 }
 
-actions <- g3_collate(
+actions <- list(
     g3a_time(2000, 2002, steps = c(6, 6)),
     # TODO: This is getting ugly.
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),

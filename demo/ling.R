@@ -33,7 +33,7 @@ ling_imm_stddev <- c(
     11.3447991170274,
     11.7721342759715,
     13.6152275606449)
-ling_imm_actions <- g3_collate(
+ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init")[[age - 3 + 1]],
@@ -79,7 +79,7 @@ ling_mat_stddev <- c(
      17.9426701121357,
      19.1787817582897,
      15.9776436358384)
-ling_mat_actions <- g3_collate(
+ling_mat_actions <- list(
     g3a_initialconditions_normalparam(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init")[[age - 5 + 1]],
@@ -108,7 +108,7 @@ igfs_totaldata <- data.frame(
     area = areas[['a']],
     value = 1:4)
 igfs_obs_data <- read.table('inst/extdata/ling/catchdistribution_ldist_lln.txt', header = TRUE)
-igfs_actions <- g3_collate(
+igfs_actions <- list(
     g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50')),
@@ -122,8 +122,10 @@ igfs_actions <- g3_collate(
         g3l_catchdistribution_sumofsquares()),
     list())
 
-time <- g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3))
-ling_model <- g3_to_r(g3_collate(
+time <- list(
+    g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3)),
+    list())
+ling_model <- g3_to_r(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
@@ -166,7 +168,7 @@ result <- ling_model(ling_param)
 str(result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
-tmb_ling <- g3_to_tmb(g3_collate(
+tmb_ling <- g3_to_tmb(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,

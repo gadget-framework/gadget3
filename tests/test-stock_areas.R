@@ -13,7 +13,7 @@ cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_a_ac <- 0.0
 stock_sum_ac_a <- 0.0
 stock_sum_ac_bcd <- 0.0
-actions <- g3_collate(
+actions <- list(
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~0),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
     g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),

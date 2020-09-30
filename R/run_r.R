@@ -3,7 +3,7 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # Compile actions together into a single R function, the attached environment contains:
 # - model_data: Fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE) {
-    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
+    all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
 

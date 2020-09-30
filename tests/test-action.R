@@ -41,7 +41,7 @@ ok_group("stock_step:stock_reshape", {
     dest_wider__wgt <- gadget3:::stock_instance(dest_wider)
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
-    actions <- g3_collate(
+    actions <- list(
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 
         list('900:dest_even' = gadget3:::stock_step(~stock_iterate(dest_even, stock_intersect(source, {

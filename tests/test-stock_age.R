@@ -13,7 +13,7 @@ cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_young_inbetween <- 0.0
 stock_sum_inbetween_old <- 0.0
 stock_sum_young_old <- 0.0
-actions <- g3_collate(
+actions <- list(
     g3a_initialconditions(stock_young, ~age * 100 + stock_young__minlen, ~0),
     g3a_initialconditions(stock_old, ~age * 1000 + stock_old__minlen, ~0),
     g3a_initialconditions(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),

@@ -39,7 +39,6 @@ export(g3l_catchdistribution)
 
 # R/run.R
 export(g3_param)
-export(g3_collate)
 
 # R/run_r.R
 export(g3_to_r)

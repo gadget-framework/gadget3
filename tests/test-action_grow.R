@@ -5,7 +5,7 @@ library(gadget3)
 teststock <- g3_stock('teststock', seq(10, 35, 5))
 
 ok_group("g3a_grow_impl_bbinom", {
-    actions <- g3_collate(  # dmu, lengthgrouplen, binn, beta
+    actions <- list(  # dmu, lengthgrouplen, binn, beta
         g3a_time(2000, 2001),
         g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
         g3a_growmature(teststock,
@@ -49,7 +49,7 @@ ok_group("g3a_grow_impl_bbinom", {
 })
 
 ok_group("g3a_growmature", {
-    actions <- g3_collate(
+    actions <- list(
         g3a_time(2000, 2001),
         g3a_initialconditions(teststock,
             ~g3_param_vector("initial_num"),
