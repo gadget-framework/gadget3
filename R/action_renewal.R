@@ -21,8 +21,8 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (cur_time == 0L) {
         stock_comment("g3a_renewal for ", stock)
         stock_iterate(stock, {
-            stock__num[stock__iter] <- num_f
-            stock__wgt[stock__iter] <- wgt_f
+            stock_ss(stock__num) <- num_f
+            stock_ss(stock__wgt) <- wgt_f
         })
     }, list(num_f = num_f, wgt_f = wgt_f)))
     return(out)
@@ -43,10 +43,10 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
         stock_comment("g3a_renewal_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
             renewal_dnorm <- (stock__midlen - mean_f) * (1.0 / stddev_f)
-            stock__num[stock__iter] <- exp(-(renewal_dnorm ** 2) * 0.5)
-            renewal_scaler <- 10000.0 / sum(stock__num[stock__iter])
-            stock__num[stock__iter] <- stock__num[stock__iter] * renewal_scaler * factor_f
-            stock__wgt[stock__iter] <- alpha_f * stock__midlen ** beta_f
+            stock_ss(stock__num) <- exp(-(renewal_dnorm ** 2) * 0.5)
+            renewal_scaler <- 10000.0 / sum(stock_ss(stock__num))
+            stock_ss(stock__num) <- stock_ss(stock__num) * renewal_scaler * factor_f
+            stock_ss(stock__wgt) <- alpha_f * stock__midlen ** beta_f
         })
     }, list(
         run_f = run_f,

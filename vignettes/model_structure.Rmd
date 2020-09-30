@@ -233,8 +233,8 @@ For example, a snippet from ``action_mature.R``.
 
         stock_iterate(stock, stock_intersect(matured, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
-            matured__num[matured__iter] <- stock__num[stock__iter] * maturity_f
-            stock__num[stock__iter] <- stock__num[stock__iter] - matured__num[matured__iter]
+            stock_ss(matured__num) <- stock_ss(stock__num) * maturity_f
+            stock_ss(stock__num) <- stock_ss(stock__num) - stock_ss(matured__num)
         }))
     }, list(run_f = run_f, maturity_f = maturity_f)))
 ```
@@ -250,7 +250,7 @@ copying over all the data.
 
 Finally, we use a combination of ``stock_iterate()`` and ``stock_intersect()``.
 ``stock_iterate()`` will create a loop that loops over all of the stock's
-dimensions, and replace ``[stock__iter]`` with a subset that will provide a
+dimensions, and ``stock_ss()`` will subset ``stock__num``, prividing
 1-dimension lengthgroup vector.  ``stock_intersect()``.
 
 These iterators will then be available to the ``maturity_f`` that the users

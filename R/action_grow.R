@@ -168,8 +168,8 @@ g3a_growmature <- function(stock,
             stock__transitioning_wgt[] <- stock__wgt[]
         }
         maturity_iter_f <- f_substitute(~{
-            stock__num[stock__iter] <- stock__num[stock__iter] -
-                (stock__transitioning_num[stock__iter] <- stock__num[stock__iter] * maturity_f)
+            stock_ss(stock__num) <- stock_ss(stock__num) -
+                (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_f)
             # NB: Mean __wgt unchanged
         }, list(maturity_f = maturity_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
@@ -187,9 +187,9 @@ g3a_growmature <- function(stock,
 
             maturity_iter_f
 
-            stock__wgt[stock__iter] <- stock__wgt[stock__iter] * stock__num[stock__iter]  # Convert to total weight
-            stock__num[stock__iter] <- g3a_grow_apply(stock__growth_l, stock__num[stock__iter])
-            stock__wgt[stock__iter] <- (stock__wgt[stock__iter] + stock__growth_w) / pmax(stock__num[stock__iter], 0.00001)  # Add extra weight, back to mean
+            stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)  # Convert to total weight
+            stock_ss(stock__num) <- g3a_grow_apply(stock__growth_l, stock_ss(stock__num))
+            stock_ss(stock__wgt) <- (stock_ss(stock__wgt) + stock__growth_w) / pmax(stock_ss(stock__num), 0.00001)  # Add extra weight, back to mean
         })
     }, list(
             run_f = run_f,

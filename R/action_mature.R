@@ -19,7 +19,7 @@ g3a_mature_constant <- function (alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma 
 
     if (gamma > 0) {
         if (is.na(k50)) stop("k50 must be supplied if gamma > 0")
-        inner_code <- substitute(inner_code - gamma*(stock__wgt[stock__iter] - k50), list(
+        inner_code <- substitute(inner_code - gamma*(stock_ss(stock__wgt) - k50), list(
             gamma = gamma,
             k50 = k50,
             inner_code = inner_code))
@@ -43,12 +43,12 @@ g3a_step_transition <- function(input_stock,
             stock_comment("Move ", input_stock ," to ", output_stock)
             stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
                 # Total biomass
-                output_stock__wgt[output_stock__iter] <- (output_stock__wgt[output_stock__iter] * output_stock__num[output_stock__iter]) +
-                    stock_reshape(output_stock, input_stock__transitioning_wgt[input_stock__iter] * input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                stock_ss(output_stock__wgt) <- (stock_ss(output_stock__wgt) * stock_ss(output_stock__num)) +
+                    stock_reshape(output_stock, stock_ss(input_stock__transitioning_wgt) * stock_ss(input_stock__transitioning_num) * output_ratio)
                 # Add numbers together
-                output_stock__num[output_stock__iter] <- output_stock__num[output_stock__iter] + stock_reshape(output_stock, input_stock__transitioning_num[input_stock__iter] * output_ratio)
+                stock_ss(output_stock__num) <- stock_ss(output_stock__num) + stock_reshape(output_stock, stock_ss(input_stock__transitioning_num) * output_ratio)
                 # Back down to mean biomass
-                output_stock__wgt[output_stock__iter] <- output_stock__wgt[output_stock__iter] / pmax(output_stock__num[output_stock__iter], 0.00001)
+                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / pmax(stock_ss(output_stock__num), 0.00001)
             }))
         }, list(run_f = run_f, output_ratio = output_ratios[[n]])))
     })))
@@ -84,7 +84,7 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
 
         stock_iterate(stock, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
-            stock__num[stock__iter] <- stock__num[stock__iter] - (stock__transitioning_num[stock__iter] <- stock__num[stock__iter] * maturity_f)
+            stock_ss(stock__num) <- stock_ss(stock__num) - (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_f)
         })
     }, list(run_f = run_f, maturity_f = maturity_f)))
 

@@ -2,17 +2,17 @@ call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
 g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
     f_substitute(~sum((
-        modelstock__num[modelstock__iter] / max(sum(modelstock_total_f), 0.00001) -
-        obsstock__num[obsstock__iter] / max(sum(obsstock_total_f), 0.00001)) ** 2), list(
+        stock_ss(modelstock__num) / max(sum(modelstock_total_f), 0.00001) -
+        stock_ss(obsstock__num) / max(sum(obsstock_total_f), 0.00001)) ** 2), list(
             modelstock_total_f = call_append(quote(stock_ssinv(modelstock__num)), over),
             obsstock_total_f = call_append(quote(stock_ssinv(obsstock__num, 'time')), over)))
 }
 
 g3l_catchdistribution_multinomial <- function () {
-    ~2 * (lgamma(1 + sum(obsstock__num[obsstock__iter])) -
-        sum(lgamma_vec(1 + obsstock__num[obsstock__iter])) +
-        sum(obsstock__num[obsstock__iter] * log(
-            modelstock__num[modelstock__iter] / sum(modelstock__num[modelstock__iter])))
+    ~2 * (lgamma(1 + sum(stock_ss(obsstock__num))) -
+        sum(lgamma_vec(1 + stock_ss(obsstock__num))) +
+        sum(stock_ss(obsstock__num) * log(
+            stock_ss(modelstock__num) / sum(stock_ss(modelstock__num))))
     )
 }
 
@@ -27,8 +27,8 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
     }')
 
     f_substitute(~multivariate_fn(
-            modelstock__num[modelstock__iter] / sum(modelstock_total_f) -
-                obsstock__num[obsstock__iter] / sum(obsstock_total_f),
+            stock_ss(modelstock__num) / sum(modelstock_total_f) -
+                stock_ss(obsstock__num) / sum(obsstock_total_f),
             rho_f,
             sigma_f), list(
                 modelstock_total_f = call_append(quote(stock_ssinv(modelstock__num)), over),
@@ -40,14 +40,14 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
 g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta = 1) {
     if (mode == 'log') {
         f_substitute(~sum(alpha +
-            beta * log(modelstock__num[modelstock__iter]) -
-            log(obsstock__num[obsstock__iter])), list(
+            beta * log(stock_ss(modelstock__num)) -
+            log(stock_ss(obsstock__num))), list(
                 alpha = alpha,
                 beta = beta))
     } else if (mode == 'linear') {
         f_substitute(~sum(alpha +
-            beta * modelstock__num[modelstock__iter] -
-            obsstock__num[obsstock__iter]), list(
+            beta * stock_ss(modelstock__num) -
+            stock_ss(obsstock__num)), list(
                 alpha = alpha,
                 beta = beta))
     }
@@ -63,7 +63,7 @@ g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta =
 #    - number - expected number for given combination
 # - fleets: Gather catch from these fleets
 # - stocks: Gather catch (by fleets) for these stocks
-# - function_f: Comparison function to compare modelstock__num[modelstock__iter] & obsstock__num[obsstock__iter]
+# - function_f: Comparison function to compare stock_ss(modelstock__num) & stock_ss(obsstock__num)
 # - weight: Weighting of parameter in final nll
 g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
@@ -104,8 +104,8 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             stock_comment("Collect catch from ", fleet_stock, "/", prey_stock, " for ", modelstock)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
-                modelstock__num[modelstock__iter] <- modelstock__num[modelstock__iter] +
-                    stock_reshape(modelstock, prey_stock__fleet_stock[prey_stock__iter] / pmax(prey_stock__wgt[prey_stock__iter], 0.00001))
+                stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
+                    stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / pmax(stock_ss(prey_stock__wgt), 0.00001))
             }))
         }, list(
             # Find catch from predation step

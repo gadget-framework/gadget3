@@ -45,22 +45,22 @@ ok_group("stock_step:stock_reshape", {
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 
         list('900:dest_even' = gadget3:::stock_step(~stock_iterate(dest_even, stock_intersect(source, {
-            dest_even__num[dest_even__iter] <- stock_reshape(dest_even, source__num[source__iter])
+            stock_ss(dest_even__num) <- stock_reshape(dest_even, stock_ss(source__num))
             g3_report(dest_even__num)
         })))),
 
         list('900:dest_combine' = gadget3:::stock_step(~stock_iterate(dest_combine, stock_intersect(source, {
-            dest_combine__num[dest_combine__iter] <- stock_reshape(dest_combine, source__num[source__iter])
+            stock_ss(dest_combine__num) <- stock_reshape(dest_combine, stock_ss(source__num))
             g3_report(dest_combine__num)
         })))),
 
         list('900:dest_2group' = gadget3:::stock_step(~stock_iterate(dest_2group, stock_intersect(source, {
-            dest_2group__num[dest_2group__iter] <- stock_reshape(dest_2group, source__num[source__iter])
+            stock_ss(dest_2group__num) <- stock_reshape(dest_2group, stock_ss(source__num))
             g3_report(dest_2group__num)
         })))),
 
         list('900:dest_wider' = gadget3:::stock_step(~stock_iterate(dest_wider, stock_intersect(source, {
-            dest_wider__num[dest_wider__iter] <- stock_reshape(dest_wider, source__num[source__iter])
+            stock_ss(dest_wider__num) <- stock_reshape(dest_wider, stock_ss(source__num))
             g3_report(dest_wider__num)
         })))),
 

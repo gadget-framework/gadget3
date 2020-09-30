@@ -42,11 +42,11 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
 
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Collect all suitable biomass for fleet")
-                prey_stock__fleet_stock[prey_stock__iter] <- (suit_f
-                    * prey_stock__num[prey_stock__iter]
-                    * prey_stock__wgt[prey_stock__iter])
-                fleet_stock__catch[fleet_stock__iter] <- (fleet_stock__catch[fleet_stock__iter]
-                    + sum(prey_stock__fleet_stock[prey_stock__iter]))
+                stock_ss(prey_stock__fleet_stock) <- (suit_f
+                    * stock_ss(prey_stock__num)
+                    * stock_ss(prey_stock__wgt))
+                stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
+                    + sum(stock_ss(prey_stock__fleet_stock)))
             }))
         }, list(
             suit_f = f_substitute(suitabilities[[prey_stock$name]], list(prey_l = as.symbol("prey_stock__midlen"))),
@@ -58,8 +58,8 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Scale fleet amount by total expected catch")
                 predate_totalfleet_E <- (amount_f)
-                prey_stock__fleet_stock[prey_stock__iter] <- predate_totalfleet_E * prey_stock__fleet_stock[prey_stock__iter] / fleet_stock__catch[fleet_stock__iter]
-                prey_stock__totalpredate[prey_stock__iter] <- prey_stock__totalpredate[prey_stock__iter] + prey_stock__fleet_stock[prey_stock__iter]
+                stock_ss(prey_stock__fleet_stock) <- predate_totalfleet_E * stock_ss(prey_stock__fleet_stock) / stock_ss(fleet_stock__catch)
+                stock_ss(prey_stock__totalpredate) <- stock_ss(prey_stock__totalpredate) + stock_ss(prey_stock__fleet_stock)
             }))
         }, list(
             amount_f = amount_f,
@@ -77,9 +77,9 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             stock_iterate(prey_stock, {
                 comment("Prey overconsumption coefficient")
                 # TODO: Should replace pmin() here with something differentiable
-                prey_stock__overconsumption[prey_stock__iter] <- pmin((prey_stock__num[prey_stock__iter] * prey_stock__wgt[prey_stock__iter] * 0.95) / pmax(prey_stock__totalpredate[prey_stock__iter], 0.00001), 1)
-                prey_stock__totalpredate[prey_stock__iter] <- prey_stock__totalpredate[prey_stock__iter] * prey_stock__overconsumption[prey_stock__iter]
-                prey_stock__num[prey_stock__iter] <- prey_stock__num[prey_stock__iter] - (prey_stock__totalpredate[prey_stock__iter] / pmax(prey_stock__wgt[prey_stock__iter], 0.00001))
+                stock_ss(prey_stock__overconsumption) <- pmin((stock_ss(prey_stock__num) * stock_ss(prey_stock__wgt) * 0.95) / pmax(stock_ss(prey_stock__totalpredate), 0.00001), 1)
+                stock_ss(prey_stock__totalpredate) <- stock_ss(prey_stock__totalpredate) * stock_ss(prey_stock__overconsumption)
+                stock_ss(prey_stock__num) <- stock_ss(prey_stock__num) - (stock_ss(prey_stock__totalpredate) / pmax(stock_ss(prey_stock__wgt), 0.00001))
             })
         })
 
@@ -88,9 +88,9 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Scale caught amount by overconsumption, update variables")
-                prey_stock__fleet_stock[prey_stock__iter] <- prey_stock__fleet_stock[prey_stock__iter] * prey_stock__overconsumption[prey_stock__iter]
-                fleet_stock__catch[fleet_stock__iter] <- (fleet_stock__catch[fleet_stock__iter]
-                    + sum(prey_stock__fleet_stock[prey_stock__iter]))
+                stock_ss(prey_stock__fleet_stock) <- stock_ss(prey_stock__fleet_stock) * stock_ss(prey_stock__overconsumption)
+                stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
+                    + sum(stock_ss(prey_stock__fleet_stock)))
             }))
         }, list(
             prey_stock__fleet_stock = fleet_stock_var)))

@@ -22,41 +22,41 @@ actions <- list(
         '5' = gadget3:::stock_step(~{
             comment("stock_sum_a_ac")
             stock_iterate(stock_a, stock_intersect(stock_ac, {
-                stock_sum_a_ac <- stock_sum_a_ac + sum(stock_a__num[stock_a__iter]) + sum(stock_ac__num[stock_ac__iter])
+                stock_sum_a_ac <- stock_sum_a_ac + sum(stock_ss(stock_a__num)) + sum(stock_ss(stock_ac__num))
             }))
             g3_report(stock_sum_a_ac)
 
             comment("stock_sum_ac_a")
             stock_iterate(stock_ac, stock_intersect(stock_a, {
-                stock_sum_ac_a <- stock_sum_ac_a + sum(stock_ac__num[stock_ac__iter]) + sum(stock_a__num[stock_a__iter])
+                stock_sum_ac_a <- stock_sum_ac_a + sum(stock_ss(stock_ac__num)) + sum(stock_ss(stock_a__num))
             }))
             g3_report(stock_sum_ac_a)
 
             comment("stock_sum_ac_bcd")
             stock_iterate(stock_ac, stock_intersect(stock_bcd, {
-                stock_sum_ac_bcd <- stock_sum_ac_bcd + sum(stock_ac__num[stock_ac__iter]) + sum(stock_bcd__num[stock_bcd__iter])
+                stock_sum_ac_bcd <- stock_sum_ac_bcd + sum(stock_ss(stock_ac__num)) + sum(stock_ss(stock_bcd__num))
             }))
             g3_report(stock_sum_ac_bcd)
 
             comment("stock_aggregated stock_a")
             stock_iterate(stock_a, stock_intersect(stock_aggregated, {
-                stock_aggregated__num[stock_aggregated__iter] <-
-                    stock_aggregated__num[stock_aggregated__iter] +
-                    stock_a__num[stock_a__iter]
+                stock_ss(stock_aggregated__num) <-
+                    stock_ss(stock_aggregated__num) +
+                    stock_ss(stock_a__num)
             }))
 
             comment("stock_aggregated stock_ac")
             stock_iterate(stock_ac, stock_intersect(stock_aggregated, {
-                stock_aggregated__num[stock_aggregated__iter] <-
-                    stock_aggregated__num[stock_aggregated__iter] +
-                    stock_ac__num[stock_ac__iter]
+                stock_ss(stock_aggregated__num) <-
+                    stock_ss(stock_aggregated__num) +
+                    stock_ss(stock_ac__num)
             }))
 
             comment("stock_aggregated stock_bcd")
             stock_iterate(stock_bcd, stock_intersect(stock_aggregated, {
-                stock_aggregated__num[stock_aggregated__iter] <-
-                    stock_aggregated__num[stock_aggregated__iter] +
-                    stock_bcd__num[stock_bcd__iter]
+                stock_ss(stock_aggregated__num) <-
+                    stock_ss(stock_aggregated__num) +
+                    stock_ss(stock_bcd__num)
             }))
         }),
         '999' = ~{

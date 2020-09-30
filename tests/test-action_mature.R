@@ -24,7 +24,7 @@ ok_group('g3a_mature_constant', {
         ~1/(1 + exp(0 - 18 * (age - 83))) ), "beta = 18, a50 = 83")
     ok(cmp_code(
         g3a_mature_constant(gamma = 82, k50 = 27),
-        ~1/(1 + exp(0 - 82 * (stock__wgt[stock__iter] - 27))) ), "gamma = 82, k50 = 27")
+        ~1/(1 + exp(0 - 82 * (stock_ss(stock__wgt) - 27))) ), "gamma = 82, k50 = 27")
 
     # Can combine parameters
     ok(cmp_code(
@@ -35,7 +35,7 @@ ok_group('g3a_mature_constant', {
     ok(cmp_code(
         g3a_mature_constant(beta = 73, a50 = 67, gamma = 39, k50 = 73),
         ~1/(1 + exp(0 - 73 * (age - 67)
-                      - 39 * (stock__wgt[stock__iter] - 73)
+                      - 39 * (stock_ss(stock__wgt) - 73)
                       ))), "beta = 73, a50 = 67, gamma = 39, k50 = 73")
 
 })

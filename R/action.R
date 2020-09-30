@@ -5,27 +5,6 @@
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 stock_step <- function(step_f) {
-    # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]
-    fix_subsets <- function (in_f) {
-        call_replace(in_f, "[" = function (subset_call) {
-            if (!is.call(subset_call)) {
-                # Raw [ symbol, just return it
-                subset_call
-            } else if (length(subset_call) == 3 &&
-                    is.call(subset_call[[3]]) &&
-                    subset_call[[3]][[1]] == as.symbol("[") &&
-                    subset_call[[3]][[2]] == quote(.)) {
-                # Call of form summat[.[1,2, .. ]], remove nesting
-                as.call(c(
-                    head(as.list(subset_call), -1),
-                    tail(as.list(subset_call[[3]]), -2)))
-            } else {
-                # Recurse through subsetting call
-                as.call(lapply(as.list(subset_call), fix_subsets))
-            }
-        })
-    }
-
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)
@@ -74,7 +53,7 @@ stock_step <- function(step_f) {
         # Replace __iter marker with proper subsetting
         subs <- list()
         subs[[paste0(stock_var, "__iter")]] <- stock_rename(stock$iter_ss, "stock", stock_var)
-        inner_f <- fix_subsets(f_substitute(inner_f, subs))
+        inner_f <- f_substitute(inner_f, subs)
 
         # Wrap with stock's code
         out_f <- f_substitute(stock_rename(stock[[to_replace]], "stock",  stock_var), list(
@@ -143,6 +122,20 @@ stock_step <- function(step_f) {
             # Add environment to formulae's environment, return inner call
             environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
             return(rlang::f_rhs(out_f))
+        },
+        # stock_ss subsets stock data var, Removing the specified dimensions (i.e. blanking it's part in the normal subset)
+        stock_ss = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
+            stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
+            stock_var <- gsub('__.*$', '', stock_instance)
+            stock <- get(stock_var, envir = rlang::f_env(step_f))
+            wanted_dims <- as.character(tail(x, -2))
+
+            # Get subset arguments as a list
+            ss <- tail(as.list(stock_rename(stock$iter_ss, "stock", stock_var)), -2)
+
+            # Replace unwanted dimensions with missing symbol
+            ss[names(stock$dimnames) %in% wanted_dims] <- list(quote(x[])[[3]])
+            return(as.call(c(list(as.symbol("["), stock_instance), ss)))
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.

@@ -23,30 +23,30 @@ actions <- list(
         '5' = gadget3:::stock_step(~{
             comment("stock_sum_young_inbetween")
             stock_iterate(stock_young, stock_intersect(stock_inbetween, {
-                stock_sum_young_inbetween <- stock_sum_young_inbetween + sum(stock_young__num[stock_young__iter]) + sum(stock_inbetween__num[stock_inbetween__iter])
+                stock_sum_young_inbetween <- stock_sum_young_inbetween + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_inbetween__num))
             }))
             g3_report(stock_sum_young_inbetween)
 
             comment("stock_sum_inbetween_old")
             stock_iterate(stock_inbetween, stock_intersect(stock_old, {
-                stock_sum_inbetween_old <- stock_sum_inbetween_old + sum(stock_inbetween__num[stock_inbetween__iter]) + sum(stock_old__num[stock_old__iter])
+                stock_sum_inbetween_old <- stock_sum_inbetween_old + sum(stock_ss(stock_inbetween__num)) + sum(stock_ss(stock_old__num))
             }))
             g3_report(stock_sum_inbetween_old)
 
             comment("stock_sum_young_old")
             stock_iterate(stock_young, stock_intersect(stock_old, {
-                stock_sum_young_old <- stock_sum_young_old + sum(stock_young__num[stock_young__iter]) + sum(stock_old__num[stock_old__iter])
+                stock_sum_young_old <- stock_sum_young_old + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_old__num))
             }))
             g3_report(stock_sum_young_old)
 
             comment("stock_inbetween_old_aggregated__num")
             stock_iterate(stock_inbetween, stock_intersect(stock_inbetween_old_aggregated, {
-                stock_inbetween_old_aggregated__num[stock_inbetween_old_aggregated__iter] <-
-                    stock_inbetween_old_aggregated__num[stock_inbetween_old_aggregated__iter] + stock_inbetween__num[stock_inbetween__iter]
+                stock_ss(stock_inbetween_old_aggregated__num) <-
+                    stock_ss(stock_inbetween_old_aggregated__num) + stock_ss(stock_inbetween__num)
             }))
             stock_iterate(stock_old, stock_intersect(stock_inbetween_old_aggregated, {
-                stock_inbetween_old_aggregated__num[stock_inbetween_old_aggregated__iter] <-
-                    stock_inbetween_old_aggregated__num[stock_inbetween_old_aggregated__iter] + stock_old__num[stock_old__iter]
+                stock_ss(stock_inbetween_old_aggregated__num) <-
+                    stock_ss(stock_inbetween_old_aggregated__num) + stock_ss(stock_old__num)
             }))
             g3_report(stock_inbetween_old_aggregated__num)
         }),

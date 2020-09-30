@@ -14,7 +14,7 @@ g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) 
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~if (run_f) {
         stock_comment("Natural mortality for ", stock)
         stock_iterate(stock, {
-            stock__num[stock__iter] <- stock__num[stock__iter] * mortality_f
+            stock_ss(stock__num) <- stock_ss(stock__num) * mortality_f
         })
     }, list(
         run_f = run_f,
