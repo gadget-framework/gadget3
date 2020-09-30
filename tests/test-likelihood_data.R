@@ -139,7 +139,10 @@ ok_group('g3l_likelihood_data:length', {
         1999      c      1999.3
         2001      c      2001.3
         ",
-        length = list(a = c(10, 20), b = c(20, 40), c = c(40, 80)))
+        length = list(
+            a = structure(quote(seq(10, 20)), min = 10, max = 20),
+            b = structure(quote(seq(20, 40)), min = 20, max = 40),
+            c = structure(quote(seq(40, 80)), min = 40, max = 80)))
     ok(cmp_array(ld$number, "
         length time   Freq
              a 1999 1999.1

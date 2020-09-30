@@ -1,4 +1,7 @@
 g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
+    mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
+    mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
+
     # Turn incoming data into stocks with correct dimensions
     if (!is.null(attr(data, 'length', exact = TRUE))) {
         length_groups <- attr(data, 'length', exact = TRUE)
@@ -6,9 +9,9 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
         # TODO: Enforce continous groups, we don't support gaps
         length_groups <- c(
             # Lower bound of all groups
-            vapply(length_groups, function (x) x[[1]], numeric(1)),
+            vapply(length_groups, mfdb_min_bound, numeric(1)),
             # Upper bound
-            length_groups[[length(length_groups)]][[2]])
+            mfdb_max_bound(length_groups[[length(length_groups)]]))
 
         modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = FALSE)
         obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = FALSE)
