@@ -65,11 +65,11 @@ g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta =
 # - stocks: Gather catch (by fleets) for these stocks
 # - function_f: Comparison function to compare stock_ss(modelstock__num) & stock_ss(obsstock__num)
 # - weight: Weighting of parameter in final nll
-g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, weight = 1.0, run_at = 10) {
+g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, area_group = NULL, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     modelstock__num <- stock_instance(modelstock)

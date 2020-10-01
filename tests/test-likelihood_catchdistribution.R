@@ -29,7 +29,8 @@ ok(grepl(
     perl = TRUE), "Added custom totals to sumofsquares obsstock__num")
 
 
-areas <- c(a = 1, b = 2, c = 3)
+# NB: Also added some aggregate areas for fleet data
+areas <- list(a = 1, b = 2, c = 3, x = 1:2, y = 3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_livesonareas(areas[c('a')])
 prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])
 prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
@@ -39,16 +40,10 @@ fleet_abc <- g3_fleet('fleet_abc') %>% g3s_livesonareas(areas[c('a', 'b', 'c')])
 # NB: No prey_b, only compare prey_a and prey_c
 sd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), stock = c("prey_a", "prey_c"), length = c(1,6))
 sd_data$number <- floor(runif(length(sd_data$year), min=100, max=999))
-attr(sd_data, 'area') <- list(
-    x = areas[c('a', 'b')],
-    y = areas[c('c')])
 
 # Generate observation data for catch distribution
 cd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), length = c(1,6))
 cd_data$number <- floor(runif(length(cd_data$year), min=100, max=999))
-attr(cd_data, 'area') <- list(
-    x = areas[c('a', 'b')],
-    y = areas[c('c')])
 
 # Generate observation data for catch distribution (multinomial)
 multinomial_data <- expand.grid(year = 1999:2000, step = c(1, 2), length = c(1,6))
@@ -96,14 +91,14 @@ base_actions <- list(
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
-                c("area1", "area3")))),
+                c("x", "y")))),
         '010:utsd:001:zzzz' = report_step('cdist_utsd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
-                c("area1", "area3")))),
+                c("x", "y")))),
         '010:multinom:001:zzzz' = report_step('cdist_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinom_model__num)
             dim = c(2L),
@@ -140,24 +135,28 @@ actions <- c(base_actions, list(
         cd_data,
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
+        area_group = areas,
         g3l_catchdistribution_sumofsquares()),
     g3l_catchdistribution(
         'utsd',
         sd_data,
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
+        area_group = areas,
         g3l_catchdistribution_sumofsquares()),
     g3l_catchdistribution(
         'multinom',
         multinomial_data,
         list(fleet_abc),
         list(prey_a),
+        area_group = areas,
         g3l_catchdistribution_multinomial()),
     g3l_catchdistribution(
         'surveyindices',
         surveyindices_data,
         list(fleet_abc),
         list(prey_b),
+        area_group = areas,
         g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
 params <- list(
@@ -471,24 +470,28 @@ ok_group("Likelihood per year", {
             cd_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
+            area_group = areas,
             g3l_catchdistribution_sumofsquares()),
         g3l_catchdistribution(
             'utsd',
             sd_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
+            area_group = areas,
             g3l_catchdistribution_sumofsquares()),
         g3l_catchdistribution(
             'multinom',
             multinomial_data,
             list(fleet_abc),
             list(prey_a),
+            area_group = areas,
             g3l_catchdistribution_multinomial()),
         g3l_catchdistribution(
             'surveyindices',
             surveyindices_data,
             list(fleet_abc),
             list(prey_b),
+            area_group = areas,
             g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
     # Compile model

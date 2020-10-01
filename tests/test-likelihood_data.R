@@ -215,3 +215,79 @@ ok_group('g3l_likelihood_data:age', {
         "), "Worked out age dimensions from attributes, filled in missing values")
     ok(ut_cmp_identical(ld_minages(ld), c(x = 1L, y = 4L, z = 7L)), "agegroups using minages from attribute")
 })
+
+
+ok_group('g3l_likelihood_data:area', {
+    # Pull the area lookup definition back out
+    area_lookup <- function (ld) {
+        list(
+            keys = environment(gadget3:::stock_definition(ld$modelstock, 'stock__areagroup_lookup'))$keys,
+            values = environment(gadget3:::stock_definition(ld$modelstock, 'stock__areagroup_lookup'))$values)
+    }
+
+    ok(ut_cmp_error({
+        ld <- generate_ld("
+            area year number
+              a 1999      1999.1
+              b 1999      1999.2
+              c 1999      1999.3
+            ")
+    }, "Areas in data"), "If char areas are provided without aggregation, we can't do anything")
+
+    ok(ut_cmp_error({
+        ld <- generate_ld("
+            area year number
+              a 1999      1999.1
+              b 1999      1999.2
+              c 1999      1999.3
+            ", area = list(a = 1, b = 2, c = 3))
+    }, "Areas in data"), "If char areas are provided without aggregation, we can't do anything. MFDB aggregates don't count")
+
+    ld <- generate_ld("
+        area year number
+          1 1999      1999.1
+          2 1999      1999.2
+          3 1999      1999.3
+          2 2000      2000.2
+          3 2000      2000.3
+          1 2001      2001.1
+          2 2001      2001.2
+        ")
+    ok(cmp_array(ld$number, "
+        length area time   Freq
+          len0    1 1999 1999.1
+          len0    2 1999 1999.2
+          len0    3 1999 1999.3
+          len0    1 2000    0.0
+          len0    2 2000 2000.2
+          len0    3 2000 2000.3
+          len0    1 2001 2001.1
+          len0    2 2001 2001.2
+          len0    3 2001    0.0
+        "), "Worked out area dimensions from data, filled in missing values")
+    ok(ut_cmp_identical(area_lookup(ld), list(keys = 1:3, values = 1:3)), "1:1 mapping")
+
+    ld <- gadget3:::g3l_likelihood_data('ut', read.table(header = TRUE, stringsAsFactors = TRUE, text = "
+        area year number
+          a 1999      1999.1
+          b 1999      1999.2
+          c 1999      1999.3
+          b 2000      2000.2
+          c 2000      2000.3
+          a 2001      2001.1
+          b 2001      2001.2
+        "), area_group = list(a = 3, b = 4, c = c(1:2)))
+    ok(cmp_array(ld$number, "
+        length area time   Freq
+          len0    a 1999 1999.1
+          len0    b 1999 1999.2
+          len0    c 1999 1999.3
+          len0    a 2000    0.0
+          len0    b 2000 2000.2
+          len0    c 2000 2000.3
+          len0    a 2001 2001.1
+          len0    b 2001 2001.2
+          len0    c 2001    0.0
+        "), "Worked out area dimensions from data, filled in missing values")
+    ok(ut_cmp_identical(area_lookup(ld), list(keys = c(3L,4L,1L,2L), values = c(1L,2L,3L,3L))), "Areas 1 & 2 both mapped to index 3 (i.e. c)")
+})

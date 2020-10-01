@@ -1,4 +1,4 @@
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
@@ -58,9 +58,21 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
     }
 
     # NB: area has to be last, so we can sum for the entire area/time
-    if (!is.null(attr(data, 'area', exact = TRUE))) {
-        # Do area via. MFDB-style attributes
-        area_group <- attr(data, 'area', exact = TRUE)
+    if ('area' %in% names(data)) {
+        # NB: Ignore MFDB attributes on purpose, we're interested in the aggregated areas here
+        used_areas <- as.character(unique(data$area))
+        if (is.null(area_group)) {
+            # If no area grouping provided, assume area_group are integers already
+            if (suppressWarnings(anyNA(as.integer(used_areas)))) {
+                stop("Areas in data don't have integer names, but areas not provided")
+            }
+            area_group <- structure(
+                as.integer(used_areas),
+                names = used_areas)
+        } else {
+            # Filter area_group by what we actually need
+            area_group <- area_group[names(area_group) %in% used_areas]
+        }
         area_group <- area_group[order(names(area_group))]  # Dimension order should match data
         modelstock <- g3s_areagroup(modelstock, area_group)
         obsstock <- g3s_areagroup(obsstock, area_group)
