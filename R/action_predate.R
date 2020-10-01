@@ -29,10 +29,10 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
-        out[[step_id(run_at, 0, prey_stock)]] <- stock_step(f_substitute(~{
+        out[[step_id(run_at, 0, prey_stock)]] <- stock_step(~{
             stock_comment("g3a_predate_totalfleet for ", prey_stock)
             stock_with(prey_stock, prey_stock__totalpredate[] <- 0)
-        }, list(amount_f = amount_f)))
+        })
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
         out[[step_id(run_at, 1, fleet_stock, prey_stock)]] <- stock_step(f_substitute(~{
