@@ -4,25 +4,27 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
 
     # Turn incoming data into stocks with correct dimensions
-    if (!is.null(attr(data, 'length', exact = TRUE))) {
-        length_groups <- attr(data, 'length', exact = TRUE)
-        # Ditch upper bound from length groups
-        # TODO: Enforce continous groups, we don't support gaps
-        length_groups <- c(
-            # Lower bound of all groups
-            vapply(length_groups, mfdb_min_bound, numeric(1)),
-            # Upper bound
-            mfdb_max_bound(length_groups[[length(length_groups)]]))
+    if ('length' %in% names(data)) {
+        if (!is.null(attr(data, 'length', exact = TRUE))) {
+            length_groups <- attr(data, 'length', exact = TRUE)
+            # Ditch upper bound from length groups
+            # TODO: Enforce continous groups, we don't support gaps
+            length_groups <- c(
+                # Lower bound of all groups
+                vapply(length_groups, mfdb_min_bound, numeric(1)),
+                # Upper bound
+                mfdb_max_bound(length_groups[[length(length_groups)]]))
 
-        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = FALSE)
-        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = FALSE)
-    } else if ('length' %in% names(data)) {
-        length_groups <- sort(unique(data$length))
+            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = FALSE)
+            obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = FALSE)
+        } else {
+            length_groups <- sort(unique(data$length))
 
-        # Default to open-ended, as there's no way to specify the maximum
-        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
-        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = TRUE)
-        data$length <- paste0('len', data$length)  # Make data match autoset groups
+            # Default to open-ended, as there's no way to specify the maximum
+            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
+            obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = TRUE)
+            data$length <- paste0('len', data$length)  # Make data match autoset groups
+        }
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))
@@ -31,16 +33,18 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0) {
     }
 
     # TODO: Stock dimensions should be managing their parts
-    if (!is.null(attr(data, 'age', exact = TRUE))) {
-        age_groups <- attr(data, 'age', exact = TRUE)
-        age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
-        modelstock <- g3s_agegroup(modelstock, age_groups)
-        obsstock <- g3s_agegroup(obsstock, age_groups)
-    } else if ('age' %in% names(data)) {
-        age_groups <- seq(min(data$age), max(data$age))
-        modelstock <- g3s_agegroup(modelstock, age_groups)
-        obsstock <- g3s_agegroup(obsstock, age_groups)
-        data$age <- paste0('age', data$age)  # Make data match autoset groups
+    if ('age' %in% names(data)) {
+        if (!is.null(attr(data, 'age', exact = TRUE))) {
+            age_groups <- attr(data, 'age', exact = TRUE)
+            age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
+            modelstock <- g3s_agegroup(modelstock, age_groups)
+            obsstock <- g3s_agegroup(obsstock, age_groups)
+        } else {
+            age_groups <- seq(min(data$age), max(data$age))
+            modelstock <- g3s_agegroup(modelstock, age_groups)
+            obsstock <- g3s_agegroup(obsstock, age_groups)
+            data$age <- paste0('age', data$age)  # Make data match autoset groups
+        }
     }
 
     if ('stock' %in% names(data)) {
