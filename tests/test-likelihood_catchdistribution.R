@@ -60,9 +60,11 @@ report_step <- function (var_name, steps, initial_val) {
         step_var_name <- paste0("step", i, "_", var_name)
         assign(step_var_name, initial_val)
         out <- gadget3:::f_substitute(~if (cur_time == i) {
+            comment(report_comment)
             step_var[] <- var
             g3_report(step_var)
         } else rest, list(
+            report_comment = paste0("Reporting on ", var_name, " at step ", i),
             step_var = as.symbol(step_var_name),
             var = as.symbol(var_name),
             i = i,
