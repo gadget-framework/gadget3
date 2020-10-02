@@ -71,10 +71,14 @@ g3_intlookup <- function (lookup_name, keys, values) {
 }
 
 # Turn a year/step/area/value data.frame into a formula
-g3_timeareadata <- function(lookup_name, df) {
+g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
+    # TODO: Should accept area_group
+    for (n in c('area', 'year', 'step')) {
+        if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
+    }
     lookup <- g3_intlookup(lookup_name,
         keys = as.integer(df$area * 1000000L + df$year * 100L + df$step),
-        values = as.numeric(df$value))
+        values = as.numeric(df[[value_field]]))
         
     # Return formula that does the lookup
     return(lookup('getdefault', ~area * 1000000L + cur_year * 100L + cur_step, 0))

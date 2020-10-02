@@ -106,7 +106,7 @@ igfs_totaldata <- data.frame(
     year = rep(1994:2018, each = 4),
     step = 1:4,
     area = areas[['a']],
-    value = 1:4)
+    total_weight = 1:4)
 igfs_obs_data <- read.table('inst/extdata/ling/catchdistribution_ldist_lln.txt', header = TRUE)
 igfs_actions <- list(
     g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),

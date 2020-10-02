@@ -29,7 +29,7 @@ cur_step <- 1L
 cur_year <- 1980L
 
 tad_lookup <- g3_timeareadata('tad', read.table(header = TRUE, text = "
-year	step	area	value
+year	step	area	total_weight
 1983	1	1	198311
 1983	2	1	198321
 1984	1	1	198411
