@@ -213,7 +213,10 @@ ok_group('g3l_likelihood_data:age', {
           len0   y 2001 2001.2
           len0   z 2001    0.0
         "), "Worked out age dimensions from attributes, filled in missing values")
-    ok(ut_cmp_identical(ld_minages(ld), c(x = 1L, y = 4L, z = 7L)), "agegroups using minages from attribute")
+    ok(ut_cmp_identical(ld_minages(ld), array(
+        c(x = 1L, y = 4L, z = 7L),
+        dimnames = list(c("x", "y", "z")),
+        dim = 3)), "agegroups using minages from attribute")
 })
 
 
