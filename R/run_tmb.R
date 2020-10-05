@@ -439,6 +439,15 @@ g3_to_tmb <- function(actions, trace = FALSE) {
         })
     }
 
+    param_lines_to_cpp <- function (pl) {
+        vapply(names(pl), function (n) {
+            paste0(
+                "PARAMETER",
+                if (nzchar(pl[[n]])) paste0("_", pl[[n]]),
+                "(", cpp_escape_varname(n), ");")
+        }, character(1))
+    }
+
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr) {
         if (missing(cpp_expr)) {
             sprintf("%s %s;", cpp_type, cpp_name)
@@ -462,12 +471,12 @@ g3_to_tmb <- function(actions, trace = FALSE) {
             }
         }
 
-        # Find any g3_param and put it at the top
+        # Find any g3_param stash it in param_lines
         call_replace(code,
-            g3_param_array = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_ARRAY(", cpp_escape_varname(x[[2]]), ");"),
-            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_MATRIX(", cpp_escape_varname(x[[2]]), ");"),
-            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER_VECTOR(", cpp_escape_varname(x[[2]]), ");"),
-            g3_param = function (x) param_lines[[x[[2]]]] <<- paste0("PARAMETER(", cpp_escape_varname(x[[2]]), ");"))
+            g3_param_array = function (x) param_lines[[x[[2]]]] <<- "ARRAY",
+            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- "MATRIX",
+            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- "VECTOR",
+            g3_param = function (x) param_lines[[x[[2]]]] <<- "")
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
@@ -557,7 +566,10 @@ Type objective_function<Type>::operator() () {
 
     %s
     abort();  // Should have returned somewhere in the loop
-}\n", paste(c(param_lines, "", unlist(scope)), collapse = "\n    "),
+}\n", paste(c(
+        param_lines_to_cpp(param_lines),
+        "",
+        unlist(scope)), collapse = "\n    "),
       cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions)))
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
