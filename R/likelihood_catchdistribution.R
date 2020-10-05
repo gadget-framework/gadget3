@@ -39,15 +39,15 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
 
 g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta = 1) {
     if (mode == 'log') {
-        f_substitute(~sum(alpha +
+        f_substitute(~sum((alpha +
             beta * log(stock_ss(modelstock__num)) -
-            log(stock_ss(obsstock__num))), list(
+            log(stock_ss(obsstock__num)))**2), list(
                 alpha = alpha,
                 beta = beta))
     } else if (mode == 'linear') {
-        f_substitute(~sum(alpha +
+        f_substitute(~sum((alpha +
             beta * stock_ss(modelstock__num) -
-            stock_ss(obsstock__num)), list(
+            stock_ss(obsstock__num))**2), list(
                 alpha = alpha,
                 beta = beta))
     }
