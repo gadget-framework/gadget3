@@ -175,6 +175,15 @@ tmb_ling <- g3_to_tmb(c(
     time))
 writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    ling_model_tmb <- g3_tmb_adfun(tmb_ling, ling_param)
-    # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling)
+    tmb_param <- environment(tmb_ling)$parameter_template
+    # Fill parameters - Map original list into data.frame format
+    for (n in names(ling_param)) {
+        if (n %in% tmb_param$switch) {
+            tmb_param[n, 'value'] <- list(list(ling_param[[n]]))
+        }
+    }
+    # Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE
+    # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
+    ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)
+    # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
 }

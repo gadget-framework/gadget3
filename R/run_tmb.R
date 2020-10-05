@@ -576,7 +576,18 @@ Type objective_function<Type>::operator() () {
 
     # Attach data to model as closure
     environment(out) <- new.env(parent = emptyenv())
+    # TODO: Use attributes instead?
     environment(out)$model_data <- model_data
+    if (length(param_lines) > 0) {
+        environment(out)$parameter_template <- data.frame(
+            switch = names(param_lines),
+            type = unlist(param_lines),
+            value = list(NA),  # NB: Has to be a list column because values might be vectors
+            optimise = TRUE,
+            random = FALSE,
+            stringsAsFactors = FALSE)
+    }
+    # TODO: Still need the below?
     environment(out)$model_parameters <- structure(
         as.list(rep(0, length(param_lines))),
         names = cpp_escape_varname(names(param_lines)))
@@ -603,12 +614,50 @@ print.g3_cpp <- function(x, ...) {
     return(invisible(x))
 }
 
+# Turn a g3 TMB bit of code into an adfun
+# TODO: Direct from actions -> adfun?
 g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(fileext=".cpp"), ...) {
-    # Map incoming parameters with names and order we expect
-    model_parameters <- environment(cpp_code)$model_parameters
-    names(parameters) <- cpp_escape_varname(names(parameters))
-    parameters <- parameters[intersect(names(parameters), names(model_parameters))]
-    model_parameters[names(parameters)] <- parameters
+    model_params <- environment(cpp_code)$parameter_template
+
+    # If parameters is a list, convert to data.frame
+    if (!is.data.frame(parameters) && is.list(parameters)) {
+        tmp_param <- model_params
+        for (n in names(parameters)) {
+            if (n %in% tmp_param$switch) {
+                tmp_param[n, 'value'] <- list(list(parameters[[n]]))
+            }
+        }
+        parameters <- tmp_param
+    }
+
+    # Make sure required columns are there
+    stopifnot(
+        'switch' %in% names(parameters),
+        'value' %in% names(parameters))
+
+    # At least param should match
+    if (!identical(model_params$switch, parameters$switch)) {
+        # TODO: Merge instead?
+        stop("Parameters not in expected order")
+    }
+
+    for (i in seq_len(nrow(parameters))) {
+        val <- parameters[i, 'value'][[1]]
+        if (parameters[i, 'type'] == "ARRAY" && !is.array(val)) stop("Parameter ", parameters[i, 'switch'], " not an array")
+        if (parameters[i, 'type'] == "MATRIX" && !is.matrix(val)) stop("Parameter ", parameters[i, 'switch'], " not a matrix")
+        # What can we test if parameters[n, 'type'] == "VECTOR"?
+        if (parameters[i, 'type'] == "" && length(val) != 1) stop("Parameter ", parameters[i, 'switch'], " should be a single value")
+    }
+
+    tmb_parameters <- structure(
+        parameters$value,
+        names = cpp_escape_varname(parameters$switch))
+
+    tmb_map <- new.env(parent = emptyenv())
+    for (n in parameters[parameters$optimise == FALSE, 'switch']) {
+        tmb_map[[cpp_escape_varname(n)]] <- factor(NA)
+    }
+    tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
     cpp_dll <- gsub('\\.cpp$', '', cpp_path)
     writeLines(cpp_code, con = cpp_path)
@@ -620,7 +669,16 @@ g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(file
 
     obj <- TMB::MakeADFun(
         data = as.list(environment(cpp_code)$model_data),
-        parameters = model_parameters,
+        parameters = tmb_parameters,
+        map = as.list(tmb_map),
+        random = tmb_random,
         DLL = basename(cpp_dll))
     return(obj)
+}
+
+# Turn parameter_template table into a vector for TMB
+g3_tmb_par <- function (parameters) {
+    unlist(structure(
+        list(parameters$value),
+        names = cpp_escape_varname(parameters$switch)))
 }
