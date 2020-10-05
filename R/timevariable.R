@@ -48,8 +48,9 @@ g3_intlookup <- function (lookup_name, keys, values) {
             }
         }
 
-        assign(paste0(lookup_name, '__keys'), as.integer(keys))
-        assign(paste0(lookup_name, '__values'), values)
+        # TODO: Make a 1-item optimisation, then the as.array() stops being necessary
+        assign(paste0(lookup_name, '__keys'), as.array(as.integer(keys)))
+        assign(paste0(lookup_name, '__values'), as.array(values))
         assign(paste0(lookup_name, '__lookup'), f_substitute(~intlookup_zip(l__keys, l__values), list(
             intlookup_zip = inttype_fn('zip'),
             l__keys = as.symbol(paste0(lookup_name, '__keys')),

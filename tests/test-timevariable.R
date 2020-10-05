@@ -73,6 +73,22 @@ actions <- c(actions, gadget3:::f_substitute(~{
 }, list(lookup_f = tad_lookup)))
 expecteds$tad_get_3 <- 0  # i.e. missing value
 
+# Check a lookup with a single value in it still works
+single_lookup <- gadget3:::g3_intlookup('single_lookup', c(1), c(100))
+single_lookup_rv_1 <- 0
+single_lookup_rv_2 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('single_lookup')
+    single_lookup_rv_1 <- lookup_rv_1_f
+    single_lookup_rv_2 <- lookup_rv_2_f
+    g3_report(single_lookup_rv_1)
+    g3_report(single_lookup_rv_2)
+}, list(
+    lookup_rv_1_f = single_lookup('getdefault', ~1, 99),
+    lookup_rv_2_f = single_lookup('getdefault', ~2, 99))))
+expecteds$single_lookup_rv_1 <- 100
+expecteds$single_lookup_rv_2 <- 99
+
 ###############################################################################
 
 actions <- c(actions, ~{
