@@ -67,5 +67,9 @@ export(g3s_agegroup)
 export(g3s_livesonareas)
 export(g3s_areagroup)
 
+# R/stock_time.R
+export(g3s_time)
+export(g3s_time_convert)
+
 # R/timevariable.R
 export(g3_timeareadata)

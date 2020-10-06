@@ -4,7 +4,18 @@ g3s_time_convert <- function (year, step = NULL) {
 
 # Time dimension, useful for data objects
 # - times: Vector of g3s_time_convert(year, step) for each year/step data applies to
-g3s_time <- function(inner_stock, times) {
+g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
+    # If year/step provided, populate times
+    if (!is.null(year)) {
+        if (is.null(step)) {
+            times <- g3s_time_convert(year)
+        } else {
+            # Generate all combinations of year/step, turn into times
+            times <- expand.grid(year = year, step = step)
+            times <- g3s_time_convert(times$year, times$step)
+        }
+    }
+
     # time -> index lookup
     timelookup <- g3_intlookup(
         paste0('times_', inner_stock$name),
