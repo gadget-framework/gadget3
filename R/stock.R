@@ -62,3 +62,9 @@ g3_fleet <- function(var_name) {
 g3s_prey <- function(inner_stock, energycontent) {
     inner_stock  # TODO:
 }
+
+g3s_clone <- function(inner_stock, var_name) {
+    new_stock <- inner_stock
+    new_stock$name <- var_name
+    return(new_stock)
+}

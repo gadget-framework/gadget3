@@ -16,19 +16,16 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
                 mfdb_max_bound(length_groups[[length(length_groups)]]))
 
             modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = FALSE)
-            obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = FALSE)
         } else {
             length_groups <- sort(unique(data$length))
 
             # Default to open-ended, as there's no way to specify the maximum
             modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
-            obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), length_groups, open_ended = TRUE)
             data$length <- paste0('len', data$length)  # Make data match autoset groups
         }
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))
-        obsstock <- g3_stock(paste("cdist", nll_name, "obs", sep = "_"), c(0))
         data$length <- 'len0'
     }
 
@@ -38,11 +35,9 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             age_groups <- attr(data, 'age', exact = TRUE)
             age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
             modelstock <- g3s_agegroup(modelstock, age_groups)
-            obsstock <- g3s_agegroup(obsstock, age_groups)
         } else {
             age_groups <- seq(min(data$age), max(data$age))
             modelstock <- g3s_agegroup(modelstock, age_groups)
-            obsstock <- g3s_agegroup(obsstock, age_groups)
             data$age <- paste0('age', data$age)  # Make data match autoset groups
         }
     }
@@ -52,7 +47,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
-        obsstock <- g3s_manual(obsstock, 'stock', stock_groups, ~stockidx_f)
     } else {
         stock_map <- NULL
     }
@@ -75,15 +69,17 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         }
         area_group <- area_group[order(names(area_group))]  # Dimension order should match data
         modelstock <- g3s_areagroup(modelstock, area_group)
-        obsstock <- g3s_areagroup(obsstock, area_group)
     }
 
+    # Work out time dimension, create an obsstock using it
     if (!('year' %in% names(data))) {
         stop("Data must contain a year column")
     }
     # NB: Let g3s_time_convert() worry about if the step column is there or not
     data$time <- g3s_time_convert(data$year, data$step)
-    obsstock <- g3s_time(obsstock, sort(unique(data$time)))
+    obsstock <- g3s_time(
+        g3s_clone(modelstock, paste("cdist", nll_name, "obs", sep = "_")),
+        sort(unique(data$time)))
 
     # Generate full table based on stock
     full_table <- as.data.frame.table(
