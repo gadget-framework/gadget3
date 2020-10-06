@@ -343,7 +343,7 @@ ok_group("Likelihood per step", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step0_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,1])),
+            log(r$cdist_surveyindices_obs__num[,1]))**2,
         0)), "step0_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
@@ -373,7 +373,7 @@ ok_group("Likelihood per step", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,2])),
+            log(r$cdist_surveyindices_obs__num[,2]))**2,
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
@@ -403,7 +403,7 @@ ok_group("Likelihood per step", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step2_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,3])),
+            log(r$cdist_surveyindices_obs__num[,3]))**2,
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -433,7 +433,7 @@ ok_group("Likelihood per step", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,4])),
+            log(r$cdist_surveyindices_obs__num[,4]))**2,
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
@@ -605,7 +605,7 @@ ok_group("Likelihood per year", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,1])),
+            log(r$cdist_surveyindices_obs__num[,1]))**2,
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -636,7 +636,7 @@ ok_group("Likelihood per year", {
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,2])),
+            log(r$cdist_surveyindices_obs__num[,2]))**2,
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
