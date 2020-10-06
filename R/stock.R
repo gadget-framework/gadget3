@@ -36,7 +36,7 @@ g3_stock <- function(var_name, lengthgroups, open_ended = TRUE) {
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
 
-    list(
+    structure(list(
         dim = c(
             length = length(lengthgroups)),
         dimnames = list(
@@ -45,18 +45,18 @@ g3_stock <- function(var_name, lengthgroups, open_ended = TRUE) {
         iter_ss = quote(.[]),  # NB: This includes a missing parameter for the length dimension
         intersect = ~extension_point,
         rename = ~extension_point,
-        name = var_name)
+        name = var_name), class = c("g3_stock", "list"))
 }
 
 g3_fleet <- function(var_name) {
-    list(
+    structure(list(
         dim = c(),
         dimnames = list(),
         iterate = ~extension_point,
         iter_ss = quote(`[`(.)),  # NB: No dimensions yet
         intersect = ~extension_point,
         rename = ~extension_point,
-        name = var_name)
+        name = var_name), class = c("g3_stock", "list"))
 }
 
 g3s_prey <- function(inner_stock, energycontent) {

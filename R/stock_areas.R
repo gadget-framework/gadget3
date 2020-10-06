@@ -6,7 +6,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
         # Stock only in one area, so simplify
         stock__area <- as.integer(areas[[1]])
         stock__area_idx <- ~g3_idx(1)
-        list(
+        structure(list(
             dim = c(inner_stock$dim,
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
@@ -18,9 +18,9 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 extension_point
             }, list(extension_point = inner_stock$intersect)),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-            name = inner_stock$name)
+            name = inner_stock$name), class = c("g3_stock", "list"))
     } else {
-        list(
+        structure(list(
             dim = c(inner_stock$dim,
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
@@ -37,7 +37,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 }
             }, list(extension_point = inner_stock$intersect)),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-            name = inner_stock$name)
+            name = inner_stock$name), class = c("g3_stock", "list"))
     }
 }
 
@@ -55,7 +55,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         function (i) rep(i, times = length(areagroups[[i]])))))
     stock__minareas <- as.array(vapply(areagroups, function (x) as.integer(x[[1]]), integer(1)))
 
-    list(
+    structure(list(
         dim = c(inner_stock$dim,
             area = length(areagroups)),
         dimnames = c(inner_stock$dimnames, list(
@@ -70,5 +70,5 @@ g3s_areagroup <- function(inner_stock, areagroups) {
                 lookup = stock__areagroup_lookup('getdefault', ~area, -1),
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-        name = inner_stock$name)
+        name = inner_stock$name), class = c("g3_stock", "list"))
 }

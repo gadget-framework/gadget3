@@ -3,7 +3,7 @@ g3s_age <- function(inner_stock, minage, maxage) {
     stock__minage <- if(is.numeric(minage)) as.integer(minage) else minage
     stock__maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
 
-    list(
+    structure(list(
         dim = c(inner_stock$dim, 
             age = stock__maxage - stock__minage + 1),
         dimnames = c(inner_stock$dimnames, list(
@@ -16,7 +16,7 @@ g3s_age <- function(inner_stock, minage, maxage) {
             stock__age_idx, g3_idx(age - stock__minage + 1), extension_point), list(
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-        name = inner_stock$name)
+        name = inner_stock$name), class = c("g3_stock", "list"))
 }
 
 # - agegroups: list(1:3, 4:10)
@@ -33,7 +33,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         function (i) rep(i, times = length(agegroups[[i]])))))
     stock__minages <- as.array(vapply(agegroups, function (x) as.integer(x[[1]]), integer(1)))
 
-    list(
+    structure(list(
         dim = c(inner_stock$dim,
             age = length(agegroups)),
         dimnames = c(inner_stock$dimnames, list(
@@ -48,5 +48,5 @@ g3s_agegroup <- function(inner_stock, agegroups) {
                 lookup = stock__agegroup_lookup('getdefault', ~age, -1),
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-        name = inner_stock$name)
+        name = inner_stock$name), class = c("g3_stock", "list"))
 }

@@ -30,7 +30,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         idx_f <- timelookup('getdefault', ~cur_year, -1)
     }
 
-    list(
+    structure(list(
         dim = c(inner_stock$dim,
             time = length(times)),
         dimnames = c(inner_stock$dimnames, list(
@@ -41,5 +41,5 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
                 idx_f = idx_f,
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-        name = inner_stock$name)
+        name = inner_stock$name), class = c("g3_stock", "list"))
 }

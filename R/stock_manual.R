@@ -7,7 +7,7 @@ g3s_manual <- function(inner_stock, var_base_name, dimnames, intersect_idx_f) {
     idx_var_name <- paste0("stock__", var_base_name, "_idx")
     with_names <- function (n, i) structure(i, names = n)
 
-    list(
+    structure(list(
         dim = c(inner_stock$dim,
             with_names(var_base_name, length(dimnames))),
         dimnames = c(inner_stock$dimnames,
@@ -22,5 +22,5 @@ g3s_manual <- function(inner_stock, var_base_name, dimnames, intersect_idx_f) {
             intersect_idx_f = intersect_idx_f,
             extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
-        name = inner_stock$name)
+        name = inner_stock$name), class = c("g3_stock", "list"))
 }
