@@ -27,7 +27,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
     }
 
     stock__agegroup_lookup <- g3_intlookup(
-        inner_stock$name,
+        paste0('ages_', inner_stock$name),
         keys = as.integer(unlist(agegroups)),
         values = unlist(lapply(seq_along(agegroups),
         function (i) rep(i, times = length(agegroups[[i]])))))
