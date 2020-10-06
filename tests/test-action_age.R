@@ -43,7 +43,6 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
 
 actions <- list(
     g3a_time(2000, 2002, steps = c(6, 6)),
-    # TODO: This is getting ugly.
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_initialconditions(prey_b, ~10 * age + prey_b__midlen * 0, ~100 * age + prey_b__midlen * 0),
     g3a_initialconditions(prey_c, ~prey_b__midlen * 0, ~prey_b__midlen * 0),
