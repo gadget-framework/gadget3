@@ -5,24 +5,24 @@ library(gadget3)
 
 end <- function (x) x
 
-areas <- list(a=1)
+areas <- list(area1=1)
 
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('a')]) %>%
+    g3s_livesonareas(areas[c('area1')]) %>%
     g3s_age(3, 10) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
 ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('a')]) %>%
+    g3s_livesonareas(areas[c('area1')]) %>%
     g3s_age(5, 15) %>%
     g3s_prey(energycontent = 5) %>%
     end()
 
-lln <- g3_fleet('lln') %>% g3s_livesonareas(areas[c('a')])
-bmt <- g3_fleet('bmt') %>% g3s_livesonareas(areas[c('a')])
-gil <- g3_fleet('gil') %>% g3s_livesonareas(areas[c('a')])
-foreign <- g3_fleet('foreign') %>% g3s_livesonareas(areas[c('a')])
+lln <- g3_fleet('lln') %>% g3s_livesonareas(areas[c('area1')])
+bmt <- g3_fleet('bmt') %>% g3s_livesonareas(areas[c('area1')])
+gil <- g3_fleet('gil') %>% g3s_livesonareas(areas[c('area1')])
+foreign <- g3_fleet('foreign') %>% g3s_livesonareas(areas[c('area1')])
 
 ling_imm_stddev <- c(
     8.25,
@@ -101,11 +101,11 @@ ling_mat_actions <- list(
     g3a_age(ling_mat),
     list())
 
-igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('a')])
+igfs <- g3_fleet('igfs') %>% g3s_livesonareas(areas[c('area1')])
 igfs_totaldata <- data.frame(
     year = rep(1994:2018, each = 4),
     step = 1:4,
-    area = areas[['a']],
+    area = areas[['area1']],
     total_weight = 1:4)
 igfs_obs_data <- read.table('inst/extdata/ling/catchdistribution_ldist_lln.txt', header = TRUE)
 igfs_actions <- list(

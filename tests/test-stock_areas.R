@@ -5,7 +5,7 @@ library(gadget3)
 
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
-stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(areas[c('a', 'c')])
+stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(unname(areas[c('a', 'c')]))  # NB: Remove names so we generate defaults
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])
 stock_aggregated <- g3_stock('stock_aggregated', c(10)) %>% g3s_areagroup(list(areas[c('b', 'c')], areas[c('d')]))
     
@@ -77,19 +77,19 @@ ok(ut_cmp_identical(
     array(
         c(110),
         dim = c(length = 1, area = 1),
-        dimnames = list(length = "len10", area = "area1"))), "stock_a__num populated")
+        dimnames = list(length = "len10", area = "a"))), "stock_a__num populated, used names from areas lookup")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_ac__num,
     array(
         c(1010, 3010),
         dim = c(length = 1, area = 2),
-        dimnames = list(length = "len10", area = c("area1","area3")))), "stock_ac__num populated")
+        dimnames = list(length = "len10", area = c("area1","area3")))), "stock_ac__num populated, generated default names")
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_bcd__num,
     array(
         c(20010, 30010, 40010),
         dim = c(length = 1, area = 3),
-        dimnames = list(length = "len10", area = c("area2","area3","area4")))), "stock_bcd__num populated")
+        dimnames = list(length = "len10", area = c("b", "c", "d")))), "stock_bcd__num populated, used names from areas lookup")
 
 ok(ut_cmp_identical(
     environment(model_fn)$model_report$stock_aggregated__num,

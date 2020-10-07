@@ -1,5 +1,11 @@
 g3s_livesonareas <- function(inner_stock, areas) {
-    stock__areas <- as.array(as.integer(areas))  # NB: Force stock__areas to be an array
+    # If no names given, add some
+    if (is.null(names(areas))) {
+        names(areas) <- paste0('area', areas)
+    }
+    stock__areas <- as.array(structure(
+        as.integer(areas),
+        names = names(areas)))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
 
     if (stock__totalareas == 1) {
@@ -10,7 +16,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
             dim = c(inner_stock$dim,
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
-                area = paste0('area', stock__areas))),
+                area = names(stock__areas))),
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
             iterate = f_substitute(~g3_with(area, stock__area, extension_point), list(
                 extension_point = inner_stock$iterate)),
@@ -24,7 +30,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
             dim = c(inner_stock$dim,
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
-                area = paste0('area', stock__areas))),
+                area = names(stock__areas))),
             iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
             iterate = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) g3_with(
                 area, stock__areas[[stock__area_idx]],
