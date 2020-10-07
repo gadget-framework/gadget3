@@ -13,8 +13,6 @@ full-install: build
 	R CMD INSTALL --install-tests --html --example "$(TARBALL)"
 
 build:
-	grep -qE 'LinkingTo:.*Rcpp' DESCRIPTION && { echo 'Rcpp::compileAttributes()' | R --vanilla --quiet; } || true
-	grep -q Roxygen DESCRIPTION && { echo 'devtools::document()' | R --vanilla --quiet; } || true
 	R CMD build .
 
 test: install
