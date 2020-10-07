@@ -13,3 +13,5 @@
 ^demo-baseline$
 ^doc$
 ^docs$
+^.*\.Rproj$
+^\.Rproj\.user$
