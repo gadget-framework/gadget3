@@ -46,10 +46,7 @@ g3_suitability_constant <- function(alpha){
 
 
 g3_suitability_richards <- function(p0,p1,p2,p3,p4){
-  f_substitute(~(delta / ( 1 + exp(-alpha - beta * prey_l - gamma * pred_l)))**(1/p4), list(
-    alpha = p0,
-    beta = p1,
-    gamma = p2,
-    delta = p3,
+  f_substitute(~suit_exponential**(1/p4), list(
+    suit_exponential = g3_suitability_exponential(p0, p1, p2, p3),
     p4 = p4))
 }
