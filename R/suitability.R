@@ -8,10 +8,13 @@ g3_suitability_exponentiall50 <- function (alpha, l50) {
     l50 = l50))
 }
 
-g3_suitability_andersenfleet <- function (p0, p1, p2, p3, p4, L) {
-  f_substitute(~p0 + p2 * exp(logspace_add(-(log(L/prey_l) - p1)**2/p4,0)), list(
-    alpha = alpha,
-    l50 = l50))
+g3_suitability_andersenfleet <- function (p0, p1, p2, p3, p4) {
+  f_substitute(~p0 + p2 * exp(logspace_add(-(log(pred_l/prey_l) - p1)**2/p4,0)), list(
+    p0 = p0,
+    p1 = p1,
+    p2 = p2,
+    p3 = p3,
+    p4 = p4))
 }
 
 
