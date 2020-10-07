@@ -86,3 +86,6 @@
 #' @format MFDB query object
 "gil_landings"
 
+#' Standard deviation in length at age
+#' @format data frame
+"init.sigma"

@@ -1,24 +1,4 @@
 
-clean_data <- function(dat){
-  max_len <- 
-    tail(attributes(dat)$length,1)[[1]] %>% 
-    attr('max')
-  dat <- 
-    dat %>% 
-    mutate(step = as.numeric(step),
-           area = as.numeric(area),
-           age = ifelse(grepl('all',age), NA_integer_,as.integer(gsub('age','',age))),
-           length = as.numeric(gsub('len','',length)))
-  dat <- dat %>% select(-area)
-  if(sum(is.na(dat$age))>0)
-    dat <- dat %>% select(-age)
-  
-  dat <- 
-    dat %>% 
-    bind_rows(tibble(year = 2000,length = max_len))
-  return(dat)
-}
-
 ## all age reading before 1999 are omitted
 
 ## weird inconsistencies in Gadget
@@ -117,8 +97,8 @@ ling_likelihood_actions <- list(
     (igfs.SI1[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha1'),
-                                        beta = g3_param('ling_si_beta1')),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha1'),
+                                        beta = ~g3_param('ling_si_beta1')),
                                         missing = 0),
   g3l_catchdistribution(
     'si_igfs_si2a',
@@ -126,8 +106,8 @@ ling_likelihood_actions <- list(
     (igfs.SI2a[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha2'),
-                                        beta = g3_param('ling_si_beta2')),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha2'),
+                                        beta = ~g3_param('ling_si_beta2')),
     missing = 0),
   g3l_catchdistribution(
     'si_igfs_si2b',
@@ -135,7 +115,7 @@ ling_likelihood_actions <- list(
     (igfs.SI2b[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha3'),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha3'),
                                         beta = 1),
     missing = 0),
   g3l_catchdistribution(
@@ -143,7 +123,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3a[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha4'),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha4'),
                                         beta = 1),
     missing = 0),
   g3l_catchdistribution(
@@ -152,7 +132,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha5'),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha5'),
                                         beta = 1),
     missing = 0),
   g3l_catchdistribution(
@@ -161,7 +141,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha6'),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha6'),
                                         beta = 1),
     missing = 0),
   g3l_catchdistribution(
@@ -170,7 +150,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3d[[1]]),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_surveyindices(alpha = g3_param('ling_si_alpha7'),
+    g3l_catchdistribution_surveyindices(alpha = ~g3_param('ling_si_alpha7'),
                                         beta = 1),
     missing = 0),
   list()
