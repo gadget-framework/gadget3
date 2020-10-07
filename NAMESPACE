@@ -56,7 +56,6 @@ export(g3_suitability_exponentiall50)
 # R/stock.R
 export(g3_stock)
 export(g3_fleet)
-export(g3s_prey)
 export(g3s_clone)
 
 # R/stock_age.R
