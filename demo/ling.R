@@ -111,8 +111,8 @@ igfs_obs_data <- read.table('inst/extdata/ling/catchdistribution_ldist_lln.txt',
 igfs_actions <- list(
     g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
-            ling_imm = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50')),
-            ling_mat = g3_suitability_exponentiall50(g3_param('ling.igfs.alpha'), g3_param('ling.igfs.l50'))),
+            ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
+            ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
     g3l_catchdistribution(
         'ldist_lln',

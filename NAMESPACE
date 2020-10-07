@@ -40,9 +40,6 @@ export(g3l_catchdistribution_multivariate)
 export(g3l_catchdistribution_surveyindices)
 export(g3l_catchdistribution)
 
-# R/run.R
-export(g3_param)
-
 # R/run_r.R
 export(g3_to_r)
 S3method(edit, g3_r)
