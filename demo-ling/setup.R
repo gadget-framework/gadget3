@@ -70,11 +70,33 @@ source('demo-ling/setup-catchdistribution.R')
 source('demo-ling/setup-indices.R')
 source('demo-ling/setup-likelihood.R')
 
+## set up reporting:
+
+imm_report <- g3s_clone(ling_imm, 'imm_report') %>%
+  g3s_time(year = local(year_range), step = 1:4)
+
+mat_report <- g3s_clone(ling_mat, 'mat_report') %>%
+  g3s_time(year = local(year_range), step = 1:4)
+
 ling_model <- g3_to_r(c(
   ling_mat_actions,
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
+  list(gadget3:::g3a_report_stock(imm_report,ling_imm,'num'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'num'),
+       gadget3:::g3a_report_stock(imm_report,ling_imm,'wgt'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'wgt'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'igfs'),
+       gadget3:::g3a_report_stock(imm_report,ling_mat,'igfs'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'bmt'),
+       gadget3:::g3a_report_stock(imm_report,ling_mat,'bmt'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'lln'),
+       gadget3:::g3a_report_stock(imm_report,ling_mat,'lln'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'gil'),
+       gadget3:::g3a_report_stock(imm_report,ling_mat,'gil'),
+       gadget3:::g3a_report_stock(mat_report,ling_mat,'foreign'),
+       gadget3:::g3a_report_stock(imm_report,ling_mat,'foreign')), 
   list(time)))
 
 
@@ -171,6 +193,9 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
 
 #ling_model <- edit(ling_model)
 result <- ling_model(ling_param)
+
+environment(ling_model)$model_report -> tmp
+
   
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,ling_param)
 
