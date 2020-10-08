@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title> • gadget3</title>
+<title>Function reference • gadget3</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,7 +32,7 @@
 
 
 
-<meta property="og:title" content="" />
+<meta property="og:title" content="Function reference" />
 
 
 
@@ -91,6 +91,9 @@
     <li>
       <a href="../articles/tmb-gotchas.html">Gotchas and quirks of TMB</a>
     </li>
+    <li>
+      <a href="../articles/writing_actions.html">Writing G3 Actions</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -121,13 +124,124 @@
       <col class="title" />
     </colgroup>
 
-    
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="action_age.html">g3a_age()</a></code> </p>
+        </td>
+        <td><p>Gadget3 age action</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_grow.html">g3a_grow_lengthvbsimple()</a></code> <code><a href="action_grow.html">g3a_grow_impl_bbinom()</a></code> <code><a href="action_grow.html">g3a_growmature()</a></code> </p>
+        </td>
+        <td><p>Gadget3 growth action</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_mature.html">g3a_mature_constant()</a></code> <code><a href="action_mature.html">g3a_mature()</a></code> </p>
+        </td>
+        <td><p>Gadget3 maturity action</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_naturalmortality.html">g3a_naturalmortality_exp()</a></code> <code><a href="action_naturalmortality.html">g3a_naturalmortality()</a></code> </p>
+        </td>
+        <td><p>Gadget3 natural mortality action</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_predate.html">g3a_predate_totalfleet()</a></code> </p>
+        </td>
+        <td><p>Gadget3 predation actions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_renewal.html">g3a_initialconditions()</a></code> <code><a href="action_renewal.html">g3a_initialconditions_normalparam()</a></code> <code><a href="action_renewal.html">g3a_renewal()</a></code> <code><a href="action_renewal.html">g3a_renewal_normalparam()</a></code> </p>
+        </td>
+        <td><p>Gadget3 renewal actions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_report.html">g3a_report_stock()</a></code> </p>
+        </td>
+        <td><p>Gadget3 report actions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="action_time.html">g3a_time()</a></code> </p>
+        </td>
+        <td><p>Gadget3 timekeeping actions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="likelihood_catchdistribution.html">g3l_catchdistribution_sumofsquares()</a></code> <code><a href="likelihood_catchdistribution.html">g3l_catchdistribution_multinomial()</a></code> <code><a href="likelihood_catchdistribution.html">g3l_catchdistribution_multivariate()</a></code> <code><a href="likelihood_catchdistribution.html">g3l_catchdistribution_surveyindices()</a></code> <code><a href="likelihood_catchdistribution.html">g3l_catchdistribution()</a></code> </p>
+        </td>
+        <td><p>Gadget3 likelihood actions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="run_r.html">g3_to_r()</a></code> </p>
+        </td>
+        <td><p>Gadget3 actions into R code</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="run_tmb.html">g3_to_tmb()</a></code> <code><a href="run_tmb.html">g3_tmb_adfun()</a></code> </p>
+        </td>
+        <td><p>Gadget3 actions into TMB code</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stock.html">g3_stock()</a></code> <code><a href="stock.html">g3_fleet()</a></code> <code><a href="stock.html">g3s_clone()</a></code> </p>
+        </td>
+        <td><p>Gadget3 stock storage</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stock_age.html">g3s_age()</a></code> <code><a href="stock_age.html">g3s_agegroup()</a></code> </p>
+        </td>
+        <td><p>Gadget3 stock age dimensions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stock_areas.html">g3s_livesonareas()</a></code> <code><a href="stock_areas.html">g3s_areagroup()</a></code> </p>
+        </td>
+        <td><p>Gadget3 stock area dimensions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="stock_time.html">g3s_time_convert()</a></code> <code><a href="stock_time.html">g3s_time()</a></code> </p>
+        </td>
+        <td><p>Gadget3 stock time dimensions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="suitability.html">g3_suitability_exponentiall50()</a></code> </p>
+        </td>
+        <td><p>TODO:</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="timevariable.html">g3_timeareadata()</a></code> </p>
+        </td>
+        <td><p>TODO:</p></td>
+      </tr>
+    </tbody>
     </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#section-all-functions">All functions</a></li>
     </ul>
   </div>
 </div>

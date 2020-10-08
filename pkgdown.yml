@@ -4,4 +4,5 @@ pkgdown_sha: ~
 articles:
   model_structure: model_structure.html
   tmb-gotchas: tmb-gotchas.html
+  writing_actions: writing_actions.html
 

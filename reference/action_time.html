@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • gadget3</title>
+<title>Gadget3 timekeeping actions — action_time • gadget3</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,7 +32,10 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Gadget3 timekeeping actions — action_time" />
+
+<meta property="og:description" content="Add timekeeping to a g3 model" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -50,7 +53,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -113,19 +116,83 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Gadget3 timekeeping actions</h1>
+    
+    <div class="hidden name"><code>action_time.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="model_structure.html">Structure of a gadget3 model</a></li>
-        <li><a href="tmb-gotchas.html">Gotchas and quirks of TMB</a></li>
-        <li><a href="writing_actions.html">Writing G3 Actions</a></li>
-      </ul>
+    <div class="ref-description">
+    
+    <p>Add timekeeping to a g3 model</p>
+    
     </div>
+
+    <pre class="usage"><span class='fu'>g3a_time</span>(<span class='no'>start_year</span>, <span class='no'>end_year</span>, <span class='kw'>steps</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>as.array</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>12</span>)), <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>0</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>start_year</th>
+      <td><p>Year model run will start.</p></td>
+    </tr>
+    <tr>
+      <th>end_year</th>
+      <td><p>After this year, model run will stop.</p></td>
+    </tr>
+    <tr>
+      <th>steps</th>
+      <td><p>Vector of step lengths, should sum to 12,
+    for example, <code><a href='https://rdrr.io/r/base/c.html'>c(3,3,3,3)</a></code> for quarterly steps within a year.</p></td>
+    </tr>
+    <tr>
+      <th>run_at</th>
+      <td><p>Order of age actions within model, see TODO:</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The actions will define the following variables in your model:</p><dl class='dl-horizontal'>
+    <dt><var>cur_time</var></dt><dd><p>Current iteration of model, starts at 0 and increments until finished</p></dd>
+    <dt><var>cur_step</var></dt><dd><p>Current step within individual year</p></dd>
+    <dt><var>cur_step_len</var></dt><dd><p>How many months long this step is</p></dd>
+    <dt><var>cur_year</var></dt><dd><p>Current year</p></dd>
+    <dt><var>cur_step_final</var></dt><dd><p>TRUE iff this is the final step of the year</p></dd>
+    <dt><var>total_steps</var></dt><dd><p>Total # of iterations before model stops</p></dd>
+  
+</dl>
+
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p></p><h3>g3a_time</h3>
+<p>An action (i.e. list of formula objects) that will...</p><ol>
+<li><p>Define <var>cur_*</var> variables listed above</p></li>
+<li><p>If we've reached the end of the model, return <var>nll</var></p></li>
+</ol>
+
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Run model 2000..2004, in quarterly steps</span>
+<span class='no'>time_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_time</span>(
+    <span class='kw'>start_year</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
+    <span class='kw'>end_year</span> <span class='kw'>=</span> <span class='fl'>2004</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>))</div></pre>
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#value">Value</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
+
   </div>
 </div>
 
