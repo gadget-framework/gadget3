@@ -174,7 +174,7 @@ just does the same to each. However, the formula you supply can. ``age`` and
 when writing formula. For example:
 
 ```{r}
-g3_to_r(g3a_growmature(
+fn <- g3_to_r(g3a_growmature(
     ling_imm,
     growth_f = list(
         len = ~age * 10,
@@ -183,11 +183,24 @@ g3_to_r(g3a_growmature(
         beta_f = ~g3_param("ling.bbin"),
         maxlengthgroupgrowth = 4),
     transition_f = ~TRUE))
+fn
 ```
 
 ...you can see our provided formula have been used to calculate
 ``ling_imm__growth_l`` and ``ling_imm__growth_w``, and ``age`` and ``area`` are
 available to us thanks to the loops provided by the stock.
+
+## Model parameterization
+
+In the ``g3a_growmature`` function above, we see a reference to
+``g3_param("ling.bbin")``. The ``g3_param()`` function is pseudo-code that
+specifies the model should accept a parameter at this point. In the R code,
+this has been converted to ``param[["ling.bbin"]]``, so when we call our R
+function, we can provide a value, e.g. ``fn(list(ling.bbin = 6))``. We can also
+use ``g3_param_vector()`` to provide a model with a vector of values.
+
+When converting to TMB, there are a lot more options for using the optimisation
+features it offers.
 
 ## Combining actions
 
