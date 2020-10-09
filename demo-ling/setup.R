@@ -19,7 +19,7 @@ defaults <- list(
 
 time <-  g3a_time(start_year = min(defaults$year), 
                   end_year = max(defaults$year), 
-                  c(3, 3, 3, 3)) ## connect with mfdb_timestep_* functions
+                  defaults$timestep)
 bootstrap <- FALSE
 
 areas <- structure(

@@ -19,7 +19,8 @@ g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
     After this year, model run will stop.
   }
   \item{steps}{
-    Vector of step lengths, should sum to 12,
+    Either an MFDB time grouping, e.g. \code{mfdb::mfdb_timestep_quarterly}, or a
+    vector of step lengths which should should sum to 12,
     for example, \code{c(3,3,3,3)} for quarterly steps within a year.
   }
   \item{run_at}{

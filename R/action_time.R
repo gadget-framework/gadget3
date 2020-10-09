@@ -1,7 +1,8 @@
 # Timekeeping step, advances clock and stops when time is up
 # - start_year: Year to start counting from
 # - end_year: Stop at the end of this year (i.e. inclusive)
-# - steps: Vector of steps in a year, each element is a number of months, should sum to 12
+# - steps: MFDB group or vector of steps in a year,
+#       each element is a number of months, should sum to 12
 # Once added to a model, the following variables will be available:
 # - cur_time: Current iteration of model, starts at 0 and increments until finished
 # - cur_step: Current step within individual year
@@ -10,6 +11,7 @@
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
 g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) {
+    if ("mfdb_group" %in% class(steps)) steps <- vapply(steps, length, numeric(1))
     if (sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
 
     # If these are literals, they should be integers

@@ -3,6 +3,29 @@ library(unittest)
 
 library(gadget3)
 
+ok_group("MFDB compatibility", {
+    # Fake mfdb default groupings
+    timestep_quarterly <- structure(
+        list("1" = 1:3, "2" = 4:6, "3" = 7:9, "4" = 10:12),
+        table_name = "temp_rvtbi",
+        class = c("mfdb_group", "mfdb_aggregate"))
+    timestep_biannually <- structure(
+        list("1" = 1:6, "2" = 7:12),
+        table_name = "temp_wntki",
+        class = c("mfdb_group", "mfdb_aggregate"))
+
+    a <- g3a_time(1990, 1997, steps = timestep_quarterly)
+    ok(ut_cmp_identical(
+        as.vector(environment(a[[1]])$step_lengths),
+        c(3L,3L,3L,3L)), "mfdb::mfdb_timestep_quarterly converted")
+
+    a <- g3a_time(1990, 1997, steps = timestep_biannually)
+    ok(ut_cmp_identical(
+        as.vector(environment(a[[1]])$step_lengths),
+        c(6L,6L)), "mfdb::mfdb_timestep_biannually converted")
+})
+
+
 expected_steps <- 8 * 3  # i.e. 1990..1997, with 3 steps
 all_time <- array(dim = c(expected_steps))
 all_step <- array(dim = c(expected_steps))
