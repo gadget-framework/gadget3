@@ -28,3 +28,8 @@ g3_global_env$lgamma_vec <- g3_native(r = lgamma, cpp = '
        return lgamma(vec);
    }
 ')
+
+g3_global_env$logspace_add <- g3_native(
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    r = function(a,b) pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b))),
+    cpp = NULL)  # NB: Native in TMB

@@ -144,6 +144,22 @@ actions <- c(actions, ~{
 expecteds$min_result <- 4
 expecteds$max_result <- sum(mean_vector)
 
+# logspace_add()
+logspace_add_1 <- 0.0
+logspace_add_0 <- 0.0
+logspace_inp_1 <- 1.0
+logspace_inp_0 <- 0.0
+actions <- c(actions, ~{
+    comment('logspace_add')
+    # NB: Logspace needs Types, not integers
+    logspace_add_1 <- logspace_add(logspace_inp_1, logspace_inp_0)
+    logspace_add_0 <- logspace_add(logspace_inp_0, logspace_inp_0)
+    g3_report(logspace_add_1)
+    g3_report(logspace_add_0)
+})
+expecteds$logspace_add_1 <- 1.313262
+expecteds$logspace_add_0 <- 0.6931472
+
 ###############################################################################
 
 actions <- c(actions, ~{
@@ -167,6 +183,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 result <- model_fn(params)
 # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 for (n in ls(expecteds)) {
-    ok(ut_cmp_equal(environment(model_fn)$model_report[[n]], expecteds[[n]]), n)
+    ok(ut_cmp_equal(
+        environment(model_fn)$model_report[[n]],
+        expecteds[[n]], tolerance = 1e-6), n)
 }
 tmb_r_compare(model_fn, model_tmb, params)
