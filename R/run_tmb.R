@@ -587,10 +587,6 @@ Type objective_function<Type>::operator() () {
         random = if (length(param_lines) > 0) FALSE else logical(0),
         row.names = names(param_lines),
         stringsAsFactors = FALSE)
-    # TODO: Still need the below?
-    environment(out)$model_parameters <- structure(
-        as.list(rep(0, length(param_lines))),
-        names = cpp_escape_varname(names(param_lines)))
     return(out)
 }
 
