@@ -463,7 +463,9 @@ g3_to_tmb <- function(actions, trace = FALSE) {
 
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
+            if ('g3_native' %in% class(all_defns[[var_name]])
+                    && !is.null(all_defns[[var_name]]$cpp)  # i.e. it's not a native function here
+                    && !(var_name %in% names(scope))) {
                 scope[[var_name]] <<- cpp_definition(
                     'auto',
                     var_name,

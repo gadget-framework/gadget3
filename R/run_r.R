@@ -24,7 +24,9 @@ g3_to_r <- function(actions, trace = FALSE) {
 
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]]) && !(var_name %in% names(scope))) {
+            if ('g3_native' %in% class(all_defns[[var_name]])
+                    && !is.null(all_defns[[var_name]]$r)  # i.e. it's not a native function here
+                    && !(var_name %in% names(scope))) {
                 scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
             }
         }

@@ -2,8 +2,8 @@
 g3_global_env <- new.env(parent = emptyenv())
 
 # Define a function with separate equivalent R and C++ implementations
-# - r: R function object
-# - cpp: C++ lambda function, as a string vector
+# - r: R function object or NULL if natively supported
+# - cpp: C++ lambda function, as a string vector or NULL if natively supported
 g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
 }
