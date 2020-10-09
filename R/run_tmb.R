@@ -668,3 +668,10 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
         DLL = basename(cpp_dll))
     return(obj)
 }
+
+# Turn parameter_template table into a vector for TMB
+g3_tmb_par <- function (parameters) {
+    unlist(structure(
+        parameters$value,
+        names = cpp_escape_varname(parameters$switch)))
+}

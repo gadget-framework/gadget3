@@ -1,6 +1,7 @@
 \name{run_tmb}
 \alias{g3_to_tmb}
 \alias{g3_tmb_adfun}
+\alias{g3_tmb_par}
 
 \title{Gadget3 actions into TMB code}
 \description{
@@ -12,6 +13,8 @@ g3_to_tmb(actions, trace = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     cpp_path = tempfile(fileext = ".cpp"), ...)
+
+g3_tmb_par(parameters)
 
 }
 
@@ -39,6 +42,7 @@ g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
 \value{
   \subsection{g3_to_tmb}{A string of C++ code that can be used as an input to \var{g3_tmb_adfun}.}
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}.}
+  \subsection{g3_tmb_par}{\var{parameters} table converted into a vector of values ready to hand to \code{obj$fn(par)}}
 }
 
 \examples{
@@ -95,4 +99,9 @@ tmb_param$value <- I(list(
 
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
+
+\dontrun{# Perform a single run, using values in table
+result <- tmb$fn(g3_tmb_par(tmb_param))
+}
+
 }
