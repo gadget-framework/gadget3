@@ -10,8 +10,8 @@
 \usage{
 g3_to_tmb(actions, trace = FALSE)
 
-g3_tmb_adfun(cpp_code, parameters = list(), cpp_path = tempfile(fileext = ".cpp"), 
-    ...)
+g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
+    cpp_path = tempfile(fileext = ".cpp"), ...)
 
 }
 
@@ -26,7 +26,7 @@ g3_tmb_adfun(cpp_code, parameters = list(), cpp_path = tempfile(fileext = ".cpp"
     cpp_code as produced by \var{g3_to_tmb}.
   }
   \item{parameters}{
-    Default parameters for the ADFun to use
+    Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')}
   }
   \item{cpp_path}{
     Output path to write .cpp file to before compiling. Defaults to a tempfile
@@ -79,8 +79,9 @@ cpp <- g3_to_tmb(list(initialconditions_action, custom_action, time_action))
 cpp <- edit(cpp)
 }
 
-# Compile to a TMB ADFun
-tmb <- g3_tmb_adfun(cpp, list(
+# Set parameter defaults
+tmb_param <- attr(cpp, 'parameter_template')
+tmb_param$value <- I(list(
     ling.init.F = 0.4,
     ling.Linf = 160,
     ling.k = 90,
@@ -90,5 +91,8 @@ tmb <- g3_tmb_adfun(cpp, list(
     lingimm.init.scalar = 200,
     lingimm.walpha = 2.27567436711055e-06,
     lingimm.wbeta = 3.20200445996187,
-    lingimm.M = rep(0.15,3,10)))
+    lingimm.M = rep(0.15,3,10))[rownames(tmb_param)])
+
+# Compile to a TMB ADFun
+tmb <- g3_tmb_adfun(cpp, tmb_param)
 }
