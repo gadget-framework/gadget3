@@ -37,20 +37,20 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
                 sigma_f = sigma_f))
 }
 
-g3l_catchdistribution_surveyindices <- function (mode = 'log', alpha = 0, beta = 1) {
-    if (mode == 'log') {
-        f_substitute(~sum((alpha +
-            beta * log(stock_ss(modelstock__num)) -
-            log(stock_ss(obsstock__num)))**2), list(
-                alpha = alpha,
-                beta = beta))
-    } else if (mode == 'linear') {
-        f_substitute(~sum((alpha +
-            beta * stock_ss(modelstock__num) -
-            stock_ss(obsstock__num))**2), list(
-                alpha = alpha,
-                beta = beta))
-    }
+g3l_catchdistribution_surveyindices_log <- function (alpha = 0, beta = 1) {
+    f_substitute(~sum((alpha +
+        beta * log(stock_ss(modelstock__num)) -
+        log(stock_ss(obsstock__num)))**2), list(
+            alpha = alpha,
+            beta = beta))
+}
+
+g3l_catchdistribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
+    f_substitute(~sum((alpha +
+        beta * stock_ss(modelstock__num) -
+        stock_ss(obsstock__num))**2), list(
+            alpha = alpha,
+            beta = beta))
 }
 
 # Compare numbers caught by fleets to observation data

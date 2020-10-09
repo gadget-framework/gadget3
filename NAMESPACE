@@ -37,7 +37,8 @@ export(g3a_time)
 export(g3l_catchdistribution_sumofsquares)
 export(g3l_catchdistribution_multinomial)
 export(g3l_catchdistribution_multivariate)
-export(g3l_catchdistribution_surveyindices)
+export(g3l_catchdistribution_surveyindices_linear)
+export(g3l_catchdistribution_surveyindices_log)
 export(g3l_catchdistribution)
 
 # R/run_r.R

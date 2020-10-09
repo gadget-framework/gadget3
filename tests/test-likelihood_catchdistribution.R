@@ -159,7 +159,7 @@ actions <- c(base_actions, list(
         list(fleet_abc),
         list(prey_b),
         area_group = areas,
-        g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+        g3l_catchdistribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
 params <- list(
     fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
@@ -494,7 +494,7 @@ ok_group("Likelihood per year", {
             list(fleet_abc),
             list(prey_b),
             area_group = areas,
-            g3l_catchdistribution_surveyindices('log', alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+            g3l_catchdistribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)

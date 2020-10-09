@@ -2,7 +2,8 @@
 \alias{g3l_catchdistribution_sumofsquares}
 \alias{g3l_catchdistribution_multinomial}
 \alias{g3l_catchdistribution_multivariate}
-\alias{g3l_catchdistribution_surveyindices}
+\alias{g3l_catchdistribution_surveyindices_log}
+\alias{g3l_catchdistribution_surveyindices_linear}
 \alias{g3l_catchdistribution}
 
 \title{Gadget3 likelihood actions}
@@ -17,7 +18,9 @@ g3l_catchdistribution_multinomial()
 
 g3l_catchdistribution_multivariate(rho_f, sigma_f, over = c("area"))
 
-g3l_catchdistribution_surveyindices(mode = "log", alpha = 0, beta = 1)
+g3l_catchdistribution_surveyindices_log(alpha = 0, beta = 1)
+
+g3l_catchdistribution_surveyindices_linear(alpha = 0, beta = 1)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
     area_group = NULL, weight = 1, run_at = 10)
@@ -35,9 +38,6 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   }
   \item{sigma_f}{
     TODO:
-  }
-  \item{mode}{
-    Character string, either "log" or "linear".
   }
   \item{alpha}{
     TODO:
@@ -93,7 +93,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   \subsection{g3l_catchdistribution_sumofsquares}{TODO:}
   \subsection{g3l_catchdistribution_multinomial}{TODO:}
   \subsection{g3l_catchdistribution_multivariate}{TODO:}
-  \subsection{g3l_catchdistribution_surveyindices}{TODO:}
+  \subsection{g3l_catchdistribution_surveyindices_log}{TODO:}
+  \subsection{g3l_catchdistribution_surveyindices_linear}{TODO:}
   \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num}
     \item{Compare \var{modelstock}__num with \var{obsstock}__num, using \var{function_f}}
