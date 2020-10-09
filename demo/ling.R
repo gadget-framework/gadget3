@@ -175,7 +175,7 @@ tmb_ling <- g3_to_tmb(c(
     time))
 writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    tmb_param <- environment(tmb_ling)$parameter_template
+    tmb_param <- attr(tmb_ling, 'parameter_template')
     # Fill parameters - Map original list into data.frame format
     for (n in names(ling_param)) {
         if (n %in% tmb_param$switch) {

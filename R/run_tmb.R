@@ -575,10 +575,8 @@ Type objective_function<Type>::operator() () {
     class(out) <- c("g3_cpp", class(out))
 
     # Attach data to model as closure
-    environment(out) <- new.env(parent = emptyenv())
-    # TODO: Use attributes instead?
-    environment(out)$model_data <- model_data
-    environment(out)$parameter_template <- data.frame(
+    attr(out, 'model_data') <- model_data
+    attr(out, 'parameter_template') <- data.frame(
         switch = names(param_lines),
         type = unlist(param_lines),
         value = I(structure(
@@ -617,9 +615,8 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-# TODO: Direct from actions -> adfun?
-g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(fileext=".cpp"), ...) {
-    model_params <- environment(cpp_code)$parameter_template
+g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), cpp_path = tempfile(fileext=".cpp"), ...) {
+    model_params <- attr(cpp_code, 'parameter_template')
 
     # If parameters is a list, convert to data.frame
     if (!is.data.frame(parameters) && is.list(parameters)) {
@@ -670,7 +667,7 @@ g3_tmb_adfun <- function(cpp_code, parameters = list(), cpp_path = tempfile(file
     dyn.load(TMB::dynlib(cpp_dll))
 
     obj <- TMB::MakeADFun(
-        data = as.list(environment(cpp_code)$model_data),
+        data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
