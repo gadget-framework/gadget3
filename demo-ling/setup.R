@@ -32,14 +32,12 @@ areas <- structure(
 ling_imm <- 
   g3_stock('ling_imm', seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(3, 10) %>%
-  g3s_prey(energycontent = 5)
+  g3s_age(3, 10)
 
 ling_mat <- 
   g3_stock('ling_mat', seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(5, 15) %>%
-  g3s_prey(energycontent = 5) 
+  g3s_age(5, 15)
 
 ## fleets
 

@@ -1,7 +1,6 @@
 \name{stock}
 \alias{g3_stock}
 \alias{g3_fleet}
-\alias{g3s_prey}
 \alias{g3s_clone}
 
 \title{Gadget3 stock storage}
