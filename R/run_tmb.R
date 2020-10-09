@@ -618,25 +618,21 @@ print.g3_cpp <- function(x, ...) {
 g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), cpp_path = tempfile(fileext=".cpp"), ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
-    # If parameters is a list, convert to data.frame
+    # If parameters is a list, merge into our data.frames
     if (!is.data.frame(parameters) && is.list(parameters)) {
         tmp_param <- model_params
-        for (n in names(parameters)) {
-            if (n %in% tmp_param$switch) {
-                tmp_param[n, 'value'] <- list(list(parameters[[n]]))
-            }
-        }
+        tmp_param$value <- I(parameters[model_params$switch])
         parameters <- tmp_param
     }
 
     # Make sure required columns are there
     stopifnot(
+        is.data.frame(parameters),
         'switch' %in% names(parameters),
         'value' %in% names(parameters))
 
     # At least param should match
     if (!identical(model_params$switch, parameters$switch)) {
-        # TODO: Merge instead?
         stop("Parameters not in expected order")
     }
 
