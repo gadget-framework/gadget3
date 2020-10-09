@@ -107,6 +107,7 @@ tmb_ling <- g3_to_tmb(c(
 
 
 ## update the input parameters with sane initial guesses
+tmb_param <- attr(tmb_ling, 'parameter_template')
 
 ## I would like to do something like this:
 if(FALSE){
@@ -136,14 +137,7 @@ if(FALSE){
 }
 
 ## but lets settle for 
-param_names <- 
-  tmb_ling[grepl('PARAMETER',tmb_ling)] %>% 
-  stringr::str_extract('\\(.+\\);') %>% 
-  str_replace_all("[\\(|\\);]","") %>% 
-  str_replace_all("__",".")
-
-param_vectors <- 
-  tmb_ling[grepl('PARAMETER_VECTOR',tmb_ling)]
+param_names <- rownames(tmb_param)
 
 source('demo-ling/setup-initial_parameters.R')
 
@@ -194,13 +188,10 @@ result <- ling_model(ling_param)
 
 environment(ling_model)$model_report -> tmp
 
-  
-ling_model_tmb <- g3_tmb_adfun(tmb_ling,ling_param)
+tmb_param$value <- I(ling_param[rownames(tmb_param)])
+ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
-
-names(ling_param) <- gsub('\\.', '__', names(ling_param))
-par <- unlist(ling_param[names(environment(tmb_ling)$model_parameters)])
-ling_model_tmb$fn(par)
+ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
 params <- 
   tibble(switch = names(par), value = par, upper = 2*par, lower = 0.5*par, optimise = 0*par + 1, order = 1:length(par)) #%>% 
@@ -212,9 +203,6 @@ params <-
   #%>% 
 #  mutate(upper = ifelse(optimise == 0, 1.01*value,upper),
 #         lower = ifelse(optimise == 0, 0.99*value,lower))
-  
-
-ling_model_tmb$fn(as.numeric(params$value))
 
 fit <- nlminb(fit$par, ling_model_tmb$fn, ling_model_tmb$gr, 
               upper = params$upper,
