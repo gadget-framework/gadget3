@@ -6,7 +6,7 @@ library(gadget3)
 tmb_r_compare <- function (model_fn, model_tmb, params) {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         # Reformat params into a single vector in expected order
-        par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
         model_tmb_report <- model_tmb$report(par)
         for (n in ls(environment(model_fn)$model_report)) {
             ok(ut_cmp_equal(
@@ -43,7 +43,6 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
 
 actions <- list(
     g3a_time(2000, 2002, steps = c(6, 6)),
-    # TODO: This is getting ugly.
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_initialconditions(prey_b, ~10 * age + prey_b__midlen * 0, ~100 * age + prey_b__midlen * 0),
     g3a_initialconditions(prey_c, ~prey_b__midlen * 0, ~prey_b__midlen * 0),

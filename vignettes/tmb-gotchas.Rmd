@@ -66,7 +66,7 @@ always use the explicit form ‘obj$fn(obj$par)’ rather than
 The following seems to re-order in the expected way, but seems naff:
 
     params <- list(... unordered params ...)
-    par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+    par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
 
 We could abstract, but there's probably a better solution.
 

@@ -122,7 +122,7 @@ ok_group('g3a_mature', {
 
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             # Reformat params into a single vector in expected order
-            par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
             model_tmb_report <- model_tmb$report(par)
             for (n in ls(environment(model_fn)$model_report)) {
                 ok(ut_cmp_equal(
@@ -161,7 +161,7 @@ ok_group('g3a_mature', {
 
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             # Reformat params into a single vector in expected order
-            par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
             model_tmb_report <- model_tmb$report(par)
             for (n in ls(environment(model_fn)$model_report)) {
                 ok(ut_cmp_equal(
@@ -200,7 +200,7 @@ ok_group('g3a_mature', {
 
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             # Reformat params into a single vector in expected order
-            par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
             model_tmb_report <- model_tmb$report(par)
             for (n in ls(environment(model_fn)$model_report)) {
                 ok(ut_cmp_equal(
@@ -239,7 +239,7 @@ ok_group('g3a_mature', {
 
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             # Reformat params into a single vector in expected order
-            par <- unlist(params[names(environment(model_cpp)$model_parameters)])
+            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
             model_tmb_report <- model_tmb$report(par)
             for (n in ls(environment(model_fn)$model_report)) {
                 ok(ut_cmp_equal(
