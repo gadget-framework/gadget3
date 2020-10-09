@@ -578,15 +578,17 @@ Type objective_function<Type>::operator() () {
     environment(out) <- new.env(parent = emptyenv())
     # TODO: Use attributes instead?
     environment(out)$model_data <- model_data
-    if (length(param_lines) > 0) {
-        environment(out)$parameter_template <- data.frame(
-            switch = names(param_lines),
-            type = unlist(param_lines),
-            value = list(NA),  # NB: Has to be a list column because values might be vectors
-            optimise = TRUE,
-            random = FALSE,
-            stringsAsFactors = FALSE)
-    }
+    environment(out)$parameter_template <- data.frame(
+        switch = names(param_lines),
+        type = unlist(param_lines),
+        value = I(structure(
+            # NB: Has to be a list column because values might be vectors
+            as.list(rep(NA, length(param_lines))),
+            names = names(param_lines))),
+        optimise = if (length(param_lines) > 0) TRUE else logical(0),
+        random = if (length(param_lines) > 0) FALSE else logical(0),
+        row.names = names(param_lines),
+        stringsAsFactors = FALSE)
     # TODO: Still need the below?
     environment(out)$model_parameters <- structure(
         as.list(rep(0, length(param_lines))),
