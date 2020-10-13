@@ -3,7 +3,7 @@ g3_global_env <- new.env(parent = emptyenv())
 
 # Define a function with separate equivalent R and C++ implementations
 # - r: R function object or NULL if natively supported
-# - cpp: C++ lambda function, as a string vector or NULL if natively supported
+# - cpp: C++ lambda function, as a string vector or list('Type', 'Type', NULL) to add casts to native fn or NULL if natively supported
 g3_native <- function(r, cpp) {
     return(structure(list(r = r, cpp = cpp), class = "g3_native"))
 }
@@ -29,7 +29,8 @@ g3_global_env$lgamma_vec <- g3_native(r = lgamma, cpp = '
    }
 ')
 
-g3_global_env$logspace_add <- g3_native(
+# Add R definition for TMB-native logspace_add
+g3_global_env$logspace_add <- g3_native(r = function(a,b) {
     # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
-    r = function(a,b) pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b))),
-    cpp = NULL)  # NB: Native in TMB
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = list("Type", "Type"))  # TMB-native, but arguments have to be cast to Type

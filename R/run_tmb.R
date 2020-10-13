@@ -397,6 +397,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
     env_defn <- mget(call_name, envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
     if ('g3_native' %in% class(env_defn)) {
+        if (is.list(env_defn$cpp)) {
+            # cpp is a list, so cast all arguments
+            if (length(call_args) != length(env_defn$cpp)) {
+                stop("Expected arguments ", paste(env_defn$cpp, collapse = ", "), " in call ", deparse(in_call))
+            }
+            return(paste0(call_name, "(", paste(vapply(seq_along(call_args), function (i) {
+                if (is.null(env_defn$cpp[[i]])) {
+                    # No casting here
+                    cpp_code(call_args[[i]], in_envir, next_indent)
+                } else {
+                    # Add cast to variable definition
+                    paste0("(", env_defn$cpp[[i]], ")(", cpp_code(call_args[[i]], in_envir, next_indent), ")")
+                }
+            }, character(1)), collapse = ", "), ")"))
+        }
         return(paste0(
             call_name,
             "(",
@@ -464,7 +479,7 @@ g3_to_tmb <- function(actions, trace = FALSE) {
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
-                    && !is.null(all_defns[[var_name]]$cpp)  # i.e. it's not a native function here
+                    && is.character(all_defns[[var_name]]$cpp)  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
                 scope[[var_name]] <<- cpp_definition(
                     'auto',
