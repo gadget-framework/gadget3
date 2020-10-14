@@ -21,9 +21,12 @@ g3_to_r(actions, trace = FALSE)
 }
 
 \value{
-  A function that takes a \var{params} variable, that defines all \var{g3_param}s required by the model.
-  Returns \var{nll} produced by the model, You can also use
-  \code{environment(fn)$model_report} to get any report variables from the model
+  A function that takes a \var{params} variable, that defines all \var{g3_param}s required by the model,
+  you can use \code{attr(fn, 'parameter_template')} to get a list of all parameters expected by the model
+  and fill in all missing values.
+
+  Returns \var{nll} produced by the model.
+  You can also use \code{environment(fn)$model_report} to get any report variables from the model.
 }
 
 \examples{

@@ -6,6 +6,7 @@ g3_to_r <- function(actions, trace = FALSE) {
     all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
+    param_lines <- list()
 
     if (isTRUE(trace)) {
         all_actions <- call_replace(all_actions, comment = function (x) {
@@ -30,6 +31,13 @@ g3_to_r <- function(actions, trace = FALSE) {
                 scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
             }
         }
+
+        # Find any g3_param stash it in param_lines
+        call_replace(code,
+            g3_param_array = function (x) param_lines[[x[[2]]]] <<- NA,
+            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- NA,
+            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- NA,
+            g3_param = function (x) param_lines[[x[[2]]]] <<- NA)
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
@@ -130,6 +138,7 @@ g3_to_r <- function(actions, trace = FALSE) {
     assign("model_data", model_data, envir = environment(out))
     assign("model_report", new.env(parent = emptyenv()), envir = environment(out))
     class(out) <- c("g3_r", class(out))
+    attr(out, 'parameter_template') <- param_lines
     return(out)
 }
 
