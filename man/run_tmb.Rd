@@ -29,7 +29,8 @@ g3_tmb_par(parameters)
     cpp_code as produced by \var{g3_to_tmb}.
   }
   \item{parameters}{
-    Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')}
+    Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')},
+    modified to provide initial conditions, etc.
   }
   \item{cpp_path}{
     Output path to write .cpp file to before compiling. Defaults to a tempfile
@@ -83,7 +84,7 @@ cpp <- g3_to_tmb(list(initialconditions_action, custom_action, time_action))
 cpp <- edit(cpp)
 }
 
-# Set parameter defaults
+# Set initial conditions for parameters
 tmb_param <- attr(cpp, 'parameter_template')
 tmb_param$value <- I(list(
     ling.init.F = 0.4,
