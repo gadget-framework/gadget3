@@ -694,7 +694,10 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
 
 # Turn parameter_template table into a vector for TMB
 g3_tmb_par <- function (parameters) {
+    # Get all parameters we're thinking of optimising
+    p <- parameters[parameters$optimise, c('switch', 'value')]
+
     unlist(structure(
-        parameters$value,
-        names = cpp_escape_varname(parameters$switch)))
+        p$value,
+        names = cpp_escape_varname(p$switch)))
 }

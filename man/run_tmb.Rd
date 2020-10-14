@@ -51,7 +51,7 @@ g3_tmb_par(parameters)
 \value{
   \subsection{g3_to_tmb}{A string of C++ code that can be used as an input to \var{g3_tmb_adfun}.}
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}.}
-  \subsection{g3_tmb_par}{\var{parameters} table converted into a vector of values ready to hand to \code{obj$fn(par)}}
+  \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
 }
 
 \examples{

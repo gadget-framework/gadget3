@@ -43,6 +43,27 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~`0unknown0`(2)))
 }, "0unknown0"), "An unknown function has to at least be a valid C++ function")
 
+ok_group('g3_tmb_par', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.b')
+        g3_param_vector('param_vec')
+        g3_param('aaparam')
+    })), 'parameter_template')
+    param$value <- I(list(
+        aaparam = 55,
+        param.b = 66,
+        param_vec = 6:10)[rownames(param)])
+
+    ok(ut_cmp_identical(g3_tmb_par(param), c(
+        param__b = 66,
+        param_vec1 = 6, param_vec2 = 7, param_vec3 = 8, param_vec4 = 9, param_vec5 = 10,
+        aaparam = 55)), "g3_tmb_par: Flattened parameters in right order")
+
+    param['param_vec', 'optimise'] <- FALSE
+    ok(ut_cmp_identical(g3_tmb_par(param), c(
+        param__b = 66,
+        aaparam = 55)), "g3_tmb_par: Turning off optimise removed values")
+})
 ###############################################################################
 
 # Can assign a single value to 1x1 array
