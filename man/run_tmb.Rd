@@ -125,3 +125,4 @@ fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param))
 }
+}
