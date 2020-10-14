@@ -591,7 +591,6 @@ Type objective_function<Type>::operator() () {
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
-    # Attach data to model as closure
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- data.frame(
         switch = names(param_lines),
