@@ -34,3 +34,16 @@ g3_global_env$logspace_add <- g3_native(r = function(a,b) {
     # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
     pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
 }, cpp = list("Type", "Type"))  # TMB-native, but arguments have to be cast to Type
+
+
+# vector<Type> form of logspace_add
+g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
+    }
+    return res;
+}')
