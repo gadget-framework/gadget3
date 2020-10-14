@@ -49,7 +49,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
   }
   \item{obs_data}{
-    Data.frame of observation data, for example the results of \link{mfdb_sample_count}
+    Data.frame of observation data, for example the results of \link[mfdb:mfdb_sample_count]{mfdb_sample_count}
   }
   \item{fleets}{
     A list of \code{\link{g3_stock}} objects to collect catch data for
