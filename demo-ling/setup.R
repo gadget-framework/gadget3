@@ -189,12 +189,14 @@ result <- ling_model(ling_param)
 environment(ling_model)$model_report -> tmp
 
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
+tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
+tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
 ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
-params <- 
-  tibble(switch = names(par), value = par, upper = 2*par, lower = 0.5*par, optimise = 0*par + 1, order = 1:length(par)) #%>% 
+#params <- 
+#  tibble(switch = names(par), value = par, upper = 2*par, lower = 0.5*par, optimise = 0*par + 1, order = 1:length(par)) #%>% 
   # Rgadget::init_guess('M[0-9+]$',optimise = 0) %>% 
   # Rgadget::init_guess('__sd[0-9+]$',optimise = 0) %>% 
   # Rgadget::init_guess('si_alpha[0-9+]$',optimise = 0) %>% 
@@ -205,5 +207,6 @@ params <-
 #         lower = ifelse(optimise == 0, 0.99*value,lower))
 
 fit <- nlminb(fit$par, ling_model_tmb$fn, ling_model_tmb$gr, 
-              upper = params$upper,
-              lower = params$lower, control = list(abs.tol = 1e-20,xf.tol = 0.1)) 
+              upper = g3_tmb_upper(tmb_param),
+              lower = g3_tmb_lower(tmb_param),
+              control = list(abs.tol = 1e-20,xf.tol = 0.1)) 

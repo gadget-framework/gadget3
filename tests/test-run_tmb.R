@@ -64,6 +64,65 @@ ok_group('g3_tmb_par', {
         param__b = 66,
         aaparam = 55)), "g3_tmb_par: Turning off optimise removed values")
 })
+
+ok_group('g3_tmb_lower', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.b')
+        g3_param_vector('param_vec')
+        g3_param('aaparam')
+    })), 'parameter_template')
+    param$value <- I(list(
+        aaparam = 55,
+        param.b = 66,
+        param_vec = 6:10)[rownames(param)])
+    param$lower <- c(
+        aaparam = 500,
+        param.b = 600,
+        param_vec = 100)[rownames(param)]
+
+    ok(ut_cmp_identical(g3_tmb_lower(param), c(
+        param__b = 600,
+        param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
+        aaparam = 500)), "g3_tmb_lower: All lower bounds in right order")
+
+    param['param_vec', 'lower'] <- NA
+    ok(ut_cmp_identical(g3_tmb_lower(param), c(
+        param__b = 600,
+        aaparam = 500)), "g3_tmb_lower: Cleared param_vec by setting NA")
+
+    param['param.b', 'optimise'] <- FALSE
+    ok(ut_cmp_identical(g3_tmb_lower(param), c(
+        aaparam = 500)), "g3_tmb_lower: Cleared param.b by setting optimise = F")
+})
+
+ok_group('g3_tmb_upper', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.b')
+        g3_param_vector('param_vec')
+        g3_param('aaparam')
+    })), 'parameter_template')
+    param$value <- I(list(
+        aaparam = 55,
+        param.b = 66,
+        param_vec = 6:10)[rownames(param)])
+    param$upper <- c(
+        aaparam = 500,
+        param.b = 600,
+        param_vec = 100)[rownames(param)]
+
+    ok(ut_cmp_identical(g3_tmb_upper(param), c(
+        param__b = 600,
+        param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
+        aaparam = 500)), "g3_tmb_upper: All upper bounds in right order")
+    param['param_vec', 'upper'] <- NA
+    ok(ut_cmp_identical(g3_tmb_upper(param), c(
+        param__b = 600,
+        aaparam = 500)), "g3_tmb_upper: Cleared param_vec by setting NA")
+    param['param.b', 'optimise'] <- FALSE
+    ok(ut_cmp_identical(g3_tmb_upper(param), c(
+        aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
+})
+
 ###############################################################################
 
 # Can assign a single value to 1x1 array

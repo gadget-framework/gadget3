@@ -601,6 +601,8 @@ Type objective_function<Type>::operator() () {
             names = names(param_lines))),
         optimise = if (length(param_lines) > 0) TRUE else logical(0),
         random = if (length(param_lines) > 0) FALSE else logical(0),
+        lower = if (length(param_lines) > 0) as.numeric(NA) else numeric(0),
+        upper = if (length(param_lines) > 0) as.numeric(NA) else numeric(0),
         row.names = names(param_lines),
         stringsAsFactors = FALSE)
     return(out)
@@ -701,3 +703,22 @@ g3_tmb_par <- function (parameters) {
         p$value,
         names = cpp_escape_varname(p$switch)))
 }
+
+# Turn parameter template into vectors of upper/lower bounds
+g3_tmb_bound <- function (parameters, bound) {
+    # Get all parameters we're thinking of optimising
+    p <- parameters[parameters$optimise & !is.na(parameters[[bound]]), c('switch', 'value', bound)]
+
+    # Get the length of all values
+    p$val_len <- vapply(p[['value']], length, integer(1))
+
+    # Turn into a list with same dimensions as each value
+    out <- structure(
+        lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len'])),
+        names = cpp_escape_varname(p$switch))
+
+    # Unlist the result to condense list back to vector
+    unlist(out)
+}
+g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
+g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')

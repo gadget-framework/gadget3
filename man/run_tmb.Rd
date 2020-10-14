@@ -2,6 +2,8 @@
 \alias{g3_to_tmb}
 \alias{g3_tmb_adfun}
 \alias{g3_tmb_par}
+\alias{g3_tmb_lower}
+\alias{g3_tmb_upper}
 
 \title{Gadget3 actions into TMB code}
 \description{
@@ -15,6 +17,10 @@ g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     work_dir = tempdir(), ...)
 
 g3_tmb_par(parameters)
+
+g3_tmb_lower(parameters)
+
+g3_tmb_upper(parameters)
 
 }
 
@@ -52,6 +58,8 @@ g3_tmb_par(parameters)
   \subsection{g3_to_tmb}{A string of C++ code that can be used as an input to \var{g3_tmb_adfun}.}
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}.}
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
+  \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
+  \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
 }
 
 \examples{
@@ -111,6 +119,9 @@ tmb <- g3_tmb_adfun(cpp, tmb_param)
 
 \dontrun{# Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))
-}
 
+# perform optimisation based on parameter table
+fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
+    upper = g3_tmb_upper(tmb_param),
+    lower = g3_tmb_lower(tmb_param))
 }
