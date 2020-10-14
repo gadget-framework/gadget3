@@ -627,7 +627,7 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), cpp_path = tempfile(fileext=".cpp"), ...) {
+g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), work_dir = tempdir(), ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
     # If parameters is a list, merge into our data.frames
@@ -666,20 +666,29 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
     }
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
-    cpp_dll <- gsub('\\.cpp$', '', cpp_path)
-    writeLines(cpp_code, con = cpp_path)
-    out <- TMB::compile(cpp_path, flags = paste(
-        "-std=c++1y",
-        "-Wno-ignored-attributes",
-        ""))
-    dyn.load(TMB::dynlib(cpp_dll))
+    # Name cpp code based on content, so we will recompile/reload if code edit()ed
+    base_name <- paste0('g3_tmb_', digest::sha1(cpp_code))
+    cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
+    so_path <- TMB::dynlib(file.path(work_dir, base_name))
+
+    # If not loaded yet, compile & load
+    if (!any(vapply(getLoadedDLLs(), function (x) x[['path']] == so_path, logical(1)))) {
+        writeLines(cpp_code, con = cpp_path)
+
+        # Compile this to an equivalently-named .so
+        TMB::compile(cpp_path, flags = paste(
+            "-std=c++1y",
+            "-Wno-ignored-attributes",
+            ""))
+        dyn.load(so_path)
+    }
 
     obj <- TMB::MakeADFun(
         data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
-        DLL = basename(cpp_dll))
+        DLL = base_name)
     return(obj)
 }
 

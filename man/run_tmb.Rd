@@ -12,7 +12,7 @@
 g3_to_tmb(actions, trace = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
-    cpp_path = tempfile(fileext = ".cpp"), ...)
+    work_dir = tempdir(), ...)
 
 g3_tmb_par(parameters)
 
@@ -32,11 +32,19 @@ g3_tmb_par(parameters)
     Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')},
     modified to provide initial conditions, etc.
   }
-  \item{cpp_path}{
-    Output path to write .cpp file to before compiling. Defaults to a tempfile
+  \item{work_dir}{
+    Directory to write and compile .cpp files in. Defaults to R's current temporary directory
   }
   \item{...}{
     Any other options handed directly to \link{MakeADFun}
+  }
+}
+
+\details{
+  \subsection{g3_tmb_adfun}{
+    \code{\link{g3_tmb_adfun}} will do both the \link[TMB:compile]{compile} and \link[TMB:MakeADFun]{MakeADFun}
+    steps of making a model. If the code is identical to an already-loaded model then it
+    won't be recompiled, so repeated calls to \link{g3_tmb_adfun} to change \var{parameters} are fast.
   }
 }
 

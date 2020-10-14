@@ -15,6 +15,7 @@ Description: A framework to assist creation of ecosystem models, generating TMB
              <https://hafro.github.io/gadget2>.
 Encoding: UTF-8
 Imports:
+    digest,
     Matrix (>= 1.2-0),
     methods,
     rlang (>= 0.4.5),
