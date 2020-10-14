@@ -224,22 +224,6 @@ actions <- c(actions, ~{
 expecteds$min_result <- 4
 expecteds$max_result <- sum(mean_vector)
 
-# logspace_add()
-logspace_add_1 <- 0.0
-logspace_add_0 <- 0.0
-logspace_inp_1 <- 1.0
-logspace_inp_0 <- 0.0
-actions <- c(actions, ~{
-    comment('logspace_add')
-    # NB: We have to cast "0" to a Type for the below to work, but this happens automatically
-    logspace_add_1 <- logspace_add(logspace_inp_1, 0)
-    logspace_add_0 <- logspace_add(logspace_inp_0, logspace_inp_0)
-    g3_report(logspace_add_1)
-    g3_report(logspace_add_0)
-})
-expecteds$logspace_add_1 <- 1.313262
-expecteds$logspace_add_0 <- 0.6931472
-
 ###############################################################################
 
 actions <- c(actions, ~{

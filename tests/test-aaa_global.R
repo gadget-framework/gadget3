@@ -10,8 +10,8 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         model_tmb_report <- model_tmb$report(par)
         for (n in ls(environment(model_fn)$model_report)) {
             ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(environment(model_fn)$model_report[[n]]),
+                model_tmb_report[[n]],
+                environment(model_fn)$model_report[[n]],
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
@@ -19,17 +19,44 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
+params <- list()
+actions <- list()
+expecteds <- new.env(parent = emptyenv())
+
+# matrix_vec
+matrix_vec_tf <- matrix(c(0,1,0,1,0,0,0,0,1), nrow = 3)
+matrix_vec_vec <- c(10, 100, 1000)
 matrix_vec_out <- rep(0, 5)
-actions <- list(~{
-    matrix_vec_out <- g3_matrix_vec(g3_param_array('matrix_vec_tf'), g3_param_vector('matrix_vec_vec'))
+actions <- c(actions, ~{
+    comment('matrix_vec')
+    matrix_vec_out <- g3_matrix_vec(matrix_vec_tf, matrix_vec_vec)
     g3_report(matrix_vec_out)
-    
-    return(g3_param('x'))
 })
-params <- list(
-    matrix_vec_vec = c(10, 100, 1000),
-    matrix_vec_tf = matrix(c(0,1,0,1,0,0,0,0,1), nrow = 3),
-    x=1.0)
+expecteds$matrix_vec_out <- c(100, 10, 1000)
+
+# logspace_add()
+logspace_add_1 <- 0.0
+logspace_add_0 <- 0.0
+logspace_inp_1 <- 1.0
+logspace_inp_0 <- 0.0
+actions <- c(actions, ~{
+    comment('logspace_add')
+    # NB: We have to cast "0" to a Type for the below to work, but this happens automatically
+    logspace_add_1 <- logspace_add(logspace_inp_1, 0)
+    logspace_add_0 <- logspace_add(logspace_inp_0, logspace_inp_0)
+    g3_report(logspace_add_1)
+    g3_report(logspace_add_0)
+})
+expecteds$logspace_add_1 <- 1.313262
+expecteds$logspace_add_0 <- 0.6931472
+
+###############################################################################
+
+actions <- c(actions, ~{
+    comment('done')
+    return(g3_param('rv'))
+})
+params <- list(rv=0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -42,18 +69,12 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     writeLines("# skip: not compiling TMB model")
 }
 
-ok_group("g3_matrix_vec", {
-    params <- list(
-        matrix_vec_vec = c(10, 100, 1000),
-        matrix_vec_tf = array(c(0,1,0, 1,0,0, 0,0,1), dim = c(3,3)),
-        x=1.0)
-    result <- model_fn(params)
-    r <- environment(model_fn)$model_report
-    # str(as.list(r), vec.len = 10000)
-
-    ok(ut_cmp_identical(
-        r$matrix_vec_out,
-        c(100, 10, 1000)), "matrix_vec_out: Vector transformed, 1 dimensional again")
-
-    tmb_r_compare(model_fn, model_tmb, params)
-})
+# Compare everything we've been told to compare
+result <- model_fn(params)
+# str(as.list(environment(model_fn)$model_report), vec.len = 10000)
+for (n in ls(expecteds)) {
+    ok(ut_cmp_equal(
+        environment(model_fn)$model_report[[n]],
+        expecteds[[n]], tolerance = 1e-6), n)
+}
+tmb_r_compare(model_fn, model_tmb, params)
