@@ -2,8 +2,9 @@ library(mfdb)
 library(tidyverse)
 library(gadget3)
 
-mdb<-mfdb('Iceland')
+
 year_range <- 1982:lubridate::year(Sys.Date())
+read_data <- FALSE
 
 reitmapping <- 
   read.table(
@@ -62,10 +63,20 @@ igfs <-
   g3s_livesonareas(areas[c('1')])
 
 
+if(read_data){
+  mdb<-mfdb('Iceland')
+  source('demo-ling/setup-fleet-data.R')
+  source('demo-ling/setup-catchdistribution.R')
+  source('demo-ling/setup-indices.R')
+  source('demo-ling/setup-initial_parameters.R')
+} else {
+  fs::dir_ls('data') %>% 
+    stringr::str_subset('.Rdata') %>% 
+    lapply(load,.GlobalEnv)
+}
+
 source('demo-ling/setup-fleets.R')
 source('demo-ling/setup-model.R')
-source('demo-ling/setup-catchdistribution.R')
-source('demo-ling/setup-indices.R')
 source('demo-ling/setup-likelihood.R')
 
 ## set up reporting:
@@ -139,7 +150,7 @@ if(FALSE){
 ## but lets settle for 
 param_names <- rownames(tmb_param)
 
-source('demo-ling/setup-initial_parameters.R')
+
 
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
   "ling.Linf" = 160,
@@ -191,6 +202,15 @@ environment(ling_model)$model_report -> tmp
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
 tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
+
+tmb_param['lingimm.M',]$optimise <- FALSE 
+tmb_param['lingmat.M',]$optimise <- FALSE
+tmb_param['ling.init.sd',]$optimise <- FALSE
+tmb_param['lingimm.walpha',]$optimise <- FALSE
+tmb_param['lingimm.wbeta',]$optimise <- FALSE
+tmb_param['lingmat.walpha',]$optimise <- FALSE
+tmb_param['lingmat.wbeta',]$optimise <- FALSE
+
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
 ling_model_tmb$fn(g3_tmb_par(tmb_param))
