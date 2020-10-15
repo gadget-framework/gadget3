@@ -155,6 +155,8 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__growth_l;
     DATA_VECTOR(ling_mat__dl)
     vector<Type> ling_mat__growth_w(35);
+    array<Type> ling_imm__renewalnum(35,1,8);
+    array<Type> ling_imm__renewalwgt(35,1,8);
     array<Type> cdist_ldist_lln_obs__num(35,92);
     DATA_ARRAY(ldist_lln_number)
     vector<Type> cdist_ldist_lln_model__num(35);
@@ -491,9 +493,13 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( cur_step == 1 && age == 3 ) {
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( age - 3 + 1 - 1 ))), (Type)2))*0.5);
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(10000 / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum())*ling__rec__scalar*ling__rec ( cur_year - start_year + 1 - 1 );
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k))))))*(1 / ling_imm_stddev ( age - 3 + 1 - 1 ))), (Type)2))*0.5);
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*(10000 / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum())*ling__rec__scalar*ling__rec ( cur_year - start_year + 1 - 1 );
+                        ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) += (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= logspace_add_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), 0);
                     }
                 }
             }

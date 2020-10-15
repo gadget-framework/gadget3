@@ -114,6 +114,10 @@ structure(function (param)
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_imm__renewalnum <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
+    "age9", "age10")))
+    ling_imm__renewalwgt <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
+    "age9", "age10")))
     cdist_ldist_lln_obs__num <- array(dim = c(length = 35L, time = 92L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), time = c("1994004", "1995001", "1995003", "1995004", "1996001", "1996003", 
     "1996004", "1997001", "1997002", "1997003", "1997004", "1998001", "1998002", "1998003", "1998004", "1999001", "1999002", "1999003", "1999004", "2000001", "2000002", "2000003", "2000004", "2001001", "2001003", "2001004", "2002001", "2002002", "2002003", "2002004", "2003001", "2003002", "2003003", "2003004", "2004001", "2004002", "2004003", "2004004", "2005001", "2005002", "2005003", "2005004", "2006001", "2006002", "2006003", "2006004", "2007001", "2007002", "2007003", "2007004", "2008001", "2008002", 
     "2008003", "2008004", "2009001", "2009002", "2009003", "2009004", "2010001", "2010002", "2010003", "2010004", "2011001", "2011002", "2011003", "2011004", "2012001", "2012002", "2012003", "2012004", "2013001", "2013002", "2013003", "2013004", "2014001", "2014002", "2014003", "2014004", "2015001", "2015002", "2015003", "2015004", "2016001", "2016002", "2016003", "2016004", "2017002", "2017003", "2017004", "2018001", "2018002", "2018003")))
@@ -412,9 +416,13 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   if (cur_step == 1 && age == 3) {
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_imm_stddev[[age - 3 + 1]]))^2) * 0.5)
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])) * (param[["ling.rec.scalar"]] * param[["ling.rec"]][[cur_year - start_year + 1]])
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))) * (1/ling_imm_stddev[[age - 3 + 1]]))^2) * 0.5)
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx])) * (param[["ling.rec.scalar"]] * param[["ling.rec"]][[cur_year - start_year + 1]])
+                    ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + (ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx])
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 0)
                   }
                 }
             }

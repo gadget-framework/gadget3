@@ -56,6 +56,14 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
   }
 }
 
+\details{
+  The \code{g3a_renewal_*} actions will define the following stock instance variables for \var{stock}:
+  \describe{
+    \item{\var{stock__renewalnum}}{Extra individuals added to the stock}
+    \item{\var{stock__renewalwgt}}{Mean weight of added individuals}
+  }
+}
+
 \value{
   \subsection{g3a_initialconditions}{TODO:}
   \subsection{g3a_initialconditions_normalparam}{TODO:}
