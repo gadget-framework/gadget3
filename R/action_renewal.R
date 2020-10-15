@@ -1,15 +1,11 @@
 # Assign number / mean weight based on formulae
-g3a_initialconditions <- function (stock, num_f, wgt_f, run_at = 0) {
-    return(g3a_renewal(stock, num_f, wgt_f,
-        run_f = ~cur_time == 0L,
-        run_at = run_at))
+g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
+    return(g3a_renewal(stock, num_f, wgt_f, run_f = run_f, run_at = run_at))
 }
 
 # Steps to set up renewal of stocks on first step
-g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_at = 0) {
-    return(g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
-        run_f = ~cur_time == 0L,
-        run_at = run_at))
+g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~cur_time == 0L, run_at = 0) {
+    return(g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = run_f, run_at = run_at))
 }
 
 # Assign number / mean weight based on formulae

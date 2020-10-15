@@ -10,10 +10,10 @@
 }
 
 \usage{
-g3a_initialconditions(stock, num_f, wgt_f, run_at = 0)
+g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
 
 g3a_initialconditions_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, 
-    run_at = 0)
+    run_f = ~cur_time == 0L, run_at = 0)
 
 g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8)
 
