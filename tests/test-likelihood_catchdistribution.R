@@ -375,8 +375,8 @@ ok_group("Likelihood per step", {
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,2]))**2,
+            params$si_beta * log(lspace_add(r$step1_cdist_surveyindices_model__num, 0)) -
+            log(lspace_add(r$cdist_surveyindices_obs__num[,2], 0)))**2,
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
@@ -405,8 +405,8 @@ ok_group("Likelihood per step", {
                 r$step2_cdist_multinom_model__num / sum(r$step2_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step2_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,3]))**2,
+            params$si_beta * log(lspace_add(r$step2_cdist_surveyindices_model__num, 0)) -
+            log(lspace_add(r$cdist_surveyindices_obs__num[,3], 0)))**2,
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -435,8 +435,8 @@ ok_group("Likelihood per step", {
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,4]))**2,
+            params$si_beta * log(lspace_add(r$step3_cdist_surveyindices_model__num, 0)) -
+            log(lspace_add(r$cdist_surveyindices_obs__num[,4], 0)))**2,
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
@@ -607,8 +607,8 @@ ok_group("Likelihood per year", {
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step1_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,1]))**2,
+            params$si_beta * log(lspace_add(r$step1_cdist_surveyindices_model__num, 0)) -
+            log(lspace_add(r$cdist_surveyindices_obs__num[,1], 0)))**2,
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -638,8 +638,8 @@ ok_group("Likelihood per year", {
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step3_cdist_surveyindices_model__num) -
-            log(r$cdist_surveyindices_obs__num[,2]))**2,
+            params$si_beta * log(lspace_add(r$step3_cdist_surveyindices_model__num, 0)) -
+            log(lspace_add(r$cdist_surveyindices_obs__num[,2], 0)))**2,
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
