@@ -86,12 +86,12 @@ ok_group("g3a_growmature", {
         as.vector(environment(model_fn)$model_report$teststock__num),
         c(0, 25, 1010, 575, 5000, 100000)), "Stock individuals have been scaled by matrix")
     ok(ut_cmp_equal(as.vector(environment(model_fn)$model_report$teststock__wgt), c(
-        ((100 * 10) + 1) / 0.00001,
+        ((100 * 10) + 1) / gadget3:::g3_global_env$logspace_add$r(0, 0),
         ((200 * 100) + 2) / 25,
         ((300 * 1000) + 3) / 1010,
         ((400 * 1000) + 4) / 575,
         ((500 * 10000) + 5) / 5000,
-        ((600 * 100000) + 6) / 100000)), "Weight scaled, didn't let weight go to infinity when dividing by zero")
+        ((600 * 100000) + 6) / 100000), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions)

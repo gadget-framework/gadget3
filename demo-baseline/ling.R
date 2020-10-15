@@ -5,6 +5,10 @@ structure(function (param)
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
         return(if (length(out) < 1) def else out)
     }
+    logspace_add_vec <- function (a, b) 
+    {
+        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    }
     growth_bbinom <- function (dmu, lengthgrouplen, binn, beta) 
     {
         delt_l <- dmu/lengthgrouplen
@@ -41,6 +45,10 @@ structure(function (param)
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
         return(if (length(out) < 1) def else out)
+    }
+    logspace_add <- function (a, b) 
+    {
+        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
     }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
@@ -258,9 +266,9 @@ structure(function (param)
                   area <- ling_imm__area
                   {
                     comment("Prey overconsumption coefficient")
-                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- pmin((ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/pmax(ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 1e-05), 1)
+                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- -1 * logspace_add_vec(-1 * (ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/logspace_add_vec(ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 0), -1)
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/pmax(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 1e-05))
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0))
                   }
                 }
             }
@@ -273,9 +281,9 @@ structure(function (param)
                   area <- ling_mat__area
                   {
                     comment("Prey overconsumption coefficient")
-                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- pmin((ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/pmax(ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 1e-05), 1)
+                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- -1 * logspace_add_vec(-1 * (ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/logspace_add_vec(ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 0), -1)
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 1e-05))
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0))
                   }
                 }
             }
@@ -356,7 +364,7 @@ structure(function (param)
                     }
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/pmax(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 1e-05)
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/logspace_add_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 0)
                   }
                 }
             }
@@ -377,7 +385,7 @@ structure(function (param)
                     }
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
-                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
+                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                   }
                 }
             }
@@ -395,7 +403,7 @@ structure(function (param)
                         if (cur_step_final) {
                           ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
                           ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
-                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
+                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                         }
                       }
                     }
@@ -433,7 +441,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   {
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/pmax(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 1e-05)
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0)
                   }
                 }
             }
@@ -445,7 +453,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   {
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0)
                   }
                 }
             }
@@ -456,7 +464,7 @@ structure(function (param)
                 {
                   cdist_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year * 1000 + cur_step, -1)
                   if (cdist_ldist_lln_obs__time_idx >= (1)) {
-                    nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/max(sum(cdist_ldist_lln_model__num[]), 1e-05) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/max(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 1e-05))^2)
+                    nll <- nll + 1 * sum((cdist_ldist_lln_model__num[]/logspace_add(sum(cdist_ldist_lln_model__num[]), 0) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/logspace_add(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]), 0))^2)
                   }
                 }
                 cdist_ldist_lln_model__num[] <- 0
@@ -480,7 +488,7 @@ structure(function (param)
                     ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] * ling_imm__num[, , ling_imm__age_idx + 1]
                     ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
                     ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + (ling_imm__wgt[, , ling_imm__age_idx] * ling_imm__num[, , ling_imm__age_idx])
-                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1]/pmax(ling_imm__num[, , ling_imm__age_idx + 1], 1e-05)
+                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1]/logspace_add_vec(ling_imm__num[, , ling_imm__age_idx + 1], 0)
                     ling_imm__num[, , ling_imm__age_idx] <- 0
                     ling_imm__wgt[, , ling_imm__age_idx] <- 1e-05
                   }
@@ -499,7 +507,7 @@ structure(function (param)
                     ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] * ling_mat__num[, , ling_mat__age_idx + 1]
                     ling_mat__num[, , ling_mat__age_idx + 1] <- ling_mat__num[, , ling_mat__age_idx + 1] + ling_mat__num[, , ling_mat__age_idx]
                     ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + (ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx])
-                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1]/pmax(ling_mat__num[, , ling_mat__age_idx + 1], 1e-05)
+                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1]/logspace_add_vec(ling_mat__num[, , ling_mat__age_idx + 1], 0)
                     ling_mat__num[, , ling_mat__age_idx] <- 0
                     ling_mat__wgt[, , ling_mat__age_idx] <- 1e-05
                   }
@@ -519,7 +527,7 @@ structure(function (param)
                         if (cur_step_final) {
                           ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
                           ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
-                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/pmax(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 1e-05)
+                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                         }
                       }
                     }
@@ -529,4 +537,4 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"))
+}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = NA, ling.k = NA, ling.recl = NA, lingimm.init.scalar = NA, lingimm.M = NA, ling.init.F = NA, lingimm.init = NA, lingimm.walpha = NA, lingimm.wbeta = NA, lingmat.init.scalar = NA, lingmat.M = NA, lingmat.init = NA, lingmat.walpha = NA, lingmat.wbeta = NA, ling.igfs.alpha = NA, ling.igfs.l50 = NA, ling.bbin = NA, ling.rec.scalar = NA, ling.rec = NA))

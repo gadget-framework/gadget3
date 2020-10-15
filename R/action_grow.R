@@ -189,7 +189,7 @@ g3a_growmature <- function(stock,
 
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)  # Convert to total weight
             stock_ss(stock__num) <- g3a_grow_apply(stock__growth_l, stock_ss(stock__num))
-            stock_ss(stock__wgt) <- (stock_ss(stock__wgt) + stock__growth_w) / pmax(stock_ss(stock__num), 0.00001)  # Add extra weight, back to mean
+            stock_ss(stock__wgt) <- (stock_ss(stock__wgt) + stock__growth_w) / logspace_add_vec(stock_ss(stock__num), 0)  # Add extra weight, back to mean
         })
     }, list(
             run_f = run_f,

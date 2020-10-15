@@ -19,6 +19,9 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
+# NB: Name has to be different, or it gets sucked into the model
+lspace_add <- gadget3:::g3_global_env$logspace_add$r
+
 ok(grepl(
     'stock_ssinv\\(modelstock__num,\\s+"area",\\s+"age"\\)',
     paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
@@ -348,23 +351,23 @@ ok_group("Likelihood per step", {
 
     ok(ut_cmp_equal(r$step1_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step1_cdist_utsd_model__num[,1,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step1_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,1,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
         # utsd: stock 2 / area 1
-        (r$step1_cdist_utsd_model__num[,2,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step1_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,2,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
         # utsd: stock 1 / area 2
-        (r$step1_cdist_utsd_model__num[,1,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        (r$step1_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,1,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
         # utsd: stock 2 / area 2
-        (r$step1_cdist_utsd_model__num[,2,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        (r$step1_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,2,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
         # utcd: area 1
-        (r$step1_cdist_utcd_model__num[,1] / sum(r$step1_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        (r$step1_cdist_utcd_model__num[,1] / lspace_add(sum(r$step1_cdist_utcd_model__num[,1]), 0) -
+            r$cdist_utcd_obs__num[,1,2] / lspace_add(sum(r$cdist_utcd_obs__num[,1,2]), 0)) ** 2,
         # utcd: area 2
-        (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        (r$step1_cdist_utcd_model__num[,2] / lspace_add(sum(r$step1_cdist_utcd_model__num[,2]), 0) -
+            r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
@@ -378,23 +381,23 @@ ok_group("Likelihood per step", {
 
     ok(ut_cmp_equal(r$step2_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step2_cdist_utsd_model__num[,1,1] / sum(r$step2_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,1,1,3] / sum(r$cdist_utsd_obs__num[,,1,3])) ** 2,
+        (r$step2_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,1,1,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,3]), 0)) ** 2,
         # utsd: stock 2 / area 1
-        (r$step2_cdist_utsd_model__num[,2,1] / sum(r$step2_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,3] / sum(r$cdist_utsd_obs__num[,,1,3])) ** 2,
+        (r$step2_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,2,1,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,3]), 0)) ** 2,
         # utsd: stock 1 / area 2
-        (r$step2_cdist_utsd_model__num[,1,2] / sum(r$step2_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,2,3] / sum(r$cdist_utsd_obs__num[,,2,3])) ** 2,
+        (r$step2_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,1,2,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,3]), 0)) ** 2,
         # utsd: stock 2 / area 2
-        (r$step2_cdist_utsd_model__num[,2,2] / sum(r$step2_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,2,3] / sum(r$cdist_utsd_obs__num[,,2,3])) ** 2,
+        (r$step2_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,2,2,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,3]), 0)) ** 2,
         # utcd: area 1
-        (r$step2_cdist_utcd_model__num[,1] / sum(r$step2_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,3] / sum(r$cdist_utcd_obs__num[,1,3])) ** 2,
+        (r$step2_cdist_utcd_model__num[,1] / lspace_add(sum(r$step2_cdist_utcd_model__num[,1]), 0) -
+            r$cdist_utcd_obs__num[,1,3] / lspace_add(sum(r$cdist_utcd_obs__num[,1,3]), 0)) ** 2,
         # utcd: area 2
-        (r$step2_cdist_utcd_model__num[,2] / sum(r$step2_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,2,3] / sum(r$cdist_utcd_obs__num[,2,3])) ** 2,
+        (r$step2_cdist_utcd_model__num[,2] / lspace_add(sum(r$step2_cdist_utcd_model__num[,2]), 0) -
+            r$cdist_utcd_obs__num[,2,3] / lspace_add(sum(r$cdist_utcd_obs__num[,2,3]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,3] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
@@ -408,23 +411,23 @@ ok_group("Likelihood per step", {
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,1,1,4] / sum(r$cdist_utsd_obs__num[,,1,4])) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,1,1,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,4]), 0)) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,4] / sum(r$cdist_utsd_obs__num[,,1,4])) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,2,1,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,4]), 0)) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,2,4] / sum(r$cdist_utsd_obs__num[,,2,4])) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,1,2,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,4]), 0)) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,2,4] / sum(r$cdist_utsd_obs__num[,,2,4])) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,2,2,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,4]), 0)) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / sum(r$step3_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,4] / sum(r$cdist_utcd_obs__num[,1,4])) ** 2,
+        (r$step3_cdist_utcd_model__num[,1] / lspace_add(sum(r$step3_cdist_utcd_model__num[,1]), 0) -
+            r$cdist_utcd_obs__num[,1,4] / lspace_add(sum(r$cdist_utcd_obs__num[,1,4]), 0)) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,2,4] / sum(r$cdist_utcd_obs__num[,2,4])) ** 2,
+        (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
+            r$cdist_utcd_obs__num[,2,4] / lspace_add(sum(r$cdist_utcd_obs__num[,2,4]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,4] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
@@ -610,24 +613,24 @@ ok_group("Likelihood per year", {
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
+        (r$step3_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
             # NB: Second time data, not 4th as in per-step example
-            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+            r$cdist_utsd_obs__num[,1,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / sum(r$step3_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
+            r$cdist_utsd_obs__num[,2,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,1,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / sum(r$step3_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,2,2] / sum(r$cdist_utsd_obs__num[,,2,2])) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
+            r$cdist_utsd_obs__num[,2,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / sum(r$step3_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        (r$step3_cdist_utcd_model__num[,1] / lspace_add(sum(r$step3_cdist_utcd_model__num[,1]), 0) -
+            r$cdist_utcd_obs__num[,1,2] / lspace_add(sum(r$cdist_utcd_obs__num[,1,2]), 0)) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / sum(r$step3_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,2,2] / sum(r$cdist_utcd_obs__num[,2,2])) ** 2,
+        (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
+            r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
