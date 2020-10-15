@@ -31,10 +31,6 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
 # Steps to set up renewal of stocks on any stock
 g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE, run_at = 8) {
     # See InitialCond::Initialise
-    # TODO: Scaling from initialcond values to "real" values
-    renewal_dnorm <- array(dim = length(stock_definition(stock, 'stock__midlen')))
-    renewal_scaler <- 0.0
-
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
 
@@ -42,10 +38,10 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
         stock_comment("g3a_renewal_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
-            renewal_dnorm <- (stock__midlen - mean_f) * (1.0 / stddev_f)
-            stock_ss(stock__num) <- exp(-(renewal_dnorm ** 2) * 0.5)
-            renewal_scaler <- 10000.0 / sum(stock_ss(stock__num))
-            stock_ss(stock__num) <- stock_ss(stock__num) * renewal_scaler * factor_f
+            # exp(-(dnorm**2) * 0.5)
+            stock_ss(stock__num) <- exp(-(((stock__midlen - mean_f) * (1.0 / stddev_f)) ** 2) * 0.5)
+            # scale results
+            stock_ss(stock__num) <- stock_ss(stock__num) * (10000.0 / sum(stock_ss(stock__num))) * factor_f
             stock_ss(stock__wgt) <- alpha_f * stock__midlen ** beta_f
         })
     }, list(
