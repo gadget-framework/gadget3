@@ -224,6 +224,15 @@ actions <- c(actions, ~{
 expecteds$min_result <- 4
 expecteds$max_result <- sum(mean_vector)
 
+# negate single value
+negate_x <- 10
+actions <- c(actions, ~{
+    comment('negate')
+    negate_x <- -negate_x
+    g3_report(negate_x)
+})
+expecteds$negate_x <- -10
+
 ###############################################################################
 
 actions <- c(actions, ~{

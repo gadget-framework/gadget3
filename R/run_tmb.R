@@ -101,7 +101,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
 
         # Add += operators if possible
         assign_op <- "="
-        if (is.call(assign_rhs) && identical(assign_lhs, assign_rhs[[2]])) {
+        if (is.call(assign_rhs)
+                && identical(assign_lhs, assign_rhs[[2]])
+                && length(assign_rhs) == 3) {
             # Operating on iself, use a += operation
             assign_op <- paste0(assign_rhs[[1]], "=")
             assign_rhs <- assign_rhs[[3]]
