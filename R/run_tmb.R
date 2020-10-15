@@ -666,7 +666,7 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
 
     tmb_map <- new.env(parent = emptyenv())
     for (n in parameters[parameters$optimise == FALSE, 'switch']) {
-        tmb_map[[cpp_escape_varname(n)]] <- factor(NA)
+        tmb_map[[cpp_escape_varname(n)]] <- factor(rep(NA, length(parameters[n, 'value'][[1]])))
     }
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
