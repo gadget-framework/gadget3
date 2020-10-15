@@ -324,7 +324,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Prey overconsumption coefficient;
-                        ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx) = -1*logspace_add_vec(-1*(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*0.95) / logspace_add_vec(ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx), 0), -1);
+                        ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx) = logspace_add_vec(-200*(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*0.95) / logspace_add_vec(ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx), 0), -200) / -200;
                         ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / logspace_add_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx), 0));
                     }
@@ -341,7 +341,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Prey overconsumption coefficient;
-                        ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx) = -1*logspace_add_vec(-1*(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*0.95) / logspace_add_vec(ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx), 0), -1);
+                        ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx) = logspace_add_vec(-200*(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*0.95) / logspace_add_vec(ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx), 0), -200) / -200;
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) -= (ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / logspace_add_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx), 0));
                     }

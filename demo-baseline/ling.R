@@ -266,7 +266,7 @@ structure(function (param)
                   area <- ling_imm__area
                   {
                     comment("Prey overconsumption coefficient")
-                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- -1 * logspace_add_vec(-1 * (ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/logspace_add_vec(ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 0), -1)
+                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- logspace_add_vec(-200 * (ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/logspace_add_vec(ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 0), -200)/-200
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0))
                   }
@@ -281,7 +281,7 @@ structure(function (param)
                   area <- ling_mat__area
                   {
                     comment("Prey overconsumption coefficient")
-                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- -1 * logspace_add_vec(-1 * (ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/logspace_add_vec(ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 0), -1)
+                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- logspace_add_vec(-200 * (ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/logspace_add_vec(ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 0), -200)/-200
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0))
                   }
