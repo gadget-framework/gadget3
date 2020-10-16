@@ -4,7 +4,7 @@ close_curly_bracket <- "}"
 
 cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 
-cpp_code <- function(in_call, in_envir, indent = "\n    ") {
+cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
     next_indent <- paste0(indent, "    ")
 
     if (!is.call(in_call)) {
@@ -29,7 +29,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
     if (call_name == open_curly_bracket) {
         # Recurse into code block
         lines <- vapply(call_args, function (x) {
-            out <- cpp_code(x, in_envir, next_indent)
+            out <- cpp_code(x, in_envir, next_indent, statement = TRUE)
             # Add semicolon for any line that needs one
             if (!endsWith(out, close_curly_bracket)) out <- paste0(out, ";")
             return(out)
@@ -65,7 +65,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "{",
             next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, next_indent), ";",
             "\n",
-            next_indent, cpp_code(in_call[[4]], in_envir, next_indent),
+            next_indent, cpp_code(in_call[[4]], in_envir, next_indent, statement = TRUE),
             indent, "}"))
     }
 
@@ -115,6 +115,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             cpp_code(assign_rhs, in_envir, next_indent)))
     }
 
+    if (call_name == 'if' && !statement) {
+        # if statment outside a statement definition, use a tertiary operator
+        if (length(in_call) != 4) stop("if expression (not statement) must have an else clause: ", deparse(in_call))
+        return(paste0(
+            cpp_code(in_call[[2]], in_envir, indent),
+            " ? ",
+            cpp_code(in_call[[3]], in_envir, indent),
+            " : ",
+            cpp_code(in_call[[4]], in_envir, indent)))
+    }
+
     if (call_name == 'if' && length(in_call) == 4) {
         # Make sure x has a brace call around it (otherwise our C++ is nonsense)
         embrace <- function (x) {
@@ -128,18 +139,18 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "if (",
             cpp_code(in_call[[2]], in_envir, next_indent),
             ") ",
-            cpp_code(embrace(in_call[[3]]), in_envir, indent),
+            cpp_code(embrace(in_call[[3]]), in_envir, indent, statement = TRUE),
             " else ",
-            cpp_code(embrace(in_call[[4]]), in_envir, indent)))
+            cpp_code(embrace(in_call[[4]]), in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'if' && length(in_call) == 3) {
         # Conditional
         return(paste(
             "if (",
-            cpp_code(in_call[[2]], in_envir, next_indent),
+            cpp_code(in_call[[2]], in_envir, next_indent, statement = TRUE),
             ")",
-            cpp_code(in_call[[3]], in_envir, indent)))
+            cpp_code(in_call[[3]], in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq") {
@@ -153,7 +164,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "auto ", call_args[[1]], " = ", cpp_code(seq_call[[2]], in_envir, next_indent), "; ",
             call_args[[1]], check_operator, cpp_code(seq_call[[3]], in_envir, next_indent), "; ",
             call_args[[1]], iterate_operator, ") ",
-            cpp_code(in_call[[4]], in_envir, indent)))
+            cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq_along") {
@@ -163,7 +174,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
             "auto ", call_args[[1]], " = 0; ",
             call_args[[1]], " < ", cpp_code(call("length", call_args[[2]][[2]]), in_envir, next_indent), "; ",
             call_args[[1]], "++) ",
-            cpp_code(in_call[[4]], in_envir, indent)))
+            cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'for') {
@@ -177,14 +188,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ") {
         }
         return(paste(
             "for (auto", in_call[[2]], ":", iterator, ")",
-            cpp_code(in_call[[4]], in_envir, indent)))
+            cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'while') {
         # while loop
         return(paste0(
             "while (", cpp_code(in_call[[2]], in_envir, next_indent), ") ",
-            cpp_code(in_call[[3]], in_envir, indent)))
+            cpp_code(in_call[[3]], in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == '[') {
@@ -589,7 +600,7 @@ Type objective_function<Type>::operator() () {
         param_lines_to_cpp(param_lines),
         "",
         unlist(scope)), collapse = "\n    "),
-      cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions)))
+      cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions), statement = TRUE))
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
