@@ -4,7 +4,7 @@
 # - stock_intersect(stock, block) - wrap (block) with code to intersect with an outer stock we're iterating over
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
-stock_step <- function(step_f) {
+g3_step <- function(step_f) {
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)
@@ -48,7 +48,7 @@ stock_step <- function(step_f) {
 
         # Recurse first, filling out any inner functions
         inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-        inner_f <- stock_step(inner_f)
+        inner_f <- g3_step(inner_f)
 
         # Replace __iter marker with proper subsetting
         subs <- list()
@@ -82,7 +82,7 @@ stock_step <- function(step_f) {
 
             # Recurse first, letting renames happen
             inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-            inner_f <- stock_step(inner_f)
+            inner_f <- g3_step(inner_f)
 
             # Assume source stock is the first in inner_f, probably true(?)
             source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])

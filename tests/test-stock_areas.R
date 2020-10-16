@@ -19,7 +19,7 @@ actions <- list(
     g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
     g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
     list(
-        '5' = gadget3:::stock_step(~{
+        '5' = gadget3:::g3_step(~{
             comment("stock_sum_a_ac")
             stock_iterate(stock_a, stock_intersect(stock_ac, {
                 stock_sum_a_ac <- stock_sum_a_ac + sum(stock_ss(stock_a__num)) + sum(stock_ss(stock_ac__num))

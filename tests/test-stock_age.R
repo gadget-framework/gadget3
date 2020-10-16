@@ -20,7 +20,7 @@ actions <- list(
     g3a_initialconditions(stock_aggregated, ~age * 1000000 + stock_inbetween__minlen, ~0),
     g3a_initialconditions(stock_inbetween_old_aggregated, ~0 * stock_inbetween__minlen, ~0),
     list(
-        '5' = gadget3:::stock_step(~{
+        '5' = gadget3:::g3_step(~{
             comment("stock_sum_young_inbetween")
             stock_iterate(stock_young, stock_intersect(stock_inbetween, {
                 stock_sum_young_inbetween <- stock_sum_young_inbetween + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_inbetween__num))

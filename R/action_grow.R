@@ -175,7 +175,7 @@ g3a_growmature <- function(stock,
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
-    out[[step_id(run_at, stock)]] <- stock_step(f_substitute(~{
+    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
         stock_comment("g3a_grow for ", stock)
 
         if (transition_f) stock_with(stock, maturity_init_f)

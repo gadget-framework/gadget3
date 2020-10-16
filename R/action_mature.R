@@ -39,7 +39,7 @@ g3a_step_transition <- function(input_stock,
         input_stock <- input_stock
         output_stock <- output_stocks[[n]]
 
-        stock_step(f_substitute(~{
+        g3_step(f_substitute(~{
             stock_comment("Move ", input_stock ," to ", output_stock)
             stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
                 # Total biomass
@@ -76,7 +76,7 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
     stock__transitioning_wgt <- stock_instance(stock)
 
     out <- new.env(parent = emptyenv())
-    out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
+    out[[step_id(run_at, 1, stock)]] <- g3_step(f_substitute(~{
         stock_comment("g3a_mature for ", stock)
         # Reset transitioning stock
         stock_with(stock, stock__transitioning_num[] <- 0)

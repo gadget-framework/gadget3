@@ -60,13 +60,13 @@ g3_with(var, expr, code)
 
 Most actions interact with stocks, and fill out abstract formulae with the
 stocks provided to the function. To do this you need to do a series of
-substitutions, which are handled by ``stock_step()``. This takes a formula,
+substitutions, which are handled by ``g3_step()``. This takes a formula,
 looks for ``stock_*`` named functions and mangles the formula as appropriate.
 For example, a snippet from ``action_mature.R``.
 
 ```{r, eval=FALSE}
     out <- new.env(parent = emptyenv())
-    out[[step_id(run_at, 1, stock)]] <- stock_step(f_substitute(~{
+    out[[step_id(run_at, 1, stock)]] <- g3_step(f_substitute(~{
         stock_comment("g3a_mature for ", stock)
         # Matured stock will weigh the same
         stock_with(stock, stock_with(matured, matured__wgt <- stock__wgt))

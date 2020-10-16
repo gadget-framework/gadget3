@@ -13,7 +13,7 @@ stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 1000))
 
 actions <- list(
     list(
-        '999' = gadget3:::stock_step(~{
+        '999' = gadget3:::g3_step(~{
             # NB: stock_with also includes the stock environment, which is why we need it
             stock_with(stock_a, {
                 g3_report(stock_a__minlen)

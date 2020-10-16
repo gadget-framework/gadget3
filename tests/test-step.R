@@ -23,7 +23,7 @@ ok_group("step_id", {
     ok(ut_cmp_identical(step_id(0, stock_a, "camel"), "000:stock_aaa:camel"), "All the things")
 })
 
-ok_group("stock_step:stock_reshape", {
+ok_group("g3_step:stock_reshape", {
     source <- g3_stock('source', seq(10, 40, 10))
     source__num <- gadget3:::stock_instance(source)
     source__wgt <- gadget3:::stock_instance(source)
@@ -44,22 +44,22 @@ ok_group("stock_step:stock_reshape", {
     actions <- list(
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 
-        list('900:dest_even' = gadget3:::stock_step(~stock_iterate(dest_even, stock_intersect(source, {
+        list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
             stock_ss(dest_even__num) <- stock_reshape(dest_even, stock_ss(source__num))
             g3_report(dest_even__num)
         })))),
 
-        list('900:dest_combine' = gadget3:::stock_step(~stock_iterate(dest_combine, stock_intersect(source, {
+        list('900:dest_combine' = gadget3:::g3_step(~stock_iterate(dest_combine, stock_intersect(source, {
             stock_ss(dest_combine__num) <- stock_reshape(dest_combine, stock_ss(source__num))
             g3_report(dest_combine__num)
         })))),
 
-        list('900:dest_2group' = gadget3:::stock_step(~stock_iterate(dest_2group, stock_intersect(source, {
+        list('900:dest_2group' = gadget3:::g3_step(~stock_iterate(dest_2group, stock_intersect(source, {
             stock_ss(dest_2group__num) <- stock_reshape(dest_2group, stock_ss(source__num))
             g3_report(dest_2group__num)
         })))),
 
-        list('900:dest_wider' = gadget3:::stock_step(~stock_iterate(dest_wider, stock_intersect(source, {
+        list('900:dest_wider' = gadget3:::g3_step(~stock_iterate(dest_wider, stock_intersect(source, {
             stock_ss(dest_wider__num) <- stock_reshape(dest_wider, stock_ss(source__num))
             g3_report(dest_wider__num)
         })))),

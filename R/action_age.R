@@ -57,7 +57,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = run_f)
     }
 
-    out[[step_id(run_at, 1, stock)]] <- stock_step(fix_subsets(f_substitute(~if (run_f) {
+    out[[step_id(run_at, 1, stock)]] <- g3_step(fix_subsets(f_substitute(~if (run_f) {
         stock_comment("g3a_age for ", stock)
 
         stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
