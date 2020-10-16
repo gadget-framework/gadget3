@@ -143,7 +143,7 @@ structure(function (param)
             cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
         }
         {
-            comment("g3a_renewal_normalparam for ling_imm")
+            comment("g3a_initialconditions_normalparam for ling_imm")
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
@@ -157,7 +157,7 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_renewal_normalparam for ling_mat")
+            comment("g3a_initialconditions_normalparam for ling_mat")
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {

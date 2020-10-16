@@ -185,7 +185,7 @@ Type objective_function<Type>::operator() () {
             Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
         }
         {
-            // g3a_renewal_normalparam for ling_imm;
+            // g3a_initialconditions_normalparam for ling_imm;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -201,7 +201,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_renewal_normalparam for ling_mat;
+            // g3a_initialconditions_normalparam for ling_mat;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 

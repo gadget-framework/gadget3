@@ -7,7 +7,7 @@
 }
 
 \usage{
-g3a_report_stock(report_stock, input_stock, instance_name, run_f = TRUE, 
+g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE, 
     run_at = 11)
 
 }
@@ -19,8 +19,8 @@ g3a_report_stock(report_stock, input_stock, instance_name, run_f = TRUE,
   \item{input_stock}{
     The \code{\link{g3_stock}} that will be aggregated
   }
-  \item{instance_name}{
-    The \code{\link{g3_stock}} instance variable to aggregate, e.g. "num", "wgt", "catch", ...
+  \item{report_f}{
+    \link{formula} specifying what to collect, for instance \code{~stock_ss(input_stock__num)} or \code{~stock_ss(input_stock__wgt)}.
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
@@ -33,7 +33,11 @@ g3a_report_stock(report_stock, input_stock, instance_name, run_f = TRUE,
 \details{
   The actions will define the following variables in your model:
   \describe{
-    \item{\var{report_stock}__\var{instance_name}}{Results of collating \var{input_stock}__\var{instance_name}}
+    \item{\var{report_stock}__\var{instance_name}}{
+        Results of collating \var{input_stock}__\var{instance_name}, where
+        \var{instance_name} is defined by the first instance variable in \var{report_f}.
+        For example, if \var{report_f} is \code{~input_stock__num}, then we will report \code{report_stock__num}.
+    }
   }
 }
 
@@ -61,7 +65,7 @@ raw_report <- g3s_clone(ling_imm, 'raw_report') \%>\%
     g3s_time(year = 2000:2002)
 
 actions <- list(
-    g3a_report_stock(agg_report, ling_imm, 'num'),
-    g3a_report_stock(raw_report, ling_imm, 'num'))
+    g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num)),
+    g3a_report_stock(raw_report, ling_imm, ~stock_ss(ling_imm__num)))
 # "raw_report__num" and "agg_report__num" will be available in the model report
 }

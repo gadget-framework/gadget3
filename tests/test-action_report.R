@@ -43,8 +43,8 @@ actions <- list(
     g3a_time(2000, 2002, steps = c(6, 6)),
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_age(prey_a),
-    g3a_report_stock(agg_report, prey_a, 'num'),
-    g3a_report_stock(raw_report, prey_a, 'num'),
+    g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num)),
+    g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
     list('999' = ~{ nll <- g3_param('x') }))
 params <- list(
     x=1.0)
