@@ -97,15 +97,15 @@ ling_model <- g3_to_r(c(
        gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
-       gadget3:::g3a_report_stock(imm_report,ling_mat, ~stock_ss(ling_mat__igfs)),
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__bmt)),
-       gadget3:::g3a_report_stock(imm_report,ling_mat, ~stock_ss(ling_mat__bmt)),
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__bmt)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__lln)),
-       gadget3:::g3a_report_stock(imm_report,ling_mat, ~stock_ss(ling_mat__lln)),
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__lln)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__gil)),
-       gadget3:::g3a_report_stock(imm_report,ling_mat, ~stock_ss(ling_mat__gil)),
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
-       gadget3:::g3a_report_stock(imm_report,ling_mat, ~stock_ss(ling_mat__foreign))),
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign))),
   list(time)))
 
 
@@ -196,20 +196,38 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
 
 #ling_model <- edit(ling_model)
 result <- ling_model(ling_param)
-
 environment(ling_model)$model_report -> tmp
 
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
 tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
 
-tmb_param['lingimm.M',]$optimise <- FALSE 
-tmb_param['lingmat.M',]$optimise <- FALSE
-tmb_param['ling.init.sd',]$optimise <- FALSE
-tmb_param['lingimm.walpha',]$optimise <- FALSE
-tmb_param['lingimm.wbeta',]$optimise <- FALSE
-tmb_param['lingmat.walpha',]$optimise <- FALSE
-tmb_param['lingmat.wbeta',]$optimise <- FALSE
+tmb_param['ling.rec',]$lower <- 0.0001
+tmb_param['ling.rec',]$upper <- 1e3
+tmb_param['lingmat.init',]$lower <- 0.0001
+tmb_param['lingmat.init',]$upper <- 1e3
+
+tmb_param['lingimm.init',]$lower <- 0.0001
+tmb_param['lingimm.init',]$upper <- 1e3
+
+
+tmb_param[c('lingimm.M',
+            'lingmat.M',
+            'ling.init.sd',
+            'lingimm.walpha',
+            'lingimm.wbeta',
+            'lingmat.walpha',
+            'lingmat.wbeta',
+            "ling_si_alpha1",
+            "ling_si_beta1" ,
+            'ling_si_alpha2',
+            "ling_si_beta2" ,
+            'ling_si_alpha3',
+            'ling_si_alpha4',
+            'ling_si_alpha5',
+            'ling_si_alpha6',
+            'ling_si_alpha7'),]$optimise <- FALSE
+
 
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
@@ -217,16 +235,28 @@ ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
 #params <- 
 #  tibble(switch = names(par), value = par, upper = 2*par, lower = 0.5*par, optimise = 0*par + 1, order = 1:length(par)) #%>% 
-  # Rgadget::init_guess('M[0-9+]$',optimise = 0) %>% 
-  # Rgadget::init_guess('__sd[0-9+]$',optimise = 0) %>% 
-  # Rgadget::init_guess('si_alpha[0-9+]$',optimise = 0) %>% 
-  # Rgadget::init_guess('si_beta[0-9]$',optimise = 0) %>% 
-  # arrange(order)
-  #%>% 
+# Rgadget::init_guess('M[0-9+]$',optimise = 0) %>% 
+# Rgadget::init_guess('__sd[0-9+]$',optimise = 0) %>% 
+# Rgadget::init_guess('si_alpha[0-9+]$',optimise = 0) %>% 
+# Rgadget::init_guess('si_beta[0-9]$',optimise = 0) %>% 
+# arrange(order)
+#%>% 
 #  mutate(upper = ifelse(optimise == 0, 1.01*value,upper),
 #         lower = ifelse(optimise == 0, 0.99*value,lower))
 
-fit <- nlminb(fit$par, ling_model_tmb$fn, ling_model_tmb$gr, 
+fit <- nlminb(g3_tmb_par(tmb_param), 
+              ling_model_tmb$fn, ling_model_tmb$gr, 
               upper = g3_tmb_upper(tmb_param),
               lower = g3_tmb_lower(tmb_param),
-              control = list(abs.tol = 1e-20,xf.tol = 0.1)) 
+              control = list(trace = TRUE, eval.max=2000, iter.max=1000))
+#control = list(abs.tol = 1e-20,xf.tol = 0.1)) 
+fit2 <- nlminb(fit$par, 
+               ling_model_tmb$fn, ling_model_tmb$gr,
+               upper = g3_tmb_upper(tmb_param),
+               lower = g3_tmb_lower(tmb_param),
+               control = list(trace = TRUE))
+fit3 <- nlminb(fit3$par, 
+               ling_model_tmb$fn, ling_model_tmb$gr,
+               upper = g3_tmb_upper(tmb_param),
+               lower = g3_tmb_lower(tmb_param),
+               control = list(trace = TRUE, eval.max=2000, iter.max=1000))
