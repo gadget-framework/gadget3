@@ -2,10 +2,10 @@
 g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     delta_len_f <- f_substitute(
-        ~(linf_f - stock__midlen) * (1 - exp(-kappa_f * cur_step_len)),
+        ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_len)),
         list(linf_f = linf_f, kappa_f = kappa_f))
     delta_wgt_f <- f_substitute(
-        ~alpha_f * ( (stock__midlen + delta_len_f)^beta_f - stock__midlen^beta_f ),
+        ~(alpha_f) * ( (stock__midlen + (delta_len_f))^(beta_f) - stock__midlen^(beta_f) ),
         list(alpha_f = alpha_f, beta_f = beta_f, delta_len_f = delta_len_f))
     list(len = delta_len_f, wgt = delta_wgt_f)
 }
@@ -169,7 +169,7 @@ g3a_growmature <- function(stock,
         }
         maturity_iter_f <- f_substitute(~{
             stock_ss(stock__num) <- stock_ss(stock__num) -
-                (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_f)
+                (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * (maturity_f))
             # NB: Mean __wgt unchanged
         }, list(maturity_f = maturity_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)

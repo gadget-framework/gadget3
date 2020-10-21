@@ -243,7 +243,7 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = ((1 / (1 + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                             igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                         }
                     }
@@ -263,7 +263,7 @@ Type objective_function<Type>::operator() () {
                     if ( area == igfs__area ) {
                         {
                             // Collect all suitable biomass for fleet;
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (1 / (1 + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = ((1 / (1 + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                             igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum());
                         }
                     }
@@ -391,7 +391,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     {
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= exp(-lingimm__M*cur_step_len);
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (exp(-(lingimm__M)*cur_step_len));
                     }
                 }
             }
@@ -405,7 +405,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     {
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= exp(-lingmat__M*cur_step_len);
+                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (exp(-(lingmat__M)*cur_step_len));
                     }
                 }
             }
@@ -425,10 +425,10 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_imm__growth_l = growth_bbinom((ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
-                        ling_imm__growth_w = lingimm__walpha*(pow((ling_imm__midlen + (ling__Linf - ling_imm__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingimm__wbeta) - pow(ling_imm__midlen, (Type)lingimm__wbeta));
+                        ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
+                        ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
                         {
-                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*1 / (1 + exp(0)));
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0))));
                         }
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
@@ -450,8 +450,8 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_mat__growth_l = growth_bbinom((ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
-                        ling_mat__growth_w = lingmat__walpha*(pow((ling_mat__midlen + (ling__Linf - ling_mat__midlen)*(1 - exp(-ling__k*0.001*cur_step_len))), (Type)lingmat__wbeta) - pow(ling_mat__midlen, (Type)lingmat__wbeta));
+                        ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
+                        ling_mat__growth_w = (lingmat__walpha)*(pow((ling_mat__midlen + (((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)))), (Type)(lingmat__wbeta)) - pow(ling_mat__midlen, (Type)(lingmat__wbeta)));
                         {
                             
                         }

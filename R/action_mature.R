@@ -84,7 +84,7 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
 
         stock_iterate(stock, if (run_f) {
             stock_comment("Move matured ", stock, " into temporary storage")
-            stock_ss(stock__num) <- stock_ss(stock__num) - (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_f)
+            stock_ss(stock__num) <- stock_ss(stock__num) - (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * (maturity_f))
         })
     }, list(run_f = run_f, maturity_f = maturity_f)))
 

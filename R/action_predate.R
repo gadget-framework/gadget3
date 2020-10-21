@@ -42,7 +42,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
 
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 comment("Collect all suitable biomass for fleet")
-                stock_ss(prey_stock__fleet_stock) <- (suit_f
+                stock_ss(prey_stock__fleet_stock) <- ((suit_f)
                     * stock_ss(prey_stock__num)
                     * stock_ss(prey_stock__wgt))
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)

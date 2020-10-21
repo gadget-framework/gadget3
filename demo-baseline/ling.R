@@ -199,7 +199,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Collect all suitable biomass for fleet")
-                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ((1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))) * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                       igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
                     }
                   }
@@ -217,7 +217,7 @@ structure(function (param)
                   if (area == igfs__area) {
                     {
                       comment("Collect all suitable biomass for fleet")
-                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ((1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))) * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
                       igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
                     }
                   }
@@ -331,7 +331,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   {
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * exp(-param[["lingimm.M"]] * cur_step_len)
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (exp(-(param[["lingimm.M"]]) * cur_step_len))
                   }
                 }
             }
@@ -343,7 +343,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   {
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * exp(-param[["lingmat.M"]] * cur_step_len)
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * (exp(-(param[["lingmat.M"]]) * cur_step_len))
                   }
                 }
             }
@@ -361,8 +361,8 @@ structure(function (param)
                   area <- ling_imm__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_imm__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
-                    ling_imm__growth_w <- param[["lingimm.walpha"]] * ((ling_imm__midlen + (param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingimm.wbeta"]] - ling_imm__midlen^param[["lingimm.wbeta"]])
+                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
+                    ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
                     {
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0))))
                     }
@@ -383,8 +383,8 @@ structure(function (param)
                   area <- ling_mat__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_mat__growth_l <- growth_bbinom((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
-                    ling_mat__growth_w <- param[["lingmat.walpha"]] * ((ling_mat__midlen + (param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)))^param[["lingmat.wbeta"]] - ling_mat__midlen^param[["lingmat.wbeta"]])
+                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
+                    ling_mat__growth_w <- (param[["lingmat.walpha"]]) * ((ling_mat__midlen + (((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))))^(param[["lingmat.wbeta"]]) - ling_mat__midlen^(param[["lingmat.wbeta"]]))
                     {
                     }
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]

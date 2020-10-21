@@ -1,6 +1,6 @@
 g3a_naturalmortality_exp <- function (param_f) {
     f_substitute(
-        ~exp(-param_f * cur_step_len),
+        ~exp(-(param_f) * cur_step_len),
         list(param_f = param_f))
 }
 
@@ -14,7 +14,7 @@ g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) 
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (run_f) {
         stock_comment("Natural mortality for ", stock)
         stock_iterate(stock, {
-            stock_ss(stock__num) <- stock_ss(stock__num) * mortality_f
+            stock_ss(stock__num) <- stock_ss(stock__num) * (mortality_f)
         })
     }, list(
         run_f = run_f,
