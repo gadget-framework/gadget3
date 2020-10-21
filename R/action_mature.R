@@ -1,25 +1,25 @@
-g3a_mature_constant <- function (alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma = 0, k50 = NA) {
+g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, k50 = NA) {
     inner_code <- quote(0)
 
-    if (alpha > 0) {
-        if (is.na(l50)) stop("l50 must be supplied if alpha > 0")
-        inner_code <- substitute(inner_code - alpha*(stock__midlen - l50), list(
+    if (!is.null(alpha)) {
+        if (identical(l50, NA)) stop("l50 must be supplied if alpha is supplied")
+        inner_code <- f_substitute(~inner_code - (alpha)*(stock__midlen - (l50)), list(
             alpha = alpha,
             l50 = l50,
             inner_code = inner_code))
     }
 
-    if (beta > 0) {
-        if (is.na(a50)) stop("a50 must be supplied if beta > 0")
-        inner_code <- substitute(inner_code - beta*(age - a50), list(
+    if (!is.null(beta)) {
+        if (identical(a50, NA)) stop("a50 must be supplied if beta is supplied")
+        inner_code <- f_substitute(~inner_code - (beta)*(age - (a50)), list(
             beta = beta,
             a50 = a50,
             inner_code = inner_code))
     }
 
-    if (gamma > 0) {
-        if (is.na(k50)) stop("k50 must be supplied if gamma > 0")
-        inner_code <- substitute(inner_code - gamma*(stock_ss(stock__wgt) - k50), list(
+    if (!is.null(gamma)) {
+        if (identical(k50, NA)) stop("k50 must be supplied if gamma is supplied")
+        inner_code <- f_substitute(~inner_code - (gamma)*(stock_ss(stock__wgt) - (k50)), list(
             gamma = gamma,
             k50 = k50,
             inner_code = inner_code))

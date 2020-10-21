@@ -8,7 +8,7 @@
 }
 
 \usage{
-g3a_mature_constant(alpha = 0, l50 = NA, beta = 0, a50 = NA, gamma = 0, 
+g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, 
     k50 = NA)
 
 g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output_stocks), 
@@ -22,19 +22,19 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
     A \link{formula} to substitute for \eqn{\alpha}.
   }
   \item{l50}{
-    A \link{formula} to substitute for \eqn{l_{50}}. Must be defined if \code{alpha > 0}.
+    A \link{formula} to substitute for \eqn{l_{50}}. Must be defined if \var{alpha} is defined.
   }
   \item{beta}{
     A \link{formula} to substitute for \eqn{\beta}.
   }
   \item{a50}{
-    A \link{formula} to substitute for \eqn{a_{50}}. Must be defined if \code{beta > 0}.
+    A \link{formula} to substitute for \eqn{a_{50}}. Must be defined if \var{beta} is defined.
   }
   \item{gamma}{
     A \link{formula} to substitute for \eqn{\gamma}.
   }
   \item{k50}{
-    A \link{formula} to substitute for \eqn{k_{50}}. Must be defined if \code{gamma > 0}.
+    A \link{formula} to substitute for \eqn{k_{50}}. Must be defined if \var{gamma} is defined.
   }
   \item{stock}{
     \code{\link{g3_stock}} to mature.
