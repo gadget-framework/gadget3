@@ -162,8 +162,8 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.gil.alpha" = 0.5,
     "ling.gil.l50" = 50,
     end = NULL)
-result <- ling_model(ling_param)
-str(result)
+r_result <- ling_model(ling_param)
+str(r_result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
 tmb_ling <- g3_to_tmb(c(
@@ -180,4 +180,6 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
     ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)
     # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
+    tmb_result <- ling_model_tmb$fn()
+    stopifnot(all.equal(r_result, tmb_result))
 }
