@@ -27,7 +27,8 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
             # exp(-(dnorm**2) * 0.5)
             stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
             # scale results
-            stock_ss(stock__num) <- stock_ss(stock__num) * (10000.0 / sum(stock_ss(stock__num))) * (factor_f)
+            stock_ss(stock__num) <- stock_ss(stock__num) * (10000.0 / sum(stock_ss(stock__num)))
+            stock_ss(stock__num) <- stock_ss(stock__num) * (factor_f)
             stock_ss(stock__wgt) <- (alpha_f) * stock__midlen ** (beta_f)
         })
     }, list(
@@ -81,7 +82,8 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
             # exp(-(dnorm**2) * 0.5)
             stock_ss(stock__renewalnum) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
             # scale results
-            stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (10000.0 / sum(stock_ss(stock__renewalnum))) * (factor_f)
+            stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (10000.0 / sum(stock_ss(stock__renewalnum)))
+            stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (factor_f)
             stock_ss(stock__renewalwgt) <- (alpha_f) * stock__midlen ** (beta_f)
 
             # To total weight
