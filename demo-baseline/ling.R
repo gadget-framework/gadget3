@@ -364,7 +364,7 @@ structure(function (param)
                     ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
                     {
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0))))
+                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
                     }
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
@@ -544,4 +544,4 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = NA, ling.k = NA, ling.recl = NA, lingimm.init.scalar = NA, lingimm.M = NA, ling.init.F = NA, lingimm.init = NA, lingimm.walpha = NA, lingimm.wbeta = NA, lingmat.init.scalar = NA, lingmat.M = NA, lingmat.init = NA, lingmat.walpha = NA, lingmat.wbeta = NA, ling.igfs.alpha = NA, ling.igfs.l50 = NA, ling.bbin = NA, ling.rec.scalar = NA, ling.rec = NA))
+}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = NA, ling.k = NA, ling.recl = NA, lingimm.init.scalar = NA, lingimm.M = NA, ling.init.F = NA, lingimm.init = NA, lingimm.walpha = NA, lingimm.wbeta = NA, lingmat.init.scalar = NA, lingmat.M = NA, lingmat.init = NA, lingmat.walpha = NA, lingmat.wbeta = NA, ling.igfs.alpha = NA, ling.igfs.l50 = NA, ling.bbin = NA, ling.mat1 = NA, ling.mat2 = NA, ling.rec.scalar = NA, ling.rec = NA))

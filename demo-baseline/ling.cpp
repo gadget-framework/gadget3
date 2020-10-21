@@ -18,6 +18,8 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__igfs__alpha);
     PARAMETER(ling__igfs__l50);
     PARAMETER(ling__bbin);
+    PARAMETER(ling__mat1);
+    PARAMETER(ling__mat2);
     PARAMETER(ling__rec__scalar);
     PARAMETER_VECTOR(ling__rec);
     
@@ -428,7 +430,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
                         ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
                         {
-                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0))));
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
                         }
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
