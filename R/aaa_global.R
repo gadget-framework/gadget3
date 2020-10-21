@@ -47,3 +47,15 @@ g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
     }
     return res;
 }')
+
+
+# Rprintf equivalent for R
+g3_global_env$Rprintf <- g3_native(r = function(...) {
+    cat(sprintf(...))
+}, cpp = NULL)
+
+
+# REprintf equivalent for R
+g3_global_env$REprintf <- g3_native(r = function(...) {
+    cat(sprintf(...))
+}, cpp = NULL)

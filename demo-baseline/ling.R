@@ -1,5 +1,9 @@
 structure(function (param) 
 {
+    Rprintf <- function (...) 
+    {
+        cat(sprintf(...))
+    }
     inttypelookup_getdefault <- function (lookup, key, def) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
@@ -140,7 +144,7 @@ structure(function (param)
             cur_step <- (cur_time%%step_count) + 1
             cur_step_len <- step_lengths[[cur_step]]
             cur_step_final <- cur_step == step_count
-            cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
+            Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
         }
         {
             comment("g3a_initialconditions_normalparam for ling_imm")
