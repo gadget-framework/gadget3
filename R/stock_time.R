@@ -11,7 +11,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
             times <- g3s_time_convert(year)
         } else {
             # Generate all combinations of year/step, turn into times
-            times <- expand.grid(year = year, step = step)
+            times <- expand.grid(step = step, year = year)
             times <- g3s_time_convert(times$year, times$step)
         }
     }
