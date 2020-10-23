@@ -39,10 +39,10 @@ ok_group("g3a_grow_impl_bbinom", {
         dmu = c(10, 10, 10, 10, 10, 10))
 
     # Compile model
-    model_fn <- g3_to_r(actions, trace = FALSE)
+    model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = TRUE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params)
     } else {
@@ -87,10 +87,10 @@ ok_group("g3a_growmature", {
         growth_matrix = array(dim = c(6, 7)))
 
     # Compile model
-    model_fn <- g3_to_r(actions, trace = FALSE)
+    model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = TRUE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params)
     } else {
@@ -103,9 +103,9 @@ ok_group("g3a_growmature", {
         0,    0, 0,   0,   0, 0,  # +1
         1, 0.75, 0,   0,   0, 0,  # +2
         0,    0, 0,   0,   0, 0,  # +3
-        0,    0, 0,   0,   0, 0,  # +4
+        0,    0, 0,   0, 0.5, 0,  # +4
         0,    0, 0,   0,   0, 0,  # +5
-        0,    0, 0,   0,   0, 0), dim = c(6,7))
+        0,    0, 0, 0.5,   0, 0), dim = c(6,7))
     params <- list(
         initial_num = c(10, 100, 1000, 1000, 10000, 100000),
         initial_wgt = c(100, 200, 300, 400, 500, 600),
@@ -120,14 +120,14 @@ ok_group("g3a_growmature", {
     result <- model_fn(params)
     ok(ut_cmp_identical(
         as.vector(r$teststock__num),
-        c(0, 25, 1010, 575, 5000, 100000)), "Stock individuals have been scaled by matrix")
+        c(0, 25, 1010, 575, 5000, 105500)), "Stock individuals have been scaled by matrix, can't escape plus-group")
     ok(ut_cmp_equal(as.vector(r$teststock__wgt), c(
         ((100 * 10) + 1) / gadget3:::g3_global_env$logspace_add$r(0, 0),
         ((200 * 100) + 2) / 25,
         ((300 * 1000) + 3) / 1010,
         ((400 * 1000) + 4) / 575,
         ((500 * 10000) + 5) / 5000,
-        ((600 * 100000) + 6) / 100000), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
+        ((600 * 100000) + 6) / 105500), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

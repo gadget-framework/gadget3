@@ -91,13 +91,14 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
 }
 
 # Apply a lgroup x lgroup-delta matrix to vector of length groups
+# Rows should sum to 1
 g3_global_env$g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
-    na <- dim(lg_deltas)[[1]]
-    n <- dim(lg_deltas)[[2]] - 1
+    na <- dim(lg_deltas)[[1]]  # Number of length groups
+    n <- dim(lg_deltas)[[2]] - 1  # Number of lengthgroup deltas
 
     growth.matrix <- array(0,c(na,na))
     for(lg in 1:na){
-      if(lg == na){
+      if(lg == na) {
         growth.matrix[na,na] <- 1
       } else if(lg + n > na){
         growth.matrix[lg,lg:(na-1)] <- lg_deltas[lg,1:(na - lg )]
@@ -148,6 +149,7 @@ g3a_growmature <- function(stock,
     out <- new.env(parent = emptyenv())
 
     # See AgeBandMatrix::Grow
+    stock__prevtotal <- 0
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
     stock__growth_num <- stock_instance(stock)
@@ -188,7 +190,9 @@ g3a_growmature <- function(stock,
             maturity_iter_f
 
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)  # Convert to total weight
+            if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
             stock_ss(stock__num) <- g3a_grow_apply(stock__growth_l, stock_ss(stock__num))
+            if (strict_mode) stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) < 0.0001)
             stock_ss(stock__wgt) <- (stock_ss(stock__wgt) + stock__growth_w) / logspace_add_vec(stock_ss(stock__num), 0)  # Add extra weight, back to mean
         })
     }, list(
