@@ -367,7 +367,11 @@ structure(function (param)
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
                     }
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
+                    if (FALSE) 
+                      ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
+                    if (FALSE) 
+                      stopifnot(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]) < 1e-04)
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/logspace_add_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 0)
                   }
                 }
@@ -388,7 +392,11 @@ structure(function (param)
                     {
                     }
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
+                    if (FALSE) 
+                      ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
+                    if (FALSE) 
+                      stopifnot(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) < 1e-04)
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                   }
                 }
