@@ -14,6 +14,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
                 return(toString(in_call))
             } else if (is.logical(in_call)) {
                 return(if (in_call) 'true' else 'false')
+            } else if (is.symbol(in_call)) {
+                return(cpp_escape_varname(in_call))
             }
             return(deparse(in_call))
         }
@@ -476,11 +478,13 @@ g3_to_tmb <- function(actions, trace = FALSE) {
         }, character(1))
     }
 
-    cpp_definition <- function (cpp_type, cpp_name, cpp_expr) {
+    cpp_definition <- function (cpp_type, cpp_name, cpp_expr, dims = NULL) {
+        dim_string <- if (is.null(dims)) "" else paste0("(", paste0(dims, collapse = ","), ")")
+
         if (missing(cpp_expr)) {
-            sprintf("%s %s;", cpp_type, cpp_name)
+            sprintf("%s %s%s;", cpp_type, cpp_escape_varname(cpp_name), dim_string)
         } else {
-            sprintf("%s %s = %s;", cpp_type, cpp_name, cpp_expr)
+            sprintf("%s %s%s = %s;", cpp_type, cpp_escape_varname(cpp_name), dim_string, cpp_expr)
         }
     }
 
@@ -538,7 +542,7 @@ g3_to_tmb <- function(actions, trace = FALSE) {
                 # Define empty sparseMatrix
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
-                    paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
+                    dims = dim(var_val))
             } else if (is.array(var_val) && all(is.na(var_val))) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
@@ -553,12 +557,13 @@ g3_to_tmb <- function(actions, trace = FALSE) {
                     # Define fixed dimensions
                     defn <- cpp_definition(
                         cpp_type,
-                        paste0(var_name, "(", paste0(dim(var_val), collapse = ","), ")"))
+                        var_name,
+                        dims = dim(var_val))
                 }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
-                defn <- paste0('DATA_ARRAY(', var_name , ')')
-                assign(var_name, var_val, envir = model_data)
+                defn <- paste0('DATA_ARRAY(', cpp_escape_varname(var_name) , ')')
+                assign(cpp_escape_varname(var_name), var_val, envir = model_data)
             } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
                 if (is.integer(var_val)) {
                     cpp_type <- 'int'
@@ -570,11 +575,11 @@ g3_to_tmb <- function(actions, trace = FALSE) {
                 if (length(var_val) > 1 || is.array(var_val)) {
                     # Store in DATA
                     if (cpp_type == 'int') {
-                        defn <- paste0('DATA_IVECTOR(', var_name , ')')
+                        defn <- paste0('DATA_IVECTOR(', cpp_escape_varname(var_name) , ')')
                     } else {
-                        defn <- paste0('DATA_VECTOR(', var_name , ')')
+                        defn <- paste0('DATA_VECTOR(', cpp_escape_varname(var_name) , ')')
                     }
-                    assign(var_name, var_val, envir = model_data)
+                    assign(cpp_escape_varname(var_name), var_val, envir = model_data)
                 } else {
                     # Define as a literal
                     defn <- cpp_definition(cpp_type, var_name, cpp_code(var_val, env))

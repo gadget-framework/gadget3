@@ -178,6 +178,19 @@ actions <- c(actions, ~{
 })
 expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
 
+# Data variable names are escaped
+escaped.data.scalar <- 44
+escaped.data.array <- c(1,2,3,4,5)
+escaped_data_output <- 0.0
+actions <- c(actions, ~{
+    comment('escaped.data.array')
+    escaped_data_output <- escaped.data.scalar + sum(escaped.data.array)
+    g3_report(escaped_data_output)
+})
+# NB: In theory we could also report the escaped name, but we can't rename
+# items in the produced report, so reports will differ TMB/R
+expecteds$escaped_data_output <- escaped.data.scalar + sum(escaped.data.array)
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0
