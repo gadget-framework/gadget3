@@ -2,6 +2,22 @@ library(unittest)
 
 library(gadget3)
 
+tmb_r_compare <- function (model_fn, model_tmb, params) {
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        # Reformat params into a single vector in expected order
+        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
+        model_tmb_report <- model_tmb$report(par)
+        for (n in ls(environment(model_fn)$model_report)) {
+            ok(ut_cmp_equal(
+                as.vector(model_tmb_report[[n]]),
+                as.vector(environment(model_fn)$model_report[[n]]),
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+}
+
 teststock <- g3_stock('teststock', seq(10, 35, 5))
 
 ok_group("g3a_grow_impl_bbinom", {
@@ -21,10 +37,24 @@ ok_group("g3a_grow_impl_bbinom", {
         initial = c(10, 100, 1000, 1000, 10000, 100000),
         maxlengthgroupgrowth = 100,
         dmu = c(10, 10, 10, 10, 10, 10))
-    model_fn <- g3_to_r(actions)
+
+    # Compile model
+    model_fn <- g3_to_r(actions, trace = FALSE)
     # model_fn <- edit(model_fn)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_to_tmb(actions, trace = FALSE)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params)
+    } else {
+        writeLines("# skip: not compiling TMB model")
+    }
+
     result <- model_fn(params)
-    ok(ut_cmp_equal(environment(model_fn)$model_report$teststock__growth_l, array(c(
+    r <- environment(model_fn)$model_report
+    # str(result)
+    # str(as.list(r), vec.len = 10000)
+
+    ok(ut_cmp_equal(r$teststock__growth_l, array(c(
         0.102145, 0.102145, 0.102145, 0.102145, 0.102145, 0.102145, 0.262659,
         0.262659, 0.262659, 0.262659, 0.262659, 0.262659, 0.309011, 0.309011,
         0.309011, 0.309011, 0.309011, 0.309011, 0.212250, 0.212250, 0.212250,
@@ -32,20 +62,7 @@ ok_group("g3a_grow_impl_bbinom", {
         0.089543, 0.089543, 0.021952, 0.021952, 0.021952, 0.021952, 0.021952,
         0.021952, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439), dim = c(6,7)), tolerance = 1e-5), "Matches baseline")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params)
-        model_tmb_report <- model_tmb$report()
-        for (n in ls(environment(model_fn)$model_report)) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                environment(model_fn)$model_report[[n]],
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    tmb_r_compare(model_fn, model_tmb, params)
 })
 
 ok_group("g3a_growmature", {
@@ -63,6 +80,22 @@ ok_group("g3a_growmature", {
                 g3_report("teststock__wgt")
                 return(0)
             }))
+    params <- list(
+        initial_num = c(10, 100, 1000, 1000, 10000, 100000),
+        initial_wgt = c(100, 200, 300, 400, 500, 600),
+        growth_w = c(1,2,3,4,5,6),
+        growth_matrix = array(dim = c(6, 7)))
+
+    # Compile model
+    model_fn <- g3_to_r(actions, trace = FALSE)
+    # model_fn <- edit(model_fn)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_to_tmb(actions, trace = FALSE)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params)
+    } else {
+        writeLines("# skip: not compiling TMB model")
+    }
 
     gm <- array(c(
      # 10    15 20   25   30 35
@@ -78,14 +111,17 @@ ok_group("g3a_growmature", {
         initial_wgt = c(100, 200, 300, 400, 500, 600),
         growth_w = c(1,2,3,4,5,6),
         growth_matrix = gm)
+    result <- model_fn(params)
+    r <- environment(model_fn)$model_report
+    # str(result)
+    # str(as.list(r), vec.len = 10000)
 
-    model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
     ok(ut_cmp_identical(
-        as.vector(environment(model_fn)$model_report$teststock__num),
+        as.vector(r$teststock__num),
         c(0, 25, 1010, 575, 5000, 100000)), "Stock individuals have been scaled by matrix")
-    ok(ut_cmp_equal(as.vector(environment(model_fn)$model_report$teststock__wgt), c(
+    ok(ut_cmp_equal(as.vector(r$teststock__wgt), c(
         ((100 * 10) + 1) / gadget3:::g3_global_env$logspace_add$r(0, 0),
         ((200 * 100) + 2) / 25,
         ((300 * 1000) + 3) / 1010,
@@ -93,18 +129,5 @@ ok_group("g3a_growmature", {
         ((500 * 10000) + 5) / 5000,
         ((600 * 100000) + 6) / 100000), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params)
-        model_tmb_report <- model_tmb$report()
-        for (n in ls(environment(model_fn)$model_report)) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                as.vector(environment(model_fn)$model_report[[n]]),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    tmb_r_compare(model_fn, model_tmb, params)
 })
