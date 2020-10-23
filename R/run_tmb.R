@@ -414,16 +414,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
     if ('g3_native' %in% class(env_defn)) {
         if (is.list(env_defn$cpp)) {
             # cpp is a list, so cast all arguments
-            if (length(call_args) != length(env_defn$cpp)) {
+            if (length(call_args) != length(env_defn$cpp) - 1) {
                 stop("Expected arguments ", paste(env_defn$cpp, collapse = ", "), " in call ", deparse(in_call))
             }
-            return(paste0(call_name, "(", paste(vapply(seq_along(call_args), function (i) {
-                if (is.null(env_defn$cpp[[i]])) {
+            return(paste0(env_defn$cpp[[1]], "(", paste(vapply(seq_along(call_args), function (i) {
+                if (is.null(env_defn$cpp[[i + 1]])) {
                     # No casting here
                     cpp_code(call_args[[i]], in_envir, next_indent)
                 } else {
                     # Add cast to variable definition
-                    paste0("(", env_defn$cpp[[i]], ")(", cpp_code(call_args[[i]], in_envir, next_indent), ")")
+                    paste0("(", env_defn$cpp[[i + 1]], ")(", cpp_code(call_args[[i]], in_envir, next_indent), ")")
                 }
             }, character(1)), collapse = ", "), ")"))
         }

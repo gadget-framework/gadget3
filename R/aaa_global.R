@@ -33,7 +33,7 @@ g3_global_env$lgamma_vec <- g3_native(r = lgamma, cpp = '
 g3_global_env$logspace_add <- g3_native(r = function(a,b) {
     # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
     pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
-}, cpp = list("Type", "Type"))  # TMB-native, but arguments have to be cast to Type
+}, cpp = list("logspace_add", "Type", "Type"))  # TMB-native, but arguments have to be cast to Type
 
 
 # vector<Type> form of logspace_add
@@ -59,3 +59,7 @@ g3_global_env$Rprintf <- g3_native(r = function(...) {
 g3_global_env$REprintf <- g3_native(r = function(...) {
     cat(sprintf(...))
 }, cpp = NULL)
+
+
+# stopifnot is assert in C++
+g3_global_env$stopifnot <- g3_native(r = NULL, cpp = list("assert", NULL))
