@@ -29,7 +29,7 @@ ok_group("MFDB compatibility", {
 expected_steps <- 8 * 3  # i.e. 1990..1997, with 3 steps
 all_time <- array(dim = c(expected_steps))
 all_step <- array(dim = c(expected_steps))
-all_step_len <- array(dim = c(expected_steps))
+all_step_size <- array(dim = c(expected_steps))
 all_year <- array(dim = c(expected_steps))
 all_step_final <- array(FALSE, dim = c(expected_steps))
 
@@ -43,8 +43,8 @@ actions <- list(
             all_step[g3_idx(cur_time + 1)] <- cur_step
             g3_report(all_step)
 
-            all_step_len[g3_idx(cur_time + 1)] <- cur_step_len
-            g3_report(all_step_len)
+            all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
+            g3_report(all_step_size)
 
             all_year[g3_idx(cur_time + 1)] <- cur_year
             g3_report(all_year)
@@ -67,8 +67,8 @@ ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_step),
     rep(c(1,2,3), 8)), "cur_step populated")
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_step_len),
-    as.integer(rep(c(3,3,6), 8))), "cur_step_len populated")
+    as.vector(environment(model_fn)$model_report$all_step_size),
+    as.numeric(rep(c(3/12,3/12,6/12), 8))), "cur_step_size populated")
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_year),
     as.numeric(rep(1990:1997, each = 3))), "cur_year populated")

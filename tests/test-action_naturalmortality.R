@@ -98,23 +98,23 @@ ok_group("natural mortality", {
 
     # Step 1
     ok(ut_cmp_identical(as.vector(r$step1_prey_a__num), c(
-        30 * exp(-0.6 * 3),
-        40 * exp(-0.7 * 3),
-        50 * exp(-0.1 * 3))), "step1_prey_a__num: Natural mortality reduced using exp(vec)")
+        30 * exp(-0.6 * 3 * (1/12)),
+        40 * exp(-0.7 * 3 * (1/12)),
+        50 * exp(-0.1 * 3 * (1/12)))), "step1_prey_a__num: Natural mortality reduced using exp(vec)")
     ok(ut_cmp_identical(as.vector(r$step1_prey_a__wgt), c(300, 400, 500)), "step1_prey_a__wgt: Weight unchanged")
 
     # Step 2
     ok(ut_cmp_identical(as.vector(r$step2_prey_a__num), c(
-        30 * exp(-0.6 * 3) * exp(-0.6 * 5),
-        40 * exp(-0.7 * 3) * exp(-0.7 * 5),
-        50 * exp(-0.1 * 3) * exp(-0.1 * 5))), "step2_prey_a__num: Reduced again, used different step size")
+        30 * exp(-0.6 * 3 * (1/12)) * exp(-0.6 * 5 * (1/12)),
+        40 * exp(-0.7 * 3 * (1/12)) * exp(-0.7 * 5 * (1/12)),
+        50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)))), "step2_prey_a__num: Reduced again, used different step size")
     ok(ut_cmp_identical(as.vector(r$step2_prey_a__wgt), c(300, 400, 500)), "step2_prey_a__wgt: Weight unchanged")
 
     # Step 3
     ok(ut_cmp_identical(as.vector(r$step3_prey_a__num), c(
-        30 * exp(-0.6 * 3) * exp(-0.6 * 5) * exp(-0.6 * 1),
-        40 * exp(-0.7 * 3) * exp(-0.7 * 5) * exp(-0.7 * 1),
-        50 * exp(-0.1 * 3) * exp(-0.1 * 5) * exp(-0.1 * 1))), "step3_prey_a__num: Reduced one more time, using another step size")
+        30 * exp(-0.6 * 3 * (1/12)) * exp(-0.6 * 5 * (1/12)) * exp(-0.6 * 1 * (1/12)),
+        40 * exp(-0.7 * 3 * (1/12)) * exp(-0.7 * 5 * (1/12)) * exp(-0.7 * 1 * (1/12)),
+        50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)) * exp(-0.1 * 1 * (1/12)))), "step3_prey_a__num: Reduced one more time, using another step size")
     ok(ut_cmp_identical(as.vector(r$step3_prey_a__wgt), c(300, 400, 500)), "step3_prey_a__wgt: Weight unchanged")
 
     tmb_r_compare(model_fn, model_tmb, params)

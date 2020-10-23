@@ -2,7 +2,7 @@
 g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     delta_len_f <- f_substitute(
-        ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_len)),
+        ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size)),
         list(linf_f = linf_f, kappa_f = kappa_f))
     delta_wgt_f <- f_substitute(
         ~(alpha_f) * ( (stock__midlen + (delta_len_f))^(beta_f) - stock__midlen^(beta_f) ),

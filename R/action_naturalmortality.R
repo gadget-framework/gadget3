@@ -1,6 +1,6 @@
 g3a_naturalmortality_exp <- function (param_f) {
     f_substitute(
-        ~exp(-(param_f) * cur_step_len),
+        ~exp(-(param_f) * cur_step_size),
         list(param_f = param_f))
 }
 

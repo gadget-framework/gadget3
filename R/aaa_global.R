@@ -63,3 +63,7 @@ g3_global_env$REprintf <- g3_native(r = function(...) {
 
 # stopifnot is assert in C++
 g3_global_env$stopifnot <- g3_native(r = NULL, cpp = list("assert", NULL))
+
+
+# Use TMB's "asDouble" as an equivalent for as.numeric
+g3_global_env$as.numeric <- g3_native(r = NULL, cpp = list("asDouble", NULL))

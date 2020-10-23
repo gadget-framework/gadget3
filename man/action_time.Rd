@@ -33,7 +33,7 @@ g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
   \describe{
     \item{\var{cur_time}}{Current iteration of model, starts at 0 and increments until finished}
     \item{\var{cur_step}}{Current step within individual year}
-    \item{\var{cur_step_len}}{How many months long this step is}
+    \item{\var{cur_step_size}}{Proportion of year this step contains, e.g. quarterly = 3/12}
     \item{\var{cur_year}}{Current year}
     \item{\var{cur_step_final}}{TRUE iff this is the final step of the year}
     \item{\var{total_steps}}{Total # of iterations before model stops}

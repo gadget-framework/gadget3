@@ -109,7 +109,7 @@ Type objective_function<Type>::operator() () {
     int cur_year = 0;
     int step_count = 4;
     int cur_step = 0;
-    int cur_step_len = 0;
+    Type cur_step_size = 0;
     auto cur_step_final = false;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
@@ -154,9 +154,11 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__growth_l;
     DATA_VECTOR(ling_imm__dl)
     vector<Type> ling_imm__growth_w(35);
+    Type ling_imm__prevtotal = 0;
     array<Type> ling_mat__growth_l;
     DATA_VECTOR(ling_mat__dl)
     vector<Type> ling_mat__growth_w(35);
+    Type ling_mat__prevtotal = 0;
     array<Type> ling_imm__renewalnum(35,1,8);
     array<Type> ling_imm__renewalwgt(35,1,8);
     array<Type> cdist_ldist_lln_obs__num(35,92);
@@ -182,7 +184,7 @@ Type objective_function<Type>::operator() () {
             if ( cur_time > total_steps ) return nll;
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_step = (cur_time % step_count) + 1;
-            cur_step_len = step_lengths ( cur_step - 1 );
+            cur_step_size = step_lengths ( cur_step - 1 ) / asDouble(12);
             cur_step_final = cur_step == step_count;
             Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
         }
@@ -393,7 +395,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     {
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (exp(-(lingimm__M)*cur_step_len));
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (exp(-(lingimm__M)*cur_step_size));
                     }
                 }
             }
@@ -407,7 +409,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     {
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (exp(-(lingmat__M)*cur_step_len));
+                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (exp(-(lingmat__M)*cur_step_size));
                     }
                 }
             }
@@ -427,8 +429,8 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
-                        ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
+                        ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
+                        ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
                         {
                             ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
                         }
@@ -454,8 +456,8 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
-                        ling_mat__growth_w = (lingmat__walpha)*(pow((ling_mat__midlen + (((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_len)))), (Type)(lingmat__wbeta)) - pow(ling_mat__midlen, (Type)(lingmat__wbeta)));
+                        ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
+                        ling_mat__growth_w = (lingmat__walpha)*(pow((ling_mat__midlen + (((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingmat__wbeta)) - pow(ling_mat__midlen, (Type)(lingmat__wbeta)));
                         {
                             
                         }

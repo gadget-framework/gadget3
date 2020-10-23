@@ -63,7 +63,7 @@ structure(function (param)
     cur_year <- 0L
     step_count <- 4L
     cur_step <- 0L
-    cur_step_len <- 0L
+    cur_step_size <- 0
     cur_step_final <- FALSE
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
@@ -115,9 +115,11 @@ structure(function (param)
     ling_imm__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__dl <- model_data$ling_imm__dl
     ling_imm__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_imm__prevtotal <- 0
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_mat__prevtotal <- 0
     ling_imm__renewalnum <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
     "age9", "age10")))
     ling_imm__renewalwgt <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
@@ -142,7 +144,7 @@ structure(function (param)
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1
-            cur_step_len <- step_lengths[[cur_step]]
+            cur_step_size <- step_lengths[[cur_step]]/as.numeric(12)
             cur_step_final <- cur_step == step_count
             Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
         }
@@ -331,7 +333,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   {
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (exp(-(param[["lingimm.M"]]) * cur_step_len))
+                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (exp(-(param[["lingimm.M"]]) * cur_step_size))
                   }
                 }
             }
@@ -343,7 +345,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   {
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * (exp(-(param[["lingmat.M"]]) * cur_step_len))
+                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * (exp(-(param[["lingmat.M"]]) * cur_step_size))
                   }
                 }
             }
@@ -361,8 +363,8 @@ structure(function (param)
                   area <- ling_imm__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
-                    ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
+                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
+                    ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
                     {
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
                     }
@@ -387,8 +389,8 @@ structure(function (param)
                   area <- ling_mat__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
-                    ling_mat__growth_w <- (param[["lingmat.walpha"]]) * ((ling_mat__midlen + (((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_len))))^(param[["lingmat.wbeta"]]) - ling_mat__midlen^(param[["lingmat.wbeta"]]))
+                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
+                    ling_mat__growth_w <- (param[["lingmat.walpha"]]) * ((ling_mat__midlen + (((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingmat.wbeta"]]) - ling_mat__midlen^(param[["lingmat.wbeta"]]))
                     {
                     }
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
