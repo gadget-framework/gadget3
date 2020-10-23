@@ -11,7 +11,7 @@
 }
 
 \usage{
-g3_to_tmb(actions, trace = FALSE)
+g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     work_dir = tempdir(), ...)
@@ -30,6 +30,9 @@ g3_tmb_upper(parameters)
   }
   \item{trace}{
     If TRUE, turn all comments into print statements.
+  }
+  \item{strict}{
+    If TRUE, enable extra sanity checking in actions.
   }
   \item{cpp_code}{
     cpp_code as produced by \var{g3_to_tmb}.

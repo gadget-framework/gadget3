@@ -7,7 +7,7 @@
 }
 
 \usage{
-g3_to_r(actions, trace = FALSE)
+g3_to_r(actions, trace = FALSE, strict = FALSE)
 
 }
 
@@ -17,6 +17,9 @@ g3_to_r(actions, trace = FALSE)
   }
   \item{trace}{
     If TRUE, turn all comments into print statements.
+  }
+  \item{strict}{
+    If TRUE, enable extra sanity checking in actions.
   }
 }
 

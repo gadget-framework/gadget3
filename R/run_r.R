@@ -2,7 +2,7 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 
 # Compile actions together into a single R function, the attached environment contains:
 # - model_data: Fixed values refered to within function
-g3_to_r <- function(actions, trace = FALSE) {
+g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
@@ -17,6 +17,8 @@ g3_to_r <- function(actions, trace = FALSE) {
                 "\n")))
         })
     }
+    # Enable / disable strict mode blocks
+    all_actions <- call_replace(all_actions, strict_mode = function (x) { strict })
 
     var_defns <- function (code, env) {
         # Find all things that have definitions in our environment

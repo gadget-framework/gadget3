@@ -453,7 +453,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
         paste(deparse(in_call), collapse = "\n"))
 }
 
-g3_to_tmb <- function(actions, trace = FALSE) {
+g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
@@ -468,6 +468,8 @@ g3_to_tmb <- function(actions, trace = FALSE) {
                 "\n")))
         })
     }
+    # Enable / disable strict mode blocks
+    all_actions <- call_replace(all_actions, strict_mode = function (x) { strict })
 
     param_lines_to_cpp <- function (pl) {
         vapply(names(pl), function (n) {
