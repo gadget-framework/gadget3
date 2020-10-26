@@ -38,6 +38,9 @@ g3s_agegroup(inner_stock, agegroups)
 
       When intersecting with another stock, only do anything if
       \var{age} is betweem \var{minage} and \var{maxage}.
+
+      If an age dimension already exists, it is redefined with new
+      parameters.
   }
   \subsection{g3s_agegroup}{
       A \code{\link{g3_stock}} with an additional 'age' dimension.

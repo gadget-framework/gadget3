@@ -3,6 +3,21 @@ g3s_age <- function(inner_stock, minage, maxage) {
     stock__minage <- if(is.numeric(minage)) as.integer(minage) else minage
     stock__maxage <- if(is.numeric(minage)) as.integer(maxage) else minage
 
+    if ('age' %in% names(inner_stock$dim)) {
+        # Modify existing age dimension with new limits
+        s <- inner_stock
+        s$dim[['age']] <- stock__maxage - stock__minage + 1
+        s$dimnames[['age']] <- paste0('age', seq(stock__minage, stock__maxage, by = 1))
+
+        newenv <- rlang::env_clone(environment(s$iterate))
+        newenv$stock__minage <- stock__minage
+        newenv$stock__maxage <- stock__maxage
+        environment(s$iterate) <- newenv
+        environment(s$intersect) <- newenv
+        environment(s$rename) <- newenv
+        return(s)
+    }
+
     structure(list(
         dim = c(inner_stock$dim, 
             age = stock__maxage - stock__minage + 1),

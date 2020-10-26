@@ -120,3 +120,9 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 } else {
     writeLines("# skip: not running TMB tests")
 }
+
+ok_group("g3s_age is idempotent", {
+    ok(ut_cmp_identical(
+        gadget3:::stock_instance(g3_stock("x", c(1,10)) %>% g3s_age(1, 10) %>% g3s_livesonareas(1)),
+        gadget3:::stock_instance(g3_stock("x", c(1,10)) %>% g3s_age(2, 5) %>% g3s_livesonareas(1) %>% g3s_age(1, 10))), "Replacing age results in identical instance")
+})
