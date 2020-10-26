@@ -155,6 +155,8 @@ g3a_growmature <- function(stock,
     stock__growth_num <- stock_instance(stock)
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
     stock__growth_w <- array(dim = dim(stock__growth_num)[[1]])
+    stock__transitioning_num <- stock_instance(stock)
+    stock__transitioning_wgt <- stock_instance(stock)
 
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth

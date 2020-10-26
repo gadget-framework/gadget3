@@ -86,24 +86,24 @@ ok_group("age", {
     ok(ut_cmp_equal(as.vector(r$step1_prey_a__wgt), c(1e-05, 100,200,300, (400 * 40 + 500 * 50) / (40 + 50)), tolerance = 1e-5), "step1_prey_a__wgt: Numbers rotated by 1, final group averaged plus-group")
     ok(ut_cmp_identical(as.vector(r$step1_prey_b__num), c(0, 10,20)), "step1_prey_b__num: Numbers rotated by 1, final group transitioned")
     ok(ut_cmp_equal(as.vector(r$step1_prey_b__wgt), c(1e-05, 100, 200), tolerance = 1e-5), "step1_prey_b__wgt: Numbers rotated by 1, final group a plus group")
-    ok(ut_cmp_equal(as.vector(r$step1_prey_c__num), c(0, 0, 30, 0, 0, 0, 0)), "step1_prey_c__num: Final age of prey_b transferred")
-    ok(ut_cmp_equal(as.vector(r$step1_prey_c__wgt), c(0, 0, 300, 0, 0, 0, 0)), "step1_prey_c__wgt: Final weight of prey_b transferred")
+    ok(ut_cmp_equal(as.vector(r$step1_prey_c__num), c(0, 0, 0, 30, 0, 0, 0)), "step1_prey_c__num: Final age of prey_b transferred")
+    ok(ut_cmp_equal(as.vector(r$step1_prey_c__wgt), c(0, 0, 0, 300, 0, 0, 0)), "step1_prey_c__wgt: Final weight of prey_b transferred")
 
     # Step 2
     ok(ut_cmp_identical(as.vector(r$step2_prey_a__num), c(0, 10,20,30,40 + 50)), "step2_prey_a__num: Not final step, nothing changed")
     ok(ut_cmp_equal(as.vector(r$step2_prey_a__wgt), c(1e-05, 100,200,300, (400 * 40 + 500 * 50) / (40 + 50)), tolerance = 1e-5), "step1_prey_a__wgt: Not final step, nothing changed")
     ok(ut_cmp_identical(as.vector(r$step2_prey_b__num), c(0, 10, 20)), "step2_prey_b__num: Not final step, nothing changed")
     ok(ut_cmp_equal(as.vector(r$step2_prey_b__wgt), c(1e-05, 100, 200), tolerance = 1e-5), "step2_prey_b__wgt: Not final step, nothing changed")
-    ok(ut_cmp_equal(as.vector(r$step2_prey_c__num), c(0, 0, 30, 0, 0, 0, 0)), "step2_prey_c__num: Not final step, nothing changed")
-    ok(ut_cmp_equal(as.vector(r$step2_prey_c__wgt), c(0, 0, 300, 0, 0, 0, 0)), "step2_prey_c__wgt: Not final step, nothing changed")
+    ok(ut_cmp_equal(as.vector(r$step2_prey_c__num), c(0, 0, 0, 30, 0, 0, 0)), "step2_prey_c__num: Not final step, nothing changed")
+    ok(ut_cmp_equal(as.vector(r$step2_prey_c__wgt), c(0, 0, 0, 300, 0, 0, 0)), "step2_prey_c__wgt: Not final step, nothing changed")
 
     # Step 3
     ok(ut_cmp_identical(as.vector(r$step3_prey_a__num), c(0, 0, 10,20,30 + 40 + 50)), "step3_prey_a__num: Numbers rotated by 1, final group a plus group")
     ok(ut_cmp_equal(as.vector(r$step3_prey_a__wgt), c(1e-05, 0, 100,200, (300 * 30 + 400 * 40 + 500 * 50) / (30 + 40 + 50)), tolerance = 1e-5), "step3_prey_a__wgt: Numbers rotated by 1, final group a averaged plus group")
     ok(ut_cmp_identical(as.vector(r$step3_prey_b__num), c(0, 0, 10)), "step3_prey_b__num: Numbers rotated by 1, final group transitioned")
     ok(ut_cmp_equal(as.vector(r$step3_prey_b__wgt), c(1e-05, 0, 100), tolerance = 1e-5), "step3_prey_b__wgt: Numbers rotated by 1, final group a plus group")
-    ok(ut_cmp_equal(as.vector(r$step3_prey_c__num), c(0, 0, 20, 30, 0, 0, 0)), "step3_prey_c__num: Final age of prey_b transferred, numbers rotated")
-    ok(ut_cmp_equal(as.vector(r$step3_prey_c__wgt), c(0, 0, 200, 300, 0, 0, 0)), "step3_prey_c__wgt: Final age of prey_b transferred")
+    ok(ut_cmp_equal(as.vector(r$step3_prey_c__num), c(0, 0, 0, 20, 30, 0, 0)), "step3_prey_c__num: Final age of prey_b transferred, numbers rotated")
+    ok(ut_cmp_equal(as.vector(r$step3_prey_c__wgt), c(0, 0, 0, 200, 300, 0, 0)), "step3_prey_c__wgt: Final age of prey_b transferred")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

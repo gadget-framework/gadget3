@@ -136,6 +136,12 @@ structure(function (param)
     times_cdist_ldist_lln_obs__keys <- model_data$times_cdist_ldist_lln_obs__keys
     times_cdist_ldist_lln_obs__values <- model_data$times_cdist_ldist_lln_obs__values
     times_cdist_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values)
+    ling_imm_movement__transitioning_num <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age9"))
+    ling_imm_movement__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age9"))
+    ling_imm_movement__minage <- 9L
+    ling_imm_movement__maxage <- 9L
+    ling_imm_movement__area <- 1L
+    ling_imm_movement__area_idx <- (1)
     while (TRUE) {
         {
             comment("g3a_time")
@@ -495,10 +501,10 @@ structure(function (param)
                   if (age == ling_imm__maxage) {
                     {
                       comment("Move oldest ling_imm")
-                      ling_imm__transitioning_num[] <- 0
-                      ling_imm__transitioning_wgt[] <- ling_imm__wgt[]
-                      ling_imm__transitioning_num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx]
+                      ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
+                      ling_imm_movement__transitioning_wgt[, , (1)] <- ling_imm__wgt[, , ling_imm__age_idx]
                       ling_imm__num[, , ling_imm__age_idx] <- 0
+                      ling_imm__wgt[, , ling_imm__age_idx] <- 0
                     }
                   }
                   else {
@@ -507,7 +513,7 @@ structure(function (param)
                     ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + (ling_imm__wgt[, , ling_imm__age_idx] * ling_imm__num[, , ling_imm__age_idx])
                     ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1]/logspace_add_vec(ling_imm__num[, , ling_imm__age_idx + 1], 0)
                     ling_imm__num[, , ling_imm__age_idx] <- 0
-                    ling_imm__wgt[, , ling_imm__age_idx] <- 1e-05
+                    ling_imm__wgt[, , ling_imm__age_idx] <- 0
                   }
                 }
             }
@@ -526,24 +532,24 @@ structure(function (param)
                     ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + (ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx])
                     ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1]/logspace_add_vec(ling_mat__num[, , ling_mat__age_idx + 1], 0)
                     ling_mat__num[, , ling_mat__age_idx] <- 0
-                    ling_mat__wgt[, , ling_mat__age_idx] <- 1e-05
+                    ling_mat__wgt[, , ling_mat__age_idx] <- 0
                   }
                 }
             }
         }
         {
             {
-                comment("Move ling_imm to ling_mat")
+                comment("Move ling_imm_movement to ling_mat")
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1
                   {
                     area <- ling_mat__area
-                    if (age >= ling_imm__minage && age <= ling_imm__maxage) {
-                      ling_imm__age_idx <- age - ling_imm__minage + 1
-                      if (area == ling_imm__area) {
+                    if (age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage) {
+                      ling_imm_movement__age_idx <- age - ling_imm_movement__minage + 1
+                      if (area == ling_imm_movement__area) {
                         if (cur_step_final) {
-                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
-                          ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
+                          ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * 1
+                          ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * 1
                           ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                         }
                       }
