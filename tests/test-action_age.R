@@ -19,9 +19,10 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
-prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
-prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(1, 3)
-prey_c <- g3_stock('prey_c', c(1)) %>% g3s_age(1, 7)
+# NB: We start at 11 to make sure we age into the right bracket
+prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(11, 15)
+prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(11, 13)
+prey_c <- g3_stock('prey_c', c(1)) %>% g3s_age(11, 17)
 
 # Store stock state in temporary variables labelled stock 0..n
 report_action <- list()
@@ -43,8 +44,8 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
 
 actions <- list(
     g3a_time(2000, 2002, steps = c(6, 6)),
-    g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
-    g3a_initialconditions(prey_b, ~10 * age + prey_b__midlen * 0, ~100 * age + prey_b__midlen * 0),
+    g3a_initialconditions(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
+    g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
     g3a_initialconditions(prey_c, ~prey_b__midlen * 0, ~prey_b__midlen * 0),
     g3a_age(prey_a),
     g3a_age(prey_b, output_stocks = list(prey_c)),

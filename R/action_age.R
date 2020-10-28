@@ -38,8 +38,8 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     stock__wgt <- stock_instance(stock)
     stock_movement <- g3s_age(
         g3s_clone(stock, paste0(stock$name, '_movement')),
-        max(stock$dim[['age']]) + 1,
-        max(stock$dim[['age']]) + 1)
+        stock_definition(stock, 'stock__maxage') + 1,
+        stock_definition(stock, 'stock__maxage') + 1)
     stock_movement__transitioning_num <- stock_instance(stock_movement)
     stock_movement__transitioning_wgt <- stock_instance(stock_movement)
 
