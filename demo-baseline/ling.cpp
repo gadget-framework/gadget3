@@ -178,8 +178,8 @@ Type objective_function<Type>::operator() () {
     auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
-    int ling_imm_movement__minage = 9;
-    int ling_imm_movement__maxage = 9;
+    int ling_imm_movement__minage = 11;
+    int ling_imm_movement__maxage = 11;
     int ling_imm_movement__area = 1;
     auto ling_imm_movement__area_idx = 0;
 
