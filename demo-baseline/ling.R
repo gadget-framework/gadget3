@@ -369,7 +369,7 @@ structure(function (param)
                   area <- ling_imm__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, length(ling_imm__dl), param[["ling.bbin"]] * 10)
+                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
                     {
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
@@ -395,7 +395,7 @@ structure(function (param)
                   area <- ling_mat__area
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
-                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, length(ling_mat__dl), param[["ling.bbin"]] * 10)
+                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, 15, param[["ling.bbin"]] * 10)
                     ling_mat__growth_w <- (param[["lingmat.walpha"]]) * ((ling_mat__midlen + (((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingmat.wbeta"]]) - ling_mat__midlen^(param[["lingmat.wbeta"]]))
                     {
                     }

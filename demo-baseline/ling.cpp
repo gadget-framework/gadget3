@@ -435,7 +435,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_imm__dl, (ling_imm__dl).size(), ling__bbin*10);
+                        ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_imm__dl, 15, ling__bbin*10);
                         ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
                         {
                             ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
@@ -462,7 +462,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
-                        ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_mat__dl, (ling_mat__dl).size(), ling__bbin*10);
+                        ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_mat__dl, 15, ling__bbin*10);
                         ling_mat__growth_w = (lingmat__walpha)*(pow((ling_mat__midlen + (((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingmat__wbeta)) - pow(ling_mat__midlen, (Type)(lingmat__wbeta)));
                         {
                             

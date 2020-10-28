@@ -11,7 +11,7 @@ g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
 }
 
 # Returns bbinom growth implementation formulae
-g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
+g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__dl)) {
     ##' @param dmu mean growth for each lengthgroup
     ##' @param lengthgrouplen i.e. dl, the step size for length groups
     ##' @param binn Maximum updating length, i.e. # of length groups
@@ -86,8 +86,10 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth) {
     }')
 
     f_substitute(
-        ~growth_bbinom(stock__grow_f, stock__dl, length(stock__dl), beta_f),
-        list(beta_f = beta_f))
+        ~growth_bbinom(stock__grow_f, stock__dl, maxlengthgroupgrowth, beta_f),
+        list(
+            maxlengthgroupgrowth = maxlengthgroupgrowth,
+            beta_f = beta_f))
 }
 
 # Apply a lgroup x lgroup-delta matrix to vector of length groups
