@@ -47,12 +47,13 @@ ling_imm_actions <- list(
         beta_f = ~g3_param("lingimm.wbeta"),
         run_f = ~cur_step == 1 && age == 3),
     g3a_growmature(ling_imm,
-        growth_f = g3a_grow_lengthvbsimple(
-            linf_f = ~g3_param("ling.Linf"),
-            kappa_f = ~g3_param("ling.k") * 0.001,
-            alpha_f = ~g3_param("lingimm.walpha"),
-            beta_f = ~g3_param("lingimm.wbeta")),
         impl_f = g3a_grow_impl_bbinom(
+            g3a_grow_lengthvbsimple(
+                linf_f = ~g3_param("ling.Linf"),
+                kappa_f = ~g3_param("ling.k") * 0.001),
+            g3a_grow_weightsimple(
+                alpha_f = ~g3_param("lingimm.walpha"),
+                beta_f = ~g3_param("lingimm.wbeta")),
             beta_f = ~g3_param("ling.bbin") * 10,
             maxlengthgroupgrowth = 15),
         maturity_f = g3a_mature_constant(
@@ -86,12 +87,13 @@ ling_mat_actions <- list(
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
     g3a_growmature(ling_mat,
-        growth_f = g3a_grow_lengthvbsimple(
-            linf_f = ~g3_param("ling.Linf"),
-            kappa_f = ~g3_param("ling.k") * 0.001,
-            alpha_f = ~g3_param("lingmat.walpha"),
-            beta_f = ~g3_param("lingmat.wbeta")),
         impl_f = g3a_grow_impl_bbinom(
+            g3a_grow_lengthvbsimple(
+                linf_f = ~g3_param("ling.Linf"),
+                kappa_f = ~g3_param("ling.k") * 0.001),
+            g3a_grow_weightsimple(
+                alpha_f = ~g3_param("lingmat.walpha"),
+                beta_f = ~g3_param("lingmat.wbeta")),
             beta_f = ~g3_param("ling.bbin") * 10,
             maxlengthgroupgrowth = 15)),
     g3a_naturalmortality(ling_mat,
@@ -181,5 +183,5 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)
     # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
     tmb_result <- ling_model_tmb$fn()
-    stopifnot(all.equal(r_result, tmb_result))
+    stopifnot(all.equal(r_result, tmb_result, tolerance = 1e-5))
 }

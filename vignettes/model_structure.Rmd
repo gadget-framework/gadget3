@@ -176,10 +176,9 @@ when writing formula. For example:
 ```{r}
 fn <- g3_to_r(g3a_growmature(
     ling_imm,
-    growth_f = list(
-        len = ~age * 10,
-        wgt = ~area * 20),
     impl_f = g3a_grow_impl_bbinom(
+        delta_len_f = ~age * 10,
+        delta_wgt_f = ~area * 20,
         beta_f = ~g3_param("ling.bbin"),
         maxlengthgroupgrowth = 4),
     transition_f = ~TRUE))
@@ -213,10 +212,9 @@ ling_model <- g3_to_r(list(
     g3a_age(ling_imm),
     g3a_growmature(
         ling_imm,
-        growth_f = list(
-            len = ~age * 10,
-            wgt = ~area * 20),
         impl_f = g3a_grow_impl_bbinom(
+            delta_len_f = ~age * 10,
+            delta_wgt_f = ~area * 20,
             beta_f = ~g3_param("ling.bbin"),
             maxlengthgroupgrowth = 4)),
     g3a_time(1990, 1999)))
@@ -229,10 +227,9 @@ ling_imm_actions <- list(
     g3a_age(ling_imm),
     g3a_growmature(
         ling_imm,
-        growth_f = list(
-            len = ~age * 10,
-            wgt = ~area * 20),
         impl_f = g3a_grow_impl_bbinom(
+            delta_len_f = ~age * 10,
+            delta_wgt_f = ~area * 20,
             beta_f = ~g3_param("ling.bbin"),
             maxlengthgroupgrowth = 4)))
 time_actions <- list(

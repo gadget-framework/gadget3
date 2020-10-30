@@ -6,8 +6,11 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
+        model_fn(params)
         model_tmb_report <- model_tmb$report(par)
         for (n in ls(environment(model_fn)$model_report)) {
+            #print(environment(model_fn)$model_report[[n]])
+            #print(model_tmb_report[[n]])
             ok(ut_cmp_equal(
                 as.vector(model_tmb_report[[n]]),
                 as.vector(environment(model_fn)$model_report[[n]]),
@@ -25,18 +28,24 @@ ok_group("g3a_grow_impl_bbinom", {
         g3a_time(2000, 2001),
         g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
         g3a_growmature(teststock,
-            growth_f = list(len = ~g3_param_vector('dmu'), wgt = ~0),
-            impl_f = g3a_grow_impl_bbinom(~g3_param('beta'), ~g3_param('maxlengthgroupgrowth'))),
+            impl_f = g3a_grow_impl_bbinom(
+                delta_len_f = g3a_grow_lengthvbsimple(~g3_param('linf'), ~g3_param('kappa')),
+                delta_wgt_f = g3a_grow_weightsimple(~g3_param('walpha'), ~g3_param('wbeta')),
+                beta = ~g3_param('beta'),
+                maxlengthgroupgrowth = 4)),
         list(
             "999" = ~{
                 g3_report("teststock__growth_l")
+                g3_report("teststock__growth_w")
                 return(0)
             }))
     params <- list(
+        linf = 160,
+        kappa = 90,
+        walpha = 3,
+        wbeta = 2,
         beta = 30,
-        initial = c(10, 100, 1000, 1000, 10000, 100000),
-        maxlengthgroupgrowth = 100,
-        dmu = c(10, 10, 10, 10, 10, 10))
+        initial = c(10, 100, 1000, 1000, 10000, 100000))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
@@ -54,15 +63,28 @@ ok_group("g3a_grow_impl_bbinom", {
     # str(result)
     # str(as.list(r), vec.len = 10000)
 
-    ok(ut_cmp_equal(r$teststock__growth_l, array(c(
-        0.102145, 0.102145, 0.102145, 0.102145, 0.102145, 0.102145, 0.262659,
-        0.262659, 0.262659, 0.262659, 0.262659, 0.262659, 0.309011, 0.309011,
-        0.309011, 0.309011, 0.309011, 0.309011, 0.212250, 0.212250, 0.212250,
-        0.212250, 0.212250, 0.212250, 0.089543, 0.089543, 0.089543, 0.089543,
-        0.089543, 0.089543, 0.021952, 0.021952, 0.021952, 0.021952, 0.021952,
-        0.021952, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439, 0.002439), dim = c(6,7)), tolerance = 1e-5), "Matches baseline")
-
+    #writeLines(deparse(r$teststock__growth_l))
+    ok(ut_cmp_equal(r$teststock__growth_l, structure(c(12199.8976226175, 9352.23228375502, 7157.83523789257,
+    5463.49450549465, 4154.31593595054, 3143.22179218075, 51322.2074676947,
+    39560.4630926918, 30458.8733527337, 23399.2087912083, 17917.1342692155,
+    13660.121314133, 81087.2009530949, 62860.2639001552, 48695.7187344743,
+    37658.1016483506, 29043.7267350904, 22317.4314305221, 57032.8699935755,
+    44472.5676572519, 34669.6583623158, 26995.0549450546, 20974.8144063369,
+    16247.8860873661, 15068.9788855573, 11821.5345660349, 9275.97774268346,
+    7273.66758241751, 5694.90600451131, 4448.35417879727), .Dim = 6:5), tolerance = 1e-5), "Matches baseline")
     tmb_r_compare(model_fn, model_tmb, params)
+
+    # Try comparing with a few different inputs
+    for (x in 1:10) ok_group("g3a_grow_impl_bbinom random params", {
+        params <- list(
+            linf = runif(1, 100, 200),
+            kappa = runif(1, 50, 100),
+            walpha = runif(1, 0.1, 3),
+            wbeta = runif(1, 0.1, 2),
+            beta = runif(1, 10, 30),
+            initial = runif(6, 1000, 9000))
+        tmb_r_compare(model_fn, model_tmb, params)
+    })
 })
 
 ok_group("g3a_growmature", {
@@ -72,8 +94,9 @@ ok_group("g3a_growmature", {
             ~g3_param_vector("initial_num"),
             ~g3_param_vector("initial_wgt")),
         g3a_growmature(teststock,
-            growth_f = list(len = ~0, wgt = ~g3_param_vector('growth_w')),
-            impl_f = ~g3_param_array('growth_matrix')),
+            impl_f = list(
+                len = ~g3_param_array('growth_matrix'),
+                wgt = ~g3_param_array('weight_matrix'))),
         list(
             "999" = ~{
                 g3_report("teststock__num")
@@ -83,8 +106,9 @@ ok_group("g3a_growmature", {
     params <- list(
         initial_num = c(10, 100, 1000, 1000, 10000, 100000),
         initial_wgt = c(100, 200, 300, 400, 500, 600),
-        growth_w = c(1,2,3,4,5,6),
-        growth_matrix = array(dim = c(6, 7)))
+        growth_matrix = array(dim = c(6, 7)),
+        weight_matrix = array(0, dim = c(6, 7)),
+        x = 1.0)
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
@@ -109,8 +133,9 @@ ok_group("g3a_growmature", {
     params <- list(
         initial_num = c(10, 100, 1000, 1000, 10000, 100000),
         initial_wgt = c(100, 200, 300, 400, 500, 600),
-        growth_w = c(1,2,3,4,5,6),
-        growth_matrix = gm)
+        growth_matrix = gm,
+        weight_matrix = array(0, dim = c(6, 7)),
+        x = 1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
     # str(result)
@@ -122,12 +147,13 @@ ok_group("g3a_growmature", {
         as.vector(r$teststock__num),
         c(0, 25, 1010, 575, 5000, 105500)), "Stock individuals have been scaled by matrix, can't escape plus-group")
     ok(ut_cmp_equal(as.vector(r$teststock__wgt), c(
-        ((100 * 10) + 1) / gadget3:::g3_global_env$logspace_add$r(0, 0),
-        ((200 * 100) + 2) / 25,
-        ((300 * 1000) + 3) / 1010,
-        ((400 * 1000) + 4) / 575,
-        ((500 * 10000) + 5) / 5000,
-        ((600 * 100000) + 6) / 105500), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
+        0 / gadget3:::g3_global_env$logspace_add$r(0, 0),
+        (200 * 100*0.25) / 25,
+        (300 * 1000 + 100 * 10) / 1010,
+        (400 * 1000*0.5 + 200 * 100*0.75) / 575,
+        (500 * 10000*0.5) / 5000,
+        (600 * 100000 + 500 * 10000*0.5 + 400 * 1000*0.5) / 105500,
+        NULL), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
     tmb_r_compare(model_fn, model_tmb, params)
 })

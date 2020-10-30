@@ -1,5 +1,6 @@
 \name{action_grow}
 \alias{g3a_grow_lengthvbsimple}
+\alias{g3a_grow_weightsimple}
 \alias{g3a_grow_impl_bbinom}
 \alias{g3a_growmature}
 
@@ -9,11 +10,13 @@
 }
 
 \usage{
-g3a_grow_lengthvbsimple(linf_f, kappa_f, alpha_f, beta_f)
+g3a_grow_lengthvbsimple(linf_f, kappa_f)
 
-g3a_grow_impl_bbinom(beta_f, maxlengthgroupgrowth)
+g3a_grow_weightsimple(alpha_f, beta_f)
 
-g3a_growmature(stock, growth_f, impl_f, maturity_f = ~0, output_stocks = list(), 
+g3a_grow_impl_bbinom(delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth)
+
+g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(), 
     output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
     transition_f = ~cur_step_final, run_f = ~TRUE, run_at = 5, 
     transition_at = 7)
@@ -34,18 +37,24 @@ g3a_growmature(stock, growth_f, impl_f, maturity_f = ~0, output_stocks = list(),
     A \link{formula} to substitute for \eqn{\beta}.
   }
   \item{maxlengthgroupgrowth}{
-    TODO: This currently does nothing.
+    An integer with the maximum length groups an individual can jump in one step.
   }
   \item{stock}{
     \code{\link{g3_stock}} to grow.
   }
-  \item{growth_f}{
-    A list of 2 \link{formula} objects that calculate mean growth,
-    \code{delta_len_f} for \eqn{\Delta L}, \code{delta_wgt_f} for \eqn{\Delta W},
-    as defined by \code{\link{g3a_grow_lengthvbsimple}}
+  \item{delta_len_f}{
+    A \link{formula} defining a vector for mean increase in length for \code{stock}
+    for each lengthgroup, as defined by \code{\link{g3a_grow_lengthvbsimple}}.
+  }
+  \item{delta_wgt_f}{
+    A \link{formula} defining the corresponding weight increase as a matrix of
+    lengthgroup to lengthgroup delta for \code{stock}, as defined by \code{\link{g3a_grow_weightsimple}}.
   }
   \item{impl_f}{
-    A growth implementation \link{formula}, as defined by \code{\link{g3a_grow_impl_bbinom}}.
+    A pair of \link{formula} objects, as defined by \code{\link{g3a_grow_impl_bbinom}}.
+    Both define a matrix of length groups \code{i} to length group deltas \code{j},
+    the values in the first indicate the proportion of individuals moving from \code{i} to \code{i + j},
+    the values in the second indicate the corresponding weight increase of individuals moving from \code{i} to \code{i + j}.
   }
   \item{maturity_f}{
     A maturity \link{formula}, as defined by \code{\link{g3a_mature_constant}}.
@@ -71,14 +80,19 @@ g3a_growmature(stock, growth_f, impl_f, maturity_f = ~0, output_stocks = list(),
 }
 
 \value{
-  \subsection{g3a_grow_lengthvbsimple}{Returns pair of \link{formula} objects 
+  \subsection{g3a_grow_lengthvbsimple}{Returns a \link{formula} for use as \var{delta_len_f}:
 
   \deqn{ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa{\Delta}t}) }
 
-  \deqn{ {{\Delta}W}_i = \alpha ( (L_i + {{\Delta}L}_i)^\beta - {L_i}^\beta ) }
+  Where \eqn{ \Delta{t} } is the length of the current timestep.
+  }
+  \subsection{g3a_grow_weightsimple}{Returns a \link{formula} for use as \var{delta_wgt_f}:
 
-  Where \eqn{ \Delta{t} } is the length of the current timestep.}
+  \deqn{ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) }
 
+  Where \eqn{ \Delta{t} } is the length of the current timestep,
+  \eqn{ {{\Delta}L} } is all possible length group increases i.e \code{0..maxlengthgroupgrowth}.
+  }
   \subsection{g3a_grow_impl_bbinom}{\link{formula} object converting mean growths using beta-binomia distribution. See \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#beta-binomial}}
 
   \subsection{g3a_growmature}{An action (i.e. list of formula objects) that will, for the given \var{stock}...\enumerate{
@@ -99,12 +113,13 @@ ling_mat <- g3_stock('ling_mat', seq(20, 156, 4))
 
 # Growth / maturity for immature ling
 growth_action <- g3a_growmature(ling_imm,
-    growth_f = g3a_grow_lengthvbsimple(
-        linf_f = ~g3_param("ling.Linf"),
-        kappa_f = ~g3_param("ling.k") * 0.001,
-        alpha_f = ~g3_param("lingimm.walpha"),
-        beta_f = ~g3_param("lingimm.wbeta")),
     impl_f = g3a_grow_impl_bbinom(
+        g3a_grow_lengthvbsimple(
+            linf_f = ~g3_param("ling.Linf"),
+            kappa_f = ~g3_param("ling.k") * 0.001),
+        g3a_grow_weightsimple(
+            alpha_f = ~g3_param("lingimm.walpha"),
+            beta_f = ~g3_param("lingimm.wbeta")),
         beta_f = ~g3_param("ling.bbin") * 10,
         maxlengthgroupgrowth = 15),
     maturity_f = g3a_mature_constant(

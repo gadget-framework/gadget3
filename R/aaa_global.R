@@ -48,6 +48,8 @@ g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
     return res;
 }')
 
+# vector<Type> form of pow()
+g3_global_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
 
 # Rprintf equivalent for R
 g3_global_env$Rprintf <- g3_native(r = function(...) {

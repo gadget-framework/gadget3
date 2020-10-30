@@ -36,14 +36,6 @@ Type objective_function<Type>::operator() () {
     auto growth_bbinom = [](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
-        // Redefine lgamma with stricter types
-        // NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
-        //     an expression). Eigen evaluates lazily, and any expression needs
-        //     to be evaluated before we decide what type the lgamma function is.
-        auto lgamma_vec = [](vector<Type> vec) -> vector<Type> {
-            return lgamma(vec);
-        };
-
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
@@ -56,7 +48,7 @@ Type objective_function<Type>::operator() () {
         for (auto i = 0; i < alpha.size(); i++) alpha(i) = alpha_1(i % alpha_1.size());
 
         vector<Type> x((n + 1) * na);
-        for (auto i = 0; i < x.size(); i++) x(i) = i / n;
+        for (auto i = 0; i < x.size(); i++) x(i) = i / na;
 
         // Create a probability matrix where the columns represent the
         // probability of growing x lengthgroups for each lengthgroup
@@ -64,38 +56,74 @@ Type objective_function<Type>::operator() () {
         // distribution
         array<Type> val(na, n + 1);
         val = (lgamma((Type) n + 1) +
-            lgamma_vec(alpha + beta) +
-            lgamma_vec(n - x + beta) +
-            lgamma_vec(x + alpha) -
-            lgamma_vec(n - x + 1) -
-            lgamma_vec(x + 1) -
-            lgamma_vec(n + alpha + beta) -
+            lgamma((vector<Type>)(alpha + beta)) +
+            lgamma((vector<Type>)(n - x + beta)) +
+            lgamma((vector<Type>)(x + alpha)) -
+            lgamma((vector<Type>)(n - x + 1)) -
+            lgamma((vector<Type>)(x + 1)) -
+            lgamma((vector<Type>)(n + alpha + beta)) -
             lgamma(beta) -
-            lgamma_vec(alpha)).exp();
+            lgamma(alpha)).exp();
         return(val);
     };
-    auto g3a_grow_apply = [](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
-    lg_deltas = lg_deltas.transpose();
-    int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = lg_deltas.cols(); // # Length groups
-    vector<Type> lg_growth;
-    vector<Type> out;
+    auto g3a_grow_weightsimple_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
+        array<Type> out(vec.size(), a);
+        for (int i = 0 ; i < vec.size(); i++) {
+            for (int j = 0 ; j < a; j++) {
+                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+            }
+        }
+        return out;
+    };
+    auto g3a_grow_weightsimple_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
+        array<Type> out(vec.size(), a);
+        for (int i = 0 ; i < vec.size(); i++) {
+            for (int j = 0 ; j < a; j++) {
+                out(i, j) = vec[i];
+            }
+        }
+        return out;
+    };
+    auto g3a_grow_apply = [](array<Type> delta_l, array<Type> delta_w, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    delta_l = delta_l.transpose();
+    delta_w = delta_w.transpose();
+    int total_deltas = delta_l.rows();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.cols(); // # Length groups
 
-    lg_growth.resize(total_lgs);
-    out.resize(total_lgs);
-    out.setZero();
+    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+        vector<Type> res(a.size());
+        for(int i = 0; i < a.size(); i++) {
+            res[i] = logspace_add(a[i], b);
+        }
+        return res;
+    };
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+    matrix<Type> weight_matrix(total_lgs, total_lgs);
+    weight_matrix.setZero();
+
     for (int lg = 0; lg < total_lgs; lg++) {
-      // Cant shrink
-      lg_growth.head(lg) = 0;
-      // Add any that have an appropriate group
-      lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
-      if (total_deltas - (total_lgs - lg) > 0) {
-          // Add any remaining to plus-group
-          lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
-      }
-      out += lg_growth * input_num(lg);
+        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
+            growth_matrix(lg, lg) = 1;
+            weight_matrix(lg, lg) = 0;
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.col(lg).head(total_lgs - lg).transpose();
+            growth_matrix(lg, total_lgs - 1) = delta_l.col(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.col(lg).head(total_deltas).transpose();
+            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.col(lg).head(total_deltas).transpose();
+        }
     }
-    return out;
+    // NB: Cast to array to get elementwise multiplication
+    growth_matrix = growth_matrix.array().colwise() * input_num.array();
+    weight_matrix = (weight_matrix.array().colwise() + input_wgt.array()) * growth_matrix.array();
+
+    array<Type> combined(total_lgs,2);
+    combined.col(0) = growth_matrix.colwise().sum();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / logspace_add_vec(growth_matrix.colwise().sum(), 0).array().transpose();
+    return combined;
 };
     auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
@@ -153,11 +181,11 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     array<Type> ling_imm__growth_l;
     DATA_VECTOR(ling_imm__dl)
-    vector<Type> ling_imm__growth_w(35);
+    array<Type> ling_imm__growth_w;
     Type ling_imm__prevtotal = 0;
     array<Type> ling_mat__growth_l;
     DATA_VECTOR(ling_mat__dl)
-    vector<Type> ling_mat__growth_w(35);
+    array<Type> ling_mat__growth_w;
     Type ling_mat__prevtotal = 0;
     array<Type> ling_imm__renewalnum(35,1,8);
     array<Type> ling_imm__renewalwgt(35,1,8);
@@ -436,15 +464,20 @@ Type objective_function<Type>::operator() () {
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_imm__dl, 15, ling__bbin*10);
-                        ling_imm__growth_w = (lingimm__walpha)*(pow((ling_imm__midlen + (((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingimm__wbeta)) - pow(ling_imm__midlen, (Type)(lingimm__wbeta)));
+                        ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + 1))*(lingimm__walpha);
                         {
                             ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
                         }
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         if ( false ) ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = g3a_grow_apply(ling_imm__growth_l, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                        {
+                            auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+
+                            {
+                                ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(0);
+                                ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(1);
+                            }
+                        }
                         if ( false ) assert(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < 1e-04);
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) + ling_imm__growth_w) / logspace_add_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), 0);
                     }
                 }
             }
@@ -463,15 +496,20 @@ Type objective_function<Type>::operator() () {
                     if ( true ) {
                         // Calculate increase in length/weight for each lengthgroup;
                         ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_mat__dl, 15, ling__bbin*10);
-                        ling_mat__growth_w = (lingmat__walpha)*(pow((ling_mat__midlen + (((ling__Linf) - ling_mat__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)))), (Type)(lingmat__wbeta)) - pow(ling_mat__midlen, (Type)(lingmat__wbeta)));
+                        ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + 1))*(lingmat__walpha);
                         {
                             
                         }
-                        ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         if ( false ) ling_mat__prevtotal = (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = g3a_grow_apply(ling_mat__growth_l, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                        {
+                            auto growthresult = g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx), ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+
+                            {
+                                ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = growthresult.col(0);
+                                ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = growthresult.col(1);
+                            }
+                        }
                         if ( false ) assert(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < 1e-04);
-                        ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) + ling_mat__growth_w) / logspace_add_vec(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx), 0);
                     }
                 }
             }

@@ -7,6 +7,7 @@ export(g3a_age)
 
 # R/action_grow.R
 export(g3a_grow_lengthvbsimple)
+export(g3a_grow_weightsimple)
 export(g3a_grow_impl_bbinom)
 export(g3a_growmature)
 

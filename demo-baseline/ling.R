@@ -26,24 +26,45 @@ structure(function (param)
         dim(val) <- c(na, n + 1)
         return(val)
     }
-    g3a_grow_apply <- function (lg_deltas, input_num) 
+    g3a_grow_weightsimple_vec_rotate <- function (vec, a) 
     {
-        na <- dim(lg_deltas)[[1]]
-        n <- dim(lg_deltas)[[2]] - 1
+        out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
+        out[is.na(out)] <- vec[length(vec)]
+        out
+    }
+    pow_vec <- function (a, b) 
+    {
+        a^b
+    }
+    g3a_grow_weightsimple_vec_extrude <- function (vec, a) 
+    {
+        vec %*% t(rep(1, a))
+    }
+    g3a_grow_apply <- function (delta_l, delta_w, input_num, input_wgt) 
+    {
+        na <- dim(delta_l)[[1]]
+        n <- dim(delta_l)[[2]] - 1
         growth.matrix <- array(0, c(na, na))
+        wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
             if (lg == na) {
                 growth.matrix[na, na] <- 1
+                wgt.matrix[lg, na] <- 0
             }
             else if (lg + n > na) {
-                growth.matrix[lg, lg:(na - 1)] <- lg_deltas[lg, 1:(na - lg)]
-                growth.matrix[lg, na] <- sum(lg_deltas[lg, (na - lg + 1):(n + 1)])
+                growth.matrix[lg, lg:(na - 1)] <- delta_l[lg, 1:(na - lg)]
+                growth.matrix[lg, na] <- sum(delta_l[lg, (na - lg + 1):(n + 1)])
+                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
             }
             else {
-                growth.matrix[lg, lg:(n + lg)] <- lg_deltas[lg, ]
+                growth.matrix[lg, lg:(n + lg)] <- delta_l[lg, ]
+                wgt.matrix[lg, lg:(n + lg)] <- delta_w[lg, ]
             }
         }
-        return(Matrix::colSums(growth.matrix * as.vector(input_num)))
+        growth.matrix <- growth.matrix * as.vector(input_num)
+        wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
+        new_len <- Matrix::colSums(growth.matrix)
+        return(array(c(new_len, Matrix::colSums(wgt.matrix)/(pmax(new_len, 0) + log1p(exp(pmin(new_len, 0) - pmax(new_len, 0))))), dim = c(na, 2)))
     }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
@@ -114,11 +135,11 @@ structure(function (param)
     "age8", "age9", "age10")))
     ling_imm__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__dl <- model_data$ling_imm__dl
-    ling_imm__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_imm__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__prevtotal <- 0
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
-    ling_mat__growth_w <- array(dim = 35L, dimnames = NULL)
+    ling_mat__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__prevtotal <- 0
     ling_imm__renewalnum <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
     "age9", "age10")))
@@ -370,17 +391,21 @@ structure(function (param)
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
                     ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
-                    ling_imm__growth_w <- (param[["lingimm.walpha"]]) * ((ling_imm__midlen + (((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingimm.wbeta"]]) - ling_imm__midlen^(param[["lingimm.wbeta"]]))
+                    ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * (param[["lingimm.walpha"]])
                     {
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
                     }
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
                     if (FALSE) 
                       ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- g3a_grow_apply(ling_imm__growth_l, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
+                    {
+                      growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                      {
+                        ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
+                        ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
+                      }
+                    }
                     if (FALSE) 
                       stopifnot(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]) < 1e-04)
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__growth_w)/logspace_add_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], 0)
                   }
                 }
             }
@@ -396,16 +421,20 @@ structure(function (param)
                   if (TRUE) {
                     comment("Calculate increase in length/weight for each lengthgroup")
                     ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, 15, param[["ling.bbin"]] * 10)
-                    ling_mat__growth_w <- (param[["lingmat.walpha"]]) * ((ling_mat__midlen + (((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size))))^(param[["lingmat.wbeta"]]) - ling_mat__midlen^(param[["lingmat.wbeta"]]))
+                    ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * (param[["lingmat.walpha"]])
                     {
                     }
-                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]
                     if (FALSE) 
                       ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- g3a_grow_apply(ling_mat__growth_l, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
+                    {
+                      growthresult <- g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                      {
+                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- growthresult[, (1)]
+                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- growthresult[, (2)]
+                      }
+                    }
                     if (FALSE) 
                       stopifnot(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) < 1e-04)
-                    ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__growth_w)/logspace_add_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], 0)
                   }
                 }
             }

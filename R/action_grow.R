@@ -1,17 +1,51 @@
 # Returns formula for lengthvbsimple growth function
-g3a_grow_lengthvbsimple <- function (linf_f, kappa_f, alpha_f, beta_f) {
+g3a_grow_lengthvbsimple <- function (linf_f, kappa_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
-    delta_len_f <- f_substitute(
+    f_substitute(
         ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size)),
         list(linf_f = linf_f, kappa_f = kappa_f))
-    delta_wgt_f <- f_substitute(
-        ~(alpha_f) * ( (stock__midlen + (delta_len_f))^(beta_f) - stock__midlen^(beta_f) ),
-        list(alpha_f = alpha_f, beta_f = beta_f, delta_len_f = delta_len_f))
-    list(len = delta_len_f, wgt = delta_wgt_f)
+}
+
+# Growth half of lengthvbsimple
+g3a_grow_weightsimple <- function (alpha_f, beta_f) {
+    g3a_grow_weightsimple_vec_rotate <- g3_native(r = function (vec, a) {
+        out <- vapply(
+            seq_len(a),  # 0..maxlengthgrouplen increases
+            function (i) vec[i:(i+length(vec) - 1)],
+            numeric(length(vec)))
+        out[is.na(out)] <- vec[length(vec)]  # Overflowed entries should be capped at the final one
+        out
+    }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
+        array<Type> out(vec.size(), a);
+        for (int i = 0 ; i < vec.size(); i++) {
+            for (int j = 0 ; j < a; j++) {
+                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+            }
+        }
+        return out;
+    }')
+    g3a_grow_weightsimple_vec_extrude <- g3_native(r = function (vec, a) {
+        vec %*% t(rep(1, a))
+    }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
+        array<Type> out(vec.size(), a);
+        for (int i = 0 ; i < vec.size(); i++) {
+            for (int j = 0 ; j < a; j++) {
+                out(i, j) = vec[i];
+            }
+        }
+        return out;
+    }')
+
+    # growmemberfunctions.cc:61 - Make a l --> l' matrix of weight increases,
+    # NB: Have to multiply by alpha_f last, otherwise TMB thinks the result should be scalar
+    f_substitute(~(
+        g3a_grow_weightsimple_vec_rotate(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1) -
+        g3a_grow_weightsimple_vec_extrude(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1)
+    ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 
 # Returns bbinom growth implementation formulae
-g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__dl)) {
+g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
     ##' @param dmu mean growth for each lengthgroup
     ##' @param lengthgrouplen i.e. dl, the step size for length groups
     ##' @param binn Maximum updating length, i.e. # of length groups
@@ -77,61 +111,103 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__
         return(val);
     }')
 
-    f_substitute(
-        ~growth_bbinom(stock__grow_f, stock__dl, maxlengthgroupgrowth, beta_f),
-        list(
-            maxlengthgroupgrowth = maxlengthgroupgrowth,
-            beta_f = beta_f))
+    list(
+        len = f_substitute(
+            ~growth_bbinom(delta_len_f, stock__dl, maxlengthgroupgrowth, beta_f),
+            list(
+                delta_len_f = delta_len_f,
+                maxlengthgroupgrowth = maxlengthgroupgrowth,
+                beta_f = beta_f)),
+        wgt = f_substitute(
+            delta_wgt_f,
+            list(
+                maxlengthgroupgrowth = maxlengthgroupgrowth)))
 }
 
 # Apply a lgroup x lgroup-delta matrix to vector of length groups
 # Rows should sum to 1
-g3_global_env$g3a_grow_apply <- g3_native(r = function (lg_deltas, input_num) {
-    na <- dim(lg_deltas)[[1]]  # Number of length groups
-    n <- dim(lg_deltas)[[2]] - 1  # Number of lengthgroup deltas
+# - delta_l: Proportion of individuals moving +j length groups
+# - delta_w: Weight increase of individuals moving +j length groups
+g3_global_env$g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt) {
+    na <- dim(delta_l)[[1]]  # Number of length groups
+    n <- dim(delta_l)[[2]] - 1  # Number of lengthgroup deltas
+    # See stockmemberfunctions.cc:121, grow.cc:25
+
+    logspace_add_vec <- function(a,b) {
+        pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+    }
 
     growth.matrix <- array(0,c(na,na))
+    wgt.matrix <- array(0,c(na,na))
     for(lg in 1:na){
-      if(lg == na) {
+      if(lg == na) { # Maximum length group can't grow any more
         growth.matrix[na,na] <- 1
+        wgt.matrix[lg,na] <- 0
       } else if(lg + n > na){
-        growth.matrix[lg,lg:(na-1)] <- lg_deltas[lg,1:(na - lg )]
-        growth.matrix[lg,na] <- sum(lg_deltas[lg,(na - lg + 1):(n + 1)])
+        growth.matrix[lg,lg:(na-1)] <- delta_l[lg,1:(na - lg )]
+        growth.matrix[lg,na] <- sum(delta_l[lg,(na - lg + 1):(n + 1)])
+        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
       } else {
-        growth.matrix[lg,lg:(n + lg)] <- lg_deltas[lg,]
+        growth.matrix[lg,lg:(n + lg)] <- delta_l[lg,]
+        wgt.matrix[lg,lg:(n + lg)] <- delta_w[lg,]
       }
     }
-    return(Matrix::colSums(growth.matrix * as.vector(input_num)))  # NB: Cant matrix-multiply with a 1xn array
-}, cpp = '[](array<Type> lg_deltas, vector<Type> input_num) -> vector<Type> {
-    lg_deltas = lg_deltas.transpose();
-    int total_deltas = lg_deltas.rows();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = lg_deltas.cols(); // # Length groups
-    vector<Type> lg_growth;
-    vector<Type> out;
+    # Apply matrices to stock
+    growth.matrix <- growth.matrix * as.vector(input_num)  # NB: Cant matrix-multiply with a 1xn array
+    wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
 
-    lg_growth.resize(total_lgs);
-    out.resize(total_lgs);
-    out.setZero();
+    # Sum together all length group brackets for both length & weight
+    return(array(c(
+        Matrix::colSums(growth.matrix),
+        Matrix::colSums(wgt.matrix) / logspace_add_vec(Matrix::colSums(growth.matrix), 0) ), dim = c(na, 2)))
+}, cpp = '[](array<Type> delta_l, array<Type> delta_w, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    delta_l = delta_l.transpose();
+    delta_w = delta_w.transpose();
+    int total_deltas = delta_l.rows();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.cols(); // # Length groups
+
+    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+        vector<Type> res(a.size());
+        for(int i = 0; i < a.size(); i++) {
+            res[i] = logspace_add(a[i], b);
+        }
+        return res;
+    };
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+    matrix<Type> weight_matrix(total_lgs, total_lgs);
+    weight_matrix.setZero();
+
     for (int lg = 0; lg < total_lgs; lg++) {
-      // Cant shrink
-      lg_growth.head(lg) = 0;
-      // Add any that have an appropriate group
-      lg_growth.tail(total_lgs - lg) = lg_deltas.col(lg).head(total_lgs - lg);
-      if (total_deltas - (total_lgs - lg) > 0) {
-          // Add any remaining to plus-group
-          lg_growth.tail(1) += lg_deltas.col(lg).tail(total_deltas - (total_lgs - lg)).sum();
-      }
-      out += lg_growth * input_num(lg);
+        if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
+            growth_matrix(lg, lg) = 1;
+            weight_matrix(lg, lg) = 0;
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.col(lg).head(total_lgs - lg).transpose();
+            growth_matrix(lg, total_lgs - 1) = delta_l.col(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.col(lg).head(total_deltas).transpose();
+            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.col(lg).head(total_deltas).transpose();
+        }
     }
-    return out;
+    // Apply matrices to stock
+    // NB: Cast to array to get elementwise multiplication
+    growth_matrix = growth_matrix.array().colwise() * input_num.array();
+    weight_matrix = (weight_matrix.array().colwise() + input_wgt.array()) * growth_matrix.array();
+
+    // Sum together all length group brackets for both length & weight
+    array<Type> combined(total_lgs,2);
+    combined.col(0) = growth_matrix.colwise().sum();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / logspace_add_vec(growth_matrix.colwise().sum(), 0).array().transpose();
+    return combined;
 }')
 
 # Combined growth / maturity step for a stock
-# - growth_f: formulae for growth, e.g. g3a_grow_lengthvbsimple()
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
 # - transition_f: formula producing TRUE/FALSE for when maturity should also be run
 g3a_growmature <- function(stock,
-                     growth_f,
                      impl_f,
                      maturity_f = ~0,
                      output_stocks = list(),
@@ -148,7 +224,7 @@ g3a_growmature <- function(stock,
     stock__wgt <- stock_instance(stock)
     stock__growth_num <- stock_instance(stock)
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
-    stock__growth_w <- array(dim = dim(stock__growth_num)[[1]])
+    stock__growth_w <- array(dim = c(0, 0))
     stock__transitioning_num <- stock_instance(stock)
     stock__transitioning_wgt <- stock_instance(stock)
 
@@ -181,22 +257,26 @@ g3a_growmature <- function(stock,
         stock_iterate(stock, if (run_f) {
             comment("Calculate increase in length/weight for each lengthgroup")
             stock__growth_l <- impl_l_f
-            stock__growth_w <- growth_w_f
+            stock__growth_w <- impl_w_f
 
             maturity_iter_f
 
-            stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)  # Convert to total weight
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
-            stock_ss(stock__num) <- g3a_grow_apply(stock__growth_l, stock_ss(stock__num))
+            g3_with(growthresult, g3a_grow_apply(
+                    stock__growth_l, stock__growth_w, 
+                    stock_ss(stock__num), stock_ss(stock__wgt)), {
+                # Split the combined array back apart again
+                stock_ss(stock__num) <- growthresult[,g3_idx(1)]
+                stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
+            })
             if (strict_mode) stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) < 0.0001)
-            stock_ss(stock__wgt) <- (stock_ss(stock__wgt) + stock__growth_w) / logspace_add_vec(stock_ss(stock__num), 0)  # Add extra weight, back to mean
         })
     }, list(
             run_f = run_f,
             transition_f = transition_f,
-            impl_l_f = f_substitute(impl_f, list(stock__grow_f = growth_f$len)),
+            impl_l_f = impl_f$len,
+            impl_w_f = impl_f$wgt,
             maturity_init_f = maturity_init_f,
-            maturity_iter_f = maturity_iter_f,
-            growth_w_f = growth_f$wgt)))
+            maturity_iter_f = maturity_iter_f)))
     return(as.list(out))
 }
