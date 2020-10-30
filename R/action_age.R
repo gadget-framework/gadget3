@@ -28,9 +28,9 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         if (as.character(x) %in% c("[", ".", "stock__age_idx")) x
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
-    age_older_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
+    age_younger_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
         if (as.character(x) %in% c("[", ".")) x
-        else if (as.character(x) %in% c("stock__age_idx")) call("+", x, 1)  # Add 1 to age paramter
+        else if (as.character(x) %in% c("stock__age_idx")) call("-", x, 1)  # Subtract 1 to age paramter
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
@@ -51,7 +51,16 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
-        final_year_f = ~stock_comment("Oldest ", stock, " is a plus-group")
+        final_year_f = fix_subsets(f_substitute(~{
+            stock_comment("Oldest ", stock, " is a plus-group, combine with younger individuals")
+            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] * stock__num[age_iter_ss]
+            stock__num[age_iter_ss] <- stock__num[age_iter_ss] + stock__num[age_younger_iter_ss]
+            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] + (stock__wgt[age_younger_iter_ss] * stock__num[age_younger_iter_ss])
+            # Back to mean weight
+            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] / logspace_add_vec(stock__num[age_iter_ss], 0)
+        }, list(
+            age_iter_ss = age_iter_ss,
+            age_younger_iter_ss = age_younger_iter_ss)))
     } else {
         final_year_f = fix_subsets(f_substitute(~stock_with(stock_movement, {
             stock_comment("Move oldest ", stock)
@@ -59,12 +68,12 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             # NB: This relies on the dimension ordering between stock_movement & stock matching
             stock_movement__transitioning_num[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__num[age_iter_ss])
             stock_movement__transitioning_wgt[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__wgt[age_iter_ss])
-            stock__num[age_iter_ss] <- 0
-            stock__wgt[age_iter_ss] <- 0
+            stock__num[age_iter_ss] <- stock__num[age_younger_iter_ss]
+            stock__wgt[age_iter_ss] <- stock__wgt[age_younger_iter_ss]
         }), list(
             movement_age_iter_ss = movement_age_iter_ss,
             age_iter_ss = age_iter_ss,
-            age_older_iter_ss = age_older_iter_ss)))
+            age_younger_iter_ss = age_younger_iter_ss)))
         # TODO: Think about ordering of step parts
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, run_f = run_f)
     }
@@ -77,22 +86,21 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
 
             if (age == stock__maxage) {
                 final_year_f
-            } else {
-                # To total weight
-                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] * stock__num[age_older_iter_ss]
-                stock__num[age_older_iter_ss] <- stock__num[age_older_iter_ss] + stock__num[age_iter_ss]
-                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] + (stock__wgt[age_iter_ss] * stock__num[age_iter_ss])
-                # Back to mean weight
-                stock__wgt[age_older_iter_ss] <- stock__wgt[age_older_iter_ss] / logspace_add_vec(stock__num[age_older_iter_ss], 0)
+            } else if (age == stock__minage) {
+                stock_comment("Empty youngest ", stock, " age-group")
                 stock__num[age_iter_ss] <- 0
                 stock__wgt[age_iter_ss] <- 0
+            } else {
+                stock_comment("Move ", stock, " age-group up one")
+                stock__num[age_iter_ss] <- stock__num[age_younger_iter_ss]
+                stock__wgt[age_iter_ss] <- stock__wgt[age_younger_iter_ss]
             }
         }))
     }, list(
         final_year_f = final_year_f,
         run_f = run_f,
         age_iter_ss = age_iter_ss,
-        age_older_iter_ss = age_older_iter_ss))))
+        age_younger_iter_ss = age_younger_iter_ss))))
 
     return(as.list(out))
 }

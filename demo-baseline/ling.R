@@ -503,17 +503,19 @@ structure(function (param)
                       comment("Move oldest ling_imm")
                       ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
                       ling_imm_movement__transitioning_wgt[, , (1)] <- ling_imm__wgt[, , ling_imm__age_idx]
-                      ling_imm__num[, , ling_imm__age_idx] <- 0
-                      ling_imm__wgt[, , ling_imm__age_idx] <- 0
+                      ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1]
+                      ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1]
                     }
                   }
-                  else {
-                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] * ling_imm__num[, , ling_imm__age_idx + 1]
-                    ling_imm__num[, , ling_imm__age_idx + 1] <- ling_imm__num[, , ling_imm__age_idx + 1] + ling_imm__num[, , ling_imm__age_idx]
-                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1] + (ling_imm__wgt[, , ling_imm__age_idx] * ling_imm__num[, , ling_imm__age_idx])
-                    ling_imm__wgt[, , ling_imm__age_idx + 1] <- ling_imm__wgt[, , ling_imm__age_idx + 1]/logspace_add_vec(ling_imm__num[, , ling_imm__age_idx + 1], 0)
+                  else if (age == ling_imm__minage) {
+                    comment("Empty youngest ling_imm age-group")
                     ling_imm__num[, , ling_imm__age_idx] <- 0
                     ling_imm__wgt[, , ling_imm__age_idx] <- 0
+                  }
+                  else {
+                    comment("Move ling_imm age-group up one")
+                    ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1]
+                    ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1]
                   }
                 }
             }
@@ -524,15 +526,23 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
                   if (age == ling_mat__maxage) {
-                    comment("Oldest ling_mat is a plus-group")
+                    {
+                      comment("Oldest ling_mat is a plus-group, combine with younger individuals")
+                      ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx]
+                      ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx] + ling_mat__num[, , ling_mat__age_idx - 1]
+                      ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] + (ling_mat__wgt[, , ling_mat__age_idx - 1] * ling_mat__num[, , ling_mat__age_idx - 1])
+                      ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx]/logspace_add_vec(ling_mat__num[, , ling_mat__age_idx], 0)
+                    }
                   }
-                  else {
-                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] * ling_mat__num[, , ling_mat__age_idx + 1]
-                    ling_mat__num[, , ling_mat__age_idx + 1] <- ling_mat__num[, , ling_mat__age_idx + 1] + ling_mat__num[, , ling_mat__age_idx]
-                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1] + (ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx])
-                    ling_mat__wgt[, , ling_mat__age_idx + 1] <- ling_mat__wgt[, , ling_mat__age_idx + 1]/logspace_add_vec(ling_mat__num[, , ling_mat__age_idx + 1], 0)
+                  else if (age == ling_mat__minage) {
+                    comment("Empty youngest ling_mat age-group")
                     ling_mat__num[, , ling_mat__age_idx] <- 0
                     ling_mat__wgt[, , ling_mat__age_idx] <- 0
+                  }
+                  else {
+                    comment("Move ling_mat age-group up one")
+                    ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx - 1]
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx - 1]
                   }
                 }
             }

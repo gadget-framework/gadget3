@@ -580,16 +580,19 @@ Type objective_function<Type>::operator() () {
                             // Move oldest ling_imm;
                             ling_imm_movement__transitioning_num.col(0) = ling_imm__num.col(ling_imm__age_idx);
                             ling_imm_movement__transitioning_wgt.col(0) = ling_imm__wgt.col(ling_imm__age_idx);
-                            ling_imm__num.col(ling_imm__age_idx).setZero();
-                            ling_imm__wgt.col(ling_imm__age_idx).setZero();
+                            ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
+                            ling_imm__wgt.col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__age_idx - 1);
                         }
                     } else {
-                        ling_imm__wgt.col(ling_imm__age_idx + 1) *= ling_imm__num.col(ling_imm__age_idx + 1);
-                        ling_imm__num.col(ling_imm__age_idx + 1) += ling_imm__num.col(ling_imm__age_idx);
-                        ling_imm__wgt.col(ling_imm__age_idx + 1) += (ling_imm__wgt.col(ling_imm__age_idx)*ling_imm__num.col(ling_imm__age_idx));
-                        ling_imm__wgt.col(ling_imm__age_idx + 1) /= logspace_add_vec(ling_imm__num.col(ling_imm__age_idx + 1), 0);
-                        ling_imm__num.col(ling_imm__age_idx).setZero();
-                        ling_imm__wgt.col(ling_imm__age_idx).setZero();
+                        if (age == ling_imm__minage) {
+                            // Empty youngest ling_imm age-group;
+                            ling_imm__num.col(ling_imm__age_idx).setZero();
+                            ling_imm__wgt.col(ling_imm__age_idx).setZero();
+                        } else {
+                            // Move ling_imm age-group up one;
+                            ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
+                            ling_imm__wgt.col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__age_idx - 1);
+                        }
                     }
                 }
             }
@@ -601,14 +604,23 @@ Type objective_function<Type>::operator() () {
 
                 {
                     if (age == ling_mat__maxage) {
-                        // Oldest ling_mat is a plus-group;
+                        {
+                            // Oldest ling_mat is a plus-group, combine with younger individuals;
+                            ling_mat__wgt.col(ling_mat__age_idx) *= ling_mat__num.col(ling_mat__age_idx);
+                            ling_mat__num.col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__age_idx - 1);
+                            ling_mat__wgt.col(ling_mat__age_idx) += (ling_mat__wgt.col(ling_mat__age_idx - 1)*ling_mat__num.col(ling_mat__age_idx - 1));
+                            ling_mat__wgt.col(ling_mat__age_idx) /= logspace_add_vec(ling_mat__num.col(ling_mat__age_idx), 0);
+                        }
                     } else {
-                        ling_mat__wgt.col(ling_mat__age_idx + 1) *= ling_mat__num.col(ling_mat__age_idx + 1);
-                        ling_mat__num.col(ling_mat__age_idx + 1) += ling_mat__num.col(ling_mat__age_idx);
-                        ling_mat__wgt.col(ling_mat__age_idx + 1) += (ling_mat__wgt.col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__age_idx));
-                        ling_mat__wgt.col(ling_mat__age_idx + 1) /= logspace_add_vec(ling_mat__num.col(ling_mat__age_idx + 1), 0);
-                        ling_mat__num.col(ling_mat__age_idx).setZero();
-                        ling_mat__wgt.col(ling_mat__age_idx).setZero();
+                        if (age == ling_mat__minage) {
+                            // Empty youngest ling_mat age-group;
+                            ling_mat__num.col(ling_mat__age_idx).setZero();
+                            ling_mat__wgt.col(ling_mat__age_idx).setZero();
+                        } else {
+                            // Move ling_mat age-group up one;
+                            ling_mat__num.col(ling_mat__age_idx) = ling_mat__num.col(ling_mat__age_idx - 1);
+                            ling_mat__wgt.col(ling_mat__age_idx) = ling_mat__wgt.col(ling_mat__age_idx - 1);
+                        }
                     }
                 }
             }
