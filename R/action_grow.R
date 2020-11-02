@@ -46,14 +46,6 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__
     }, cpp = '[](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
-        // Redefine lgamma with stricter types
-        // NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
-        //     an expression). Eigen evaluates lazily, and any expression needs
-        //     to be evaluated before we decide what type the lgamma function is.
-        auto lgamma_vec = [](vector<Type> vec) -> vector<Type> {
-            return lgamma(vec);
-        };
-
         vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
@@ -74,14 +66,14 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__
         // distribution
         array<Type> val(na, n + 1);
         val = (lgamma((Type) n + 1) +
-            lgamma_vec(alpha + beta) +
-            lgamma_vec(n - x + beta) +
-            lgamma_vec(x + alpha) -
-            lgamma_vec(n - x + 1) -
-            lgamma_vec(x + 1) -
-            lgamma_vec(n + alpha + beta) -
+            lgamma((vector<Type>)(alpha + beta)) +
+            lgamma((vector<Type>)(n - x + beta)) +
+            lgamma((vector<Type>)(x + alpha)) -
+            lgamma((vector<Type>)(n - x + 1)) -
+            lgamma((vector<Type>)(x + 1)) -
+            lgamma((vector<Type>)(n + alpha + beta)) -
             lgamma(beta) -
-            lgamma_vec(alpha)).exp();
+            lgamma(alpha)).exp();
         return(val);
     }')
 
