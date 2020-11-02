@@ -58,7 +58,7 @@ g3a_grow_impl_bbinom <- function (beta_f, maxlengthgroupgrowth = ~length(stock__
         for (auto i = 0; i < alpha.size(); i++) alpha(i) = alpha_1(i % alpha_1.size());
 
         vector<Type> x((n + 1) * na);
-        for (auto i = 0; i < x.size(); i++) x(i) = i / n;
+        for (auto i = 0; i < x.size(); i++) x(i) = i / na;
 
         // Create a probability matrix where the columns represent the
         // probability of growing x lengthgroups for each lengthgroup
