@@ -76,7 +76,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     obsstock__num <- stock_instance(obsstock)
     assign(paste0(nll_name, '_number'), ld$number)
 
-    out[[step_id(run_at, nll_name, 0)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 0)]] <- g3_step(f_substitute(~{
         comment(step_comment)
         if (cur_time == 0) {
             # Populate stock with data
@@ -100,7 +100,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         }
 
         # Collect all of fleet's sampling of prey and dump it in modelstock
-        out[[step_id(run_at, nll_name, 1, prey_stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, prey_stock)]] <- g3_step(f_substitute(~{
             stock_comment("Collect catch from ", fleet_stock, "/", prey_stock, " for ", modelstock)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
@@ -112,15 +112,15 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, nll_name, 1, prey_stock)]] <- f_substitute(out[[step_id(run_at, nll_name, 1, prey_stock)]], list(
+        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, prey_stock)]], list(
             stockidx_f = stockidx_f))
     }
 
-    out[[step_id(run_at, nll_name, 2)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- g3_step(f_substitute(~{
         if (done_aggregating_f) {
             stock_comment("Compare ", modelstock, " to ", obsstock)
             stock_iterate(modelstock, stock_intersect(obsstock, {
-                nll <- nll + weight * function_f
+                nll <- nll + (weight) * (function_f)
             }))
             stock_with(modelstock, modelstock__num[] <- 0)
         }
@@ -129,7 +129,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         weight = weight,
         function_f = function_f)))
     # Fix-up stock intersection: index should be the same as observation
-    out[[step_id(run_at, nll_name, 2)]] <- f_substitute(out[[step_id(run_at, nll_name, 2)]], list(
+    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]], list(
         stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     return(as.list(out))

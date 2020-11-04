@@ -19,6 +19,14 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
+# Zip name/value arguments together into a list
+named_list <- function(...) {
+    x <- list(...)
+    structure(
+        x[seq_along(x) %% 2 == 0],
+        names = as.character(x[seq_along(x) %% 2 == 1]))
+}
+
 # NB: Name has to be different, or it gets sucked into the model
 lspace_add <- gadget3:::g3_global_env$logspace_add$r
 
@@ -89,36 +97,36 @@ base_actions <- list(
             prey_b = ~g3_param_vector("fleet_abc_b"),
             prey_c = ~g3_param_vector("fleet_abc_c")),
         amount_f = ~g3_param('amount_ab') * area),
-    list(
+    named_list(
         # Capture data just before final step erases it
-        '010:utcd:001:zzzz' = report_step('cdist_utcd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_catchdistribution', 'utcd', 1, 'zzzz'), report_step('cdist_utcd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_utcd_model__num)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        '010:utsd:001:zzzz' = report_step('cdist_utsd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_catchdistribution', 'utsd', 1, 'zzzz'), report_step('cdist_utsd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
-        '010:multinom:001:zzzz' = report_step('cdist_multinom_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_catchdistribution', 'multinom', 1, 'zzzz'), report_step('cdist_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinom_model__num)
             dim = c(2L),
             dimnames = list(
                 c("len1", "len6")))),
-        '010:surveyindices:001:zzzz' = report_step('cdist_surveyindices_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_catchdistribution', 'surveyindices', 1, 'zzzz'), report_step('cdist_surveyindices_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_surveyindices_model__num)
             dim = c(1L),
             dimnames = list(
                 c("len0")))),
-        '990:prey_a__fleet_abc' = report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
-        '990:prey_b__fleet_abc' = report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
-        '990:prey_c__fleet_abc' = report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),
-        '990:nll' = report_step('nll', 4, 0.0),
-        '999' = ~{
+        gadget3:::step_id(990, 'prey_a__fleet_abc'), report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
+        gadget3:::step_id(990, 'prey_b__fleet_abc'), report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
+        gadget3:::step_id(990, 'prey_c__fleet_abc'), report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),
+        gadget3:::step_id(990, 'nll'), report_step('nll', 4, 0.0),
+        gadget3:::step_id(999),  ~{
             g3_report(cdist_utcd_model__num)
             g3_report(cdist_utcd_obs__num)
             g3_report(cdist_utsd_model__num)
