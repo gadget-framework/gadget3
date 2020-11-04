@@ -127,7 +127,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_mature_constant</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>l50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>a50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+    <pre class="usage"><span class='fu'>g3a_mature_constant</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>l50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>a50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
     <span class='kw'>k50</span> <span class='kw'>=</span> <span class='fl'>NA</span>)
 
 <span class='fu'>g3a_mature</span>(<span class='no'>stock</span>, <span class='no'>maturity_f</span>, <span class='no'>output_stocks</span>, <span class='kw'>output_ratios</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>/<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>output_stocks</span>),
@@ -143,7 +143,7 @@
     </tr>
     <tr>
       <th>l50</th>
-      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(l_{50}\). Must be defined if <code>alpha &gt; 0</code>.</p></td>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(l_{50}\). Must be defined if <var>alpha</var> is defined.</p></td>
     </tr>
     <tr>
       <th>beta</th>
@@ -151,7 +151,7 @@
     </tr>
     <tr>
       <th>a50</th>
-      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(a_{50}\). Must be defined if <code>beta &gt; 0</code>.</p></td>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(a_{50}\). Must be defined if <var>beta</var> is defined.</p></td>
     </tr>
     <tr>
       <th>gamma</th>
@@ -159,7 +159,7 @@
     </tr>
     <tr>
       <th>k50</th>
-      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(k_{50}\). Must be defined if <code>gamma &gt; 0</code>.</p></td>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(k_{50}\). Must be defined if <var>gamma</var> is defined.</p></td>
     </tr>
     <tr>
       <th>stock</th>

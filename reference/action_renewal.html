@@ -127,10 +127,10 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_initialconditions</span>(<span class='no'>stock</span>, <span class='no'>num_f</span>, <span class='no'>wgt_f</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+    <pre class="usage"><span class='fu'>g3a_initialconditions</span>(<span class='no'>stock</span>, <span class='no'>num_f</span>, <span class='no'>wgt_f</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> ~<span class='no'>cur_time</span> <span class='kw'>==</span> <span class='fl'>0L</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='fu'>g3a_initialconditions_normalparam</span>(<span class='no'>stock</span>, <span class='no'>factor_f</span>, <span class='no'>mean_f</span>, <span class='no'>stddev_f</span>, <span class='no'>alpha_f</span>, <span class='no'>beta_f</span>,
-    <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+    <span class='kw'>run_f</span> <span class='kw'>=</span> ~<span class='no'>cur_time</span> <span class='kw'>==</span> <span class='fl'>0L</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>0</span>)
 
 <span class='fu'>g3a_renewal</span>(<span class='no'>stock</span>, <span class='no'>num_f</span>, <span class='no'>wgt_f</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> ~<span class='fl'>TRUE</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>8</span>)
 
@@ -183,6 +183,15 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The <code>g3a_renewal_*</code> actions will define the following stock instance variables for <var>stock</var>:</p><dl class='dl-horizontal'>
+    <dt><var>stock__renewalnum</var></dt><dd><p>Extra individuals added to the stock</p></dd>
+    <dt><var>stock__renewalwgt</var></dt><dd><p>Mean weight of added individuals</p></dd>
+  
+</dl>
+
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3>g3a_initialconditions</h3>
@@ -234,6 +243,8 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>

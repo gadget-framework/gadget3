@@ -131,7 +131,7 @@ always use the explicit form ‘obj$fn(obj$par)’ rather than
 ‘obj$fn()’.</code></pre>
 <p>The following seems to re-order in the expected way, but seems naff:</p>
 <pre><code>params &lt;- list(... unordered params ...)
-par &lt;- unlist(params[names(environment(model_cpp)$model_parameters)])</code></pre>
+par &lt;- unlist(params[attr(model_cpp, 'parameter_template')$switch])</code></pre>
 <p>We could abstract, but there’s probably a better solution.</p>
 </div>
 <div id="vectorize1_t-macros" class="section level2">

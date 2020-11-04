@@ -137,7 +137,9 @@
 ## }
 ## &lt;environment: 0xnnnnnnnnnnnn&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"parameter_template")
+## list()</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw"><a href="../reference/run_tmb.html">g3_to_tmb</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(f))</a></code></pre></div>
 <pre><code>## #include &lt;TMB.hpp&gt;
@@ -169,7 +171,7 @@
 ##         return(nll)
 ##     cur_year &lt;- start_year + (cur_time%/%step_count)
 ##     cur_step &lt;- (cur_time%%step_count) + 1
-##     cur_step_len &lt;- step_lengths[[cur_step]]
+##     cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
 ##     cur_step_final &lt;- cur_step == step_count
 ##     Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
@@ -178,6 +180,10 @@
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a></code></pre></div>
 <pre><code>## function (param) 
 ## {
+##     Rprintf &lt;- function (...) 
+##     {
+##         cat(sprintf(...))
+##     }
 ##     cur_time &lt;- -1L
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     end_year &lt;- 1999L
@@ -188,7 +194,7 @@
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- 1L
 ##     cur_step &lt;- 0L
-##     cur_step_len &lt;- 0L
+##     cur_step_size &lt;- 0
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
@@ -198,20 +204,26 @@
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
 ##             cur_step &lt;- (cur_time%%step_count) + 1
-##             cur_step_len &lt;- step_lengths[[cur_step]]
+##             cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
 ##             cur_step_final &lt;- cur_step == step_count
-##             cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
+##             Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ##         }
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
 ## &lt;environment: 0xnnnnnnnnnnnn&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"parameter_template")
+## list()</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="op">~</span>start_year <span class="op">+</span><span class="st"> </span><span class="dv">4</span> ))</a></code></pre></div>
 <pre><code>## function (param) 
 ## {
+##     Rprintf &lt;- function (...) 
+##     {
+##         cat(sprintf(...))
+##     }
 ##     cur_time &lt;- -1L
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     start_year &lt;- 1990L
@@ -222,7 +234,7 @@
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- 1L
 ##     cur_step &lt;- 0L
-##     cur_step_len &lt;- 0L
+##     cur_step_size &lt;- 0
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
@@ -232,16 +244,18 @@
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
 ##             cur_step &lt;- (cur_time%%step_count) + 1
-##             cur_step_len &lt;- step_lengths[[cur_step]]
+##             cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
 ##             cur_step_final &lt;- cur_step == step_count
-##             cat(sprintf("** Tick: %d-%d\n", cur_year, cur_step))
+##             Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ##         }
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
 ## &lt;environment: 0xnnnnnnnnnnnn&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"parameter_template")
+## list()</code></pre>
 <p>TODO: This example rapidly runs out of steam since we don’t substitute the formula’s environment into the output expression. Fix it or stop suggesting it.</p>
 </div>
 <div id="stocks" class="section level2">
@@ -288,14 +302,13 @@
 <p><code><a href="../reference/action_grow.html">g3a_growmature()</a></code> itself doesn’t care about areas or age, it just does the same to each. However, the formula you supply can. <code>age</code> and <code>area</code> variables will be set with the current age/area, which you can use when writing formula. For example:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">fn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
 <a class="sourceLine" id="cb24-2" title="2">    ling_imm,</a>
-<a class="sourceLine" id="cb24-3" title="3">    <span class="dt">growth_f =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb24-4" title="4">        <span class="dt">len =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb24-5" title="5">        <span class="dt">wgt =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>),</a>
-<a class="sourceLine" id="cb24-6" title="6">    <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb24-7" title="7">        <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb24-8" title="8">        <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>),</a>
-<a class="sourceLine" id="cb24-9" title="9">    <span class="dt">transition_f =</span> <span class="op">~</span><span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb24-10" title="10">fn</a></code></pre></div>
+<a class="sourceLine" id="cb24-3" title="3">    <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
+<a class="sourceLine" id="cb24-4" title="4">        <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb24-5" title="5">        <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb24-6" title="6">        <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
+<a class="sourceLine" id="cb24-7" title="7">        <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>),</a>
+<a class="sourceLine" id="cb24-8" title="8">    <span class="dt">transition_f =</span> <span class="op">~</span><span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb24-9" title="9">fn</a></code></pre></div>
 <pre><code>## function (param) 
 ## {
 ##     growth_bbinom &lt;- function (dmu, lengthgrouplen, binn, beta) 
@@ -314,39 +327,52 @@
 ##         dim(val) &lt;- c(na, n + 1)
 ##         return(val)
 ##     }
-##     g3a_grow_apply &lt;- function (lg_deltas, input_num) 
+##     g3a_grow_apply &lt;- function (delta_l, delta_w, input_num, 
+##         input_wgt) 
 ##     {
-##         na &lt;- dim(lg_deltas)[[1]]
-##         n &lt;- dim(lg_deltas)[[2]] - 1
+##         na &lt;- dim(delta_l)[[1]]
+##         n &lt;- dim(delta_l)[[2]] - 1
+##         logspace_add_vec &lt;- function(a, b) {
+##             pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+##         }
 ##         growth.matrix &lt;- array(0, c(na, na))
+##         wgt.matrix &lt;- array(0, c(na, na))
 ##         for (lg in 1:na) {
 ##             if (lg == na) {
 ##                 growth.matrix[na, na] &lt;- 1
+##                 wgt.matrix[lg, na] &lt;- 0
 ##             }
 ##             else if (lg + n &gt; na) {
-##                 growth.matrix[lg, lg:(na - 1)] &lt;- lg_deltas[lg, 
+##                 growth.matrix[lg, lg:(na - 1)] &lt;- delta_l[lg, 
 ##                   1:(na - lg)]
-##                 growth.matrix[lg, na] &lt;- sum(lg_deltas[lg, (na - 
+##                 growth.matrix[lg, na] &lt;- sum(delta_l[lg, (na - 
 ##                   lg + 1):(n + 1)])
+##                 wgt.matrix[lg, lg:na] &lt;- delta_w[lg, 1:(na - 
+##                   lg + 1)]
 ##             }
 ##             else {
-##                 growth.matrix[lg, lg:(n + lg)] &lt;- lg_deltas[lg, 
+##                 growth.matrix[lg, lg:(n + lg)] &lt;- delta_l[lg, 
 ##                   ]
+##                 wgt.matrix[lg, lg:(n + lg)] &lt;- delta_w[lg, ]
 ##             }
 ##         }
-##         return(Matrix::colSums(growth.matrix * as.vector(input_num)))
+##         growth.matrix &lt;- growth.matrix * as.vector(input_num)
+##         wgt.matrix &lt;- growth.matrix * (wgt.matrix + as.vector(input_wgt))
+##         return(array(c(Matrix::colSums(growth.matrix), Matrix::colSums(wgt.matrix)/logspace_add_vec(Matrix::colSums(growth.matrix), 
+##             0)), dim = c(na, 2)))
 ##     }
 ##     ling_imm__minage &lt;- 3L
 ##     ling_imm__maxage &lt;- 10L
 ##     ling_imm__areas &lt;- model_data$ling_imm__areas
 ##     ling_imm__growth_l &lt;- array(dim = c(0L, 0L), dimnames = NULL)
 ##     ling_imm__dl &lt;- model_data$ling_imm__dl
-##     ling_imm__growth_w &lt;- array(dim = 6L, dimnames = NULL)
-##     ling_imm__wgt &lt;- array(dim = c(length = 6L, area = 2L, age = 8L
+##     ling_imm__growth_w &lt;- array(dim = c(0L, 0L), dimnames = NULL)
+##     ling_imm__prevtotal &lt;- 0
+##     ling_imm__num &lt;- array(dim = c(length = 6L, area = 2L, age = 8L
 ##     ), dimnames = list(length = c("len0", "len10", "len20", "len30", 
 ##     "len40", "len50"), area = c("area1", "area2"), age = c("age3", 
 ##     "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-##     ling_imm__num &lt;- array(dim = c(length = 6L, area = 2L, age = 8L
+##     ling_imm__wgt &lt;- array(dim = c(length = 6L, area = 2L, age = 8L
 ##     ), dimnames = list(length = c("len0", "len10", "len20", "len30", 
 ##     "len40", "len50"), area = c("area1", "area2"), age = c("age3", 
 ##     "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
@@ -364,21 +390,29 @@
 ##                   if (TRUE) {
 ##                     comment("Calculate increase in length/weight for each lengthgroup")
 ##                     ling_imm__growth_l &lt;- growth_bbinom(age * 
-##                       10, ling_imm__dl, length(ling_imm__dl), 
-##                       param[["ling.bbin"]])
+##                       10, ling_imm__dl, 4, param[["ling.bbin"]])
 ##                     ling_imm__growth_w &lt;- area * 20
 ##                     {
 ##                     }
-##                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- ling_imm__wgt[, 
-##                       ling_imm__area_idx, ling_imm__age_idx] * 
-##                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
-##                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- g3a_grow_apply(ling_imm__growth_l, 
-##                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
-##                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- (ling_imm__wgt[, 
-##                       ling_imm__area_idx, ling_imm__age_idx] + 
-##                       ling_imm__growth_w)/pmax(ling_imm__num[, 
-##                       ling_imm__area_idx, ling_imm__age_idx], 
-##                       1e-05)
+##                     if (FALSE) 
+##                       ling_imm__prevtotal &lt;- sum(ling_imm__num[, 
+##                         ling_imm__area_idx, ling_imm__age_idx])
+##                     {
+##                       growthresult &lt;- g3a_grow_apply(ling_imm__growth_l, 
+##                         ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, 
+##                           ling_imm__age_idx], ling_imm__wgt[, 
+##                           ling_imm__area_idx, ling_imm__age_idx])
+##                       {
+##                         ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                           (1)]
+##                         ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                           (2)]
+##                       }
+##                     }
+##                     if (FALSE) 
+##                       stopifnot(ling_imm__prevtotal - sum(ling_imm__num[, 
+##                         ling_imm__area_idx, ling_imm__age_idx]) &lt; 
+##                         1e-04)
 ##                   }
 ##                 }
 ##             }
@@ -388,7 +422,10 @@
 ## }
 ## &lt;environment: 0xnnnnnnnnnnnn&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"parameter_template")
+## attr(,"parameter_template")$ling.bbin
+## [1] NA</code></pre>
 <p>…you can see our provided formula have been used to calculate <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and <code>age</code> and <code>area</code> are available to us thanks to the loops provided by the stock.</p>
 </div>
 <div id="model-parameterization" class="section level2">
@@ -405,32 +442,30 @@
 <a class="sourceLine" id="cb26-2" title="2">    <span class="kw"><a href="../reference/action_age.html">g3a_age</a></span>(ling_imm),</a>
 <a class="sourceLine" id="cb26-3" title="3">    <span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
 <a class="sourceLine" id="cb26-4" title="4">        ling_imm,</a>
-<a class="sourceLine" id="cb26-5" title="5">        <span class="dt">growth_f =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb26-6" title="6">            <span class="dt">len =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb26-7" title="7">            <span class="dt">wgt =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>),</a>
-<a class="sourceLine" id="cb26-8" title="8">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb26-9" title="9">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb26-10" title="10">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)),</a>
-<a class="sourceLine" id="cb26-11" title="11">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>)))</a></code></pre></div>
+<a class="sourceLine" id="cb26-5" title="5">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
+<a class="sourceLine" id="cb26-6" title="6">            <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb26-7" title="7">            <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb26-8" title="8">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
+<a class="sourceLine" id="cb26-9" title="9">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)),</a>
+<a class="sourceLine" id="cb26-10" title="10">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>)))</a></code></pre></div>
 <p>A useful technique is to break down the actions into separate lists, e.g.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">ling_imm_actions &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
 <a class="sourceLine" id="cb27-2" title="2">    <span class="kw"><a href="../reference/action_age.html">g3a_age</a></span>(ling_imm),</a>
 <a class="sourceLine" id="cb27-3" title="3">    <span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
 <a class="sourceLine" id="cb27-4" title="4">        ling_imm,</a>
-<a class="sourceLine" id="cb27-5" title="5">        <span class="dt">growth_f =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb27-6" title="6">            <span class="dt">len =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb27-7" title="7">            <span class="dt">wgt =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>),</a>
-<a class="sourceLine" id="cb27-8" title="8">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb27-9" title="9">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb27-10" title="10">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)))</a>
-<a class="sourceLine" id="cb27-11" title="11">time_actions &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb27-12" title="12">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a>
-<a class="sourceLine" id="cb27-13" title="13"></a>
-<a class="sourceLine" id="cb27-14" title="14">ling_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(ling_imm_actions, time_actions))</a></code></pre></div>
+<a class="sourceLine" id="cb27-5" title="5">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
+<a class="sourceLine" id="cb27-6" title="6">            <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb27-7" title="7">            <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb27-8" title="8">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw">g3_param</span>(<span class="st">"ling.bbin"</span>),</a>
+<a class="sourceLine" id="cb27-9" title="9">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)))</a>
+<a class="sourceLine" id="cb27-10" title="10">time_actions &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb27-11" title="11">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a>
+<a class="sourceLine" id="cb27-12" title="12"></a>
+<a class="sourceLine" id="cb27-13" title="13">ling_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(ling_imm_actions, time_actions))</a></code></pre></div>
 <p>We do not need to worry about the order the actions are provided in, since they will be re-ordered according to the <a href="http://hafro.github.io/gadget2/userguide/chap-order.html">gadget2 order of calculations</a>.</p>
 <p>This works as all formula within actions are named:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(ling_imm_actions, names)</a></code></pre></div>
-<pre><code>## [1] "012:001:ling_imm" "005:ling_imm"</code></pre>
+<pre><code>## [1] "012:001:ling_imm            " "005:ling_imm            "</code></pre>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(time_actions, names)</a></code></pre></div>
 <pre><code>## [1] "000"</code></pre>
 <p>…when building a model, formula are ordered by name, resulting in the desired order of calculations. If needed, the ordering can be changed using the <code>run_at</code> parameter of any action.</p>

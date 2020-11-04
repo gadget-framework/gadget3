@@ -127,10 +127,16 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3_to_tmb</span>(<span class='no'>actions</span>, <span class='kw'>trace</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>g3_to_tmb</span>(<span class='no'>actions</span>, <span class='kw'>trace</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>strict</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp_code</span>, <span class='kw'>parameters</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(), <span class='kw'>cpp_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(<span class='kw'>fileext</span> <span class='kw'>=</span> <span class='st'>".cpp"</span>),
-    <span class='no'>...</span>)</pre>
+<span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp_code</span>, <span class='kw'>parameters</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='no'>cpp_code</span>, <span class='st'>"parameter_template"</span>),
+    <span class='kw'>work_dir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), <span class='no'>...</span>)
+
+<span class='fu'>g3_tmb_par</span>(<span class='no'>parameters</span>)
+
+<span class='fu'>g3_tmb_lower</span>(<span class='no'>parameters</span>)
+
+<span class='fu'>g3_tmb_upper</span>(<span class='no'>parameters</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -144,16 +150,21 @@
       <td><p>If TRUE, turn all comments into print statements.</p></td>
     </tr>
     <tr>
+      <th>strict</th>
+      <td><p>If TRUE, enable extra sanity checking in actions.</p></td>
+    </tr>
+    <tr>
       <th>cpp_code</th>
       <td><p>cpp_code as produced by <var>g3_to_tmb</var>.</p></td>
     </tr>
     <tr>
       <th>parameters</th>
-      <td><p>Default parameters for the ADFun to use</p></td>
+      <td><p>Parameter table as produced by <code><a href='https://rdrr.io/r/base/attr.html'>attr(g3_to_tmb(...), 'parameter_template')</a></code>,
+    modified to provide initial conditions, etc.</p></td>
     </tr>
     <tr>
-      <th>cpp_path</th>
-      <td><p>Output path to write .cpp file to before compiling. Defaults to a tempfile</p></td>
+      <th>work_dir</th>
+      <td><p>Directory to write and compile .cpp files in. Defaults to R's current temporary directory</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -161,11 +172,22 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p></p><h3>g3_tmb_adfun</h3>
+<p><code>g3_tmb_adfun</code> will do both the <a href='https://rdrr.io/pkg/TMB/man/compile.html'>compile</a> and <a href='https://rdrr.io/pkg/TMB/man/MakeADFun.html'>MakeADFun</a>
+    steps of making a model. If the code is identical to an already-loaded model then it
+    won't be recompiled, so repeated calls to g3_tmb_adfun to change <var>parameters</var> are fast.</p>
+
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3>g3_to_tmb</h3>
 <p>A string of C++ code that can be used as an input to <var>g3_tmb_adfun</var>.</p><p></p><h3>g3_tmb_adfun</h3>
-<p>An ADFun as produced by TMB's MakeADFun.</p>
+<p>An ADFun as produced by TMB's MakeADFun.</p><p></p><h3>g3_tmb_par</h3>
+<p>Values extracted from <var>parameters</var> table converted into a vector of values for <code>obj$fn(par)</code> or <code>nlminb</code></p><p></p><h3>g3_tmb_lower</h3>
+<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p><p></p><h3>g3_tmb_upper</h3>
+<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
 
     
 
@@ -207,8 +229,9 @@
 <span class='no'>cpp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/edit.html'>edit</a></span>(<span class='no'>cpp</span>)
 
 
-<span class='co'># Compile to a TMB ADFun</span>
-<span class='no'>tmb</span> <span class='kw'>&lt;-</span> <span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
+<span class='co'># Set initial conditions for parameters</span>
+<span class='no'>tmb_param</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='no'>cpp</span>, <span class='st'>'parameter_template'</span>)
+<span class='no'>tmb_param</span>$<span class='no'>value</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
     <span class='kw'>ling.init.F</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
     <span class='kw'>ling.Linf</span> <span class='kw'>=</span> <span class='fl'>160</span>,
     <span class='kw'>ling.k</span> <span class='kw'>=</span> <span class='fl'>90</span>,
@@ -218,7 +241,10 @@
     <span class='kw'>lingimm.init.scalar</span> <span class='kw'>=</span> <span class='fl'>200</span>,
     <span class='kw'>lingimm.walpha</span> <span class='kw'>=</span> <span class='fl'>2.27567436711055e-06</span>,
     <span class='kw'>lingimm.wbeta</span> <span class='kw'>=</span> <span class='fl'>3.20200445996187</span>,
-    <span class='kw'>lingimm.M</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.15</span>,<span class='fl'>3</span>,<span class='fl'>10</span>)))</div><div class='output co'>#&gt; Note: Using Makevars in /home/lentinj/.R/Makevars 
+    <span class='kw'>lingimm.M</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.15</span>,<span class='fl'>3</span>,<span class='fl'>10</span>))[<span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>rownames</a></span>(<span class='no'>tmb_param</span>)])
+
+<span class='co'># Compile to a TMB ADFun</span>
+<span class='no'>tmb</span> <span class='kw'>&lt;-</span> <span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp</span>, <span class='no'>tmb_param</span>)</div><div class='output co'>#&gt; Note: Using Makevars in /home/lentinj/.R/Makevars 
 #&gt; ** Tick: 2000-1
 #&gt; ** Tick: 2000-2
 #&gt; ** Tick: 2000-3
@@ -298,13 +324,63 @@
 #&gt; ** Tick: 2004-1
 #&gt; ** Tick: 2004-2
 #&gt; ** Tick: 2004-3
-#&gt; ** Tick: 2004-4</div></pre>
+#&gt; ** Tick: 2004-4
+#&gt; ** Tick: 2000-1
+#&gt; ** Tick: 2000-2
+#&gt; ** Tick: 2000-3
+#&gt; ** Tick: 2000-4
+#&gt; ** Tick: 2001-1
+#&gt; ** Tick: 2001-2
+#&gt; ** Tick: 2001-3
+#&gt; ** Tick: 2001-4
+#&gt; ** Tick: 2002-1
+#&gt; ** Tick: 2002-2
+#&gt; ** Tick: 2002-3
+#&gt; ** Tick: 2002-4
+#&gt; ** Tick: 2003-1
+#&gt; ** Tick: 2003-2
+#&gt; ** Tick: 2003-3
+#&gt; ** Tick: 2003-4
+#&gt; ** Tick: 2004-1
+#&gt; ** Tick: 2004-2
+#&gt; ** Tick: 2004-3
+#&gt; ** Tick: 2004-4
+#&gt; ** Tick: 2000-1
+#&gt; ** Tick: 2000-2
+#&gt; ** Tick: 2000-3
+#&gt; ** Tick: 2000-4
+#&gt; ** Tick: 2001-1
+#&gt; ** Tick: 2001-2
+#&gt; ** Tick: 2001-3
+#&gt; ** Tick: 2001-4
+#&gt; ** Tick: 2002-1
+#&gt; ** Tick: 2002-2
+#&gt; ** Tick: 2002-3
+#&gt; ** Tick: 2002-4
+#&gt; ** Tick: 2003-1
+#&gt; ** Tick: 2003-2
+#&gt; ** Tick: 2003-3
+#&gt; ** Tick: 2003-4
+#&gt; ** Tick: 2004-1
+#&gt; ** Tick: 2004-2
+#&gt; ** Tick: 2004-3
+#&gt; ** Tick: 2004-4</div><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='co'># Perform a single run, using values in table</span>
+<span class='no'>result</span> <span class='kw'>&lt;-</span> <span class='no'>tmb</span>$<span class='fu'>fn</span>(<span class='fu'>g3_tmb_par</span>(<span class='no'>tmb_param</span>))
+
+<span class='co'># perform optimisation based on parameter table</span>
+<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/nlminb.html'>nlminb</a></span>(<span class='no'>tmb</span>$<span class='no'>par</span>, <span class='no'>tmb</span>$<span class='no'>fn</span>, <span class='no'>tmb</span>$<span class='no'>gr</span>,
+    <span class='kw'>upper</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_upper</span>(<span class='no'>tmb_param</span>),
+    <span class='kw'>lower</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_lower</span>(<span class='no'>tmb_param</span>))</div><div class='output co'>#&gt; outer mgc:  0 </div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#value">Value</a></li>
       
       <li><a href="#examples">Examples</a></li>

@@ -127,7 +127,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_report_stock</span>(<span class='no'>report_stock</span>, <span class='no'>input_stock</span>, <span class='no'>instance_name</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+    <pre class="usage"><span class='fu'>g3a_report_stock</span>(<span class='no'>report_stock</span>, <span class='no'>input_stock</span>, <span class='no'>report_f</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
     <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>11</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -142,8 +142,8 @@
       <td><p>The <code><a href='stock.html'>g3_stock</a></code> that will be aggregated</p></td>
     </tr>
     <tr>
-      <th>instance_name</th>
-      <td><p>The <code><a href='stock.html'>g3_stock</a></code> instance variable to aggregate, e.g. "num", "wgt", "catch", ...</p></td>
+      <th>report_f</th>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> specifying what to collect, for instance <code>~stock_ss(input_stock__num)</code> or <code>~stock_ss(input_stock__wgt)</code>.</p></td>
     </tr>
     <tr>
       <th>run_f</th>
@@ -158,7 +158,9 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The actions will define the following variables in your model:</p><dl class='dl-horizontal'>
-    <dt><var>report_stock</var>__<var>instance_name</var></dt><dd><p>Results of collating <var>input_stock</var>__<var>instance_name</var></p></dd>
+    <dt><var>report_stock</var>__<var>instance_name</var></dt><dd><p>Results of collating <var>input_stock</var>__<var>instance_name</var>, where
+        <var>instance_name</var> is defined by the first instance variable in <var>report_f</var>.
+        For example, if <var>report_f</var> is <code>~input_stock__num</code>, then we will report <code>report_stock__num</code>.</p></dd>
   
 </dl>
 
@@ -190,8 +192,8 @@
     <span class='fu'><a href='stock_time.html'>g3s_time</a></span>(<span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2000</span>:<span class='fl'>2002</span>)
 
 <span class='no'>actions</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-    <span class='fu'>g3a_report_stock</span>(<span class='no'>agg_report</span>, <span class='no'>ling_imm</span>, <span class='st'>'num'</span>),
-    <span class='fu'>g3a_report_stock</span>(<span class='no'>raw_report</span>, <span class='no'>ling_imm</span>, <span class='st'>'num'</span>))
+    <span class='fu'>g3a_report_stock</span>(<span class='no'>agg_report</span>, <span class='no'>ling_imm</span>, ~<span class='fu'>stock_ss</span>(<span class='no'>ling_imm__num</span>)),
+    <span class='fu'>g3a_report_stock</span>(<span class='no'>raw_report</span>, <span class='no'>ling_imm</span>, ~<span class='fu'>stock_ss</span>(<span class='no'>ling_imm__num</span>)))
 <span class='co'># "raw_report__num" and "agg_report__num" will be available in the model report</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

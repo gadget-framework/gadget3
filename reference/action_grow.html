@@ -127,11 +127,13 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_grow_lengthvbsimple</span>(<span class='no'>linf_f</span>, <span class='no'>kappa_f</span>, <span class='no'>alpha_f</span>, <span class='no'>beta_f</span>)
+    <pre class="usage"><span class='fu'>g3a_grow_lengthvbsimple</span>(<span class='no'>linf_f</span>, <span class='no'>kappa_f</span>)
 
-<span class='fu'>g3a_grow_impl_bbinom</span>(<span class='no'>beta_f</span>, <span class='no'>maxlengthgroupgrowth</span>)
+<span class='fu'>g3a_grow_weightsimple</span>(<span class='no'>alpha_f</span>, <span class='no'>beta_f</span>)
 
-<span class='fu'>g3a_growmature</span>(<span class='no'>stock</span>, <span class='no'>growth_f</span>, <span class='no'>impl_f</span>, <span class='kw'>maturity_f</span> <span class='kw'>=</span> ~<span class='fl'>0</span>, <span class='kw'>output_stocks</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+<span class='fu'>g3a_grow_impl_bbinom</span>(<span class='no'>delta_len_f</span>, <span class='no'>delta_wgt_f</span>, <span class='no'>beta_f</span>, <span class='no'>maxlengthgroupgrowth</span>)
+
+<span class='fu'>g3a_growmature</span>(<span class='no'>stock</span>, <span class='no'>impl_f</span>, <span class='kw'>maturity_f</span> <span class='kw'>=</span> ~<span class='fl'>0</span>, <span class='kw'>output_stocks</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
     <span class='kw'>output_ratios</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>/<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>output_stocks</span>), <span class='kw'>times</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>output_stocks</span>)),
     <span class='kw'>transition_f</span> <span class='kw'>=</span> ~<span class='no'>cur_step_final</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> ~<span class='fl'>TRUE</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>5</span>,
     <span class='kw'>transition_at</span> <span class='kw'>=</span> <span class='fl'>7</span>)</pre>
@@ -157,21 +159,28 @@
     </tr>
     <tr>
       <th>maxlengthgroupgrowth</th>
-      <td><p>TODO: This currently does nothing.</p></td>
+      <td><p>An integer with the maximum length groups an individual can jump in one step.</p></td>
     </tr>
     <tr>
       <th>stock</th>
       <td><p><code><a href='stock.html'>g3_stock</a></code> to grow.</p></td>
     </tr>
     <tr>
-      <th>growth_f</th>
-      <td><p>A list of 2 <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects that calculate mean growth,
-    <code>delta_len_f</code> for \(\Delta L\), <code>delta_wgt_f</code> for \(\Delta W\),
-    as defined by <code>g3a_grow_lengthvbsimple</code></p></td>
+      <th>delta_len_f</th>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> defining a vector for mean increase in length for <code>stock</code>
+    for each lengthgroup, as defined by <code>g3a_grow_lengthvbsimple</code>.</p></td>
+    </tr>
+    <tr>
+      <th>delta_wgt_f</th>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> defining the corresponding weight increase as a matrix of
+    lengthgroup to lengthgroup delta for <code>stock</code>, as defined by <code>g3a_grow_weightsimple</code>.</p></td>
     </tr>
     <tr>
       <th>impl_f</th>
-      <td><p>A growth implementation <a href='https://rdrr.io/r/stats/formula.html'>formula</a>, as defined by <code>g3a_grow_impl_bbinom</code>.</p></td>
+      <td><p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects, as defined by <code>g3a_grow_impl_bbinom</code>.
+    Both define a matrix of length groups <code>i</code> to length group deltas <code>j</code>,
+    the values in the first indicate the proportion of individuals moving from <code>i</code> to <code>i + j</code>,
+    the values in the second indicate the corresponding weight increase of individuals moving from <code>i</code> to <code>i + j</code>.</p></td>
     </tr>
     <tr>
       <th>maturity_f</th>
@@ -206,12 +215,13 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3>g3a_grow_lengthvbsimple</h3>
-<p>Returns pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects</p>
+<p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use as <var>delta_len_f</var>:</p>
 <p>$$ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa{\Delta}t}) $$</p>
-<p>$$ {{\Delta}W}_i = \alpha ( (L_i + {{\Delta}L}_i)^\beta - {L_i}^\beta ) $$</p>
-<p>Where \( \Delta{t} \) is the length of the current timestep.</p>
-
-<p></p><h3>g3a_grow_impl_bbinom</h3>
+<p>Where \( \Delta{t} \) is the length of the current timestep.</p><p></p><h3>g3a_grow_weightsimple</h3>
+<p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use as <var>delta_wgt_f</var>:</p>
+<p>$$ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) $$</p>
+<p>Where \( \Delta{t} \) is the length of the current timestep,
+  \( {{\Delta}L} \) is all possible length group increases i.e <code>0..maxlengthgroupgrowth</code>.</p><p></p><h3>g3a_grow_impl_bbinom</h3>
 <p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> object converting mean growths using beta-binomia distribution. See <a href='https://hafro.github.io/gadget2/userguide/chap-stock.html#beta-binomial'>https://hafro.github.io/gadget2/userguide/chap-stock.html#beta-binomial</a></p>
 
 <p></p><h3>g3a_growmature</h3>
@@ -234,12 +244,13 @@
 
 <span class='co'># Growth / maturity for immature ling</span>
 <span class='no'>growth_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_growmature</span>(<span class='no'>ling_imm</span>,
-    <span class='kw'>growth_f</span> <span class='kw'>=</span> <span class='fu'>g3a_grow_lengthvbsimple</span>(
-        <span class='kw'>linf_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>),
-        <span class='kw'>kappa_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>) * <span class='fl'>0.001</span>,
-        <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
-        <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>)),
     <span class='kw'>impl_f</span> <span class='kw'>=</span> <span class='fu'>g3a_grow_impl_bbinom</span>(
+        <span class='fu'>g3a_grow_lengthvbsimple</span>(
+            <span class='kw'>linf_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>),
+            <span class='kw'>kappa_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>) * <span class='fl'>0.001</span>),
+        <span class='fu'>g3a_grow_weightsimple</span>(
+            <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
+            <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>)),
         <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.bbin"</span>) * <span class='fl'>10</span>,
         <span class='kw'>maxlengthgroupgrowth</span> <span class='kw'>=</span> <span class='fl'>15</span>),
     <span class='kw'>maturity_f</span> <span class='kw'>=</span> <span class='fu'><a href='action_mature.html'>g3a_mature_constant</a></span>(

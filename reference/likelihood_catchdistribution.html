@@ -133,7 +133,9 @@
 
 <span class='fu'>g3l_catchdistribution_multivariate</span>(<span class='no'>rho_f</span>, <span class='no'>sigma_f</span>, <span class='kw'>over</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"area"</span>))
 
-<span class='fu'>g3l_catchdistribution_surveyindices</span>(<span class='kw'>mode</span> <span class='kw'>=</span> <span class='st'>"log"</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='fu'>g3l_catchdistribution_surveyindices_log</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+
+<span class='fu'>g3l_catchdistribution_surveyindices_linear</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 <span class='fu'>g3l_catchdistribution</span>(<span class='no'>nll_name</span>, <span class='no'>obs_data</span>, <span class='no'>fleets</span>, <span class='no'>stocks</span>, <span class='no'>function_f</span>, <span class='kw'>missing_val</span> <span class='kw'>=</span> <span class='fl'>0</span>,
     <span class='kw'>area_group</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>weight</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>10</span>)</pre>
@@ -156,10 +158,6 @@
       <td><p>TODO:</p></td>
     </tr>
     <tr>
-      <th>mode</th>
-      <td><p>Character string, either "log" or "linear".</p></td>
-    </tr>
-    <tr>
       <th>alpha</th>
       <td><p>TODO:</p></td>
     </tr>
@@ -173,7 +171,7 @@
     </tr>
     <tr>
       <th>obs_data</th>
-      <td><p>Data.frame of observation data, for example the results of mfdb_sample_count</p></td>
+      <td><p>Data.frame of observation data, for example the results of <a href='https://rdrr.io/pkg/mfdb/man/mfdb_queries.html'>mfdb_sample_count</a></p></td>
     </tr>
     <tr>
       <th>fleets</th>
@@ -198,7 +196,7 @@
     </tr>
     <tr>
       <th>weight</th>
-      <td><p>TODO:</p></td>
+      <td><p>Weighting applied to this likelihood component.</p></td>
     </tr>
     <tr>
       <th>run_at</th>
@@ -226,7 +224,8 @@
     <p></p><h3>g3l_catchdistribution_sumofsquares</h3>
 <p>TODO:</p><p></p><h3>g3l_catchdistribution_multinomial</h3>
 <p>TODO:</p><p></p><h3>g3l_catchdistribution_multivariate</h3>
-<p>TODO:</p><p></p><h3>g3l_catchdistribution_surveyindices</h3>
+<p>TODO:</p><p></p><h3>g3l_catchdistribution_surveyindices_log</h3>
+<p>TODO:</p><p></p><h3>g3l_catchdistribution_surveyindices_linear</h3>
 <p>TODO:</p><p></p><h3>g3l_catchdistribution</h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol>
 <li><p>For all <var>fleets</var> and <var>stocks</var> combinations, collect catch data into <var>modelstock</var>__num</p></li>
