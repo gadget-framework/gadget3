@@ -27,8 +27,8 @@ prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
 fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
 fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 
-cur_time <- 0L
 actions <- list(
+    g3a_time(2000, 2000),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
@@ -113,17 +113,18 @@ ok_group("No overconsumption", {
         amount_bc = 50,
         x=1.0)
     result <- model_fn(params)
-    # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
+    r <- environment(model_fn)$model_report
+    # str(as.list(r), vec.len = 10000)
 
     # Fleet_ab
     ok(ut_cmp_identical(
-        as.vector(environment(model_fn)$model_report$fleet_ab__catch),
+        as.vector(r$fleet_ab__catch),
         c(100, 200)), "fleet_ab__catch: 100 from area 1, 200 from area 2")
     prey_a_catch_45 <- 0.1 * 45 * 450
     prey_a_catch_55 <- 0.2 * 55 * 550
     prey_a_catch_65 <- 0.1 * 65 * 650
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab),
+        as.vector(r$prey_a__fleet_ab),
         c(
             0, 0, 0,
             100 * prey_a_catch_45 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
@@ -131,13 +132,13 @@ ok_group("No overconsumption", {
             100 * prey_a_catch_65 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             0, 0, 0, 0)), "prey_a__fleet_ab: Scaled to match suitability")
     ok(ut_cmp_equal(
-        sum(as.vector(environment(model_fn)$model_report$prey_a__fleet_ab)),
+        sum(as.vector(r$prey_a__fleet_ab)),
         100), "prey_a__fleet_ab: Totals 100")
     prey_b_catch_65 <- 0.1 * 65 * 650
     prey_b_catch_75 <- 0.2 * 75 * 750
     prey_b_catch_85 <- 0.1 * 85 * 850
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab),
+        as.vector(r$prey_b__fleet_ab),
         c(
             0, 0, 0, 0, 0,
             200 * prey_b_catch_65 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
@@ -145,21 +146,21 @@ ok_group("No overconsumption", {
             200 * prey_b_catch_85 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
             0, 0)), "prey_b__fleet_ab: Scaled to match suitability")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab),
+        as.vector(r$prey_c__fleet_ab),
         c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_c__fleet_ab: None, in wrong area")
 
     # Fleet_bc
     ok(ut_cmp_identical(
-        as.vector(environment(model_fn)$model_report$fleet_bc__catch),
+        as.vector(r$fleet_bc__catch),
         c(2 * 50, 3 * 50)), "fleet_bc__catch: 50 * (area) in total")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc),
+        as.vector(r$prey_a__fleet_bc),
         c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_a__fleet_bc: None, in wrong area")
     prey_b_catch_1 <- 0.1 * 75 * 750
     prey_b_catch_2 <- 0.2 * 85 * 850
     prey_b_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc),
+        as.vector(r$prey_b__fleet_bc),
         c(
             0, 0, 0, 0, 0, 0,
             100 * prey_b_catch_1 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
@@ -170,7 +171,7 @@ ok_group("No overconsumption", {
     prey_c_catch_2 <- 0.2 * 85 * 850
     prey_c_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc),
+        as.vector(r$prey_c__fleet_bc),
         c(
             0, 0, 0, 0, 0, 0,
             150 * prey_c_catch_1 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
@@ -178,45 +179,45 @@ ok_group("No overconsumption", {
             150 * prey_c_catch_3 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
             0)), "prey_c__fleet_bc: Scaled to match suitability")
     ok(ut_cmp_equal(
-        sum(as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)),
+        sum(as.vector(r$prey_c__fleet_bc)),
         150), "prey_c__fleet_bc: Totals 150")
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__overconsumption),
+        as.vector(r$prey_a__overconsumption),
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_a__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab) + 
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_a__totalpredate),
+        as.vector(r$prey_a__fleet_ab) + 
+        as.vector(r$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__num),
+        as.vector(r$prey_a__num),
         c(15.00000, 25.00000, 35.00000, 44.96341, 54.91057, 64.94715, 75.00000, 85.00000, 95.00000, 105.00000),
         tolerance = 1e-5), "prey_a__num: Taken out of circulation")
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__overconsumption),
+        as.vector(r$prey_b__overconsumption),
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_b__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab) + 
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_b__totalpredate),
+        as.vector(r$prey_b__fleet_ab) + 
+        as.vector(r$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__num),
+        as.vector(r$prey_b__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 64.94273, 74.84207, 84.86669, 94.96735, 105.00000),
         tolerance = 1e-5), "prey_b__num: Taken out of circulation")
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__overconsumption),
+        as.vector(r$prey_c__overconsumption),
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab) + 
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_c__totalpredate),
+        as.vector(r$prey_c__fleet_ab) + 
+        as.vector(r$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__num),
+        as.vector(r$prey_c__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
@@ -236,46 +237,47 @@ ok_group("Overconsumption", {
         amount_bc = 50,
         x=1.0)
     result <- model_fn(params)
+    r <- environment(model_fn)$model_report
     # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__overconsumption),
+        as.vector(r$prey_a__overconsumption),
         c(1, 1, 1, 0.116850, 0.058425, 0.116850, 1, 1, 1, 1),
         tolerance = 1e-5), "prey_a__overconsumption: Overconsumed by ab")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_ab) +
-        as.vector(environment(model_fn)$model_report$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_a__totalpredate),
+        as.vector(r$prey_a__fleet_ab) +
+        as.vector(r$prey_a__fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_a__num),
+        as.vector(r$prey_a__num),
         c(15, 25, 35, 45 - (45 * 0.95), 55 - (55 * 0.95), 65 - (65 * 0.95), 75, 85, 95, 105),
         tolerance = 1e-5), "prey_a__num: Still some left thanks to overconsumption being triggered")
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__overconsumption),
+        as.vector(r$prey_b__overconsumption),
         c(1, 1, 1, 1, 1, 0.10782500, 0.05391145, 0.10781659, 1, 1),
         tolerance = 1e-5), "prey_b__overconsumption: Overconsumed by ab")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_ab) +
-        as.vector(environment(model_fn)$model_report$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_b__totalpredate),
+        as.vector(r$prey_b__fleet_ab) +
+        as.vector(r$prey_b__fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_b__num),
+        as.vector(r$prey_b__num),
         c(15, 25, 35, 45, 55, 65 - (65 * 0.95), 75 - (75 * 0.95), 85 - (85 * 0.95), 94.96735, 105),
         tolerance = 1e-5), "prey_b__num: Hit overconsumption limit")
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__overconsumption),
+        as.vector(r$prey_c__overconsumption),
         c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__totalpredate),
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_ab) +
-        as.vector(environment(model_fn)$model_report$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(r$prey_c__totalpredate),
+        as.vector(r$prey_c__fleet_ab) +
+        as.vector(r$prey_c__fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$prey_c__num),
+        as.vector(r$prey_c__num),
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
