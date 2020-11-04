@@ -116,10 +116,12 @@ Type objective_function<Type>::operator() () {
             weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.col(lg).head(total_deltas).transpose();
         }
     }
+    // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
     weight_matrix = (weight_matrix.array().colwise() + input_wgt.array()) * growth_matrix.array();
 
+    // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / logspace_add_vec(growth_matrix.colwise().sum(), 0).array().transpose();

@@ -44,6 +44,9 @@ structure(function (param)
     {
         na <- dim(delta_l)[[1]]
         n <- dim(delta_l)[[2]] - 1
+        logspace_add_vec <- function(a, b) {
+            pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+        }
         growth.matrix <- array(0, c(na, na))
         wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
@@ -63,8 +66,7 @@ structure(function (param)
         }
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
-        new_len <- Matrix::colSums(growth.matrix)
-        return(array(c(new_len, Matrix::colSums(wgt.matrix)/(pmax(new_len, 0) + log1p(exp(pmin(new_len, 0) - pmax(new_len, 0))))), dim = c(na, 2)))
+        return(array(c(Matrix::colSums(growth.matrix), Matrix::colSums(wgt.matrix)/logspace_add_vec(Matrix::colSums(growth.matrix), 0)), dim = c(na, 2)))
     }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
