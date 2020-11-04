@@ -171,11 +171,11 @@ step_id <- function (...) {
         }
         if (is.list(part) && !is.null(part$name)) {
             # Stock, extract name
-            return(part$name)
+            return(sprintf("%-20s", part$name))
         }
         if (is.character(part)) {
-            # Character, pass through
-            return(part[[1]])
+            # Character, normalised to 20 chars
+            return(sprintf("%-20s", part[[1]]))
         }
         stop("Invalid parameter to step_id: ", deparse(part))
     }, character(1))
