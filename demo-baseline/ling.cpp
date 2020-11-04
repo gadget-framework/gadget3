@@ -206,6 +206,7 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_ldist_lln_obs__values)
     auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
+    Type g3l_understocking_total = 0;
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;
@@ -608,6 +609,38 @@ Type objective_function<Type>::operator() () {
                 }
                 cdist_ldist_lln_model__num.setZero();
             }
+        }
+        {
+            // g3l_understocking for ling_imm;
+            g3l_understocking_total = 0;
+            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                {
+                    auto area = ling_imm__area;
+
+                    {
+                        g3l_understocking_total += pow(((ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx))*(1 - ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx))).sum(), (Type)(2));
+                    }
+                }
+            }
+            nll += (1)*g3l_understocking_total;
+        }
+        {
+            // g3l_understocking for ling_mat;
+            g3l_understocking_total = 0;
+            for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+
+                {
+                    auto area = ling_mat__area;
+
+                    {
+                        g3l_understocking_total += pow(((ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx))*(1 - ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx))).sum(), (Type)(2));
+                    }
+                }
+            }
+            nll += (1)*g3l_understocking_total;
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;

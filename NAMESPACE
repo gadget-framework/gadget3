@@ -42,6 +42,9 @@ export(g3l_catchdistribution_surveyindices_linear)
 export(g3l_catchdistribution_surveyindices_log)
 export(g3l_catchdistribution)
 
+# R/likelihood_understocking.R
+export(g3l_understocking)
+
 # R/run_r.R
 export(g3_to_r)
 S3method(edit, g3_r)

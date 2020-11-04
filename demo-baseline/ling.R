@@ -159,6 +159,7 @@ structure(function (param)
     times_cdist_ldist_lln_obs__keys <- model_data$times_cdist_ldist_lln_obs__keys
     times_cdist_ldist_lln_obs__values <- model_data$times_cdist_ldist_lln_obs__values
     times_cdist_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values)
+    g3l_understocking_total <- 0
     ling_imm_movement__transitioning_num <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age11"))
     ling_imm_movement__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age11"))
     ling_imm_movement__minage <- 11L
@@ -523,6 +524,34 @@ structure(function (param)
                 }
                 cdist_ldist_lln_model__num[] <- 0
             }
+        }
+        {
+            comment("g3l_understocking for ling_imm")
+            g3l_understocking_total <- 0
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
+                ling_imm__age_idx <- age - ling_imm__minage + 1
+                {
+                  area <- ling_imm__area
+                  {
+                    g3l_understocking_total <- g3l_understocking_total + sum((ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]) * (1 - ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]))^(2)
+                  }
+                }
+            }
+            nll <- nll + (1) * g3l_understocking_total
+        }
+        {
+            comment("g3l_understocking for ling_mat")
+            g3l_understocking_total <- 0
+            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
+                ling_mat__age_idx <- age - ling_mat__minage + 1
+                {
+                  area <- ling_mat__area
+                  {
+                    g3l_understocking_total <- g3l_understocking_total + sum((ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]) * (1 - ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]))^(2)
+                  }
+                }
+            }
+            nll <- nll + (1) * g3l_understocking_total
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")

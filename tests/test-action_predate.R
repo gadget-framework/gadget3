@@ -50,6 +50,7 @@ actions <- list(
             prey_b = ~g3_param_vector("fleet_bc_b"),
             prey_c = ~g3_param_vector("fleet_bc_c")),
         amount_f = ~g3_param('amount_bc') * area),
+    g3l_understocking(list(prey_a, prey_b, prey_c), power_f ~g3_param('understocking_power')),
     list(
         '999' = ~{
             g3_report(prey_a__num)
@@ -77,7 +78,7 @@ actions <- list(
             g3_report(prey_c__fleet_bc)
             g3_report(fleet_bc__catch)
 
-            return(g3_param('x'))
+            g3_report(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
 params <- list(
     fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
@@ -88,6 +89,7 @@ params <- list(
     fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
     fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
     amount_bc = 100,
+    understocking_power = 2,
     x=1.0)
 
 # Compile model
@@ -111,10 +113,13 @@ ok_group("No overconsumption", {
         fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         amount_bc = 50,
+        understocking_power = 2,
         x=1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
     # str(as.list(r), vec.len = 10000)
+
+    ok(ut_cmp_equal(result, 0), "nll: No overconsumption")
 
     # Fleet_ab
     ok(ut_cmp_identical(
@@ -235,10 +240,18 @@ ok_group("Overconsumption", {
         fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         amount_bc = 50,
+        understocking_power = 3,
         x=1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
     # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
+
+    ok(result > 0, "nll: Overconsumption triggered understocking")
+    ok(ut_cmp_equal(result, sum(
+        sum((r$prey_a__totalpredate/r$prey_a__overconsumption) * (1 - r$prey_a__overconsumption))^(3),
+        sum((r$prey_b__totalpredate/r$prey_b__overconsumption) * (1 - r$prey_b__overconsumption))^(3),
+        sum((r$prey_c__totalpredate/r$prey_c__overconsumption) * (1 - r$prey_c__overconsumption))^(3),
+        0)), "nll: Based on overconsumption")
 
     # prey_a
     ok(ut_cmp_equal(

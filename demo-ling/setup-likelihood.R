@@ -7,6 +7,8 @@ ldist.igfs[[1]]$step <- 2
 matp.igfs[[1]]$step <- 2
 
 ling_likelihood_actions <- list(
+  g3l_understocking(list(ling_imm, ling_mat)),
+
   g3l_catchdistribution(
     'ldist_lln',
     weight = 3331,

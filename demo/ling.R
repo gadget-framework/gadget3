@@ -114,6 +114,10 @@ igfs_actions <- list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
+    list())
+
+likelihood_actions <- list(
+    g3l_understocking(list(ling_imm, ling_mat)),
     g3l_catchdistribution(
         'ldist_lln',
         igfs_obs_data,
@@ -129,6 +133,7 @@ ling_model <- g3_to_r(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
+    likelihood_actions,
     time), trace = FALSE)  # NB: "trace" turns comments into debug statements
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-baseline/ling.R')
 
@@ -172,6 +177,7 @@ tmb_ling <- g3_to_tmb(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
+    likelihood_actions,
     time))
 writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
