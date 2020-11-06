@@ -87,12 +87,8 @@ imm_report <- g3s_clone(ling_imm, 'imm_report') %>%
 mat_report <- g3s_clone(ling_mat, 'mat_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 
-ling_model <- g3_to_r(c(
-  ling_mat_actions,
-  ling_imm_actions,
-  fleet_actions,
-  ling_likelihood_actions,
-  list(gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
+report_actions <- list(
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
        gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
@@ -105,9 +101,15 @@ ling_model <- g3_to_r(c(
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__gil)),
        gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
        gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign))),
-  list(time)), strict = TRUE)
+       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
 
+ling_model <- g3_to_r(c(
+  ling_mat_actions,
+  ling_imm_actions,
+  fleet_actions,
+  ling_likelihood_actions,
+  report_actions,
+  list(time)), strict = TRUE)
 
 tmb_ling <- g3_to_tmb(c(
   ling_mat_actions,
