@@ -653,7 +653,7 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), work_dir = tempdir(), ...) {
+g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), compile_flags = c("-O3", "-march=native"), work_dir = tempdir(), ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
     # If parameters is a list, merge into our data.frames
@@ -702,10 +702,11 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
         writeLines(cpp_code, con = cpp_path)
 
         # Compile this to an equivalently-named .so
-        TMB::compile(cpp_path, flags = paste(
+        TMB::compile(cpp_path, flags = paste(c(
             "-std=c++1y",
             "-Wno-ignored-attributes",
-            ""))
+            "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
+            compile_flags), collapse = " "))
         dyn.load(so_path)
     }
 

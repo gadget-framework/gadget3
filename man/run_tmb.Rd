@@ -14,7 +14,8 @@
 g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
-    work_dir = tempdir(), ...)
+    compile_flags = c("-O3", "-march=native"), work_dir = tempdir(),
+    ...)
 
 g3_tmb_par(parameters)
 
@@ -40,6 +41,9 @@ g3_tmb_upper(parameters)
   \item{parameters}{
     Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')},
     modified to provide initial conditions, etc.
+  }
+  \item{compile_flags}{
+    List of extra flags to compile with, use e.g. "-g" to enable debugging output.
   }
   \item{work_dir}{
     Directory to write and compile .cpp files in. Defaults to R's current temporary directory
