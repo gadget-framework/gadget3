@@ -169,7 +169,7 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.gil.alpha" = 0.5,
     "ling.gil.l50" = 50,
     end = NULL)
-r_result <- ling_model(ling_param)
+system.time(r_result <- ling_model(ling_param))
 str(r_result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
 
@@ -186,8 +186,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     tmb_param$value <- I(ling_param[tmb_param$switch])
     # Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE
     # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
-    ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)
+    print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)}))
     # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
-    tmb_result <- ling_model_tmb$fn()
+    print(system.time(tmb_result <- ling_model_tmb$fn()))
     stopifnot(all.equal(r_result, tmb_result, tolerance = 1e-5))
 }
