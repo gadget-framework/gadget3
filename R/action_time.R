@@ -36,7 +36,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
         cur_step <- (cur_time %% step_count) + 1
         cur_step_size <- step_lengths[[cur_step]] / as.numeric(12)
         cur_step_final <- cur_step == step_count
-        Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
+        if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }
     return(out)
 }

@@ -17,8 +17,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 "\n")))
         })
     }
-    # Enable / disable strict mode blocks
-    all_actions <- call_replace(all_actions, strict_mode = function (x) { strict })
+    # Enable / disable strict mode & trace mode
+    all_actions <- call_replace(all_actions,
+        strict_mode = function (x) { !isFALSE(strict) },
+        trace_mode = function (x) { !isFALSE(trace) })
 
     var_defns <- function (code, env) {
         # Find all things that have definitions in our environment

@@ -472,8 +472,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 "\n")))
         })
     }
-    # Enable / disable strict mode blocks
-    all_actions <- call_replace(all_actions, strict_mode = function (x) { strict })
+    # Enable / disable strict mode & trace mode
+    all_actions <- call_replace(all_actions,
+        strict_mode = function (x) { !isFALSE(strict) },
+        trace_mode = function (x) { !isFALSE(trace) })
 
     param_lines_to_cpp <- function (pl) {
         vapply(names(pl), function (n) {
