@@ -1,5 +1,6 @@
 # Adapt a formulae into one that will iterate over stocks. Will replace the following functions:
-# - stock_comment(...) - Replace any stock arguments with the stock name, paste all args together
+# - debug_label(...) - Replace any stock arguments with the stock name
+# - debug_trace(...) - Replace any stock arguments with the stock name
 # - stock_iterate(stock, block) - wrap (block) with code to iterate over (stock) lengthgroup vectors
 # - stock_intersect(stock, block) - wrap (block) with code to intersect with an outer stock we're iterating over
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
@@ -65,16 +66,23 @@ g3_step <- function(step_f) {
         return(rlang::f_rhs(out_f))
     }
 
-    return(call_replace(step_f,
-        stock_comment = function (x) {  # Arguments: stock variable, comment
-            comment_str <- paste(vapply(tail(x, -1), function (a) {
-                if (is.character(a)) return (a)
-                stock <- get(as.character(a), envir = rlang::f_env(step_f))
-                return(stock$name)
-            }, character(1)), collapse = "")
+    debug_label_fn <- function (x) {
+        comment_str <- paste(vapply(tail(x, -1), function (a) {
+            if (is.symbol(a)) {
+                # Dereference symbols
+                a <- get(as.character(a), envir = rlang::f_env(step_f))
+                # Stocks have a name attribute
+                if (is.list(a) && 'name' %in% names(a)) a <- a$name
+            }
+            return(as.character(a))
+        }, character(1)), collapse = "")
 
-            return(call("comment", comment_str))
-        },
+        return(call(as.character(x[[1]]), comment_str))
+    }
+
+    return(call_replace(step_f,
+        debug_label = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
+        debug_trace = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))

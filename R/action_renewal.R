@@ -5,7 +5,7 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 
     out <- list()
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
-        stock_comment("g3a_initialconditions for ", stock)
+        debug_label("g3a_initialconditions for ", stock)
         stock_iterate(stock, {
             stock_ss(stock__num) <- num_f
             stock_ss(stock__wgt) <- wgt_f
@@ -22,13 +22,14 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
 
     out <- list()
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
-        stock_comment("g3a_initialconditions_normalparam for ", stock)
+        debug_label("g3a_initialconditions_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
-            # exp(-(dnorm**2) * 0.5)
+            debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
             stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
-            # scale results
+            debug_trace("scale results")
             stock_ss(stock__num) <- stock_ss(stock__num) * (10000.0 / sum(stock_ss(stock__num)))
             stock_ss(stock__num) <- stock_ss(stock__num) * (factor_f)
+            debug_trace("Generate corresponding mean weight")
             stock_ss(stock__wgt) <- (alpha_f) * stock__midlen ** (beta_f)
         })
     }, list(
@@ -50,17 +51,17 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
 
     out <- list()
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
-        stock_comment("g3a_renewal for ", stock)
+        debug_label("g3a_renewal for ", stock)
         stock_iterate(stock, {
             stock_ss(stock__renewalnum) <- num_f
             stock_ss(stock__renewalwgt) <- wgt_f
 
-            # To total weight
+            debug_trace("Convert to total biomass")
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)
-            # Add new stock
+            debug_trace("Add additional stock")
             stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) + (stock_ss(stock__renewalnum) * stock_ss(stock__renewalwgt))
-            # Back to mean weight
+            debug_trace("Back to mean weight")
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) / logspace_add_vec(stock_ss(stock__num), 0)
         })
     }, list(num_f = num_f, wgt_f = wgt_f)))
@@ -77,21 +78,22 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
 
     out <- list()
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
-        stock_comment("g3a_renewal_normalparam for ", stock)
+        debug_label("g3a_renewal_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
-            # exp(-(dnorm**2) * 0.5)
+            debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
             stock_ss(stock__renewalnum) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
-            # scale results
+            debug_trace("scale results")
             stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (10000.0 / sum(stock_ss(stock__renewalnum)))
             stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (factor_f)
+            debug_trace("Generate corresponding mean weight")
             stock_ss(stock__renewalwgt) <- (alpha_f) * stock__midlen ** (beta_f)
 
-            # To total weight
+            debug_trace("Convert to total biomass")
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) * stock_ss(stock__num)
-            # Add new stock
+            debug_trace("Add renewal numbers to ", stock)
             stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) + (stock_ss(stock__renewalnum) * stock_ss(stock__renewalwgt))
-            # Back to mean weight
+            debug_trace("Back to mean weight")
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) / logspace_add_vec(stock_ss(stock__num), 0)
         })
     }, list(

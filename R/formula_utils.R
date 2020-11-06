@@ -64,6 +64,8 @@ call_replace <- function (f, ...) {
         # Found a lone symbol, check if that needs translating
         modify_fn <- modify_call_fns[[as.character(f)]]
         if (length(modify_fn) > 0) {
+            # TODO: To convert this into modify_fn(...) we need to differentiate
+            #       modify_fn(quote(x)) and modify_fn(quote(x())) somehow
             f <- modify_fn(f)
         }
 

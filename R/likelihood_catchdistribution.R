@@ -77,14 +77,13 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     assign(paste0(nll_name, '_number'), ld$number)
 
     out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 0)]] <- g3_step(f_substitute(~{
-        comment(step_comment)
+        debug_trace("Initial data / reset observations for ", nll_name)
         if (cur_time == 0) {
             # Populate stock with data
             stock_with(obsstock, obsstock__num[] <- obsnumber)
             stock_with(modelstock, modelstock__num[] <- 0)
         }
     }, list(
-        step_comment = paste0("Initial data / reset observations for ", nll_name),
         obsnumber = as.symbol(paste0(nll_name, '_number')))))
     
     for (fleet_stock in fleets) for (prey_stock in stocks) {
@@ -101,7 +100,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
 
         # Collect all of fleet's sampling of prey and dump it in modelstock
         out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, prey_stock)]] <- g3_step(f_substitute(~{
-            stock_comment("Collect catch from ", fleet_stock, "/", prey_stock, " for ", modelstock)
+            debug_label("g3l_catchdistribution: Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
                 stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
@@ -117,8 +116,8 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     }
 
     out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- g3_step(f_substitute(~{
+        debug_label("g3l_catchdistribution: Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
-            stock_comment("Compare ", modelstock, " to ", obsstock)
             stock_iterate(modelstock, stock_intersect(obsstock, {
                 nll <- nll + (weight) * (function_f)
             }))

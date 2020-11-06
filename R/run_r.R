@@ -8,19 +8,16 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     scope <- list()
     param_lines <- list()
 
-    if (isTRUE(trace)) {
-        all_actions <- call_replace(all_actions, comment = function (x) {
-            # Turn comment calls into Rprintf calls
-            return(call("Rprintf", paste0(
-                "// ",
-                gsub("\n", " ", x[[2]], fixed = TRUE),
-                "\n")))
-        })
-    }
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
         strict_mode = function (x) { !isFALSE(strict) },
-        trace_mode = function (x) { !isFALSE(trace) })
+        trace_mode = function (x) { !isFALSE(trace) },
+        debug_label = function (x) {
+            if (trace) call("Rprintf", paste0(x[[2]], "\n")) else call("comment", x[[2]])
+        },
+        debug_trace = function (x) {
+            if (identical(trace, 'full')) call("Rprintf", paste0(x[[2]], "\n")) else call("comment", x[[2]])
+        })
 
     var_defns <- function (code, env) {
         # Find all things that have definitions in our environment

@@ -29,7 +29,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
 
     out <- list()
     out[[step_id(run_at)]] <- ~{
-        comment("g3a_time")
+        debug_label("g3a_time")
         cur_time <- cur_time + 1
         if (cur_time > total_steps) return(nll)
         cur_year <- start_year + (cur_time %/% step_count)

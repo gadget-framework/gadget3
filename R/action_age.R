@@ -52,7 +52,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
         final_year_f = fix_subsets(f_substitute(~{
-            stock_comment("Oldest ", stock, " is a plus-group, combine with younger individuals")
+            debug_trace("Oldest ", stock, " is a plus-group, combine with younger individuals")
             stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] * stock__num[age_iter_ss]
             stock__num[age_iter_ss] <- stock__num[age_iter_ss] + stock__num[age_younger_iter_ss]
             stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] + (stock__wgt[age_younger_iter_ss] * stock__num[age_younger_iter_ss])
@@ -63,7 +63,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             age_younger_iter_ss = age_younger_iter_ss)))
     } else {
         final_year_f = fix_subsets(f_substitute(~stock_with(stock_movement, {
-            stock_comment("Move oldest ", stock)
+            debug_trace("Move oldest ", stock, " into ", stock_movement)
             # NB: We should be doing this once in a normal iterate case, but here there's only one loop so doesn't matter
             # NB: This relies on the dimension ordering between stock_movement & stock matching
             stock_movement__transitioning_num[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__num[age_iter_ss])
@@ -79,7 +79,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     }
 
     out[[step_id(run_at, 1, stock)]] <- g3_step(fix_subsets(f_substitute(~if (run_f) {
-        stock_comment("g3a_age for ", stock)
+        debug_label("g3a_age for ", stock)
 
         stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
                 stock__age_idx, g3_idx(age - stock__minage + 1), {
@@ -87,11 +87,11 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             if (age == stock__maxage) {
                 final_year_f
             } else if (age == stock__minage) {
-                stock_comment("Empty youngest ", stock, " age-group")
+                debug_trace("Empty youngest ", stock, " age-group")
                 stock__num[age_iter_ss] <- 0
                 stock__wgt[age_iter_ss] <- 0
             } else {
-                stock_comment("Move ", stock, " age-group up one")
+                debug_trace("Move ", stock, " age-group to next one up")
                 stock__num[age_iter_ss] <- stock__num[age_younger_iter_ss]
                 stock__wgt[age_iter_ss] <- stock__wgt[age_younger_iter_ss]
             }

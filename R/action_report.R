@@ -14,8 +14,8 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE,
     assign(report_stock_instance_name, stock_instance(report_stock))
 
     out[[step_id(run_at, report_stock, instance_name)]] <- g3_step(f_substitute(~{
+        debug_label("g3a_report_stock for ", report_stock, " from ", input_stock)
         if (run_f) {
-            stock_comment("Fill in report ", report_stock, " from ", input_stock)
             if (cur_time == 0L) {
                 stock_with(report_stock, report_instance[] <- 0)
             }

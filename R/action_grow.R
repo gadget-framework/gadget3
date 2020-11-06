@@ -237,7 +237,7 @@ g3a_growmature <- function(stock,
         maturity_iter_f <- ~{}
     } else {
         maturity_init_f <- ~{
-            comment("Reset transitioning arrays")
+            debug_trace("Reset transitioning arrays")
             stock__transitioning_num[] <- 0
             stock__transitioning_wgt[] <- stock__wgt[]
         }
@@ -250,22 +250,22 @@ g3a_growmature <- function(stock,
     }
 
     out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
-        stock_comment("g3a_grow for ", stock)
+        debug_label("g3a_grow for ", stock)
 
         if (transition_f) stock_with(stock, maturity_init_f)
 
         stock_iterate(stock, if (run_f) {
-            comment("Calculate increase in length/weight for each lengthgroup")
+            debug_trace("Calculate length/weight delta matrices for current lengthgroups")
             stock__growth_l <- impl_l_f
             stock__growth_w <- impl_w_f
 
             maturity_iter_f
 
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
+            debug_trace("Update ", stock, " using delta matrices")
             g3_with(growthresult, g3a_grow_apply(
                     stock__growth_l, stock__growth_w, 
                     stock_ss(stock__num), stock_ss(stock__wgt)), {
-                # Split the combined array back apart again
                 stock_ss(stock__num) <- growthresult[,g3_idx(1)]
                 stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
             })
