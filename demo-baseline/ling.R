@@ -398,7 +398,7 @@ structure(function (param)
                     {
                       ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
                     }
-                    if (FALSE) 
+                    if (TRUE) 
                       ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                     {
                       growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
@@ -407,7 +407,7 @@ structure(function (param)
                         ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
                       }
                     }
-                    if (FALSE) 
+                    if (TRUE) 
                       stopifnot(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]) < 1e-04)
                   }
                 }
@@ -427,7 +427,7 @@ structure(function (param)
                     ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * (param[["lingmat.walpha"]])
                     {
                     }
-                    if (FALSE) 
+                    if (TRUE) 
                       ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                     {
                       growthresult <- g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx], ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
@@ -436,7 +436,7 @@ structure(function (param)
                         ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- growthresult[, (2)]
                       }
                     }
-                    if (FALSE) 
+                    if (TRUE) 
                       stopifnot(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) < 1e-04)
                   }
                 }

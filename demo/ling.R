@@ -134,7 +134,7 @@ ling_model <- g3_to_r(c(
     ling_imm_actions,
     igfs_actions,
     likelihood_actions,
-    time), trace = FALSE)  # NB: "trace" turns comments into debug statements
+    time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-baseline/ling.R')
 
 writeLines("***** Running Model *****")
