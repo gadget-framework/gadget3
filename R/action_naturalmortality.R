@@ -6,7 +6,7 @@ g3a_naturalmortality_exp <- function (param_f) {
 
 g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) {
     # See Stock::reducePop, NaturalMortality::Reset
-    out <- list()
+    out <- new.env(parent = emptyenv())
 
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
@@ -20,5 +20,5 @@ g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) 
         run_f = run_f,
         mortality_f = mortality_f)))
 
-    return(out)
+    return(as.list(out))
 }
