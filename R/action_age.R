@@ -74,7 +74,6 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             movement_age_iter_ss = movement_age_iter_ss,
             age_iter_ss = age_iter_ss,
             age_younger_iter_ss = age_younger_iter_ss)))
-        # TODO: Think about ordering of step parts
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, run_f = run_f)
     }
 
