@@ -27,7 +27,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
     cur_step_final <- FALSE
     total_steps <- ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1
 
-    out <- list()
+    out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- ~{
         debug_label("g3a_time")
         cur_time <- cur_time + 1
@@ -38,5 +38,5 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
         cur_step_final <- cur_step == step_count
         if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }
-    return(out)
+    return(as.list(out))
 }
