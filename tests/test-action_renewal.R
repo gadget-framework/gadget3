@@ -23,8 +23,8 @@ areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a', 'c')])
     
-cur_time <- 0L  # Initialconditions needs to know what the time is
 actions <- list(
+    g3a_time(2000, 2000),
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
     list(
@@ -33,7 +33,8 @@ actions <- list(
             g3_report(stock_ac__num)
             g3_report(stock_a__wgt)
             g3_report(stock_ac__wgt)
-            return(g3_param('x'))
+
+            nll <- g3_param('x')
         }))
 params <- list(x=1.0)
 # Compile model
