@@ -32,6 +32,12 @@ g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
   }
 }
 
+\details{
+  A model can have any number of \code{g3a_naturalmortality} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
+}
+
 \value{
   \subsection{g3a_naturalmortality_exp}{A \link{formula} object with the following equation
   
