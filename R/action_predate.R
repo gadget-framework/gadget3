@@ -1,5 +1,6 @@
 g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amount_f, run_at = 3) {
     out <- new.env(parent = emptyenv())
+    action_name <- unique_action_name()
     predate_totalfleet_E <- 0.0
 
     # Variables used:
@@ -35,7 +36,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         })
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
-        out[[step_id(run_at, 1, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, 1, fleet_stock, prey_stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate_totalfleet for ", prey_stock)
             debug_trace("Zero ", fleet_stock, "-", prey_stock, " biomass-consuming counter")
             stock_with(prey_stock, prey_stock__fleet_stock[] <- 0)
@@ -53,7 +54,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             prey_stock__fleet_stock = fleet_stock_var)))
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
-        out[[step_id(run_at, 2, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, 2, fleet_stock, prey_stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", fleet_stock, " catch of ", prey_stock, " by total expected catch")
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 predate_totalfleet_E <- (amount_f)

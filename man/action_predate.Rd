@@ -39,6 +39,10 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, run_at
     \item{\var{prey_stock__totalpredate}}{Total biomass removed from that stock}
     \item{\var{prey_stock__overconsumption}}{Factor to scale consumption down to at most 95\% of available stock}
   }
+
+  A model can have any number of \code{g3a_predate_*} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
 }
 
 \value{
