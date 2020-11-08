@@ -88,20 +88,20 @@ mat_report <- g3s_clone(ling_mat, 'mat_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 
 report_actions <- list(
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__bmt)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__bmt)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__lln)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__lln)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__gil)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
-       gadget3:::g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
-       gadget3:::g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__bmt)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__bmt)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__lln)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__lln)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__gil)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
 
 ling_model <- g3_to_r(c(
   ling_mat_actions,
