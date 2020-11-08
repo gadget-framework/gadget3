@@ -39,6 +39,10 @@ g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE,
         For example, if \var{report_f} is \code{~input_stock__num}, then we will report \code{report_stock__num}.
     }
   }
+
+  A model can have any number of \code{g3a_report_*} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
 }
 
 \value{

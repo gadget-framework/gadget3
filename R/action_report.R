@@ -1,5 +1,6 @@
 g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE, run_at = 11) {
     out <- new.env(parent = emptyenv())
+    action_name <- unique_action_name()
 
     # Find first stock__inst variable, and use that to name ours
     inst_var_name <- all.vars(report_f)
@@ -13,7 +14,7 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE,
     report_stock_instance_name <- paste0('report_stock__', instance_name)
     assign(report_stock_instance_name, stock_instance(report_stock))
 
-    out[[step_id(run_at, report_stock, instance_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, report_stock, instance_name, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_report_stock for ", report_stock, " from ", input_stock)
         if (run_f) {
             if (cur_time == 0L) {
