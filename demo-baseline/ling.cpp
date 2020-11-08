@@ -451,13 +451,13 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
+        if ( cur_step_final ) {
+            // Reset transitioning arrays;
+            ling_imm__transitioning_num.setZero();
+            ling_imm__transitioning_wgt = ling_imm__wgt;
+        }
         {
             // g3a_grow for ling_imm;
-            if ( cur_step_final ) {
-                // Reset transitioning arrays;
-                ling_imm__transitioning_num.setZero();
-                ling_imm__transitioning_wgt = ling_imm__wgt;
-            }
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -468,8 +468,9 @@ Type objective_function<Type>::operator() () {
                         // Calculate length/weight delta matrices for current lengthgroups;
                         ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*(1 - exp(-(ling__k*0.001)*cur_step_size)), ling_imm__dl, 15, ling__bbin*10);
                         ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + 1))*(lingimm__walpha);
-                        {
-                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
+                        if ( cur_step_final ) {
+                            ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
+                            // NB: Mean __wgt unchanged;
                         }
                         if ( false ) ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
                         // Update ling_imm using delta matrices;
@@ -488,9 +489,6 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3a_grow for ling_mat;
-            if ( cur_step_final ) {
-                
-            }
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 

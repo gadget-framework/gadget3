@@ -217,6 +217,7 @@ g3a_growmature <- function(stock,
                      run_at = 5,
                      transition_at = 7) {
     out <- new.env(parent = emptyenv())
+    action_name <- unique_action_name()
 
     # See AgeBandMatrix::Grow
     stock__prevtotal <- 0
@@ -233,26 +234,25 @@ g3a_growmature <- function(stock,
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
-        maturity_init_f <- ~{}
         maturity_iter_f <- ~{}
     } else {
-        maturity_init_f <- ~{
+        out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (transition_f) {
             debug_trace("Reset transitioning arrays")
-            stock__transitioning_num[] <- 0
-            stock__transitioning_wgt[] <- stock__wgt[]
-        }
-        maturity_iter_f <- f_substitute(~{
+            stock_with(stock, stock__transitioning_num[] <- 0)
+            stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
+        }, list(
+            transition_f = transition_f)))
+        maturity_iter_f <- f_substitute(~if (transition_f) {
             stock_ss(stock__num) <- stock_ss(stock__num) -
-                (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * (maturity_f))
-            # NB: Mean __wgt unchanged
-        }, list(maturity_f = maturity_f))
+                (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * (maturity_f))
+            debug_trace("NB: Mean __wgt unchanged")
+        }, list(maturity_f = maturity_f,
+            transition_f = transition_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
-    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_grow for ", stock)
-
-        if (transition_f) stock_with(stock, maturity_init_f)
 
         stock_iterate(stock, if (run_f) {
             debug_trace("Calculate length/weight delta matrices for current lengthgroups")
@@ -273,10 +273,8 @@ g3a_growmature <- function(stock,
         })
     }, list(
             run_f = run_f,
-            transition_f = transition_f,
             impl_l_f = impl_f$len,
             impl_w_f = impl_f$wgt,
-            maturity_init_f = maturity_init_f,
             maturity_iter_f = maturity_iter_f)))
     return(as.list(out))
 }

@@ -79,6 +79,12 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   }
 }
 
+\details{
+  A model can have any number of \code{g3a_growmature} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
+}
+
 \value{
   \subsection{g3a_grow_lengthvbsimple}{Returns a \link{formula} for use as \var{delta_len_f}:
 

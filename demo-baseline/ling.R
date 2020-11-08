@@ -381,13 +381,13 @@ structure(function (param)
                 }
             }
         }
+        if (cur_step_final) {
+            comment("Reset transitioning arrays")
+            ling_imm__transitioning_num[] <- 0
+            ling_imm__transitioning_wgt[] <- ling_imm__wgt[]
+        }
         {
             comment("g3a_grow for ling_imm")
-            if (cur_step_final) {
-                comment("Reset transitioning arrays")
-                ling_imm__transitioning_num[] <- 0
-                ling_imm__transitioning_wgt[] <- ling_imm__wgt[]
-            }
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
@@ -396,8 +396,9 @@ structure(function (param)
                     comment("Calculate length/weight delta matrices for current lengthgroups")
                     ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * (param[["lingimm.walpha"]])
-                    {
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
+                    if (cur_step_final) {
+                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))))
+                      comment("NB: Mean __wgt unchanged")
                     }
                     if (TRUE) 
                       ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
@@ -417,8 +418,6 @@ structure(function (param)
         }
         {
             comment("g3a_grow for ling_mat")
-            if (cur_step_final) {
-            }
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
