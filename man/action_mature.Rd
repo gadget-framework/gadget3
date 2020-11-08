@@ -62,6 +62,10 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
 \details{
   Generally you would use \code{\link{g3a_growmature}}, which does both growth
   and maturity at the same time.
+
+  A model can have any number of \code{g3a_mature} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
 }
 
 \value{

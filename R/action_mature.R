@@ -76,7 +76,8 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
     stock__transitioning_wgt <- stock_instance(stock)
 
     out <- new.env(parent = emptyenv())
-    out[[step_id(run_at, 1, stock)]] <- g3_step(f_substitute(~{
+    action_name <- unique_action_name()
+    out[[step_id(run_at, 1, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_mature for ", stock)
         debug_trace("Reset transitioning storage")
         stock_with(stock, stock__transitioning_num[] <- 0)
