@@ -57,6 +57,10 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
 }
 
 \details{
+  A model can have any number of \code{g3a_renewal_*} actions, so long as the
+  calling arguments are different. For instance, \code{run_f = ~age == 5} and
+  \code{run_f = ~age == 7}.
+
   The \code{g3a_renewal_*} actions will define the following stock instance variables for \var{stock}:
   \describe{
     \item{\var{stock__renewalnum}}{Extra individuals added to the stock}

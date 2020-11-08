@@ -189,3 +189,10 @@ step_id <- function (...) {
     }, character(1))
     paste(parts, collapse = ":")
 }
+
+# Generate action name based on parent call
+unique_action_name <- function () {
+    out <- paste(deparse(sys.call(-1)), collapse = "")
+    out <- substr(digest::sha1(out), 1, 20)
+    out
+}

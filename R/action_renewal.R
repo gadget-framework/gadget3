@@ -4,7 +4,8 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
     stock__wgt <- stock_instance(stock)
 
     out <- list()
-    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
+    action_name <- unique_action_name()
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
         debug_label("g3a_initialconditions for ", stock)
         stock_iterate(stock, {
             stock_ss(stock__num) <- num_f
@@ -21,7 +22,8 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
     stock__wgt <- stock_instance(stock)
 
     out <- list()
-    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
+    action_name <- unique_action_name()
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_initialconditions_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
             debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
@@ -50,7 +52,8 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
     stock__renewalwgt <- stock_instance(stock)
 
     out <- list()
-    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
+    action_name <- unique_action_name()
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
         debug_label("g3a_renewal for ", stock)
         stock_iterate(stock, {
             stock_ss(stock__renewalnum) <- num_f
@@ -77,7 +80,8 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     stock__renewalwgt <- stock_instance(stock)
 
     out <- list()
-    out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~{
+    action_name <- unique_action_name()
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_renewal_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
             debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
