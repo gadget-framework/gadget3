@@ -128,7 +128,7 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
 # Rows should sum to 1
 # - delta_l: Proportion of individuals moving +j length groups
 # - delta_w: Weight increase of individuals moving +j length groups
-g3_global_env$g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt) {
+g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt) {
     na <- dim(delta_l)[[1]]  # Number of length groups
     n <- dim(delta_l)[[2]] - 1  # Number of lengthgroup deltas
     # See stockmemberfunctions.cc:121, grow.cc:25
@@ -216,6 +216,9 @@ g3a_growmature <- function(stock,
                      run_f = ~TRUE,
                      run_at = 5,
                      transition_at = 7) {
+    # Drag g3a_grow_apply into scope (we only don't include it here to keep source intelligable)
+    g3a_grow_apply <- g3a_grow_apply
+
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
 
