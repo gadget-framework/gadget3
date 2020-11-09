@@ -21,6 +21,28 @@ resulting code, rather than just being called when run.
 
 See ``?g3_param`` for more information.
 
+## Global & native functions
+
+Some things aren't easy to do with code translation. ``g3_native`` allows you to
+define a function with separate R and C++ definitions, for example ``logspace_add_vec``,
+used in many actions to avoid div/0, has the following definition:
+
+```
+# vector<Type> form of logspace_add
+g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
+    }
+    return res;
+}')
+```
+
+See ``R/aaa_global.R`` for more information, and other existing helpers.
+
 ## Stock steps
 
 Most actions interact with stocks, and fill out abstract formulae with the
