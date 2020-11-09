@@ -152,49 +152,47 @@ if(FALSE){
 ## but lets settle for 
 param_names <- rownames(tmb_param)
 
+ling_param <- tmb_param$value
+ling_param[["ling.Linf"]] <- 160
+ling_param[["ling.k"]] <- 90
+ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
+ling_param[["lingimm.wbeta"]] <- 3.20200445996187
+ling_param[["ling.bbin"]] <- 6
+ling_param[["lingimm.init.scalar"]] <- 200
+ling_param[["ling.init.F"]] <- 0.4
+ling_param[["ling.recl"]] <- 12
+ling_param[["ling.mat1"]] <- 70
+ling_param[["ling.mat2"]] <- 75
+ling_param[["ling.rec.scalar"]] <- 400
+ling_param[["ling.rec.1982"]] <- 1
+ling_param[["ling.rec.sd"]] <- 5
+ling_param[["lingmat.init.scalar"]] <- 200
+ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
+ling_param[["lingmat.wbeta"]] <- 3.20200445996187
+ling_param[["ling.igfs.alpha"]] <- 0.5
+ling_param[["ling.igfs.l50"]] <- 50
+ling_param[["ling.lln.alpha"]] <- 0.5
+ling_param[["ling.lln.l50"]] <- 50
+ling_param[["ling.bmt.alpha"]] <- 0.5
+ling_param[["ling.bmt.l50"]] <- 50
+ling_param[["ling.gil.alpha"]] <- 0.5
+ling_param[["ling.gil.l50"]] <- 50
+ling_param[["ling.init.sd"]] <- init.sigma$ms
+ling_param[["ling_si_alpha1"]] <- 6.4e-9
+ling_param[["ling_si_beta1"]] <- 1.4
+ling_param[['ling_si_alpha2']] <- 1.7e-7
+ling_param[["ling_si_beta2"]] <- 1.3
+ling_param[['ling_si_alpha3']] <- 2.7e-5
+ling_param[['ling_si_alpha4']] <- 4.2e-5
+ling_param[['ling_si_alpha5']] <- 5.4e-5
+ling_param[['ling_si_alpha6']] <- 5.8e-5
+ling_param[['ling_si_alpha7']] <- 7.1e-5
+ling_param[grepl('^lingimm\\.M\\.', names(ling_param))] <- 0.15
+ling_param[grepl('^lingimm\\.init\\.', names(ling_param))] <- 1
+ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
+ling_param[grepl('^lingmat\\.init\\.', names(ling_param))] <- 1
+ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 
-
-ling_param <- list(  # ./06-ling/12-new_ass/params.in
-  "ling.Linf" = 160,
-  "ling.k" = 90,
-  "lingimm.walpha" = 2.27567436711055e-06,
-  "lingimm.wbeta" = 3.20200445996187,
-  "ling.bbin" = 6,
-  "lingimm.M" = rep(0.15,3,10),
-  "lingimm.init.scalar" = 200,
-  "ling.init.F" = 0.4,
-  "lingimm.init" = rep(1, 10 - 3 + 1),
-  "ling.recl" = 12,
-  "ling.mat1" = 70,
-  "ling.mat2" = 75,
-  "ling.rec.scalar" = 400,
-  "ling.rec.1982" = 1,
-  "ling.rec.sd" = 5,
-  "ling.rec" = rep(1, 2020 - 1981 + 1),
-  "lingmat.M" = rep(0.15,5,15),
-  "lingmat.init.scalar" = 200,
-  "lingmat.init" = rep(1, 15 - 5 + 1),
-  "lingmat.walpha" = 2.27567436711055e-06,
-  "lingmat.wbeta" = 3.20200445996187,
-  "ling.igfs.alpha" = 0.5,
-  "ling.igfs.l50" = 50,
-  "ling.lln.alpha" = 0.5,
-  "ling.lln.l50" = 50,
-  "ling.bmt.alpha" = 0.5,
-  "ling.bmt.l50" = 50,
-  "ling.gil.alpha" = 0.5,
-  "ling.gil.l50" = 50,
-  "ling.init.sd" = init.sigma$ms,
-  "ling_si_alpha1" = 6.4e-9,
-  "ling_si_beta1" = 1.4,
-  'ling_si_alpha2' = 1.7e-7,
-  "ling_si_beta2" = 1.3,
-  'ling_si_alpha3' = 2.7e-5,
-  'ling_si_alpha4' = 4.2e-5,
-  'ling_si_alpha5' = 5.4e-5,
-  'ling_si_alpha6' = 5.8e-5,
-  'ling_si_alpha7' = 7.1e-5,
-  end = NULL)
 
 #ling_model <- edit(ling_model)
 result <- ling_model(ling_param)
@@ -204,18 +202,16 @@ tmb_param$value <- I(ling_param[rownames(tmb_param)])
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
 tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
 
-tmb_param['ling.rec',]$lower <- 0.0001
-tmb_param['ling.rec',]$upper <- 1e3
-tmb_param['lingmat.init',]$lower <- 0.0001
-tmb_param['lingmat.init',]$upper <- 1e3
+tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$lower <- 0.0001
+tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$upper <- 1e3
+tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
+tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 
-tmb_param['lingimm.init',]$lower <- 0.0001
-tmb_param['lingimm.init',]$upper <- 1e3
+tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
+tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 
 
-tmb_param[c('lingimm.M',
-            'lingmat.M',
-            'ling.init.sd',
+tmb_param[c('ling.init.sd',
             'lingimm.walpha',
             'lingimm.wbeta',
             'lingmat.walpha',
@@ -229,6 +225,8 @@ tmb_param[c('lingimm.M',
             'ling_si_alpha5',
             'ling_si_alpha6',
             'ling_si_alpha7'),]$optimise <- FALSE
+tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 
 
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
