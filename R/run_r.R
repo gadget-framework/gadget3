@@ -35,6 +35,17 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
         # Find any g3_param stash it in param_lines
         call_replace(code,
+            g3_param_table = function (x) {
+                # Find data.frame value in environment
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Add individual param lines for table contents
+                for (i in seq_len(nrow(df))) {
+                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    param_lines[[param_name]] <<- NA
+                }
+            },
             g3_param_array = function (x) param_lines[[x[[2]]]] <<- NA,
             g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- NA,
             g3_param_vector = function (x) param_lines[[x[[2]]]] <<- NA,
@@ -112,8 +123,18 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 open_curly_bracket,
                 call("<-", x[[2]], g3_functions(x[[3]])),
                 g3_functions(x[[4]])),
-            g3_param_array = repl_fn("param"),
-            g3_param_matrix = repl_fn("param"),
+            g3_param_table = function (x) {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = rlang::f_env(all_actions))
+
+                # Generate a param[["lookup.cur_year.cur_step"]] call
+                return(call('[[', as.symbol("param"), as.call(c(
+                    list(as.symbol("paste"), as.character(x[[2]])),
+                    lapply(names(df), as.symbol),
+                    list(sep = ".")))))
+            },
+            g3_param_array = repl_fn("param"),  # TODO: Remove?
+            g3_param_matrix = repl_fn("param"),  # TODO: Remove?
             g3_param_vector = repl_fn("param"),
             g3_param = repl_fn("param"))
     }

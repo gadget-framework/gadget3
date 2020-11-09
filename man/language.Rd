@@ -45,6 +45,29 @@
   For example, \code{g3_param_vector("lingimm.M")[[age - 3 + 1]]}.
 }
 
+\section{g3_param_table}{
+  Reference a lookup-table of parameters.
+
+  This is similar to providing a vector, but can use values in the model to
+  provide bounds-checking.
+
+  The function takes 2 arguments, a prefix for the generated parameters, and a
+  data.frame of variables to possible values. \code{\link{expand.grid}} can be
+  used to produce a cross product of all provided variables.
+
+  \emph{Note:} The variables referenced will need to be integer variables, most
+  likely iteration variables such as \code{cur_year}, \code{age},
+  \code{area}...
+
+  For example, the following: \code{g3_param_table('lingimm.M', expand.grid(age = seq(ling_imm__minage,
+  ling_imm__maxage)))} will generate parameters
+  \var{lingimm.M.3}..\var{lingimm.M.10}, assuming that ling_imm has ages 3..10.
+
+  The call to \code{g3_param_table} will be replaced with
+  \code{param[[paste("lingimm.M", age, sep = ".")]]}, or equivalent code
+  in C++.
+}
+
 \section{g3_report}{
   Add a variable to the report output of the model.
 

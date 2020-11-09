@@ -19,17 +19,14 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
-actions <- list()
-expecteds <- new.env(parent = emptyenv())
-
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2))
     g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
 
 ok(ut_cmp_error({
-    start_year <- 1998
-    g3_to_tmb(list(~{g3_param("moo", start_year)}))
+    camel <- 1998
+    g3_to_tmb(list(~{g3_param("moo", camel)}))
 }, "g3_param.*moo"), "Complained about dynamic param, we don't support")
 
 ok(grepl(
@@ -123,7 +120,22 @@ ok_group('g3_tmb_upper', {
         aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
 })
 
+ok_group('g3_param_table', {
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
+        g3_param_table('pt', expand.grid(  # NB: We can use base R
+            cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
+            age = 2:3))
+    })), 'parameter_template')
+    ok(ut_cmp_identical(
+        param$switch,
+        paste("pt", 2000:2004, rep(2:3, each = 5), sep=".")), "Param table turned into multiple parameters")
+})
+
+
 ###############################################################################
+actions <- list()
+expecteds <- new.env(parent = emptyenv())
+params <- list(rv=0)
 
 # Can assign a single value to 1x1 array
 assign_to_1_1 <- array(dim = c(1,1))
@@ -262,13 +274,26 @@ actions <- c(actions, ~{
 })
 expecteds$negate_x <- -10
 
+# g3_param_table()
+pt_a <- 2L ; pt_b <- 7L
+param_table_out <- 0
+actions <- c(actions, ~{
+    pt_a ; pt_b
+    param_table_out <- g3_param_table('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7)))
+    g3_report(param_table_out)
+})
+params[['param_table.1.8']] <- 18
+params[['param_table.1.7']] <- 17
+params[['param_table.2.8']] <- 28
+params[['param_table.2.7']] <- 27
+expecteds$param_table_out <- 27
+
 ###############################################################################
 
 actions <- c(actions, ~{
     comment('done')
     return(g3_param('rv'))
 })
-params <- list(rv=0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)

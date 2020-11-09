@@ -46,6 +46,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
         if (!(is.character(in_call[[2]]) && length(in_call) == 2)) stop("Parameter names need to be a single string, not ", deparse(in_call))
         return(cpp_escape_varname(in_call[[2]]))
     }
+    if (call_name %in% c('g3_param_table')) {
+        # NB: We eval, so they can be defined in-formulae
+        df <- eval(in_call[[3]], envir = in_envir)
+        return(paste0(
+            " *",  # NB: Our lookup is tuples to pointers to Type, dereference
+            cpp_escape_varname(in_call[[2]]),
+            "[std::make_tuple(",
+            paste(names(df), collapse = ","),
+            ")]"))
+    }
 
     if (call_name %in% c("g3_report")) {
         # A report is a shouty REPORT
@@ -512,6 +522,25 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
         # Find any g3_param stash it in param_lines
         call_replace(code,
+            g3_param_table = function (x) {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Turn table into parameter-setting definition, adding individual PARAMETERs as we go
+                init_data <- vapply(seq_len(nrow(df)), function (i) {
+                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    param_tuple <- paste0(df[i,], collapse = ",")
+
+                    param_lines[[param_name]] <<- ""
+                    paste0("{std::make_tuple(", param_tuple ,"), &", cpp_escape_varname(param_name), "}")
+                }, character(1))
+
+                # Add definition for overall lookup
+                scope[[x[[2]]]] <<- cpp_definition(
+                    paste0('std::map<std::tuple<', paste(rep('int', times = ncol(df)), collapse=","), '>, Type*>'),
+                    x[[2]],
+                    paste0("{", paste0(init_data, collapse=", "), "}"))
+            },
             g3_param_array = function (x) param_lines[[x[[2]]]] <<- "ARRAY",
             g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- "MATRIX",
             g3_param_vector = function (x) param_lines[[x[[2]]]] <<- "VECTOR",

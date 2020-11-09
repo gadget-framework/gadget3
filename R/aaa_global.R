@@ -1,5 +1,6 @@
 # Top-level environment for a model, for common functions & definitions to live in
-g3_global_env <- new.env(parent = emptyenv())
+# NB: baseenv() is above this to allow evaluating of g3_param_table expressions
+g3_global_env <- new.env(parent = baseenv())
 
 # Define a function with separate equivalent R and C++ implementations
 # - r: R function object or NULL if natively supported
