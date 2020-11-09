@@ -197,6 +197,7 @@ specifies the model should accept a parameter at this point. In the R code,
 this has been converted to ``param[["ling.bbin"]]``, so when we call our R
 function, we can provide a value, e.g. ``fn(list(ling.bbin = 6))``. We can also
 use ``g3_param_vector()`` to provide a model with a vector of values.
+See `?g3_param` for more information on this and other functions available to you.
 
 When converting to TMB, there are a lot more options for using the optimisation
 features it offers.

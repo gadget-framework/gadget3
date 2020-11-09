@@ -19,42 +19,7 @@ library(magrittr)
 There are also special g3 functions that can be used in formula that affect the
 resulting code, rather than just being called when run.
 
-g3_idx(i)
-
-: Arrays in R are 1-based, TMB arrays are 0-based. To avoid off-by-one errors,
-  any variable that gets used as an array index should be converted by
-  ``g3_idx()``, for example: ``steps[[g3_idx(cur_step)]]``. Making this
-  explicit results in cleaner output code.
-
-g3_param(n) / g3_param_array(n) / g3_param_matrix(n) / g3_param_vector(n)
-
-: Defines a parameter with a given name n to be used in the model, e.g.
-  ``g3_param("linf")``.
-
-  Under TMB produces an equivalent ``PARAMETER(n)`` definition.
-  Under R produces ``param[["linf"]]``, where param is the single argument to
-  the function.
-
-g3_report(var)
-
-: Appends the state of var to the report, e.g. ``g3_report(cur_time)``.
-
-  Under TMB produces ``REPORT(cur_time)``. See TMB docs for how to get the
-  value.
-
-  Under R reported values can be got using
-  ``environment(model_fn)$model_report``.
-
-g3_with(var, expr, code)
-
-: We stated earlier that variables are either global or iterators in loops,
-  sometimes it's useful to define a variable in a local scope too, for
-  example, we often define both ``area`` and ``stock__area_idx`` variables,
-  where one is calculated using the other. We can use:
-
-      g3_with(area, stock__areas[stock__area_idx], {...} )
-
-  ...to define ``area`` in a local scope too.
+See ``?g3_param`` for more information.
 
 ## Stock steps
 

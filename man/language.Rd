@@ -15,7 +15,8 @@
 }
 
 \section{g3_idx}{
-  Adds a \code{- 1} to a given expression C++, which has 0-based indexes.
+  Adds a \code{- 1} to the supplied expression, but only in C++ (which has 0-based
+  indexes). Under R the expression is passed through unchanged.
 
   \emph{Note:} This is generally for internal use, as \code{[[} will do this
   automatically for you.
@@ -50,6 +51,10 @@
   \emph{Note:} This is generally for internal use, there are higher-level
   mechanisms such as \code{\link{g3a_report_stock}}.
 
-  For example, \code{g3_report(ling_imm__num)} will ensure that the
-  \code{ling_imm__num} variable is available in the report output of the model.
+  For example, \code{g3_report(ling_imm__num)} will produce
+  ``REPORT(ling_imm__num)`` under TMB, and ``model_report$ling_imm__num <-
+  ling_imm__num`` under R.
+
+  Under R reported values can be got after running the function with
+  ``environment(model_fn)$model_report``.
 }
