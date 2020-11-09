@@ -162,16 +162,16 @@
 <span class='no'>initialconditions_action</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='action_renewal.html'>g3a_initialconditions_normalparam</a></span>(
     <span class='no'>ling_imm</span>,
     <span class='co'># NB: area &amp; age factor together (gadget2 just multiplied them)</span>
-    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.init.scalar"</span>) *
-        <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> * (<span class='fu'>g3_param_vector</span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]] + <span class='fu'>g3_param</span>(<span class='st'>"ling.init.F"</span>)) * <span class='no'>age</span>) *
-        <span class='fu'>g3_param_vector</span>(<span class='st'>"lingimm.init"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]],
-    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
-        (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)) *
-        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'>g3_param</span>(<span class='st'>"ling.recl"</span>) / <span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>)) /
-            (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)))))),
-    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param_vector</span>(<span class='st'>"ling.init.sd"</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
-    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
-    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>))
+    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.init.scalar"</span>) *
+        <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> * (<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]] + <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.init.F"</span>)) * <span class='no'>age</span>) *
+        <span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.init"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]],
+    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
+        (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)) *
+        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.recl"</span>) / <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>)) /
+            (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)))))),
+    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"ling.init.sd"</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
+    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.walpha"</span>),
+    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.wbeta"</span>))
 
 <span class='co'># Timekeeping action</span>
 <span class='no'>time_action</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='action_time.html'>g3a_time</a></span>(
@@ -198,26 +198,8 @@
     <span class='kw'>lingimm.init.scalar</span> <span class='kw'>=</span> <span class='fl'>200</span>,
     <span class='kw'>lingimm.walpha</span> <span class='kw'>=</span> <span class='fl'>2.27567436711055e-06</span>,
     <span class='kw'>lingimm.wbeta</span> <span class='kw'>=</span> <span class='fl'>3.20200445996187</span>,
-    <span class='kw'>lingimm.M</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.15</span>,<span class='fl'>3</span>,<span class='fl'>10</span>)))</div><div class='output co'>#&gt; ** Tick: 2000-1
-#&gt; ** Tick: 2000-2
-#&gt; ** Tick: 2000-3
-#&gt; ** Tick: 2000-4
-#&gt; ** Tick: 2001-1
-#&gt; ** Tick: 2001-2
-#&gt; ** Tick: 2001-3
-#&gt; ** Tick: 2001-4
-#&gt; ** Tick: 2002-1
-#&gt; ** Tick: 2002-2
-#&gt; ** Tick: 2002-3
-#&gt; ** Tick: 2002-4
-#&gt; ** Tick: 2003-1
-#&gt; ** Tick: 2003-2
-#&gt; ** Tick: 2003-3
-#&gt; ** Tick: 2003-4
-#&gt; ** Tick: 2004-1
-#&gt; ** Tick: 2004-2
-#&gt; ** Tick: 2004-3
-#&gt; ** Tick: 2004-4</div><div class='input'>
+    <span class='kw'>lingimm.M</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.15</span>,<span class='fl'>3</span>,<span class='fl'>10</span>)))
+
 <span class='co'># Get the report from the last model run</span>
 <span class='no'>report</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span>(<span class='no'>fn</span>)$<span class='no'>model_report</span></div></pre>
   </div>

@@ -92,50 +92,41 @@
 <h2 class="hasAnchor">
 <a href="#g3-functions" class="anchor"></a>g3 Functions</h2>
 <p>There are also special g3 functions that can be used in formula that affect the resulting code, rather than just being called when run.</p>
-<dl>
-<dt>g3_idx(i)</dt>
-<dd>
-<p>Arrays in R are 1-based, TMB arrays are 0-based. To avoid off-by-one errors, any variable that gets used as an array index should be converted by <code>g3_idx()</code>, for example: <code>steps[[g3_idx(cur_step)]]</code>. Making this explicit results in cleaner output code.</p>
-</dd>
-<dt>g3_param(n) / g3_param_array(n) / g3_param_matrix(n) / g3_param_vector(n)</dt>
-<dd>
-<p>Defines a parameter with a given name n to be used in the model, e.g. <code>g3_param("linf")</code>.</p>
-</dd>
-</dl>
-<p>Under TMB produces an equivalent <code>PARAMETER(n)</code> definition. Under R produces <code>param[["linf"]]</code>, where param is the single argument to the function.</p>
-<dl>
-<dt>g3_report(var)</dt>
-<dd>
-<p>Appends the state of var to the report, e.g. <code>g3_report(cur_time)</code>.</p>
-</dd>
-</dl>
-<p>Under TMB produces <code>REPORT(cur_time)</code>. See TMB docs for how to get the value.</p>
-<p>Under R reported values can be got using <code>environment(model_fn)$model_report</code>.</p>
-<dl>
-<dt>g3_with(var, expr, code)</dt>
-<dd>
-<p>We stated earlier that variables are either global or iterators in loops, sometimes it’s useful to define a variable in a local scope too, for example, we often define both <code>area</code> and <code>stock__area_idx</code> variables, where one is calculated using the other. We can use:</p>
-<p>g3_with(area, stock__areas[stock__area_idx], {…} )</p>
-</dd>
-</dl>
-<p>…to define <code>area</code> in a local scope too.</p>
+<p>See <code><a href="../reference/language.html">?g3_param</a></code> for more information.</p>
+</div>
+<div id="global-native-functions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#global-native-functions" class="anchor"></a>Global &amp; native functions</h2>
+<p>Some things aren’t easy to do with code translation. <code>g3_native</code> allows you to define a function with separate R and C++ definitions, for example <code>logspace_add_vec</code>, used in many actions to avoid div/0, has the following definition:</p>
+<pre><code># vector&lt;Type&gt; form of logspace_add
+g3_global_env$logspace_add_vec &lt;- g3_native(r = function(a,b) {
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = '[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {
+    vector&lt;Type&gt; res(a.size());
+    for(int i = 0; i &lt; a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
+    }
+    return res;
+}')</code></pre>
+<p>See <code>R/aaa_global.R</code> for more information, and other existing helpers.</p>
 </div>
 <div id="stock-steps" class="section level2">
 <h2 class="hasAnchor">
 <a href="#stock-steps" class="anchor"></a>Stock steps</h2>
 <p>Most actions interact with stocks, and fill out abstract formulae with the stocks provided to the function. To do this you need to do a series of substitutions, which are handled by <code>g3_step()</code>. This takes a formula, looks for <code>stock_*</code> named functions and mangles the formula as appropriate. For example, a snippet from <code>action_mature.R</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">    out &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span>(<span class="dt">parent =</span> <span class="kw"><a href="https://rdrr.io/r/base/environment.html">emptyenv</a></span>())</a>
-<a class="sourceLine" id="cb1-2" title="2">    out[[<span class="kw">step_id</span>(run_at, <span class="dv">1</span>, stock)]] &lt;-<span class="st"> </span><span class="kw">g3_step</span>(<span class="kw">f_substitute</span>(<span class="op">~</span>{</a>
-<a class="sourceLine" id="cb1-3" title="3">        <span class="kw">stock_comment</span>(<span class="st">"g3a_mature for "</span>, stock)</a>
-<a class="sourceLine" id="cb1-4" title="4">        <span class="co"># Matured stock will weigh the same</span></a>
-<a class="sourceLine" id="cb1-5" title="5">        <span class="kw">stock_with</span>(stock, <span class="kw">stock_with</span>(matured, matured__wgt &lt;-<span class="st"> </span>stock__wgt))</a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7">        <span class="kw">stock_iterate</span>(stock, <span class="kw">stock_intersect</span>(matured, <span class="cf">if</span> (run_f) {</a>
-<a class="sourceLine" id="cb1-8" title="8">            <span class="kw">stock_comment</span>(<span class="st">"Move matured "</span>, stock, <span class="st">" into temporary storage"</span>)</a>
-<a class="sourceLine" id="cb1-9" title="9">            <span class="kw">stock_ss</span>(matured__num) &lt;-<span class="st"> </span><span class="kw">stock_ss</span>(stock__num) <span class="op">*</span><span class="st"> </span>maturity_f</a>
-<a class="sourceLine" id="cb1-10" title="10">            <span class="kw">stock_ss</span>(stock__num) &lt;-<span class="st"> </span><span class="kw">stock_ss</span>(stock__num) <span class="op">-</span><span class="st"> </span><span class="kw">stock_ss</span>(matured__num)</a>
-<a class="sourceLine" id="cb1-11" title="11">        }))</a>
-<a class="sourceLine" id="cb1-12" title="12">    }, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">run_f =</span> run_f, <span class="dt">maturity_f =</span> maturity_f)))</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">    out &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span>(<span class="dt">parent =</span> <span class="kw"><a href="https://rdrr.io/r/base/environment.html">emptyenv</a></span>())</a>
+<a class="sourceLine" id="cb2-2" title="2">    out[[<span class="kw">step_id</span>(run_at, <span class="dv">1</span>, stock)]] &lt;-<span class="st"> </span><span class="kw">g3_step</span>(<span class="kw">f_substitute</span>(<span class="op">~</span>{</a>
+<a class="sourceLine" id="cb2-3" title="3">        <span class="kw">stock_comment</span>(<span class="st">"g3a_mature for "</span>, stock)</a>
+<a class="sourceLine" id="cb2-4" title="4">        <span class="co"># Matured stock will weigh the same</span></a>
+<a class="sourceLine" id="cb2-5" title="5">        <span class="kw">stock_with</span>(stock, <span class="kw">stock_with</span>(matured, matured__wgt &lt;-<span class="st"> </span>stock__wgt))</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7">        <span class="kw">stock_iterate</span>(stock, <span class="kw">stock_intersect</span>(matured, <span class="cf">if</span> (run_f) {</a>
+<a class="sourceLine" id="cb2-8" title="8">            <span class="kw">stock_comment</span>(<span class="st">"Move matured "</span>, stock, <span class="st">" into temporary storage"</span>)</a>
+<a class="sourceLine" id="cb2-9" title="9">            <span class="kw">stock_ss</span>(matured__num) &lt;-<span class="st"> </span><span class="kw">stock_ss</span>(stock__num) <span class="op">*</span><span class="st"> </span>maturity_f</a>
+<a class="sourceLine" id="cb2-10" title="10">            <span class="kw">stock_ss</span>(stock__num) &lt;-<span class="st"> </span><span class="kw">stock_ss</span>(stock__num) <span class="op">-</span><span class="st"> </span><span class="kw">stock_ss</span>(matured__num)</a>
+<a class="sourceLine" id="cb2-11" title="11">        }))</a>
+<a class="sourceLine" id="cb2-12" title="12">    }, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">run_f =</span> run_f, <span class="dt">maturity_f =</span> maturity_f)))</a></code></pre></div>
 <p>Assume that <code>stock</code> has name “ling_imm” and <code>matured</code> has name “ling_imm_maturing”.</p>
 <p>The first line uses <code>stock_comment()</code> to produce a <code><a href="https://rdrr.io/r/base/comment.html">comment()</a></code> function call, <code><a href="https://rdrr.io/r/base/comment.html">comment("g3a_mature for ling_imm")</a></code>.</p>
 <p>Next <code>stock_with()</code> is used to to transform <code>matured__wgt &lt;- stock__wgt</code> to use the proper stock names. We don’t care about dimensions since we’re copying over all the data.</p>
@@ -150,6 +141,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#g3-functions">g3 Functions</a></li>
+      <li><a href="#global-native-functions">Global &amp; native functions</a></li>
       <li><a href="#stock-steps">Stock steps</a></li>
       </ul>
 </div>

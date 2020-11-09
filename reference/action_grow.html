@@ -212,6 +212,12 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>A model can have any number of <code>g3a_growmature</code> actions, so long as the
+  calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
+  <code>run_f = ~age == 7</code>.</p>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3>g3a_grow_lengthvbsimple</h3>
@@ -246,16 +252,16 @@
 <span class='no'>growth_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_growmature</span>(<span class='no'>ling_imm</span>,
     <span class='kw'>impl_f</span> <span class='kw'>=</span> <span class='fu'>g3a_grow_impl_bbinom</span>(
         <span class='fu'>g3a_grow_lengthvbsimple</span>(
-            <span class='kw'>linf_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>),
-            <span class='kw'>kappa_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>) * <span class='fl'>0.001</span>),
+            <span class='kw'>linf_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>),
+            <span class='kw'>kappa_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>) * <span class='fl'>0.001</span>),
         <span class='fu'>g3a_grow_weightsimple</span>(
-            <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
-            <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>)),
-        <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.bbin"</span>) * <span class='fl'>10</span>,
+            <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.walpha"</span>),
+            <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.wbeta"</span>)),
+        <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.bbin"</span>) * <span class='fl'>10</span>,
         <span class='kw'>maxlengthgroupgrowth</span> <span class='kw'>=</span> <span class='fl'>15</span>),
     <span class='kw'>maturity_f</span> <span class='kw'>=</span> <span class='fu'><a href='action_mature.html'>g3a_mature_constant</a></span>(
-        <span class='kw'>alpha</span> <span class='kw'>=</span> ~<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.mat1"</span>),
-        <span class='kw'>l50</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.mat2"</span>)),
+        <span class='kw'>alpha</span> <span class='kw'>=</span> ~<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.mat1"</span>),
+        <span class='kw'>l50</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.mat2"</span>)),
         <span class='kw'>output_stocks</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>ling_mat</span>))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -263,6 +269,8 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>

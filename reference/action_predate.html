@@ -166,6 +166,9 @@
   
 </dl>
 
+<p>A model can have any number of <code>g3a_predate_*</code> actions, so long as the
+  calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
+  <code>run_f = ~age == 7</code>.</p>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
@@ -212,11 +215,11 @@
     <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>ling_imm</span>, <span class='no'>ling_mat</span>),
     <span class='kw'>suitabilities</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
         <span class='kw'>ling_imm</span> <span class='kw'>=</span> <span class='fu'><a href='suitability.html'>g3_suitability_exponentiall50</a></span>(
-            ~<span class='fu'>g3_param</span>(<span class='st'>'ling.lln.alpha'</span>),
-            ~<span class='fu'>g3_param</span>(<span class='st'>'ling.lln.l50'</span>)),
+            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.lln.alpha'</span>),
+            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.lln.l50'</span>)),
         <span class='kw'>ling_mat</span> <span class='kw'>=</span> <span class='fu'><a href='suitability.html'>g3_suitability_exponentiall50</a></span>(
-            ~<span class='fu'>g3_param</span>(<span class='st'>'ling.lln.alpha'</span>),
-            ~<span class='fu'>g3_param</span>(<span class='st'>'ling.lln.l50'</span>))),
+            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.lln.alpha'</span>),
+            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.lln.l50'</span>))),
     <span class='kw'>amount_f</span> <span class='kw'>=</span> <span class='fu'><a href='timevariable.html'>g3_timeareadata</a></span>(<span class='st'>'lln_landings'</span>, <span class='no'>lln_landings</span><span class='kw'>[[</span><span class='fl'>1</span>]]))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -185,7 +185,10 @@
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>g3a_renewal_*</code> actions will define the following stock instance variables for <var>stock</var>:</p><dl class='dl-horizontal'>
+    <p>A model can have any number of <code>g3a_renewal_*</code> actions, so long as the
+  calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
+  <code>run_f = ~age == 7</code>.</p>
+<p>The <code>g3a_renewal_*</code> actions will define the following stock instance variables for <var>stock</var>:</p><dl class='dl-horizontal'>
     <dt><var>stock__renewalnum</var></dt><dd><p>Extra individuals added to the stock</p></dd>
     <dt><var>stock__renewalwgt</var></dt><dd><p>Mean weight of added individuals</p></dd>
   
@@ -215,27 +218,27 @@
 <span class='no'>initialconditions_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_initialconditions_normalparam</span>(
     <span class='no'>ling_imm</span>,
     <span class='co'># NB: area &amp; age factor together (gadget2 just multiplied them)</span>
-    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.init.scalar"</span>) *
-        <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> * (<span class='fu'>g3_param_vector</span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]] + <span class='fu'>g3_param</span>(<span class='st'>"ling.init.F"</span>)) * <span class='no'>age</span>) *
-        <span class='fu'>g3_param_vector</span>(<span class='st'>"lingimm.init"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]],
-    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
-        (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)) *
-        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'>g3_param</span>(<span class='st'>"ling.recl"</span>) / <span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>)) /
-            (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)))))),
-    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param_vector</span>(<span class='st'>"ling.init.sd"</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
-    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
-    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>))
+    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.init.scalar"</span>) *
+        <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> * (<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]] + <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.init.F"</span>)) * <span class='no'>age</span>) *
+        <span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.init"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]],
+    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
+        (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)) *
+        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.recl"</span>) / <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>)) /
+            (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)))))),
+    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"ling.init.sd"</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
+    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.walpha"</span>),
+    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.wbeta"</span>))
 <span class='no'>renewal_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_renewal_normalparam</span>(
     <span class='no'>ling_imm</span>,
-    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.rec.scalar"</span>) *
-        <span class='fu'>g3_param_vector</span>(<span class='st'>"ling.rec"</span>)<span class='kw'>[[</span><span class='no'>cur_year</span> - <span class='no'>start_year</span> + <span class='fl'>1</span>]],
-    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
-        (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)) *
-        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'>g3_param</span>(<span class='st'>"ling.recl"</span>) / <span class='fu'>g3_param</span>(<span class='st'>"ling.Linf"</span>)) /
-            (<span class='fl'>0.001</span> * <span class='fu'>g3_param</span>(<span class='st'>"ling.k"</span>)))))),
-    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param_vector</span>(<span class='st'>'ling.init.sd'</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
-    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.walpha"</span>),
-    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'>g3_param</span>(<span class='st'>"lingimm.wbeta"</span>),
+    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.rec.scalar"</span>) *
+        <span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"ling.rec"</span>)<span class='kw'>[[</span><span class='no'>cur_year</span> - <span class='no'>start_year</span> + <span class='fl'>1</span>]],
+    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
+        (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)) *
+        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.recl"</span>) / <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>)) /
+            (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)))))),
+    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>'ling.init.sd'</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
+    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.walpha"</span>),
+    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.wbeta"</span>),
     <span class='kw'>run_f</span> <span class='kw'>=</span> ~<span class='no'>cur_step</span> <span class='kw'>==</span> <span class='fl'>1</span> <span class='kw'>&amp;&amp;</span> <span class='no'>age</span> <span class='kw'>==</span> <span class='fl'>3</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
