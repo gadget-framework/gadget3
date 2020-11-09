@@ -471,12 +471,12 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  if (cur_step == 1 && age == 3) {
+                  if (cur_step == 1 && age == 5) {
                     comment("Calculate exp(-(dnorm**2) * 0.5)")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]]))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
                     comment("scale results")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[["ling.rec"]][[cur_year - start_year + 1]])
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[[paste("ling.rec", cur_year, sep = ".")]])
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- (param[["lingimm.walpha"]]) * ling_imm__midlen^(param[["lingimm.wbeta"]])
                     comment("Convert to total biomass")
@@ -496,12 +496,12 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  if (cur_step == 1 && age == 5) {
+                  if (cur_step == 1 && age == 3) {
                     comment("Calculate exp(-(dnorm**2) * 0.5)")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]]))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
                     comment("scale results")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[["ling.rec"]][[cur_year - start_year + 1]])
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[[paste("ling.rec", cur_year, sep = ".")]])
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- (param[["lingimm.walpha"]]) * ling_imm__midlen^(param[["lingimm.wbeta"]])
                     comment("Convert to total biomass")
@@ -665,4 +665,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = NA, ling.k = NA, ling.recl = NA, lingimm.init.scalar = NA, lingimm.M = NA, ling.init.F = NA, lingimm.init = NA, lingimm.walpha = NA, lingimm.wbeta = NA, lingmat.init.scalar = NA, lingmat.M = NA, lingmat.init = NA, lingmat.walpha = NA, lingmat.wbeta = NA, ling.igfs.alpha = NA, ling.igfs.l50 = NA, ling.bbin = NA, ling.mat1 = NA, ling.mat2 = NA, ling.rec.scalar = NA, ling.rec = NA))
+}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = NA, ling.k = NA, ling.recl = NA, lingimm.init.scalar = NA, lingimm.M = NA, ling.init.F = NA, lingimm.init = NA, lingimm.walpha = NA, lingimm.wbeta = NA, lingmat.init.scalar = NA, lingmat.M = NA, lingmat.init = NA, lingmat.walpha = NA, lingmat.wbeta = NA, ling.igfs.alpha = NA, ling.igfs.l50 = NA, ling.bbin = NA, ling.mat1 = NA, ling.mat2 = NA, ling.rec.scalar = NA, ling.rec.1994 = NA, ling.rec.1995 = NA, ling.rec.1996 = NA, ling.rec.1997 = NA, 
+    ling.rec.1998 = NA, ling.rec.1999 = NA, ling.rec.2000 = NA, ling.rec.2001 = NA, ling.rec.2002 = NA, ling.rec.2003 = NA, ling.rec.2004 = NA, ling.rec.2005 = NA, ling.rec.2006 = NA, ling.rec.2007 = NA, ling.rec.2008 = NA, ling.rec.2009 = NA, ling.rec.2010 = NA, ling.rec.2011 = NA, ling.rec.2012 = NA, ling.rec.2013 = NA, ling.rec.2014 = NA, ling.rec.2015 = NA, ling.rec.2016 = NA, ling.rec.2017 = NA, ling.rec.2018 = NA))

@@ -21,7 +21,31 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__mat1);
     PARAMETER(ling__mat2);
     PARAMETER(ling__rec__scalar);
-    PARAMETER_VECTOR(ling__rec);
+    PARAMETER(ling__rec__1994);
+    PARAMETER(ling__rec__1995);
+    PARAMETER(ling__rec__1996);
+    PARAMETER(ling__rec__1997);
+    PARAMETER(ling__rec__1998);
+    PARAMETER(ling__rec__1999);
+    PARAMETER(ling__rec__2000);
+    PARAMETER(ling__rec__2001);
+    PARAMETER(ling__rec__2002);
+    PARAMETER(ling__rec__2003);
+    PARAMETER(ling__rec__2004);
+    PARAMETER(ling__rec__2005);
+    PARAMETER(ling__rec__2006);
+    PARAMETER(ling__rec__2007);
+    PARAMETER(ling__rec__2008);
+    PARAMETER(ling__rec__2009);
+    PARAMETER(ling__rec__2010);
+    PARAMETER(ling__rec__2011);
+    PARAMETER(ling__rec__2012);
+    PARAMETER(ling__rec__2013);
+    PARAMETER(ling__rec__2014);
+    PARAMETER(ling__rec__2015);
+    PARAMETER(ling__rec__2016);
+    PARAMETER(ling__rec__2017);
+    PARAMETER(ling__rec__2018);
     
     auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
@@ -130,6 +154,7 @@ Type objective_function<Type>::operator() () {
     auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
+    std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     int cur_time = -1;
     DATA_IVECTOR(step_lengths)
     int end_year = 2018;
@@ -549,12 +574,12 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    if ( cur_step == 1 && age == 3 ) {
+                    if ( cur_step == 1 && age == 5 ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - (ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k)))))))*(1 / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)2))*0.5);
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (10000 / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar*ling__rec ( cur_year - start_year + 1 - 1 ));
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (lingimm__walpha)*pow(ling_imm__midlen, (Type)(lingimm__wbeta));
                         // Convert to total biomass;
@@ -576,12 +601,12 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    if ( cur_step == 1 && age == 5 ) {
+                    if ( cur_step == 1 && age == 3 ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - (ling__Linf*(1 - exp(-1*(0.001*ling__k)*(age - (1 + log(1 - ling__recl / ling__Linf) / (0.001*ling__k)))))))*(1 / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)2))*0.5);
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (10000 / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar*ling__rec ( cur_year - start_year + 1 - 1 ));
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (lingimm__walpha)*pow(ling_imm__midlen, (Type)(lingimm__wbeta));
                         // Convert to total biomass;

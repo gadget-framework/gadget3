@@ -40,7 +40,7 @@ ling_imm_actions <- list(
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
-        factor_f = ~g3_param("ling.rec.scalar") * g3_param_vector("ling.rec")[[cur_year - start_year + 1]],
+        factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
         stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
@@ -48,7 +48,7 @@ ling_imm_actions <- list(
         run_f = ~cur_step == 1 && age == 3),
     # Additional renewal for age 5
     g3a_renewal_normalparam(ling_imm,
-        factor_f = ~g3_param("ling.rec.scalar") * g3_param_vector("ling.rec")[[cur_year - start_year + 1]],
+        factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
         stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
@@ -145,7 +145,6 @@ ling_model <- g3_to_r(c(
     time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-baseline/ling.R')
 
-writeLines("***** Running Model *****")
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.Linf" = 160,
     "ling.k" = 90,
@@ -160,9 +159,7 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.mat1" = 70,
     "ling.mat2" = 75,
     "ling.rec.scalar" = 400,
-    "ling.rec.1982" = 1,
     "ling.rec.sd" = 5,
-    "ling.rec" = rep(1, 2018 - 1994 + 1),
     "lingmat.M" = 0.15,
     "lingmat.init.scalar" = 200,
     "lingmat.init" = rep(1, 15 - 5 + 1),
@@ -177,6 +174,10 @@ ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.gil.alpha" = 0.5,
     "ling.gil.l50" = 50,
     end = NULL)
+# Set recrutiment for every year
+ling_param[paste('ling.rec', 1994:2018, sep = ".")] <- 1
+
+writeLines("***** Running Model *****")
 system.time(r_result <- ling_model(ling_param))
 str(r_result)
 # NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
