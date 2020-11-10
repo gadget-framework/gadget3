@@ -216,9 +216,7 @@ Type objective_function<Type>::operator() () {
     Type ling_mat__prevtotal = 0;
     array<Type> ling_imm__renewalnum(35,1,8);
     array<Type> ling_imm__renewalwgt(35,1,8);
-    array<Type> cdist_ldist_lln_obs__num(35,92);
-    DATA_ARRAY(ldist_lln_number)
-    vector<Type> cdist_ldist_lln_model__num(35);
+    DATA_VECTOR(cdist_ldist_lln_model__num)
     auto intintlookup_zip = [](vector<int> keys, vector<int> values) -> std::map<int, int> {
             std::map<int, int> lookup = {};
 
@@ -231,6 +229,7 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_ldist_lln_obs__values)
     auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
+    DATA_ARRAY(cdist_ldist_lln_obs__num)
     Type g3l_understocking_total = 0;
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
@@ -618,13 +617,6 @@ Type objective_function<Type>::operator() () {
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= logspace_add_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), 0);
                     }
                 }
-            }
-        }
-        {
-            // Initial data / reset observations for ldist_lln;
-            if ( cur_time == 0 ) {
-                cdist_ldist_lln_obs__num = ldist_lln_number;
-                cdist_ldist_lln_model__num.setZero();
             }
         }
         {

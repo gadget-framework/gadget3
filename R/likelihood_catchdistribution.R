@@ -72,20 +72,9 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
-    modelstock__num <- stock_instance(modelstock)
-    obsstock__num <- stock_instance(obsstock)
-    assign(paste0(nll_name, '_number'), ld$number)
+    modelstock__num <- stock_instance(modelstock, 0)
+    obsstock__num <- stock_instance(obsstock, ld$number)
 
-    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 0)]] <- g3_step(f_substitute(~{
-        debug_trace("Initial data / reset observations for ", nll_name)
-        if (cur_time == 0) {
-            # Populate stock with data
-            stock_with(obsstock, obsstock__num[] <- obsnumber)
-            stock_with(modelstock, modelstock__num[] <- 0)
-        }
-    }, list(
-        obsnumber = as.symbol(paste0(nll_name, '_number')))))
-    
     for (fleet_stock in fleets) for (prey_stock in stocks) {
         # Work out stock index for obs/model variables
         if (!is.null(ld$stock_map)) {
