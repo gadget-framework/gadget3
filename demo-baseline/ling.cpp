@@ -242,12 +242,16 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_time;
             cur_time += 1;
-            if ( cur_time > total_steps ) return nll;
+            if ( cur_time > total_steps ) {
+                return nll;
+            }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_step = (cur_time % step_count) + 1;
             cur_step_size = step_lengths ( cur_step - 1 ) / asDouble(12);
             cur_step_final = cur_step == step_count;
-            if ( false ) Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
+            if ( false ) {
+                Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
+            }
         }
         {
             // g3a_initialconditions_normalparam for ling_imm;
@@ -496,7 +500,9 @@ Type objective_function<Type>::operator() () {
                             ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(1 / (1 + exp(0 - (0.001*ling__mat1)*(ling_imm__midlen - (ling__mat2))))));
                             // NB: Mean __wgt unchanged;
                         }
-                        if ( false ) ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
+                        if ( false ) {
+                            ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
+                        }
                         // Update ling_imm using delta matrices;
                         {
                             auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
@@ -506,7 +512,9 @@ Type objective_function<Type>::operator() () {
                                 ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(1);
                             }
                         }
-                        if ( false ) assert(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < 1e-04);
+                        if ( false ) {
+                            assert(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < 1e-04);
+                        }
                     }
                 }
             }
@@ -526,7 +534,9 @@ Type objective_function<Type>::operator() () {
                         {
                             
                         }
-                        if ( false ) ling_mat__prevtotal = (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
+                        if ( false ) {
+                            ling_mat__prevtotal = (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
+                        }
                         // Update ling_mat using delta matrices;
                         {
                             auto growthresult = g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx), ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
@@ -536,7 +546,9 @@ Type objective_function<Type>::operator() () {
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = growthresult.col(1);
                             }
                         }
-                        if ( false ) assert(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < 1e-04);
+                        if ( false ) {
+                            assert(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < 1e-04);
+                        }
                     }
                 }
             }

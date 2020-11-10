@@ -7,6 +7,14 @@ cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
     next_indent <- paste0(indent, "    ")
 
+    # Make sure x has a brace or eqivalent call around it
+    embrace <- function (x) {
+        if (!(is.call(x) && (x[[1]] == open_curly_bracket || x[[1]] == as.symbol("g3_with")))) {
+            return(call(open_curly_bracket, x))
+        }
+        return(x)
+    }
+
     if (!is.call(in_call)) {
         # Literals
         if (length(in_call) == 1) {
@@ -73,11 +81,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
 
     if (call_name %in% c("g3_with")) {
         # Combine the variable definition with the rest of the code
+        inner <- cpp_code(in_call[[4]], in_envir, next_indent, statement = TRUE)
+        if (!endsWith(inner, close_curly_bracket)) inner <- paste0(inner, ";")
+
         return(paste0(
             "{",
             next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, next_indent), ";",
             "\n",
-            next_indent, cpp_code(in_call[[4]], in_envir, next_indent, statement = TRUE),
+            next_indent, inner,
             indent, "}"))
     }
 
@@ -139,13 +150,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
     }
 
     if (call_name == 'if' && length(in_call) == 4) {
-        # Make sure x has a brace call around it (otherwise our C++ is nonsense)
-        embrace <- function (x) {
-            if (!is.call(x) || x[[1]] != open_curly_bracket) {
-                return(call(open_curly_bracket, x))
-            }
-            return(x)
-        }
         # Conditional w/else
         return(paste0(
             "if (",
@@ -153,6 +157,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
             ") ",
             cpp_code(embrace(in_call[[3]]), in_envir, indent, statement = TRUE),
             " else ",
+            # NB: An else condition has to have braces, otherwise the output C++ is nonsense
             cpp_code(embrace(in_call[[4]]), in_envir, indent, statement = TRUE)))
     }
 
@@ -162,7 +167,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
             "if (",
             cpp_code(in_call[[2]], in_envir, next_indent, statement = TRUE),
             ")",
-            cpp_code(in_call[[3]], in_envir, indent, statement = TRUE)))
+            cpp_code(embrace(in_call[[3]]), in_envir, indent, statement = TRUE)))
     }
 
     if (call_name == 'for' && is.call(call_args[[2]]) && as.character(call_args[[2]][[1]]) == "seq") {
