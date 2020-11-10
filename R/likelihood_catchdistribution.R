@@ -2,17 +2,17 @@ call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
 g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
     f_substitute(~sum((
-        stock_ss(modelstock__num) / logspace_add(sum(modelstock_total_f), 0) -
-        stock_ss(obsstock__num) / logspace_add(sum(obsstock_total_f), 0)) ** 2), list(
-            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__num)), over),
-            obsstock_total_f = call_append(quote(stock_ssinv(obsstock__num, 'time')), over)))
+        stock_ss(modelstock__x) / logspace_add(sum(modelstock_total_f), 0) -
+        stock_ss(obsstock__x) / logspace_add(sum(obsstock_total_f), 0)) ** 2), list(
+            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x)), over),
+            obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
 }
 
 g3l_catchdistribution_multinomial <- function () {
-    ~2 * (lgamma(1 + sum(stock_ss(obsstock__num))) -
-        sum(lgamma_vec(1 + stock_ss(obsstock__num))) +
-        sum(stock_ss(obsstock__num) * log(
-            stock_ss(modelstock__num) / sum(stock_ss(modelstock__num))))
+    ~2 * (lgamma(1 + sum(stock_ss(obsstock__x))) -
+        sum(lgamma_vec(1 + stock_ss(obsstock__x))) +
+        sum(stock_ss(obsstock__x) * log(
+            stock_ss(modelstock__x) / sum(stock_ss(modelstock__x))))
     )
 }
 
@@ -27,28 +27,28 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
     }')
 
     f_substitute(~multivariate_fn(
-            stock_ss(modelstock__num) / sum(modelstock_total_f) -
-                stock_ss(obsstock__num) / sum(obsstock_total_f),
+            stock_ss(modelstock__x) / sum(modelstock_total_f) -
+                stock_ss(obsstock__x) / sum(obsstock_total_f),
             rho_f,
             sigma_f), list(
-                modelstock_total_f = call_append(quote(stock_ssinv(modelstock__num)), over),
-                obsstock_total_f = call_append(quote(stock_ssinv(obsstock__num, 'time')), over),
+                modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x)), over),
+                obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over),
                 rho_f = rho_f,
                 sigma_f = sigma_f))
 }
 
 g3l_catchdistribution_surveyindices_log <- function (alpha = 0, beta = 1) {
     f_substitute(~sum((alpha +
-        beta * log(logspace_add_vec(stock_ss(modelstock__num),0)) -
-        log(logspace_add_vec(stock_ss(obsstock__num),0)))**2), list(
+        beta * log(logspace_add_vec(stock_ss(modelstock__x),0)) -
+        log(logspace_add_vec(stock_ss(obsstock__x),0)))**2), list(
             alpha = alpha,
             beta = beta))
 }
 
 g3l_catchdistribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
     f_substitute(~sum((alpha +
-        beta * stock_ss(modelstock__num) -
-        stock_ss(obsstock__num))**2), list(
+        beta * stock_ss(modelstock__x) -
+        stock_ss(obsstock__x))**2), list(
             alpha = alpha,
             beta = beta))
 }
@@ -60,10 +60,11 @@ g3l_catchdistribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
 #    - (optional) area (otherwise all areas summed)
 #    - (optional) age (otherwise all ages summed)
 #    - length
-#    - number - expected number for given combination
+#    - number - expected number for given combination (optional, but must provide one)
+#    - weight - expected total biomass for given combination (optional, but must provide one)
 # - fleets: Gather catch from these fleets
 # - stocks: Gather catch (by fleets) for these stocks
-# - function_f: Comparison function to compare stock_ss(modelstock__num) & stock_ss(obsstock__num)
+# - function_f: Comparison function to compare stock_ss(modelstock__x) & stock_ss(obsstock__x)
 # - weight: Weighting of parameter in final nll
 g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, area_group = NULL, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
@@ -72,8 +73,14 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
-    modelstock__num <- stock_instance(modelstock, 0)
-    obsstock__num <- stock_instance(obsstock, ld$number)
+    if (!is.null(ld$number)) {
+        modelstock__num <- stock_instance(modelstock, 0)
+        obsstock__num <- stock_instance(obsstock, ld$number)
+    }
+    if (!is.null(ld$weight)) {
+        modelstock__wgt <- stock_instance(modelstock, 0)
+        obsstock__wgt <- stock_instance(obsstock, ld$weight)
+    }
 
     for (fleet_stock in fleets) for (prey_stock in stocks) {
         # Work out stock index for obs/model variables
@@ -91,11 +98,20 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, prey_stock)]] <- g3_step(f_substitute(~{
             debug_label("g3l_catchdistribution: Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
-                # Take prey_stock__fleet_stock weight, convert to individuals, add to our count
-                stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
-                    stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / logspace_add_vec(stock_ss(prey_stock__wgt), 0))
+                if (compare_num) {
+                    debug_trace("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
+                    stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
+                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / logspace_add_vec(stock_ss(prey_stock__wgt), 0))
+                }
+                if (compare_wgt) {
+                    debug_trace("Take prey_stock__fleet_stock weight, add to our count")
+                    stock_ss(modelstock__wgt) <- stock_ss(modelstock__wgt) +
+                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock))
+                }
             }))
         }, list(
+            compare_num = !is.null(ld$number),
+            compare_wgt = !is.null(ld$weight),
             # Find catch from predation step
             prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
 
@@ -108,14 +124,23 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
         debug_label("g3l_catchdistribution: Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
             stock_iterate(modelstock, stock_intersect(obsstock, {
-                nll <- nll + (weight) * (function_f)
+                if (compare_num) nll <- nll + (weight) * (number_f)
+                if (compare_wgt) nll <- nll + (weight) * (biomass_f)
             }))
-            stock_with(modelstock, modelstock__num[] <- 0)
+            if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
+            if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
         }
     }, list(
         done_aggregating_f = ld$done_aggregating_f,
-        weight = weight,
-        function_f = function_f)))
+        compare_num = !is.null(ld$number),
+        compare_wgt = !is.null(ld$weight),
+        number_f = f_substitute(function_f, list(
+            modelstock__x = as.symbol('modelstock__num'),
+            obsstock__x = as.symbol('obsstock__num'))),
+        biomass_f = f_substitute(function_f, list(
+            modelstock__x = as.symbol('modelstock__wgt'),
+            obsstock__x = as.symbol('obsstock__wgt'))),
+        weight = weight)))
     # Fix-up stock intersection: index should be the same as observation
     out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]], list(
         stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))

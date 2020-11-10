@@ -499,7 +499,10 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0)
+                  {
+                    comment("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0)
+                  }
                 }
             }
         }
@@ -509,7 +512,10 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
                   area <- ling_mat__area
-                  cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0)
+                  {
+                    comment("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
+                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0)
+                  }
                 }
             }
         }

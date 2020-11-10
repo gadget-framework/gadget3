@@ -31,13 +31,13 @@ named_list <- function(...) {
 lspace_add <- gadget3:::g3_global_env$logspace_add$r
 
 ok(grepl(
-    'stock_ssinv\\(modelstock__num,\\s+"area",\\s+"age"\\)',
+    'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',
     paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
-    perl = TRUE), "Added custom totals to sumofsquares modelstock__num")
+    perl = TRUE), "Added custom totals to sumofsquares modelstock__x")
 ok(grepl(
-    'stock_ssinv\\(obsstock__num,\\s+"time",\\s+"area",\\s+"age"\\)',
+    'stock_ssinv\\(obsstock__x,\\s+"time",\\s+"area",\\s+"age"\\)',
     paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
-    perl = TRUE), "Added custom totals to sumofsquares obsstock__num")
+    perl = TRUE), "Added custom totals to sumofsquares obsstock__x")
 
 
 # NB: Also added some aggregate areas for fleet data
@@ -55,6 +55,10 @@ sd_data$number <- floor(runif(length(sd_data$year), min=100, max=999))
 # Generate observation data for catch distribution
 cd_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), length = c(1,6))
 cd_data$number <- floor(runif(length(cd_data$year), min=100, max=999))
+
+# Generate observation data for catch distribution by biomass
+cd_weight_data <- expand.grid(year = 1999:2000, step = c(1, 2), area = c('x', 'y'), length = c(1,6))
+cd_weight_data$weight <- floor(runif(length(cd_data$year), min=1000, max=9999))
 
 # Generate observation data for catch distribution (multinomial)
 multinomial_data <- expand.grid(year = 1999:2000, step = c(1, 2), length = c(1,6))
@@ -112,6 +116,12 @@ base_actions <- list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
+        gadget3:::step_id(10, 'g3l_catchdistribution', 'utcd_weight', 1, 'zzzz'), report_step('cdist_utcd_weight_model__wgt', 4, array(
+            # NB: Lift definition from deparse(r$cdist_utcd_weight_model__wgt)
+            dim = c(2L, 2L),
+            dimnames = list(
+                c("len1", "len6"),
+                c("x", "y")))),
         gadget3:::step_id(10, 'g3l_catchdistribution', 'multinom', 1, 'zzzz'), report_step('cdist_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinom_model__num)
             dim = c(2L),
@@ -129,6 +139,8 @@ base_actions <- list(
         gadget3:::step_id(999),  ~{
             g3_report(cdist_utcd_model__num)
             g3_report(cdist_utcd_obs__num)
+            g3_report(cdist_utcd_weight_model__wgt)
+            g3_report(cdist_utcd_weight_obs__wgt)
             g3_report(cdist_utsd_model__num)
             g3_report(cdist_utsd_obs__num)
             g3_report(cdist_multinom_model__num)
@@ -146,6 +158,13 @@ actions <- c(base_actions, list(
     g3l_catchdistribution(
         'utcd',
         cd_data,
+        list(fleet_abc),
+        list(prey_a, prey_b, prey_c),
+        area_group = areas,
+        g3l_catchdistribution_sumofsquares()),
+    g3l_catchdistribution(
+        'utcd_weight',
+        cd_weight_data,
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         area_group = areas,
@@ -346,6 +365,12 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step0_cdist_utcd_model__num[,2] / sum(r$step0_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        # utcd_weight: area 1
+        (r$step0_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step0_cdist_utcd_weight_model__wgt[,1]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,1,1] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,1]), 0)) ** 2,
+        # utcd_weight: area 2
+        (r$step0_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step0_cdist_utcd_weight_model__wgt[,2]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,2,1] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,1]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
@@ -376,6 +401,12 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step1_cdist_utcd_model__num[,2] / lspace_add(sum(r$step1_cdist_utcd_model__num[,2]), 0) -
             r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
+        # utcd_weight: area 1
+        (r$step1_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step1_cdist_utcd_weight_model__wgt[,1]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,1,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,2]), 0)) ** 2,
+        # utcd_weight: area 2
+        (r$step1_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step1_cdist_utcd_weight_model__wgt[,2]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,2,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,2]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
@@ -406,6 +437,12 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step2_cdist_utcd_model__num[,2] / lspace_add(sum(r$step2_cdist_utcd_model__num[,2]), 0) -
             r$cdist_utcd_obs__num[,2,3] / lspace_add(sum(r$cdist_utcd_obs__num[,2,3]), 0)) ** 2,
+        # utcd_weight: area 1
+        (r$step2_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step2_cdist_utcd_weight_model__wgt[,1]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,1,3] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,3]), 0)) ** 2,
+        # utcd_weight: area 2
+        (r$step2_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step2_cdist_utcd_weight_model__wgt[,2]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,2,3] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,3]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,3] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
@@ -436,6 +473,12 @@ ok_group("Likelihood per step", {
         # utcd: area 2
         (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
             r$cdist_utcd_obs__num[,2,4] / lspace_add(sum(r$cdist_utcd_obs__num[,2,4]), 0)) ** 2,
+        # utcd_weight: area 1
+        (r$step3_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,1]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,1,4] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,4]), 0)) ** 2,
+        # utcd_weight: area 2
+        (r$step3_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,2]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,2,4] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,4]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,4] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
@@ -469,6 +512,10 @@ ok_group("Likelihood per year", {
         y = areas[c('c')])
 
     # Change model to aggregate over a year
+    cd_weight_data <- expand.grid(year = 1999:2000, area = c('x', 'y'), length = c(1,6))
+    cd_weight_data$weight <- floor(runif(length(cd_data$year), min=1000, max=9999))
+
+    # Change model to aggregate over a year
     # NB: No step column now
     multinomial_data <- expand.grid(year = 1999:2000, length = c(1,6))
     multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, max=999))
@@ -481,6 +528,13 @@ ok_group("Likelihood per year", {
         g3l_catchdistribution(
             'utcd',
             cd_data,
+            list(fleet_abc),
+            list(prey_a, prey_b, prey_c),
+            area_group = areas,
+            g3l_catchdistribution_sumofsquares()),
+        g3l_catchdistribution(
+            'utcd_weight',
+            cd_weight_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
             area_group = areas,
@@ -574,7 +628,7 @@ ok_group("Likelihood per year", {
              sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1]),
              sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step1_cdist_utsd_model__num[,1]: all prey from a/b and steps 0 & 1")
+         NULL)), "step1_cdist_utcd_model__num[,1]: all prey from a/b and steps 0 & 1")
 
     ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,2]), c(
          sum(
@@ -583,7 +637,31 @@ ok_group("Likelihood per year", {
          sum(
              sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1]),
              sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step1_cdist_utsd_model__num[,2]: all prey from c and steps 0/1")
+         NULL)), "step1_cdist_utcd_model__num[,2]: all prey from c and steps 0/1")
+    ########
+
+    ######## cdist_utcd_weight_model__wgt
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_weight_model__wgt[,1]), c(
+         sum(
+             sum(r$step0_prey_a__fleet_abc[1:5,1]),
+             sum(r$step0_prey_b__fleet_abc[1:5,1]),
+             sum(r$step1_prey_a__fleet_abc[1:5,1]),
+             sum(r$step1_prey_b__fleet_abc[1:5,1])),
+         sum(
+             sum(r$step0_prey_a__fleet_abc[6:10,1]),
+             sum(r$step0_prey_b__fleet_abc[6:10,1]),
+             sum(r$step1_prey_a__fleet_abc[6:10,1]),
+             sum(r$step1_prey_b__fleet_abc[6:10,1])),
+         NULL)), "step1_cdist_utcd_weight_model__wgt[,1]: total biomass of prey from a/b and steps 0 & 1")
+
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_weight_model__wgt[,2]), c(
+         sum(
+             sum(r$step0_prey_c__fleet_abc[1:5,1]),
+             sum(r$step1_prey_c__fleet_abc[1:5,1])),
+         sum(
+             sum(r$step0_prey_c__fleet_abc[6:10,1]),
+             sum(r$step1_prey_c__fleet_abc[6:10,1])),
+         NULL)), "step1_cdist_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, 0), "step0_nll: nll not calculated yet")
@@ -608,6 +686,12 @@ ok_group("Likelihood per year", {
         # utcd: area 2
         (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
+        # utcd_weight: area 1
+        (r$step1_cdist_utcd_weight_model__wgt[,1] / sum(r$step1_cdist_utcd_weight_model__wgt[,1]) -
+            r$cdist_utcd_weight_obs__wgt[,1,1] / sum(r$cdist_utcd_weight_obs__wgt[,1,1])) ** 2,
+        # utcd_weight: area 2
+        (r$step1_cdist_utcd_weight_model__wgt[,2] / sum(r$step1_cdist_utcd_weight_model__wgt[,2]) -
+            r$cdist_utcd_weight_obs__wgt[,2,1] / sum(r$cdist_utcd_weight_obs__wgt[,2,1])) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
@@ -639,6 +723,12 @@ ok_group("Likelihood per year", {
         # utcd: area 2
         (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
             r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
+        # utcd_weight: area 1
+        (r$step3_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,1]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,1,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,2]), 0)) ** 2,
+        # utcd_weight: area 2
+        (r$step3_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,2]), 0) -
+            r$cdist_utcd_weight_obs__wgt[,2,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,2]), 0)) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +

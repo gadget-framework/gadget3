@@ -89,12 +89,36 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     full_table$Freq <- seq_len(nrow(full_table))
     full_table <- merge(full_table, data, all.x = TRUE)
 
-    # TODO: More fancy NA-handling (i.e. random effects) goes here
-    if (missing_val == 'stop') {
-        if (any(is.na(full_table$number))) stop("Missing values in data")
+    if ('number' %in% names(full_table)) {
+        # TODO: More fancy NA-handling (i.e. random effects) goes here
+        if (missing_val == 'stop') {
+            if (any(is.na(full_table$number))) stop("Missing values in data")
+        } else {
+            # Fill in missing values with given value
+            full_table$number[is.na(full_table$number)] <- missing_val
+        }
+        # TODO: Stock_instance instead?
+        number_array <- array(full_table$number[order(full_table$Freq)],
+            dim = obsstock$dim,
+            dimnames = obsstock$dimnames)
     } else {
-        # Fill in missing values with given value
-        full_table$number[is.na(full_table$number)] <- missing_val
+        number_array <- NULL
+    }
+
+    if ('weight' %in% names(full_table)) {
+        # TODO: More fancy NA-handling (i.e. random effects) goes here
+        if (missing_val == 'stop') {
+            if (any(is.na(full_table$weight))) stop("Missing values in data")
+        } else {
+            # Fill in missing values with given value
+            full_table$weight[is.na(full_table$weight)] <- missing_val
+        }
+        # TODO: Stock_instance instead?
+        weight_array <- array(full_table$weight[order(full_table$Freq)],
+            dim = obsstock$dim,
+            dimnames = obsstock$dimnames)
+    } else {
+        weight_array <- NULL
     }
     
     return(list(
@@ -102,9 +126,8 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         stock_map = stock_map,
-        number = array(full_table$number[order(full_table$Freq)],
-            dim = obsstock$dim,
-            dimnames = obsstock$dimnames),
+        number = number_array,
+        weight = weight_array,
         nll_name = nll_name))
 }
 

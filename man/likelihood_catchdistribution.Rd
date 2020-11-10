@@ -50,6 +50,9 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   }
   \item{obs_data}{
     Data.frame of observation data, for example the results of \link[mfdb:mfdb_sample_count]{mfdb_sample_count}
+    Should have year column, optional step/area/age columns, and a length or weight column.
+    If step/area/age are missing, then the model data will be summed over these dimensions first.
+    The length or weight column decides what to compare using \var{function_f}
   }
   \item{fleets}{
     A list of \code{\link{g3_stock}} objects to collect catch data for
@@ -58,8 +61,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     A list of \code{\link{g3_stock}} objects to collect catch data for
   }
   \item{function_f}{
-    A \link{formula} to compare \var{obsstock} to \var{modelstock} and generate nll,
+    A \link{formula} to compare \var{obsstock__x} to \var{modelstock__x} and generate nll,
     defined by one of the \var{g3l_catchdistribution_}* functions.
+
+    This will be adapted to compare either number (\var{modelstock__num}) or weight (\var{modelstock__wgt})
+    depending on what columns \var{obs_data} has.
   }
   \item{missing_val}{
     Where there are missing values in the incoming data, value to replace them with.
@@ -78,8 +84,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 \details{
   The actions will define the following variables in your model:
   \describe{
-    \item{\var{obsstock}__num}{A \code{\link{g3_stock}} instance that contains all observations in an array}
-    \item{\var{modelstock}__num}{A \code{\link{g3_stock}} instance that groups in an identical fashion to \var{obsstock},
+    \item{\var{obsstock}__num/wgt}{A \code{\link{g3_stock}} instance that contains all observations in an array}
+    \item{\var{modelstock}__num/wgt}{A \code{\link{g3_stock}} instance that groups in an identical fashion to \var{obsstock},
         that will be filled with the model's predicted values}
   }
 }
@@ -96,8 +102,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   \subsection{g3l_catchdistribution_surveyindices_log}{TODO:}
   \subsection{g3l_catchdistribution_surveyindices_linear}{TODO:}
   \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
-    \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num}
-    \item{Compare \var{modelstock}__num with \var{obsstock}__num, using \var{function_f}}
+    \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
+    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
   }}
 }
 
