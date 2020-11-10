@@ -577,7 +577,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
                     dims = dim(var_val))
-            } else if (is.array(var_val) && all(is.na(var_val))) {
+            } else if (is.array(var_val) && (all(is.na(var_val)) || all(var_val == 0))) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
                     cpp_type <- 'vector<Type>'
@@ -593,6 +593,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         cpp_type,
                         var_name,
                         dims = dim(var_val))
+                }
+                if (length(var_val) > 0 && !any(is.na(var_val))) {
+                    # If not NA or empty, must be zero. So init to zero
+                    defn <- paste0(defn, " ", var_name, ".setZero();")
                 }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
