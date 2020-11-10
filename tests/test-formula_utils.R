@@ -60,3 +60,16 @@ out_f <- gadget3:::f_concatenate(list(
 ok(ut_cmp_identical(
     deep_ls(rlang::f_env(out_f)), 
     c("wow", "yay", "woo", "a", "b", "c")), "f_concatenate:parent")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{woo; oink; baa}),
+    ~{woo; oink; baa}), "f_optimize: Passed through 3 terms")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{woo; {}; if (TRUE) {oink}; baa}),
+    ~{woo; oink; baa}), "f_optimize: Oink's if statement removed")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{woo; { x ; {}}; if (TRUE) {oink}; baa}),
+    ~{woo; x ; oink; baa}), "f_optimize: Brackets normalised")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x) {woo}),
+    ~if (x) woo), "f_optimize: Regular if statement passed through")

@@ -109,3 +109,42 @@ f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
     }
     formula(call("~", out_call), env = e)
 }
+
+# Perform optimizations on code within formulae, mostly for readability
+f_optimize <- function (f) {
+    call_replace(f,
+        "if" = function (x) {
+            if (is.call(x) && isTRUE(x[[2]])) {
+                # if(TRUE) exp --> exp
+                return(f_optimize(x[[3]]))
+            }
+            if (is.call(x) && isFALSE(x[[2]])) {
+                # if(FALSE) exp else exp_2 --> exp_2
+                return (if (length(x) > 3) f_optimize(x[[4]]) else quote({}))
+            }
+            # Regular if, descend either side of expression
+            x[[3]] <- f_optimize(x[[3]])
+            if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
+            return(x)
+        },
+        "{" = function (x) {
+            if (!is.call(x)) return(x)
+            # 1-statement braces just return
+            if (length(x) == 2) return(f_optimize(x[[2]]))
+
+            # Flatten any nested braces inside this brace
+            as.call(do.call(c, lapply(x, function (part) {
+                if (is.call(part)) {
+                    # Optimize inner parts first
+                    part <- f_optimize(part)
+                    # NB: Check for symbol again---could have optimized down to a symbol
+                    if (is.call(part) && part[[1]] == "{") {
+                        # Nested brace operator, flatten this
+                        # NB: "{ }" will be removed as a byproduct, since empty lists will dissapear
+                        return(tail(as.list(part), -1))
+                    }  # } - Match open brace of call
+                }
+                return(list(part))
+            })))
+        }) # } - Match open brace of call
+}

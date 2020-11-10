@@ -80,7 +80,7 @@ g3_step <- function(step_f) {
         return(call(as.character(x[[1]]), comment_str))
     }
 
-    return(call_replace(step_f,
+    return(f_optimize(call_replace(step_f,
         debug_label = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         debug_trace = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
@@ -167,7 +167,7 @@ g3_step <- function(step_f) {
         },
         stock_intersect = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'intersect'))
-        }))
+        })))
 }
 
 # Turn number/stock/string params into a single string indentifying that step
