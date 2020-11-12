@@ -28,7 +28,7 @@ named_list <- function(...) {
 }
 
 # NB: Name has to be different, or it gets sucked into the model
-lspace_add <- gadget3:::g3_global_env$logspace_add$r
+lspace_add <- gadget3:::g3_global_env$logspace_add
 
 ok(grepl(
     'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',

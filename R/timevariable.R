@@ -43,7 +43,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
         for (n in ls(environment())) {
             if (startsWith(n, "inttypelookup")) {
                 fn <- get(n)
-                fn$cpp <- gsub('Type', 'int', fn$cpp, fixed = TRUE)
+                attr(fn, 'g3_native_cpp') <- gsub('Type', 'int', attr(fn, 'g3_native_cpp'), fixed = TRUE)
                 assign(gsub("inttypelookup", "intintlookup", n, fixed = TRUE), fn)
             }
         }

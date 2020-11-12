@@ -24,12 +24,16 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
 
-        # Find any native functions used, and add them
+        # Find any g3_native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
-                    && !is.null(all_defns[[var_name]]$r)  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
-                scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]]$r)
+                if (is.function(all_defns[[var_name]])) {
+                    scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]])
+                } else if (is.character(all_defns[[var_name]]) && all_defns[[var_name]] != var_name) {
+                    # Native function with a different name
+                    scope[[var_name]] <<- call("<-", as.symbol(var_name), as.symbol(all_defns[[var_name]]))
+                }
             }
         }
 

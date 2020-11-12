@@ -431,18 +431,18 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
 
     env_defn <- mget(call_name, envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
     if ('g3_native' %in% class(env_defn)) {
-        if (is.list(env_defn$cpp)) {
+        if (is.list(attr(env_defn, 'g3_native_cpp'))) {
             # cpp is a list, so cast all arguments
-            if (length(call_args) != length(env_defn$cpp) - 1) {
-                stop("Expected arguments ", paste(env_defn$cpp, collapse = ", "), " in call ", deparse(in_call))
+            if (length(call_args) != length(attr(env_defn, 'g3_native_cpp')) - 1) {
+                stop("Expected arguments ", paste(attr(env_defn, 'g3_native_cpp'), collapse = ", "), " in call ", deparse(in_call))
             }
-            return(paste0(env_defn$cpp[[1]], "(", paste(vapply(seq_along(call_args), function (i) {
-                if (is.null(env_defn$cpp[[i + 1]])) {
+            return(paste0(attr(env_defn, 'g3_native_cpp')[[1]], "(", paste(vapply(seq_along(call_args), function (i) {
+                if (is.null(attr(env_defn, 'g3_native_cpp')[[i + 1]])) {
                     # No casting here
                     cpp_code(call_args[[i]], in_envir, next_indent)
                 } else {
                     # Add cast to variable definition
-                    paste0("(", env_defn$cpp[[i + 1]], ")(", cpp_code(call_args[[i]], in_envir, next_indent), ")")
+                    paste0("(", attr(env_defn, 'g3_native_cpp')[[i + 1]], ")(", cpp_code(call_args[[i]], in_envir, next_indent), ")")
                 }
             }, character(1)), collapse = ", "), ")"))
         }
@@ -516,12 +516,12 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Find any native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
-                    && is.character(all_defns[[var_name]]$cpp)  # i.e. it's not a native function here
+                    && is.character(attr(all_defns[[var_name]], 'g3_native_cpp'))  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
                 scope[[var_name]] <<- cpp_definition(
                     'auto',
                     var_name,
-                    trimws(all_defns[[var_name]]$cpp))
+                    trimws(attr(all_defns[[var_name]], 'g3_native_cpp')))
             }
         }
 
