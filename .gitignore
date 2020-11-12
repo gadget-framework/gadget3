@@ -7,3 +7,6 @@
 /docs
 /vignettes/*.html
 .Rproj.user
+
+/inttest/*/*.out
+/inttest/*/*.log
