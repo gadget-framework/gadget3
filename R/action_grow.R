@@ -25,7 +25,7 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
         return out;
     }')
     g3a_grow_weightsimple_vec_extrude <- g3_native(r = function (vec, a) {
-        vec %*% t(rep(1, a))
+        array(vec, dim = c(length(vec), a))
     }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
         array<Type> out(vec.size(), a);
         for (int i = 0 ; i < vec.size(); i++) {
