@@ -50,7 +50,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
                     + sum(stock_ss(prey_stock__fleet_stock)))
             }))
         }, list(
-            suit_f = f_substitute(suitabilities[[prey_stock$name]], list(prey_l = as.symbol("prey_stock__midlen"))),
+            suit_f = suitabilities[[prey_stock$name]],
             prey_stock__fleet_stock = fleet_stock_var)))
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
