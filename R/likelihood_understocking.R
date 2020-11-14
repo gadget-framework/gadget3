@@ -10,8 +10,8 @@ g3l_understocking <- function (prey_stocks, power_f = ~2, weight = 1.0, run_at =
             stock_iterate(prey_stock, {
                 debug_trace("Add understocking from ", prey_stock, " as biomass to nll")
                 g3l_understocking_total <- g3l_understocking_total + sum(
-                    (stock_ss(prey_stock__totalpredate) / stock_ss(prey_stock__overconsumption)) *
-                    (1 - stock_ss(prey_stock__overconsumption))
+                    (stock_ss(prey_stock__totalpredate) / stock_ss(prey_stock__consratio)) *
+                    (1 - stock_ss(prey_stock__consratio))
                 ) ^ (power_f)
             })
             nll <- nll + (weight) * g3l_understocking_total

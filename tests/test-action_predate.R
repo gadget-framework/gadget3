@@ -56,17 +56,17 @@ actions <- list(
             g3_report(prey_a__num)
             g3_report(prey_a__wgt)
             g3_report(prey_a__totalpredate)
-            g3_report(prey_a__overconsumption)
+            g3_report(prey_a__consratio)
 
             g3_report(prey_b__num)
             g3_report(prey_b__wgt)
             g3_report(prey_b__totalpredate)
-            g3_report(prey_b__overconsumption)
+            g3_report(prey_b__consratio)
 
             g3_report(prey_c__num)
             g3_report(prey_c__wgt)
             g3_report(prey_c__totalpredate)
-            g3_report(prey_c__overconsumption)
+            g3_report(prey_c__consratio)
 
             g3_report(prey_a__fleet_ab)
             g3_report(prey_b__fleet_ab)
@@ -189,8 +189,8 @@ ok_group("No overconsumption", {
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__overconsumption),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_a__overconsumption: No overconsumption")
+        as.vector(r$prey_a__consratio),
+        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_a__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
         as.vector(r$prey_a__fleet_ab) + 
@@ -202,8 +202,8 @@ ok_group("No overconsumption", {
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__overconsumption),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_b__overconsumption: No overconsumption")
+        as.vector(r$prey_b__consratio),
+        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
         as.vector(r$prey_b__fleet_ab) + 
@@ -215,8 +215,8 @@ ok_group("No overconsumption", {
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__overconsumption),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
+        as.vector(r$prey_c__consratio),
+        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
         as.vector(r$prey_c__fleet_ab) + 
@@ -248,16 +248,16 @@ ok_group("Overconsumption", {
 
     ok(result > 0, "nll: Overconsumption triggered understocking")
     ok(ut_cmp_equal(result, sum(
-        sum((r$prey_a__totalpredate/r$prey_a__overconsumption) * (1 - r$prey_a__overconsumption))^(3),
-        sum((r$prey_b__totalpredate/r$prey_b__overconsumption) * (1 - r$prey_b__overconsumption))^(3),
-        sum((r$prey_c__totalpredate/r$prey_c__overconsumption) * (1 - r$prey_c__overconsumption))^(3),
+        sum((r$prey_a__totalpredate/r$prey_a__consratio) * (1 - r$prey_a__consratio))^(3),
+        sum((r$prey_b__totalpredate/r$prey_b__consratio) * (1 - r$prey_b__consratio))^(3),
+        sum((r$prey_c__totalpredate/r$prey_c__consratio) * (1 - r$prey_c__consratio))^(3),
         0)), "nll: Based on overconsumption")
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__overconsumption),
+        as.vector(r$prey_a__consratio),
         c(1, 1, 1, 0.116850, 0.058425, 0.116850, 1, 1, 1, 1),
-        tolerance = 1e-5), "prey_a__overconsumption: Overconsumed by ab")
+        tolerance = 1e-5), "prey_a__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
         as.vector(r$prey_a__fleet_ab) +
@@ -269,9 +269,9 @@ ok_group("Overconsumption", {
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__overconsumption),
+        as.vector(r$prey_b__consratio),
         c(1, 1, 1, 1, 1, 0.10782500, 0.05391145, 0.10781659, 1, 1),
-        tolerance = 1e-5), "prey_b__overconsumption: Overconsumed by ab")
+        tolerance = 1e-5), "prey_b__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
         as.vector(r$prey_b__fleet_ab) +
@@ -283,8 +283,8 @@ ok_group("Overconsumption", {
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__overconsumption),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__overconsumption: No overconsumption")
+        as.vector(r$prey_c__consratio),
+        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
         as.vector(r$prey_c__fleet_ab) +
