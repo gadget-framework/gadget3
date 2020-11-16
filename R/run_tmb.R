@@ -126,6 +126,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
         assign_op <- "="
         if (is.call(assign_rhs)
                 && identical(assign_lhs, assign_rhs[[2]])
+                && as.character(assign_rhs[[1]]) %in% c("+", "-", "*", "/")
                 && length(assign_rhs) == 3) {
             # Operating on iself, use a += operation
             assign_op <- paste0(assign_rhs[[1]], "=")
