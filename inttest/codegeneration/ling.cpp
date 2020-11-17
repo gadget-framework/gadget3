@@ -353,7 +353,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = predate_totalfleet_E*ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / igfs__catch(igfs__area_idx);
+                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
                         ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
                 }
@@ -369,7 +369,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = predate_totalfleet_E*ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / igfs__catch(igfs__area_idx);
+                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                     }
                 }

@@ -64,7 +64,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 # NB: In gadget2, predate_totalfleet_E == wanttoeat, stock_ss(fleet__catch) == totalcons[inarea][predl
                 predate_totalfleet_E <- (amount_f)
-                stock_ss(prey_stock__fleet_stock) <- predate_totalfleet_E * stock_ss(prey_stock__fleet_stock) / stock_ss(fleet_stock__catch)
+                stock_ss(prey_stock__fleet_stock) <- stock_ss(prey_stock__fleet_stock) * (predate_totalfleet_E / stock_ss(fleet_stock__catch))
                 stock_ss(prey_stock__totalpredate) <- stock_ss(prey_stock__totalpredate) + stock_ss(prey_stock__fleet_stock)
                 # NB: In gadget2, prey_stock__fleet_stock == (*cons[inarea][prey])[predl], totalpredator.cc#68
             }))
