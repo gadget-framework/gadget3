@@ -1,0 +1,13 @@
+switch	value	lower	upper	optimise
+ling.igfs.alpha	0.5	0	100	0
+ling.igfs.l50	50	0	100	0
+lingimm.init	1	0	100	0
+lingimm.init.scalar	200	0	300	0
+lingimm.rec.scalar	200	0	300	0
+lingimm.M	0.15	0	100	0
+lingimm.walpha	1e-6	0	100	0
+lingimm.wbeta	2	0	100	0
+ling.init.F	0.4	0	100	0
+ling.Linf	160	0	200	0
+ling.bbin       6       1e-08   100     1
+ling.k  90      40      100     1
