@@ -10,7 +10,7 @@
 \.so$
 \.o$
 
-^demo-baseline$
+^inttest$
 ^doc$
 ^docs$
 ^.*\.Rproj$

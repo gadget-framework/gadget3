@@ -143,7 +143,7 @@ ling_model <- g3_to_r(c(
     igfs_actions,
     likelihood_actions,
     time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
-writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-baseline/ling.R')
+writeLines(deparse(ling_model, width.cutoff = 500L), con = 'inttest/codegeneration/ling.R')
 
 ling_param <- list(  # ./06-ling/12-new_ass/params.in
     "ling.Linf" = 160,
@@ -188,7 +188,7 @@ tmb_ling <- g3_to_tmb(c(
     igfs_actions,
     likelihood_actions,
     time))
-writeLines(tmb_ling, con = 'demo-baseline/ling.cpp')
+writeLines(tmb_ling, con = 'inttest/codegeneration/ling.cpp')
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     tmb_param <- attr(tmb_ling, 'parameter_template')
     # Fill parameters - Map original list into data.frame format
