@@ -1,14 +1,18 @@
-g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amount_f, run_at = 3) {
+g3a_predate_totalfleet <- function (fleet_stock,
+                                    prey_stocks,
+                                    suitabilities,
+                                    amount_f,
+                                    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - prey_stock__consratio) * 100, 0.96) / 100,
+                                    run_at = 3) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
     predate_totalfleet_E <- 0.0
 
     # Variables used:
-    # prey_stock__fleet_stock: Biomass selected for that fleet/prey combination (prey matrix)
+    # prey_stock__fleet_stock: Biomass of (prey_stock) caught by (fleet_stock) (prey matrix)
     # fleet_stock__catch: Biomass caught by that fleet (fleet matrix, i.e. area)
-    # prey_stock__totalpredate: Biomass predated for that stock (prey matrix)
-    # prey_stock__consratio: Factor to scale prey_stock__fleet_stock: / fleet_stock__catch / prey_stock__totalpredate
-    #                              to bring it down to 95% of current stock
+    # prey_stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
+    # prey_stock__consratio: Ratio of prey_stock__totalpredate / (current biomass), capped by overconsumption rule
     fleet_stock__catch <- stock_instance(fleet_stock)
 
     # For each prey stock...
@@ -19,6 +23,7 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
         prey_stock__wgt <- stock_instance(prey_stock)
         assign(as.character(fleet_stock_var), stock_instance(prey_stock))
         prey_stock__totalpredate <- stock_instance(prey_stock)
+        prey_stock__overconsumption <- 0.0
         prey_stock__consratio <- stock_instance(prey_stock)
 
         # Make sure counter for this fleet is zeroed
@@ -67,29 +72,55 @@ g3a_predate_totalfleet <- function (fleet_stock, prey_stocks, suitabilities, amo
             amount_f = amount_f,
             prey_stock__fleet_stock = fleet_stock_var)))
 
+        # Scale prey_stock__fleet_stock to be out of prey_stock__totalpredate (so we can apply post-overstocking amount)
+        out[[step_id(run_at, 3, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
+            debug_trace("Temporarily convert to being proportion of totalpredate")
+            stock_with(prey_stock, {
+                prey_stock__fleet_stock <- prey_stock__fleet_stock / logspace_add_vec(prey_stock__totalpredate, 0)
+            })
+        }, list(
+            prey_stock__fleet_stock = fleet_stock_var)))
+
         # Overconsumption: Prey adjustments
-        out[[step_id(run_at, 3, prey_stock)]] <- g3_step(~{
+        out[[step_id(run_at, 4, prey_stock)]] <- g3_step(f_substitute(~{
             debug_trace("Calculate ", prey_stock, " overconsumption coefficient")
             stock_with(prey_stock, {
                 # NB: See prey.cc::208
-                # prey_stock__consratio == consratio
-                prey_stock__consratio <- logspace_add_vec(-200 * (prey_stock__num * prey_stock__wgt * 0.95) / logspace_add_vec(prey_stock__totalpredate, 0), -200) / -200
-                prey_stock__totalpredate <- prey_stock__totalpredate * prey_stock__consratio
-                prey_stock__num <- prey_stock__num - (prey_stock__totalpredate / logspace_add_vec(prey_stock__wgt, 0))
+                # prey_stock__consratio == ratio
+                prey_stock__consratio <- prey_stock__totalpredate / logspace_add_vec(prey_stock__num * prey_stock__wgt, 0)
+
+                # Overconsumption rule
+                prey_stock__consratio <- overconsumption_f
+                if (strict_mode) {
+                    debug_trace("We can't consume more fish than currently exists")
+                    stopifnot(all(prey_stock__consratio <= 1))
+                }
+
+                debug_trace("Apply overconsumption to prey")
+                prey_stock__overconsumption <- sum(prey_stock__totalpredate)
+                prey_stock__totalpredate <- (prey_stock__num * prey_stock__wgt) * prey_stock__consratio
+                prey_stock__overconsumption <- prey_stock__overconsumption - sum(prey_stock__totalpredate)
+                # NB: We have to do this last, otherwise we can't calculate prey_stock__fleetconsratio
+                prey_stock__num <- prey_stock__num * (1 - prey_stock__consratio)
             })
-        })
+        }, list(
+            overconsumption_f = overconsumption_f)))
 
         # Overconsumption: Zero catch counter again, so we can sum adjusted values this time
-        out[[step_id(run_at, 3, fleet_stock)]] <- g3_step(~{
+        out[[step_id(run_at, 5, fleet_stock)]] <- g3_step(~{
             debug_trace("Zero ", fleet_stock, " catch before working out post-adjustment value")
             stock_with(fleet_stock, fleet_stock__catch[] <- 0)
         })
 
         # Overconsumption: if we went over the limit, scale back, remove from prey_stock
-        out[[step_id(run_at, 4, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
-            debug_trace("Scale caught amount by overconsumption, update variables")
-            stock_with(prey_stock, prey_stock__fleet_stock <- prey_stock__fleet_stock * prey_stock__consratio)
+        out[[step_id(run_at, 5, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
+            stock_with(prey_stock, {
+                debug_trace("Revert to being total biomass (applying overconsumption in process)")
+                # Rough equivalent fleetpreyaggregator.cc:109
+                prey_stock__fleet_stock <- prey_stock__fleet_stock * prey_stock__totalpredate
+            })
 
+            debug_trace("Update total catch")
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
                     + sum(stock_ss(prey_stock__fleet_stock)))

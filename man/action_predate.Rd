@@ -7,7 +7,8 @@
 }
 
 \usage{
-g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, run_at = 3)
+g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, overconsumption_f = ~logspace_add_vec(prey_stock__consratio,
+    0.95), run_at = 3)
 
 }
 
@@ -26,6 +27,11 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, run_at
     A \link{formula} that returns the total biomass a stock can harvest in the current time/area,
     generally defined by a \code{\link{g3_timeareadata}} table.
   }
+  \item{overconsumption_f}{
+    Overconsumption rule, a formula that should cap all values in \var{prey_stock__consratio} to <= 95%.
+    You can emulate gadget2 more closely than the default with the following
+    \code{overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))} (NB: Not differentiable!)
+  }
   \item{run_at}{
     Order of age actions within model, see TODO:
   }
@@ -34,10 +40,10 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, run_at
 \details{
   The actions will define the following stock instance variables for each given \var{fleet_stock} and \var{prey_stock}:
   \describe{
-    \item{\var{prey_stock__fleet_stock}}{Total biomass selected for that fleet/prey combination}
-    \item{\var{fleet_stock__catch}}{Total biomass caught by that fleet}
-    \item{\var{prey_stock__totalpredate}}{Total biomass removed from that stock}
-    \item{\var{prey_stock__overconsumption}}{Factor to scale consumption down to at most 95\% of available stock}
+    \item{\var{prey_stock__fleet_stock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
+    \item{\var{fleet_stock__catch}}{Biomass of all prey caught by (fleet stock), in a fleet array}
+    \item{\var{prey_stock__totalpredate}}{Biomass of total consumed (prey_stock), in a prey array}
+    \item{\var{prey_stock__consratio}}{Ratio of prey_stock__totalpredate / (current biomass), capped by \var{overconsumption_f}}
   }
 
   A model can have any number of \code{g3a_predate_*} actions, so long as the
@@ -50,8 +56,9 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, run_at
     \item{Zero fleet and prey catch counters}
     \item{For each prey, collect maximum desired by fleet for all prey, into a \var{prey_stock__fleet_stock} variable}
     \item{After all fleet consumption is done, scale consumption using \var{amount_f}, sum into \var{prey_stock__totalpredate}}
-    \item{After all other consumption is done, work out an overconsumption co-efficient for each prey}
-    \item{For \var{prey_stock__fleet_stock}, \var{fleet_stock__catch}, scale by prey's overconsumption co-efficient}
+    \item{After all consumption is done, temporarily convert \var{prey_stock__fleet_stock} to a proprotion of \var{prey_stock__totalpredate}}
+    \item{Calculate \var{prey_stock__consratio} (ratio of consumed to available), capping using \var{overconsumption_f}. Update \var{prey_stock__num}}
+    \item{Recalculate \var{prey_stock__fleet_stock}, \var{fleet_stock__catch}, post-overconsumption}
   }}
 }
 

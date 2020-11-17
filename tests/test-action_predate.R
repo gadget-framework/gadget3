@@ -122,10 +122,11 @@ ok_group("No overconsumption", {
     ok(ut_cmp_equal(result, 0), "nll: No overconsumption")
 
     # Fleet_ab
-    ok(ut_cmp_identical(
+    ok(ut_cmp_equal(
         as.vector(r$fleet_ab__catch),
-        c(100, 200)), "fleet_ab__catch: 100 from area 1, 200 from area 2")
-    prey_a_catch_45 <- 0.1 * 45 * 450
+        c(sum(r$prey_a__fleet_ab[,1]), sum(r$prey_b__fleet_ab[,1])),
+        tolerance = 1e-7), "prey_ab__catch: Totals match prey_a__fleet_ab & prey_b__fleet_ab")
+    prey_a_catch_45 <- 0.1 * 45 * 450  # NB: 0.1 = selectivity, 45 = __num, 450 = __wgt
     prey_a_catch_55 <- 0.2 * 55 * 550
     prey_a_catch_65 <- 0.1 * 65 * 650
     ok(ut_cmp_equal(
@@ -136,9 +137,6 @@ ok_group("No overconsumption", {
             100 * prey_a_catch_55 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             100 * prey_a_catch_65 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             0, 0, 0, 0)), "prey_a__fleet_ab: Scaled to match suitability")
-    ok(ut_cmp_equal(
-        sum(as.vector(r$prey_a__fleet_ab)),
-        100), "prey_a__fleet_ab: Totals 100")
     prey_b_catch_65 <- 0.1 * 65 * 650
     prey_b_catch_75 <- 0.2 * 75 * 750
     prey_b_catch_85 <- 0.1 * 85 * 850
@@ -155,7 +153,7 @@ ok_group("No overconsumption", {
         c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_c__fleet_ab: None, in wrong area")
 
     # Fleet_bc
-    ok(ut_cmp_identical(
+    ok(ut_cmp_equal(
         as.vector(r$fleet_bc__catch),
         c(2 * 50, 3 * 50)), "fleet_bc__catch: 50 * (area) in total")
     ok(ut_cmp_equal(
@@ -189,8 +187,8 @@ ok_group("No overconsumption", {
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__consratio),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_a__consratio: No overconsumption")
+        as.vector(r$prey_a__consratio) >= 0.95,
+        c(F, F, F, F, F, F, F, F, F, F)), "prey_a__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
         as.vector(r$prey_a__fleet_ab) + 
@@ -202,8 +200,8 @@ ok_group("No overconsumption", {
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__consratio),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_b__consratio: No overconsumption")
+        as.vector(r$prey_b__consratio) >= 0.95,
+        c(F, F, F, F, F, F, F, F, F, F)), "prey_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
         as.vector(r$prey_b__fleet_ab) + 
@@ -215,8 +213,8 @@ ok_group("No overconsumption", {
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__consratio),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__consratio: No overconsumption")
+        as.vector(r$prey_c__consratio) >= 0.95,
+        c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
         as.vector(r$prey_c__fleet_ab) + 
@@ -247,17 +245,11 @@ ok_group("Overconsumption", {
     # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 
     ok(result > 0, "nll: Overconsumption triggered understocking")
-    ok(ut_cmp_equal(result, sum(
-        sum((r$prey_a__totalpredate/r$prey_a__consratio) * (1 - r$prey_a__consratio))^(3),
-        sum((r$prey_b__totalpredate/r$prey_b__consratio) * (1 - r$prey_b__consratio))^(3),
-        sum((r$prey_c__totalpredate/r$prey_c__consratio) * (1 - r$prey_c__consratio))^(3),
-        0)), "nll: Based on overconsumption")
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__consratio),
-        c(1, 1, 1, 0.116850, 0.058425, 0.116850, 1, 1, 1, 1),
-        tolerance = 1e-5), "prey_a__consratio: Overconsumed by ab")
+        as.vector(r$prey_a__consratio) >= 0.95,
+        c(F, F, F, T, T, T, F, F, F, F)), "prey_a__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
         as.vector(r$prey_a__fleet_ab) +
@@ -265,13 +257,13 @@ ok_group("Overconsumption", {
     ok(ut_cmp_equal(
         as.vector(r$prey_a__num),
         c(15, 25, 35, 45 - (45 * 0.95), 55 - (55 * 0.95), 65 - (65 * 0.95), 75, 85, 95, 105),
-        tolerance = 1e-5), "prey_a__num: Still some left thanks to overconsumption being triggered")
+        # NB: Low tolerance due to using logspace_add_vec
+        tolerance = 1e-2), "prey_a__num: Still some left thanks to overconsumption being triggered")
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__consratio),
-        c(1, 1, 1, 1, 1, 0.10782500, 0.05391145, 0.10781659, 1, 1),
-        tolerance = 1e-5), "prey_b__consratio: Overconsumed by ab")
+        as.vector(r$prey_b__consratio) >= 0.95,
+        c(F, F, F, F, F, T, T, T, F, F)), "prey_b__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
         as.vector(r$prey_b__fleet_ab) +
@@ -279,12 +271,13 @@ ok_group("Overconsumption", {
     ok(ut_cmp_equal(
         as.vector(r$prey_b__num),
         c(15, 25, 35, 45, 55, 65 - (65 * 0.95), 75 - (75 * 0.95), 85 - (85 * 0.95), 94.96735, 105),
-        tolerance = 1e-5), "prey_b__num: Hit overconsumption limit")
+        # NB: Low tolerance due to using logspace_add_vec
+        tolerance = 1e-2), "prey_b__num: Hit overconsumption limit")
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__consratio),
-        c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)), "prey_c__consratio: No overconsumption")
+        as.vector(r$prey_c__consratio) >= 0.95,
+        c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
         as.vector(r$prey_c__fleet_ab) +

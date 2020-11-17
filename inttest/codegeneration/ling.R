@@ -38,7 +38,7 @@ structure(function (param)
     }
     g3a_grow_weightsimple_vec_extrude <- function (vec, a) 
     {
-        vec %*% t(rep(1, a))
+        array(vec, dim = c(length(vec), a))
     }
     g3a_grow_apply <- function (delta_l, delta_w, input_num, input_wgt) 
     {
@@ -129,8 +129,10 @@ structure(function (param)
     igfs_totaldata__lookup <- inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_imm__consratio <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
     "age9", "age10")))
+    ling_imm__overconsumption <- 0
     ling_mat__consratio <- array(dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age5", "age6", "age7", "age8", "age9", "age10", 
     "age11", "age12", "age13", "age14", "age15")))
+    ling_mat__overconsumption <- 0
     ling_imm__transitioning_num <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
     "age8", "age9", "age10")))
     ling_imm__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
@@ -285,60 +287,68 @@ structure(function (param)
             }
         }
         {
+            comment("Temporarily convert to being proportion of totalpredate")
+            ling_imm__igfs <- ling_imm__igfs/logspace_add_vec(ling_imm__totalpredate, 0)
+        }
+        {
+            comment("Temporarily convert to being proportion of totalpredate")
+            ling_mat__igfs <- ling_mat__igfs/logspace_add_vec(ling_mat__totalpredate, 0)
+        }
+        {
+            comment("Calculate ling_imm overconsumption coefficient")
+            ling_imm__consratio <- ling_imm__totalpredate/logspace_add_vec(ling_imm__num * ling_imm__wgt, 0)
+            ling_imm__consratio <- 0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100
+            if (TRUE) {
+                comment("We can't consume more fish than currently exists")
+                stopifnot(all(ling_imm__consratio <= 1))
+            }
+            comment("Apply overconsumption to prey")
+            ling_imm__overconsumption <- sum(ling_imm__totalpredate)
+            ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
+            ling_imm__overconsumption <- ling_imm__overconsumption - sum(ling_imm__totalpredate)
+            ling_imm__num <- ling_imm__num * (1 - ling_imm__consratio)
+        }
+        {
+            comment("Calculate ling_mat overconsumption coefficient")
+            ling_mat__consratio <- ling_mat__totalpredate/logspace_add_vec(ling_mat__num * ling_mat__wgt, 0)
+            ling_mat__consratio <- 0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100
+            if (TRUE) {
+                comment("We can't consume more fish than currently exists")
+                stopifnot(all(ling_mat__consratio <= 1))
+            }
+            comment("Apply overconsumption to prey")
+            ling_mat__overconsumption <- sum(ling_mat__totalpredate)
+            ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio
+            ling_mat__overconsumption <- ling_mat__overconsumption - sum(ling_mat__totalpredate)
+            ling_mat__num <- ling_mat__num * (1 - ling_mat__consratio)
+        }
+        {
             comment("Zero igfs catch before working out post-adjustment value")
             igfs__catch[] <- 0
         }
         {
-            comment("Calculate ling_imm overconsumption coefficient")
+            comment("Revert to being total biomass (applying overconsumption in process)")
+            ling_imm__igfs <- ling_imm__igfs * ling_imm__totalpredate
+            comment("Update total catch")
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1
                 {
                   area <- ling_imm__area
-                  {
-                    ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx] <- logspace_add_vec(-200 * (ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * 0.95)/logspace_add_vec(ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx], 0), -200)/-200
-                    ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
-                    ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/logspace_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], 0))
-                  }
-                }
-            }
-        }
-        {
-            comment("Calculate ling_mat overconsumption coefficient")
-            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
-                ling_mat__age_idx <- age - ling_mat__minage + 1
-                {
-                  area <- ling_mat__area
-                  {
-                    ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx] <- logspace_add_vec(-200 * (ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * 0.95)/logspace_add_vec(ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx], 0), -200)/-200
-                    ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
-                    ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] - (ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/logspace_add_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx], 0))
-                  }
-                }
-            }
-        }
-        {
-            comment("Scale caught amount by overconsumption, update variables")
-            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
-                ling_imm__age_idx <- age - ling_imm__minage + 1
-                {
-                  area <- ling_imm__area
-                  if (area == igfs__area) {
-                    ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]
+                  if (area == igfs__area) 
                     igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
-                  }
                 }
             }
         }
         {
-            comment("Scale caught amount by overconsumption, update variables")
+            comment("Revert to being total biomass (applying overconsumption in process)")
+            ling_mat__igfs <- ling_mat__igfs * ling_mat__totalpredate
+            comment("Update total catch")
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1
                 {
                   area <- ling_mat__area
-                  if (area == igfs__area) {
-                    ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]
+                  if (area == igfs__area) 
                     igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
-                  }
                 }
             }
         }
@@ -531,32 +541,18 @@ structure(function (param)
         {
             comment("g3l_understocking for ling_imm")
             g3l_understocking_total <- 0
-            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
-                ling_imm__age_idx <- age - ling_imm__minage + 1
-                {
-                  area <- ling_imm__area
-                  {
-                    comment("Add understocking from ling_imm as biomass to nll")
-                    g3l_understocking_total <- g3l_understocking_total + sum((ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx]/ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]) * (1 - ling_imm__overconsumption[, ling_imm__area_idx, ling_imm__age_idx]))^(2)
-                  }
-                }
-            }
-            nll <- nll + (1) * g3l_understocking_total
+            comment("Add understocking from ling_imm as biomass to nll")
+            g3l_understocking_total <- g3l_understocking_total + ling_imm__overconsumption
         }
         {
             comment("g3l_understocking for ling_mat")
             g3l_understocking_total <- 0
-            for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
-                ling_mat__age_idx <- age - ling_mat__minage + 1
-                {
-                  area <- ling_mat__area
-                  {
-                    comment("Add understocking from ling_mat as biomass to nll")
-                    g3l_understocking_total <- g3l_understocking_total + sum((ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx]/ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]) * (1 - ling_mat__overconsumption[, ling_mat__area_idx, ling_mat__age_idx]))^(2)
-                  }
-                }
-            }
-            nll <- nll + (1) * g3l_understocking_total
+            comment("Add understocking from ling_mat as biomass to nll")
+            g3l_understocking_total <- g3l_understocking_total + ling_mat__overconsumption
+        }
+        {
+            comment("g3l_understocking: Combine and add to nll")
+            nll <- nll + (1) * (g3l_understocking_total^(2))
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")

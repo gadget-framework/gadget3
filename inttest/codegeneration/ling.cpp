@@ -202,8 +202,10 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_VECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
-    array<Type> ling_imm__overconsumption(35,1,8);
-    array<Type> ling_mat__overconsumption(35,1,11);
+    array<Type> ling_imm__consratio(35,1,8);
+    Type ling_imm__overconsumption = 0;
+    array<Type> ling_mat__consratio(35,1,11);
+    Type ling_mat__overconsumption = 0;
     array<Type> ling_imm__transitioning_num(35,1,8);
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     array<Type> ling_imm__growth_l;
@@ -374,43 +376,49 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
+            // Temporarily convert to being proportion of totalpredate;
+            ling_imm__igfs /= logspace_add_vec(ling_imm__totalpredate, 0);
+        }
+        {
+            // Temporarily convert to being proportion of totalpredate;
+            ling_mat__igfs /= logspace_add_vec(ling_mat__totalpredate, 0);
+        }
+        {
+            // Calculate ling_imm overconsumption coefficient;
+            ling_imm__consratio = ling_imm__totalpredate / logspace_add_vec(ling_imm__num*ling_imm__wgt, 0);
+            ling_imm__consratio = 0.96 - logspace_add_vec((0.96 - ling_imm__consratio)*100, 0.96) / 100;
+            if ( false ) {
+                // We can't consume more fish than currently exists;
+                assert(all(ling_imm__consratio <= 1));
+            }
+            // Apply overconsumption to prey;
+            ling_imm__overconsumption = (ling_imm__totalpredate).sum();
+            ling_imm__totalpredate = (ling_imm__num*ling_imm__wgt)*ling_imm__consratio;
+            ling_imm__overconsumption -= (ling_imm__totalpredate).sum();
+            ling_imm__num *= (1 - ling_imm__consratio);
+        }
+        {
+            // Calculate ling_mat overconsumption coefficient;
+            ling_mat__consratio = ling_mat__totalpredate / logspace_add_vec(ling_mat__num*ling_mat__wgt, 0);
+            ling_mat__consratio = 0.96 - logspace_add_vec((0.96 - ling_mat__consratio)*100, 0.96) / 100;
+            if ( false ) {
+                // We can't consume more fish than currently exists;
+                assert(all(ling_mat__consratio <= 1));
+            }
+            // Apply overconsumption to prey;
+            ling_mat__overconsumption = (ling_mat__totalpredate).sum();
+            ling_mat__totalpredate = (ling_mat__num*ling_mat__wgt)*ling_mat__consratio;
+            ling_mat__overconsumption -= (ling_mat__totalpredate).sum();
+            ling_mat__num *= (1 - ling_mat__consratio);
+        }
+        {
             // Zero igfs catch before working out post-adjustment value;
             igfs__catch.setZero();
         }
         {
-            // Calculate ling_imm overconsumption coefficient;
-            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
-                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
-
-                {
-                    auto area = ling_imm__area;
-
-                    {
-                        ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx) = logspace_add_vec(-200*(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*0.95) / logspace_add_vec(ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx), 0), -200) / -200;
-                        ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / logspace_add_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx), 0));
-                    }
-                }
-            }
-        }
-        {
-            // Calculate ling_mat overconsumption coefficient;
-            for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
-                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
-
-                {
-                    auto area = ling_mat__area;
-
-                    {
-                        ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx) = logspace_add_vec(-200*(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*0.95) / logspace_add_vec(ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx), 0), -200) / -200;
-                        ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) -= (ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / logspace_add_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx), 0));
-                    }
-                }
-            }
-        }
-        {
-            // Scale caught amount by overconsumption, update variables;
+            // Revert to being total biomass (applying overconsumption in process);
+            ling_imm__igfs *= ling_imm__totalpredate;
+            // Update total catch;
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -418,14 +426,15 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                     }
                 }
             }
         }
         {
-            // Scale caught amount by overconsumption, update variables;
+            // Revert to being total biomass (applying overconsumption in process);
+            ling_mat__igfs *= ling_mat__totalpredate;
+            // Update total catch;
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
@@ -433,7 +442,6 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum());
                     }
                 }
@@ -656,36 +664,18 @@ Type objective_function<Type>::operator() () {
         {
             // g3l_understocking for ling_imm;
             g3l_understocking_total = 0;
-            for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
-                auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
-
-                {
-                    auto area = ling_imm__area;
-
-                    {
-                        // Add understocking from ling_imm as biomass to nll;
-                        g3l_understocking_total += pow(((ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) / ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx))*(1 - ling_imm__overconsumption.col(ling_imm__age_idx).col(ling_imm__area_idx))).sum(), (Type)(2));
-                    }
-                }
-            }
-            nll += (1)*g3l_understocking_total;
+            // Add understocking from ling_imm as biomass to nll;
+            g3l_understocking_total += ling_imm__overconsumption;
         }
         {
             // g3l_understocking for ling_mat;
             g3l_understocking_total = 0;
-            for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
-                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
-
-                {
-                    auto area = ling_mat__area;
-
-                    {
-                        // Add understocking from ling_mat as biomass to nll;
-                        g3l_understocking_total += pow(((ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) / ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx))*(1 - ling_mat__overconsumption.col(ling_mat__age_idx).col(ling_mat__area_idx))).sum(), (Type)(2));
-                    }
-                }
-            }
-            nll += (1)*g3l_understocking_total;
+            // Add understocking from ling_mat as biomass to nll;
+            g3l_understocking_total += ling_mat__overconsumption;
+        }
+        {
+            // g3l_understocking: Combine and add to nll;
+            nll += (1)*(pow(g3l_understocking_total, (Type)(2)));
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;
