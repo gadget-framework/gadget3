@@ -32,7 +32,7 @@ prev_nll <- 0.0
 
 ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
-        factor_f = ~g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
+        factor_f = ~age * g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10, 
         alpha_f = ~g3_param("lingimm.walpha"),
@@ -115,29 +115,43 @@ attr(g2_igfs, 'age') <- list(all3 = 3:5)
 attr(g2_igfs, 'length') <- Rgadget::read.gadget.file('inttest/overstocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs <- gadget3:::g3l_likelihood_data('x', g2_igfs)
 
+g3_biomass <- g3_r$imm_report__num[,,] * g3_r$imm_report__wgt[,,]
+
 for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
+    # NB: Losing accuracy at timesteps 9:12 (i.e 1984, which only has age5 left)
+    #     Think we're noticing gadget2's "if (< verysmall) 0"
     ok(all.equal(
         unname(g2_lingimm$number[,,1,t]),
         unname(g3_r$imm_report__num[,,t]),
-        tolerance = 1e-3), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
+        tolerance = if (t %in% 9:12) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
         unname(g3_r$imm_report__num[,,t] * g3_r$imm_report__wgt[,,t]),
-        tolerance = 1e-4), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+        tolerance = if (t %in% 9:10) 1e-2 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 
     ok(all.equal(
         g2_igfs$weight[,,1,1],
         rowSums(g3_r$imm_report__totalpredate[,,1]),
         tolerance = 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
-}
 
-g3_biomass <- colSums(g3_r$imm_report__num[,1,] * g3_r$imm_report__wgt[,1,])
-ok(all.equal(
-    unname(colSums(g3_r$imm_report__totalpredate[,1,])),
-    unname(c(colSums(g3_r$imm_report__totalpredate[,1,])[[1]], head(g3_biomass, -1) - tail(g3_biomass, -1))),
-    tolerance = 1e-2), "g3_r$imm_report__totalpredate: Consistent with fall in stock biomass")
+    if (t == 1) {
+        # Initial step, no comparisons to make
+    } else if ((t - 1) %% 4 == 0) {
+        # Beginning of year, ages will have jumped between timesteps
+        ok(all.equal(
+            rowSums(g3_biomass[,,t - 1]) - rowSums(g3_r$imm_report__totalpredate[,,t]),
+            rowSums(g3_biomass[,,t]),
+            tolerance = if (t %in% 9) 1e-2 else 1e-6), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
+    } else {
+        # In-year timestep, so can compare age breakdown
+        ok(all.equal(
+            g3_biomass[,,t - 1] - g3_r$imm_report__totalpredate[,,t],
+            g3_biomass[,,t],
+            tolerance = if (t %in% 10:11) 1e-3 else 1e-5), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+    }
+}
 ok(all.equal(
     colSums(g3_r$igfs_report__catch[]),
     colSums(colSums(g3_r$imm_report__igfs[,,])),
@@ -146,19 +160,23 @@ ok(all.equal(
 ok(all.equal(
     g3_r$imm_report__igfs,
     g3_r$imm_report__totalpredate,
-    tolerance = 1e-0), "imm_report__totalpredate: Vaguely matches")  # TODO: ?
+    tolerance = 1e-7), "imm_report__totalpredate: Matches imm_report__igfs")
 
+# NB: Gadget2 goes wild in 1987. There's no fish, but plenty of catch
+not_1987 <- c(1:20,25:(length(year_range) * 4))
 ok(all.equal(
-    colSums(g2_igfs$weight[,,1,]),
-    g3_r$igfs_report__catch[1,],
-    tolerance = 1e-1), "g3_r$igfs_report__catch: Approximately matches igfs.lingimm.predprey.out")
+    colSums(g2_igfs$weight[,,1, not_1987]),
+    g3_r$igfs_report__catch[1, not_1987],
+    tolerance = 1e-6), "g3_r$igfs_report__catch: Approximately matches igfs.lingimm.predprey.out")
 
+# Fill in zeros in nll report
 g2_nll <- Rgadget::read.gadget.file('inttest/overstocking', 'likelihood.out')[[1]]
-# NB: add two zeros for non-understocked initial numbers. Should really be parsing year/step and filling gaps instead.
-g2_nll <- c(0, 0, g2_nll[g2_nll$component == 'understocking','likelihood_value'] * g2_nll[g2_nll$component == 'understocking','weight'])
+g2_nll <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
+g2_nll$likelihood_value[is.na(g2_nll$likelihood_value)] <- 0
+g2_nll$weight[is.na(g2_nll$weight)] <- 0
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
 ok(all.equal(
-    g2_nll,
-    g3_r$nll_report[seq_along(g2_nll)],
+    g2_nll$likelihood_value[1:23] * g2_nll$weight[1:23],
+    g3_r$nll_report[1:23],
     tolerance = 1e-6), "g3_r$nll_report: Initial part of report matches")
