@@ -119,7 +119,6 @@ structure(function (param)
     igfs__area_idx <- (1)
     ling_mat__igfs <- array(dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age5", "age6", "age7", "age8", "age9", "age10", 
     "age11", "age12", "age13", "age14", "age15")))
-    predate_totalfleet_E <- 0
     inttypelookup_zip <- function (keys, values) 
     {
         list(keys = keys, values = values)
@@ -265,8 +264,10 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   if (area == igfs__area) {
-                    predate_totalfleet_E <- (inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0))
-                    ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
+                    {
+                      predate_totalfleet_E <- inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0)
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
+                    }
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
@@ -279,8 +280,10 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   if (area == igfs__area) {
-                    predate_totalfleet_E <- (inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0))
-                    ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
+                    {
+                      predate_totalfleet_E <- inttypelookup_getdefault(igfs_totaldata__lookup, area * 1000000L + cur_year * 100L + cur_step, 0)
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
+                    }
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }

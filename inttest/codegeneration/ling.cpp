@@ -189,7 +189,6 @@ Type objective_function<Type>::operator() () {
     int igfs__area = 1;
     auto igfs__area_idx = 0;
     array<Type> ling_mat__igfs(35,1,11);
-    Type predate_totalfleet_E = 0;
     auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
 
@@ -352,8 +351,11 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
-                        predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
+                        {
+                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0);
+
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
+                        }
                         ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
                 }
@@ -368,8 +370,11 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
-                        predate_totalfleet_E = (inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0));
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
+                        {
+                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, 0);
+
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
+                        }
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                     }
                 }

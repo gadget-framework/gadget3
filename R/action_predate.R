@@ -6,7 +6,6 @@ g3a_predate_totalfleet <- function (fleet_stock,
                                     run_at = 3) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
-    predate_totalfleet_E <- 0.0
 
     # Variables used:
     # prey_stock__fleet_stock: Biomass of (prey_stock) caught by (fleet_stock) (prey matrix)
@@ -62,9 +61,10 @@ g3a_predate_totalfleet <- function (fleet_stock,
         out[[step_id(run_at, 2, fleet_stock, prey_stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", fleet_stock, " catch of ", prey_stock, " by total expected catch")
             stock_iterate(prey_stock, stock_intersect(fleet_stock, {
-                # NB: In gadget2, predate_totalfleet_E == wanttoeat, stock_ss(fleet__catch) == totalcons[inarea][predl
-                predate_totalfleet_E <- (amount_f)
-                stock_ss(prey_stock__fleet_stock) <- stock_ss(prey_stock__fleet_stock) * (predate_totalfleet_E / stock_ss(fleet_stock__catch))
+                # NB: In gadget2, predate_totalfleet_E == wanttoeat, stock_ss(fleet__catch) == totalcons[inarea][predl]
+                g3_with(predate_totalfleet_E, amount_f, {
+                    stock_ss(prey_stock__fleet_stock) <- stock_ss(prey_stock__fleet_stock) * (predate_totalfleet_E / stock_ss(fleet_stock__catch))
+                })
                 stock_ss(prey_stock__totalpredate) <- stock_ss(prey_stock__totalpredate) + stock_ss(prey_stock__fleet_stock)
                 # NB: In gadget2, prey_stock__fleet_stock == (*cons[inarea][prey])[predl], totalpredator.cc#68
             }))
