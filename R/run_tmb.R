@@ -4,7 +4,7 @@ close_curly_bracket <- "}"
 
 cpp_escape_varname <- function (x) gsub('\\W', '__', x, perl = TRUE)
 
-cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
+cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, expecting_int = FALSE) {
     next_indent <- paste0(indent, "    ")
 
     # Make sure x has a brace or eqivalent call around it
@@ -20,6 +20,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
         if (length(in_call) == 1) {
             if (is.integer(in_call)) {
                 return(toString(in_call))
+            } else if (is.numeric(in_call) && !expecting_int) {
+                # Force anything numeric to be double, to avoid accidental integer division
+                return(paste0("(double)(", toString(in_call) ,")"))
             } else if (is.logical(in_call)) {
                 return(if (in_call) 'true' else 'false')
             } else if (is.symbol(in_call)) {
@@ -262,12 +265,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
             ind <- in_call[[3]] - 1
         } else {
             # Add a subtract-1 operator
-            ind <- call("-", in_call[[3]], 1)
+            ind <- call("-", in_call[[3]], 1L)
         }
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
             "(",
-            cpp_code(ind, in_envir, next_indent),
+            cpp_code(ind, in_envir, next_indent, expecting_int = TRUE),
             ")"))
     }
 
@@ -386,9 +389,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE) {
             return(paste0("-", cpp_code(in_call[[2]], in_envir, next_indent)))
         }
         return(paste(
-            cpp_code(in_call[[2]], in_envir, next_indent),
+            cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
             call_name,
-            cpp_code(in_call[[3]], in_envir, next_indent)))
+            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int || (call_name == "=="))))
     }
 
     if (call_name == "(") {

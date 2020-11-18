@@ -73,7 +73,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         intersect = f_substitute(~g3_with(
             stock__areagroup_idx, g3_idx(lookup),
             if (stock__areagroup_idx > g3_idx(-1)) extension_point), list(
-                lookup = stock__areagroup_lookup('getdefault', ~area, -1),
+                lookup = stock__areagroup_lookup('getdefault', ~area, -1L),
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
         name = inner_stock$name), class = c("g3_stock", "list"))

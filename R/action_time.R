@@ -20,21 +20,21 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
 
     step_lengths <- as.array(as.integer(steps))
     step_count <- length(steps)
-    cur_time <- as.integer(-1)
-    cur_step <- as.integer(0)
-    cur_step_size <- 0
-    cur_year <- as.integer(0)
+    cur_time <- -1L
+    cur_step <- 0L
+    cur_step_size <- as.numeric(0)
+    cur_year <- 0L
     cur_step_final <- FALSE
-    total_steps <- ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1
+    total_steps <- ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- ~{
         debug_label("g3a_time")
-        cur_time <- cur_time + 1
+        cur_time <- cur_time + 1L
         if (cur_time > total_steps) return(nll)
         cur_year <- start_year + (cur_time %/% step_count)
-        cur_step <- (cur_time %% step_count) + 1
-        cur_step_size <- step_lengths[[cur_step]] / as.numeric(12)
+        cur_step <- (cur_time %% step_count) + 1L
+        cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
         if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }

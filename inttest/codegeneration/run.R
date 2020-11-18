@@ -50,7 +50,7 @@ ling_imm_actions <- list(
     g3a_renewal_normalparam(ling_imm,
         factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
         mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-        stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
+        stddev_f = ~ling_imm_stddev[[age - 3L + 1L]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
         run_f = ~cur_step == 1 && age == 5),

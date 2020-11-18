@@ -24,10 +24,10 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
 
     if (any(times > 9999)) {
         # Year + step
-        idx_f <- timelookup('getdefault', ~cur_year * 1000 + cur_step, -1)
+        idx_f <- timelookup('getdefault', ~cur_year * 1000L + cur_step, -1L)
     } else {
         # Just year
-        idx_f <- timelookup('getdefault', ~cur_year, -1)
+        idx_f <- timelookup('getdefault', ~cur_year, -1L)
     }
 
     structure(list(
@@ -37,7 +37,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
             time = times)),
         iterate = inner_stock$iterate,  # NB: Just pass through, iterating over all time doesn't make sense
         iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__time_idx"))),
-        intersect = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1)) extension_point), list(
+        intersect = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),

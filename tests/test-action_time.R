@@ -62,16 +62,16 @@ result <- model_fn(params)
 
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_time),
-    1:expected_steps - 1), "cur_time populated")
+    as.integer(1:expected_steps - 1)), "cur_time populated")
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_step),
-    rep(c(1,2,3), 8)), "cur_step populated")
+    as.integer(rep(c(1,2,3), 8))), "cur_step populated")
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_step_size),
     as.numeric(rep(c(3/12,3/12,6/12), 8))), "cur_step_size populated")
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_year),
-    as.numeric(rep(1990:1997, each = 3))), "cur_year populated")
+    as.integer(rep(1990:1997, each = 3))), "cur_year populated")
 ok(ut_cmp_identical(
     as.vector(environment(model_fn)$model_report$all_step_final),
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")

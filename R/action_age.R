@@ -30,7 +30,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     }))
     age_younger_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
         if (as.character(x) %in% c("[", ".")) x
-        else if (as.character(x) %in% c("stock__age_idx")) call("-", x, 1)  # Subtract 1 to age paramter
+        else if (as.character(x) %in% c("stock__age_idx")) call("-", x, 1L)  # Subtract 1 to age paramter
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
@@ -81,7 +81,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         debug_label("g3a_age for ", stock)
 
         stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
-                stock__age_idx, g3_idx(age - stock__minage + 1), {
+                stock__age_idx, g3_idx(age - stock__minage + 1L), {
 
             if (age == stock__maxage) {
                 final_year_f

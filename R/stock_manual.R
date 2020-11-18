@@ -12,7 +12,7 @@ g3s_manual <- function(inner_stock, var_base_name, dimnames, intersect_idx_f) {
             with_names(var_base_name, length(dimnames))),
         dimnames = c(inner_stock$dimnames,
             with_names(var_base_name, list(dimnames))),
-        iterate = f_substitute(~for (idx_var_name in seq(g3_idx(1), g3_idx(dim_size), by = 1)) extension_point, list(
+        iterate = f_substitute(~for (idx_var_name in seq(g3_idx(1L), g3_idx(dim_size), by = 1L)) extension_point, list(
             idx_var_name = as.symbol(idx_var_name),
             dim_size = length(dimnames),
             extension_point = inner_stock$iterate)),

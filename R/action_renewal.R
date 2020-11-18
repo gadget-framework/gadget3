@@ -27,9 +27,9 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
         debug_label("g3a_initialconditions_normalparam for ", stock)
         stock_iterate(stock, if (run_f) {
             debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
-            stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
+            stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
             debug_trace("scale results")
-            stock_ss(stock__num) <- stock_ss(stock__num) * (10000.0 / sum(stock_ss(stock__num)))
+            stock_ss(stock__num) <- stock_ss(stock__num) * (10000 / sum(stock_ss(stock__num)))
             stock_ss(stock__num) <- stock_ss(stock__num) * (factor_f)
             debug_trace("Generate corresponding mean weight")
             stock_ss(stock__wgt) <- (alpha_f) * stock__midlen ** (beta_f)

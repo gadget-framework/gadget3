@@ -30,11 +30,11 @@ ok(ut_cmp_error({
 }, "g3_param.*moo"), "Complained about dynamic param, we don't support")
 
 ok(grepl(
-    "unknown_func(2)",
+    "unknown_func(.*2.*)",
     paste(g3_to_tmb(list(~{
         unknown_func(2)
     })), collapse = "\n"),
-    fixed = TRUE), "Unknown functions that are valid C++ get included")
+    perl = TRUE), "Unknown functions that are valid C++ get included")
 
 ok(ut_cmp_error({
     g3_to_tmb(list(~`0unknown0`(2)))
