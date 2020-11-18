@@ -100,7 +100,6 @@ g3a_predate_totalfleet <- function (fleet_stock,
                 prey_stock__overconsumption <- sum(prey_stock__totalpredate)
                 prey_stock__totalpredate <- (prey_stock__num * prey_stock__wgt) * prey_stock__consratio
                 prey_stock__overconsumption <- prey_stock__overconsumption - sum(prey_stock__totalpredate)
-                # NB: We have to do this last, otherwise we can't calculate prey_stock__fleetconsratio
                 prey_stock__num <- prey_stock__num * (1 - prey_stock__consratio)
             })
         }, list(
