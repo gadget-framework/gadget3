@@ -74,12 +74,14 @@ time_actions <- list(
     g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
     list())
 
-model_fn <- g3_to_r(c(
+actions <- c(
   ling_imm_actions,
 #  fleet_actions,
 #  ling_likelihood_actions,
   report_actions,
-  time_actions), strict = TRUE, trace = FALSE)
+  time_actions)
+
+model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
 param_table <- read.table('inttest/renewal/params.in', header = TRUE)
 param <- as.list(param_table$value)
@@ -89,6 +91,21 @@ names(param) <- param_table$switch
 # model_fn <- edit(model_fn) ; model_fn(param)
 nll <- model_fn(param)
 g3_r <- lapply(environment(model_fn)$model_report, function (x) round(x, 6))
+
+# If enabled run a TMB version too
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
+    # model_cpp <- edit(model_cpp)
+    model_tmb <- g3_tmb_adfun(model_cpp, param)
+
+    model_tmb_report <- model_tmb$report()
+    for (n in ls(environment(model_fn)$model_report)) {
+        ok(all.equal(
+            as.vector(model_tmb_report[[n]]),
+            as.vector(environment(model_fn)$model_report[[n]]),
+            tolerance = 1e-5), paste("TMB and R match", n))
+    }
+}
 
 # Run gadget2 model
 oldwd <- getwd()
