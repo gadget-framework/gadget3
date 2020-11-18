@@ -2,12 +2,12 @@
 ; 
 [component]
 name	understocking
-weight	100
+weight	1000
 type	understocking
 
 [component]
 name	ldist.igfs
-weight	1
+weight	10
 type	catchdistribution
 datafile	Data/catchdistribution.ldist.igfs.sumofsquares
 function	sumofsquares

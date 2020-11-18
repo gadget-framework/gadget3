@@ -51,18 +51,18 @@ fleet_actions <- list(
 
 ling_likelihood_actions <- list(
     g3l_understocking(
-        weight = 100,
+        weight = 1000,
         list(ling_imm)),
-    g3l_catchdistribution(
+    remove_logspace_add(g3l_catchdistribution(
         'ldist_igfs',
-        weight = 1,
+        weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/overstocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
             age = list(all3 = 3:5),
             length = Rgadget::read.gadget.file('inttest/overstocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(ling_imm),
-        g3l_catchdistribution_sumofsquares()),
+        g3l_catchdistribution_sumofsquares())),
     list())
 
 report_actions <- list(
@@ -188,12 +188,17 @@ ok(all.equal(
 
 # Fill in zeros in nll report
 g2_nll <- Rgadget::read.gadget.file('inttest/overstocking', 'likelihood.out')[[1]]
-g2_nll <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
-g2_nll$likelihood_value[is.na(g2_nll$likelihood_value)] <- 0
-g2_nll$weight[is.na(g2_nll$weight)] <- 0
+g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
+g2_nll_understocking$likelihood_value[is.na(g2_nll_understocking$likelihood_value)] <- 0
+g2_nll_understocking$weight[is.na(g2_nll_understocking$weight)] <- 0
+g2_nll_ldist.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs',], expand.grid(step=1:4, year=year_range), all.y = T)
+g2_nll_ldist.igfs$likelihood_value[is.na(g2_nll_ldist.igfs$likelihood_value)] <- 0
+g2_nll_ldist.igfs$weight[is.na(g2_nll_ldist.igfs$weight)] <- 0
+
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
 ok(all.equal(
-    g2_nll$likelihood_value[1:23] * g2_nll$weight[1:23],
+    g2_nll_understocking$likelihood_value[1:23] * g2_nll_understocking$weight[1:23] + 
+        g2_nll_ldist.igfs$likelihood_value[1:23] * g2_nll_ldist.igfs$weight[1:23],
     g3_r$nll_report[1:23],
-    tolerance = 1e-6), "g3_r$nll_report: Initial part of report matches")
+    tolerance = 1e-7), "g3_r$nll_report: Initial part of report matches")
