@@ -23,7 +23,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             } else if (is.numeric(in_call) && !expecting_int) {
                 # Force anything numeric to be double, to avoid accidental integer division
                 return(paste0("(double)(", toString(in_call) ,")"))
-            } else if (is.logical(in_call)) {
+            } else if (is.logical(in_call) && !is.na(in_call)) {
                 return(if (in_call) 'true' else 'false')
             } else if (is.symbol(in_call)) {
                 return(cpp_escape_varname(in_call))
