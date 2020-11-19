@@ -16,9 +16,10 @@ build:
 	R CMD build .
 
 test: install
-	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
+	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="" Rscript $$f || exit 1; done
 
-inttest: install test
+inttest: install
+	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
 	for f in inttest/*/run.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
 
 check: build
