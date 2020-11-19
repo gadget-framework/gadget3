@@ -5,6 +5,10 @@ stock_definition <- function(stock, var_name) {
 
 # Define an array that matches stock
 stock_instance <- function (stock, init_value = NA) {
+    if (length(stock$dim) == 0) {
+        # No dimensions mean a 1-entry array
+        return(array(init_value, dim = (1)))
+    }
     # TODO: Don't make it yet, defer until g3 needs it
     return(array(init_value, dim = stock$dim, dimnames = stock$dimnames))
 }

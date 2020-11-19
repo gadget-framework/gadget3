@@ -136,6 +136,9 @@ g3_step <- function(step_f) {
             # Get subset arguments
             ss <- stock$iter_ss
 
+            # No dimensions mean a 1-entry array (see stock_instance)
+            if (length(ss) == 0) ss <- list(quote(g3_idx(1)))
+
             # Replace unwanted dimensions with missing symbol
             ss[names(stock$dimnames) %in% wanted_dims] <- list(quote(x[])[[3]])
             return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
@@ -149,6 +152,9 @@ g3_step <- function(step_f) {
 
             # Get subset arguments
             ss <- stock$iter_ss
+
+            # No dimensions mean a 1-entry array (see stock_instance)
+            if (length(ss) == 0) ss <- list(quote(g3_idx(1)))
 
             # Replace unwanted dimensions with missing symbol
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
