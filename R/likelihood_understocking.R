@@ -1,13 +1,17 @@
 g3l_understocking <- function (prey_stocks, power_f = ~2, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
+    g3l_understocking_total <- 0.0
+    out[[step_id(run_at, 'g3l_understocking', 0)]] <- g3_step(~{
+        debug_trace("Reset understocking total")
+        g3l_understocking_total <- 0
+    })
+
     for (prey_stock in prey_stocks) {
-        g3l_understocking_total <- 0.0
         out[[step_id(run_at, 'g3l_understocking', 1, prey_stock)]] <- g3_step(f_substitute(~{
             debug_label("g3l_understocking for ", prey_stock)
             # understocking.cc:134
 
-            g3l_understocking_total <- 0
             # NB: To match gadget2, g3l_understocking_total should be per-area and we sum-of-squares that,
             #     but seems like wasted effort.
             stock_with(prey_stock, {
@@ -15,14 +19,14 @@ g3l_understocking <- function (prey_stocks, power_f = ~2, weight = 1.0, run_at =
                 g3l_understocking_total <- g3l_understocking_total + prey_stock__overconsumption
             })
         }, list()))
-
-        out[[step_id(run_at, 'g3l_understocking', 2)]] <- g3_step(f_substitute(~{
-            debug_label("g3l_understocking: Combine and add to nll")
-            nll <- nll + (weight) * (g3l_understocking_total ^ (power_f))
-        }, list(
-            power_f = power_f,
-            weight = weight)))
-        
     }
+
+    out[[step_id(run_at, 'g3l_understocking', 2)]] <- g3_step(f_substitute(~{
+        debug_label("g3l_understocking: Combine and add to nll")
+        nll <- nll + (weight) * (g3l_understocking_total ^ (power_f))
+    }, list(
+        power_f = power_f,
+        weight = weight)))
+        
     return(as.list(out))
 }

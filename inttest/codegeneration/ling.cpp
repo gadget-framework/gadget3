@@ -667,14 +667,16 @@ Type objective_function<Type>::operator() () {
             cdist_ldist_lln_model__num.setZero();
         }
         {
-            // g3l_understocking for ling_imm;
+            // Reset understocking total;
             g3l_understocking_total = (double)(0);
+        }
+        {
+            // g3l_understocking for ling_imm;
             // Add understocking from ling_imm as biomass to nll;
             g3l_understocking_total += ling_imm__overconsumption;
         }
         {
             // g3l_understocking for ling_mat;
-            g3l_understocking_total = (double)(0);
             // Add understocking from ling_mat as biomass to nll;
             g3l_understocking_total += ling_mat__overconsumption;
         }

@@ -542,14 +542,16 @@ structure(function (param)
             cdist_ldist_lln_model__num[] <- 0
         }
         {
-            comment("g3l_understocking for ling_imm")
+            comment("Reset understocking total")
             g3l_understocking_total <- 0
+        }
+        {
+            comment("g3l_understocking for ling_imm")
             comment("Add understocking from ling_imm as biomass to nll")
             g3l_understocking_total <- g3l_understocking_total + ling_imm__overconsumption
         }
         {
             comment("g3l_understocking for ling_mat")
-            g3l_understocking_total <- 0
             comment("Add understocking from ling_mat as biomass to nll")
             g3l_understocking_total <- g3l_understocking_total + ling_mat__overconsumption
         }
