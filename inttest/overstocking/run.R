@@ -8,7 +8,7 @@ library(unittest)
 remove_logspace_add <- function (action) lapply(action, function (a) {
     # logspace_add is just used to avoid div/0, replace it with a pmax() call
     gadget3:::call_replace(a,
-        logspace_add = function (x) call("pmax", x[[2]], x[[3]] + 1e-7),
+        logspace_add = function (x) call("max", x[[2]], x[[3]] + 1e-7),
         logspace_add_vec = function (x) call("pmax", x[[2]], x[[3]] + 1e-7))
 })
 
