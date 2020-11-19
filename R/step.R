@@ -51,11 +51,6 @@ g3_step <- function(step_f) {
         inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
         inner_f <- g3_step(inner_f)
 
-        # Replace __iter marker with proper subsetting
-        subs <- list()
-        subs[[paste0(stock_var, "__iter")]] <- stock_rename(stock$iter_ss, "stock", stock_var)
-        inner_f <- f_substitute(inner_f, subs)
-
         # Wrap with stock's code
         out_f <- f_substitute(stock_rename(stock[[to_replace]], "stock",  stock_var), list(
             extension_point = inner_f))
@@ -138,12 +133,12 @@ g3_step <- function(step_f) {
             stock <- get(stock_var, envir = rlang::f_env(step_f))
             wanted_dims <- as.character(tail(x, -2))
 
-            # Get subset arguments as a list
-            ss <- tail(as.list(stock_rename(stock$iter_ss, "stock", stock_var)), -2)
+            # Get subset arguments
+            ss <- stock$iter_ss
 
             # Replace unwanted dimensions with missing symbol
             ss[names(stock$dimnames) %in% wanted_dims] <- list(quote(x[])[[3]])
-            return(as.call(c(list(as.symbol("["), stock_instance), ss)))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
@@ -152,12 +147,12 @@ g3_step <- function(step_f) {
             stock <- get(stock_var, envir = rlang::f_env(step_f))
             wanted_dims <- as.character(tail(x, -2))
 
-            # Get subset arguments as a list
-            ss <- tail(as.list(stock_rename(stock$iter_ss, "stock", stock_var)), -2)
+            # Get subset arguments
+            ss <- stock$iter_ss
 
             # Replace unwanted dimensions with missing symbol
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
-            return(as.call(c(list(as.symbol("["), stock_instance), ss)))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
         },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))

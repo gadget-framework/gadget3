@@ -23,14 +23,18 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         })
     }
 
+    # Convert list of subset args into an actual call
+    to_subset_call <- function (l) {
+        as.call(c(list(as.symbol("["), as.symbol(".")), l))
+    }
+
     # Mangle stock_num / stock_wgt to remove non-age parameters
-    age_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
-        if (as.character(x) %in% c("[", ".", "stock__age_idx")) x
+    age_iter_ss <- to_subset_call(lapply(stock$iter_ss, function (x) {
+        if (as.character(x) %in% c("stock__age_idx")) x
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
-    age_younger_iter_ss <- as.call(lapply(stock$iter_ss, function (x) {
-        if (as.character(x) %in% c("[", ".")) x
-        else if (as.character(x) %in% c("stock__age_idx")) call("-", x, 1L)  # Subtract 1 to age paramter
+    age_younger_iter_ss <- to_subset_call(lapply(stock$iter_ss, function (x) {
+        if (as.character(x) %in% c("stock__age_idx")) call("-", x, 1L)  # Subtract 1 to age paramter
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
@@ -43,9 +47,8 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     stock_movement__transitioning_num <- stock_instance(stock_movement)
     stock_movement__transitioning_wgt <- stock_instance(stock_movement)
 
-    movement_age_iter_ss <- as.call(lapply(stock_movement$iter_ss, function (x) {
-        if (as.character(x) %in% c("[", ".")) x
-        else if (as.character(x) %in% c("stock__age_idx")) quote(g3_idx(1))  # stock_movement only has one age bracket
+    movement_age_iter_ss <- to_subset_call(lapply(stock_movement$iter_ss, function (x) {
+        if (as.character(x) %in% c("stock__age_idx")) quote(g3_idx(1))  # stock_movement only has one age bracket
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 

@@ -26,7 +26,7 @@ g3s_age <- function(inner_stock, minage, maxage) {
         iterate = f_substitute(~for (age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
             stock__age_idx, g3_idx(age - stock__minage + 1L), extension_point), list(
                 extension_point = inner_stock$iterate)),
-        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__age_idx"))),
+        iter_ss = c(inner_stock$iter_ss, as.symbol("stock__age_idx")),
         intersect = f_substitute(~if (age >= stock__minage && age <= stock__maxage) g3_with(
             stock__age_idx, g3_idx(age - stock__minage + 1L), extension_point), list(
                 extension_point = inner_stock$intersect)),
@@ -56,7 +56,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         iterate = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
             age, stock__minages[[stock__agegroup_idx]], extension_point), list(
             extension_point = inner_stock$iterate)),
-        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__agegroup_idx"))),
+        iter_ss = c(inner_stock$iter_ss, as.symbol("stock__agegroup_idx")),
         intersect = f_substitute(~g3_with(
             stock__agegroup_idx, g3_idx(lookup),
             if (stock__agegroup_idx > g3_idx(-1)) extension_point), list(

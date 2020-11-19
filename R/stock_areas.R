@@ -17,7 +17,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
                 area = names(stock__areas))),
-            iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
+            iter_ss = c(inner_stock$iter_ss, as.symbol("stock__area_idx")),
             iterate = f_substitute(~g3_with(area, stock__area, extension_point), list(
                 extension_point = inner_stock$iterate)),
             intersect = f_substitute(~if (area == stock__area) {
@@ -31,7 +31,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 area = stock__totalareas),
             dimnames = c(inner_stock$dimnames, list(
                 area = names(stock__areas))),
-            iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__area_idx"))),
+            iter_ss = c(inner_stock$iter_ss, as.symbol("stock__area_idx")),
             iterate = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) g3_with(
                 area, stock__areas[[stock__area_idx]],
                 extension_point), list(
@@ -69,7 +69,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         iterate = f_substitute(~for (stock__areagroup_idx in seq_along(stock__minareas)) g3_with(
             area, stock__minareas[[stock__areagroup_idx]], extension_point), list(
             extension_point = inner_stock$iterate)),
-        iter_ss = as.call(c(as.list(inner_stock$iter_ss), as.symbol("stock__areagroup_idx"))),
+        iter_ss = c(inner_stock$iter_ss, as.symbol("stock__areagroup_idx")),
         intersect = f_substitute(~g3_with(
             stock__areagroup_idx, g3_idx(lookup),
             if (stock__areagroup_idx > g3_idx(-1)) extension_point), list(
