@@ -190,6 +190,7 @@ tmb_ling <- g3_to_tmb(c(
     time))
 writeLines(tmb_ling, con = 'inttest/codegeneration/ling.cpp')
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    # tmb_ling <- edit(tmb_ling)
     tmb_param <- attr(tmb_ling, 'parameter_template')
     # Fill parameters - Map original list into data.frame format
     tmb_param$value <- I(ling_param[tmb_param$switch])
