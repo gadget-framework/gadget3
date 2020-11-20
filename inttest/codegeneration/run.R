@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript --vanilla
 library(magrittr)
+library(unittest)
 
 library(gadget3)
 
@@ -199,5 +200,14 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)}))
     # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
     print(system.time(tmb_result <- ling_model_tmb$fn()))
+
+    # Compare result and report output
     stopifnot(all.equal(r_result, tmb_result, tolerance = 1e-5))
+    ling_model_tmb_report <- ling_model_tmb$report()
+    for (n in ls(environment(ling_model)$model_report)) {
+        ok(ut_cmp_equal(
+            as.vector(ling_model_tmb_report[[n]]),
+            as.vector(environment(ling_model)$model_report[[n]]),
+            tolerance = 1e-5), paste("TMB and R match", n))
+    }
 }
