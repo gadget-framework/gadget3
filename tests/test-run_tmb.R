@@ -190,6 +190,16 @@ actions <- c(actions, ~{
 })
 expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
 
+# Arrays with dynamic dimensions
+dynamic_dim_array <- array(0, dim = c(2,1))
+attr(dynamic_dim_array, 'dynamic_dim') <- list(2, quote(dynamic_dim_array_dim_2))
+dynamic_dim_array_dim_2 <- 4L
+actions <- c(actions, ~{
+    comment('assign_scalar')
+    g3_report(dynamic_dim_array)
+})
+expecteds$dynamic_dim_array <- array(0, dim = c(2, 4))
+
 # Data variable names are escaped
 escaped.data.scalar <- 44
 escaped.data.array <- c(1,2,3,4,5)

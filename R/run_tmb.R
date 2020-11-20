@@ -219,6 +219,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             cpp_code(in_call[[3]], in_envir, indent, statement = TRUE)))
     }
 
+    if (call_name %in% c("unname")) {
+        # Unname is meaningless in TMB, no names in the first place
+        return(cpp_code(in_call[[2]], in_envir, next_indent))
+    }
+
     if (call_name == '[') {
         # Array subsetting
 
@@ -596,6 +601,17 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 }
                 if (all(dim(var_val) == 0)) {
                     defn <- cpp_definition(cpp_type, var_name)
+                } else if (!is.null(attr(var_val, 'dynamic_dim'))) {
+                    # Define flexible dimensions
+                    # Make sure everything within the dynamic dim is defined first
+                    var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dim'))), env)
+                    defn <- cpp_definition(
+                        cpp_type,
+                        var_name,
+                        dims = vapply(
+                            attr(var_val, 'dynamic_dim'),
+                            function (d) cpp_code(d, env, expecting_int = TRUE),
+                            character(1)))
                 } else {
                     # Define fixed dimensions
                     defn <- cpp_definition(

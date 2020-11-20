@@ -94,10 +94,15 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     y = dimnames(var_val))))
             } else if (is.array(var_val) && all(var_val == 0)) {
                 # Define dimensions for zero array
+
+                # Make sure everything within the dynamic dim is defined first
+                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dim'))), env)
+                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dimnames'))), env)
+
                 defn <- call("<-", as.symbol(var_name), substitute(array(v, dim = x, dimnames = y), list(
                     v = var_val[[1]],  # NB: Might be 0 or FALSE, either way all values are the same
-                    x = dim(var_val),
-                    y = dimnames(var_val))))
+                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else dim(var_val),
+                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else dimnames(var_val))))
             } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
                 # Add single-value literal to code
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
