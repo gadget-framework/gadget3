@@ -134,7 +134,7 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     # See stockmemberfunctions.cc:121, grow.cc:25
 
     avoid_zero_vec <- function(a) {
-        pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+        ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
     }
 
     growth.matrix <- array(0,c(na,na))
@@ -169,7 +169,7 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
         for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i], (Type)0.0);
+            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
         }
         return res;
     };

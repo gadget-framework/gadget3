@@ -11,7 +11,7 @@ structure(function (param)
     }
     avoid_zero_vec <- function (a) 
     {
-        pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     logspace_add_vec <- function (a, b) 
     {
@@ -79,7 +79,7 @@ structure(function (param)
     }
     avoid_zero <- function (a) 
     {
-        pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     cur_time <- -1L
     step_lengths <- model_data$step_lengths
