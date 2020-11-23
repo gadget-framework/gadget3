@@ -223,6 +223,26 @@ actions <- c(actions, ~{
 })
 expecteds$mean_vector_result <- mean(mean_vector)
 
+# colsums
+colsums_in <- array(1:6, dim = c(3,2))
+colsums_result <- c(0, 0)
+actions <- c(actions, ~{
+    comment('colsums')
+    colsums_result <- colSums(colsums_in)
+    g3_report(colsums_result)
+})
+expecteds$colsums_result <- colSums(colsums_in)
+
+# rowsums
+rowsums_in <- array(1:6, dim = c(3,2))
+rowsums_result <- c(0, 0, 0)
+actions <- c(actions, ~{
+    comment('rowsums')
+    rowsums_result <- rowSums(rowsums_in)
+    g3_report(rowsums_result)
+})
+expecteds$rowsums_result <- rowSums(rowsums_in)
+
 # if statement without braces
 if_no_brace_result <- 0.0
 actions <- c(actions, ~{
