@@ -43,3 +43,23 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
+
+# Add dimension for model time (i.e. every year/step)
+g3s_modeltime <- function (inner_stock) {
+    structure(list(
+        dim = c(inner_stock$dim, list(
+            # NB: Quoted so this is defined at run-time (by g3a_time)
+            time = quote(total_steps + 1))),
+        dimnames = c(inner_stock$dimnames, list(
+            # NB: Quoted so this is defined at run-time (by g3a_time)
+            time = quote(sprintf("%d-%02d",
+                rep(seq(start_year, end_year), each = length(step_lengths)),
+                rep(seq_along(step_lengths), times = end_year - start_year + 1))))),
+        iterate = f_substitute(~extension_point, list(
+                extension_point = inner_stock$iterate)),
+        iter_ss = c(inner_stock$iter_ss, quote(g3_idx(cur_time+1L))),
+        intersect = f_substitute(~extension_point, list(
+                extension_point = inner_stock$intersect)),
+        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),
+        name = inner_stock$name), class = c("g3_stock", "list"))
+}

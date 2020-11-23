@@ -52,6 +52,7 @@ fleet_actions <- list(
 ling_likelihood_actions <- list(
     g3l_understocking(
         weight = 1000,
+        nll_breakdown = TRUE,
         list(ling_imm)),
     remove_avoid_zero(g3l_catchdistribution(
         'ldist_igfs',
@@ -62,7 +63,8 @@ ling_likelihood_actions <- list(
             length = Rgadget::read.gadget.file('inttest/overstocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(ling_imm),
-        g3l_catchdistribution_sumofsquares())),
+        g3l_catchdistribution_sumofsquares(),
+        nll_breakdown = TRUE)),
     list())
 
 report_actions <- list(
@@ -190,6 +192,12 @@ ok(all.equal(
     sum(g3_r$nll_report),
     10 * sum(g3_r$nll_cdist_ldist_igfs__num) + 1000 * sum(g3_r$nll_understocking__wgt),
     tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs__num/g3_r$nll_understocking__wgt consistent with each other")
+ok(ut_cmp_identical(
+    dim(g3_r$nll_cdist_ldist_igfs__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs__num: Broken up into individual timesteps")
+ok(ut_cmp_identical(
+    dim(g3_r$nll_understocking__wgt),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_understocking__wgt: Broken up into individual timesteps")
 
 # Fill in zeros in nll report
 g2_nll <- Rgadget::read.gadget.file('inttest/overstocking', 'likelihood.out')[[1]]

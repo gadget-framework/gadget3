@@ -126,13 +126,14 @@ igfs_actions <- list(
     list())
 
 likelihood_actions <- list(
-    g3l_understocking(list(ling_imm, ling_mat)),
+    g3l_understocking(list(ling_imm, ling_mat), nll_breakdown = TRUE),
     g3l_catchdistribution(
         'ldist_lln',
         igfs_obs_data,
         fleets = list(igfs),
         stocks = list(ling_imm, ling_mat),
-        g3l_catchdistribution_sumofsquares()),
+        g3l_catchdistribution_sumofsquares(),
+        nll_breakdown = TRUE),
     list())
 
 time <- list(

@@ -10,7 +10,20 @@ stock_instance <- function (stock, init_value = NA) {
         return(array(init_value, dim = (1)))
     }
     # TODO: Don't make it yet, defer until g3 needs it
-    return(array(init_value, dim = stock$dim, dimnames = stock$dimnames))
+    if (all(is.numeric(stock$dim))) {
+        return(array(init_value, dim = stock$dim, dimnames = stock$dimnames))
+    }
+
+    # Filter any dynamic dimensions, and set them to 1 initially
+    use_dynamic_dim <- FALSE
+    init_dim <- vapply(stock$dim, function (x) if (is.call(x) || is.symbol(x)) {use_dynamic_dim <<- TRUE; 1L} else as.integer(x), integer(1))
+    init_dimnames <- lapply(stock$dimnames, function (x) if (is.call(x) || is.symbol(x)) {use_dynamic_dim <<- TRUE; NULL} else x)
+    x <- array(init_value, dim = init_dim, dimnames = init_dimnames)
+    if (use_dynamic_dim) {
+        attr(x, 'dynamic_dim') <- stock$dim
+        attr(x, 'dynamic_dimnames') <- stock$dimnames
+    }
+    return(x)
 }
 
 g3_storage <- function(var_name) {

@@ -23,7 +23,7 @@ g3l_catchdistribution_surveyindices_log(alpha = 0, beta = 1)
 g3l_catchdistribution_surveyindices_linear(alpha = 0, beta = 1)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
-    area_group = NULL, weight = 1, run_at = 10)
+    area_group = NULL, nll_breakdown = FALSE, weight = 1, run_at = 10)
 
 }
 
@@ -73,6 +73,9 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   \item{area_group}{
     TODO:
   }
+  \item{nll_breakdown}{
+    Should the nll report be broken down by time? \code{TRUE} / \code{FALSE}
+  }
   \item{weight}{
     Weighting applied to this likelihood component.
   }
@@ -88,6 +91,10 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     \item{\var{modelstock}__num/wgt}{A \code{\link{g3_stock}} instance that groups in an identical fashion to \var{obsstock},
         that will be filled with the model's predicted values}
   }
+
+  The model report will contain nll_cdist_\var{nll_name}__num and/or nll_cdist_\var{nll_name}__wgt, depending on
+  the columns in \var{obs_data} (a number column will compare by individuals, and produce a corresponding num report).
+  If \var{nll_breakdown} is \code{TRUE}, this will be an array with one entry per timestep.
 }
 
 \seealso{
