@@ -7,8 +7,9 @@
 }
 
 \usage{
-g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f, overconsumption_f = ~logspace_add_vec(prey_stock__consratio,
-    0.95), run_at = 3)
+g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
+    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - prey_stock__consratio) * 100
+    , 0.96)/100, run_at = 3)
 
 }
 
