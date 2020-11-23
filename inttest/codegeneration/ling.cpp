@@ -241,7 +241,9 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_ldist_lln_obs__values)
     auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
     DATA_ARRAY(cdist_ldist_lln_obs__num)
+    vector<Type> nll_cdist_ldist_lln__num(total_steps + 1); nll_cdist_ldist_lln__num.setZero();
     Type g3l_understocking_total = (double)(0);
+    vector<Type> nll_understocking__wgt(total_steps + 1); nll_understocking__wgt.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;
@@ -671,7 +673,13 @@ Type objective_function<Type>::operator() () {
                 auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step, -1) - 1;
 
                 if ( cdist_ldist_lln_obs__time_idx >= 0 ) {
-                    nll += ((double)(1))*((pow((cdist_ldist_lln_model__num / avoid_zero((cdist_ldist_lln_model__num).sum()) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / avoid_zero((cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum());
+                    auto cur_cdist_nll = (pow((cdist_ldist_lln_model__num / avoid_zero((cdist_ldist_lln_model__num).sum()) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / avoid_zero((cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
+
+                    {
+                        nll += ((double)(1))*cur_cdist_nll;
+                        nll_cdist_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
+                        REPORT(nll_cdist_ldist_lln__num);
+                    }
                 }
             }
             cdist_ldist_lln_model__num.setZero();
@@ -692,7 +700,10 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3l_understocking: Combine and add to nll;
-            nll += ((double)(1))*(pow(g3l_understocking_total, (Type)((double)(2))));
+            g3l_understocking_total = pow(g3l_understocking_total, (Type)((double)(2)));
+            nll += ((double)(1))*g3l_understocking_total;
+            nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
+            REPORT(nll_understocking__wgt);
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;

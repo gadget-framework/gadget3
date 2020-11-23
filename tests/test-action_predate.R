@@ -50,7 +50,10 @@ actions <- list(
             prey_b = ~g3_param_vector("fleet_bc_b"),
             prey_c = ~g3_param_vector("fleet_bc_c")),
         amount_f = ~g3_param('amount_bc') * area),
-    g3l_understocking(list(prey_a, prey_b, prey_c), power_f ~g3_param('understocking_power')),
+    g3l_understocking(
+        list(prey_a, prey_b, prey_c),
+        power_f = ~g3_param('understocking_power'),
+        weight = 2),
     list(
         '999' = ~{
             g3_report(prey_a__num)
@@ -120,6 +123,7 @@ ok_group("No overconsumption", {
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(result, 0), "nll: No overconsumption")
+    ok(ut_cmp_equal(sum(r$nll_understocking__wgt), 0), "nll_understocking__wgt: Breakdown also 0")
 
     # Fleet_ab
     ok(ut_cmp_equal(
@@ -238,13 +242,17 @@ ok_group("Overconsumption", {
         fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         amount_bc = 50,
-        understocking_power = 3,
+        understocking_power = 1,
         x=1.0)
     result <- model_fn(params)
     r <- environment(model_fn)$model_report
     # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
 
     ok(result > 0, "nll: Overconsumption triggered understocking")
+    ok(ut_cmp_equal(
+        result,
+        sum(2 * r$nll_understocking__wgt),
+        tolerance = 1e-7), "nll_understocking__wgt: Breakdown matches total nll")
 
     # prey_a
     ok(ut_cmp_equal(

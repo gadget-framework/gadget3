@@ -186,6 +186,11 @@ ok(all.equal(
     g3_r$igfs_report__catch[1, not_1987],
     tolerance = 1e-6), "g3_r$igfs_report__catch: Approximately matches igfs.lingimm.predprey.out")
 
+ok(all.equal(
+    sum(g3_r$nll_report),
+    10 * sum(g3_r$nll_cdist_ldist_igfs__num) + 1000 * sum(g3_r$nll_understocking__wgt),
+    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs__num/g3_r$nll_understocking__wgt consistent with each other")
+
 # Fill in zeros in nll report
 g2_nll <- Rgadget::read.gadget.file('inttest/overstocking', 'likelihood.out')[[1]]
 g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)

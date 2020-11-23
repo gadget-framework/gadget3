@@ -120,13 +120,26 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
             stockidx_f = stockidx_f))
     }
 
+    nllstock <- g3_storage(paste0("nll_cdist_", nll_name))
+    nllstock__num <- stock_instance(nllstock, 0)
+    nllstock__wgt <- stock_instance(nllstock, 0)
     out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- g3_step(f_substitute(~{
         debug_label("g3l_catchdistribution: Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
-            stock_iterate(modelstock, stock_intersect(obsstock, {
-                if (compare_num) nll <- nll + (weight) * (number_f)
-                if (compare_wgt) nll <- nll + (weight) * (biomass_f)
-            }))
+            stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, {
+                if (compare_num) g3_with(cur_cdist_nll, number_f, {
+                    nll <- nll + (weight) * cur_cdist_nll
+                    stock_ss(nllstock__num) <- stock_ss(nllstock__num) + cur_cdist_nll
+                    g3_report(nllstock__num)  # TODO: Only on penultimate step?
+                })
+                if (compare_wgt) g3_with(cur_cdist_nll, biomass_f, {
+                    nll <- nll + (weight) * cur_cdist_nll
+                    stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + cur_cdist_nll
+                    g3_report(nllstock__wgt)  # TODO: Only on penultimate step?
+                })
+            })))
+
+            # TODO: Need to disable these if there's a time dimension, otherwise we throw away data
             if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
             if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
         }

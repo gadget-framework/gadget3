@@ -1,6 +1,9 @@
 g3l_understocking <- function (prey_stocks, power_f = ~2, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
+    nllstock <- g3_storage("nll_understocking")
+    nllstock__wgt <- stock_instance(nllstock, 0)
+
     g3l_understocking_total <- 0.0
     out[[step_id(run_at, 'g3l_understocking', 0)]] <- g3_step(~{
         debug_trace("Reset understocking total")
@@ -23,7 +26,13 @@ g3l_understocking <- function (prey_stocks, power_f = ~2, weight = 1.0, run_at =
 
     out[[step_id(run_at, 'g3l_understocking', 2)]] <- g3_step(f_substitute(~{
         debug_label("g3l_understocking: Combine and add to nll")
-        nll <- nll + (weight) * (g3l_understocking_total ^ (power_f))
+        g3l_understocking_total <- g3l_understocking_total ^ (power_f)
+        nll <- nll + (weight) * g3l_understocking_total
+
+        stock_iterate(nllstock, {
+            stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + g3l_understocking_total
+            g3_report(nllstock__wgt)  # TODO: If penultimate
+        })
     }, list(
         power_f = power_f,
         weight = weight)))
