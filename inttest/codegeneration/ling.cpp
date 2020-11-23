@@ -124,7 +124,7 @@ Type objective_function<Type>::operator() () {
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
         for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i], (Type)0.0);
+            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
         }
         return res;
     };

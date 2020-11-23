@@ -49,7 +49,7 @@ structure(function (param)
         na <- dim(delta_l)[[1]]
         n <- dim(delta_l)[[2]] - 1
         avoid_zero_vec <- function(a) {
-            pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
         }
         growth.matrix <- array(0, c(na, na))
         wgt.matrix <- array(0, c(na, na))
