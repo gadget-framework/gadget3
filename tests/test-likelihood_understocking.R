@@ -1,1 +1,1 @@
-# See tests/test-action_predate.R
+writeLines("# skip: See tests/test-action_predate.R")
