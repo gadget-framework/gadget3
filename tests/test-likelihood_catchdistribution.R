@@ -28,7 +28,7 @@ named_list <- function(...) {
 }
 
 # NB: Name has to be different, or it gets sucked into the model
-lspace_add <- gadget3:::g3_global_env$logspace_add
+g3_avoid_zero <- gadget3:::g3_global_env$avoid_zero
 
 ok(grepl(
     'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',
@@ -366,11 +366,11 @@ ok_group("Likelihood per step", {
         (r$step0_cdist_utcd_model__num[,2] / sum(r$step0_cdist_utcd_model__num[,2]) -
             r$cdist_utcd_obs__num[,2,1] / sum(r$cdist_utcd_obs__num[,2,1])) ** 2,
         # utcd_weight: area 1
-        (r$step0_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step0_cdist_utcd_weight_model__wgt[,1]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,1,1] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,1]), 0)) ** 2,
+        (r$step0_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step0_cdist_utcd_weight_model__wgt[,1])) -
+            r$cdist_utcd_weight_obs__wgt[,1,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step0_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step0_cdist_utcd_weight_model__wgt[,2]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,2,1] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,1]), 0)) ** 2,
+        (r$step0_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step0_cdist_utcd_weight_model__wgt[,2])) -
+            r$cdist_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,1]))) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
@@ -384,29 +384,29 @@ ok_group("Likelihood per step", {
 
     ok(ut_cmp_equal(r$step1_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step1_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,1,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
+        (r$step1_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,1,1,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,2]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step1_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,2,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
+        (r$step1_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,2,1,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,2]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step1_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,1,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
+        (r$step1_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step1_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step1_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,2,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
+        (r$step1_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
         # utcd: area 1
-        (r$step1_cdist_utcd_model__num[,1] / lspace_add(sum(r$step1_cdist_utcd_model__num[,1]), 0) -
-            r$cdist_utcd_obs__num[,1,2] / lspace_add(sum(r$cdist_utcd_obs__num[,1,2]), 0)) ** 2,
+        (r$step1_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step1_cdist_utcd_model__num[,1])) -
+            r$cdist_utcd_obs__num[,1,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,1,2]))) ** 2,
         # utcd: area 2
-        (r$step1_cdist_utcd_model__num[,2] / lspace_add(sum(r$step1_cdist_utcd_model__num[,2]), 0) -
-            r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
+        (r$step1_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step1_cdist_utcd_model__num[,2])) -
+            r$cdist_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step1_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step1_cdist_utcd_weight_model__wgt[,1]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,1,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,2]), 0)) ** 2,
+        (r$step1_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step1_cdist_utcd_weight_model__wgt[,1])) -
+            r$cdist_utcd_weight_obs__wgt[,1,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,2]))) ** 2,
         # utcd_weight: area 2
-        (r$step1_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step1_cdist_utcd_weight_model__wgt[,2]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,2,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,2]), 0)) ** 2,
+        (r$step1_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step1_cdist_utcd_weight_model__wgt[,2])) -
+            r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
@@ -414,35 +414,35 @@ ok_group("Likelihood per step", {
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(lspace_add(r$step1_cdist_surveyindices_model__num, 0)) -
-            log(lspace_add(r$cdist_surveyindices_obs__num[,2], 0)))**2,
+            params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step2_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,1,1,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,3]), 0)) ** 2,
+        (r$step2_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,1,1,3] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,3]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step2_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,2,1,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,3]), 0)) ** 2,
+        (r$step2_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,2,1,3] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,3]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step2_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,1,2,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,3]), 0)) ** 2,
+        (r$step2_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,1,2,3] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,3]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step2_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step2_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,2,2,3] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,3]), 0)) ** 2,
+        (r$step2_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,2,2,3] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,3]))) ** 2,
         # utcd: area 1
-        (r$step2_cdist_utcd_model__num[,1] / lspace_add(sum(r$step2_cdist_utcd_model__num[,1]), 0) -
-            r$cdist_utcd_obs__num[,1,3] / lspace_add(sum(r$cdist_utcd_obs__num[,1,3]), 0)) ** 2,
+        (r$step2_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step2_cdist_utcd_model__num[,1])) -
+            r$cdist_utcd_obs__num[,1,3] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,1,3]))) ** 2,
         # utcd: area 2
-        (r$step2_cdist_utcd_model__num[,2] / lspace_add(sum(r$step2_cdist_utcd_model__num[,2]), 0) -
-            r$cdist_utcd_obs__num[,2,3] / lspace_add(sum(r$cdist_utcd_obs__num[,2,3]), 0)) ** 2,
+        (r$step2_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step2_cdist_utcd_model__num[,2])) -
+            r$cdist_utcd_obs__num[,2,3] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,3]))) ** 2,
         # utcd_weight: area 1
-        (r$step2_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step2_cdist_utcd_weight_model__wgt[,1]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,1,3] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,3]), 0)) ** 2,
+        (r$step2_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step2_cdist_utcd_weight_model__wgt[,1])) -
+            r$cdist_utcd_weight_obs__wgt[,1,3] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,3]))) ** 2,
         # utcd_weight: area 2
-        (r$step2_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step2_cdist_utcd_weight_model__wgt[,2]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,2,3] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,3]), 0)) ** 2,
+        (r$step2_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step2_cdist_utcd_weight_model__wgt[,2])) -
+            r$cdist_utcd_weight_obs__wgt[,2,3] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,3]))) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,3] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
@@ -450,35 +450,35 @@ ok_group("Likelihood per step", {
                 r$step2_cdist_multinom_model__num / sum(r$step2_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(lspace_add(r$step2_cdist_surveyindices_model__num, 0)) -
-            log(lspace_add(r$cdist_surveyindices_obs__num[,3], 0)))**2,
+            params$si_beta * log(g3_avoid_zero(r$step2_cdist_surveyindices_model__num)) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,3])))**2,
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,1,1,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,4]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,1,1,4] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,4]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,2,1,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,4]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,2,1,4] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,4]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,1,2,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,4]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,1,2,4] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,4]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,2,2,4] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,4]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,2,2,4] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,4]))) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / lspace_add(sum(r$step3_cdist_utcd_model__num[,1]), 0) -
-            r$cdist_utcd_obs__num[,1,4] / lspace_add(sum(r$cdist_utcd_obs__num[,1,4]), 0)) ** 2,
+        (r$step3_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,1])) -
+            r$cdist_utcd_obs__num[,1,4] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,1,4]))) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
-            r$cdist_utcd_obs__num[,2,4] / lspace_add(sum(r$cdist_utcd_obs__num[,2,4]), 0)) ** 2,
+        (r$step3_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,2])) -
+            r$cdist_utcd_obs__num[,2,4] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,4]))) ** 2,
         # utcd_weight: area 1
-        (r$step3_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,1]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,1,4] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,4]), 0)) ** 2,
+        (r$step3_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,1])) -
+            r$cdist_utcd_weight_obs__wgt[,1,4] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,4]))) ** 2,
         # utcd_weight: area 2
-        (r$step3_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,2]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,2,4] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,4]), 0)) ** 2,
+        (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
+            r$cdist_utcd_weight_obs__wgt[,2,4] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,4]))) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,4] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
@@ -486,8 +486,8 @@ ok_group("Likelihood per step", {
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(lspace_add(r$step3_cdist_surveyindices_model__num, 0)) -
-            log(lspace_add(r$cdist_surveyindices_obs__num[,4], 0)))**2,
+            params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,4])))**2,
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)
@@ -699,36 +699,36 @@ ok_group("Likelihood per year", {
                 r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(lspace_add(r$step1_cdist_surveyindices_model__num, 0)) -
-            log(lspace_add(r$cdist_surveyindices_obs__num[,1], 0)))**2,
+            params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,1])))**2,
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
+        (r$step3_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
             # NB: Second time data, not 4th as in per-step example
-            r$cdist_utsd_obs__num[,1,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
+            r$cdist_utsd_obs__num[,1,1,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,2]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,1]), 0) -
-            r$cdist_utsd_obs__num[,2,1,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,1,2]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
+            r$cdist_utsd_obs__num[,2,1,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,1,2]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,1,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / lspace_add(sum(r$step3_cdist_utsd_model__num[,,2]), 0) -
-            r$cdist_utsd_obs__num[,2,2,2] / lspace_add(sum(r$cdist_utsd_obs__num[,,2,2]), 0)) ** 2,
+        (r$step3_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
+            r$cdist_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / lspace_add(sum(r$step3_cdist_utcd_model__num[,1]), 0) -
-            r$cdist_utcd_obs__num[,1,2] / lspace_add(sum(r$cdist_utcd_obs__num[,1,2]), 0)) ** 2,
+        (r$step3_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,1])) -
+            r$cdist_utcd_obs__num[,1,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,1,2]))) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / lspace_add(sum(r$step3_cdist_utcd_model__num[,2]), 0) -
-            r$cdist_utcd_obs__num[,2,2] / lspace_add(sum(r$cdist_utcd_obs__num[,2,2]), 0)) ** 2,
+        (r$step3_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,2])) -
+            r$cdist_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step3_cdist_utcd_weight_model__wgt[,1] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,1]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,1,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,1,2]), 0)) ** 2,
+        (r$step3_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,1])) -
+            r$cdist_utcd_weight_obs__wgt[,1,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,2]))) ** 2,
         # utcd_weight: area 2
-        (r$step3_cdist_utcd_weight_model__wgt[,2] / lspace_add(sum(r$step3_cdist_utcd_weight_model__wgt[,2]), 0) -
-            r$cdist_utcd_weight_obs__wgt[,2,2] / lspace_add(sum(r$cdist_utcd_weight_obs__wgt[,2,2]), 0)) ** 2,
+        (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
+            r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
         (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
             sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
@@ -736,8 +736,8 @@ ok_group("Likelihood per year", {
                 r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(lspace_add(r$step3_cdist_surveyindices_model__num, 0)) -
-            log(lspace_add(r$cdist_surveyindices_obs__num[,2], 0)))**2,
+            params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     tmb_r_compare(model_fn, model_tmb, params)

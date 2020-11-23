@@ -2,8 +2,8 @@ call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
 g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
     f_substitute(~sum((
-        stock_ss(modelstock__x) / logspace_add(sum(modelstock_total_f), 0) -
-        stock_ss(obsstock__x) / logspace_add(sum(obsstock_total_f), 0)) ** 2), list(
+        stock_ss(modelstock__x) / avoid_zero(sum(modelstock_total_f)) -
+        stock_ss(obsstock__x) / avoid_zero(sum(obsstock_total_f))) ** 2), list(
             modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x)), over),
             obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
 }
@@ -39,8 +39,8 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
 
 g3l_catchdistribution_surveyindices_log <- function (alpha = 0, beta = 1) {
     f_substitute(~sum((alpha +
-        beta * log(logspace_add_vec(stock_ss(modelstock__x),0)) -
-        log(logspace_add_vec(stock_ss(obsstock__x),0)))**2), list(
+        beta * log(avoid_zero_vec(stock_ss(modelstock__x))) -
+        log(avoid_zero_vec(stock_ss(obsstock__x))))**2), list(
             alpha = alpha,
             beta = beta))
 }
@@ -101,7 +101,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
                 if (compare_num) {
                     debug_trace("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
                     stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
-                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / logspace_add_vec(stock_ss(prey_stock__wgt), 0))
+                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
                 }
                 if (compare_wgt) {
                     debug_trace("Take prey_stock__fleet_stock weight, add to our count")

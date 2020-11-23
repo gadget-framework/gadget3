@@ -5,11 +5,11 @@ library(Rgadget)
 library(magrittr)
 library(unittest)
 
-remove_logspace_add <- function (action) lapply(action, function (a) {
-    # logspace_add is just used to avoid div/0, replace it with a pmax() call
+remove_avoid_zero <- function (action) lapply(action, function (a) {
+    # replace with a pmax() call
     gadget3:::call_replace(a,
-        logspace_add = function (x) call("max", x[[2]], x[[3]] + 1e-7),
-        logspace_add_vec = function (x) call("pmax", x[[2]], x[[3]] + 1e-7))
+        avoid_zero = function (x) call("max", x[[2]], 1e-7),
+        avoid_zero_vec = function (x) call("pmax", x[[2]], 1e-7))
 })
 
 year_range <- 1982:1990
@@ -42,7 +42,7 @@ ling_imm_actions <- list(
     list())
 
 fleet_actions <- list(
-    remove_logspace_add(g3a_predate_totalfleet(igfs, list(ling_imm),
+    remove_avoid_zero(g3a_predate_totalfleet(igfs, list(ling_imm),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/overstocking/', 'Data/fleet.igfs.data')[[1]], 'number'),
@@ -53,7 +53,7 @@ ling_likelihood_actions <- list(
     g3l_understocking(
         weight = 1000,
         list(ling_imm)),
-    remove_logspace_add(g3l_catchdistribution(
+    remove_avoid_zero(g3l_catchdistribution(
         'ldist_igfs',
         weight = 10,
         obs_data = structure(

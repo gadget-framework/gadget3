@@ -133,8 +133,8 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     n <- dim(delta_l)[[2]] - 1  # Number of lengthgroup deltas
     # See stockmemberfunctions.cc:121, grow.cc:25
 
-    logspace_add_vec <- function(a,b) {
-        pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+    avoid_zero_vec <- function(a) {
+        pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
     }
 
     growth.matrix <- array(0,c(na,na))
@@ -159,17 +159,17 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     # Sum together all length group brackets for both length & weight
     return(array(c(
         Matrix::colSums(growth.matrix),
-        Matrix::colSums(wgt.matrix) / logspace_add_vec(Matrix::colSums(growth.matrix), 0) ), dim = c(na, 2)))
+        Matrix::colSums(wgt.matrix) / avoid_zero_vec(Matrix::colSums(growth.matrix)) ), dim = c(na, 2)))
 }, cpp = '[](array<Type> delta_l, array<Type> delta_w, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     delta_l = delta_l.transpose();
     delta_w = delta_w.transpose();
     int total_deltas = delta_l.rows();  // # Length group increases (should be +1 for the no-change group)
     int total_lgs = delta_l.cols(); // # Length groups
 
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
         for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i], b);
+            res[i] = logspace_add(a[i], (Type)0.0);
         }
         return res;
     };
@@ -200,7 +200,7 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / logspace_add_vec(growth_matrix.colwise().sum(), 0).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 }')
 

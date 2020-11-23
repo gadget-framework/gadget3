@@ -50,6 +50,13 @@ Type objective_function<Type>::operator() () {
     auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], (Type)0.0);
+    }
+    return res;
+};
     auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
@@ -114,10 +121,10 @@ Type objective_function<Type>::operator() () {
     int total_deltas = delta_l.rows();  // # Length group increases (should be +1 for the no-change group)
     int total_lgs = delta_l.cols(); // # Length groups
 
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
         for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i], b);
+            res[i] = logspace_add(a[i], (Type)0.0);
         }
         return res;
     };
@@ -148,12 +155,15 @@ Type objective_function<Type>::operator() () {
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / logspace_add_vec(growth_matrix.colwise().sum(), 0).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 };
     auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
+    auto avoid_zero = [](Type a) -> Type {
+    return logspace_add(a, (Type)0.0);
+};
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     int cur_time = -1;
     DATA_IVECTOR(step_lengths)
@@ -382,15 +392,15 @@ Type objective_function<Type>::operator() () {
         }
         {
             // Temporarily convert to being proportion of totalpredate;
-            ling_imm__igfs /= logspace_add_vec(ling_imm__totalpredate, (double)(0));
+            ling_imm__igfs /= avoid_zero_vec(ling_imm__totalpredate);
         }
         {
             // Temporarily convert to being proportion of totalpredate;
-            ling_mat__igfs /= logspace_add_vec(ling_mat__totalpredate, (double)(0));
+            ling_mat__igfs /= avoid_zero_vec(ling_mat__totalpredate);
         }
         {
             // Calculate ling_imm overconsumption coefficient;
-            ling_imm__consratio = ling_imm__totalpredate / logspace_add_vec(ling_imm__num*ling_imm__wgt, (double)(0));
+            ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
             ling_imm__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100);
             if ( false ) {
                 // We can't consume more fish than currently exists;
@@ -404,7 +414,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // Calculate ling_mat overconsumption coefficient;
-            ling_mat__consratio = ling_mat__totalpredate / logspace_add_vec(ling_mat__num*ling_mat__wgt, (double)(0));
+            ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
             ling_mat__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100);
             if ( false ) {
                 // We can't consume more fish than currently exists;
@@ -563,7 +573,7 @@ Type objective_function<Type>::operator() () {
                                 if ( cur_step_final ) {
                                     ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(double)(1);
                                     ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)*(double)(1);
-                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= logspace_add_vec(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx), (double)(0));
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
                                 }
                             }
                         }
@@ -593,7 +603,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) += (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         // Back to mean weight;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= logspace_add_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), (double)(0));
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= avoid_zero_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
             }
@@ -620,7 +630,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) += (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         // Back to mean weight;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= logspace_add_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), (double)(0));
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= avoid_zero_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
             }
@@ -635,7 +645,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
-                        cdist_ldist_lln_model__num += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / logspace_add_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx), (double)(0));
+                        cdist_ldist_lln_model__num += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
             }
@@ -650,7 +660,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
-                        cdist_ldist_lln_model__num += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / logspace_add_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx), (double)(0));
+                        cdist_ldist_lln_model__num += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                     }
                 }
             }
@@ -661,7 +671,7 @@ Type objective_function<Type>::operator() () {
                 auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step, -1) - 1;
 
                 if ( cdist_ldist_lln_obs__time_idx >= 0 ) {
-                    nll += ((double)(1))*((pow((cdist_ldist_lln_model__num / logspace_add((Type)((cdist_ldist_lln_model__num).sum()), (Type)((double)(0))) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / logspace_add((Type)((cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum()), (Type)((double)(0)))), (Type)(double)(2))).sum());
+                    nll += ((double)(1))*((pow((cdist_ldist_lln_model__num / avoid_zero((cdist_ldist_lln_model__num).sum()) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / avoid_zero((cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum());
                 }
             }
             cdist_ldist_lln_model__num.setZero();
@@ -718,7 +728,7 @@ Type objective_function<Type>::operator() () {
                     ling_mat__wgt.col(ling_mat__age_idx) *= ling_mat__num.col(ling_mat__age_idx);
                     ling_mat__num.col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__age_idx - 1);
                     ling_mat__wgt.col(ling_mat__age_idx) += (ling_mat__wgt.col(ling_mat__age_idx - 1)*ling_mat__num.col(ling_mat__age_idx - 1));
-                    ling_mat__wgt.col(ling_mat__age_idx) /= logspace_add_vec(ling_mat__num.col(ling_mat__age_idx), (double)(0));
+                    ling_mat__wgt.col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx));
                 } else {
                     if (age == ling_mat__minage) {
                         // Empty youngest ling_mat age-group;
@@ -748,7 +758,7 @@ Type objective_function<Type>::operator() () {
                                 if ( cur_step_final ) {
                                     ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + ling_imm_movement__transitioning_wgt.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx)*ling_imm_movement__transitioning_num.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx)*(double)(1);
                                     ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx)*(double)(1);
-                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= logspace_add_vec(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx), (double)(0));
+                                    ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx));
                                 }
                             }
                         }

@@ -56,6 +56,24 @@ g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
     return res;
 }')
 
+g3_global_env$avoid_zero <- g3_native(r = function (a) {
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+}, cpp = '[](Type a) -> Type {
+    return logspace_add(a, (Type)0.0);
+}')
+
+g3_global_env$avoid_zero_vec <- g3_native(r = function (a) {
+    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
+    pmax(a, 0) + log1p(exp(pmin(a, 0) - pmax(a, 0)))
+}, cpp = '[](vector<Type> a) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], (Type)0.0);
+    }
+    return res;
+}')
+
 # vector<Type> form of pow()
 g3_global_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
 

@@ -65,7 +65,7 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
             stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) + (stock_ss(stock__renewalnum) * stock_ss(stock__renewalwgt))
             debug_trace("Back to mean weight")
-            stock_ss(stock__wgt) <- stock_ss(stock__wgt) / logspace_add_vec(stock_ss(stock__num), 0)
+            stock_ss(stock__wgt) <- stock_ss(stock__wgt) / avoid_zero_vec(stock_ss(stock__num))
         })
     }, list(num_f = num_f, wgt_f = wgt_f)))
     return(out)
@@ -98,7 +98,7 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
             stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
             stock_ss(stock__wgt) <- stock_ss(stock__wgt) + (stock_ss(stock__renewalnum) * stock_ss(stock__renewalwgt))
             debug_trace("Back to mean weight")
-            stock_ss(stock__wgt) <- stock_ss(stock__wgt) / logspace_add_vec(stock_ss(stock__num), 0)
+            stock_ss(stock__wgt) <- stock_ss(stock__wgt) / avoid_zero_vec(stock_ss(stock__num))
         })
     }, list(
         run_f = run_f,

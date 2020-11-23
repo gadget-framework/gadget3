@@ -76,7 +76,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
         out[[step_id(run_at, 3, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
             debug_trace("Temporarily convert to being proportion of totalpredate")
             stock_with(prey_stock, {
-                prey_stock__fleet_stock <- prey_stock__fleet_stock / logspace_add_vec(prey_stock__totalpredate, 0)
+                prey_stock__fleet_stock <- prey_stock__fleet_stock / avoid_zero_vec(prey_stock__totalpredate)
             })
         }, list(
             prey_stock__fleet_stock = fleet_stock_var)))
@@ -87,7 +87,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
             stock_with(prey_stock, {
                 # NB: See prey.cc::208
                 # prey_stock__consratio == ratio
-                prey_stock__consratio <- prey_stock__totalpredate / logspace_add_vec(prey_stock__num * prey_stock__wgt, 0)
+                prey_stock__consratio <- prey_stock__totalpredate / avoid_zero_vec(prey_stock__num * prey_stock__wgt)
 
                 # Overconsumption rule
                 prey_stock__consratio <- overconsumption_f

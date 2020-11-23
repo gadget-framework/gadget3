@@ -48,7 +48,7 @@ g3a_step_transition <- function(input_stock,
                 # Add numbers together
                 stock_ss(output_stock__num) <- stock_ss(output_stock__num) + stock_reshape(output_stock, stock_ss(input_stock__transitioning_num) * output_ratio)
                 # Back down to mean biomass
-                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / logspace_add_vec(stock_ss(output_stock__num), 0)
+                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero_vec(stock_ss(output_stock__num))
             }))
         }, list(run_f = run_f, output_ratio = output_ratios[[n]])))
     })))

@@ -60,7 +60,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             stock__num[age_iter_ss] <- stock__num[age_iter_ss] + stock__num[age_younger_iter_ss]
             stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] + (stock__wgt[age_younger_iter_ss] * stock__num[age_younger_iter_ss])
             # Back to mean weight
-            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] / logspace_add_vec(stock__num[age_iter_ss], 0)
+            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] / avoid_zero_vec(stock__num[age_iter_ss])
         }, list(
             age_iter_ss = age_iter_ss,
             age_younger_iter_ss = age_younger_iter_ss)))
