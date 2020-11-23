@@ -100,7 +100,7 @@ ok_group("g3_step:stock_reshape", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions)
         # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params)
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         model_tmb_report <- model_tmb$report()
         for (n in ls(environment(model_fn)$model_report)) {
             ok(ut_cmp_equal(

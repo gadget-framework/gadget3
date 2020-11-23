@@ -55,7 +55,7 @@ model_fn <- g3_to_r(actions, trace = FALSE)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params)
+    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
