@@ -245,11 +245,12 @@ g3a_growmature <- function(stock,
             stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
         }, list(
             transition_f = transition_f)))
-        maturity_iter_f <- f_substitute(~if (transition_f) {
+
+        maturity_iter_f <- f_substitute(~if (transition_f) g3_with(maturity_ratio, maturity_f, {
             stock_ss(stock__num) <- stock_ss(stock__num) -
-                (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * (maturity_f))
+                (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * maturity_ratio)
             debug_trace("NB: Mean __wgt unchanged")
-        }, list(maturity_f = maturity_f,
+        }), list(maturity_f = maturity_f,
             transition_f = transition_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }

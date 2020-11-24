@@ -83,10 +83,10 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
         stock_with(stock, stock__transitioning_num[] <- 0)
         stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
 
-        stock_iterate(stock, if (run_f) {
+        stock_iterate(stock, if (run_f) g3_with(maturity_ratio, maturity_f, {
             debug_trace("Move matured ", stock, " into temporary storage")
-            stock_ss(stock__num) <- stock_ss(stock__num) - (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * (maturity_f))
-        })
+            stock_ss(stock__num) <- stock_ss(stock__num) - (stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_ratio)
+        }))
     }, list(run_f = run_f, maturity_f = maturity_f)))
 
     # Shunt matured into their own stock
