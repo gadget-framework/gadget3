@@ -15,7 +15,7 @@ g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     compile_flags = c("-O3", "-march=native"), work_dir = tempdir(),
-    ...)
+    output_script = FALSE, ...)
 
 g3_tmb_par(parameters)
 
@@ -48,6 +48,10 @@ g3_tmb_upper(parameters)
   \item{work_dir}{
     Directory to write and compile .cpp files in. Defaults to R's current temporary directory
   }
+  \item{output_script}{
+    If \code{TRUE}, create a temporary R script that runs \link[TMB:MakeADFun]{MakeADFun}, and return the location.
+    This can then be directly used with \link[TMB:gdbsource]{gdbsource} or \code{callr::rscript}.
+  }
   \item{...}{
     Any other options handed directly to \link{MakeADFun}
   }
@@ -58,12 +62,15 @@ g3_tmb_upper(parameters)
     \code{\link{g3_tmb_adfun}} will do both the \link[TMB:compile]{compile} and \link[TMB:MakeADFun]{MakeADFun}
     steps of making a model. If the code is identical to an already-loaded model then it
     won't be recompiled, so repeated calls to \link{g3_tmb_adfun} to change \var{parameters} are fast.
+
+    If \link[TMB:MakeADFun]{MakeADFun} is crashing your R session, then you can use \var{output_script} to run
+    in a separate R session. Use this with \link[TMB:gdbsource]{gdbsource} to debug your model.
   }
 }
 
 \value{
   \subsection{g3_to_tmb}{A string of C++ code that can be used as an input to \var{g3_tmb_adfun}.}
-  \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}.}
+  \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
@@ -123,6 +130,10 @@ tmb_param$value <- I(list(
 
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
+
+\dontrun{# Build the model in an isolated R session w/debugger
+ writeLines(TMB::gdbsource(g3_tmb_adfun(cpp), compile_args = "-g", output_script = TRUE))
+}
 
 \dontrun{# Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))

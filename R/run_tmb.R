@@ -716,7 +716,7 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), compile_flags = c("-O3", "-march=native"), work_dir = tempdir(), ...) {
+g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), compile_flags = c("-O3", "-march=native"), work_dir = tempdir(), output_script = FALSE, ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
     # If parameters is a list, merge into our data.frames
@@ -773,13 +773,27 @@ g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_templa
         dyn.load(so_path)
     }
 
-    obj <- TMB::MakeADFun(
+    if (output_script) {
+        tmp_script_path <- tempfile(fileext = ".R")
+        writeLines(c(
+            "library(TMB)",
+            deparse(call("dyn.load", so_path)),
+            "",
+            deparse(call("MakeADFun",
+                data = as.list(attr(cpp_code, 'model_data')),
+                parameters = tmb_parameters,
+                map = as.list(tmb_map),
+                random = tmb_random,
+                DLL = base_name)),
+            ""), con = tmp_script_path)
+        return(tmp_script_path)
+    }
+    return(TMB::MakeADFun(
         data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
-        DLL = base_name)
-    return(obj)
+        DLL = base_name))
 }
 
 # Turn parameter_template table into a vector for TMB
