@@ -246,7 +246,16 @@ g3a_growmature <- function(stock,
         }, list(
             transition_f = transition_f)))
 
-        maturity_iter_f <- f_substitute(~if (transition_f) g3_with(maturity_ratio, maturity_f, {
+        # NB: Maturity doesn't consider if there's somewhere to mature *to*
+        #     gadget2 takes the minimum age/length of all mature stocks,
+        #     and falls over if areas don't match.
+        #     For now, intersect with our output stock, so nothing outside
+        #     can mature. Ideally g3a_step_transition should put any that
+        #     couldn't mature back in immature.
+        if (length(output_stocks) > 1) stop("Only support one output stock for now")
+        output_stock <- output_stocks[[1]]
+
+        maturity_iter_f <- f_substitute(~if (transition_f) stock_intersect(output_stock, g3_with(maturity_ratio, maturity_f, {
             stock_ss(stock__num) <- stock_ss(stock__num) -
                 (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * maturity_ratio)
             debug_trace("NB: Mean __wgt unchanged")
@@ -258,7 +267,7 @@ g3a_growmature <- function(stock,
                 stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
                 stock_ss(stock__transitioning_wgt) <- growthresult[,g3_idx(2)]
             })
-        }), list(maturity_f = maturity_f,
+        })), list(maturity_f = maturity_f,
             transition_f = transition_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }

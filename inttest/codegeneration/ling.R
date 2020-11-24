@@ -441,21 +441,25 @@ structure(function (param)
                     comment("Calculate length/weight delta matrices for current lengthgroups")
                     ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
                     ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * (param[["lingimm.walpha"]])
-                    if (cur_step_final) {
-                      maturity_ratio <- 1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))
-                      {
-                        ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * maturity_ratio)
-                        comment("NB: Mean __wgt unchanged")
-                        comment("Apply growth to transitioning stock")
-                        {
-                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                    if (cur_step_final) 
+                      if (age >= ling_mat__minage && age <= ling_mat__maxage) {
+                        ling_mat__age_idx <- age - ling_mat__minage + 1L
+                        if (area == ling_mat__area) {
+                          maturity_ratio <- 1/(1 + exp(0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - (param[["ling.mat2"]]))))
                           {
-                            ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
-                            ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
+                            ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * maturity_ratio)
+                            comment("NB: Mean __wgt unchanged")
+                            comment("Apply growth to transitioning stock")
+                            {
+                              growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                              {
+                                ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
+                                ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
+                              }
+                            }
                           }
                         }
                       }
-                    }
                     if (TRUE) 
                       ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                     comment("Update ling_imm using delta matrices")

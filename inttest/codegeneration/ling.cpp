@@ -506,18 +506,24 @@ Type objective_function<Type>::operator() () {
                         ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*((double)(1) - exp(-(ling__k*(double)(0.001))*cur_step_size)), ling_imm__dl, (double)(15), ling__bbin*(double)(10));
                         ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)))*(lingimm__walpha);
                         if ( cur_step_final ) {
-                            auto maturity_ratio = (double)(1) / ((double)(1) + exp((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - (ling__mat2))));
+                            if ( age >= ling_mat__minage && age <= ling_mat__maxage ) {
+                                auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                            {
-                                ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*maturity_ratio);
-                                // NB: Mean __wgt unchanged;
-                                // Apply growth to transitioning stock;
-                                {
-                                    auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                                if ( area == ling_mat__area ) {
+                                    auto maturity_ratio = (double)(1) / ((double)(1) + exp((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - (ling__mat2))));
 
                                     {
-                                        ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(0);
-                                        ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(1);
+                                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*maturity_ratio);
+                                        // NB: Mean __wgt unchanged;
+                                        // Apply growth to transitioning stock;
+                                        {
+                                            auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+
+                                            {
+                                                ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(0);
+                                                ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(1);
+                                            }
+                                        }
                                     }
                                 }
                             }
