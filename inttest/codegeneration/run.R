@@ -191,15 +191,19 @@ tmb_ling <- g3_to_tmb(c(
     likelihood_actions,
     time))
 writeLines(tmb_ling, con = 'inttest/codegeneration/ling.cpp')
+
+# tmb_ling <- edit(tmb_ling)
+tmb_param <- attr(tmb_ling, 'parameter_template')
+# Fill parameters - Map original list into data.frame format
+tmb_param$value <- I(ling_param[tmb_param$switch])
+# Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE
+# Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
+
+# Run the model with debugging:
+# tmb_ling <- edit(tmb_ling) ; writeLines(gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    # tmb_ling <- edit(tmb_ling)
-    tmb_param <- attr(tmb_ling, 'parameter_template')
-    # Fill parameters - Map original list into data.frame format
-    tmb_param$value <- I(ling_param[tmb_param$switch])
-    # Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE
-    # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
     print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)}))
-    # NB: You can do: tmb_ling <- edit(tmb_ling) ; g3_tmb_adfun(tmb_ling, tmb_param)
     print(system.time(tmb_result <- ling_model_tmb$fn()))
 
     # Compare result and report output
