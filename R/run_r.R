@@ -160,6 +160,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
         scope,
+        lapply(names(param_lines), function (p) substitute(stopifnot(p %in% names(param)), list(p = p))),
         rlang::f_rhs(all_actions),
         quote(stop("Should have return()ed somewhere in the loop")))))
 
