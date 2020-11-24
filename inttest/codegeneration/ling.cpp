@@ -511,6 +511,15 @@ Type objective_function<Type>::operator() () {
                             {
                                 ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) -= (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*maturity_ratio);
                                 // NB: Mean __wgt unchanged;
+                                // Apply growth to transitioning stock;
+                                {
+                                    auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+
+                                    {
+                                        ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(0);
+                                        ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = growthresult.col(1);
+                                    }
+                                }
                             }
                         }
                         if ( false ) {

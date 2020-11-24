@@ -446,6 +446,14 @@ structure(function (param)
                       {
                         ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] - (ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * maturity_ratio)
                         comment("NB: Mean __wgt unchanged")
+                        comment("Apply growth to transitioning stock")
+                        {
+                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                          {
+                            ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
+                            ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
+                          }
+                        }
                       }
                     }
                     if (TRUE) 

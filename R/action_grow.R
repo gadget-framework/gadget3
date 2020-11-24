@@ -250,6 +250,14 @@ g3a_growmature <- function(stock,
             stock_ss(stock__num) <- stock_ss(stock__num) -
                 (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * maturity_ratio)
             debug_trace("NB: Mean __wgt unchanged")
+
+            debug_trace("Apply growth to transitioning stock")
+            g3_with(growthresult, g3a_grow_apply(
+                    stock__growth_l, stock__growth_w,
+                    stock_ss(stock__transitioning_num), stock_ss(stock__transitioning_wgt)), {
+                stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
+                stock_ss(stock__transitioning_wgt) <- growthresult[,g3_idx(2)]
+            })
         }), list(maturity_f = maturity_f,
             transition_f = transition_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
