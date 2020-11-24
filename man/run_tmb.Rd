@@ -132,7 +132,7 @@ tmb_param$value <- I(list(
 tmb <- g3_tmb_adfun(cpp, tmb_param)
 
 \dontrun{# Build the model in an isolated R session w/debugger
- writeLines(TMB::gdbsource(g3_tmb_adfun(cpp), compile_args = "-g", output_script = TRUE))
+ writeLines(TMB::gdbsource(g3_tmb_adfun(cpp), compile_flags = "-g", output_script = TRUE))
 }
 
 \dontrun{# Perform a single run, using values in table
