@@ -2,7 +2,7 @@
 
 To run, do:
 
-    > demo("ling", package = "gadget3")
+    > source('demo-ling/setup.R')
 
 ## Development
 
