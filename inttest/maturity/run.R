@@ -139,4 +139,15 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
         unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
         tolerance = 1e-3), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+
+    ok(all.equal(
+        unname(g2_lingmat$number[,,1,t]),
+        unname(g3_r$mat_report__num[,1,,t]),
+        tolerance = 1e-3), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
+
+    ok(all.equal(
+        # NB: Use total weight, since mean weight will do different things with no fish
+        unname(g2_lingmat$number[,,1,t] * g2_lingmat$weight[,,1,t]),
+        unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
+        tolerance = 1e-3), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
 }
