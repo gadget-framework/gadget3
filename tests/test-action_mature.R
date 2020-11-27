@@ -3,6 +3,23 @@ library(unittest)
 
 library(gadget3)
 
+tmb_r_compare <- function (model_fn, model_tmb, params) {
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        # Reformat params into a single vector in expected order
+        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
+        model_tmb_report <- model_tmb$report(par)
+        result <- model_fn(params)
+        for (n in ls(environment(model_fn)$model_report)) {
+            ok(ut_cmp_equal(
+                as.vector(model_tmb_report[[n]]),
+                as.vector(environment(model_fn)$model_report[[n]]),
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+}
+
 ok_group('g3a_mature_constant', {
     cmp_code <- function(a, b) ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
 
@@ -64,8 +81,8 @@ ok_group('g3a_mature', {
         g3a_mature(stock_imm, ~g3_param_vector("maturity"), list(stock_mat1, stock_mat2), output_ratios = c(9,9)),
         "output_ratios"), "output_ratios must sum to 1")
 
-    cur_time <- 0L  # Initialconditions needs to know what the time is
     actions <- list(
+        g3a_time(2000, 2000),
         g3a_initialconditions(stock_imm, ~g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
         g3a_initialconditions(stock_mat1, ~g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
         g3a_initialconditions(stock_mat2, ~g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),
@@ -98,10 +115,10 @@ ok_group('g3a_mature', {
         x=1.0)
 
     # Compile model
-    model_fn <- g3_to_r(actions)
+    model_fn <- g3_to_r(actions, trace = FALSE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     } else {
@@ -132,19 +149,7 @@ ok_group('g3a_mature', {
             as.vector(environment(model_fn)$model_report$stock_mat2__num),
             c(0, 0, 103 / 2, 0)), "stock_mat2__num")
 
-        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-            # Reformat params into a single vector in expected order
-            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-            model_tmb_report <- model_tmb$report(par)
-            for (n in ls(environment(model_fn)$model_report)) {
-                ok(ut_cmp_equal(
-                    model_tmb_report[[n]],
-                    as.vector(environment(model_fn)$model_report[[n]]),
-                    tolerance = 1e-5), paste("TMB and R match", n))
-            }
-        } else {
-            writeLines("# skip: not running TMB tests")
-        }
+        tmb_r_compare(model_fn, model_tmb, params)
     })
 
     ok_group("Move all of length 30 into 90% mat1, 10% mat2", {
@@ -171,19 +176,7 @@ ok_group('g3a_mature', {
             as.vector(environment(model_fn)$model_report$stock_mat2__num),
             c(0, 0, 103 * 0.1, 0)), "stock_mat2__num")
 
-        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-            # Reformat params into a single vector in expected order
-            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-            model_tmb_report <- model_tmb$report(par)
-            for (n in ls(environment(model_fn)$model_report)) {
-                ok(ut_cmp_equal(
-                    model_tmb_report[[n]],
-                    as.vector(environment(model_fn)$model_report[[n]]),
-                    tolerance = 1e-5), paste("TMB and R match", n))
-            }
-        } else {
-            writeLines("# skip: not running TMB tests")
-        }
+        tmb_r_compare(model_fn, model_tmb, params)
     })
 
     ok_group("Move 50% of length 30, 75% of length 40", {
@@ -210,19 +203,7 @@ ok_group('g3a_mature', {
             as.vector(environment(model_fn)$model_report$stock_mat2__num),
             c(0, 0, 103 * 0.5 / 2, 104 * 0.75 / 2)), "stock_mat2__num")
 
-        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-            # Reformat params into a single vector in expected order
-            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-            model_tmb_report <- model_tmb$report(par)
-            for (n in ls(environment(model_fn)$model_report)) {
-                ok(ut_cmp_equal(
-                    model_tmb_report[[n]],
-                    as.vector(environment(model_fn)$model_report[[n]]),
-                    tolerance = 1e-5), paste("TMB and R match", n))
-            }
-        } else {
-            writeLines("# skip: not running TMB tests")
-        }
+        tmb_r_compare(model_fn, model_tmb, params)
     })
 
     ok_group("Disable with run_f = 0", {
@@ -249,18 +230,6 @@ ok_group('g3a_mature', {
             as.vector(environment(model_fn)$model_report$stock_mat2__num),
             c(0, 0, 0, 0)), "stock_mat2__num same as start")
 
-        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-            # Reformat params into a single vector in expected order
-            par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-            model_tmb_report <- model_tmb$report(par)
-            for (n in ls(environment(model_fn)$model_report)) {
-                ok(ut_cmp_equal(
-                    model_tmb_report[[n]],
-                    as.vector(environment(model_fn)$model_report[[n]]),
-                    tolerance = 1e-5), paste("TMB and R match", n))
-            }
-        } else {
-            writeLines("# skip: not running TMB tests")
-        }
+        tmb_r_compare(model_fn, model_tmb, params)
     })
 })
