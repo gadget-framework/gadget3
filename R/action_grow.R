@@ -141,8 +141,8 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     wgt.matrix <- array(0,c(na,na))
     for(lg in 1:na){
       if(lg == na) { # Maximum length group can't grow any more
-        growth.matrix[na,na] <- 1
-        wgt.matrix[lg,na] <- 0
+        growth.matrix[na,na] <- sum(delta_l[lg,])
+        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
       } else if(lg + n > na){
         growth.matrix[lg,lg:(na-1)] <- delta_l[lg,1:(na - lg )]
         growth.matrix[lg,na] <- sum(delta_l[lg,(na - lg + 1):(n + 1)])
@@ -181,8 +181,8 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
 
     for (int lg = 0; lg < total_lgs; lg++) {
         if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
-            growth_matrix(lg, lg) = 1;
-            weight_matrix(lg, lg) = 0;
+            growth_matrix(lg, lg) = delta_l.col(lg).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
         } else if(lg + total_deltas > total_lgs) {
             growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.col(lg).head(total_lgs - lg).transpose();
             growth_matrix(lg, total_lgs - 1) = delta_l.col(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();

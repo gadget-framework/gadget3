@@ -136,8 +136,8 @@ Type objective_function<Type>::operator() () {
 
     for (int lg = 0; lg < total_lgs; lg++) {
         if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
-            growth_matrix(lg, lg) = 1;
-            weight_matrix(lg, lg) = 0;
+            growth_matrix(lg, lg) = delta_l.col(lg).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
         } else if(lg + total_deltas > total_lgs) {
             growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.col(lg).head(total_lgs - lg).transpose();
             growth_matrix(lg, total_lgs - 1) = delta_l.col(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();

@@ -55,8 +55,8 @@ structure(function (param)
         wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
             if (lg == na) {
-                growth.matrix[na, na] <- 1
-                wgt.matrix[lg, na] <- 0
+                growth.matrix[na, na] <- sum(delta_l[lg, ])
+                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
             }
             else if (lg + n > na) {
                 growth.matrix[lg, lg:(na - 1)] <- delta_l[lg, 1:(na - lg)]
