@@ -1,4 +1,5 @@
 \name{action_mature}
+\alias{g3a_mature_continuous}
 \alias{g3a_mature_constant}
 \alias{g3a_mature}
 
@@ -8,6 +9,8 @@
 }
 
 \usage{
+g3a_mature_continuous(alpha, l50, beta = 0, a50 = 0)
+
 g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, 
     k50 = NA)
 
@@ -69,6 +72,15 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
 }
 
 \value{
+  \subsection{g3a_mature_continuous}{A \link{formula} object representing
+    \deqn{ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\intercal }
+
+    \describe{
+      \item{\eqn{m_0}}{The \code{\link{g3a_mature_constant}} formula, as defined below, using parameters supplied to \code{\link{g3a_mature_continuous}}}
+      \item{\eqn{\Delta{L}}}{Vector of all possible changes in length, as per current growth matrix (see \link{g3a_grow_impl_bbinom})}
+      \item{\eqn{\Delta{t}}}{Length of the current timestep}
+    }
+  }
   \subsection{g3a_mature_constant}{A \link{formula} object with the following equation
 
     \deqn{ \frac{1}{ 1 + e^{-\alpha(l - l_{50}) -\beta(a - a_{50}) -\gamma(k - k_{50})}} }

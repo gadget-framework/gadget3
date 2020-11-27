@@ -13,6 +13,7 @@ export(g3a_growmature)
 
 # R/action_mature.R
 export(g3a_mature_constant)
+export(g3a_mature_continuous)
 export(g3a_mature)
 
 # R/action_naturalmortality.R

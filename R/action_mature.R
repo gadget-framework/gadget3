@@ -1,3 +1,33 @@
+g3a_mature_continuous <- function (alpha, l50, beta = 0, a50 = 0) {
+    # https://hafro.github.io/gadget2/userguide/chap-stock.html#continuous-maturity-function
+    # https://github.com/Hafro/gadget2/blob/master/src/maturity.cc#L301-L304
+
+    g3a_mature_continuous <- g3_native(r = function (plusdl, m0, growth_l, alpha, beta, cur_step_size) {
+        # ldelta: Absolute increase in length for each entry in growth_l
+        # (i.e. growth * LgrpDiv->dl() in MaturityA::calcMaturation
+        # TODO: Not considering __dl when we have it
+        ldelta <- plusdl * seq(0, ncol(growth_l) - 1)  # 0..maxlengthgrouplen increases
+
+        # NB: m0 == preCalcMaturation(maturity.cc:275)
+        return(m0 %*% t(alpha * ldelta + beta * cur_step_size))
+    }, cpp = '[](Type plusdl, vector<Type> m0, array<Type> growth_l, Type alpha, Type beta, Type cur_step_size) -> array<Type> {
+        vector<Type> ldelta(growth_l.cols());
+        array<Type> out(m0.size(), growth_l.cols());
+
+        for (int i = 0 ; i < ldelta.size(); i++) {
+            ldelta[i] = plusdl * (double)i;
+        }
+
+        // NB: Need to declare/assign/return separately to get Eigen types right
+        out = (m0.matrix() * (alpha * ldelta + beta * cur_step_size).matrix().transpose()).array();
+        return(out);
+    }')
+
+    f_substitute(~g3a_mature_continuous(stock__plusdl, M0, stock__growth_l, alpha, beta, cur_step_size), list(
+        M0 = g3a_mature_constant(alpha, l50, beta, a50),
+        beta = beta))
+}
+
 g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, k50 = NA) {
     inner_code <- quote(0)
 
