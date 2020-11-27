@@ -70,9 +70,9 @@ ok_group('g3a_mature_constant', {
 })
 
 ok_group('g3a_mature', {
-    stock_imm <- g3_stock('stock_imm', seq(10, 40, 10))
-    stock_mat1 <- g3_stock('stock_mat1', seq(10, 40, 10))
-    stock_mat2 <- g3_stock('stock_mat2', seq(10, 40, 10))
+    stock_imm <- g3_stock('stock_imm', seq(10, 40, 10)) %>% g3s_age(3, 7)
+    stock_mat1 <- g3_stock('stock_mat1', seq(10, 40, 10)) %>% g3s_age(4, 7)
+    stock_mat2 <- g3_stock('stock_mat2', seq(10, 40, 10)) %>% g3s_age(5, 7)
 
     ok(ut_cmp_error(
         g3a_mature(stock_imm, ~g3_param_vector("maturity"), list(stock_mat1, stock_mat2), output_ratios = c(9,9,9)),
@@ -83,9 +83,9 @@ ok_group('g3a_mature', {
 
     actions <- list(
         g3a_time(2000, 2000),
-        g3a_initialconditions(stock_imm, ~g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
-        g3a_initialconditions(stock_mat1, ~g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
-        g3a_initialconditions(stock_mat2, ~g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),
+        g3a_initialconditions(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
+        g3a_initialconditions(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
+        g3a_initialconditions(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),
         g3a_mature(stock_imm,
             ~g3_param_vector("maturity"),
             list(stock_mat1, stock_mat2),
@@ -140,14 +140,23 @@ ok_group('g3a_mature', {
             x=1.0)
         result <- model_fn(params)
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_imm__num),
+            as.vector(environment(model_fn)$model_report$stock_imm__num[,'age5']),
             c(101, 102, 0, 104)), "stock_imm__num")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat1__num),
+            as.vector(environment(model_fn)$model_report$stock_imm__num['len30',]),
+            c(103 * 3, (103 * 2) / 2, 0, 0, 0)), "stock_imm__num: age3 and half of age4 left behind, since they don't fit in mature stocks")
+        ok(ut_cmp_equal(
+            as.vector(environment(model_fn)$model_report$stock_mat1__num[,'age5']),
             c(10, 20, 30 + (103 / 2), 40)), "stock_mat1__num (NB: Added to existing numbers)")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat2__num),
+            as.vector(environment(model_fn)$model_report$stock_mat1__num['len30',]),
+            c(60 + (103 * 2) / 2, 81.5, 81.5, 81.5)), "stock_mat1__num: Got half of age4")
+        ok(ut_cmp_equal(
+            as.vector(environment(model_fn)$model_report$stock_mat2__num[,'age5']),
             c(0, 0, 103 / 2, 0)), "stock_mat2__num")
+        ok(ut_cmp_equal(
+            as.vector(environment(model_fn)$model_report$stock_mat2__num['len30',]),
+            c(51.5, 51.5, 51.5)), "stock_mat2__num: Just age 5/6/7")
 
         tmb_r_compare(model_fn, model_tmb, params)
     })
@@ -167,13 +176,13 @@ ok_group('g3a_mature', {
             x=1.0)
         result <- model_fn(params)
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_imm__num),
+            as.vector(environment(model_fn)$model_report$stock_imm__num[,'age5']),
             c(101, 102, 0, 104)), "stock_imm__num")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat1__num),
+            as.vector(environment(model_fn)$model_report$stock_mat1__num[,'age5']),
             c(10, 20, 30 + (103 * 0.9), 40)), "stock_mat1__num (NB: Added to existing numbers)")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat2__num),
+            as.vector(environment(model_fn)$model_report$stock_mat2__num[,'age5']),
             c(0, 0, 103 * 0.1, 0)), "stock_mat2__num")
 
         tmb_r_compare(model_fn, model_tmb, params)
@@ -194,13 +203,13 @@ ok_group('g3a_mature', {
             x=1.0)
         result <- model_fn(params)
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_imm__num),
+            as.vector(environment(model_fn)$model_report$stock_imm__num[,'age5']),
             c(101, 102, 103 * 0.5, 104 * 0.25)), "stock_imm__num")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat1__num),
+            as.vector(environment(model_fn)$model_report$stock_mat1__num[,'age5']),
             c(10, 20, 30 + (103 * 0.5 / 2), 40 + (104 * 0.75 / 2))), "stock_mat1__num (NB: Added to existing numbers)")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat2__num),
+            as.vector(environment(model_fn)$model_report$stock_mat2__num[,'age5']),
             c(0, 0, 103 * 0.5 / 2, 104 * 0.75 / 2)), "stock_mat2__num")
 
         tmb_r_compare(model_fn, model_tmb, params)
@@ -221,13 +230,13 @@ ok_group('g3a_mature', {
             x=1.0)
         result <- model_fn(params)
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_imm__num),
+            as.vector(environment(model_fn)$model_report$stock_imm__num[,'age5']),
             c(101, 102, 103, 104)), "stock_imm__num same as start")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat1__num),
+            as.vector(environment(model_fn)$model_report$stock_mat1__num[,'age5']),
             c(10, 20, 30, 40)), "stock_mat1__num same as start")
         ok(ut_cmp_equal(
-            as.vector(environment(model_fn)$model_report$stock_mat2__num),
+            as.vector(environment(model_fn)$model_report$stock_mat2__num[,'age5']),
             c(0, 0, 0, 0)), "stock_mat2__num same as start")
 
         tmb_r_compare(model_fn, model_tmb, params)

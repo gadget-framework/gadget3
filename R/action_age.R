@@ -77,7 +77,8 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             movement_age_iter_ss = movement_age_iter_ss,
             age_iter_ss = age_iter_ss,
             age_younger_iter_ss = age_younger_iter_ss)))
-        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, run_f = run_f)
+        # NB: move_remainder = FALSE because it's pointless here (and we can't move back into stock_movement)
+        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, move_remainder = FALSE, run_f = run_f)
     }
 
     out[[step_id(run_at, 1, stock)]] <- g3_step(fix_subsets(f_substitute(~if (run_f) {
