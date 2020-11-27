@@ -229,7 +229,7 @@ g3a_growmature <- function(stock,
     stock__growth_num <- stock_instance(stock)
     stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
     stock__growth_w <- array(dim = c(0, 0))
-    stock__transitioning_num <- stock_instance(stock)
+    stock__transitioning_num <- stock_instance(stock, 0)
     stock__transitioning_wgt <- stock_instance(stock)
 
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
@@ -237,7 +237,8 @@ g3a_growmature <- function(stock,
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
-        maturity_iter_f <- ~{}
+        # NB: This will ensure all maturity code is thrown away below
+        transition_f <- FALSE
     } else {
         out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (transition_f) {
             debug_trace("Reset transitioning arrays")
@@ -245,21 +246,6 @@ g3a_growmature <- function(stock,
             stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
         }, list(
             transition_f = transition_f)))
-
-        maturity_iter_f <- f_substitute(~if (transition_f) g3_with(maturity_ratio, maturity_f, {
-            stock_ss(stock__num) <- stock_ss(stock__num) -
-                (stock_ss(stock__transitioning_num) <- stock_ss(stock__transitioning_num) + stock_ss(stock__num) * maturity_ratio)
-            debug_trace("NB: Mean __wgt unchanged")
-
-            debug_trace("Apply growth to transitioning stock")
-            g3_with(growthresult, g3a_grow_apply(
-                    stock__growth_l, stock__growth_w,
-                    stock_ss(stock__transitioning_num), stock_ss(stock__transitioning_wgt)), {
-                stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
-                stock_ss(stock__transitioning_wgt) <- growthresult[,g3_idx(2)]
-            })
-        }), list(maturity_f = maturity_f,
-            transition_f = transition_f))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
@@ -271,22 +257,52 @@ g3a_growmature <- function(stock,
             stock__growth_l <- impl_l_f
             stock__growth_w <- impl_w_f
 
-            maturity_iter_f
-
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
-            debug_trace("Update ", stock, " using delta matrices")
-            g3_with(growthresult, g3a_grow_apply(
-                    stock__growth_l, stock__growth_w, 
-                    stock_ss(stock__num), stock_ss(stock__wgt)), {
-                stock_ss(stock__num) <- growthresult[,g3_idx(1)]
-                stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
-            })
-            if (strict_mode) stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) < 0.0001)
+
+            if (transition_f) g3_with(maturity_ratio, maturity_f, {
+                debug_trace("Grow and separate maturing ", stock)
+                g3_with(growthresult, g3a_grow_apply(
+                        stock__growth_l * maturity_bygrowth, stock__growth_w,
+                        stock_ss(stock__num) * maturity_bylength, stock_ss(stock__wgt)), {
+                    stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
+                    stock_ss(stock__transitioning_wgt) <- growthresult[,g3_idx(2)]
+                })
+
+                debug_trace("Grow non-maturing ", stock)
+                g3_with(growthresult, g3a_grow_apply(
+                        stock__growth_l * invmaturity_bygrowth, stock__growth_w,
+                        stock_ss(stock__num) * invmaturity_bylength, stock_ss(stock__wgt)), {
+                    stock_ss(stock__num) <- growthresult[,g3_idx(1)]
+                    stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
+                })
+            }) else {
+                debug_trace("Update ", stock, " using delta matrices")
+                g3_with(growthresult, g3a_grow_apply(
+                        stock__growth_l, stock__growth_w,
+                        stock_ss(stock__num), stock_ss(stock__wgt)), {
+                    stock_ss(stock__num) <- growthresult[,g3_idx(1)]
+                    stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
+                })
+            }
+
+            if (strict_mode) {
+                if (transition_f) {
+                    stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) - sum(stock_ss(stock__transitioning_num)) < 0.0001)
+                } else {
+                    stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) < 0.0001)
+                }
+            }
         })
     }, list(
             run_f = run_f,
             impl_l_f = impl_f$len,
             impl_w_f = impl_f$wgt,
-            maturity_iter_f = maturity_iter_f)))
+            maturity_f = maturity_f,
+            # NB: Apply maturity in different places, depending if stock__growth_l is mentioned in formluae (and thus a len x deltal matrix)
+            maturity_bylength = if ("stock__growth_l" %in% all.vars(maturity_f)) 1 else quote(maturity_ratio),
+            maturity_bygrowth = if ("stock__growth_l" %in% all.vars(maturity_f)) quote(maturity_ratio) else 1,
+            invmaturity_bylength = if ("stock__growth_l" %in% all.vars(maturity_f)) 1 else quote((1 - maturity_ratio)),
+            invmaturity_bygrowth = if ("stock__growth_l" %in% all.vars(maturity_f)) quote((1 - maturity_ratio)) else 1,
+            transition_f = transition_f)))
     return(as.list(out))
 }
