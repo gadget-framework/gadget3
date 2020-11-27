@@ -203,7 +203,7 @@ tmb_param$value <- I(ling_param[tmb_param$switch])
 # tmb_ling <- edit(tmb_ling) ; writeLines(gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)}))
+    print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = c("-O0", "-g"))}))
     print(system.time(tmb_result <- ling_model_tmb$fn()))
 
     # Compare result and report output
