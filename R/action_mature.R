@@ -29,6 +29,7 @@ g3a_mature_continuous <- function (alpha, l50, beta = 0, a50 = 0) {
 }
 
 g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, k50 = NA) {
+    # https://github.com/Hafro/gadget2/blob/master/src/maturity.cc#L530
     inner_code <- quote(0)
 
     if (!is.null(alpha)) {
