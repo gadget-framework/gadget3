@@ -37,9 +37,24 @@ g3_storage <- function(var_name) {
         name = var_name), class = c("g3_stock", "list"))
 }
 
-g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE) {
+g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = NULL) {
     # See LengthGroupDivision::LengthGroupDivision
     stopifnot(length(lengthgroups) > 0)
+
+    if (!is.null(plus_dl)) {
+        stock__plusdl <- as.integer(plus_dl)
+    } else if (length(lengthgroups) == 1) {
+        # Only one lengthgroup, no sensible value to use
+        stock__plusdl <- 1
+    } else {
+        # No plusdl provided, find the mode of dls and use that
+        # (assuming core of lengthgroups will be regular, with a plus/minus group)
+        stat_mode <- function(vec) {
+            r <- rle(vec)
+            r$values[[which.max(r$lengths)]]
+        }
+        stock__plusdl <- stat_mode(diff(lengthgroups))
+    }
 
     # If no names given, make some up
     if (is.null(names(lengthgroups))) {
@@ -49,9 +64,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE) {
     # stock__dl is size of each lengthgroup
     # stock__upperlen is the final upper bound of the groups
     if (isTRUE(open_ended)) {
-        # plus-group infinite, guess next value in sequence for semi-sane __dl
-        stock__dl <- unname(diff(c(lengthgroups,
-            tail(lengthgroups, 1) + (if (length(lengthgroups) > 1) mean(diff(lengthgroups)) else 1))))
+        # plus-group infinite, use plusdl to guess a semi-sane __dl
+        stock__dl <- unname(diff(c(lengthgroups, tail(lengthgroups, 1) + stock__plusdl)))
         stock__upperlen <- Inf
     } else {
         # Split off final value for absolute max
