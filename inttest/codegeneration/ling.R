@@ -162,8 +162,10 @@ structure(function (param)
     times_cdist_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values)
     cdist_ldist_lln_obs__num <- model_data$cdist_ldist_lln_obs__num
     nll_cdist_ldist_lln__num <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+    nll_cdist_ldist_lln__weight <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
     g3l_understocking_total <- 0
     nll_understocking__wgt <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+    nll_understocking__weight <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
     ling_imm_movement__transitioning_num <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age11"))
     ling_imm_movement__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 1L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = "age11"))
     ling_imm_movement__minage <- 11L
@@ -616,6 +618,8 @@ structure(function (param)
                     nll <- nll + (1) * cur_cdist_nll
                     nll_cdist_ldist_lln__num[cur_time + 1L] <- nll_cdist_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
                     model_report$nll_cdist_ldist_lln__num <- nll_cdist_ldist_lln__num
+                    nll_cdist_ldist_lln__weight[cur_time + 1L] <- 1
+                    model_report$nll_cdist_ldist_lln__weight <- nll_cdist_ldist_lln__weight
                   }
                 }
             }
@@ -641,6 +645,8 @@ structure(function (param)
             nll <- nll + (1) * g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
             model_report$nll_understocking__wgt <- nll_understocking__wgt
+            nll_understocking__weight[cur_time + 1L] <- 1
+            model_report$nll_understocking__weight <- nll_understocking__weight
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")

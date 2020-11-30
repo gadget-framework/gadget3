@@ -136,6 +136,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
+    nllstock__weight <- stock_instance(nllstock, 0)
     out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- g3_step(f_substitute(~{
         debug_label("g3l_catchdistribution: Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
@@ -144,11 +145,15 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets, stocks, function_
                     nll <- nll + (weight) * cur_cdist_nll
                     stock_ss(nllstock__num) <- stock_ss(nllstock__num) + cur_cdist_nll
                     g3_report(nllstock__num)  # TODO: Only on penultimate step?
+                    stock_ss(nllstock__weight) <- weight
+                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
                 })
                 if (compare_wgt) g3_with(cur_cdist_nll, biomass_f, {
                     nll <- nll + (weight) * cur_cdist_nll
                     stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + cur_cdist_nll
                     g3_report(nllstock__wgt)  # TODO: Only on penultimate step?
+                    stock_ss(nllstock__weight) <- weight
+                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
                 })
             })))
 

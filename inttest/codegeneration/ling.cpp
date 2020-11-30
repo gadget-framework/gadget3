@@ -242,8 +242,10 @@ Type objective_function<Type>::operator() () {
     auto times_cdist_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values);
     DATA_ARRAY(cdist_ldist_lln_obs__num)
     vector<Type> nll_cdist_ldist_lln__num(total_steps + 1); nll_cdist_ldist_lln__num.setZero();
+    vector<Type> nll_cdist_ldist_lln__weight(total_steps + 1); nll_cdist_ldist_lln__weight.setZero();
     Type g3l_understocking_total = (double)(0);
     vector<Type> nll_understocking__wgt(total_steps + 1); nll_understocking__wgt.setZero();
+    vector<Type> nll_understocking__weight(total_steps + 1); nll_understocking__weight.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;
@@ -707,6 +709,8 @@ Type objective_function<Type>::operator() () {
                         nll += ((double)(1))*cur_cdist_nll;
                         nll_cdist_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
                         REPORT(nll_cdist_ldist_lln__num);
+                        nll_cdist_ldist_lln__weight(cur_time + 1 - 1) = (double)(1);
+                        REPORT(nll_cdist_ldist_lln__weight);
                     }
                 }
             }
@@ -732,6 +736,8 @@ Type objective_function<Type>::operator() () {
             nll += ((double)(1))*g3l_understocking_total;
             nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
             REPORT(nll_understocking__wgt);
+            nll_understocking__weight(cur_time + 1 - 1) = (double)(1);
+            REPORT(nll_understocking__weight);
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;
