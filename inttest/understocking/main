@@ -3,7 +3,7 @@ timefile	Modelfiles/time
 areafile	Modelfiles/area
 printfiles	printfile
 [stock]
-stockfiles	lingimm
+stockfiles	lingimm lingmat
 [tagging]
 [otherfood]
 [fleet]

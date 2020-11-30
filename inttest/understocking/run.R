@@ -18,9 +18,14 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
     g3s_livesonareas(c(1)) %>%
     g3s_age(3, 5)
 
+ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
+    g3s_livesonareas(c(1)) %>%
+    g3s_age(5, 15)
+
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
 imm_report <- g3s_clone(ling_imm, 'imm_report') %>% g3s_time(year = local(year_range), step = 1:4)
+mat_report <- g3s_clone(ling_mat, 'mat_report') %>% g3s_time(year = local(year_range), step = 1:4)
 
 igfs_report <- igfs %>% g3s_clone('igfs_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
@@ -38,10 +43,22 @@ ling_imm_actions <- list(
     g3a_age(ling_imm),
     list())
 
+ling_mat_actions <- lapply(list(
+    g3a_initialconditions_normalparam(ling_mat,
+        factor_f = ~age * 0.2 * g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
+        mean_f = ~g3_param("ling.Linf"),
+        stddev_f = ~10,
+        alpha_f = ~g3_param("lingmat.walpha"),
+        beta_f = ~g3_param("lingmat.wbeta")),
+    g3a_naturalmortality(ling_mat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
+    g3a_age(ling_mat),
+    list()), remove_avoid_zero)
+
 fleet_actions <- list(
-    remove_avoid_zero(g3a_predate_totalfleet(igfs, list(ling_imm),
+    remove_avoid_zero(g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
-            ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
+            ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
+            ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number'),
         overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))),
     list())
@@ -70,6 +87,11 @@ report_actions <- list(
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__consratio)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__totalpredate)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__consratio)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__totalpredate)),
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
        g3a_report_stock(igfs_report,igfs, ~stock_ss(igfs__catch)),
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
@@ -83,6 +105,7 @@ time_actions <- list(
 
 actions <- c(
   ling_imm_actions,
+  ling_mat_actions,
   fleet_actions,
   ling_likelihood_actions,
   report_actions,
@@ -124,38 +147,48 @@ setwd(oldwd)
 g2_lingimm <- Rgadget::read.gadget.file('inttest/understocking', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
+g2_lingmat <- Rgadget::read.gadget.file('inttest/understocking', 'lingmat.out')[[1]]
+names(g2_lingmat) <- c("year", "step", "area", "age", "length", "number", "weight")
+g2_lingmat <- gadget3:::g3l_likelihood_data('x', g2_lingmat)
 
-g2_igfs <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingimm.predprey.out')[[1]][,1:7]
-names(g2_igfs) <- c("year", "step", "area", "age", "length", "number", "weight")
-attr(g2_igfs, 'age') <- list(all3 = 3:5)
-attr(g2_igfs, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
-g2_igfs <- gadget3:::g3l_likelihood_data('x', g2_igfs)
+g2_igfs_imm <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingimm.predprey.out')[[1]][,1:7]
+names(g2_igfs_imm) <- c("year", "step", "area", "age", "length", "number", "weight")
+attr(g2_igfs_imm, 'age') <- list(all3 = 3:5)
+attr(g2_igfs_imm, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
+g2_igfs_imm <- gadget3:::g3l_likelihood_data('x', g2_igfs_imm)
 
-g3_biomass <- g3_r$imm_report__num[,,,] * g3_r$imm_report__wgt[,,,]
+g2_igfs_mat <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingmat.predprey.out')[[1]][,1:7]
+names(g2_igfs_mat) <- c("year", "step", "area", "age", "length", "number", "weight")
+attr(g2_igfs_mat, 'age') <- list(all3 = 3:5)
+attr(g2_igfs_mat, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
+g2_igfs_mat <- gadget3:::g3l_likelihood_data('x', g2_igfs_mat)
+
+g3_imm_biomass <- g3_r$imm_report__num[,,,] * g3_r$imm_report__wgt[,,,]
+g3_mat_biomass <- g3_r$mat_report__num[,,,] * g3_r$mat_report__wgt[,,,]
 
 for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
-    # NB: Losing accuracy at timesteps 9:12 (i.e 1984, which only has age5 left)
+    # NB: Losing accuracy at timesteps 17:19 (i.e 1984, which only has age5 left)
     #     Think we're noticing gadget2's "if (< verysmall) 0"
     ok(all.equal(
         unname(g2_lingimm$number[,,1,t]),
         unname(g3_r$imm_report__num[,1,,t]),
-        tolerance = if (t %in% 9:12) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
+        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
         unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
-        tolerance = if (t %in% 9:10) 1e-2 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+        tolerance = if (t %in% 17:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 
-    if (t %in% 19:24) {
-        # Gadget2 catches nonexistant fish in 1987. Check g3 is consistent at least
+    if (t %in% 27:31) {
+        # Gadget2 catches nonexistant fish in 1988. Check g3 is consistent at least
         ok(sum(g3_r$imm_report__num[,1,,t]) < 0.0001, paste0("g3_r$imm_report__num: ", t, " - "," No fish to be caught"))
         ok(sum(g3_r$imm_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$imm_report__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
-            g2_igfs$weight[,,1,t],
+            g2_igfs_imm$weight[,,1,t],
             rowSums(g3_r$imm_report__totalpredate[,1,,t]),
-            tolerance = if (t %in% 11) 1e-3 else 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
     }
 
     if (t == 1) {
@@ -163,33 +196,80 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     } else if ((t - 1) %% 4 == 0) {
         # Beginning of year, ages will have jumped between timesteps
         ok(all.equal(
-            rowSums(g3_biomass[,,t - 1]) - rowSums(g3_r$imm_report__totalpredate[,,,t]),
-            rowSums(g3_biomass[,,t]),
-            tolerance = if (t %in% 9) 1e-2 else 1e-6), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
+            rowSums(g3_imm_biomass[,,t - 1]) - rowSums(g3_r$imm_report__totalpredate[,,,t]),
+            rowSums(g3_imm_biomass[,,t]),
+            tolerance = if (t %in% 17) 1e-3 else 1e-6), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
     } else {
         # In-year timestep, so can compare age breakdown
         ok(all.equal(
-            g3_biomass[,,t - 1] - g3_r$imm_report__totalpredate[,,,t],
-            g3_biomass[,,t],
-            tolerance = if (t %in% 10:11) 1e-3 else 1e-5), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+            g3_imm_biomass[,,t - 1] - g3_r$imm_report__totalpredate[,,,t],
+            g3_imm_biomass[,,t],
+            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+    }
+
+    ####
+
+    ok(all.equal(
+        unname(g2_lingmat$number[,,1,t]),
+        unname(g3_r$mat_report__num[,1,,t]),
+        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
+
+    ok(all.equal(
+        # NB: Use total weight, since mean weight will do different things with no fish
+        unname(g2_lingmat$number[,,1,t] * g2_lingmat$weight[,,1,t]),
+        unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
+        tolerance = if (t %in% 17) 1e-3 else 1e-5), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
+
+    if (t %in% 27:31) {
+        # Gadget2 catches nonexistant fish in 1987. Check g3 is consistent at least
+        ok(sum(g3_r$mat_report__num[,1,,t]) < 0.0001, paste0("g3_r$mat_report__num: ", t, " - "," No fish to be caught"))
+        ok(sum(g3_r$mat_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$mat_report__totalpredate: ", t, " - "," No fish caught"))
+    } else {
+        ok(all.equal(
+            g2_igfs_mat$weight[,,1,t],
+            rowSums(g3_r$mat_report__totalpredate[,1,,t]),
+            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$mat_report__totalpredate: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
+    }
+
+    if (t == 1) {
+        # Initial step, no comparisons to make
+    } else if ((t - 1) %% 4 == 0) {
+        # Beginning of year, ages will have jumped between timesteps
+        ok(all.equal(
+            rowSums(g3_mat_biomass[,,t - 1]) - rowSums(g3_r$mat_report__totalpredate[,,,t]),
+            rowSums(g3_mat_biomass[,,t]),
+            tolerance = if (t %in% 17) 1e-2 else 1e-6), paste0("g3_r$mat_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
+    } else {
+        # In-year timestep, so can compare age breakdown
+        ok(all.equal(
+            g3_mat_biomass[,,t - 1] - g3_r$mat_report__totalpredate[,,,t],
+            g3_mat_biomass[,,t],
+            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$mat_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+    }
+
+    ####
+
+    if (t %in% 25:31) {
+        ok(all.equal(
+            sum(g3_r$imm_report__totalpredate[,1,,t]) + sum(g3_r$mat_report__totalpredate[,1,,t]),
+            g3_r$igfs_report__catch[1,t],
+            tolerance = 1e-7), paste0("g3_r$igfs_report__catch: ", t, " - Total catch internally consistent"))
+    } else {
+        ok(all.equal(
+            sum(g2_igfs_imm$weight[,,1,t] + g2_igfs_mat$weight[,,1,t]),
+            g3_r$igfs_report__catch[1,t],
+            tolerance = if (t %in% c(17,19,20)) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
     }
 }
 ok(all.equal(
     colSums(g3_r$igfs_report__catch[]),
-    colSums(colSums(g3_r$imm_report__igfs[,,,])),
+    colSums(colSums(g3_r$imm_report__igfs[,,,])) + colSums(colSums(g3_r$mat_report__igfs[,,,])),
     tolerance = 1e-7), "igfs_report__catch: Consistent with imm_report__igfs")
 
 ok(all.equal(
     g3_r$imm_report__igfs,
     g3_r$imm_report__totalpredate,
     tolerance = 1e-7), "imm_report__totalpredate: Matches imm_report__igfs")
-
-# NB: Gadget2 goes wild in 1987. There's no fish, but plenty of catch
-not_1987 <- c(1:20,25:(length(year_range) * 4))
-ok(all.equal(
-    colSums(g2_igfs$weight[,,1, not_1987]),
-    g3_r$igfs_report__catch[1, not_1987],
-    tolerance = 1e-6), "g3_r$igfs_report__catch: Approximately matches igfs.lingimm.predprey.out")
 
 ok(all.equal(
     sum(g3_r$nll_report),
@@ -211,10 +291,17 @@ g2_nll_ldist.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs',], expand.gri
 g2_nll_ldist.igfs$likelihood_value[is.na(g2_nll_ldist.igfs$likelihood_value)] <- 0
 g2_nll_ldist.igfs$weight[is.na(g2_nll_ldist.igfs$weight)] <- 0
 
+ok(all.equal(
+    g2_nll_ldist.igfs$likelihood_value,
+    as.vector(g3_r$nll_cdist_ldist_igfs__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs__num - ldist.igfs matches")
+ok(all.equal(
+    g2_nll_ldist.igfs$likelihood_value * g2_nll_ldist.igfs$weight,
+    as.vector(g3_r$nll_report - g3_r$nll_understocking__wgt * 1000),
+    tolerance = 1e-3), "g3_r$nll_report - ldist.igfs in total sum")
+
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
-ok(all.equal(
-    g2_nll_understocking$likelihood_value[1:23] * g2_nll_understocking$weight[1:23] + 
-        g2_nll_ldist.igfs$likelihood_value[1:23] * g2_nll_ldist.igfs$weight[1:23],
-    g3_r$nll_report[1:23],
-    tolerance = 1e-7), "g3_r$nll_report: Initial part of report matches")
+ok(ut_cmp_identical(
+    g2_nll_understocking$likelihood_value[1:23] > 0,
+    as.vector(g3_r$nll_understocking__wgt[1:23]) > 0), "g3_r$nll_understocking__wgt: Understocking triggered in same places")
