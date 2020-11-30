@@ -6,8 +6,10 @@ aldist.igfs[[1]]$step <- 2
 ldist.igfs[[1]]$step <- 2
 matp.igfs[[1]]$step <- 2
 
+nll_breakdown <- FALSE
+
 ling_likelihood_actions <- list(
-  g3l_understocking(list(ling_imm, ling_mat)),
+  g3l_understocking(list(ling_imm, ling_mat), nll_breakdown = nll_breakdown),
 
   g3l_catchdistribution(
     'ldist_lln',
@@ -17,7 +19,7 @@ ling_likelihood_actions <- list(
     fleets = list(lln),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'aldist_lln',
     weight = 2512,
@@ -26,7 +28,7 @@ ling_likelihood_actions <- list(
     fleets = list(lln),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'ldist_bmt',
     weight = 1247,
@@ -40,7 +42,7 @@ ling_likelihood_actions <- list(
     fleets = list(bmt),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'aldist_bmt',
     weight = 1515,
@@ -49,7 +51,7 @@ ling_likelihood_actions <- list(
     fleets = list(bmt),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'ldist_gil',
     weight = 781,
@@ -58,7 +60,7 @@ ling_likelihood_actions <- list(
     fleets = list(gil),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'aldist_gil',
     weight = 719,
@@ -67,7 +69,7 @@ ling_likelihood_actions <- list(
     fleets = list(gil),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'ldist_igfs',
     weight = 6869,
@@ -75,7 +77,7 @@ ling_likelihood_actions <- list(
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'aldist_igfs',
     weight = 11087,
@@ -84,7 +86,7 @@ ling_likelihood_actions <- list(
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'matp_igfs',
     weight = 9,
@@ -92,7 +94,7 @@ ling_likelihood_actions <- list(
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si1',
     weight = 40,
@@ -101,7 +103,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha1'),
                                             beta = ~g3_param('ling_si_beta1')),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si2a',
     weight = 8,
@@ -110,7 +112,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha2'),
                                             beta = ~g3_param('ling_si_beta2')),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si2b',
     weight = 36,
@@ -119,7 +121,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha3'),
                                             beta = 1),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si3a',
     (igfs.SI3a[[1]]),
@@ -127,7 +129,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha4'),
                                             beta = 1),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si3b',
     weight = 19,
@@ -136,7 +138,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha5'),
                                             beta = 1),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     'si_igfs_si3c',
     weight = 16,
@@ -145,7 +147,7 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha6'),
                                             beta = 1),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   g3l_catchdistribution(
     weight = 13,
     'si_igfs_si3d',
@@ -154,6 +156,6 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha7'),
                                             beta = 1),
-    missing = 0),
+    nll_breakdown = nll_breakdown),
   list()
 )
