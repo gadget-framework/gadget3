@@ -67,7 +67,7 @@ ling_likelihood_actions <- list(
     g3l_understocking(
         weight = 1000,
         nll_breakdown = TRUE,
-        list(ling_imm)),
+        list(ling_imm, ling_mat)),
     remove_avoid_zero(g3l_catchdistribution(
         'ldist_igfs_ss',
         weight = 10,
@@ -328,6 +328,7 @@ ok(all.equal(
 
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
-ok(ut_cmp_identical(
-    g2_nll_understocking$likelihood_value[1:23] > 0,
-    as.vector(g3_r$nll_understocking__wgt[1:23]) > 0), "g3_r$nll_understocking__wgt: Understocking triggered in same places")
+ok(all.equal(
+    g2_nll_understocking$likelihood_value[1:31],
+    as.vector(g3_r$nll_understocking__wgt[1:31]),
+    tolerance = 1e-7), "g3_r$nll_understocking__wgt: 1..31 equal, after that gadget2 stops reporting")
