@@ -8,12 +8,24 @@ g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
             obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
 }
 
-g3l_catchdistribution_multinomial <- function () {
-    ~2 * (lgamma(1 + sum(stock_ss(obsstock__x))) -
-        sum(lgamma_vec(1 + stock_ss(obsstock__x))) +
-        sum(stock_ss(obsstock__x) * log(
-            stock_ss(modelstock__x) / sum(stock_ss(modelstock__x))))
-    )
+g3l_catchdistribution_multinomial <- function (epsilon = 10) {
+    # data == obs, dist == model
+    # multinomial.cc defines sumlog/likely as below
+    sumlog <- substitute(
+        sum(lgamma_vec(1 + data)) - lgamma(1 + sum(data)), list(
+            data = quote(stock_ss(obsstock__x))))
+
+    likely <- substitute(
+        -sum(data * log(logspace_add_vec(
+            dist / avoid_zero(sum(dist)) * 10000,
+            (1 / (length(data) * epsilon)) * 10000) / 10000)), list(
+                data = quote(stock_ss(obsstock__x)),
+                dist = quote(stock_ss(modelstock__x)),
+                epsilon = epsilon))
+
+    f_substitute(~2 * (likely + sumlog), list(
+        likely = likely,
+        sumlog = sumlog))
 }
 
 g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {

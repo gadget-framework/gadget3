@@ -6,11 +6,26 @@ weight	1000
 type	understocking
 
 [component]
-name	ldist.igfs
+name	ldist.igfs.ss
 weight	10
 type	catchdistribution
 datafile	Data/catchdistribution.ldist.igfs.sumofsquares
 function	sumofsquares
+aggregationlevel	0
+overconsumption	0
+epsilon	10
+areaaggfile	Aggfiles/catchdistribution.ldist.igfs.area.agg
+ageaggfile	Aggfiles/catchdistribution.ldist.igfs.age.agg
+lenaggfile	Aggfiles/catchdistribution.ldist.igfs.len.agg
+fleetnames	igfs
+stocknames	lingimm
+
+[component]
+name	ldist.igfs.mn
+weight	10
+type	catchdistribution
+datafile	Data/catchdistribution.ldist.igfs.sumofsquares
+function	multinomial
 aggregationlevel	0
 overconsumption	0
 epsilon	10

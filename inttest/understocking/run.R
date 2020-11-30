@@ -69,7 +69,7 @@ ling_likelihood_actions <- list(
         nll_breakdown = TRUE,
         list(ling_imm)),
     remove_avoid_zero(g3l_catchdistribution(
-        'ldist_igfs',
+        'ldist_igfs_ss',
         weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
@@ -78,6 +78,17 @@ ling_likelihood_actions <- list(
         fleets = list(igfs),
         stocks = list(ling_imm),
         g3l_catchdistribution_sumofsquares(),
+        nll_breakdown = TRUE)),
+    remove_avoid_zero(g3l_catchdistribution(
+        'ldist_igfs_mn',
+        weight = 10,
+        obs_data = structure(
+            Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
+            age = list(all3 = 3:5),
+            length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
+        fleets = list(igfs),
+        stocks = list(ling_imm),
+        g3l_catchdistribution_multinomial(),
         nll_breakdown = TRUE)),
     list())
 
@@ -273,11 +284,17 @@ ok(all.equal(
 
 ok(all.equal(
     sum(g3_r$nll_report),
-    10 * sum(g3_r$nll_cdist_ldist_igfs__num) + 1000 * sum(g3_r$nll_understocking__wgt),
-    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs__num/g3_r$nll_understocking__wgt consistent with each other")
+    sum(
+        10 * sum(g3_r$nll_cdist_ldist_igfs_ss__num),
+        10 * sum(g3_r$nll_cdist_ldist_igfs_mn__num),
+        1000 * sum(g3_r$nll_understocking__wgt)),
+    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs_ss__num/g3_r$nll_understocking__wgt consistent with each other")
 ok(ut_cmp_identical(
-    dim(g3_r$nll_cdist_ldist_igfs__num),
-    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs__num: Broken up into individual timesteps")
+    dim(g3_r$nll_cdist_ldist_igfs_ss__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs_ss__num: Broken up into individual timesteps")
+ok(ut_cmp_identical(
+    dim(g3_r$nll_cdist_ldist_igfs_mn__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs_mn__num: Broken up into individual timesteps")
 ok(ut_cmp_identical(
     dim(g3_r$nll_understocking__wgt),
     c(time = as.integer(length(year_range) * 4))), "g3_r$nll_understocking__wgt: Broken up into individual timesteps")
@@ -287,17 +304,26 @@ g2_nll <- Rgadget::read.gadget.file('inttest/understocking', 'likelihood.out')[[
 g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_understocking$likelihood_value[is.na(g2_nll_understocking$likelihood_value)] <- 0
 g2_nll_understocking$weight[is.na(g2_nll_understocking$weight)] <- 0
-g2_nll_ldist.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs',], expand.grid(step=1:4, year=year_range), all.y = T)
-g2_nll_ldist.igfs$likelihood_value[is.na(g2_nll_ldist.igfs$likelihood_value)] <- 0
-g2_nll_ldist.igfs$weight[is.na(g2_nll_ldist.igfs$weight)] <- 0
+g2_nll_ldist_ss.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.ss',], expand.grid(step=1:4, year=year_range), all.y = T)
+g2_nll_ldist_ss.igfs$likelihood_value[is.na(g2_nll_ldist_ss.igfs$likelihood_value)] <- 0
+g2_nll_ldist_ss.igfs$weight[is.na(g2_nll_ldist_ss.igfs$weight)] <- 0
+g2_nll_ldist_mn.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.mn',], expand.grid(step=1:4, year=year_range), all.y = T)
+g2_nll_ldist_mn.igfs$likelihood_value[is.na(g2_nll_ldist_mn.igfs$likelihood_value)] <- 0
+g2_nll_ldist_mn.igfs$weight[is.na(g2_nll_ldist_mn.igfs$weight)] <- 0
 
 ok(all.equal(
-    g2_nll_ldist.igfs$likelihood_value,
-    as.vector(g3_r$nll_cdist_ldist_igfs__num),
-    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs__num - ldist.igfs matches")
+    g2_nll_ldist_ss.igfs$likelihood_value,
+    as.vector(g3_r$nll_cdist_ldist_igfs_ss__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs_ss__num - ldist.igfs matches")
 ok(all.equal(
-    g2_nll_ldist.igfs$likelihood_value * g2_nll_ldist.igfs$weight,
-    as.vector(g3_r$nll_report - g3_r$nll_understocking__wgt * 1000),
+    g2_nll_ldist_mn.igfs$likelihood_value,
+    as.vector(g3_r$nll_cdist_ldist_igfs_mn__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs_mn__num - ldist.igfs matches")
+ok(all.equal(
+    as.vector(g3_r$nll_understocking__wgt) * 1000 +  # NB: Ignoring g2 understocking, using our own
+        g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
+        g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight,
+    as.vector(g3_r$nll_report),
     tolerance = 1e-3), "g3_r$nll_report - ldist.igfs in total sum")
 
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.

@@ -29,6 +29,9 @@ named_list <- function(...) {
 
 # NB: Name has to be different, or it gets sucked into the model
 g3_avoid_zero <- gadget3:::g3_global_env$avoid_zero
+g3_logspace_add <- gadget3:::g3_global_env$logspace_add
+g3_logspace_add_vec <- gadget3:::g3_global_env$logspace_add_vec
+g3_lgamma_vec <- lgamma
 
 ok(grepl(
     'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',
@@ -372,10 +375,10 @@ ok_group("Likelihood per step", {
         (r$step0_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step0_cdist_utcd_weight_model__wgt[,2])) -
             r$cdist_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,1]))) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
-            sum(r$cdist_multinom_obs__num[,1] * log(
-                r$step0_cdist_multinom_model__num / sum(r$step0_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step0_cdist_multinom_model__num/g3_avoid_zero(sum(r$step0_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(r$step0_cdist_surveyindices_model__num) -
@@ -408,10 +411,10 @@ ok_group("Likelihood per step", {
         (r$step1_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step1_cdist_utcd_weight_model__wgt[,2])) -
             r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
-            sum(r$cdist_multinom_obs__num[,2] * log(
-                r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step1_cdist_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
@@ -444,10 +447,10 @@ ok_group("Likelihood per step", {
         (r$step2_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step2_cdist_utcd_weight_model__wgt[,2])) -
             r$cdist_utcd_weight_obs__wgt[,2,3] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,3]))) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,3] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,3])) +
-            sum(r$cdist_multinom_obs__num[,3] * log(
-                r$step2_cdist_multinom_model__num / sum(r$step2_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,3] * log(g3_logspace_add_vec(r$step2_cdist_multinom_model__num/g3_avoid_zero(sum(r$step2_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,3]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,3])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,3]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(g3_avoid_zero(r$step2_cdist_surveyindices_model__num)) -
@@ -480,10 +483,10 @@ ok_group("Likelihood per step", {
         (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
             r$cdist_utcd_weight_obs__wgt[,2,4] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,4]))) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,4] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,4])) +
-            sum(r$cdist_multinom_obs__num[,4] * log(
-                r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,4] * log(g3_logspace_add_vec(r$step3_cdist_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,4]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,4])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,4]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -
@@ -693,10 +696,10 @@ ok_group("Likelihood per year", {
         (r$step1_cdist_utcd_weight_model__wgt[,2] / sum(r$step1_cdist_utcd_weight_model__wgt[,2]) -
             r$cdist_utcd_weight_obs__wgt[,2,1] / sum(r$cdist_utcd_weight_obs__wgt[,2,1])) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,1] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,1])) +
-            sum(r$cdist_multinom_obs__num[,1] * log(
-                r$step1_cdist_multinom_model__num / sum(r$step1_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step1_cdist_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
@@ -730,10 +733,10 @@ ok_group("Likelihood per year", {
         (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
             r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (lgamma(1 + sum( r$cdist_multinom_obs__num[,2] )) -
-            sum(lgamma(1 + r$cdist_multinom_obs__num[,2])) +
-            sum(r$cdist_multinom_obs__num[,2] * log(
-                r$step3_cdist_multinom_model__num / sum(r$step3_cdist_multinom_model__num))))),
+        (2 * (-sum(r$cdist_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step3_cdist_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
+                        sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
         sum(params$si_alpha +
             params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -

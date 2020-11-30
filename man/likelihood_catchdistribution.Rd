@@ -14,7 +14,7 @@
 \usage{
 g3l_catchdistribution_sumofsquares(over = c("area"))
 
-g3l_catchdistribution_multinomial()
+g3l_catchdistribution_multinomial(epsilon = 10)
 
 g3l_catchdistribution_multivariate(rho_f, sigma_f, over = c("area"))
 
@@ -38,6 +38,9 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   }
   \item{sigma_f}{
     TODO:
+  }
+  \item{epsilon}{
+    Value to be used whenever the calculated probability is very unlikely. Default 10.
   }
   \item{alpha}{
     TODO:
