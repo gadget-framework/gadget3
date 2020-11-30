@@ -45,7 +45,7 @@ fleet_actions <- list(
     remove_avoid_zero(g3a_predate_totalfleet(igfs, list(ling_imm),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/overstocking/', 'Data/fleet.igfs.data')[[1]], 'number'),
+        amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number'),
         overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))),
     list())
 
@@ -58,9 +58,9 @@ ling_likelihood_actions <- list(
         'ldist_igfs',
         weight = 10,
         obs_data = structure(
-            Rgadget::read.gadget.file('inttest/overstocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
+            Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
             age = list(all3 = 3:5),
-            length = Rgadget::read.gadget.file('inttest/overstocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
+            length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(ling_imm),
         g3l_catchdistribution_sumofsquares(),
@@ -93,7 +93,7 @@ actions <- c(
 
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
-param_table <- read.table('inttest/overstocking/params.in', header = TRUE)
+param_table <- read.table('inttest/understocking/params.in', header = TRUE)
 param <- as.list(param_table$value)
 names(param) <- param_table$switch
 
@@ -119,19 +119,19 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 
 # Run gadget2 model
 oldwd <- getwd()
-setwd('inttest/overstocking')
+setwd('inttest/understocking')
 unlink('*.out')
 system2(gadget2::gadget_binary(), " -i params.in -log debug.log")
 setwd(oldwd)
 
-g2_lingimm <- Rgadget::read.gadget.file('inttest/overstocking', 'lingimm.out')[[1]]
+g2_lingimm <- Rgadget::read.gadget.file('inttest/understocking', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
 
-g2_igfs <- Rgadget::read.gadget.file('inttest/overstocking', 'igfs.lingimm.predprey.out')[[1]][,1:7]
+g2_igfs <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingimm.predprey.out')[[1]][,1:7]
 names(g2_igfs) <- c("year", "step", "area", "age", "length", "number", "weight")
 attr(g2_igfs, 'age') <- list(all3 = 3:5)
-attr(g2_igfs, 'length') <- Rgadget::read.gadget.file('inttest/overstocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
+attr(g2_igfs, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs <- gadget3:::g3l_likelihood_data('x', g2_igfs)
 
 g3_biomass <- g3_r$imm_report__num[,,] * g3_r$imm_report__wgt[,,]
@@ -200,7 +200,7 @@ ok(ut_cmp_identical(
     c(time = as.integer(length(year_range) * 4))), "g3_r$nll_understocking__wgt: Broken up into individual timesteps")
 
 # Fill in zeros in nll report
-g2_nll <- Rgadget::read.gadget.file('inttest/overstocking', 'likelihood.out')[[1]]
+g2_nll <- Rgadget::read.gadget.file('inttest/understocking', 'likelihood.out')[[1]]
 g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_understocking$likelihood_value[is.na(g2_nll_understocking$likelihood_value)] <- 0
 g2_nll_understocking$weight[is.na(g2_nll_understocking$weight)] <- 0
