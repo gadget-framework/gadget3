@@ -76,7 +76,7 @@ ling_likelihood_actions <- list(
             age = list(all3 = 3:5),
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
-        stocks = list(ling_imm),
+        stocks = list(ling_imm, ling_mat),
         g3l_catchdistribution_sumofsquares(),
         nll_breakdown = TRUE)),
     remove_avoid_zero(g3l_catchdistribution(
@@ -87,7 +87,7 @@ ling_likelihood_actions <- list(
             age = list(all3 = 3:5),
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
-        stocks = list(ling_imm),
+        stocks = list(ling_imm, ling_mat),
         g3l_catchdistribution_multinomial(),
         nll_breakdown = TRUE)),
     list())
