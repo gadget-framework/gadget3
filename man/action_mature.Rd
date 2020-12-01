@@ -73,7 +73,7 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
 
 \value{
   \subsection{g3a_mature_continuous}{A \link{formula} object representing
-    \deqn{ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\intercal }
+    \deqn{ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\top }
 
     \describe{
       \item{\eqn{m_0}}{The \code{\link{g3a_mature_constant}} formula, as defined below, using parameters supplied to \code{\link{g3a_mature_continuous}}}
