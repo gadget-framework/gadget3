@@ -59,7 +59,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         iter_ss = c(inner_stock$iter_ss, as.symbol("stock__agegroup_idx")),
         intersect = f_substitute(~g3_with(
             stock__agegroup_idx, g3_idx(lookup),
-            if (stock__agegroup_idx > g3_idx(-1)) extension_point), list(
+            if (stock__agegroup_idx > g3_idx(-1L)) extension_point), list(
                 lookup = stock__agegroup_lookup('getdefault', ~age, -1L),
                 extension_point = inner_stock$intersect)),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename)),

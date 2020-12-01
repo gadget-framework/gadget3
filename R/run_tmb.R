@@ -79,7 +79,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             # Hard-coded integer, so can subtract now (and avoid double conversion)
             return(toString(in_call[[2]] - 1))
         }
-        return(paste(cpp_code(in_call[[2]], in_envir, next_indent), "- 1"))
+        return(paste(cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = TRUE), "- 1"))
     }
 
     if (call_name %in% c("g3_with")) {
