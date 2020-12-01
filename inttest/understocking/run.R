@@ -269,7 +269,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         ok(all.equal(
             sum(g2_igfs_imm$weight[,,1,t] + g2_igfs_mat$weight[,,1,t]),
             g3_r$igfs_report__catch[1,t],
-            tolerance = if (t %in% c(17,19,20)) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
+            tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
     }
 }
 ok(all.equal(
