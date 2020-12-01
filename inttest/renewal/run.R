@@ -61,7 +61,7 @@ ling_likelihood_actions <- list(
             length = Rgadget::read.gadget.file('inttest/renewal','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(ling_imm),
-        g3l_catchdistribution_sumofsquares()),
+        g3l_distribution_sumofsquares()),
     list())
 
 report_actions <- list(

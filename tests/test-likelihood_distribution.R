@@ -36,11 +36,11 @@ g3_lgamma_vec <- lgamma
 
 ok(grepl(
     'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',
-    paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
+    paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
     perl = TRUE), "Added custom totals to sumofsquares modelstock__x")
 ok(grepl(
     'stock_ssinv\\(obsstock__x,\\s+"time",\\s+"area",\\s+"age"\\)',
-    paste(deparse(g3l_catchdistribution_sumofsquares(c('area', 'age'))), collapse = ""),
+    paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
     perl = TRUE), "Added custom totals to sumofsquares obsstock__x")
 
 
@@ -107,31 +107,31 @@ base_actions <- list(
         amount_f = ~g3_param('amount_ab') * area),
     named_list(
         # Capture data just before final step erases it
-        gadget3:::step_id(10, 'g3l_catchdistribution', 'utcd', 1, 'zzzz'), report_step('cdist_utcd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'utcd', 1, 'zzzz'), report_step('cdist_utcd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_utcd_model__num)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_catchdistribution', 'utsd', 1, 'zzzz'), report_step('cdist_utsd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'utsd', 1, 'zzzz'), report_step('cdist_utsd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_catchdistribution', 'utcd_weight', 1, 'zzzz'), report_step('cdist_utcd_weight_model__wgt', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'utcd_weight', 1, 'zzzz'), report_step('cdist_utcd_weight_model__wgt', 4, array(
             # NB: Lift definition from deparse(r$cdist_utcd_weight_model__wgt)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_catchdistribution', 'multinom', 1, 'zzzz'), report_step('cdist_multinom_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'multinom', 1, 'zzzz'), report_step('cdist_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinom_model__num)
             dim = c(2L),
             dimnames = list(
                 c("len1", "len6")))),
-        gadget3:::step_id(10, 'g3l_catchdistribution', 'surveyindices', 1, 'zzzz'), report_step('cdist_surveyindices_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'surveyindices', 1, 'zzzz'), report_step('cdist_surveyindices_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_surveyindices_model__num)
             dim = c(1L),
             dimnames = list(
@@ -139,6 +139,9 @@ base_actions <- list(
         gadget3:::step_id(990, 'prey_a__fleet_abc'), report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
         gadget3:::step_id(990, 'prey_b__fleet_abc'), report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
         gadget3:::step_id(990, 'prey_c__fleet_abc'), report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),
+        gadget3:::step_id(990, 'prey_a__num'), report_step('prey_a__num', 4, gadget3:::stock_instance(prey_a)),
+        gadget3:::step_id(990, 'prey_b__num'), report_step('prey_b__num', 4, gadget3:::stock_instance(prey_b)),
+        gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, gadget3:::stock_instance(prey_c)),
         gadget3:::step_id(990, 'nll'), report_step('nll', 4, 0.0),
         gadget3:::step_id(999),  ~{
             g3_report(cdist_utcd_model__num)
@@ -154,6 +157,9 @@ base_actions <- list(
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
+            g3_report(prey_a__num)
+            g3_report(prey_b__num)
+            g3_report(prey_c__num)
 
             # NB: In theory we could inspect the return value, but TMB doesn't give an easy public method for that
             g3_report(nll)
@@ -165,35 +171,35 @@ actions <- c(base_actions, list(
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         area_group = areas,
-        g3l_catchdistribution_sumofsquares()),
+        g3l_distribution_sumofsquares()),
     g3l_catchdistribution(
         'utcd_weight',
         cd_weight_data,
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         area_group = areas,
-        g3l_catchdistribution_sumofsquares()),
+        g3l_distribution_sumofsquares()),
     g3l_catchdistribution(
         'utsd',
         sd_data,
         list(fleet_abc),
         list(prey_a, prey_b, prey_c),
         area_group = areas,
-        g3l_catchdistribution_sumofsquares()),
+        g3l_distribution_sumofsquares()),
     g3l_catchdistribution(
         'multinom',
         multinomial_data,
         list(fleet_abc),
         list(prey_a),
         area_group = areas,
-        g3l_catchdistribution_multinomial()),
-    g3l_catchdistribution(
+        g3l_distribution_multinomial()),
+    g3l_distribution(
         'surveyindices',
         surveyindices_data,
-        list(fleet_abc),
-        list(prey_b),
+        fleets = list(),
+        stocks = list(prey_b),
         area_group = areas,
-        g3l_catchdistribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+        g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
 params <- list(
     fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
@@ -348,6 +354,21 @@ ok_group("Likelihood per step", {
          sum(
              sum(r$step3_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step3_cdist_utsd_model__num[,2]: all prey in area c")
+    ########
+
+    ######## cdist_surveyindices_model__num
+    ok(ut_cmp_equal(
+        sum(r$step0_cdist_surveyindices_model__num),
+        sum(r$step0_prey_b__num)), "step0_cdist_surveyindices_model__num: Totalled stock numbers")
+    ok(ut_cmp_equal(
+        sum(r$step1_cdist_surveyindices_model__num),
+        sum(r$step1_prey_b__num)), "step1_cdist_surveyindices_model__num: Totalled stock numbers")
+    ok(ut_cmp_equal(
+        sum(r$step2_cdist_surveyindices_model__num),
+        sum(r$step2_prey_b__num)), "step2_cdist_surveyindices_model__num: Totalled stock numbers")
+    ok(ut_cmp_equal(
+        sum(r$step3_cdist_surveyindices_model__num),
+        sum(r$step3_prey_b__num)), "step3_cdist_surveyindices_model__num: Totalled stock numbers")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, sum(
@@ -535,35 +556,35 @@ ok_group("Likelihood per year", {
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
             area_group = areas,
-            g3l_catchdistribution_sumofsquares()),
+            g3l_distribution_sumofsquares()),
         g3l_catchdistribution(
             'utcd_weight',
             cd_weight_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
             area_group = areas,
-            g3l_catchdistribution_sumofsquares()),
+            g3l_distribution_sumofsquares()),
         g3l_catchdistribution(
             'utsd',
             sd_data,
             list(fleet_abc),
             list(prey_a, prey_b, prey_c),
             area_group = areas,
-            g3l_catchdistribution_sumofsquares()),
+            g3l_distribution_sumofsquares()),
         g3l_catchdistribution(
             'multinom',
             multinomial_data,
             list(fleet_abc),
             list(prey_a),
             area_group = areas,
-            g3l_catchdistribution_multinomial()),
-        g3l_catchdistribution(
+            g3l_distribution_multinomial()),
+        g3l_distribution(
             'surveyindices',
             surveyindices_data,
-            list(fleet_abc),
-            list(prey_b),
+            fleets = list(),
+            stocks = list(prey_b),
             area_group = areas,
-            g3l_catchdistribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+            g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)

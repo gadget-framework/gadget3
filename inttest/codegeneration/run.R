@@ -137,7 +137,7 @@ likelihood_actions <- list(
         igfs_obs_data,
         fleets = list(igfs),
         stocks = list(ling_imm, ling_mat),
-        g3l_catchdistribution_sumofsquares(),
+        g3l_distribution_sumofsquares(),
         nll_breakdown = TRUE),
     list())
 

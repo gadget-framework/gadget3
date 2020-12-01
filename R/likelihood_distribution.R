@@ -1,6 +1,6 @@
 call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
-g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
+g3l_distribution_sumofsquares <- function (over = c('area')) {
     f_substitute(~sum((
         stock_ss(modelstock__x) / avoid_zero(sum(modelstock_total_f)) -
         stock_ss(obsstock__x) / avoid_zero(sum(obsstock_total_f))) ** 2), list(
@@ -8,7 +8,7 @@ g3l_catchdistribution_sumofsquares <- function (over = c('area')) {
             obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
 }
 
-g3l_catchdistribution_multinomial <- function (epsilon = 10) {
+g3l_distribution_multinomial <- function (epsilon = 10) {
     # data == obs, dist == model
     # multinomial.cc defines sumlog/likely as below
     sumlog <- substitute(
@@ -28,7 +28,7 @@ g3l_catchdistribution_multinomial <- function (epsilon = 10) {
         sumlog = sumlog))
 }
 
-g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
+g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
     multivariate_fn <- g3_native(r = function (x, rho, sigma) {
         sum(dnorm(rho * lag(x, 1), sqrt(1 - rho**2) * sigma))
     }, cpp = '[](auto x, Type rho, Type sigma) -> Type { // NB: "auto" because it could be vector<Type> or array<Type>
@@ -49,7 +49,7 @@ g3l_catchdistribution_multivariate <- function (rho_f, sigma_f, over = c('area')
                 sigma_f = sigma_f))
 }
 
-g3l_catchdistribution_surveyindices_log <- function (alpha = 0, beta = 1) {
+g3l_distribution_surveyindices_log <- function (alpha = 0, beta = 1) {
     f_substitute(~sum((alpha +
         beta * log(avoid_zero_vec(stock_ss(modelstock__x))) -
         log(avoid_zero_vec(stock_ss(obsstock__x))))**2), list(
@@ -57,7 +57,7 @@ g3l_catchdistribution_surveyindices_log <- function (alpha = 0, beta = 1) {
             beta = beta))
 }
 
-g3l_catchdistribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
+g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
     f_substitute(~sum((alpha +
         beta * stock_ss(modelstock__x) -
         stock_ss(obsstock__x))**2), list(
@@ -87,6 +87,14 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets = list(), stocks, 
 g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
+    # Define prefix matching our public name
+    parent.call <- if (length(sys.call(-1)) > 0) as.character(sys.call(-1)[[1]]) else ''
+    if (parent.call == 'g3l_catchdistribution') {
+        prefix <- "g3l_catchdistribution: "
+    } else {
+        prefix <- "g3l_distribution: "
+    }
+
     # Convert data to stocks
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group)
     modelstock <- ld$modelstock
@@ -114,8 +122,8 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
         }
 
         # Collect all of stock and dump it in modelstock
-        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, stock)]] <- g3_step(f_substitute(~{
-            debug_label("g3l_catchdistribution: Collect abundance from ", stock, " for ", nll_name)
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- g3_step(f_substitute(~{
+            debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
             stock_iterate(stock, stock_intersect(modelstock, {
                 if (compare_num) {
                     debug_trace("Add ", stock, " individuals to our count")
@@ -133,7 +141,7 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
             compare_wgt = !is.null(ld$weight))))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, stock)]], list(
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]], list(
             stockidx_f = stockidx_f))
     }
 
@@ -151,8 +159,8 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
         }
 
         # Collect all of fleet's sampling of prey and dump it in modelstock
-        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
-            debug_label("g3l_catchdistribution: Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
+            debug_label(prefix, "Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 if (compare_num) {
                     debug_trace("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
@@ -172,7 +180,7 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
             prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 1, fleet_stock, prey_stock)]], list(
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]], list(
             stockidx_f = stockidx_f))
     }
 
@@ -181,8 +189,8 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
-    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- g3_step(f_substitute(~{
-        debug_label("g3l_catchdistribution: Compare ", modelstock, " to ", obsstock)
+    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- g3_step(f_substitute(~{
+        debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
             stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, {
                 if (compare_num) g3_with(cur_cdist_nll, number_f, {
@@ -217,7 +225,7 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
             obsstock__x = as.symbol('obsstock__wgt'))),
         weight = weight)))
     # Fix-up stock intersection: index should be the same as observation
-    out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_catchdistribution', nll_name, 2)]], list(
+    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]], list(
         stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     return(as.list(out))

@@ -1,9 +1,10 @@
 \name{likelihood_catchdistribution}
-\alias{g3l_catchdistribution_sumofsquares}
-\alias{g3l_catchdistribution_multinomial}
-\alias{g3l_catchdistribution_multivariate}
-\alias{g3l_catchdistribution_surveyindices_log}
-\alias{g3l_catchdistribution_surveyindices_linear}
+\alias{g3l_distribution_sumofsquares}
+\alias{g3l_distribution_multinomial}
+\alias{g3l_distribution_multivariate}
+\alias{g3l_distribution_surveyindices_log}
+\alias{g3l_distribution_surveyindices_linear}
+\alias{g3l_distribution}
 \alias{g3l_catchdistribution}
 
 \title{Gadget3 likelihood actions}
@@ -12,15 +13,18 @@
 }
 
 \usage{
-g3l_catchdistribution_sumofsquares(over = c("area"))
+g3l_distribution_sumofsquares(over = c("area"))
 
-g3l_catchdistribution_multinomial(epsilon = 10)
+g3l_distribution_multinomial(epsilon = 10)
 
-g3l_catchdistribution_multivariate(rho_f, sigma_f, over = c("area"))
+g3l_distribution_multivariate(rho_f, sigma_f, over = c("area"))
 
-g3l_catchdistribution_surveyindices_log(alpha = 0, beta = 1)
+g3l_distribution_surveyindices_log(alpha = 0, beta = 1)
 
-g3l_catchdistribution_surveyindices_linear(alpha = 0, beta = 1)
+g3l_distribution_surveyindices_linear(alpha = 0, beta = 1)
+
+g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, 
+    area_group = NULL, nll_breakdown = FALSE, weight = 1, run_at = 10)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
     area_group = NULL, nll_breakdown = FALSE, weight = 1, run_at = 10)
@@ -58,14 +62,16 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     The length or weight column decides what to compare using \var{function_f}
   }
   \item{fleets}{
-    A list of \code{\link{g3_stock}} objects to collect catch data for
+    A list of \code{\link{g3_stock}} objects to collect catch data for.
+    If empty, will collect abundance data for \var{stocks} instead.
   }
   \item{stocks}{
-    A list of \code{\link{g3_stock}} objects to collect catch data for
+    A list of \code{\link{g3_stock}} objects to collect catch or abundance data for,
+    depending if \var{stocks} were provided.
   }
   \item{function_f}{
     A \link{formula} to compare \var{obsstock__x} to \var{modelstock__x} and generate nll,
-    defined by one of the \var{g3l_catchdistribution_}* functions.
+    defined by one of the \var{g3l_distribution_}* functions.
 
     This will be adapted to compare either number (\var{modelstock__num}) or weight (\var{modelstock__wgt})
     depending on what columns \var{obs_data} has.
@@ -98,6 +104,9 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   The model report will contain nll_cdist_\var{nll_name}__num and/or nll_cdist_\var{nll_name}__wgt, depending on
   the columns in \var{obs_data} (a number column will compare by individuals, and produce a corresponding num report).
   If \var{nll_breakdown} is \code{TRUE}, this will be an array with one entry per timestep.
+
+  The only difference between \var{g3l_distribution} and \var{g3l_catchdistribution} is the latter insists that at least one fleet
+  is provided, so it can compare catch rather than abundance.
 }
 
 \seealso{
@@ -106,11 +115,15 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 }
 
 \value{
-  \subsection{g3l_catchdistribution_sumofsquares}{TODO:}
-  \subsection{g3l_catchdistribution_multinomial}{TODO:}
-  \subsection{g3l_catchdistribution_multivariate}{TODO:}
-  \subsection{g3l_catchdistribution_surveyindices_log}{TODO:}
-  \subsection{g3l_catchdistribution_surveyindices_linear}{TODO:}
+  \subsection{g3l_distribution_sumofsquares}{TODO:}
+  \subsection{g3l_distribution_multinomial}{TODO:}
+  \subsection{g3l_distribution_multivariate}{TODO:}
+  \subsection{g3l_distribution_surveyindices_log}{TODO:}
+  \subsection{g3l_distribution_surveyindices_linear}{TODO:}
+  \subsection{g3l_distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
+    \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
+    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
+  }}
   \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
     \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
@@ -149,5 +162,5 @@ likelihood_actions <- list(
     ldist.lln[[1]],
     fleets = list(lln),
     stocks = list(ling_imm, ling_mat),
-    g3l_catchdistribution_sumofsquares()))
+    g3l_distribution_sumofsquares()))
 }

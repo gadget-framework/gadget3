@@ -36,7 +36,7 @@ g3l_understocking(prey_stocks, power_f = ~2, nll_breakdown = FALSE, weight = 1,
 }
 
 \value{
-  \subsection{g3l_catchdistribution_understocking}{An action (i.e. list of formula objects) that will...\enumerate{
+  \subsection{g3l_distribution_understocking}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{Sum the total biomass adjustment due to overstocking for each prey according to the formula
     \deqn{ \ell = \sum_{\it time}\sum_{\it areas} \Big(\sum_{\it prey\_stocks} U_{trs} \Big)^p }
 
