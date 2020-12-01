@@ -6,7 +6,7 @@ aldist.igfs[[1]]$step <- 2
 ldist.igfs[[1]]$step <- 2
 matp.igfs[[1]]$step <- 2
 
-nll_breakdown <- FALSE
+nll_breakdown <- FALSE  # Turn to TRUE to get per-step nll
 
 ling_likelihood_actions <- list(
   g3l_understocking(list(ling_imm, ling_mat), nll_breakdown = nll_breakdown),
