@@ -65,7 +65,8 @@ ok_group("g3_step:stock_reshape", {
         })))),
 
         list('999' = ~{
-            return(g3_param('x'))
+            nll <- nll + g3_param('x')
+            return(nll)
         }))
 
     # Compile model
@@ -75,7 +76,7 @@ ok_group("g3_step:stock_reshape", {
         x = 1.0)
     model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
-    model_fn(params)
+    result <- model_fn(params)
 
     ok(ut_cmp_identical(
         grep("lgmatrix", ls(environment(model_fn)$model_data), value = TRUE, fixed = TRUE),
@@ -83,18 +84,18 @@ ok_group("g3_step:stock_reshape", {
             "source_dest_combine_lgmatrix",
             "source_dest_wider_lgmatrix")), "Generated matrices for mismatched stocks, not dest_even")
 
-    # str(as.list(environment(model_fn)$model_report))
+    # str(attributes(result))
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$dest_even__num),
+        as.vector(attr(result, 'dest_even__num')),
         c(11, 22, 33, 44)), "dest_even__num")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$dest_combine__num),
+        as.vector(attr(result, 'dest_combine__num')),
         c(11 + 22 + 33 + 44)), "dest_combine__num")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$dest_2group__num),
+        as.vector(attr(result, 'dest_2group__num')),
         c(11 + 22, 33 + 44)), "dest_2group__num")
     ok(ut_cmp_equal(
-        as.vector(environment(model_fn)$model_report$dest_wider__num),
+        as.vector(attr(result, 'dest_wider__num')),
         c(0, 11, 22, 33, 44, 0, 0, 0, 0, 0)), "dest_wider__num")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -102,10 +103,10 @@ ok_group("g3_step:stock_reshape", {
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         model_tmb_report <- model_tmb$report()
-        for (n in ls(environment(model_fn)$model_report)) {
+        for (n in names(attributes(result))) {
             ok(ut_cmp_equal(
                 model_tmb_report[[n]],
-                as.vector(environment(model_fn)$model_report[[n]]),
+                as.vector(attr(result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {

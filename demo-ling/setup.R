@@ -196,7 +196,6 @@ ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 
 #ling_model <- edit(ling_model)
 result <- ling_model(ling_param)
-environment(ling_model)$model_report -> tmp
 
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))

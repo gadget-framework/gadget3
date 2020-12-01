@@ -4,6 +4,11 @@ library(unittest)
 
 library(gadget3)
 
+unattr <- function (x) {
+    attributes(x) <- NULL
+    return(x)
+}
+
 end <- function (x) x
 
 areas <- list(area1=1)
@@ -207,12 +212,12 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     print(system.time(tmb_result <- ling_model_tmb$fn()))
 
     # Compare result and report output
-    stopifnot(all.equal(r_result, tmb_result, tolerance = 1e-5))
+    stopifnot(all.equal(unattr(r_result), tmb_result, tolerance = 1e-5))
     ling_model_tmb_report <- ling_model_tmb$report()
-    for (n in ls(environment(ling_model)$model_report)) {
+    for (n in names(attributes(r_result))) {
         ok(ut_cmp_equal(
             as.vector(ling_model_tmb_report[[n]]),
-            as.vector(environment(ling_model)$model_report[[n]]),
+            as.vector(attr(r_result, n)),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 }

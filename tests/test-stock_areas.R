@@ -64,35 +64,37 @@ actions <- list(
             g3_report("stock_ac__num")
             g3_report("stock_bcd__num")
             g3_report("stock_aggregated__num")
-            return(g3_param('x'))
+            nll <- nll + g3_param('x')
+            return(nll)
         }))
 params <- list(x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
+r <- attributes(result)
 
 # We iterated over the stock and populated using the area variable
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__num,
+    r$stock_a__num,
     array(
         c(110),
         dim = c(length = 1, area = 1),
         dimnames = list(length = "len10", area = "a"))), "stock_a__num populated, used names from areas lookup")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_ac__num,
+    r$stock_ac__num,
     array(
         c(1010, 3010),
         dim = c(length = 1, area = 2),
         dimnames = list(length = "len10", area = c("area1","area3")))), "stock_ac__num populated, generated default names")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_bcd__num,
+    r$stock_bcd__num,
     array(
         c(20010, 30010, 40010),
         dim = c(length = 1, area = 3),
         dimnames = list(length = "len10", area = c("b", "c", "d")))), "stock_bcd__num populated, used names from areas lookup")
 
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_aggregated__num,
+    r$stock_aggregated__num,
     array(c(
         # NB: Areas b & c --> init + stock_ac + stock_bcd
         (12) + (3010) + (20010 + 30010),
@@ -101,13 +103,13 @@ ok(ut_cmp_identical(
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_sum_a_ac,
+    r$stock_sum_a_ac,
     110 + 1010), "stock_sum_a_ac: Only includes area a")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_sum_ac_a,
+    r$stock_sum_ac_a,
     110 + 1010), "stock_sum_ac_a: Only includes area a")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_sum_ac_bcd,
+    r$stock_sum_ac_bcd,
     3010 + 30010), "stock_sum_ac_bcd: Intersection is area c")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -115,10 +117,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
-    for (n in ls(environment(model_fn)$model_report)) {
+    for (n in names(attributes(result))) {
         ok(ut_cmp_equal(
             as.vector(model_tmb_report[[n]]),
-            as.vector(environment(model_fn)$model_report[[n]]),
+            as.vector(attr(result, n)),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

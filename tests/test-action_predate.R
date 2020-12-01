@@ -8,15 +8,21 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
         model_tmb_report <- model_tmb$report(par)
-        for (n in ls(environment(model_fn)$model_report)) {
+        r_result <- model_fn(params)
+        for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 as.vector(model_tmb_report[[n]]),
-                as.vector(environment(model_fn)$model_report[[n]]),
+                as.vector(attr(r_result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
         writeLines("# skip: not running TMB tests")
     }
+}
+
+unattr <- function (x) {
+    attributes(x) <- NULL
+    return(x)
 }
 
 areas <- list(a=1, b=2, c=3)
@@ -119,10 +125,10 @@ ok_group("No overconsumption", {
         understocking_power = 2,
         x=1.0)
     result <- model_fn(params)
-    r <- environment(model_fn)$model_report
+    r <- attributes(result)
     # str(as.list(r), vec.len = 10000)
 
-    ok(ut_cmp_equal(result, 0), "nll: No overconsumption")
+    ok(ut_cmp_equal(unattr(result), 0), "nll: No overconsumption")
     ok(ut_cmp_equal(sum(r$nll_understocking__wgt), 0), "nll_understocking__wgt: Breakdown also 0")
 
     # Fleet_ab
@@ -245,12 +251,12 @@ ok_group("Overconsumption", {
         understocking_power = 1,
         x=1.0)
     result <- model_fn(params)
-    r <- environment(model_fn)$model_report
-    # str(as.list(environment(model_fn)$model_report), vec.len = 10000)
+    r <- attributes(result)
+    # str(r, vec.len = 10000)
 
     ok(result > 0, "nll: Overconsumption triggered understocking")
     ok(ut_cmp_equal(
-        result,
+        unattr(result),
         sum(2 * r$nll_understocking__wgt),
         tolerance = 1e-7), "nll_understocking__wgt: Breakdown matches total nll")
 

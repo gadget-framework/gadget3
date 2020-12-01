@@ -8,10 +8,11 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
         model_tmb_report <- model_tmb$report(par)
-        for (n in ls(environment(model_fn)$model_report)) {
+        r_result <- model_fn(params)
+        for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 as.vector(model_tmb_report[[n]]),
-                as.vector(environment(model_fn)$model_report[[n]]),
+                as.vector(attr(r_result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
@@ -51,7 +52,7 @@ actions <- list(
     g3a_age(prey_b, output_stocks = list(prey_c)),
     g3a_age(prey_c),
     report_action,
-    list('999' = ~{ nll <- g3_param('x') }))
+    list('999' = ~{ nll <- nll + g3_param('x') }))
 params <- list(
     x=1.0)
             
@@ -70,7 +71,7 @@ ok_group("age", {
     params <- list(
         x=1.0)
     result <- model_fn(params)
-    r <- environment(model_fn)$model_report
+    r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
 

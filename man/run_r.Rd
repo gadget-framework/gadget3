@@ -29,7 +29,7 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
   and fill in all missing values.
 
   Returns \var{nll} produced by the model.
-  You can also use \code{environment(fn)$model_report} to get any report variables from the model.
+  You can also use \code{attributes(nll)} to get any report variables from the model.
 }
 
 \examples{
@@ -78,5 +78,5 @@ nll <- fn(list(
     lingimm.M = rep(0.15,3,10)))
 
 # Get the report from the last model run
-report <- environment(fn)$model_report
+report <- attributes(nll)
 }

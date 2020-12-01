@@ -52,28 +52,29 @@ actions <- list(
             all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
             g3_report(all_step_final)
 
-            nll <- g3_param('x')  # ...or TMB falls over
+            nll <- nll + g3_param('x')  # ...or TMB falls over
         }))
 params <- list(x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
-# str(as.list(environment(model_fn)$model_report))
+r <- attributes(result)
+# str(r)
 
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_time),
+    as.vector(r$all_time),
     as.integer(1:expected_steps - 1)), "cur_time populated")
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_step),
+    as.vector(r$all_step),
     as.integer(rep(c(1,2,3), 8))), "cur_step populated")
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_step_size),
+    as.vector(r$all_step_size),
     as.numeric(rep(c(3/12,3/12,6/12), 8))), "cur_step_size populated")
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_year),
+    as.vector(r$all_year),
     as.integer(rep(1990:1997, each = 3))), "cur_year populated")
 ok(ut_cmp_identical(
-    as.vector(environment(model_fn)$model_report$all_step_final),
+    as.vector(r$all_step_final),
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -81,11 +82,11 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
-    for (n in ls(environment(model_fn)$model_report)) {
+    for (n in names(attributes(result))) {
         ok(ut_cmp_equal(
             model_tmb_report[[n]],
             # NB: as.numeric to avoid differences with logical
-            as.numeric(as.vector(environment(model_fn)$model_report[[n]])),
+            as.numeric(as.vector(attr(result, n))),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

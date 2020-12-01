@@ -6,14 +6,12 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_fn(params)
         model_tmb_report <- model_tmb$report(par)
-        for (n in ls(environment(model_fn)$model_report)) {
-            #print(environment(model_fn)$model_report[[n]])
-            #print(model_tmb_report[[n]])
+        r_result <- model_fn(params)
+        for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 as.vector(model_tmb_report[[n]]),
-                as.vector(environment(model_fn)$model_report[[n]]),
+                as.vector(attr(r_result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
@@ -37,7 +35,8 @@ ok_group("g3a_grow_impl_bbinom", {
             "999" = ~{
                 g3_report("teststock__growth_l")
                 g3_report("teststock__growth_w")
-                return(0)
+                nll <- nll + g3_param('x')
+                return(nll)
             }))
     params <- list(
         linf = 160,
@@ -45,7 +44,8 @@ ok_group("g3a_grow_impl_bbinom", {
         walpha = 3,
         wbeta = 2,
         beta = 30,
-        initial = c(10, 100, 1000, 1000, 10000, 100000))
+        initial = c(10, 100, 1000, 1000, 10000, 100000),
+        x = 1.0)
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
@@ -59,7 +59,7 @@ ok_group("g3a_grow_impl_bbinom", {
     }
 
     result <- model_fn(params)
-    r <- environment(model_fn)$model_report
+    r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
 
@@ -82,7 +82,8 @@ ok_group("g3a_grow_impl_bbinom", {
             walpha = runif(1, 0.1, 3),
             wbeta = runif(1, 0.1, 2),
             beta = runif(1, 10, 30),
-            initial = runif(6, 1000, 9000))
+            initial = runif(6, 1000, 9000),
+            x = 1.0)
         tmb_r_compare(model_fn, model_tmb, params)
     })
 })
@@ -101,7 +102,8 @@ ok_group("g3a_growmature", {
             "999" = ~{
                 g3_report("teststock__num")
                 g3_report("teststock__wgt")
-                return(0)
+                nll <- nll + g3_param('x')
+                return(nll)
             }))
     params <- list(
         initial_num = c(10, 100, 1000, 1000, 10000, 100000),
@@ -137,7 +139,7 @@ ok_group("g3a_growmature", {
         weight_matrix = array(0, dim = c(6, 7)),
         x = 1.0)
     result <- model_fn(params)
-    r <- environment(model_fn)$model_report
+    r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
 

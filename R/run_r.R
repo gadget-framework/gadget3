@@ -133,7 +133,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
-            g3_report = function (x) substitute(model_report$var <- var, list(var = as.symbol(x[[2]]))),
+            g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
+                var_name = as.character(x[[2]]),
+                var = as.symbol(x[[2]]))),
             g3_with = function (x) call(
                 open_curly_bracket,
                 call("<-", x[[2]], g3_functions(x[[3]])),
@@ -171,7 +173,6 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     # NB: Needs to be globalenv() to evaluate core R
     environment(out) <- new.env(parent = globalenv())
     assign("model_data", model_data, envir = environment(out))
-    assign("model_report", new.env(parent = emptyenv()), envir = environment(out))
     class(out) <- c("g3_r", class(out))
     attr(out, 'parameter_template') <- param_lines
     return(out)

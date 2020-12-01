@@ -36,67 +36,69 @@ actions <- list(
                 g3_report(stock_wonky__plusdl)
             })
 
-            return(g3_param('x'))
+            nll <- nll + g3_param('x')
+            return(nll)
         })))
 params <- list(x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
+r <- attributes(result)
 
 # We populated min/mean/dl
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__minlen,
+    r$stock_a__minlen,
     array(
         c(10),
         dimnames = list("len10"),
         dim = c(1))), "stock_a__minlen")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__midlen,
+    r$stock_a__midlen,
     array(
         c(10.5),
         dimnames = list("len10"),
         dim = c(1))), "stock_a__midlen")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__dl,
+    r$stock_a__dl,
     c(1)), "stock_a__dl")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_a__plusdl,
+    r$stock_a__plusdl,
     1), "stock_a__plusdl")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_b__minlen,
+    r$stock_b__minlen,
     array(
         c(50, 51, 52, 53, 54),
         dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
         dim = c(5))), "stock_b__minlen")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_b__midlen,
+    r$stock_b__midlen,
     array(
         c(50.5, 51.5, 52.5, 53.5, 54.5),
         dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
         dim = c(5))), "stock_b__midlen")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_b__dl,
+    r$stock_b__dl,
     c(1,1,1,1,1)), "stock_b__dl")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_b__plusdl,
+    r$stock_b__plusdl,
     1), "stock_b__plusdl")
 ok(ut_cmp_identical(
-    environment(model_fn)$model_report$stock_wonky__minlen,
+    r$stock_wonky__minlen,
     array(
         c(0, 10, 100, 200, 1000),
         dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
         dim = c(5))), "stock_wonky__minlen")
 ok(ut_cmp_equal(
-    environment(model_fn)$model_report$stock_wonky__midlen,
+    r$stock_wonky__midlen,
     array(
         c(5, 55, 150, 600, 1005),
         dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
         dim = c(5))), "stock_wonky__midlen")
 ok(ut_cmp_equal(
-    environment(model_fn)$model_report$stock_wonky__dl,
+    r$stock_wonky__dl,
     c(10, 90, 100, 800, 10)), "stock_wonky__dl")
 ok(ut_cmp_equal(
-    environment(model_fn)$model_report$stock_wonky__plusdl,
+    r$stock_wonky__plusdl,
     10), "stock_wonky__plusdl")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -104,11 +106,11 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
-    for (n in ls(environment(model_fn)$model_report)) {
+    for (n in names(attributes(result))) {
         ok(ut_cmp_equal(
             model_tmb$report()[[n]],
             # NB: TMB drops the dimensions, so we need to also
-            as.vector(environment(model_fn)$model_report[[n]]),
+            as.vector(attr(result, n)),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 } else {

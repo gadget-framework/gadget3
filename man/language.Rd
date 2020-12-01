@@ -75,9 +75,10 @@
   mechanisms such as \code{\link{g3a_report_stock}}.
 
   For example, \code{g3_report(ling_imm__num)} will produce
-  ``REPORT(ling_imm__num)`` under TMB, and ``model_report$ling_imm__num <-
+  ``REPORT(ling_imm__num)`` under TMB, and ``attr(nll, 'ling_imm__num') <-
   ling_imm__num`` under R.
 
   Under R reported values can be got after running the function with
-  ``environment(model_fn)$model_report``.
+  \code{attributes(nll)}, where \code{nll} is the return value of the model
+  function.
 }

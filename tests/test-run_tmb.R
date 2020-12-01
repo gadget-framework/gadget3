@@ -8,10 +8,11 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
         model_tmb_report <- model_tmb$report(par)
-        for (n in ls(environment(model_fn)$model_report)) {
+        r_result <- model_fn(params)
+        for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 model_tmb_report[[n]],
-                environment(model_fn)$model_report[[n]],
+                attr(r_result, n),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
@@ -322,7 +323,8 @@ expecteds$param_table_out <- 27
 
 actions <- c(actions, ~{
     comment('done')
-    return(g3_param('rv'))
+    nll <- nll + g3_param('rv')
+    return(nll)
 })
 
 # Compile model
@@ -338,10 +340,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 
 # Compare everything we've been told to compare
 result <- model_fn(params)
-# str(as.list(environment(model_fn)$model_report), vec.len = 10000)
+# str(attributes(result), vec.len = 10000)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(
-        environment(model_fn)$model_report[[n]],
+        attr(result, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
 tmb_r_compare(model_fn, model_tmb, params)

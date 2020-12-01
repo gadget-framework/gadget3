@@ -89,8 +89,8 @@ names(param) <- param_table$switch
 
 # Run gadget3 model
 # model_fn <- edit(model_fn) ; model_fn(param)
-nll <- model_fn(param)
-g3_r <- lapply(environment(model_fn)$model_report, function (x) round(x, 6))
+r_result <- model_fn(param)
+g3_r <- attributes(r_result)
 
 # If enabled run a TMB version too
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -99,10 +99,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb <- g3_tmb_adfun(model_cpp, param, compile_flags = c("-O0", "-g"))
 
     model_tmb_report <- model_tmb$report()
-    for (n in ls(environment(model_fn)$model_report)) {
+    for (n in names(attributes(r_result))) {
         ok(all.equal(
             as.vector(model_tmb_report[[n]]),
-            as.vector(environment(model_fn)$model_report[[n]]),
+            as.vector(attr(r_result, n)),
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 }

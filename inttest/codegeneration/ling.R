@@ -617,9 +617,9 @@ structure(function (param)
                   {
                     nll <- nll + (1) * cur_cdist_nll
                     nll_cdist_ldist_lln__num[cur_time + 1L] <- nll_cdist_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                    model_report$nll_cdist_ldist_lln__num <- nll_cdist_ldist_lln__num
+                    attr(nll, "nll_cdist_ldist_lln__num") <- nll_cdist_ldist_lln__num
                     nll_cdist_ldist_lln__weight[cur_time + 1L] <- 1
-                    model_report$nll_cdist_ldist_lln__weight <- nll_cdist_ldist_lln__weight
+                    attr(nll, "nll_cdist_ldist_lln__weight") <- nll_cdist_ldist_lln__weight
                   }
                 }
             }
@@ -644,9 +644,9 @@ structure(function (param)
             g3l_understocking_total <- g3l_understocking_total^(2)
             nll <- nll + (1) * g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
-            model_report$nll_understocking__wgt <- nll_understocking__wgt
+            attr(nll, "nll_understocking__wgt") <- nll_understocking__wgt
             nll_understocking__weight[cur_time + 1L] <- 1
-            model_report$nll_understocking__weight <- nll_understocking__weight
+            attr(nll, "nll_understocking__weight") <- nll_understocking__weight
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")
