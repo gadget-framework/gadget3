@@ -95,64 +95,64 @@ ling_likelihood_actions <- list(
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_sumofsquares(),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si1',
     weight = 40,
     (igfs.SI1[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha1'),
                                             beta = ~g3_param('ling_si_beta1')),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si2a',
     weight = 8,
     (igfs.SI2a[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha2'),
                                             beta = ~g3_param('ling_si_beta2')),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si2b',
     weight = 36,
     (igfs.SI2b[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha3'),
                                             beta = 1),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si3a',
     (igfs.SI3a[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha4'),
                                             beta = 1),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si3b',
     weight = 19,
     (igfs.SI3b[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha5'),
                                             beta = 1),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     'si_igfs_si3c',
     weight = 16,
     (igfs.SI3b[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha6'),
                                             beta = 1),
     nll_breakdown = nll_breakdown),
-  g3l_catchdistribution(
+  g3l_distribution(
     weight = 13,
     'si_igfs_si3d',
     (igfs.SI3d[[1]]),
-    fleets = list(igfs),
+    fleets = list(),
     stocks = list(ling_imm, ling_mat),
     g3l_catchdistribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha7'),
                                             beta = 1),
