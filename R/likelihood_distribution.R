@@ -4,7 +4,7 @@ g3l_distribution_sumofsquares <- function (over = c('area')) {
     f_substitute(~sum((
         stock_ss(modelstock__x) / avoid_zero(sum(modelstock_total_f)) -
         stock_ss(obsstock__x) / avoid_zero(sum(obsstock_total_f))) ** 2), list(
-            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x)), over),
+            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x, 'time')), over),
             obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
 }
 
@@ -43,7 +43,7 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
                 stock_ss(obsstock__x) / sum(obsstock_total_f),
             rho_f,
             sigma_f), list(
-                modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x)), over),
+                modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x, 'time')), over),
                 obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over),
                 rho_f = rho_f,
                 sigma_f = sigma_f))
@@ -66,9 +66,9 @@ g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
 }
 
 # Compare numbers caught by fleets to observation data
-g3l_catchdistribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
+g3l_catchdistribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, report = FALSE,  nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
     stopifnot(length(fleets) > 0)
-    g3l_distribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = missing_val, area_group = area_group, nll_breakdown = nll_breakdown, weight = weight, run_at = run_at)
+    g3l_distribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = missing_val, area_group = area_group, report = report, nll_breakdown = nll_breakdown, weight = weight, run_at = run_at)
 }
 
 # Compare model state to observation data
@@ -84,7 +84,7 @@ g3l_catchdistribution <- function (nll_name, obs_data, fleets = list(), stocks, 
 # - stocks: Gather catch/abundance from these stocks
 # - function_f: Comparison function to compare stock_ss(modelstock__x) & stock_ss(obsstock__x)
 # - weight: Weighting of parameter in final nll
-g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
+g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
     out <- new.env(parent = emptyenv())
 
     # Define prefix matching our public name
@@ -96,7 +96,7 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
     }
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {
@@ -199,6 +199,8 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
                     g3_report(nllstock__num)  # TODO: Only on penultimate step?
                     stock_ss(nllstock__weight) <- weight
                     g3_report(nllstock__weight)  # TODO: Only on penultimate step?
+                    if (report) g3_report(modelstock__num)
+                    if (report) g3_report(obsstock__num)
                 })
                 if (compare_wgt) g3_with(cur_cdist_nll, biomass_f, {
                     nll <- nll + (weight) * cur_cdist_nll
@@ -206,17 +208,23 @@ g3l_distribution <- function (nll_name, obs_data, fleets = list(), stocks, funct
                     g3_report(nllstock__wgt)  # TODO: Only on penultimate step?
                     stock_ss(nllstock__weight) <- weight
                     g3_report(nllstock__weight)  # TODO: Only on penultimate step?
+                    if (report) g3_report(modelstock__wgt)
+                    if (report) g3_report(obsstock__wgt)
                 })
             })))
 
-            # TODO: Need to disable these if there's a time dimension, otherwise we throw away data
-            if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
-            if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
+            if (report) {
+                # Don't zero counters, we'll move on to next reporting period instead
+            } else {
+                if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
+                if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
+            }
         }
     }, list(
         done_aggregating_f = ld$done_aggregating_f,
         compare_num = !is.null(ld$number),
         compare_wgt = !is.null(ld$weight),
+        report = report,
         number_f = f_substitute(function_f, list(
             modelstock__x = as.symbol('modelstock__num'),
             obsstock__x = as.symbol('obsstock__num'))),

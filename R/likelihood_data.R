@@ -1,4 +1,4 @@
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
@@ -80,6 +80,11 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     obsstock <- g3s_time(
         g3s_clone(modelstock, paste("cdist", nll_name, "obs", sep = "_")),
         sort(unique(data$time)))
+    if (model_history) {
+        modelstock <- g3s_time(
+            modelstock,
+            sort(unique(data$time)))
+    }
 
     # Generate full table based on stock
     full_table <- as.data.frame.table(

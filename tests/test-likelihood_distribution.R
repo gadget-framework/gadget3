@@ -35,7 +35,7 @@ g3_logspace_add_vec <- gadget3:::g3_global_env$logspace_add_vec
 g3_lgamma_vec <- lgamma
 
 ok(grepl(
-    'stock_ssinv\\(modelstock__x,\\s+"area",\\s+"age"\\)',
+    'stock_ssinv\\(modelstock__x,\\s+"time",\\s+"area",\\s+"age"\\)',
     paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
     perl = TRUE), "Added custom totals to sumofsquares modelstock__x")
 ok(grepl(
@@ -131,11 +131,6 @@ base_actions <- list(
             dim = c(2L),
             dimnames = list(
                 c("len1", "len6")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'surveyindices', 1, 'zzzz'), report_step('cdist_surveyindices_model__num', 4, array(
-            # NB: Lift definition from deparse(r$cdist_surveyindices_model__num)
-            dim = c(1L),
-            dimnames = list(
-                c("len0")))),
         gadget3:::step_id(990, 'prey_a__fleet_abc'), report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
         gadget3:::step_id(990, 'prey_b__fleet_abc'), report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
         gadget3:::step_id(990, 'prey_c__fleet_abc'), report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),
@@ -152,8 +147,6 @@ base_actions <- list(
             g3_report(cdist_utsd_obs__num)
             g3_report(cdist_multinom_model__num)
             g3_report(cdist_multinom_obs__num)
-            g3_report(cdist_surveyindices_model__num)
-            g3_report(cdist_surveyindices_obs__num)
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
@@ -199,6 +192,7 @@ actions <- c(base_actions, list(
         fleets = list(),
         stocks = list(prey_b),
         area_group = areas,
+        report = TRUE,  # NB: Using built-in reporting vs. version hacked in tests
         g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
 params <- list(
@@ -358,17 +352,13 @@ ok_group("Likelihood per step", {
 
     ######## cdist_surveyindices_model__num
     ok(ut_cmp_equal(
-        sum(r$step0_cdist_surveyindices_model__num),
-        sum(r$step0_prey_b__num)), "step0_cdist_surveyindices_model__num: Totalled stock numbers")
-    ok(ut_cmp_equal(
-        sum(r$step1_cdist_surveyindices_model__num),
-        sum(r$step1_prey_b__num)), "step1_cdist_surveyindices_model__num: Totalled stock numbers")
-    ok(ut_cmp_equal(
-        sum(r$step2_cdist_surveyindices_model__num),
-        sum(r$step2_prey_b__num)), "step2_cdist_surveyindices_model__num: Totalled stock numbers")
-    ok(ut_cmp_equal(
-        sum(r$step3_cdist_surveyindices_model__num),
-        sum(r$step3_prey_b__num)), "step3_cdist_surveyindices_model__num: Totalled stock numbers")
+        as.vector(r$cdist_surveyindices_model__num),
+        c(
+            sum(r$step0_prey_b__num),
+            sum(r$step1_prey_b__num),
+            sum(r$step2_prey_b__num),
+            sum(r$step3_prey_b__num),
+            NULL)), "cdist_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, sum(
@@ -403,7 +393,7 @@ ok_group("Likelihood per step", {
                         sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(r$step0_cdist_surveyindices_model__num) -
+            params$si_beta * log(r$cdist_surveyindices_model__num[,1]) -
             log(r$cdist_surveyindices_obs__num[,1]))**2,
         0)), "step0_nll: Sum of squares")
 
@@ -439,7 +429,7 @@ ok_group("Likelihood per step", {
                         sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,2])) -
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
@@ -475,7 +465,7 @@ ok_group("Likelihood per step", {
                         sum(r$cdist_multinom_obs__num[,3]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$step2_cdist_surveyindices_model__num)) -
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,3])) -
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,3])))**2,
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
@@ -511,7 +501,7 @@ ok_group("Likelihood per step", {
                         sum(r$cdist_multinom_obs__num[,4]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,4])) -
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,4])))**2,
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
@@ -584,6 +574,7 @@ ok_group("Likelihood per year", {
             fleets = list(),
             stocks = list(prey_b),
             area_group = areas,
+            report = TRUE,
             g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
 
     # Compile model
@@ -689,6 +680,15 @@ ok_group("Likelihood per year", {
          NULL)), "step1_cdist_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
     ########
 
+    ######## cdist_surveyindices_model__num
+    ok(ut_cmp_equal(
+        as.vector(r$cdist_surveyindices_model__num),
+        c(
+            sum(r$step0_prey_b__num) + sum(r$step1_prey_b__num),
+            sum(r$step2_prey_b__num) + sum(r$step3_prey_b__num),
+            NULL)), "cdist_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
+    ########
+
     ok(ut_cmp_equal(r$step0_nll, 0), "step0_nll: nll not calculated yet")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
@@ -724,7 +724,7 @@ ok_group("Likelihood per year", {
                         sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$step1_cdist_surveyindices_model__num)) -
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,1])) -
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,1])))**2,
         0)), "step1_nll: Sum of squares")
 
@@ -761,7 +761,7 @@ ok_group("Likelihood per year", {
                         sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
         sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$step3_cdist_surveyindices_model__num)) -
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,2])) -
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 

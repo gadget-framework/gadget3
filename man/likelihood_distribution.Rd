@@ -23,11 +23,12 @@ g3l_distribution_surveyindices_log(alpha = 0, beta = 1)
 
 g3l_distribution_surveyindices_linear(alpha = 0, beta = 1)
 
-g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, 
-    area_group = NULL, nll_breakdown = FALSE, weight = 1, run_at = 10)
+g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f,
+    missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE, weight = 1,
+    run_at = 10)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
-    area_group = NULL, nll_breakdown = FALSE, weight = 1, run_at = 10)
+    area_group = NULL, report = FALSE, nll_breakdown = FALSE, weight = 1, run_at = 10)
 
 }
 
@@ -81,6 +82,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   }
   \item{area_group}{
     TODO:
+  }
+  \item{report}{
+    If TRUE, add model and observation arrays to the model report, called
+    \code{cdist_\var{nll_name}_model__num/wgt} and \code{cdist_\var{nll_name}_obs__num/wgt}
+    respectively
   }
   \item{nll_breakdown}{
     Should the nll report be broken down by time? \code{TRUE} / \code{FALSE}

@@ -78,6 +78,7 @@ ling_likelihood_actions <- list(
         fleets = list(igfs),
         stocks = list(ling_imm, ling_mat),
         g3l_distribution_sumofsquares(),
+        report = TRUE,
         nll_breakdown = TRUE)),
     remove_avoid_zero(g3l_catchdistribution(
         'ldist_igfs_mn',
@@ -89,6 +90,7 @@ ling_likelihood_actions <- list(
         fleets = list(igfs),
         stocks = list(ling_imm, ling_mat),
         g3l_distribution_multinomial(),
+        report = TRUE,
         nll_breakdown = TRUE)),
     list())
 

@@ -35,7 +35,10 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
             time = length(times)),
         dimnames = c(inner_stock$dimnames, list(
             time = times)),
-        iterate = inner_stock$iterate,  # NB: Just pass through, iterating over all time doesn't make sense
+        # NB: iterate same as intersect, iterating over all time won't make sense in ~all cases
+        iterate = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
+                idx_f = idx_f,
+                extension_point = inner_stock$iterate)),
         iter_ss = c(inner_stock$iter_ss, as.symbol("stock__time_idx")),
         intersect = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
