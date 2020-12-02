@@ -93,7 +93,7 @@ g3_r <- attributes(r_result)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, param, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, param)
 
     model_tmb_report <- model_tmb$report()
     for (n in ls(attributes(r_result))) {
