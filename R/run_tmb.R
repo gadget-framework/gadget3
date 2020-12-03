@@ -764,7 +764,7 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), compile_flags = c("-O3", "-march=native"), work_dir = tempdir(), output_script = FALSE, ...) {
+g3_tmb_adfun <- function(cpp_code, parameters = attr(cpp_code, 'parameter_template'), compile_flags = c("-O3", "-flto", "-march=native"), work_dir = tempdir(), output_script = FALSE, ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
     # If parameters is a list, merge into our data.frames
