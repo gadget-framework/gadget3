@@ -194,7 +194,7 @@ tmb_ling <- g3_to_tmb(c(
     ling_imm_actions,
     igfs_actions,
     likelihood_actions,
-    time))
+    time), strict = TRUE)
 writeLines(tmb_ling, con = 'inttest/codegeneration/ling.cpp')
 
 # tmb_ling <- edit(tmb_ling)

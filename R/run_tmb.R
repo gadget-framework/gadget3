@@ -385,6 +385,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ")"))
     }
 
+    if (call_name %in% c("!")) {
+        # Unary operators
+        return(paste(
+            call_name,
+            cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int)))
+    }
+
     if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%", "&&", "||")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
@@ -401,6 +408,47 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "(") {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
+    }
+
+    if (call_name %in% c("is.na")) {
+        if (is.symbol(in_call[[2]])) {
+            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+            if (is.numeric(env_defn) && length(env_defn) == 1) {
+                # Use std::isnan for single values, otherwise assume array and use Eigen method.
+                return(paste0(
+                    "std::isnan(asDouble(",
+                    cpp_code(in_call[[2]], in_envir, next_indent),
+                    "))"))
+            }
+        }
+        return(paste0(
+            "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ").isNaN()"))
+    }
+
+    if (call_name %in% c("is.finite")) {
+        if (is.symbol(in_call[[2]])) {
+            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
+            if (is.numeric(env_defn) && length(env_defn) == 1) {
+                # Use std::isnan for single values, otherwise assume array and use Eigen method.
+                return(paste0(
+                    "std::isfinite(asDouble(",
+                    cpp_code(in_call[[2]], in_envir, next_indent),
+                    "))"))
+            }
+        }
+        return(paste0(
+            "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ").isFinite()"))
+    }
+
+    if (call_name %in% c("all", "any")) {
+        return(paste0(
+            "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ").", call_name, "()"))
     }
 
     if (call_name == "length") {

@@ -89,8 +89,10 @@ g3_global_env$REprintf <- g3_native(r = function(...) {
 }, cpp = NULL)
 
 
-# stopifnot is assert in C++
-g3_global_env$stopifnot <- g3_native(r = "stopifnot", cpp = list("assert", NULL))
+# Implement stopifnot for C++ (assert might be disabled by NDEBUG)
+g3_global_env$stopifnot <- g3_native(r = "stopifnot", cpp = '[](bool a) -> void {
+    if (!a) abort();
+}')
 
 
 # Use TMB's "asDouble" as an equivalent for as.numeric

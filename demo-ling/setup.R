@@ -116,7 +116,7 @@ tmb_ling <- g3_to_tmb(c(
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
-  list(time)))
+  list(time)), strict = TRUE)  # TODO: Turn strict off
 
 
 ## update the input parameters with sane initial guesses

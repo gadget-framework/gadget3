@@ -31,6 +31,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
     out[[step_id(run_at)]] <- ~{
         debug_label("g3a_time")
         cur_time <- cur_time + 1L
+        if (strict_mode) stopifnot(is.finite(nll))
         if (cur_time > total_steps) return(nll)
         cur_year <- start_year + (cur_time %/% step_count)
         cur_step <- (cur_time %% step_count) + 1L

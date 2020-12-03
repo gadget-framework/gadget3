@@ -82,11 +82,11 @@ structure(function (param)
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     cur_time <- -1L
+    nll <- 0
     step_lengths <- model_data$step_lengths
     end_year <- 2018L
     start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
-    nll <- 0
     cur_year <- 0L
     step_count <- 4L
     cur_step <- 0L
@@ -221,6 +221,8 @@ structure(function (param)
         {
             comment("g3a_time")
             cur_time <- cur_time + 1L
+            if (TRUE) 
+                stopifnot(is.finite(nll))
             if (cur_time > total_steps) 
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
@@ -652,22 +654,29 @@ structure(function (param)
             comment("g3a_age for ling_imm")
             for (age in seq(ling_imm__maxage, ling_imm__minage, by = -1)) {
                 ling_imm__age_idx <- age - ling_imm__minage + 1L
-                if (age == ling_imm__maxage) {
-                  comment("Move oldest ling_imm into ling_imm_movement")
-                  ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
-                  ling_imm_movement__transitioning_wgt[, , (1)] <- ling_imm__wgt[, , ling_imm__age_idx]
-                  ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1L]
-                  ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1L]
-                }
-                else if (age == ling_imm__minage) {
-                  comment("Empty youngest ling_imm age-group")
-                  ling_imm__num[, , ling_imm__age_idx] <- 0
-                  ling_imm__wgt[, , ling_imm__age_idx] <- 0
-                }
-                else {
-                  comment("Move ling_imm age-group to next one up")
-                  ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1L]
-                  ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1L]
+                {
+                  comment("Check stock has remained finite for this step")
+                  if (TRUE) 
+                    stopifnot(all(is.finite(ling_imm__num[, , ling_imm__age_idx])))
+                  if (TRUE) 
+                    stopifnot(all(is.finite(ling_imm__wgt[, , ling_imm__age_idx])))
+                  if (age == ling_imm__maxage) {
+                    comment("Move oldest ling_imm into ling_imm_movement")
+                    ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
+                    ling_imm_movement__transitioning_wgt[, , (1)] <- ling_imm__wgt[, , ling_imm__age_idx]
+                    ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1L]
+                    ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1L]
+                  }
+                  else if (age == ling_imm__minage) {
+                    comment("Empty youngest ling_imm age-group")
+                    ling_imm__num[, , ling_imm__age_idx] <- 0
+                    ling_imm__wgt[, , ling_imm__age_idx] <- 0
+                  }
+                  else {
+                    comment("Move ling_imm age-group to next one up")
+                    ling_imm__num[, , ling_imm__age_idx] <- ling_imm__num[, , ling_imm__age_idx - 1L]
+                    ling_imm__wgt[, , ling_imm__age_idx] <- ling_imm__wgt[, , ling_imm__age_idx - 1L]
+                  }
                 }
             }
         }
@@ -675,22 +684,29 @@ structure(function (param)
             comment("g3a_age for ling_mat")
             for (age in seq(ling_mat__maxage, ling_mat__minage, by = -1)) {
                 ling_mat__age_idx <- age - ling_mat__minage + 1L
-                if (age == ling_mat__maxage) {
-                  comment("Oldest ling_mat is a plus-group, combine with younger individuals")
-                  ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx]
-                  ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx] + ling_mat__num[, , ling_mat__age_idx - 1L]
-                  ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] + (ling_mat__wgt[, , ling_mat__age_idx - 1L] * ling_mat__num[, , ling_mat__age_idx - 1L])
-                  ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx]/avoid_zero_vec(ling_mat__num[, , ling_mat__age_idx])
-                }
-                else if (age == ling_mat__minage) {
-                  comment("Empty youngest ling_mat age-group")
-                  ling_mat__num[, , ling_mat__age_idx] <- 0
-                  ling_mat__wgt[, , ling_mat__age_idx] <- 0
-                }
-                else {
-                  comment("Move ling_mat age-group to next one up")
-                  ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx - 1L]
-                  ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx - 1L]
+                {
+                  comment("Check stock has remained finite for this step")
+                  if (TRUE) 
+                    stopifnot(all(is.finite(ling_mat__num[, , ling_mat__age_idx])))
+                  if (TRUE) 
+                    stopifnot(all(is.finite(ling_mat__wgt[, , ling_mat__age_idx])))
+                  if (age == ling_mat__maxage) {
+                    comment("Oldest ling_mat is a plus-group, combine with younger individuals")
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx]
+                    ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx] + ling_mat__num[, , ling_mat__age_idx - 1L]
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] + (ling_mat__wgt[, , ling_mat__age_idx - 1L] * ling_mat__num[, , ling_mat__age_idx - 1L])
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx]/avoid_zero_vec(ling_mat__num[, , ling_mat__age_idx])
+                  }
+                  else if (age == ling_mat__minage) {
+                    comment("Empty youngest ling_mat age-group")
+                    ling_mat__num[, , ling_mat__age_idx] <- 0
+                    ling_mat__wgt[, , ling_mat__age_idx] <- 0
+                  }
+                  else {
+                    comment("Move ling_mat age-group to next one up")
+                    ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx - 1L]
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx - 1L]
+                  }
                 }
             }
         }

@@ -47,6 +47,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2017);
     PARAMETER(ling__rec__2018);
     
+    auto stopifnot = [](bool a) -> void {
+    if (!a) abort();
+};
     auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
@@ -166,11 +169,11 @@ Type objective_function<Type>::operator() () {
 };
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     int cur_time = -1;
+    Type nll = (double)(0);
     DATA_IVECTOR(step_lengths)
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - start_year) + (step_lengths).size() - 1;
-    Type nll = (double)(0);
     int cur_year = 0;
     int step_count = 4;
     int cur_step = 0;
@@ -257,6 +260,9 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_time;
             cur_time += 1;
+            if ( true ) {
+                stopifnot(std::isfinite(asDouble(nll)));
+            }
             if ( cur_time > total_steps ) {
                 return nll;
             }
@@ -406,9 +412,9 @@ Type objective_function<Type>::operator() () {
             // Calculate ling_imm overconsumption coefficient;
             ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
             ling_imm__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100);
-            if ( false ) {
+            if ( true ) {
                 // We can't consume more fish than currently exists;
-                assert(all(ling_imm__consratio <= (double)(1)));
+                stopifnot((ling_imm__consratio <= (double)(1)).all());
             }
             // Apply overconsumption to prey;
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
@@ -420,9 +426,9 @@ Type objective_function<Type>::operator() () {
             // Calculate ling_mat overconsumption coefficient;
             ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
             ling_mat__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100);
-            if ( false ) {
+            if ( true ) {
                 // We can't consume more fish than currently exists;
-                assert(all(ling_mat__consratio <= (double)(1)));
+                stopifnot((ling_mat__consratio <= (double)(1)).all());
             }
             // Apply overconsumption to prey;
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();
@@ -507,7 +513,7 @@ Type objective_function<Type>::operator() () {
                         // Calculate length/weight delta matrices for current lengthgroups;
                         ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*((double)(1) - exp(-(ling__k*(double)(0.001))*cur_step_size)), ling_imm__dl, (double)(15), ling__bbin*(double)(10));
                         ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)))*(lingimm__walpha);
-                        if ( false ) {
+                        if ( true ) {
                             ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
                         }
                         if (cur_step_final) {
@@ -544,11 +550,11 @@ Type objective_function<Type>::operator() () {
                                 }
                             }
                         }
-                        if ( false ) {
+                        if ( true ) {
                             if (cur_step_final) {
-                                assert(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
+                                stopifnot(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
                             } else {
-                                assert(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
+                                stopifnot(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
                             }
                         }
                     }
@@ -567,7 +573,7 @@ Type objective_function<Type>::operator() () {
                         // Calculate length/weight delta matrices for current lengthgroups;
                         ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*((double)(1) - exp(-(ling__k*(double)(0.001))*cur_step_size)), ling_mat__dl, (double)(15), ling__bbin*(double)(10));
                         ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)))*(lingmat__walpha);
-                        if ( false ) {
+                        if ( true ) {
                             ling_mat__prevtotal = (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
                         }
                         // Update ling_mat using delta matrices;
@@ -579,8 +585,8 @@ Type objective_function<Type>::operator() () {
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = growthresult.col(1);
                             }
                         }
-                        if ( false ) {
-                            assert(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < (double)(1e-04));
+                        if ( true ) {
+                            stopifnot(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < (double)(1e-04));
                         }
                     }
                 }
@@ -744,21 +750,30 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                if (age == ling_imm__maxage) {
-                    // Move oldest ling_imm into ling_imm_movement;
-                    ling_imm_movement__transitioning_num.col(0) = ling_imm__num.col(ling_imm__age_idx);
-                    ling_imm_movement__transitioning_wgt.col(0) = ling_imm__wgt.col(ling_imm__age_idx);
-                    ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
-                    ling_imm__wgt.col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__age_idx - 1);
-                } else {
-                    if (age == ling_imm__minage) {
-                        // Empty youngest ling_imm age-group;
-                        ling_imm__num.col(ling_imm__age_idx).setZero();
-                        ling_imm__wgt.col(ling_imm__age_idx).setZero();
-                    } else {
-                        // Move ling_imm age-group to next one up;
+                {
+                    // Check stock has remained finite for this step;
+                    if ( true ) {
+                        stopifnot(((ling_imm__num.col(ling_imm__age_idx)).isFinite()).all());
+                    }
+                    if ( true ) {
+                        stopifnot(((ling_imm__wgt.col(ling_imm__age_idx)).isFinite()).all());
+                    }
+                    if (age == ling_imm__maxage) {
+                        // Move oldest ling_imm into ling_imm_movement;
+                        ling_imm_movement__transitioning_num.col(0) = ling_imm__num.col(ling_imm__age_idx);
+                        ling_imm_movement__transitioning_wgt.col(0) = ling_imm__wgt.col(ling_imm__age_idx);
                         ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
                         ling_imm__wgt.col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__age_idx - 1);
+                    } else {
+                        if (age == ling_imm__minage) {
+                            // Empty youngest ling_imm age-group;
+                            ling_imm__num.col(ling_imm__age_idx).setZero();
+                            ling_imm__wgt.col(ling_imm__age_idx).setZero();
+                        } else {
+                            // Move ling_imm age-group to next one up;
+                            ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
+                            ling_imm__wgt.col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__age_idx - 1);
+                        }
                     }
                 }
             }
@@ -768,21 +783,30 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__maxage; age >= ling_mat__minage; age--) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                if (age == ling_mat__maxage) {
-                    // Oldest ling_mat is a plus-group, combine with younger individuals;
-                    ling_mat__wgt.col(ling_mat__age_idx) *= ling_mat__num.col(ling_mat__age_idx);
-                    ling_mat__num.col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__age_idx - 1);
-                    ling_mat__wgt.col(ling_mat__age_idx) += (ling_mat__wgt.col(ling_mat__age_idx - 1)*ling_mat__num.col(ling_mat__age_idx - 1));
-                    ling_mat__wgt.col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx));
-                } else {
-                    if (age == ling_mat__minage) {
-                        // Empty youngest ling_mat age-group;
-                        ling_mat__num.col(ling_mat__age_idx).setZero();
-                        ling_mat__wgt.col(ling_mat__age_idx).setZero();
+                {
+                    // Check stock has remained finite for this step;
+                    if ( true ) {
+                        stopifnot(((ling_mat__num.col(ling_mat__age_idx)).isFinite()).all());
+                    }
+                    if ( true ) {
+                        stopifnot(((ling_mat__wgt.col(ling_mat__age_idx)).isFinite()).all());
+                    }
+                    if (age == ling_mat__maxage) {
+                        // Oldest ling_mat is a plus-group, combine with younger individuals;
+                        ling_mat__wgt.col(ling_mat__age_idx) *= ling_mat__num.col(ling_mat__age_idx);
+                        ling_mat__num.col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__age_idx - 1);
+                        ling_mat__wgt.col(ling_mat__age_idx) += (ling_mat__wgt.col(ling_mat__age_idx - 1)*ling_mat__num.col(ling_mat__age_idx - 1));
+                        ling_mat__wgt.col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx));
                     } else {
-                        // Move ling_mat age-group to next one up;
-                        ling_mat__num.col(ling_mat__age_idx) = ling_mat__num.col(ling_mat__age_idx - 1);
-                        ling_mat__wgt.col(ling_mat__age_idx) = ling_mat__wgt.col(ling_mat__age_idx - 1);
+                        if (age == ling_mat__minage) {
+                            // Empty youngest ling_mat age-group;
+                            ling_mat__num.col(ling_mat__age_idx).setZero();
+                            ling_mat__wgt.col(ling_mat__age_idx).setZero();
+                        } else {
+                            // Move ling_mat age-group to next one up;
+                            ling_mat__num.col(ling_mat__age_idx) = ling_mat__num.col(ling_mat__age_idx - 1);
+                            ling_mat__wgt.col(ling_mat__age_idx) = ling_mat__wgt.col(ling_mat__age_idx - 1);
+                        }
                     }
                 }
             }
