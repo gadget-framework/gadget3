@@ -468,7 +468,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ")"))
     }
 
-    if (grepl("^[a-zA-Z_][a-zA-Z0-9_]*", call_name)) {
+    if (grepl("^[a-zA-Z_][a-zA-Z0-9_]*$", call_name)) {
         # If this looks like a function call, assume TMB has defined an equivalent
         # function. e.g. lgamma, exp, log, seq, seq_along, Rprintf, REprintf
         return(paste0(

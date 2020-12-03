@@ -41,6 +41,10 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~`0unknown0`(2)))
 }, "0unknown0"), "An unknown function has to at least be a valid C++ function")
 
+ok(ut_cmp_error({
+    g3_to_tmb(list(~not.a.function(2)))
+}, "not\\.a\\.function"), "An unknown function has to at least be a valid C++ function")
+
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
