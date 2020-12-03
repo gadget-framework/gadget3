@@ -142,5 +142,9 @@ result <- tmb$fn(g3_tmb_par(tmb_param))
 fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param))
+
+# Go back to a list of parameters, suitable for the R version
+param_list <- relist(fit$par, unclass(tmb_param$value))
+
 }
 }
