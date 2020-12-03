@@ -36,19 +36,19 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
   \item{factor_f}{
-    TODO:
+    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{mean_f}{
-    TODO:
+    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{stddev_f}{
-    TODO:
+    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{alpha_f}{
-    TODO:
+    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{beta_f}{
-    TODO:
+    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action,
@@ -69,10 +69,28 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
 }
 
 \value{
-  \subsection{g3a_initialconditions}{TODO:}
-  \subsection{g3a_initialconditions_normalparam}{TODO:}
-  \subsection{g3a_renewal}{TODO:}
-  \subsection{g3a_renewal_normalparam}{TODO:}
+  \subsection{g3a_initialconditions / g3a_renewal}{
+  An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
+  area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using
+  \var{num_f} and \var{wgt_f}.
+
+  renewal will add fish to the existing collection, whereas initialconditions will assume the stock is currently empty.
+  }
+  \subsection{g3a_initialconditions_normalparam / g3a_renewal_normalparam}{
+    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
+
+    \deqn{n = e^{-(\frac{L - \mu}{\sigma})^2 / 2}}
+    \deqn{N = F 10000 \frac{n}{\sum n}}
+    \deqn{W = \alpha L^{\beta}}
+    \describe{
+      \item{\eqn{L}}{Midlength of length groups for current area/age/...}
+      \item{\eqn{F}}{Substituted for \var{factor_f}}
+      \item{\eqn{\mu}}{Substituted for \var{mean_f}}
+      \item{\eqn{\sigma}}{Substituted for \var{stddev_f}}
+      \item{\eqn{\alpha}}{Substituted for \var{alpha_f}}
+      \item{\eqn{\beta}}{Substituted for \var{beta_f}}
+    }
+  }
 }
 
 \seealso{
