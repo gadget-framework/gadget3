@@ -14,12 +14,20 @@ library(gadget3)
 library(magrittr)
 ```
 
-## g3 Functions
+## G3 Functions
 
 There are also special g3 functions that can be used in formula that affect the
 resulting code, rather than just being called when run.
 
 See ``?g3_param`` for more information.
+
+## G3 global environment
+
+All G3 models have the G3 global environment included, which contains the
+definition of generally useful functions. For example ``avoid_zero()``, used to
+avoid div/0 conditions by adding a small amount of error close to zero.
+
+See ``R/aaa_global.R`` for more information, and other existing helpers.
 
 ## Global & native functions
 
@@ -40,8 +48,6 @@ g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
     return res;
 }')
 ```
-
-See ``R/aaa_global.R`` for more information, and other existing helpers.
 
 ## Stock steps
 
@@ -82,3 +88,45 @@ dimensions, and ``stock_ss()`` will subset ``stock__num``, prividing
 
 These iterators will then be available to the ``maturity_f`` that the users
 provide, as demonstrated in the [Stocks] section.
+
+## Writing R code destined for C++
+
+Obviously R and C++'s type systems are quite different, and gadget3 attempts to
+bridge the gap.
+
+In R, there is no difference between a scalar and a 1-element vector. If you
+expect to treat the variable as a vector or array, then state this explicitly
+with ``array``, even if the result may be a 1-element vector. This means that
+methods that work on TMB array or vector classes will be available.
+
+One needs to be more careful with the type of constants in C++ than R. In
+particular, ``x / 2`` means integer division. As a result, G3 will cast any
+numeric constant as a double outside of certain situations, e.g. array indices,
+which will be integer values. However, if you do want an integer it's best to
+express this explictly, i.e. ``3L``. Note that there is no difference in R code
+between ``3`` and ``3.0``.
+
+## g3_native
+
+There are limits to what the Gadget3 transpilation can manage, particularly
+once you need to operate on matrices. To get around this, you can define
+functions using ``g3_native``, which annotates functions with a C++ definition.
+For example, it is used to define ``logspace_add_vec``:
+
+```
+# vector<Type> form of logspace_add
+g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
+    vector<Type> res(a.size());
+
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
+    }
+
+    // NB: This is a string within R code, so we have to escape slashes.
+    //     For example, "\\n"
+
+    return res;
+}')
+```
