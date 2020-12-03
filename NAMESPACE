@@ -47,6 +47,9 @@ export(g3l_distribution)
 # R/likelihood_understocking.R
 export(g3l_understocking)
 
+# R/run_desc.R
+export(g3_to_desc)
+
 # R/run_r.R
 export(g3_to_r)
 S3method(edit, g3_r)

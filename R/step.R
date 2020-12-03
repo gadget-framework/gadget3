@@ -197,3 +197,15 @@ unique_action_name <- function () {
     out <- substr(digest::sha1(out), 1, 20)
     out
 }
+
+# Find first label (or trace if minor_steps) for a given step
+step_find_desc <- function (s, minor_steps = FALSE) {
+    labels <- c()
+    traces <- c()
+    call_replace(s,
+        debug_label = function (x) labels <<- c(labels, x[[2]]),
+        debug_trace = function (x) traces <<- c(traces, x[[2]]))
+    if (length(labels) > 0) return(labels[[1]])
+    if (minor_steps && length(traces) > 0) return(traces[[1]])
+    return(as.character(NA))
+}
