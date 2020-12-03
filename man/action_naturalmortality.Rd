@@ -28,7 +28,7 @@ g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

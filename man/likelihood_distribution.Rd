@@ -95,7 +95,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Weighting applied to this likelihood component.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

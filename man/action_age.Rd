@@ -27,10 +27,10 @@ g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stock
     \link{formula} specifying a condition for running this action, default is end of model year.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
   \item{transition_at}{
-    Order of transition actios within model, see TODO:
+    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

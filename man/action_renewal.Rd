@@ -33,7 +33,7 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
     \link{formula} that produces a lenghgroup vector of mean weight for the current age/area/... length group.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
   \item{factor_f}{
     TODO:

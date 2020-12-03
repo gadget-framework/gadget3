@@ -26,7 +26,7 @@ g3l_understocking(prey_stocks, power_f = ~2, nll_breakdown = FALSE, weight = 1,
     Weighting applied to this likelihood component.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

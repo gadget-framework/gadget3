@@ -239,17 +239,59 @@ time_actions <- list(
 ling_model <- g3_to_r(c(ling_imm_actions, time_actions))
 ```
 
-We do not need to worry about the order the actions are provided in, since they
-will be re-ordered according to the [gadget2 order of
-calculations](http://hafro.github.io/gadget2/userguide/chap-order.html).
+Your actions can be combined in any order, the reasons for why are in the next
+section.
 
-This works as all formula within actions are named:
+## Ordering of actions
+
+Gadget2 has a strict [Order of Calculations](https://hafro.github.io/gadget2/userguide/chap-order.html),
+and re-ordering calculations may well have averse effects. Actions also have
+common steps to perform, for example overstocking for a prey has to be
+calculated, and calculated once, after each fleet has finished harvesting.
+
+To manage this, formulas within an action are labelled with a string, for
+example:
 
 ```{r}
-sapply(ling_imm_actions, names)
-sapply(time_actions, names)
+lln <- g3_fleet('lln') %>% g3s_livesonareas(1)
+lapply(
+    g3a_predate_totalfleet(
+        lln,
+        list(ling_imm),
+        suitabilities = list(
+            ling_imm = g3_suitability_exponentiall50(
+                ~g3_param('ling.lln.alpha'),
+                ~g3_param('ling.lln.l50')),
+            ling_mat = g3_suitability_exponentiall50(
+                ~g3_param('ling.lln.alpha'),
+                ~g3_param('ling.lln.l50'))),
+        amount_f = 1),
+    # NB: step_find_desc finds a label within the formula
+    function (s) gadget3:::step_find_desc(s, minor_steps = TRUE))
 ```
 
-...when building a model, formula are ordered by name, resulting in the desired
-order of calculations. If needed, the ordering can be changed using the
-``run_at`` parameter of any action.
+We see each step has a colon-separated name, including the following parts:
+
+* A number corresponding to the order of calculations. If you look at the
+gadget2 user-guide, consumption is step 3. This can be controlled using the
+``run_at`` parameter of ``g3a_predate_totalfleet()``, or any other action.
+* Another number specifying the order within an action this step should be
+performed.
+* The prey and where relevant the fleet name
+* A hash, that corresponds to the parameters of the
+``g3a_predate_totalfleet()`` call.
+
+When a G3 model is made, it will sort the combined list of steps by name, and
+remove duplicates by name. This means that:
+
+* Predation will happen at the correct part of the model cycle.
+* Predation steps themselves will be ordered. So all defined predation steps
+will collect their catch (``003:001``) before overconsumption is calculated
+(``003:004``). There's no explict process needed to interleave multiple predation
+actions.
+* The overconsumption co-efficient for ling_imm will only be calculated once,
+regardless of the number of predation actions, since we will remove the
+duplicate versions of this step.
+* Conversely the hash ensures that there are never duplicate versions of the
+main predation step, so could be repated. This is more relevant for renewal,
+where there can be multiple renewal actions working on the same stock.

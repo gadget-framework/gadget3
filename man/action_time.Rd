@@ -24,7 +24,7 @@ g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
     for example, \code{c(3,3,3,3)} for quarterly steps within a year.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

@@ -26,7 +26,7 @@ g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE,
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 

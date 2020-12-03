@@ -34,7 +34,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     \code{overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))} (NB: Not differentiable!)
   }
   \item{run_at}{
-    Order of age actions within model, see TODO:
+    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
 }
 
