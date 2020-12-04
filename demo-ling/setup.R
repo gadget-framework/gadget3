@@ -254,7 +254,7 @@ fit2 <- nlminb(fit$par,
                upper = g3_tmb_upper(tmb_param),
                lower = g3_tmb_lower(tmb_param),
                control = list(trace = TRUE))
-fit3 <- nlminb(fit3$par, 
+fit3 <- nlminb(fit2$par, 
                ling_model_tmb$fn, ling_model_tmb$gr,
                upper = g3_tmb_upper(tmb_param),
                lower = g3_tmb_lower(tmb_param),
