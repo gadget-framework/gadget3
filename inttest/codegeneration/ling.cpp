@@ -48,7 +48,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2018);
     
     auto stopifnot = [](bool a) -> void {
-    if (!a) abort();
+    if (a) return;
+    std::cerr << "stopifnot() check failed" << "\n";
+    abort();
 };
     auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
