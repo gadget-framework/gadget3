@@ -103,6 +103,8 @@ report_actions <- list(
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
 
+##### Run r-based model #######################################################
+
 ling_model <- g3_to_r(c(
   ling_mat_actions,
   ling_imm_actions,
@@ -111,48 +113,8 @@ ling_model <- g3_to_r(c(
   report_actions,
   list(time)), strict = TRUE)
 
-tmb_ling <- g3_to_tmb(c(
-  ling_mat_actions,
-  ling_imm_actions,
-  fleet_actions,
-  ling_likelihood_actions,
-  list(time)))
-
-
-## update the input parameters with sane initial guesses
-tmb_param <- attr(tmb_ling, 'parameter_template')
-
-## I would like to do something like this:
-if(FALSE){
-  read.gadget.parameters(sprintf('%s/params.out',gd)) %>% 
-    init_guess('rec.[0-9]|init.[0-9]',1,0.001,1000,1) %>%
-    init_guess('recl',12,1,20,1) %>% 
-    init_guess('rec.sd',5, 4, 20,1) %>% 
-    init_guess('Linf',160, 100, 200,1) %>% 
-    init_guess('k$',90, 40, 100,1) %>% 
-    init_guess('bbin',6, 1e-08, 100, 1) %>% 
-    init_guess('alpha', 0.5,  0.01, 3, 1) %>% 
-    init_guess('l50',50,10,100,1) %>% 
-    init_guess('walpha',lw.constants$estimate[1], 1e-10, 1,0) %>% 
-    init_guess('wbeta',lw.constants$estimate[2], 2, 4,0) %>% 
-    init_guess('M$',0.15,0.001,1,0) %>% 
-    init_guess('rec.scalar',400,1,500,1) %>% 
-    init_guess('init.scalar',200,1,300,1) %>% 
-    init_guess('mat2',mat.l50$l50,0.75*mat.l50$l50,1.25*mat.l50$l50,1) %>% 
-    init_guess('mat1',70,  10, 200, 1) %>% 
-    init_guess('init.F',0.4,0.1,1,1) %>% 
-    init_guess('p0',0,0,1,1) %>% 
-    init_guess('p2',1,0,1,1) %>% 
-    init_guess('p3',1,0.01,100,1) %>% 
-    init_guess('p4',1,0.01,100,1) %>% 
-    init_guess('mode',70,30,90,1) %>% 
-    write.gadget.parameters(.,file=sprintf('%s/params.in',gd))
-}
-
-## but lets settle for 
-param_names <- rownames(tmb_param)
-
-ling_param <- tmb_param$value
+# Get pararameter template attached to function, fill it in
+ling_param <- attr(ling_model, 'parameter_template')
 ling_param[["ling.Linf"]] <- 160
 ling_param[["ling.k"]] <- 90
 ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
@@ -193,9 +155,56 @@ ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
 ling_param[grepl('^lingmat\\.init\\.', names(ling_param))] <- 1
 ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 
-
+# You can edit the model code with:
 #ling_model <- edit(ling_model)
+
+# Run model with params above
 result <- ling_model(ling_param)
+
+# List all available reports
+print(names(attributes(result)))
+
+##### Run TMB-based model #####################################################
+
+tmb_ling <- g3_to_tmb(c(
+  ling_mat_actions,
+  ling_imm_actions,
+  fleet_actions,
+  ling_likelihood_actions,
+  list(time)))
+
+## update the input parameters with sane initial guesses
+tmb_param <- attr(tmb_ling, 'parameter_template')
+
+## I would like to do something like this:
+if(FALSE){
+  read.gadget.parameters(sprintf('%s/params.out',gd)) %>% 
+    init_guess('rec.[0-9]|init.[0-9]',1,0.001,1000,1) %>%
+    init_guess('recl',12,1,20,1) %>% 
+    init_guess('rec.sd',5, 4, 20,1) %>% 
+    init_guess('Linf',160, 100, 200,1) %>% 
+    init_guess('k$',90, 40, 100,1) %>% 
+    init_guess('bbin',6, 1e-08, 100, 1) %>% 
+    init_guess('alpha', 0.5,  0.01, 3, 1) %>% 
+    init_guess('l50',50,10,100,1) %>% 
+    init_guess('walpha',lw.constants$estimate[1], 1e-10, 1,0) %>% 
+    init_guess('wbeta',lw.constants$estimate[2], 2, 4,0) %>% 
+    init_guess('M$',0.15,0.001,1,0) %>% 
+    init_guess('rec.scalar',400,1,500,1) %>% 
+    init_guess('init.scalar',200,1,300,1) %>% 
+    init_guess('mat2',mat.l50$l50,0.75*mat.l50$l50,1.25*mat.l50$l50,1) %>% 
+    init_guess('mat1',70,  10, 200, 1) %>% 
+    init_guess('init.F',0.4,0.1,1,1) %>% 
+    init_guess('p0',0,0,1,1) %>% 
+    init_guess('p2',1,0,1,1) %>% 
+    init_guess('p3',1,0.01,100,1) %>% 
+    init_guess('p4',1,0.01,100,1) %>% 
+    init_guess('mode',70,30,90,1) %>% 
+    write.gadget.parameters(.,file=sprintf('%s/params.in',gd))
+}
+
+## but lets settle for 
+param_names <- rownames(tmb_param)
 
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
