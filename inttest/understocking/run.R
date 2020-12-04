@@ -92,6 +92,18 @@ ling_likelihood_actions <- list(
         g3l_distribution_multinomial(),
         report = TRUE,
         nll_breakdown = TRUE)),
+    remove_avoid_zero(g3l_distribution(
+        'si_igfs_si1',
+        weight = 40,
+        obs_data = structure(
+            Rgadget::read.gadget.file('inttest/understocking/', 'Data/surveyindices.si.100-120.lengths')[[1]],
+            length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/surveyindices.si.100-120.len.agg')[[1]]),
+        fleets = list(),
+        stocks = list(ling_imm, ling_mat),
+        g3l_distribution_surveyindices_log(alpha = 6.4e-2,
+                                           beta = 1.4),
+        report = TRUE,
+        nll_breakdown = TRUE)),
     list())
 
 report_actions <- list(
@@ -287,6 +299,7 @@ ok(all.equal(
 ok(all.equal(
     sum(g3_r$nll_report),
     sum(
+        1 * sum(g3_r$nll_cdist_si_igfs_si1__num),
         10 * sum(g3_r$nll_cdist_ldist_igfs_ss__num),
         10 * sum(g3_r$nll_cdist_ldist_igfs_mn__num),
         10 * sum(g3_r$nll_understocking__wgt)),
@@ -312,6 +325,10 @@ g2_nll_ldist_ss.igfs$weight[is.na(g2_nll_ldist_ss.igfs$weight)] <- 0
 g2_nll_ldist_mn.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.mn',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_ldist_mn.igfs$likelihood_value[is.na(g2_nll_ldist_mn.igfs$likelihood_value)] <- 0
 g2_nll_ldist_mn.igfs$weight[is.na(g2_nll_ldist_mn.igfs$weight)] <- 0
+# NB: SI not broken down here
+g2_nll_si_likelihood_value <- g2_nll[g2_nll$component == 'si.100-120', 'likelihood_value']
+g2_nll_si_weight <- g2_nll[g2_nll$component == 'si.100-120', 'weight']
+
 
 ok(all.equal(
     g2_nll_ldist_ss.igfs$likelihood_value,
@@ -324,9 +341,10 @@ ok(all.equal(
 ok(all.equal(
     as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
         g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
-        g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight,
+        g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight +
+        g2_nll_si_likelihood_value * g2_nll_si_weight,
     as.vector(g3_r$nll_report),
-    tolerance = 1e-3), "g3_r$nll_report - ldist.igfs in total sum")
+    tolerance = 1e-6), "g3_r$nll_report - ldist.igfs in total sum")
 
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
@@ -334,3 +352,10 @@ ok(all.equal(
     g2_nll_understocking$likelihood_value[1:31],
     as.vector(g3_r$nll_understocking__wgt[1:31]),
     tolerance = 1e-7), "g3_r$nll_understocking__wgt: 1..31 equal, after that gadget2 stops reporting")
+
+# NB: Once stocks fall too low accuracy falls with it, but we limit the tests
+#     to only years with reasonable amounts of stock.
+ok(all.equal(
+    g2_nll_si_likelihood_value,
+    sum(g3_r$nll_cdist_si_igfs_si1__num),
+    tolerance = 1e-6), "g3_r$nll_cdist_si_igfs_si1__num: Total matches reported likelihood value")

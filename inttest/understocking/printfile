@@ -79,3 +79,8 @@ all	all
 [component]
 type                 likelihoodsummaryprinter
 printfile            likelihood.out
+
+[component]
+type                 likelihoodprinter
+likelihood           si.100-120
+printfile            likelihood.si.100-120.out

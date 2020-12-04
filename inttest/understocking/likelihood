@@ -34,3 +34,17 @@ ageaggfile	Aggfiles/catchdistribution.ldist.igfs.age.agg
 lenaggfile	Aggfiles/catchdistribution.ldist.igfs.len.agg
 fleetnames	igfs
 stocknames	lingimm lingmat
+
+[component]
+name    si.100-120
+weight  1
+type    surveyindices
+datafile        Data/surveyindices.si.100-120.lengths
+sitype  lengths
+biomass 0
+areaaggfile     Aggfiles/surveyindices.si.100-120.area.agg
+lenaggfile      Aggfiles/surveyindices.si.100-120.len.agg
+stocknames      lingimm lingmat
+fittype fixedloglinearfit
+slope	1.4
+intercept	6.4e-2
