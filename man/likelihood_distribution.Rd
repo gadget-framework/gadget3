@@ -39,19 +39,19 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     in that area.
   }
   \item{rho_f}{
-    TODO:
+    \link{formula} substituted into multivariate calcuations, see below.
   }
   \item{sigma_f}{
-    TODO:
+    \link{formula} substituted into multivariate calcuations, see below.
   }
   \item{epsilon}{
     Value to be used whenever the calculated probability is very unlikely. Default 10.
   }
   \item{alpha}{
-    TODO:
+    \link{formula} substituted into surveyindices calcuations, see below.
   }
   \item{beta}{
-    TODO:
+    \link{formula} substituted into surveyindices calcuations, see below.
   }
   \item{nll_name}{
     Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
@@ -81,7 +81,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Where there are missing values in the incoming data, value to replace them with.
   }
   \item{area_group}{
-    TODO:
+    MFDB group mapping area names used in \var{obs_data} to integer model areas, see \link{g3s_livesonareas}.
+
+    NB: Unlike other columns in \var{obs_data}, the MFDB grouping for area will
+    be grouping from area names in data to raw subdivisions in data, and not
+    useful for us. Thus why \var{area_group} should be supplied.
   }
   \item{report}{
     If TRUE, add model and observation arrays to the model report, called
