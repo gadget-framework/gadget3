@@ -2,7 +2,6 @@ library(mfdb)
 library(tidyverse)
 library(gadget3)
 
-
 year_range <- 1982:lubridate::year(Sys.Date())
 read_data <- FALSE
 
@@ -18,18 +17,14 @@ defaults <- list(
   year = year_range,
   species = 'LIN')
 
-time <-  g3a_time(start_year = min(defaults$year), 
-                  end_year = max(defaults$year), 
-                  defaults$timestep)
-bootstrap <- FALSE
-
+# Map area names to integer area numbers (in this case only "1" ==> 1, but could be anything)
 areas <- structure(
     seq_along(defaults$area),
     names = names(defaults$area))
 
-# Setup up the model blue print
-## modelled stocks
+##### Configure model stocks/fleets ###########################################
 
+## modelled stocks
 ling_imm <- 
   g3_stock('ling_imm', seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
@@ -41,7 +36,6 @@ ling_mat <-
   g3s_age(5, 15)
 
 ## fleets
-
 lln <- 
   g3_fleet('lln') %>% 
   g3s_livesonareas(areas[c('1')])
@@ -62,7 +56,7 @@ igfs <-
   g3_fleet('igfs') %>% 
   g3s_livesonareas(areas[c('1')])
 
-
+# Load required data objects
 if(read_data){
   mdb<-mfdb('Iceland')
   source('demo-ling/setup-fleet-data.R')
@@ -75,43 +69,62 @@ if(read_data){
     lapply(load,.GlobalEnv)
 }
 
-source('demo-ling/setup-fleets.R')
-source('demo-ling/setup-model.R')
-source('demo-ling/setup-likelihood.R')
+##### Configure model actions #################################################
+
+# Timekeeping for the model, i.e. how long we run for
+time_actions <- list(
+    g3a_time(start_year = min(defaults$year), 
+        end_year = max(defaults$year), 
+        defaults$timestep),
+    list())
+
+source('demo-ling/setup-fleets.R')  # Generates fleet_actions
+source('demo-ling/setup-model.R')  # Generates ling_mat_actions / ling_imm_actions
+source('demo-ling/setup-likelihood.R')  # Generates ling_likelihood_actions
 
 ## set up reporting:
 
+# Disaggregated report storage for ling_imm (we store with same age/step/length as ling itself)
 imm_report <- g3s_clone(ling_imm, 'imm_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 
+# Disaggregated report storage for ling_mat (we store with same age/step/length as ling itself)
 mat_report <- g3s_clone(ling_mat, 'mat_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 
 report_actions <- list(
+       # Report ling numbers
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
+       # Report ling mean weight
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
+       # Report ling biomass caught by igfs
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
+       # Report ling biomass caught by bmt
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__bmt)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__bmt)),
+       # Report ling biomass caught by lln
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__lln)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__lln)),
+       # Report ling biomass caught by gil
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__gil)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
+       # Report ling biomass caught by foreign
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
 
 ##### Run r-based model #######################################################
 
+# Turn actions into an R function
 ling_model <- g3_to_r(c(
   ling_mat_actions,
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
   report_actions,
-  list(time)), strict = TRUE)
+  time_actions), strict = TRUE)
 
 # Get pararameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
@@ -166,14 +179,15 @@ print(names(attributes(result)))
 
 ##### Run TMB-based model #####################################################
 
+# Turn actions into C++ objective function code
 tmb_ling <- g3_to_tmb(c(
   ling_mat_actions,
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
-  list(time)))
+  time_actions))
 
-## update the input parameters with sane initial guesses
+# Get the parameter template to fill in
 tmb_param <- attr(tmb_ling, 'parameter_template')
 
 ## I would like to do something like this:
@@ -203,22 +217,20 @@ if(FALSE){
     write.gadget.parameters(.,file=sprintf('%s/params.in',gd))
 }
 
-## but lets settle for 
-param_names <- rownames(tmb_param)
-
+# Copy initial guesses from R model
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
+
+# Configure lower and upper bounds
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
 tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
-
 tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$lower <- 0.0001
 tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$upper <- 1e3
 tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
 tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
-
 tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
 tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 
-
+# Disable optimisation for some parameters, to make life easier
 tmb_param[c('ling.init.sd',
             'lingimm.walpha',
             'lingimm.wbeta',
@@ -236,35 +248,22 @@ tmb_param[c('ling.init.sd',
 tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 
-
+# Compile and generate TMB ADFun (see ?TMB::MakeADFun)
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
+# Run model once, using g3_tmb_par to reshape tmb_param into param vector.
+# Will return nll
 ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
-#params <- 
-#  tibble(switch = names(par), value = par, upper = 2*par, lower = 0.5*par, optimise = 0*par + 1, order = 1:length(par)) #%>% 
-# Rgadget::init_guess('M[0-9+]$',optimise = 0) %>% 
-# Rgadget::init_guess('__sd[0-9+]$',optimise = 0) %>% 
-# Rgadget::init_guess('si_alpha[0-9+]$',optimise = 0) %>% 
-# Rgadget::init_guess('si_beta[0-9]$',optimise = 0) %>% 
-# arrange(order)
-#%>% 
-#  mutate(upper = ifelse(optimise == 0, 1.01*value,upper),
-#         lower = ifelse(optimise == 0, 0.99*value,lower))
+# Run model once, returning model report
+ling_model_tmb$report(g3_tmb_par(tmb_param))
 
+# Run model through R optimiser, using bounds set in tmb_param
 fit <- nlminb(g3_tmb_par(tmb_param), 
               ling_model_tmb$fn, ling_model_tmb$gr, 
               upper = g3_tmb_upper(tmb_param),
               lower = g3_tmb_lower(tmb_param),
-              control = list(trace = TRUE, eval.max=2000, iter.max=1000))
-#control = list(abs.tol = 1e-20,xf.tol = 0.1)) 
-fit2 <- nlminb(fit$par, 
-               ling_model_tmb$fn, ling_model_tmb$gr,
-               upper = g3_tmb_upper(tmb_param),
-               lower = g3_tmb_lower(tmb_param),
-               control = list(trace = TRUE))
-fit3 <- nlminb(fit2$par, 
-               ling_model_tmb$fn, ling_model_tmb$gr,
-               upper = g3_tmb_upper(tmb_param),
-               lower = g3_tmb_lower(tmb_param),
-               control = list(trace = TRUE, eval.max=2000, iter.max=1000))
+              control = list(trace = TRUE, eval.max=200, iter.max=100))
+
+# Turn fit parameters back into list, which can be used in table or R function
+param_list <- relist(fit$par, unclass(tmb_param$value))
