@@ -65,7 +65,7 @@ fleet_actions <- list(
 
 ling_likelihood_actions <- list(
     g3l_understocking(
-        weight = 1000,
+        weight = 10,
         nll_breakdown = TRUE,
         list(ling_imm, ling_mat)),
     remove_avoid_zero(g3l_catchdistribution(
@@ -289,7 +289,7 @@ ok(all.equal(
     sum(
         10 * sum(g3_r$nll_cdist_ldist_igfs_ss__num),
         10 * sum(g3_r$nll_cdist_ldist_igfs_mn__num),
-        1000 * sum(g3_r$nll_understocking__wgt)),
+        10 * sum(g3_r$nll_understocking__wgt)),
     tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs_ss__num/g3_r$nll_understocking__wgt consistent with each other")
 ok(ut_cmp_identical(
     dim(g3_r$nll_cdist_ldist_igfs_ss__num),
@@ -322,7 +322,7 @@ ok(all.equal(
     as.vector(g3_r$nll_cdist_ldist_igfs_mn__num),
     tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs_mn__num - ldist.igfs matches")
 ok(all.equal(
-    as.vector(g3_r$nll_understocking__wgt) * 1000 +  # NB: Ignoring g2 understocking, using our own
+    as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
         g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
         g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight,
     as.vector(g3_r$nll_report),

@@ -2,7 +2,7 @@
 ; 
 [component]
 name	understocking
-weight	1000
+weight	10
 type	understocking
 
 [component]
