@@ -50,6 +50,8 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
 }
 
 g3l_distribution_surveyindices_log <- function (alpha = 0, beta = 1) {
+    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
+    #       The outer sum is currently flattening what would probably be a vector of areas
     f_substitute(~sum((alpha +
         beta * log(avoid_zero_vec(stock_ss(modelstock__x))) -
         log(avoid_zero_vec(stock_ss(obsstock__x))))**2), list(
@@ -58,6 +60,8 @@ g3l_distribution_surveyindices_log <- function (alpha = 0, beta = 1) {
 }
 
 g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
+    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
+    #       The outer sum is currently flattening what would probably be a vector of areas
     f_substitute(~sum((alpha +
         beta * stock_ss(modelstock__x) -
         stock_ss(obsstock__x))**2), list(
