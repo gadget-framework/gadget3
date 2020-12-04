@@ -48,10 +48,11 @@ ok_group("g3a_grow_impl_bbinom", {
         x = 1.0)
 
     # Compile model
-    model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
+    # NB: Growth not valid, but not testing growth at this point
+    model_fn <- g3_to_r(actions, trace = FALSE, strict = FALSE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = TRUE)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     } else {
@@ -113,10 +114,11 @@ ok_group("g3a_growmature", {
         x = 1.0)
 
     # Compile model
-    model_fn <- g3_to_r(actions, trace = FALSE, strict = TRUE)
+    # NB: Our tests don't preserve counts, so we can't enable strict here
+    model_fn <- g3_to_r(actions, trace = FALSE, strict = FALSE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = TRUE)
+        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     } else {

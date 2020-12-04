@@ -554,9 +554,9 @@ Type objective_function<Type>::operator() () {
                         }
                         if ( true ) {
                             if (cur_step_final) {
-                                stopifnot(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
+                                stopifnot(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04));
                             } else {
-                                stopifnot(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() < (double)(1e-04));
+                                stopifnot(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04));
                             }
                         }
                     }
@@ -588,7 +588,7 @@ Type objective_function<Type>::operator() () {
                             }
                         }
                         if ( true ) {
-                            stopifnot(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum() < (double)(1e-04));
+                            stopifnot(CppAD::abs(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum()) < (double)(1e-04));
                         }
                     }
                 }

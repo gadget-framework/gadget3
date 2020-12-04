@@ -287,9 +287,9 @@ g3a_growmature <- function(stock,
 
             if (strict_mode) {
                 if (transition_f) {
-                    stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) - sum(stock_ss(stock__transitioning_num)) < 0.0001)
+                    stopifnot(abs(stock__prevtotal - sum(stock_ss(stock__num)) - sum(stock_ss(stock__transitioning_num))) < 0.0001)
                 } else {
-                    stopifnot(stock__prevtotal - sum(stock_ss(stock__num)) < 0.0001)
+                    stopifnot(abs(stock__prevtotal - sum(stock_ss(stock__num))) < 0.0001)
                 }
             }
         })

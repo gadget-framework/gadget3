@@ -385,6 +385,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ")"))
     }
 
+    if (call_name %in% c("abs")) {
+        # Use CppAD:: versions to replace abs
+        return(paste0(
+            "CppAD::", call_name, "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ")"))
+    }
+
     if (call_name %in% c("!")) {
         # Unary operators
         return(paste(
