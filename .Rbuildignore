@@ -10,7 +10,9 @@
 \.so$
 \.o$
 
+^scratch$
 ^inttest$
+^demo-
 ^doc$
 ^docs$
 ^.*\.Rproj$
