@@ -65,6 +65,12 @@ export(g3_tmb_upper)
 
 # R/suitability.R
 export(g3_suitability_exponentiall50)
+export(g3_suitability_andersen)
+export(g3_suitability_gamma)
+export(g3_suitability_exponential)
+export(g3_suitability_straightline)
+export(g3_suitability_constant)
+export(g3_suitability_richards)
 
 # R/stock.R
 export(g3_stock)
