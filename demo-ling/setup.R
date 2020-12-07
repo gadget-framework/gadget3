@@ -64,7 +64,7 @@ if(read_data){
   source('demo-ling/setup-indices.R')
   source('demo-ling/setup-initial_parameters.R')
 } else {
-  fs::dir_ls('data') %>% 
+  fs::dir_ls('demo-ling/data') %>% 
     stringr::str_subset('.Rdata') %>% 
     lapply(load,.GlobalEnv)
 }
