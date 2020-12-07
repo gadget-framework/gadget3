@@ -125,19 +125,88 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 }
 
 \value{
-  \subsection{g3l_distribution_sumofsquares}{TODO:}
-  \subsection{g3l_distribution_multinomial}{TODO:}
-  \subsection{g3l_distribution_multivariate}{TODO:}
-  \subsection{g3l_distribution_surveyindices_log}{TODO:}
-  \subsection{g3l_distribution_surveyindices_linear}{TODO:}
+  \subsection{g3l_distribution_sumofsquares}{
+    Returns a \link{formula} for use as \var{function_f}:
+
+    \deqn{ \sum_{\it lengths} \Big( \frac{N_{tral}}{N_{tr}} - \frac{\nu_{tral}}{\nu_{tr}}  \Big) ^2 }
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{N_{tr}}}{Total observation sample size for current time/area (or dimensions set in \var{over})}
+      \item{\eqn{\nu_{tr}}}{Total model sample size for current time/area (or dimensions set in \var{over})}
+    }
+  }
+
+  \subsection{g3l_distribution_multinomial}{
+    Returns a \link{formula} for use as \var{function_f}:
+
+    \deqn{
+      2 (
+        \sum_{\it lengths} \log N_{tral}! -
+        \log (\sum_{\it lengths} N_{tral})! -
+        \sum_{\it lengths} ( N_{tral} \log min(\frac{\nu_{tral}}{\sum_{\it lengths} \nu_{tral}}, \frac{1}{l \epsilon}) )
+      )
+    }
+    
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{l}}{Number of lengthgroups in sample}
+      \item{\eqn{\epsilon}}{\var{epsilon} parameter}
+    }
+  }
+  \subsection{g3l_distribution_multivariate}{
+    Returns a \link{formula} for use as \var{function_f}, which calls TMB's \code{SCALE(AR1(rho), sigma)(x)}, where
+    \var{rho} and \var{sigma} are parameters, and \code{x} is defined as:
+
+    \deqn{ \frac{N_{tral}}{N_{tr}} - \frac{\nu_{tral}}{\nu_{tr}} }
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{N_{tr}}}{Total observation sample size for current time/area (or dimensions set in \var{over})}
+      \item{\eqn{\nu_{tr}}}{Total model sample size for current time/area (or dimensions set in \var{over})}
+    }
+    For more information, see \href{Autoregressive processes}{http://kaskr.github.io/adcomp/_book/Densities.html#autoregressive-processes}
+    in the TMB book.
+  }
+  \subsection{g3l_distribution_surveyindices_log}{
+    Returns a \link{formula} for use as \var{function_f}:
+
+    \deqn{
+      \sum_{\it lengths} (\alpha + \beta \log N_{tral} - \log \nu_{tral})^2
+    }
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{\alpha}}{\var{alpha} parameter}
+      \item{\eqn{\beta}}{\var{beta} parameter}
+    }
+  }
+  \subsection{g3l_distribution_surveyindices_linear}{
+    Returns a \link{formula} for use as \var{function_f}:
+
+    \deqn{
+      \sum_{\it lengths} (\alpha + \beta N_{tral} - \nu_{tral})^2
+    }
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{\alpha}}{\var{alpha} parameter}
+      \item{\eqn{\beta}}{\var{beta} parameter}
+    }
+  }
   \subsection{g3l_distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
     \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
-  }}
+  }
+  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
+  }
   \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
     \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
-  }}
+  }
+  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
+  }
 }
 
 \examples{
