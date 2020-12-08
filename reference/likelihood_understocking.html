@@ -127,7 +127,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3l_understocking</span>(<span class='no'>prey_stocks</span>, <span class='kw'>power_f</span> <span class='kw'>=</span> ~<span class='fl'>2</span>, <span class='kw'>weight</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>10</span>)</pre>
+    <pre class="usage"><span class='fu'>g3l_understocking</span>(<span class='no'>prey_stocks</span>, <span class='kw'>power_f</span> <span class='kw'>=</span> ~<span class='fl'>2</span>, <span class='kw'>nll_breakdown</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>weight</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+    <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>10</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -141,18 +142,27 @@
       <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> representing power coefficient \(p\) to use.</p></td>
     </tr>
     <tr>
+      <th>nll_breakdown</th>
+      <td><p>Should the nll report be broken down by time? <code>TRUE</code> / <code>FALSE</code></p></td>
+    </tr>
+    <tr>
       <th>weight</th>
       <td><p>Weighting applied to this likelihood component.</p></td>
     </tr>
     <tr>
       <th>run_at</th>
-      <td><p>Order of age actions within model, see TODO:</p></td>
+      <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The model report will contain nll_understocking__wgt, the results of the formula below.
+  If <var>nll_breakdown</var> is <code>TRUE</code>, this will be an array with one entry per timestep.</p>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3l_catchdistribution_understocking</h3>
+    <p></p><h3>g3l_distribution_understocking</h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol>
 <li><p>Sum the total biomass adjustment due to overstocking for each prey according to the formula
     $$ \ell = \sum_{\it time}\sum_{\it areas} \Big(\sum_{\it prey\_stocks} U_{trs} \Big)^p $$    Where \( p \) is the power coefficient from <var>power_f</var>,
@@ -175,6 +185,8 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#details">Details</a></li>
+
       <li><a href="#value">Value</a></li>
       
       <li><a href="#examples">Examples</a></li>

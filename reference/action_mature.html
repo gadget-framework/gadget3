@@ -127,7 +127,9 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_mature_constant</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>l50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>a50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+    <pre class="usage"><span class='fu'>g3a_mature_continuous</span>(<span class='no'>alpha</span>, <span class='no'>l50</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>a50</span> <span class='kw'>=</span> <span class='fl'>0</span>)
+
+<span class='fu'>g3a_mature_constant</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>l50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>beta</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>a50</span> <span class='kw'>=</span> <span class='fl'>NA</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
     <span class='kw'>k50</span> <span class='kw'>=</span> <span class='fl'>NA</span>)
 
 <span class='fu'>g3a_mature</span>(<span class='no'>stock</span>, <span class='no'>maturity_f</span>, <span class='no'>output_stocks</span>, <span class='kw'>output_ratios</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>/<span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span>(<span class='no'>output_stocks</span>),
@@ -183,11 +185,11 @@
     </tr>
     <tr>
       <th>run_at</th>
-      <td><p>Order of age actions within model, see TODO:</p></td>
+      <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     <tr>
       <th>transition_at</th>
-      <td><p>Order of transition actios within model, see TODO:</p></td>
+      <td><p>Integer order that transition actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     </table>
     
@@ -201,7 +203,15 @@
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3a_mature_constant</h3>
+    <p></p><h3>g3a_mature_continuous</h3>
+<p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object representing
+    $$ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\top $$</p>
+<p></p><dl class='dl-horizontal'>
+      <dt>\(m_0\)</dt><dd><p>The <code>g3a_mature_constant</code> formula, as defined below, using parameters supplied to <code>g3a_mature_continuous</code></p></dd>
+      <dt>\(\Delta{L}\)</dt><dd><p>Vector of all possible changes in length, as per current growth matrix (see <a href='action_grow.html'>g3a_grow_impl_bbinom</a>)</p></dd>
+      <dt>\(\Delta{t}\)</dt><dd><p>Length of the current timestep</p></dd>
+    
+</dl><p></p><p></p><h3>g3a_mature_constant</h3>
 <p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object with the following equation</p>
 <p>$$ \frac{1}{ 1 + e^{-\alpha(l - l_{50}) -\beta(a - a_{50}) -\gamma(k - k_{50})}} $$</p>
 <p></p><dl class='dl-horizontal'>

@@ -182,10 +182,11 @@
 <p><em>Note:</em> This is generally for internal use, there are higher-level
   mechanisms such as <code><a href='action_report.html'>g3a_report_stock</a></code>.</p>
 <p>For example, <code>g3_report(ling_imm__num)</code> will produce
-  ``REPORT(ling_imm__num)`` under TMB, and ``model_report$ling_imm__num &lt;-
+  ``REPORT(ling_imm__num)`` under TMB, and ``attr(nll, 'ling_imm__num') &lt;-
   ling_imm__num`` under R.</p>
 <p>Under R reported values can be got after running the function with
-  ``environment(model_fn)$model_report``.</p>
+  <code><a href='https://rdrr.io/r/base/attributes.html'>attributes(nll)</a></code>, where <code>nll</code> is the return value of the model
+  function.</p>
     
 
   </div>

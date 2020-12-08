@@ -146,8 +146,8 @@
 ## template&lt;class Type&gt;
 ## Type objective_function&lt;Type&gt;::operator() () {
 ##     
-##     Type cows = 16;
-##     Type pigs = 32;
+##     Type cows = (double)(16);
+##     Type pigs = (double)(32);
 ## 
 ##     while (true) {
 ##         cows + pigs;
@@ -166,12 +166,14 @@
 <pre><code>## $`000`
 ## ~{
 ##     debug_label("g3a_time")
-##     cur_time &lt;- cur_time + 1
+##     cur_time &lt;- cur_time + 1L
+##     if (strict_mode) 
+##         stopifnot(is.finite(nll))
 ##     if (cur_time &gt; total_steps) 
 ##         return(nll)
 ##     cur_year &lt;- start_year + (cur_time%/%step_count)
-##     cur_step &lt;- (cur_time%%step_count) + 1
-##     cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
+##     cur_step &lt;- (cur_time%%step_count) + 1L
+##     cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##     cur_step_final &lt;- cur_step == step_count
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
@@ -186,12 +188,12 @@
 ##         cat(sprintf(...))
 ##     }
 ##     cur_time &lt;- -1L
+##     nll &lt;- 0
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     end_year &lt;- 1999L
 ##     start_year &lt;- 1990L
 ##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
-##         length(step_lengths) - 1
-##     nll &lt;- 0
+##         length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- 1L
 ##     cur_step &lt;- 0L
@@ -200,12 +202,14 @@
 ##     while (TRUE) {
 ##         {
 ##             comment("g3a_time")
-##             cur_time &lt;- cur_time + 1
+##             cur_time &lt;- cur_time + 1L
+##             if (FALSE) 
+##                 stopifnot(is.finite(nll))
 ##             if (cur_time &gt; total_steps) 
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
-##             cur_step &lt;- (cur_time%%step_count) + 1
-##             cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
+##             cur_step &lt;- (cur_time%%step_count) + 1L
+##             cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##             cur_step_final &lt;- cur_step == step_count
 ##             if (FALSE) 
 ##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
@@ -227,12 +231,12 @@
 ##         cat(sprintf(...))
 ##     }
 ##     cur_time &lt;- -1L
+##     nll &lt;- 0
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     start_year &lt;- 1990L
 ##     end_year &lt;- start_year + 4
 ##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
-##         length(step_lengths) - 1
-##     nll &lt;- 0
+##         length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- 1L
 ##     cur_step &lt;- 0L
@@ -241,12 +245,14 @@
 ##     while (TRUE) {
 ##         {
 ##             comment("g3a_time")
-##             cur_time &lt;- cur_time + 1
+##             cur_time &lt;- cur_time + 1L
+##             if (FALSE) 
+##                 stopifnot(is.finite(nll))
 ##             if (cur_time &gt; total_steps) 
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
-##             cur_step &lt;- (cur_time%%step_count) + 1
-##             cur_step_size &lt;- step_lengths[[cur_step]]/as.numeric(12)
+##             cur_step &lt;- (cur_time%%step_count) + 1L
+##             cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##             cur_step_final &lt;- cur_step == step_count
 ##             if (FALSE) 
 ##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
@@ -335,15 +341,17 @@
 ##     {
 ##         na &lt;- dim(delta_l)[[1]]
 ##         n &lt;- dim(delta_l)[[2]] - 1
-##         logspace_add_vec &lt;- function(a, b) {
-##             pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+##         avoid_zero_vec &lt;- function(a) {
+##             (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - 
+##                 pmax(a * 1000, 0))))/1000
 ##         }
 ##         growth.matrix &lt;- array(0, c(na, na))
 ##         wgt.matrix &lt;- array(0, c(na, na))
 ##         for (lg in 1:na) {
 ##             if (lg == na) {
-##                 growth.matrix[na, na] &lt;- 1
-##                 wgt.matrix[lg, na] &lt;- 0
+##                 growth.matrix[na, na] &lt;- sum(delta_l[lg, ])
+##                 wgt.matrix[lg, lg:na] &lt;- delta_w[lg, 1:(na - 
+##                   lg + 1)]
 ##             }
 ##             else if (lg + n &gt; na) {
 ##                 growth.matrix[lg, lg:(na - 1)] &lt;- delta_l[lg, 
@@ -361,8 +369,8 @@
 ##         }
 ##         growth.matrix &lt;- growth.matrix * as.vector(input_num)
 ##         wgt.matrix &lt;- growth.matrix * (wgt.matrix + as.vector(input_wgt))
-##         return(array(c(Matrix::colSums(growth.matrix), Matrix::colSums(wgt.matrix)/logspace_add_vec(Matrix::colSums(growth.matrix), 
-##             0)), dim = c(na, 2)))
+##         return(array(c(Matrix::colSums(growth.matrix), Matrix::colSums(wgt.matrix)/avoid_zero_vec(Matrix::colSums(growth.matrix))), 
+##             dim = c(na, 2)))
 ##     }
 ##     ling_imm__minage &lt;- 3L
 ##     ling_imm__maxage &lt;- 10L
@@ -379,22 +387,21 @@
 ##     ), dimnames = list(length = c("len0", "len10", "len20", "len30", 
 ##     "len40", "len50"), area = c("area1", "area2"), age = c("age3", 
 ##     "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+##     stopifnot("ling.bbin" %in% names(param))
 ##     while (TRUE) {
 ##         {
 ##             comment("g3a_grow for ling_imm")
 ##             for (age in seq(ling_imm__minage, ling_imm__maxage, 
 ##                 by = 1)) {
 ##                 ling_imm__age_idx &lt;- age - ling_imm__minage + 
-##                   1
+##                   1L
 ##                 for (ling_imm__area_idx in seq_along(ling_imm__areas)) {
 ##                   area &lt;- ling_imm__areas[[ling_imm__area_idx]]
-##                   if (TRUE) {
+##                   {
 ##                     comment("Calculate length/weight delta matrices for current lengthgroups")
 ##                     ling_imm__growth_l &lt;- growth_bbinom(age * 
 ##                       10, ling_imm__dl, 4, param[["ling.bbin"]])
 ##                     ling_imm__growth_w &lt;- area * 20
-##                     {
-##                     }
 ##                     if (FALSE) 
 ##                       ling_imm__prevtotal &lt;- sum(ling_imm__num[, 
 ##                         ling_imm__area_idx, ling_imm__age_idx])
@@ -412,8 +419,8 @@
 ##                       }
 ##                     }
 ##                     if (FALSE) 
-##                       stopifnot(ling_imm__prevtotal - sum(ling_imm__num[, 
-##                         ling_imm__area_idx, ling_imm__age_idx]) &lt; 
+##                       stopifnot(abs(ling_imm__prevtotal - sum(ling_imm__num[, 
+##                         ling_imm__area_idx, ling_imm__age_idx])) &lt; 
 ##                         1e-04)
 ##                   }
 ##                 }
@@ -464,13 +471,65 @@
 <a class="sourceLine" id="cb27-11" title="11">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a>
 <a class="sourceLine" id="cb27-12" title="12"></a>
 <a class="sourceLine" id="cb27-13" title="13">ling_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(ling_imm_actions, time_actions))</a></code></pre></div>
-<p>We do not need to worry about the order the actions are provided in, since they will be re-ordered according to the <a href="http://hafro.github.io/gadget2/userguide/chap-order.html">gadget2 order of calculations</a>.</p>
-<p>This works as all formula within actions are named:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(ling_imm_actions, names)</a></code></pre></div>
-<pre><code>## [1] "012:001:ling_imm            "                  "005:ling_imm            :8b833ffffd80d7ba2342"</code></pre>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(time_actions, names)</a></code></pre></div>
-<pre><code>## [1] "000"</code></pre>
-<p>…when building a model, formula are ordered by name, resulting in the desired order of calculations. If needed, the ordering can be changed using the <code>run_at</code> parameter of any action.</p>
+<p>Your actions can be combined in any order, the reasons for why are in the next section.</p>
+</div>
+<div id="ordering-of-actions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ordering-of-actions" class="anchor"></a>Ordering of actions</h2>
+<p>Gadget2 has a strict <a href="https://hafro.github.io/gadget2/userguide/chap-order.html">Order of Calculations</a>, and re-ordering calculations may well have averse effects. Actions also have common steps to perform, for example overstocking for a prey has to be calculated, and calculated once, after each fleet has finished harvesting.</p>
+<p>To manage this, formulas within an action are labelled with a string, for example:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">lln &lt;-<span class="st"> </span><span class="kw"><a href="../reference/stock.html">g3_fleet</a></span>(<span class="st">'lln'</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span>(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb28-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(</a>
+<a class="sourceLine" id="cb28-3" title="3">    <span class="kw"><a href="../reference/action_predate.html">g3a_predate_totalfleet</a></span>(</a>
+<a class="sourceLine" id="cb28-4" title="4">        lln,</a>
+<a class="sourceLine" id="cb28-5" title="5">        <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(ling_imm),</a>
+<a class="sourceLine" id="cb28-6" title="6">        <span class="dt">suitabilities =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
+<a class="sourceLine" id="cb28-7" title="7">            <span class="dt">ling_imm =</span> <span class="kw"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span>(</a>
+<a class="sourceLine" id="cb28-8" title="8">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.alpha'</span>),</a>
+<a class="sourceLine" id="cb28-9" title="9">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.l50'</span>)),</a>
+<a class="sourceLine" id="cb28-10" title="10">            <span class="dt">ling_mat =</span> <span class="kw"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span>(</a>
+<a class="sourceLine" id="cb28-11" title="11">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.alpha'</span>),</a>
+<a class="sourceLine" id="cb28-12" title="12">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.l50'</span>))),</a>
+<a class="sourceLine" id="cb28-13" title="13">        <span class="dt">amount_f =</span> <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb28-14" title="14">    <span class="co"># NB: step_find_desc finds a label within the formula</span></a>
+<a class="sourceLine" id="cb28-15" title="15">    <span class="cf">function</span> (s) gadget3<span class="op">:::</span><span class="kw">step_find_desc</span>(s, <span class="dt">minor_steps =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<pre><code>## $`003:000:lln                 `
+## [1] "Zero biomass-caught counter for lln"
+## 
+## $`003:000:ling_imm            `
+## [1] "Zero total predation counter for ling_imm"
+## 
+## $`003:004:ling_imm            `
+## [1] "Calculate ling_imm overconsumption coefficient"
+## 
+## $`003:005:lln                 :ling_imm            `
+## [1] "Revert to being total biomass (applying overconsumption in process)"
+## 
+## $`003:005:lln                 `
+## [1] "Zero lln catch before working out post-adjustment value"
+## 
+## $`003:001:lln                 :ling_imm            :433c407978e9a532d263`
+## [1] "g3a_predate_totalfleet for ling_imm"
+## 
+## $`003:003:lln                 :ling_imm            `
+## [1] "Temporarily convert to being proportion of totalpredate"
+## 
+## $`003:002:lln                 :ling_imm            :433c407978e9a532d263`
+## [1] "Scale lln catch of ling_imm by total expected catch"</code></pre>
+<p>We see each step has a colon-separated name, including the following parts:</p>
+<ul>
+<li>A number corresponding to the order of calculations. If you look at the gadget2 user-guide, consumption is step 3. This can be controlled using the <code>run_at</code> parameter of <code><a href="../reference/action_predate.html">g3a_predate_totalfleet()</a></code>, or any other action.</li>
+<li>Another number specifying the order within an action this step should be performed.</li>
+<li>The prey and where relevant the fleet name</li>
+<li>A hash, that corresponds to the parameters of the <code><a href="../reference/action_predate.html">g3a_predate_totalfleet()</a></code> call.</li>
+</ul>
+<p>When a G3 model is made, it will sort the combined list of steps by name, and remove duplicates by name. This means that:</p>
+<ul>
+<li>Predation will happen at the correct part of the model cycle.</li>
+<li>Predation steps themselves will be ordered. So all defined predation steps will collect their catch (<code>003:001</code>) before overconsumption is calculated (<code>003:004</code>). There’s no explict process needed to interleave multiple predation actions.</li>
+<li>The overconsumption co-efficient for ling_imm will only be calculated once, regardless of the number of predation actions, since we will remove the duplicate versions of this step.</li>
+<li>Conversely the hash ensures that there are never duplicate versions of the main predation step, so could be repated. This is more relevant for renewal, where there can be multiple renewal actions working on the same stock.</li>
+</ul>
 </div>
   </div>
 
@@ -484,6 +543,7 @@
       <li><a href="#stocks">Stocks</a></li>
       <li><a href="#model-parameterization">Model parameterization</a></li>
       <li><a href="#combining-actions">Combining actions</a></li>
+      <li><a href="#ordering-of-actions">Ordering of actions</a></li>
       </ul>
 </div>
       </div>

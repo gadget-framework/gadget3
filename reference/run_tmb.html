@@ -130,8 +130,8 @@
     <pre class="usage"><span class='fu'>g3_to_tmb</span>(<span class='no'>actions</span>, <span class='kw'>trace</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>strict</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp_code</span>, <span class='kw'>parameters</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='no'>cpp_code</span>, <span class='st'>"parameter_template"</span>),
-    <span class='kw'>compile_flags</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"-O3"</span>, <span class='st'>"-march=native"</span>), <span class='kw'>work_dir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(),
-    <span class='no'>...</span>)
+    <span class='kw'>compile_flags</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"-O3"</span>, <span class='st'>"-flto"</span>, <span class='st'>"-march=native"</span>), <span class='kw'>work_dir</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(),
+    <span class='kw'>output_script</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='fu'>g3_tmb_par</span>(<span class='no'>parameters</span>)
 
@@ -172,6 +172,11 @@
       <td><p>Directory to write and compile .cpp files in. Defaults to R's current temporary directory</p></td>
     </tr>
     <tr>
+      <th>output_script</th>
+      <td><p>If <code>TRUE</code>, create a temporary R script that runs <a href='https://rdrr.io/pkg/TMB/man/MakeADFun.html'>MakeADFun</a>, and return the location.
+    This can then be directly used with <a href='https://rdrr.io/pkg/TMB/man/gdbsource.html'>gdbsource</a> or <code><a href='https://rdrr.io/pkg/callr/man/rscript.html'>callr::rscript</a></code>.</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>Any other options handed directly to MakeADFun</p></td>
     </tr>
@@ -183,13 +188,15 @@
 <p><code>g3_tmb_adfun</code> will do both the <a href='https://rdrr.io/pkg/TMB/man/compile.html'>compile</a> and <a href='https://rdrr.io/pkg/TMB/man/MakeADFun.html'>MakeADFun</a>
     steps of making a model. If the code is identical to an already-loaded model then it
     won't be recompiled, so repeated calls to g3_tmb_adfun to change <var>parameters</var> are fast.</p>
+<p>If <a href='https://rdrr.io/pkg/TMB/man/MakeADFun.html'>MakeADFun</a> is crashing your R session, then you can use <var>output_script</var> to run
+    in a separate R session. Use this with <a href='https://rdrr.io/pkg/TMB/man/gdbsource.html'>gdbsource</a> to debug your model.</p>
 
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3>g3_to_tmb</h3>
 <p>A string of C++ code that can be used as an input to <var>g3_tmb_adfun</var>.</p><p></p><h3>g3_tmb_adfun</h3>
-<p>An ADFun as produced by TMB's MakeADFun.</p><p></p><h3>g3_tmb_par</h3>
+<p>An ADFun as produced by TMB's MakeADFun, or location of temporary script if <var>output_script</var> is TRUE</p><p></p><h3>g3_tmb_par</h3>
 <p>Values extracted from <var>parameters</var> table converted into a vector of values for <code>obj$fn(par)</code> or <code>nlminb</code></p><p></p><h3>g3_tmb_lower</h3>
 <p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p><p></p><h3>g3_tmb_upper</h3>
 <p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
@@ -250,6 +257,10 @@
 
 <span class='co'># Compile to a TMB ADFun</span>
 <span class='no'>tmb</span> <span class='kw'>&lt;-</span> <span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp</span>, <span class='no'>tmb_param</span>)</div><div class='output co'>#&gt; Note: Using Makevars in /home/lentinj/.R/Makevars </div><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='co'># Build the model in an isolated R session w/debugger</span>
+ <span class='fu'><a href='https://rdrr.io/r/base/writeLines.html'>writeLines</a></span>(<span class='kw pkg'>TMB</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TMB/man/gdbsource.html'>gdbsource</a></span>(<span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp</span>, <span class='kw'>compile_flags</span> <span class='kw'>=</span> <span class='st'>"-g"</span>, <span class='kw'>output_script</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)))
+
+
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='co'># Perform a single run, using values in table</span>
 <span class='no'>result</span> <span class='kw'>&lt;-</span> <span class='no'>tmb</span>$<span class='fu'>fn</span>(<span class='fu'>g3_tmb_par</span>(<span class='no'>tmb_param</span>))
 
@@ -257,7 +268,8 @@
 <span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/nlminb.html'>nlminb</a></span>(<span class='no'>tmb</span>$<span class='no'>par</span>, <span class='no'>tmb</span>$<span class='no'>fn</span>, <span class='no'>tmb</span>$<span class='no'>gr</span>,
     <span class='kw'>upper</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_upper</span>(<span class='no'>tmb_param</span>),
     <span class='kw'>lower</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_lower</span>(<span class='no'>tmb_param</span>))</div><div class='output co'>#&gt; outer mgc:  0 </div><div class='input'>
-</div></pre>
+<span class='co'># Go back to a list of parameters, suitable for the R version</span>
+<span class='no'>param_list</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/relist.html'>relist</a></span>(<span class='no'>fit</span>$<span class='no'>par</span>, <span class='fu'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span>(<span class='no'>tmb_param</span>$<span class='no'>value</span>))</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

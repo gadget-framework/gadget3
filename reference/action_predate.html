@@ -127,7 +127,9 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_predate_totalfleet</span>(<span class='no'>fleet_stock</span>, <span class='no'>prey_stocks</span>, <span class='no'>suitabilities</span>, <span class='no'>amount_f</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>3</span>)</pre>
+    <pre class="usage"><span class='fu'>g3a_predate_totalfleet</span>(<span class='no'>fleet_stock</span>, <span class='no'>prey_stocks</span>, <span class='no'>suitabilities</span>, <span class='no'>amount_f</span>,
+    <span class='kw'>overconsumption_f</span> <span class='kw'>=</span> ~<span class='fl'>0.96</span> - <span class='fu'>logspace_add_vec</span>((<span class='fl'>0.96</span> - <span class='no'>prey_stock__consratio</span>) * <span class='fl'>100</span>
+    , <span class='fl'>0.96</span>)/<span class='fl'>100</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>3</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,18 +153,24 @@
     generally defined by a <code><a href='timevariable.html'>g3_timeareadata</a></code> table.</p></td>
     </tr>
     <tr>
+      <th>overconsumption_f</th>
+      <td><p>Overconsumption rule, a formula that should cap all values in <var>prey_stock__consratio</var> to &lt;= 95<!-- %. -->
+    You can emulate gadget2 more closely than the default with the following
+    <code>overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))</code> (NB: Not differentiable!)</p></td>
+    </tr>
+    <tr>
       <th>run_at</th>
-      <td><p>Order of age actions within model, see TODO:</p></td>
+      <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The actions will define the following stock instance variables for each given <var>fleet_stock</var> and <var>prey_stock</var>:</p><dl class='dl-horizontal'>
-    <dt><var>prey_stock__fleet_stock</var></dt><dd><p>Total biomass selected for that fleet/prey combination</p></dd>
-    <dt><var>fleet_stock__catch</var></dt><dd><p>Total biomass caught by that fleet</p></dd>
-    <dt><var>prey_stock__totalpredate</var></dt><dd><p>Total biomass removed from that stock</p></dd>
-    <dt><var>prey_stock__overconsumption</var></dt><dd><p>Factor to scale consumption down to at most 95% of available stock</p></dd>
+    <dt><var>prey_stock__fleet_stock</var></dt><dd><p>Biomass of (prey_stock) caught by (fleet_stock), in a prey array</p></dd>
+    <dt><var>fleet_stock__catch</var></dt><dd><p>Biomass of all prey caught by (fleet stock), in a fleet array</p></dd>
+    <dt><var>prey_stock__totalpredate</var></dt><dd><p>Biomass of total consumed (prey_stock), in a prey array</p></dd>
+    <dt><var>prey_stock__consratio</var></dt><dd><p>Ratio of prey_stock__totalpredate / (current biomass), capped by <var>overconsumption_f</var></p></dd>
   
 </dl>
 
@@ -177,8 +185,9 @@
 <li><p>Zero fleet and prey catch counters</p></li>
 <li><p>For each prey, collect maximum desired by fleet for all prey, into a <var>prey_stock__fleet_stock</var> variable</p></li>
 <li><p>After all fleet consumption is done, scale consumption using <var>amount_f</var>, sum into <var>prey_stock__totalpredate</var></p></li>
-<li><p>After all other consumption is done, work out an overconsumption co-efficient for each prey</p></li>
-<li><p>For <var>prey_stock__fleet_stock</var>, <var>fleet_stock__catch</var>, scale by prey's overconsumption co-efficient</p></li>
+<li><p>After all consumption is done, temporarily convert <var>prey_stock__fleet_stock</var> to a proprotion of <var>prey_stock__totalpredate</var></p></li>
+<li><p>Calculate <var>prey_stock__consratio</var> (ratio of consumed to available), capping using <var>overconsumption_f</var>. Update <var>prey_stock__num</var></p></li>
+<li><p>Recalculate <var>prey_stock__fleet_stock</var>, <var>fleet_stock__catch</var>, post-overconsumption</p></li>
 </ol>
 
     

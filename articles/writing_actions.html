@@ -90,9 +90,15 @@
     
 <div id="g3-functions" class="section level2">
 <h2 class="hasAnchor">
-<a href="#g3-functions" class="anchor"></a>g3 Functions</h2>
+<a href="#g3-functions" class="anchor"></a>G3 Functions</h2>
 <p>There are also special g3 functions that can be used in formula that affect the resulting code, rather than just being called when run.</p>
 <p>See <code><a href="../reference/language.html">?g3_param</a></code> for more information.</p>
+</div>
+<div id="g3-global-environment" class="section level2">
+<h2 class="hasAnchor">
+<a href="#g3-global-environment" class="anchor"></a>G3 global environment</h2>
+<p>All G3 models have the G3 global environment included, which contains the definition of generally useful functions. For example <code>avoid_zero()</code>, used to avoid div/0 conditions by adding a small amount of error close to zero.</p>
+<p>See <code>R/aaa_global.R</code> for more information, and other existing helpers.</p>
 </div>
 <div id="global-native-functions" class="section level2">
 <h2 class="hasAnchor">
@@ -109,7 +115,6 @@ g3_global_env$logspace_add_vec &lt;- g3_native(r = function(a,b) {
     }
     return res;
 }')</code></pre>
-<p>See <code>R/aaa_global.R</code> for more information, and other existing helpers.</p>
 </div>
 <div id="stock-steps" class="section level2">
 <h2 class="hasAnchor">
@@ -133,6 +138,33 @@ g3_global_env$logspace_add_vec &lt;- g3_native(r = function(a,b) {
 <p>Finally, we use a combination of <code>stock_iterate()</code> and <code>stock_intersect()</code>. <code>stock_iterate()</code> will create a loop that loops over all of the stock’s dimensions, and <code>stock_ss()</code> will subset <code>stock__num</code>, prividing 1-dimension lengthgroup vector. <code>stock_intersect()</code>.</p>
 <p>These iterators will then be available to the <code>maturity_f</code> that the users provide, as demonstrated in the [Stocks] section.</p>
 </div>
+<div id="writing-r-code-destined-for-c" class="section level2">
+<h2 class="hasAnchor">
+<a href="#writing-r-code-destined-for-c" class="anchor"></a>Writing R code destined for C++</h2>
+<p>Obviously R and C++’s type systems are quite different, and gadget3 attempts to bridge the gap.</p>
+<p>In R, there is no difference between a scalar and a 1-element vector. If you expect to treat the variable as a vector or array, then state this explicitly with <code>array</code>, even if the result may be a 1-element vector. This means that methods that work on TMB array or vector classes will be available.</p>
+<p>One needs to be more careful with the type of constants in C++ than R. In particular, <code>x / 2</code> means integer division. As a result, G3 will cast any numeric constant as a double outside of certain situations, e.g. array indices, which will be integer values. However, if you do want an integer it’s best to express this explictly, i.e. <code>3L</code>. Note that there is no difference in R code between <code>3</code> and <code>3.0</code>.</p>
+</div>
+<div id="g3_native" class="section level2">
+<h2 class="hasAnchor">
+<a href="#g3_native" class="anchor"></a>g3_native</h2>
+<p>There are limits to what the Gadget3 transpilation can manage, particularly once you need to operate on matrices. To get around this, you can define functions using <code>g3_native</code>, which annotates functions with a C++ definition. For example, it is used to define <code>logspace_add_vec</code>:</p>
+<pre><code># vector&lt;Type&gt; form of logspace_add
+g3_global_env$logspace_add_vec &lt;- g3_native(r = function(a,b) {
+    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
+}, cpp = '[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {
+    vector&lt;Type&gt; res(a.size());
+
+    for(int i = 0; i &lt; a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
+    }
+
+    // NB: This is a string within R code, so we have to escape slashes.
+    //     For example, "\\n"
+
+    return res;
+}')</code></pre>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -140,9 +172,12 @@ g3_global_env$logspace_add_vec &lt;- g3_native(r = function(a,b) {
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#g3-functions">g3 Functions</a></li>
+<li><a href="#g3-functions">G3 Functions</a></li>
+      <li><a href="#g3-global-environment">G3 global environment</a></li>
       <li><a href="#global-native-functions">Global &amp; native functions</a></li>
       <li><a href="#stock-steps">Stock steps</a></li>
+      <li><a href="#writing-r-code-destined-for-c">Writing R code destined for C++</a></li>
+      <li><a href="#g3_native">g3_native</a></li>
       </ul>
 </div>
       </div>

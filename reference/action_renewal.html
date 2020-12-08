@@ -154,27 +154,27 @@
     </tr>
     <tr>
       <th>run_at</th>
-      <td><p>Order of age actions within model, see TODO:</p></td>
+      <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     <tr>
       <th>factor_f</th>
-      <td><p>TODO:</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into normalparam calcuations, see below.</p></td>
     </tr>
     <tr>
       <th>mean_f</th>
-      <td><p>TODO:</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into normalparam calcuations, see below.</p></td>
     </tr>
     <tr>
       <th>stddev_f</th>
-      <td><p>TODO:</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into normalparam calcuations, see below.</p></td>
     </tr>
     <tr>
       <th>alpha_f</th>
-      <td><p>TODO:</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into normalparam calcuations, see below.</p></td>
     </tr>
     <tr>
       <th>beta_f</th>
-      <td><p>TODO:</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into normalparam calcuations, see below.</p></td>
     </tr>
     <tr>
       <th>run_f</th>
@@ -197,11 +197,23 @@
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3a_initialconditions</h3>
-<p>TODO:</p><p></p><h3>g3a_initialconditions_normalparam</h3>
-<p>TODO:</p><p></p><h3>g3a_renewal</h3>
-<p>TODO:</p><p></p><h3>g3a_renewal_normalparam</h3>
-<p>TODO:</p>
+    <p></p><h3>g3a_initialconditions / g3a_renewal</h3>
+<p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>, iterate over each
+  area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using
+  <var>num_f</var> and <var>wgt_f</var>.</p>
+<p>renewal will add fish to the existing collection, whereas initialconditions will assume the stock is currently empty.</p><p></p><h3>g3a_initialconditions_normalparam / g3a_renewal_normalparam</h3>
+<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate num/wgt:</p>
+<p>$$n = e^{-(\frac{L - \mu}{\sigma})^2 / 2}$$
+    $$N = F 10000 \frac{n}{\sum n}$$
+    $$W = \alpha L^{\beta}$$</p><dl class='dl-horizontal'>
+      <dt>\(L\)</dt><dd><p>Midlength of length groups for current area/age/...</p></dd>
+      <dt>\(F\)</dt><dd><p>Substituted for <var>factor_f</var></p></dd>
+      <dt>\(\mu\)</dt><dd><p>Substituted for <var>mean_f</var></p></dd>
+      <dt>\(\sigma\)</dt><dd><p>Substituted for <var>stddev_f</var></p></dd>
+      <dt>\(\alpha\)</dt><dd><p>Substituted for <var>alpha_f</var></p></dd>
+      <dt>\(\beta\)</dt><dd><p>Substituted for <var>beta_f</var></p></dd>
+    
+</dl><p></p>
 
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

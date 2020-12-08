@@ -152,7 +152,7 @@
   you can use <code><a href='https://rdrr.io/r/base/attr.html'>attr(fn, 'parameter_template')</a></code> to get a list of all parameters expected by the model
   and fill in all missing values.</p>
 <p>Returns <var>nll</var> produced by the model.
-  You can also use <code>environment(fn)$model_report</code> to get any report variables from the model.</p>
+  You can also use <code><a href='https://rdrr.io/r/base/attributes.html'>attributes(nll)</a></code> to get any report variables from the model.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -201,7 +201,7 @@
     <span class='kw'>lingimm.M</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>0.15</span>,<span class='fl'>3</span>,<span class='fl'>10</span>)))
 
 <span class='co'># Get the report from the last model run</span>
-<span class='no'>report</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span>(<span class='no'>fn</span>)$<span class='no'>model_report</span></div></pre>
+<span class='no'>report</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/attributes.html'>attributes</a></span>(<span class='no'>nll</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gadget3 report actions — action_report • gadget3</title>
+<title>Gadget3 actions into R code — run_desc • gadget3</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -32,9 +32,9 @@
 
 
 
-<meta property="og:title" content="Gadget3 report actions — action_report" />
+<meta property="og:title" content="Gadget3 actions into R code — run_desc" />
 
-<meta property="og:description" content="Add report to a g3 model" />
+<meta property="og:description" content="Convert g3 actions into a character vector describing the model" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -116,99 +116,77 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Gadget3 report actions</h1>
+    <h1>Gadget3 actions into R code</h1>
     
-    <div class="hidden name"><code>action_report.Rd</code></div>
+    <div class="hidden name"><code>run_desc.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Add report to a g3 model</p>
+    <p>Convert g3 actions into a character vector describing the model</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_report_stock</span>(<span class='no'>report_stock</span>, <span class='no'>input_stock</span>, <span class='no'>report_f</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>11</span>)</pre>
+    <pre class="usage"><span class='fu'>g3_to_desc</span>(<span class='no'>actions</span>, <span class='kw'>minor_steps</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>report_stock</th>
-      <td><p>The <code><a href='stock.html'>g3_stock</a></code> to aggregate into</p></td>
+      <th>actions</th>
+      <td><p>A list of actions (i.e. list of formula objects), as produced by <var>g3a_</var>* functions.</p></td>
     </tr>
     <tr>
-      <th>input_stock</th>
-      <td><p>The <code><a href='stock.html'>g3_stock</a></code> that will be aggregated</p></td>
-    </tr>
-    <tr>
-      <th>report_f</th>
-      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> specifying what to collect, for instance <code>~stock_ss(input_stock__num)</code> or <code>~stock_ss(input_stock__wgt)</code>.</p></td>
-    </tr>
-    <tr>
-      <th>run_f</th>
-      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> specifying a condition for running this action, default always runs.</p></td>
-    </tr>
-    <tr>
-      <th>run_at</th>
-      <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
+      <th>minor_steps</th>
+      <td><p>Include minor steps (e.g. zeroing cumulative arrays)?  <code>TRUE</code> / <code>FALSE</code></p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>The actions will define the following variables in your model:</p><dl class='dl-horizontal'>
-    <dt><var>report_stock</var>__<var>instance_name</var></dt><dd><p>Results of collating <var>input_stock</var>__<var>instance_name</var>, where
-        <var>instance_name</var> is defined by the first instance variable in <var>report_f</var>.
-        For example, if <var>report_f</var> is <code>~input_stock__num</code>, then we will report <code>report_stock__num</code>.</p></dd>
-  
-</dl>
-
-<p>A model can have any number of <code>g3a_report_*</code> actions, so long as the
-  calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
-  <code>run_f = ~age == 7</code>.</p>
-    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3a_report_stock</h3>
-<p>An action (i.e. list of formula objects) that will...</p><ol>
-<li><p>Iterate over <var>input_stock</var>, collecting data into <var>report_stock</var></p></li>
-<li><p>Add the contents of <var>report_stock</var>__<var>instance_name</var> to the model report</p></li>
-</ol>
-
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code><a href='stock.html'>g3_stock</a></code></p></div>
+    <p>Character vector describing each step in the model. An action in a model may have generated
+  multiple steps (e.g. select each prey stock, scale total amount, apply overstocking), and there
+  will be a line in here for each.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>magrittr</span>)
 <span class='no'>ling_imm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span>(<span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span>)) <span class='kw'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span>(<span class='fl'>3</span>, <span class='fl'>10</span>)
 
-<span class='co'># Report that aggregates ages together</span>
-<span class='no'>agg_report</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span>(<span class='st'>'agg_report'</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>)) <span class='kw'>%&gt;%</span>
-    <span class='fu'><a href='stock_age.html'>g3s_agegroup</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>young</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>3</span>, <span class='kw'>old</span> <span class='kw'>=</span> <span class='fl'>4</span>:<span class='fl'>5</span>)) <span class='kw'>%&gt;%</span>
-    <span class='fu'><a href='stock_time.html'>g3s_time</a></span>(<span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2000</span>:<span class='fl'>2002</span>)
-<span class='co'># Generate dissaggregated report by cloning the source stock, adding time</span>
-<span class='no'>raw_report</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3s_clone</a></span>(<span class='no'>ling_imm</span>, <span class='st'>'raw_report'</span>) <span class='kw'>%&gt;%</span>
-    <span class='fu'><a href='stock_time.html'>g3s_time</a></span>(<span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2000</span>:<span class='fl'>2002</span>)
+<span class='no'>initialconditions_action</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='action_renewal.html'>g3a_initialconditions_normalparam</a></span>(
+    <span class='no'>ling_imm</span>,
+    <span class='co'># NB: area &amp; age factor together (gadget2 just multiplied them)</span>
+    <span class='kw'>factor_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.init.scalar"</span>) *
+        <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> * (<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]] + <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.init.F"</span>)) * <span class='no'>age</span>) *
+        <span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.init"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]],
+    <span class='kw'>mean_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>) * (<span class='fl'>1</span> - <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>exp</a></span>(-<span class='fl'>1</span> *
+        (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)) *
+        (<span class='no'>age</span> - (<span class='fl'>1</span> + <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(<span class='fl'>1</span> - <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.recl"</span>) / <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.Linf"</span>)) /
+            (<span class='fl'>0.001</span> * <span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"ling.k"</span>)))))),
+    <span class='kw'>stddev_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"ling.init.sd"</span>)<span class='kw'>[[</span><span class='no'>age</span>]],
+    <span class='kw'>alpha_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.walpha"</span>),
+    <span class='kw'>beta_f</span> <span class='kw'>=</span> ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>"lingimm.wbeta"</span>))
 
-<span class='no'>actions</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-    <span class='fu'>g3a_report_stock</span>(<span class='no'>agg_report</span>, <span class='no'>ling_imm</span>, ~<span class='fu'>stock_ss</span>(<span class='no'>ling_imm__num</span>)),
-    <span class='fu'>g3a_report_stock</span>(<span class='no'>raw_report</span>, <span class='no'>ling_imm</span>, ~<span class='fu'>stock_ss</span>(<span class='no'>ling_imm__num</span>)))
-<span class='co'># "raw_report__num" and "agg_report__num" will be available in the model report</span></div></pre>
+<span class='co'># Timekeeping action</span>
+<span class='no'>time_action</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='action_time.html'>g3a_time</a></span>(
+    <span class='kw'>start_year</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
+    <span class='kw'>end_year</span> <span class='kw'>=</span> <span class='fl'>2004</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>))
+
+<span class='co'># Generate a list outlining the steps the model uses</span>
+<span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='fu'>g3_to_desc</span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>initialconditions_action</span>, <span class='no'>time_action</span>)))</div><div class='output co'>#&gt; $`000`
+#&gt; [1] "g3a_time"
+#&gt; 
+#&gt; $`000:ling_imm            :7d5b78c04d1eb3df34ef`
+#&gt; [1] "g3a_initialconditions_normalparam for ling_imm"
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
-
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
