@@ -125,6 +125,43 @@ ok_group('g3_tmb_upper', {
         aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
 })
 
+ok_group('g3_tmb_relist', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.b')
+        g3_param_vector('param_vec')
+        g3_param('aaparam')
+    })), 'parameter_template')
+    param$value <- I(list(
+        aaparam = 55,
+        param.b = 66,
+        param_vec = 6:10)[rownames(param)])
+
+    ok(ut_cmp_identical(
+        g3_tmb_relist(param, c(
+            param__b = 660,
+            param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
+            aaparam = 550)),
+        list(
+            "param.b" = 660,
+            "param_vec" = c(60, 70, 80, 90, 100),
+            "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots")
+
+    param['param.b', 'optimise'] <- FALSE
+    ok(ut_cmp_error(
+        g3_tmb_relist(param, c(
+            param__b = 660,
+            param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
+            aaparam = 550)),
+        "par"), "g3_tmb_relist: Still included param__b in par, now an error")
+    ok(ut_cmp_identical(
+        g3_tmb_relist(param, c(
+            param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
+            aaparam = 550)),
+        list(
+            "param_vec" = c(60, 70, 80, 90, 100),
+            "aaparam" = 550)), "g3_tmb_relist: Removing param__b works")
+})
+
 ok_group('g3_param_table', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R

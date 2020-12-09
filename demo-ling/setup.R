@@ -266,4 +266,4 @@ fit <- nlminb(g3_tmb_par(tmb_param),
               control = list(trace = TRUE, eval.max=200, iter.max=100))
 
 # Turn fit parameters back into list, which can be used in table or R function
-param_list <- relist(fit$par, unclass(tmb_param$value))
+param_list <- g3_tmb_relist(tmb_param, fit$par)

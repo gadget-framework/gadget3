@@ -62,6 +62,7 @@ S3method(print, g3_cpp)
 export(g3_tmb_par)
 export(g3_tmb_lower)
 export(g3_tmb_upper)
+export(g3_tmb_relist)
 
 # R/suitability.R
 export(g3_suitability_exponentiall50)

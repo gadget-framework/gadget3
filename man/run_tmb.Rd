@@ -4,6 +4,7 @@
 \alias{g3_tmb_par}
 \alias{g3_tmb_lower}
 \alias{g3_tmb_upper}
+\alias{g3_tmb_relist}
 
 \title{Gadget3 actions into TMB code}
 \description{
@@ -23,6 +24,8 @@ g3_tmb_lower(parameters)
 
 g3_tmb_upper(parameters)
 
+g3_tmb_relist(parameters, par)
+
 }
 
 \arguments{
@@ -41,6 +44,9 @@ g3_tmb_upper(parameters)
   \item{parameters}{
     Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')},
     modified to provide initial conditions, etc.
+  }
+  \item{par}{
+    Parameter vector, as produced by \code{g3_tmb_par()} or \code{nlminb(...)$par}.
   }
   \item{compile_flags}{
     List of extra flags to compile with, use e.g. "-g" to enable debugging output.
@@ -74,6 +80,7 @@ g3_tmb_upper(parameters)
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
+  \subsection{g3_tmb_relist}{A value list for the \var{parameters} table, filled in with values from parameter vector}
 }
 
 \examples{
@@ -135,16 +142,16 @@ tmb <- g3_tmb_adfun(cpp, tmb_param)
  writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
 }
 
-\dontrun{# Perform a single run, using values in table
+# Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))
 
 # perform optimisation based on parameter table
 fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     upper = g3_tmb_upper(tmb_param),
-    lower = g3_tmb_lower(tmb_param))
+    lower = g3_tmb_lower(tmb_param),
+    control = list(iter.max=1))
 
 # Go back to a list of parameters, suitable for the R version
-param_list <- relist(fit$par, unclass(tmb_param$value))
+param_list <- g3_tmb_relist(tmb_param, fit$par)
 
-}
 }

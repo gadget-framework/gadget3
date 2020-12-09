@@ -880,3 +880,16 @@ g3_tmb_bound <- function (parameters, bound) {
 }
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
+
+g3_tmb_relist <- function (parameters, par) {
+    if (!identical(
+        # NB: A fit$par won't have numeric identifiers at the end to keep them unique
+            gsub("\\d+$", "", names(par)),
+            gsub("\\d+$", "", names(g3_tmb_par(parameters))))) {
+        stop("Names of values in par don't match names of parameters$value")
+    }
+
+    # Relist based on table's value
+    # NB: Subset should match eqivalent operation in g3_tmb_par()
+    utils::relist(par, unclass(parameters$value[parameters$optimise]))
+}
