@@ -114,11 +114,11 @@ f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
 f_optimize <- function (f) {
     call_replace(f,
         "if" = function (x) {
-            if (is.call(x) && isTRUE(x[[2]])) {
+            if (is.call(x) && ( isTRUE(x[[2]]) || identical(x[[2]], quote(!FALSE)) )) {
                 # if(TRUE) exp --> exp
                 return(f_optimize(x[[3]]))
             }
-            if (is.call(x) && isFALSE(x[[2]])) {
+            if (is.call(x) && ( isFALSE(x[[2]]) || identical(x[[2]], quote(!TRUE)) )) {
                 # if(FALSE) exp else exp_2 --> exp_2
                 return (if (length(x) > 3) f_optimize(x[[4]]) else quote({}))
             }

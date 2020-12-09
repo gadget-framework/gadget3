@@ -68,6 +68,12 @@ ok(ut_cmp_identical(
     gadget3:::f_optimize(~{woo; {}; if (TRUE) {oink}; baa}),
     ~{woo; oink; baa}), "f_optimize: Oink's if statement removed")
 ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{woo; {}; if (!FALSE) {oink}; baa}),
+    ~{woo; oink; baa}), "f_optimize: Oink's if statement removed")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{woo; {}; if (!TRUE) {oink} else { plonk }; baa}),
+    ~{woo; plonk; baa}), "f_optimize: Oink's if statement used else part")
+ok(ut_cmp_identical(
     gadget3:::f_optimize(~{woo; { x ; {}}; if (TRUE) {oink}; baa}),
     ~{woo; x ; oink; baa}), "f_optimize: Brackets normalised")
 ok(ut_cmp_identical(
