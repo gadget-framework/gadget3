@@ -83,6 +83,10 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   A model can have any number of \code{g3a_growmature} actions, so long as the
   calling arguments are different. For instance, \code{run_f = ~age == 5} and
   \code{run_f = ~age == 7}.
+
+  \var{impl_f}'s dependent variables are analysed to see what will affect growth.
+  If nothing but \code{cur_step_size} will affect growth, then growth will only
+  be recalculated when the step size changes.
 }
 
 \value{

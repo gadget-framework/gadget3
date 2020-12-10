@@ -140,10 +140,12 @@ structure(function (param)
     "age7", "age8", "age9", "age10")))
     ling_imm__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
     "age8", "age9", "age10")))
+    ling_imm__growth_lastcalc <- -1L
     ling_imm__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__dl <- model_data$ling_imm__dl
     ling_imm__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__prevtotal <- 0
+    ling_mat__growth_lastcalc <- -1L
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__dl <- model_data$ling_mat__dl
     ling_mat__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
@@ -441,9 +443,13 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   {
-                    comment("Calculate length/weight delta matrices for current lengthgroups")
-                    ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
-                    ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * (param[["lingimm.walpha"]])
+                    if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
+                      comment("Calculate length/weight delta matrices for current lengthgroups")
+                      ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_imm__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_imm__dl, 15, param[["ling.bbin"]] * 10)
+                      ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * (param[["lingimm.walpha"]])
+                      comment("Don't recalculate until cur_step_size changes")
+                      ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
+                    }
                     if (TRUE) 
                       ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                     if (cur_step_final) {
@@ -492,9 +498,13 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   {
-                    comment("Calculate length/weight delta matrices for current lengthgroups")
-                    ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, 15, param[["ling.bbin"]] * 10)
-                    ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * (param[["lingmat.walpha"]])
+                    if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
+                      comment("Calculate length/weight delta matrices for current lengthgroups")
+                      ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]]) - ling_mat__midlen) * (1 - exp(-(param[["ling.k"]] * 0.001) * cur_step_size)), ling_mat__dl, 15, param[["ling.bbin"]] * 10)
+                      ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * (param[["lingmat.walpha"]])
+                      comment("Don't recalculate until cur_step_size changes")
+                      ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
+                    }
                     if (TRUE) 
                       ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                     comment("Update ling_mat using delta matrices")

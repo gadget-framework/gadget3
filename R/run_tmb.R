@@ -385,6 +385,15 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ")"))
     }
 
+    if (call_name %in% c("floor")) {
+        # Use std:: versions to replace floor
+        if (length(in_call) != 2) stop(call_name, " expects 1 argument")
+        return(paste0(
+            "std::", call_name, "(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ")"))
+    }
+
     if (call_name %in% c("abs")) {
         # Use CppAD:: versions to replace abs
         return(paste0(
@@ -400,7 +409,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int)))
     }
 
-    if (call_name %in% c("-", "+", "/", "==", ">", "<", ">=", "<=", "%%", "&&", "||")) {
+    if (call_name %in% c("-", "+", "/", "==", "!=", ">", "<", ">=", "<=", "%%", "&&", "||")) {
         # Infix operators
         if (call_name == "%%") call_name <- "%"
 
@@ -411,7 +420,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
             call_name,
-            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int || (call_name == "=="))))
+            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int || (call_name == "==") || (call_name == "!="))))
     }
 
     if (call_name == "(") {

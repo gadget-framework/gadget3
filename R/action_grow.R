@@ -250,13 +250,41 @@ g3a_growmature <- function(stock,
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
+    # If we can, try and only recalc growth when necessary
+    calcgrowth_f <- f_substitute(~{
+        debug_trace("Calculate length/weight delta matrices for current lengthgroups")
+        stock__growth_l <- impl_l_f
+        stock__growth_w <- impl_w_f
+    }, list(impl_l_f = impl_f$len, impl_w_f = impl_f$wgt))
+    # Filter out known constants (hacky but conservative, will fail by being slow)
+    growth_dependent_vars <- setdiff(
+        all.vars(calcgrowth_f),
+        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__midlen'))
+    if (length(growth_dependent_vars) == 0) {
+        # Growth is a constant, only do it once
+        calcgrowth_f <- f_substitute(~{
+            if (cur_time == 0) {
+                calcgrowth_f
+            }
+        }, list(calcgrowth_f = calcgrowth_f))
+    } else if (identical(growth_dependent_vars, c('cur_step_size'))) {
+        # Growth only dependent on timestep, only recalculate when required
+        stock__growth_lastcalc <- -1L
+        calcgrowth_f <- f_substitute(~{
+            if (stock__growth_lastcalc != floor(cur_step_size * 12L)) {
+                calcgrowth_f
+                debug_trace("Don't recalculate until cur_step_size changes")
+                # NB: stock__growth_lastcalc is integer, cur_step_size is fractional
+                stock__growth_lastcalc <- floor(cur_step_size * 12L)
+            }
+        }, list(calcgrowth_f = calcgrowth_f))
+    }
+
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_grow for ", stock)
 
         stock_iterate(stock, if (run_f) {
-            debug_trace("Calculate length/weight delta matrices for current lengthgroups")
-            stock__growth_l <- impl_l_f
-            stock__growth_w <- impl_w_f
+            calcgrowth_f
 
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
 
@@ -296,8 +324,7 @@ g3a_growmature <- function(stock,
         })
     }, list(
             run_f = run_f,
-            impl_l_f = impl_f$len,
-            impl_w_f = impl_f$wgt,
+            calcgrowth_f = calcgrowth_f,
             maturity_f = maturity_f,
             # NB: Apply maturity in different places, depending if stock__growth_l is mentioned in formluae (and thus a len x deltal matrix)
             maturity_bylength = if ("stock__growth_l" %in% all.vars(maturity_f)) 1 else quote(maturity_ratio),
