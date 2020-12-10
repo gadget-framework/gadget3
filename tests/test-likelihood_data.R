@@ -38,6 +38,20 @@ cmp_array <- function (ar, table_text) {
 }
 
 
+ok_group('g3l_likelihood_data:unknown', {
+    ok(ut_cmp_error({
+        ld <- generate_ld(
+            data.frame(
+                year = 1990,
+                camel = 3,
+                dromedary = 1,
+                number = 1:3,
+                stringsAsFactors = FALSE),
+            end = NULL)
+    }, "camel, dromedary"), "Unrecognised camels columns")
+})
+
+
 ok_group('g3l_likelihood_data:time', {
     ok(ut_cmp_error({
         ld <- generate_ld(

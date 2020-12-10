@@ -3,6 +3,9 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
 
+    # vector of col names, will cross them off as we go
+    handled_columns <- structure(as.list(seq_along(names(data))), names = names(data))
+
     # Turn incoming data into stocks with correct dimensions
     if ('length' %in% names(data)) {
         if (!is.null(attr(data, 'length', exact = TRUE))) {
@@ -23,6 +26,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
             data$length <- paste0('len', data$length)  # Make data match autoset groups
         }
+        handled_columns$length <- NULL
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))
@@ -40,6 +44,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             modelstock <- g3s_agegroup(modelstock, age_groups)
             data$age <- paste0('age', data$age)  # Make data match autoset groups
         }
+        handled_columns$age <- NULL
     }
 
     if ('stock' %in% names(data)) {
@@ -47,6 +52,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
+        handled_columns$stock <- NULL
     } else {
         stock_map <- NULL
     }
@@ -69,6 +75,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         }
         area_group <- area_group[order(names(area_group))]  # Dimension order should match data
         modelstock <- g3s_areagroup(modelstock, area_group)
+        handled_columns$area <- NULL
     }
 
     # Work out time dimension, create an obsstock using it
@@ -85,6 +92,8 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             modelstock,
             sort(unique(data$time)))
     }
+    handled_columns$year <- NULL
+    handled_columns$step <- NULL
 
     # Generate full table based on stock
     full_table <- as.data.frame.table(
@@ -106,6 +115,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         number_array <- array(full_table$number[order(full_table$Freq)],
             dim = obsstock$dim,
             dimnames = obsstock$dimnames)
+        handled_columns$number <- NULL
     } else {
         number_array <- NULL
     }
@@ -122,8 +132,13 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         weight_array <- array(full_table$weight[order(full_table$Freq)],
             dim = obsstock$dim,
             dimnames = obsstock$dimnames)
+        handled_columns$weight <- NULL
     } else {
         weight_array <- NULL
+    }
+
+    if (length(handled_columns) > 0) {
+        stop("Unrecognised columns in likelihood data: ", paste(names(handled_columns), collapse = ", "))
     }
     
     return(list(
