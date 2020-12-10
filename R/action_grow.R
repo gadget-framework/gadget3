@@ -160,11 +160,12 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     return(array(c(
         Matrix::colSums(growth.matrix),
         Matrix::colSums(wgt.matrix) / avoid_zero_vec(Matrix::colSums(growth.matrix)) ), dim = c(na, 2)))
-}, cpp = '[](array<Type> delta_l, array<Type> delta_w, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
-    delta_l = delta_l.transpose();
-    delta_w = delta_w.transpose();
-    int total_deltas = delta_l.rows();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = delta_l.cols(); // # Length groups
+}, cpp = '[](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_l = delta_l_ar.matrix();
+    matrix<Type> delta_w = delta_w_ar.matrix();
+    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.rows(); // # Length groups
 
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
@@ -181,15 +182,15 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
 
     for (int lg = 0; lg < total_lgs; lg++) {
         if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
-            growth_matrix(lg, lg) = delta_l.col(lg).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
+            growth_matrix(lg, lg) = delta_l.row(lg).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else if(lg + total_deltas > total_lgs) {
-            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.col(lg).head(total_lgs - lg).transpose();
-            growth_matrix(lg, total_lgs - 1) = delta_l.col(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.col(lg).head(total_lgs - lg).transpose();
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
+            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else {
-            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.col(lg).head(total_deltas).transpose();
-            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.col(lg).head(total_deltas).transpose();
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
+            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
         }
     }
     // Apply matrices to stock
