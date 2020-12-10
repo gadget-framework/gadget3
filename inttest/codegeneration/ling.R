@@ -88,9 +88,8 @@ structure(function (param)
     start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
     cur_year <- 0L
-    step_count <- 4L
+    step_count <- length(step_lengths)
     cur_step <- 0L
-    cur_step_size <- 0
     cur_step_final <- FALSE
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
@@ -136,6 +135,7 @@ structure(function (param)
     ling_mat__consratio <- array(dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age5", "age6", "age7", "age8", "age9", "age10", 
     "age11", "age12", "age13", "age14", "age15")))
     ling_mat__overconsumption <- 0
+    cur_step_size <- step_lengths[[1]]/12
     ling_imm__transitioning_num <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", 
     "age7", "age8", "age9", "age10")))
     ling_imm__transitioning_wgt <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
@@ -227,7 +227,6 @@ structure(function (param)
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1L
-            cur_step_size <- step_lengths[[cur_step]]/12
             cur_step_final <- cur_step == step_count
             if (FALSE) 
                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)

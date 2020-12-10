@@ -178,9 +178,8 @@ Type objective_function<Type>::operator() () {
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - start_year) + (step_lengths).size() - 1;
     int cur_year = 0;
-    int step_count = 4;
+    auto step_count = (step_lengths).size();
     int cur_step = 0;
-    Type cur_step_size = (double)(0);
     auto cur_step_final = false;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
@@ -221,6 +220,7 @@ Type objective_function<Type>::operator() () {
     Type ling_imm__overconsumption = (double)(0);
     array<Type> ling_mat__consratio(35,1,11);
     Type ling_mat__overconsumption = (double)(0);
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     array<Type> ling_imm__growth_l;
@@ -271,7 +271,6 @@ Type objective_function<Type>::operator() () {
             }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_step = (cur_time % step_count) + 1;
-            cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
             cur_step_final = cur_step == step_count;
             if ( false ) {
                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step);

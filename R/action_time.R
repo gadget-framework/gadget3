@@ -19,25 +19,28 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
 
     step_lengths <- as.array(as.integer(steps))
-    step_count <- length(steps)
+    step_count <- ~length(step_lengths)
     cur_time <- -1L
     cur_step <- 0L
-    cur_step_size <- as.numeric(0)
+    # Initial value is first step size
+    cur_step_size <- ~step_lengths[[1]] / 12.0
     cur_year <- 0L
     cur_step_final <- FALSE
     total_steps <- ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
 
     out <- new.env(parent = emptyenv())
-    out[[step_id(run_at)]] <- ~{
+    out[[step_id(run_at)]] <- g3_step(f_substitute(~{
         debug_label("g3a_time")
         cur_time <- cur_time + 1L
         if (strict_mode) stopifnot(is.finite(nll))
         if (cur_time > total_steps) return(nll)
         cur_year <- start_year + (cur_time %/% step_count)
         cur_step <- (cur_time %% step_count) + 1L
-        cur_step_size <- step_lengths[[cur_step]] / 12.0
+        # Don't bother changing step size if it's always the same
+        if (uneven_steps) cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
         if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
-    }
+    }, list(
+        uneven_steps = any(diff(steps) > 0))))
     return(as.list(out))
 }

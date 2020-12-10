@@ -92,3 +92,65 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 } else {
     writeLines("# skip: not running TMB tests")
 }
+
+ok_group('even steps', {
+    actions <- list(
+        g3a_time(1992, 1999, steps = c(4,4,4)),
+        list(
+            '999' = ~{
+                all_time[g3_idx(cur_time + 1)] <- cur_time
+                g3_report(all_time)
+
+                all_step[g3_idx(cur_time + 1)] <- cur_step
+                g3_report(all_step)
+
+                all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
+                g3_report(all_step_size)
+
+                all_year[g3_idx(cur_time + 1)] <- cur_year
+                g3_report(all_year)
+
+                all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
+                g3_report(all_step_final)
+
+                nll <- nll + g3_param('x')  # ...or TMB falls over
+            }))
+    params <- list(x=1.0)
+    model_fn <- g3_to_r(actions)
+    # model_fn <- edit(model_fn)
+    result <- model_fn(params)
+    r <- attributes(result)
+    # str(r)
+
+    ok(ut_cmp_identical(
+        as.vector(r$all_time),
+        as.integer(1:expected_steps - 1)), "cur_time populated")
+    ok(ut_cmp_identical(
+        as.vector(r$all_step),
+        as.integer(rep(c(1,2,3), 8))), "cur_step populated")
+    ok(ut_cmp_equal(
+        as.vector(r$all_step_size),
+        as.numeric(rep(c(4/12,4/12,4/12), 8))), "cur_step_size populated")
+    ok(ut_cmp_identical(
+        as.vector(r$all_year),
+        as.integer(rep(1992:1999, each = 3))), "cur_year populated")
+    ok(ut_cmp_identical(
+        as.vector(r$all_step_final),
+        rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_to_tmb(actions)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        model_tmb_report <- model_tmb$report()
+        for (n in names(attributes(result))) {
+            ok(ut_cmp_equal(
+                model_tmb_report[[n]],
+                # NB: as.numeric to avoid differences with logical
+                as.numeric(as.vector(attr(result, n))),
+                tolerance = 1e-5), paste("TMB and R match", n))
+        }
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
