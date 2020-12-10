@@ -90,7 +90,9 @@ ling_likelihood_actions <- list(
   g3l_catchdistribution(
     'matp_igfs',
     weight = 9,
-    (matp.igfs[[1]]),
+    (matp.igfs[[1]] %>%
+      rename(stock = maturity_stage) %>%
+      mutate(stock = recode(as.factor(stock), lingimm = "ling_imm", lingmat = "ling_mat"))),
     fleets = list(igfs),
     stocks = list(ling_imm, ling_mat),
     g3l_distribution_sumofsquares(),
