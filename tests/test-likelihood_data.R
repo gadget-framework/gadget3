@@ -142,6 +142,22 @@ ok_group('g3l_likelihood_data:length', {
         c(len1 = 1L, len5 = 5L, len10 = 10L, len30 = 30L)), "minlen set via. data")
     ok(ut_cmp_identical(ld_upperlen(ld), Inf), "If we guess from data, open-ended is only sensible option")
 
+    ok(ut_cmp_error(generate_ld("
+        year length number
+        1999      a      1999.1
+        2000      a      2000.1
+        2001      a      2001.1
+        1999      b      1999.2
+        2000      b      2000.2
+        2001      b      2001.2
+        1999      c      1999.3
+        2001      c      2001.3
+        ",
+        length = list(
+            a = structure(quote(seq(10, 20)), min = 10, max = 20),
+            b = structure(quote(seq(20, 40)), min = 20, max = 40),
+            c = structure(quote(seq(80, 100)), min = 80, max = 100))), "Gaps in length"), "Non-contiguous length groups cause an error")
+
     ld <- generate_ld("
         year length number
         1999      a      1999.1

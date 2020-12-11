@@ -10,8 +10,15 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     if ('length' %in% names(data)) {
         if (!is.null(attr(data, 'length', exact = TRUE))) {
             length_groups <- attr(data, 'length', exact = TRUE)
+
+            # Make sure length groups are contiguous
+            if (!isTRUE(all.equal(
+                    unname(head(vapply(length_groups, mfdb_max_bound, numeric(1)), -1)),
+                    unname(tail(vapply(length_groups, mfdb_min_bound, numeric(1)), -1))))) {
+                stop("Gaps in length groups are not supported")
+            }
+
             # Ditch upper bound from length groups
-            # TODO: Enforce continous groups, we don't support gaps
             length_groups <- c(
                 # Lower bound of all groups
                 vapply(length_groups, mfdb_min_bound, numeric(1)),
