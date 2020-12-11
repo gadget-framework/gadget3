@@ -49,7 +49,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         data$length <- 'len0'
     }
 
-    # TODO: Stock dimensions should be managing their parts
     if ('age' %in% names(data)) {
         if (!is.null(attr(data, 'age', exact = TRUE))) {
             age_groups <- attr(data, 'age', exact = TRUE)
