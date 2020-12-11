@@ -57,10 +57,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
   }
   \item{obs_data}{
-    Data.frame of observation data, for example the results of \link[mfdb:mfdb_sample_count]{mfdb_sample_count}
-    Should have year column, optional step/area/age columns, and a length or weight column.
-    If step/area/age are missing, then the model data will be summed over these dimensions first.
-    The length or weight column decides what to compare using \var{function_f}
+    Data.frame of observation data, for example the results of
+    \link[mfdb:mfdb_sample_count]{mfdb_sample_count}.
+
+    Should at least have a year column, and a length or weight column.
+    For more information, see "obs_data and data aggregation" below.
   }
   \item{fleets}{
     A list of \code{\link{g3_stock}} objects to collect catch data for.
@@ -81,11 +82,9 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Where there are missing values in the incoming data, value to replace them with.
   }
   \item{area_group}{
-    MFDB group mapping area names used in \var{obs_data} to integer model areas, see \link{g3s_livesonareas}.
-
-    NB: Unlike other columns in \var{obs_data}, the MFDB grouping for area will
-    be grouping from area names in data to raw subdivisions in data, and not
-    useful for us. Thus why \var{area_group} should be supplied.
+    \link[mfdb:mfdb_group]{mfdb_group} or list mapping area names used in
+    \var{obs_data} to integer model areas, see "obs_data and data aggregation"
+    below.
   }
   \item{report}{
     If TRUE, add model and observation arrays to the model report, called
@@ -117,6 +116,102 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 
   The only difference between \var{g3l_distribution} and \var{g3l_catchdistribution} is the latter insists that at least one fleet
   is provided, so it can compare catch rather than abundance.
+
+  \subsection{obs_data and data aggregation}{
+    The \var{obs_data} data.frame, as well as providing the observation data to
+    compare the model data against, controls the grouping of model data to
+    compare to the observation data, by inspecting the MFDB column attributes
+    produced by e.g. \link[mfdb:mfdb_sample_count]{mfdb_sample_count}.
+
+    Metadata columns describe the observation datapoint in that row. The
+    columns should be from this list:
+    \describe{
+      \item{year}{
+        Required.
+        Year for the data point. Gaps in years will result in no comparison for that year
+      }
+      \item{step}{
+        Optional.
+        If there is no step column, then the data is assumed to be yearly, and
+        the model data for all timesteps will be summed before comparing.
+
+        Model timestep for the data point. Gaps in steps will result in no comparison for that year/step.
+      }
+      \item{length}{
+        Optional.
+        If missing all lengthgroups in the model will be summed to compare to
+        the data.
+
+        If \code{open_ended = c('lower', 'upper')} was used when querying MFDB
+        for the data, then the bottom/top length groups will be modified to
+        start from zero or be infinite respectively.
+
+        Any missing lengthgroups (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+      \item{age}{
+        Optional.
+        If missing all age-groups (if any) in the model will be summed to compare to
+        the data.
+
+        Model ages will be grouped by the same groupings as MFDB used, thus if
+        the data was formed with a query \code{age = mfdb_group(young = 1:3,
+        old = 4:5)}, then the model data will similarly have 2 groups in it.
+
+        Any missing ages (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+      \item{stock}{
+        Optional.
+        If missing all stocks in \var{stocks} will be summed to compare to the
+        data.
+
+        The values in the stocks column should match the names of the stocks
+        given in the \var{stocks} parameter. This column can be factor or
+        character.
+
+        Any missing stocks (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+      \item{area}{
+        Optional.
+        If missing all areas in the model will be summed to compare to
+        the data.
+
+        Unlike other columns, the MFDB grouping here is ignored (the areas it
+        is grouping over aren't integer model areas). Instead, the
+        \var{area_group} parameter should describe how to map from the area
+        names used in the table to integer model areas.
+
+        For example, if \code{area_group = list(north=1:2, south=3:5)}, then
+        the area column of \var{obs_data} should contain either "north" or
+        "south", and corresponding model data will be summed from integer model
+        areas 1,2 and 3,4,5 respectively.
+
+        If \var{area_group} is not supplied, then we assume that \var{obs_data}
+        area column will contain model area integers.
+
+        Any missing areas (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+    }
+
+    Data columns contain the observation data to compare. There should be at
+    least one of:
+
+    \describe{
+      \item{number}{
+        If a number column appears in \var{obs_data}, then the stock abundance
+        by individuals will be aggregated and compared to the \var{obs_data}
+        number column.
+      }
+      \item{weight}{
+        If a weight column appears in \var{obs_data}, then the total biomass of
+        the stock will be aggregated and compared to the \var{obs_data} number
+        column.
+      }
+    }
+  }
 }
 
 \seealso{
