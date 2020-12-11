@@ -18,14 +18,23 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
                 stop("Gaps in length groups are not supported")
             }
 
-            # Ditch upper bound from length groups
-            length_groups <- c(
-                # Lower bound of all groups
-                vapply(length_groups, mfdb_min_bound, numeric(1)),
-                # Upper bound
-                mfdb_max_bound(length_groups[[length(length_groups)]]))
+            # Form length groups using lower bound from all groups
+            length_vec <- vapply(length_groups, mfdb_min_bound, numeric(1))
 
-            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = FALSE)
+            open_ended_upper <- isTRUE(attr(length_groups[[length(length_groups)]], 'max_open_ended'))
+            if (!open_ended_upper) {
+                # Not open ended, so final bound should be max of last item
+                length_vec <- c(
+                    length_vec,
+                    mfdb_max_bound(length_groups[[length(length_groups)]]))
+            }
+
+            if (isTRUE(attr(length_groups[[1]], 'min_open_ended'))) {
+                # Lower bound open-ended, so set first lengthgroup to start at 0
+                length_vec[[1]] <- 0
+            }
+
+            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
         } else {
             length_groups <- sort(unique(data$length))
 

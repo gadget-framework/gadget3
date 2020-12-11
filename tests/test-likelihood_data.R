@@ -11,11 +11,6 @@ generate_ld <- function (tbl, ...) {
     gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
 }
 
-# Dig upperlen out of modelstock
-ld_upperlen <- function (ld) {
-    gadget3:::stock_definition(ld$modelstock, 'stock__upperlen')
-}
-
 # Dig minlen out of modelstock
 ld_minlen <- function (ld) {
     x <- gadget3:::stock_definition(ld$modelstock, 'stock__minlen')
@@ -23,9 +18,11 @@ ld_minlen <- function (ld) {
     as.matrix(x)[,1]
 }
 
-ld_minages <- function (ld) {
-    gadget3:::stock_definition(ld$modelstock, 'stock__minages')
-}
+# Dig definitions out of modelstock
+ld_upperlen <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__upperlen')
+ld_dl <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__dl')
+ld_plusdl <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__plusdl')
+ld_minages <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__minages')
 
 # Compare array by turning it back into a table first
 cmp_array <- function (ar, table_text) {
@@ -189,6 +186,62 @@ ok_group('g3l_likelihood_data:length', {
         ld_minlen(ld),
         c(a = 10, b = 20, c = 40)), "minlen set by attribute")
     ok(ut_cmp_identical(ld_upperlen(ld), 80), "Upperlen set by attribute")
+    ok(ut_cmp_identical(ld_dl(ld), c(10, 20, 40)), "dl difference up to upper bound")
+    ok(ut_cmp_identical(ld_plusdl(ld), 10), "plusdl is the mode")
+
+    ld <- generate_ld("
+        year length number
+        1999      a      1999.1
+        2000      a      2000.1
+        2001      a      2001.1
+        1999      b      1999.2
+        2000      b      2000.2
+        2001      b      2001.2
+        1999      c      1999.3
+        2001      c      2001.3
+        ",
+        length = list(
+            a = structure(quote(seq(10, 20)), min = 10, max = 20),
+            b = structure(quote(seq(20, 40)), min = 20, max = 40),
+            c = structure(quote(seq(40, 80)), min = 40, max = 80, max_open_ended = TRUE)))
+    ok(cmp_array(ld$number, "
+        length time   Freq
+             a 1999 1999.1
+             b 1999 1999.2
+             c 1999 1999.3
+             a 2000 2000.1
+             b 2000 2000.2
+             c 2000    0.0
+             a 2001 2001.1
+             b 2001 2001.2
+             c 2001 2001.3
+        "), "Use lengths and their names from attribute, gaps filled in")
+    ok(ut_cmp_identical(ld_upperlen(ld), Inf), "upperlen now infinite")
+    ok(ut_cmp_identical(ld_dl(ld), c(10, 20, 10)), "dl assumes final group is as big as the mode")
+    ok(ut_cmp_identical(ld_plusdl(ld), 10), "plusdl is the mode")
+    ok(ut_cmp_identical(
+        ld_minlen(ld),
+        c(a = 10, b = 20, c = 40)), "minlen doesn't include the plusgroup separately")
+
+    ld <- generate_ld("
+        year length number
+        1999      a      1999.1
+        2000      a      2000.1
+        2001      a      2001.1
+        1999      b      1999.2
+        2000      b      2000.2
+        2001      b      2001.2
+        1999      c      1999.3
+        2001      c      2001.3
+        ",
+        length = list(
+            a = structure(quote(seq(10, 20)), min = 10, max = 20, min_open_ended = TRUE),
+            b = structure(quote(seq(20, 40)), min = 20, max = 40),
+            c = structure(quote(seq(40, 80)), min = 40, max = 80)))
+    ok(ut_cmp_identical(ld_upperlen(ld), 80), "upperlen set by attribute")
+    ok(ut_cmp_identical(
+        ld_minlen(ld),
+        c(a = 0, b = 20, c = 40)), "minlen down to zero due to min_open_ended")
 })
 
 
