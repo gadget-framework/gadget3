@@ -217,6 +217,9 @@
     <p>A model can have any number of <code>g3a_growmature</code> actions, so long as the
   calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
   <code>run_f = ~age == 7</code>.</p>
+<p><var>impl_f</var>'s dependent variables are analysed to see what will affect growth.
+  If nothing but <code>cur_step_size</code> will affect growth, then growth will only
+  be recalculated when the step size changes.</p>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 

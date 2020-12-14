@@ -179,10 +179,10 @@
     </tr>
     <tr>
       <th>obs_data</th>
-      <td><p>Data.frame of observation data, for example the results of <a href='https://rdrr.io/pkg/mfdb/man/mfdb_queries.html'>mfdb_sample_count</a>
-    Should have year column, optional step/area/age columns, and a length or weight column.
-    If step/area/age are missing, then the model data will be summed over these dimensions first.
-    The length or weight column decides what to compare using <var>function_f</var></p></td>
+      <td><p>Data.frame of observation data, for example the results of
+    <a href='https://rdrr.io/pkg/mfdb/man/mfdb_queries.html'>mfdb_sample_count</a>.</p>
+<p>Should at least have a year column, and a length or weight column.
+    For more information, see "obs_data and data aggregation" below.</p></td>
     </tr>
     <tr>
       <th>fleets</th>
@@ -207,10 +207,9 @@
     </tr>
     <tr>
       <th>area_group</th>
-      <td><p>MFDB group mapping area names used in <var>obs_data</var> to integer model areas, see <a href='stock_areas.html'>g3s_livesonareas</a>.</p>
-<p>NB: Unlike other columns in <var>obs_data</var>, the MFDB grouping for area will
-    be grouping from area names in data to raw subdivisions in data, and not
-    useful for us. Thus why <var>area_group</var> should be supplied.</p></td>
+      <td><p><a href='https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html'>mfdb_group</a> or list mapping area names used in
+    <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
+    below.</p></td>
     </tr>
     <tr>
       <th>report</th>
@@ -246,6 +245,62 @@
   If <var>nll_breakdown</var> is <code>TRUE</code>, this will be an array with one entry per timestep.</p>
 <p>The only difference between <var>g3l_distribution</var> and <var>g3l_catchdistribution</var> is the latter insists that at least one fleet
   is provided, so it can compare catch rather than abundance.</p>
+<p></p><h3>obs_data and data aggregation</h3>
+<p>The <var>obs_data</var> data.frame, as well as providing the observation data to
+    compare the model data against, controls the grouping of model data to
+    compare to the observation data, by inspecting the MFDB column attributes
+    produced by e.g. <a href='https://rdrr.io/pkg/mfdb/man/mfdb_queries.html'>mfdb_sample_count</a>.</p>
+<p>Metadata columns describe the observation datapoint in that row. The
+    columns should be from this list:</p><dl class='dl-horizontal'>
+      <dt>year</dt><dd><p>Required.
+        Year for the data point. Gaps in years will result in no comparison for that year</p></dd>
+      <dt>step</dt><dd><p>Optional.
+        If there is no step column, then the data is assumed to be yearly, and
+        the model data for all timesteps will be summed before comparing.        Model timestep for the data point. Gaps in steps will result in no comparison for that year/step.</p></dd>
+      <dt>length</dt><dd><p>Optional.
+        If missing all lengthgroups in the model will be summed to compare to
+        the data.        If <code>open_ended = c('lower', 'upper')</code> was used when querying MFDB
+        for the data, then the bottom/top length groups will be modified to
+        start from zero or be infinite respectively.        Any missing lengthgroups (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+      <dt>age</dt><dd><p>Optional.
+        If missing all age-groups (if any) in the model will be summed to compare to
+        the data.        Model ages will be grouped by the same groupings as MFDB used, thus if
+        the data was formed with a query <code>age = mfdb_group(young = 1:3,
+        old = 4:5)</code>, then the model data will similarly have 2 groups in it.        Any missing ages (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+      <dt>stock</dt><dd><p>Optional.
+        If missing all stocks in <var>stocks</var> will be summed to compare to the
+        data.        The values in the stocks column should match the names of the stocks
+        given in the <var>stocks</var> parameter. This column can be factor or
+        character.        Any missing stocks (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+      <dt>area</dt><dd><p>Optional.
+        If missing all areas in the model will be summed to compare to
+        the data.        Unlike other columns, the MFDB grouping here is ignored (the areas it
+        is grouping over aren't integer model areas). Instead, the
+        <var>area_group</var> parameter should describe how to map from the area
+        names used in the table to integer model areas.        For example, if <code>area_group = list(north=1:2, south=3:5)</code>, then
+        the area column of <var>obs_data</var> should contain either "north" or
+        "south", and corresponding model data will be summed from integer model
+        areas 1,2 and 3,4,5 respectively.        If <var>area_group</var> is not supplied, then we assume that <var>obs_data</var>
+        area column will contain model area integers.        Any missing areas (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+    
+</dl>
+
+<p>Data columns contain the observation data to compare. There should be at
+    least one of:</p>
+<p></p><dl class='dl-horizontal'>
+      <dt>number</dt><dd><p>If a number column appears in <var>obs_data</var>, then the stock abundance
+        by individuals will be aggregated and compared to the <var>obs_data</var>
+        number column.</p></dd>
+      <dt>weight</dt><dd><p>If a weight column appears in <var>obs_data</var>, then the total biomass of
+        the stock will be aggregated and compared to the <var>obs_data</var> number
+        column.</p></dd>
+    
+</dl><p></p>
+
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

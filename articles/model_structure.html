@@ -173,7 +173,6 @@
 ##         return(nll)
 ##     cur_year &lt;- start_year + (cur_time%/%step_count)
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
-##     cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##     cur_step_final &lt;- cur_step == step_count
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
@@ -195,9 +194,8 @@
 ##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
 ##         length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
-##     step_count &lt;- 1L
+##     step_count &lt;- length(step_lengths)
 ##     cur_step &lt;- 0L
-##     cur_step_size &lt;- 0
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
@@ -209,7 +207,6 @@
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
 ##             cur_step &lt;- (cur_time%%step_count) + 1L
-##             cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##             cur_step_final &lt;- cur_step == step_count
 ##             if (FALSE) 
 ##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
@@ -238,9 +235,8 @@
 ##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
 ##         length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
-##     step_count &lt;- 1L
+##     step_count &lt;- length(step_lengths)
 ##     cur_step &lt;- 0L
-##     cur_step_size &lt;- 0
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
@@ -252,7 +248,6 @@
 ##                 return(nll)
 ##             cur_year &lt;- start_year + (cur_time%/%step_count)
 ##             cur_step &lt;- (cur_time%%step_count) + 1L
-##             cur_step_size &lt;- step_lengths[[cur_step]]/12
 ##             cur_step_final &lt;- cur_step == step_count
 ##             if (FALSE) 
 ##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)

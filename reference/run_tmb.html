@@ -137,7 +137,9 @@
 
 <span class='fu'>g3_tmb_lower</span>(<span class='no'>parameters</span>)
 
-<span class='fu'>g3_tmb_upper</span>(<span class='no'>parameters</span>)</pre>
+<span class='fu'>g3_tmb_upper</span>(<span class='no'>parameters</span>)
+
+<span class='fu'>g3_tmb_relist</span>(<span class='no'>parameters</span>, <span class='no'>par</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,6 +164,10 @@
       <th>parameters</th>
       <td><p>Parameter table as produced by <code><a href='https://rdrr.io/r/base/attr.html'>attr(g3_to_tmb(...), 'parameter_template')</a></code>,
     modified to provide initial conditions, etc.</p></td>
+    </tr>
+    <tr>
+      <th>par</th>
+      <td><p>Parameter vector, as produced by <code>g3_tmb_par()</code> or <code>nlminb(...)$par</code>.</p></td>
     </tr>
     <tr>
       <th>compile_flags</th>
@@ -199,7 +205,8 @@
 <p>An ADFun as produced by TMB's MakeADFun, or location of temporary script if <var>output_script</var> is TRUE</p><p></p><h3>g3_tmb_par</h3>
 <p>Values extracted from <var>parameters</var> table converted into a vector of values for <code>obj$fn(par)</code> or <code>nlminb</code></p><p></p><h3>g3_tmb_lower</h3>
 <p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p><p></p><h3>g3_tmb_upper</h3>
-<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
+<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p><p></p><h3>g3_tmb_relist</h3>
+<p>A value list for the <var>parameters</var> table, filled in with values from parameter vector</p>
 
     
 
@@ -261,15 +268,16 @@
  <span class='fu'><a href='https://rdrr.io/r/base/writeLines.html'>writeLines</a></span>(<span class='kw pkg'>TMB</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/TMB/man/gdbsource.html'>gdbsource</a></span>(<span class='fu'>g3_tmb_adfun</span>(<span class='no'>cpp</span>, <span class='kw'>compile_flags</span> <span class='kw'>=</span> <span class='st'>"-g"</span>, <span class='kw'>output_script</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)))
 
 
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) <span class='co'># Perform a single run, using values in table</span>
+<span class='co'># Perform a single run, using values in table</span>
 <span class='no'>result</span> <span class='kw'>&lt;-</span> <span class='no'>tmb</span>$<span class='fu'>fn</span>(<span class='fu'>g3_tmb_par</span>(<span class='no'>tmb_param</span>))
 
 <span class='co'># perform optimisation based on parameter table</span>
 <span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/nlminb.html'>nlminb</a></span>(<span class='no'>tmb</span>$<span class='no'>par</span>, <span class='no'>tmb</span>$<span class='no'>fn</span>, <span class='no'>tmb</span>$<span class='no'>gr</span>,
     <span class='kw'>upper</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_upper</span>(<span class='no'>tmb_param</span>),
-    <span class='kw'>lower</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_lower</span>(<span class='no'>tmb_param</span>))</div><div class='output co'>#&gt; outer mgc:  0 </div><div class='input'>
+    <span class='kw'>lower</span> <span class='kw'>=</span> <span class='fu'>g3_tmb_lower</span>(<span class='no'>tmb_param</span>),
+    <span class='kw'>control</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>iter.max</span><span class='kw'>=</span><span class='fl'>1</span>))</div><div class='output co'>#&gt; outer mgc:  0 </div><div class='input'>
 <span class='co'># Go back to a list of parameters, suitable for the R version</span>
-<span class='no'>param_list</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/relist.html'>relist</a></span>(<span class='no'>fit</span>$<span class='no'>par</span>, <span class='fu'><a href='https://rdrr.io/r/base/class.html'>unclass</a></span>(<span class='no'>tmb_param</span>$<span class='no'>value</span>))</div></pre>
+<span class='no'>param_list</span> <span class='kw'>&lt;-</span> <span class='fu'>g3_tmb_relist</span>(<span class='no'>tmb_param</span>, <span class='no'>fit</span>$<span class='no'>par</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
