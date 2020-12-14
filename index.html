@@ -81,14 +81,29 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="gadget3" class="section level1">
+<div id="gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#gadget3" class="anchor"></a>Gadget3</h1></div>
-<p>To run, do:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'demo-ling/setup.R'</span>)</a></code></pre></div>
-<div id="development" class="section level2">
+<a href="#gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3" class="anchor"></a>Gadget3: Globally applicable Area Disaggregated General Ecosystem Toolbox v3</h1></div>
+<p>Gadget3 is a framework for producing marine ecosystem models. Gadget3 creates a R or <a href="http://kaskr.github.io/adcomp/_book/Introduction.html">TMB</a> objective function for you, that can then be optimised with standard tools such as <code><a href="https://rdrr.io/r/stats/nlminb.html">nlminb()</a></code>.</p>
+<p>Gadget3 is primarily designed to produce models matching the behaviour of <a href="https://hafro.github.io/gadget2">gadget2</a>, although implementing new modelling systems would be possible</p>
+<p><em>NB:</em> Currently under active development.</p>
+<div id="installation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#development" class="anchor"></a>Development</h2>
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>Install latest version from github:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="op">&gt;</span><span class="st"> </span>remotes<span class="op">::</span><span class="kw"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">'lentinj/gadget3'</span>)</a></code></pre></div>
+</div>
+<div id="documentation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#documentation" class="anchor"></a>Documentation</h2>
+<p>For a quick start, look at the [demo-ling] example in this repository.</p>
+<p>To run, do:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="op">&gt;</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'demo-ling/setup.R'</span>, <span class="dt">echo =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<p>For more information, read the <a href="https://lentinj.github.io/gadget3/articles/model_structure.html">structure of a gadget3 model</a> vignette.</p>
+</div>
+<div id="development-of-gadget3" class="section level2">
+<h2 class="hasAnchor">
+<a href="#development-of-gadget3" class="anchor"></a>Development of gadget3</h2>
 <p>By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
 <ol>
 <li><code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</a></code></li>
