@@ -6,9 +6,9 @@ call_to_formula <- function (c, env = parent.frame()) {
 }
 
 # Merge (additions) into (env)
-environment_merge <- function (env, additions) {
-    for (n in ls(envir = additions)) {
-        if (!exists(n, envir = env)) {
+environment_merge <- function (env, additions, var_names = ls(envir = additions)) {
+    for (n in var_names) {
+        if (!exists(n, envir = env) && exists(n, envir = additions, inherits = FALSE)) {
             assign(n, get(n, envir = additions, inherits = FALSE), envir = env)
         }
     }
@@ -16,7 +16,8 @@ environment_merge <- function (env, additions) {
 }
 
 # Substitute within formulae, merging all environments together
-f_substitute <- function (f, env) {
+# TODO: copy_all_env should default to FALSE, but currently causes problems in stock_rename
+f_substitute <- function (f, env, copy_all_env = TRUE) {
     env <- as.environment(env)
     # Copy f's environment to a new environment, ignore it's parent
     combined_env <- new.env(parent = emptyenv())
@@ -35,7 +36,12 @@ f_substitute <- function (f, env) {
         }
 
         # Combine it's environment with ours
-        environment_merge(combined_env, rlang::f_env(o))
+        if (copy_all_env) {
+            environment_merge(combined_env, rlang::f_env(o))
+        } else {
+            # Only copy things the formulae mentions
+            environment_merge(combined_env, rlang::f_env(o), var_names = all.names(rlang::f_rhs(o), unique = TRUE))
+        }
     }
 
     # Make a substitute call out of our unevaluated formulae

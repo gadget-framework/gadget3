@@ -84,13 +84,13 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         dimnames = c(inner_stock$dimnames, list(
             length = names(lengthgroups))),
         iterate = f_substitute(~extension_point, list(
-            extension_point = inner_stock$iterate)),
+            extension_point = inner_stock$iterate), copy_all_env = TRUE),
         # NB: Length iterator is always "missing", so we get a lengthgroup vector
         iter_ss = c(inner_stock$iter_ss, list(quote(.[])[[3]])),
         intersect = f_substitute(~extension_point, list(
-            extension_point = inner_stock$intersect)),
+            extension_point = inner_stock$intersect), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
-            extension_point = inner_stock$rename)),
+            extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
 
