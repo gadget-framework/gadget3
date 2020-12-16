@@ -79,3 +79,18 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~if (x) {woo}),
     ~if (x) woo), "f_optimize: Regular if statement passed through")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~x * 1 + y),
+    ~x + y), "f_optimize: Recurse through arithmetic")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~0 + x + 0),
+    ~x), "f_optimize: Recurse through arithmetic")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~x + 0 + x),
+    ~x + x), "f_optimize: Recurse through arithmetic")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~y / 1 + 1 / z),
+    ~y + 1/z), "f_optimize: Division only works one way")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~-x),
+    ~-x), "f_optimize: Can still negate values")

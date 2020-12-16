@@ -457,7 +457,7 @@ structure(function (param)
                       {
                         comment("Grow and separate maturing ling_imm")
                         {
-                          growthresult <- g3a_grow_apply(ling_imm__growth_l * 1, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * maturity_ratio, ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * maturity_ratio, ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                           {
                             ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
                             ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
@@ -465,7 +465,7 @@ structure(function (param)
                         }
                         comment("Grow non-maturing ling_imm")
                         {
-                          growthresult <- g3a_grow_apply(ling_imm__growth_l * 1, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1 - maturity_ratio), ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (1 - maturity_ratio), ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                           {
                             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (1)]
                             ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- growthresult[, (2)]
@@ -531,9 +531,9 @@ structure(function (param)
                     ling_imm__age_idx <- age - ling_imm__minage + 1L
                     if (area == ling_imm__area) 
                       if (cur_step_final) {
-                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
-                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
-                        ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] - ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] * 1
+                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm__transitioning_wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx]
+                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx]
+                        ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx] - ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx]
                         ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                       }
                   }
@@ -729,8 +729,8 @@ structure(function (param)
                     ling_imm_movement__age_idx <- age - ling_imm_movement__minage + 1L
                     if (area == ling_imm_movement__area) 
                       if (cur_step_final) {
-                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * 1
-                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * 1
+                        ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__area_idx, ling_imm_movement__age_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx]
+                        ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__area_idx, ling_imm_movement__age_idx]
                         ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])
                       }
                   }

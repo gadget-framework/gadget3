@@ -72,6 +72,9 @@ call_replace <- function (f, ...) {
         if (length(modify_fn) > 0) {
             # TODO: To convert this into modify_fn(...) we need to differentiate
             #       modify_fn(quote(x)) and modify_fn(quote(x())) somehow
+            # TODO: Do this using function signatures,
+            #       "moo" = function (fn, arg1, arg2, ...) { ... }
+            #       "moo" = function (sym) { ... }
             f <- modify_fn(f)
         }
 
@@ -118,6 +121,28 @@ f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
 
 # Perform optimizations on code within formulae, mostly for readability
 f_optimize <- function (f) {
+    # Simplify Basic arithmetic
+    optim_arithmetic <- function (x) {
+        if (!is.call(x) || length(x) != 3) return(x)
+
+        op <- as.character(x[[1]])
+        lhs <- f_optimize(x[[2]])
+        rhs <- f_optimize(x[[3]])
+
+        # Entirely remove any no-op arithmetic
+        noop_value <- if (op == "*" || op == "/") 1 else 0
+        if (is.numeric(rhs) && isTRUE(all.equal(rhs, noop_value))) {
+            # x (op) 0/1 --> x
+            return(lhs)
+        }
+        if (op %in% c("+", "*") && is.numeric(lhs) && isTRUE(all.equal(lhs, noop_value))) {
+            # 0/1 (op) x --> x
+            return(rhs)
+        }
+
+        call(op, lhs, rhs)
+    }
+
     call_replace(f,
         "if" = function (x) {
             if (is.call(x) && ( isTRUE(x[[2]]) || identical(x[[2]], quote(!FALSE)) )) {
@@ -152,5 +177,9 @@ f_optimize <- function (f) {
                 }
                 return(list(part))
             })))
-        }) # } - Match open brace of call
+        }, # } - Match open brace of call
+        "+" = optim_arithmetic,
+        "-" = optim_arithmetic,
+        "*" = optim_arithmetic,
+        "/" = optim_arithmetic)
 }
