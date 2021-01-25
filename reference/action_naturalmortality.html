@@ -8,23 +8,29 @@
 
 <title>Gadget3 natural mortality action — action_naturalmortality • gadget3</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -32,10 +38,10 @@
 
 
 
-<meta property="og:title" content="Gadget3 natural mortality action — action_naturalmortality" />
 
+<meta property="og:title" content="Gadget3 natural mortality action — action_naturalmortality" />
 <meta property="og:description" content="Add natural mortality to a g3 model" />
-<meta name="twitter:card" content="summary" />
+
 
 
 
@@ -52,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -74,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -100,7 +106,6 @@
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -122,15 +127,13 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Add natural mortality to a g3 model</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_naturalmortality_exp</span>(<span class='no'>param_f</span>)
+    <pre class="usage"><span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='va'>param_f</span><span class='op'>)</span>
 
-<span class='fu'>g3a_naturalmortality</span>(<span class='no'>stock</span>, <span class='no'>mortality_f</span>, <span class='kw'>run_f</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>run_at</span> <span class='kw'>=</span> <span class='fl'>4</span>)</pre>
-    
+<span class='fu'>g3a_naturalmortality</span><span class='op'>(</span><span class='va'>stock</span>, <span class='va'>mortality_f</span>, run_f <span class='op'>=</span> <span class='cn'>TRUE</span>, run_at <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span></pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -155,56 +158,44 @@
       <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>A model can have any number of <code>g3a_naturalmortality</code> actions, so long as the
   calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
   <code>run_f = ~age == 7</code>.</p>
-    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3a_naturalmortality_exp</h3>
+    <p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_naturalmortality_exp</h3>
 <p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object with the following equation</p>  
 <p>$$ e^{-m \Delta t} $$</p>  
-<p></p><dl class='dl-horizontal'>
+<p></p><dl>
       <dt>\(\Delta t\)</dt><dd><p>length of current timestep</p></dd>
     
-</dl><p></p><p></p><h3>g3a_naturalmortality</h3>
+</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_naturalmortality</h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol>
 <li><p>Remove a proportion of each stock group as calculated by the mortality formula <code>mortality_f</code></p></li>
 </ol>
 
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><a href='https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort'>https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort</a>,
   <code><a href='action_grow.html'>g3a_growmature</a></code>,
   <code><a href='stock.html'>g3_stock</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>magrittr</span>)
-<span class='no'>ling_imm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span>(<span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span>)) <span class='kw'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span>(<span class='fl'>3</span>, <span class='fl'>10</span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>
+<span class='va'>ling_imm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>10</span><span class='op'>)</span>
 
 <span class='co'># Natural mortality for immature ling</span>
-<span class='no'>naturalmortality_action</span> <span class='kw'>&lt;-</span> <span class='fu'>g3a_naturalmortality</span>(<span class='no'>ling_imm</span>,
-    <span class='fu'>g3a_naturalmortality_exp</span>(~<span class='fu'><a href='language.html'>g3_param_vector</a></span>(<span class='st'>"lingimm.M"</span>)<span class='kw'>[[</span><span class='no'>age</span> - <span class='fl'>3</span> + <span class='fl'>1</span>]]))</div></pre>
+<span class='va'>naturalmortality_action</span> <span class='op'>&lt;-</span> <span class='fu'>g3a_naturalmortality</span><span class='op'>(</span><span class='va'>ling_imm</span>,
+    <span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='op'>~</span><span class='fu'><a href='language.html'>g3_param_vector</a></span><span class='op'>(</span><span class='st'>"lingimm.M"</span><span class='op'>)</span><span class='op'>[[</span><span class='va'>age</span> <span class='op'>-</span> <span class='fl'>3</span> <span class='op'>+</span> <span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#details">Details</a></li>
-
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -215,7 +206,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

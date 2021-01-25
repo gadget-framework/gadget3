@@ -8,23 +8,29 @@
 
 <title>Gadget3 suitability formulae — suitability • gadget3</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -32,10 +38,10 @@
 
 
 
-<meta property="og:title" content="Gadget3 suitability formulae — suitability" />
 
+<meta property="og:title" content="Gadget3 suitability formulae — suitability" />
 <meta property="og:description" content="Formula-returning functions describing predator/prey suitability relationships." />
-<meta name="twitter:card" content="summary" />
+
 
 
 
@@ -52,7 +58,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -74,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -100,7 +106,6 @@
   </ul>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -122,25 +127,23 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Formula-returning functions describing predator/prey suitability relationships.</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>g3_suitability_exponentiall50</span>(<span class='no'>alpha</span>, <span class='no'>l50</span>)
+    <pre class="usage"><span class='fu'>g3_suitability_exponentiall50</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>l50</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_andersen</span>(<span class='no'>p0</span>, <span class='no'>p1</span>, <span class='no'>p2</span>, <span class='kw'>p3</span> <span class='kw'>=</span> <span class='no'>p4</span>, <span class='no'>p4</span>, <span class='kw'>p5</span> <span class='kw'>=</span> ~<span class='no'>prey_stock__midlen</span>)
+<span class='fu'>g3_suitability_andersen</span><span class='op'>(</span><span class='va'>p0</span>, <span class='va'>p1</span>, <span class='va'>p2</span>, p3 <span class='op'>=</span> <span class='va'>p4</span>, <span class='va'>p4</span>, p5 <span class='op'>=</span> <span class='op'>~</span><span class='va'>prey_stock__midlen</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_gamma</span>(<span class='no'>alpha</span>, <span class='no'>beta</span>, <span class='no'>gamma</span>)
+<span class='fu'>g3_suitability_gamma</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>beta</span>, <span class='va'>gamma</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_exponential</span>(<span class='no'>alpha</span>, <span class='no'>beta</span>, <span class='no'>gamma</span>, <span class='no'>delta</span>)
+<span class='fu'>g3_suitability_exponential</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>beta</span>, <span class='va'>gamma</span>, <span class='va'>delta</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_straightline</span>(<span class='no'>alpha</span>, <span class='no'>beta</span>)
+<span class='fu'>g3_suitability_straightline</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>beta</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_constant</span>(<span class='no'>alpha</span>)
+<span class='fu'>g3_suitability_constant</span><span class='op'>(</span><span class='va'>alpha</span><span class='op'>)</span>
 
-<span class='fu'>g3_suitability_richards</span>(<span class='no'>p0</span>, <span class='no'>p1</span>, <span class='no'>p2</span>, <span class='no'>p3</span>, <span class='no'>p4</span>)</pre>
-    
+<span class='fu'>g3_suitability_richards</span><span class='op'>(</span><span class='va'>p0</span>, <span class='va'>p1</span>, <span class='va'>p2</span>, <span class='va'>p3</span>, <span class='va'>p4</span><span class='op'>)</span></pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -189,24 +192,24 @@
       <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into calcuations, see below.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3>g3_suitability_exponentiall50</h3>
+    <p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_exponentiall50</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       \frac{1}{ 1 + e^{-\alpha (l - l_{50})} }
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(l_{50}\)</dt><dd><p>Length of the prey with a 50% probability of predation, from parameter <var>l50</var></p></dd>
     
 </dl><p></p>
 
-<p></p><h3>g3_suitability_andersen</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_andersen</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       p_0 + p_2 e^{-\frac{(\log\frac{p_5}{l} - p_1)^2}{p_4}}
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(p_0\) .. \(p_2\)</dt><dd><p>Function parameter <var>p0</var> .. <var>p2</var></p></dd>
@@ -218,11 +221,11 @@
 
 <p>NB: Specifying \(p_5\) is equivalent to using the <code>andersenfleet</code> function in gadget2.</p>
 
-<p></p><h3>g3_suitability_gamma</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_gamma</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       (\frac{l}{(\alpha - 1)\beta\gamma}) ^ {(\alpha - 1) e^{\alpha - 1 - \frac{l}{\beta\gamma}}}
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
       <dt>\(\beta\)</dt><dd><p>Function parameter <var>beta</var></p></dd>
@@ -235,11 +238,11 @@
     would represent the size of the mesh used by the fleet (specified in
     centimetres).</p>
 
-<p></p><h3>g3_suitability_exponential</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_exponential</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       \frac{\delta}{1 + e^{-\alpha - \beta l - \gamma L}}
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
@@ -249,70 +252,64 @@
     
 </dl><p></p>
 
-<p></p><h3>g3_suitability_straightline</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_straightline</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       \alpha + \beta l
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
       <dt>\(\beta\)</dt><dd><p>Function parameter <var>beta</var></p></dd>
     
 </dl><p></p>
 
-<p></p><h3>g3_suitability_constant</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_constant</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       \alpha
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
     
 </dl><p></p>
 
-<p></p><h3>g3_suitability_richards</h3>
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_richards</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
 <p>$$
       {\big( \frac{p_3}{1 + e^{-p_0 - p_1 l - p_2 L}} \big)}^{\frac{1}{p_4}}
-    $$</p><dl class='dl-horizontal'>
+    $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
       <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
       <dt>\(p_0\) .. \(p_4\)</dt><dd><p>Function parameter <var>p0</var> .. <var>p4</var></p></dd>
     
 </dl><p>This is an extension to g3_suitability_exponential.</p>
 
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>magrittr</span>)
-<span class='no'>ling_imm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span>(<span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span>)) <span class='kw'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span>(<span class='fl'>3</span>, <span class='fl'>10</span>)
-<span class='no'>ling_mat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span>(<span class='st'>'ling_mat'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span>)) <span class='kw'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span>(<span class='fl'>5</span>, <span class='fl'>15</span>)
-<span class='no'>igfs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_fleet</a></span>(<span class='st'>'igfs'</span>)
+    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>
+<span class='va'>ling_imm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>10</span><span class='op'>)</span>
+<span class='va'>ling_mat</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'ling_mat'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>15</span><span class='op'>)</span>
+<span class='va'>igfs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_fleet</a></span><span class='op'>(</span><span class='st'>'igfs'</span><span class='op'>)</span>
 
-<span class='no'>igfs_landings</span> <span class='kw'>&lt;-</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/expand.grid.html'>expand.grid</a></span>(<span class='kw'>year</span><span class='kw'>=</span><span class='fl'>1990</span>:<span class='fl'>1994</span>, <span class='kw'>step</span><span class='kw'>=</span><span class='fl'>2</span>, <span class='kw'>area</span><span class='kw'>=</span><span class='fl'>1</span>, <span class='kw'>total_weight</span><span class='kw'>=</span><span class='fl'>1</span>),
-            <span class='kw'>area_group</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>`1`</span> <span class='kw'>=</span> <span class='fl'>1</span>))
+<span class='va'>igfs_landings</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/expand.grid.html'>expand.grid</a></span><span class='op'>(</span>year<span class='op'>=</span><span class='fl'>1990</span><span class='op'>:</span><span class='fl'>1994</span>, step<span class='op'>=</span><span class='fl'>2</span>, area<span class='op'>=</span><span class='fl'>1</span>, total_weight<span class='op'>=</span><span class='fl'>1</span><span class='op'>)</span>,
+            area_group <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>`1` <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># Generate a fleet predation action using g3_suitability_exponentiall50</span>
-<span class='no'>predate_action</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='action_predate.html'>g3a_predate_totalfleet</a></span>(
-    <span class='no'>igfs</span>,
-    <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>ling_imm</span>, <span class='no'>ling_mat</span>),
-    <span class='kw'>suitabilities</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-        <span class='kw'>ling_imm</span> <span class='kw'>=</span> <span class='fu'>g3_suitability_exponentiall50</span>(
-            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.igfs.alpha'</span>), ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.igfs.l50'</span>)),
-        <span class='kw'>ling_mat</span> <span class='kw'>=</span> <span class='fu'>g3_suitability_exponentiall50</span>(
-            ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.igfs.alpha'</span>), ~<span class='fu'><a href='language.html'>g3_param</a></span>(<span class='st'>'ling.igfs.l50'</span>))),
-    <span class='kw'>amount_f</span> <span class='kw'>=</span> <span class='fu'><a href='timevariable.html'>g3_timeareadata</a></span>(<span class='st'>'igfs_landings'</span>, <span class='no'>igfs_landings</span>))</div></pre>
+<span class='va'>predate_action</span> <span class='op'>&lt;-</span> <span class='fu'><a href='action_predate.html'>g3a_predate_totalfleet</a></span><span class='op'>(</span>
+    <span class='va'>igfs</span>,
+    <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>ling_imm</span>, <span class='va'>ling_mat</span><span class='op'>)</span>,
+    suitabilities <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+        ling_imm <span class='op'>=</span> <span class='fu'>g3_suitability_exponentiall50</span><span class='op'>(</span>
+            <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.alpha'</span><span class='op'>)</span>, <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.l50'</span><span class='op'>)</span><span class='op'>)</span>,
+        ling_mat <span class='op'>=</span> <span class='fu'>g3_suitability_exponentiall50</span><span class='op'>(</span>
+            <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.alpha'</span><span class='op'>)</span>, <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.l50'</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+    amount_f <span class='op'>=</span> <span class='fu'><a href='timevariable.html'>g3_timeareadata</a></span><span class='op'>(</span><span class='st'>'igfs_landings'</span>, <span class='va'>igfs_landings</span><span class='op'>)</span><span class='op'>)</span>
+</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -323,7 +320,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

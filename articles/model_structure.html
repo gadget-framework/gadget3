@@ -6,19 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Structure of a gadget3 model • gadget3</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Structure of a gadget3 model">
-<meta property="og:description" content="">
-<meta name="twitter:card" content="summary">
+<meta property="og:description" content="gadget3">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
-<body>
+<body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -75,10 +75,10 @@
 
       
 
-      </header><div class="row">
+      </header><script src="model_structure_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Structure of a gadget3 model</h1>
+      <h1 data-toc-skip>Structure of a gadget3 model</h1>
             
       
       
@@ -92,29 +92,33 @@
 <div id="r-formula-or-the-tilde-operator" class="section level2">
 <h2 class="hasAnchor">
 <a href="#r-formula-or-the-tilde-operator" class="anchor"></a>R formula, or the tilde operator</h2>
-<p>Crucial to gadget3 is the <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html">R formula</a>, created using the tilde operator (<code>~</code>). These get used in several places in R for various things, but at their core the tilde operator stores the R code on the left and right hand sides, as well as the environment it was created in, which amounts to all variables defined at the time.</p>
+<p>Crucial to gadget3 is the <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html">R formula</a>, created using the tilde operator (<code><a href="https://rdrr.io/r/base/tilde.html">~</a></code>). These get used in several places in R for various things, but at their core the tilde operator stores the R code on the left and right hand sides, as well as the environment it was created in, which amounts to all variables defined at the time.</p>
 <p>For example, let’s declare a function that produces a formula, and make some:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">get_formula &lt;-<span class="st"> </span><span class="cf">function</span> (size) {</a>
-<a class="sourceLine" id="cb1-2" title="2">    <span class="co"># NB: The reason we make a function here is so we have an isolated environment</span></a>
-<a class="sourceLine" id="cb1-3" title="3">    <span class="co"># to make examples cleaner.</span></a>
-<a class="sourceLine" id="cb1-4" title="4">    cows &lt;-<span class="st"> </span>size <span class="op">*</span><span class="st"> </span><span class="dv">2</span></a>
-<a class="sourceLine" id="cb1-5" title="5">    pigs &lt;-<span class="st"> </span>size <span class="op">*</span><span class="st"> </span><span class="dv">4</span></a>
-<a class="sourceLine" id="cb1-6" title="6">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="op">~</span>cows <span class="op">+</span><span class="st"> </span>pigs)</a>
-<a class="sourceLine" id="cb1-7" title="7">}</a>
-<a class="sourceLine" id="cb1-8" title="8">f &lt;-<span class="st"> </span><span class="kw">get_formula</span>(<span class="dv">8</span>)</a>
-<a class="sourceLine" id="cb1-9" title="9">g &lt;-<span class="st"> </span><span class="kw">get_formula</span>(<span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">get_formula</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">size</span><span class="op">)</span> <span class="op">{</span>
+    <span class="co"># NB: The reason we make a function here is so we have an isolated environment</span>
+    <span class="co"># to make examples cleaner.</span>
+    <span class="va">cows</span> <span class="op">&lt;-</span> <span class="va">size</span> <span class="op">*</span> <span class="fl">2</span>
+    <span class="va">pigs</span> <span class="op">&lt;-</span> <span class="va">size</span> <span class="op">*</span> <span class="fl">4</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">~</span><span class="va">cows</span> <span class="op">+</span> <span class="va">pigs</span><span class="op">)</span>
+<span class="op">}</span>
+<span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">get_formula</span><span class="op">(</span><span class="fl">8</span><span class="op">)</span>
+<span class="va">g</span> <span class="op">&lt;-</span> <span class="fu">get_formula</span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></code></pre></div>
 <p><code><a href="https://rdrr.io/r/utils/str.html">str()</a></code> shows <code>f</code> contains the formula’s code (not the result of cows + pigs), and has an environment attached:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(f)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0xnnnnnnnnnnnn&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7ffec5c1a030&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/environment.html">environment</a></span>(f)))</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## List of 3
 ##  $ pigs: num 32
 ##  $ cows: num 16
 ##  $ size: num 8</code></pre>
 <p>We can do similarly for <code>g</code>, and see the results are different:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw"><a href="https://rdrr.io/r/utils/str.html">str</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/environment.html">environment</a></span>(g)))</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## List of 3
 ##  $ pigs: num 20
 ##  $ cows: num 10
@@ -125,7 +129,8 @@
 <li>The environment (i.e. all variables defined at that point) is “remembered”</li>
 </ul>
 <p>A g3 model at it’s core is a list of formula objects that make up the model. We can even use Gadget3 to compile our simple example above into an R function:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(f))</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
 ##     cows &lt;- 16
@@ -135,13 +140,14 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0xnnnnnnnnnnnn&gt;
+## &lt;environment: 0x7ffec59ac978&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
 ## list()</code></pre>
 <p>…or a TMB template:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw"><a href="../reference/run_tmb.html">g3_to_tmb</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(f))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## #include &lt;TMB.hpp&gt;
 ## template&lt;class Type&gt;
 ## Type objective_function&lt;Type&gt;::operator() () {
@@ -162,7 +168,8 @@
 <a href="#actions" class="anchor"></a>Actions</h2>
 <p>In reality you will never be providing formulae to insert into models directly, you’d be using the g3 action functions to generate these for you. All action functions, prefixed with <code>g3a_</code>, produce a list of formula objects—an action in gadget3 parlance. These are where the gadget functionality is implemented.</p>
 <p>One of the simplest is <code>g3a_time</code>, which produces code that will count years/steps, and stop when the end of the time period is reached. For example:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span></code></pre></div>
 <pre><code>## $`000`
 ## ~{
 ##     debug_label("g3a_time")
@@ -177,9 +184,10 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0xnnnnnnnnnnnn&gt;</code></pre>
+## &lt;environment: 0x7ffec2387f40&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
 ##     Rprintf &lt;- function (...) 
@@ -214,13 +222,14 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0xnnnnnnnnnnnn&gt;
+## &lt;environment: 0x7ffec59c8718&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
 ## list()</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="op">~</span>start_year <span class="op">+</span><span class="st"> </span><span class="dv">4</span> ))</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
 ##     Rprintf &lt;- function (...) 
@@ -255,7 +264,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0xnnnnnnnnnnnn&gt;
+## &lt;environment: 0x7ffec5621c48&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -273,15 +282,17 @@
 </ul>
 <p>g3_stock objects can be created with either <code><a href="../reference/stock.html">g3_stock()</a></code> or <code><a href="../reference/stock.html">g3_fleet()</a></code>, the former will store lengthgroups, which fleets do not have.</p>
 <p>Actions will store data about the stocks, for instance the current number of individuals, in arrays called stock instances. We can see what sort of arrays a stock will make by using <code>gadget3:::stock_instance</code>:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">ling_imm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/stock.html">g3_stock</a></span>(<span class="st">'ling_imm'</span>, <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb18-2" title="2">gadget3<span class="op">:::</span><span class="kw">stock_instance</span>(ling_imm)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></code></pre></div>
 <pre><code>## length
 ##  len0 len10 len20 len30 len40 len50 
 ##    NA    NA    NA    NA    NA    NA</code></pre>
 <p>To add complexity to our model, we can use other <code>g3s_</code> functions, such as <code><a href="../reference/stock_areas.html">g3s_livesonareas()</a></code> or <code><a href="../reference/stock_age.html">g3s_age()</a></code>, which adds area or age dimensions to a stock:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">ling_imm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/stock.html">g3_stock</a></span>(<span class="st">'ling_imm'</span>, <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb20-2" title="2"><span class="st">    </span><span class="kw"><a href="../reference/stock_age.html">g3s_age</a></span>(<span class="dv">3</span>, <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb20-3" title="3">gadget3<span class="op">:::</span><span class="kw">stock_instance</span>(ling_imm)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span>
+<span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></code></pre></div>
 <pre><code>##        age
 ## length  age3 age4 age5 age6 age7 age8 age9 age10
 ##   len0    NA   NA   NA   NA   NA   NA   NA    NA
@@ -290,10 +301,11 @@
 ##   len30   NA   NA   NA   NA   NA   NA   NA    NA
 ##   len40   NA   NA   NA   NA   NA   NA   NA    NA
 ##   len50   NA   NA   NA   NA   NA   NA   NA    NA</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">ling_imm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/stock.html">g3_stock</a></span>(<span class="st">'ling_imm'</span>, <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="dv">10</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-2" title="2"><span class="st">    </span><span class="kw"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb22-3" title="3"><span class="st">    </span><span class="kw"><a href="../reference/stock_age.html">g3s_age</a></span>(<span class="dv">3</span>, <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb22-4" title="4">gadget3<span class="op">:::</span><span class="kw">stock_instance</span>(ling_imm)[,,<span class="st">'age3'</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span>
+<span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span><span class="op">[</span>,,<span class="st">'age3'</span><span class="op">]</span></code></pre></div>
 <pre><code>##        area
 ## length  area1 area2
 ##   len0     NA    NA
@@ -304,15 +316,16 @@
 ##   len50    NA    NA</code></pre>
 <p>When you use an action such as <code><a href="../reference/action_grow.html">g3a_growmature()</a></code>, you provide g3_stock(s) to act on, and formula objects to fill in gaps in the code. <code><a href="../reference/action_grow.html">g3a_growmature()</a></code> will iterate over all areas/ages the stock has, and apply growth for each length group it finds.</p>
 <p><code><a href="../reference/action_grow.html">g3a_growmature()</a></code> itself doesn’t care about areas or age, it just does the same to each. However, the formula you supply can. <code>age</code> and <code>area</code> variables will be set with the current age/area, which you can use when writing formula. For example:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">fn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
-<a class="sourceLine" id="cb24-2" title="2">    ling_imm,</a>
-<a class="sourceLine" id="cb24-3" title="3">    <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb24-4" title="4">        <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb24-5" title="5">        <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb24-6" title="6">        <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb24-7" title="7">        <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>),</a>
-<a class="sourceLine" id="cb24-8" title="8">    <span class="dt">transition_f =</span> <span class="op">~</span><span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb24-9" title="9">fn</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span>
+    <span class="va">ling_imm</span>,
+    impl_f <span class="op">=</span> <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span>
+        delta_len_f <span class="op">=</span> <span class="op">~</span><span class="va">age</span> <span class="op">*</span> <span class="fl">10</span>,
+        delta_wgt_f <span class="op">=</span> <span class="op">~</span><span class="va">area</span> <span class="op">*</span> <span class="fl">20</span>,
+        beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.bbin"</span><span class="op">)</span>,
+        maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,
+    transition_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+<span class="va">fn</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
 ##     growth_bbinom &lt;- function (dmu, lengthgrouplen, binn, beta) 
@@ -424,7 +437,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0xnnnnnnnnnnnn&gt;
+## &lt;environment: 0x7ffec35ba600&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -435,37 +448,39 @@
 <div id="model-parameterization" class="section level2">
 <h2 class="hasAnchor">
 <a href="#model-parameterization" class="anchor"></a>Model parameterization</h2>
-<p>In the <code>g3a_growmature</code> function above, we see a reference to <code><a href="../reference/language.html">g3_param("ling.bbin")</a></code>. The <code><a href="../reference/language.html">g3_param()</a></code> function is pseudo-code that specifies the model should accept a parameter at this point. In the R code, this has been converted to <code>param[["ling.bbin"]]</code>, so when we call our R function, we can provide a value, e.g. <code>fn(list(ling.bbin = 6))</code>. We can also use <code><a href="../reference/language.html">g3_param_vector()</a></code> to provide a model with a vector of values. See <code><a href="../reference/language.html">?g3_param</a></code> for more information on this and other functions available to you.</p>
+<p>In the <code>g3a_growmature</code> function above, we see a reference to <code><a href="../reference/language.html">g3_param("ling.bbin")</a></code>. The <code><a href="../reference/language.html">g3_param()</a></code> function is pseudo-code that specifies the model should accept a parameter at this point. In the R code, this has been converted to <code>param[["ling.bbin"]]</code>, so when we call our R function, we can provide a value, e.g. <code>fn(list(ling.bbin = 6))</code>. We can also use <code><a href="../reference/language.html">g3_param_vector()</a></code> to provide a model with a vector of values. See <code><a href="../reference/language.html">?g3_param</a></code> for more information on this and other functions available to you.</p>
 <p>When converting to TMB, there are a lot more options for using the optimisation features it offers.</p>
 </div>
 <div id="combining-actions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#combining-actions" class="anchor"></a>Combining actions</h2>
 <p>Any useful model will have multiple actions, so the outputs from the <code>g3a_</code> functions need to be combined. To do this, you can pass a list of actions to any of the <code>g3_to_*</code> functions, for example:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">ling_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb26-2" title="2">    <span class="kw"><a href="../reference/action_age.html">g3a_age</a></span>(ling_imm),</a>
-<a class="sourceLine" id="cb26-3" title="3">    <span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
-<a class="sourceLine" id="cb26-4" title="4">        ling_imm,</a>
-<a class="sourceLine" id="cb26-5" title="5">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb26-6" title="6">            <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb26-7" title="7">            <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb26-8" title="8">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb26-9" title="9">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)),</a>
-<a class="sourceLine" id="cb26-10" title="10">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+    <span class="fu"><a href="../reference/action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,
+    <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span>
+        <span class="va">ling_imm</span>,
+        impl_f <span class="op">=</span> <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span>
+            delta_len_f <span class="op">=</span> <span class="op">~</span><span class="va">age</span> <span class="op">*</span> <span class="fl">10</span>,
+            delta_wgt_f <span class="op">=</span> <span class="op">~</span><span class="va">area</span> <span class="op">*</span> <span class="fl">20</span>,
+            beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.bbin"</span><span class="op">)</span>,
+            maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,
+    <span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>A useful technique is to break down the actions into separate lists, e.g.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">ling_imm_actions &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb27-2" title="2">    <span class="kw"><a href="../reference/action_age.html">g3a_age</a></span>(ling_imm),</a>
-<a class="sourceLine" id="cb27-3" title="3">    <span class="kw"><a href="../reference/action_grow.html">g3a_growmature</a></span>(</a>
-<a class="sourceLine" id="cb27-4" title="4">        ling_imm,</a>
-<a class="sourceLine" id="cb27-5" title="5">        <span class="dt">impl_f =</span> <span class="kw"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span>(</a>
-<a class="sourceLine" id="cb27-6" title="6">            <span class="dt">delta_len_f =</span> <span class="op">~</span>age <span class="op">*</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb27-7" title="7">            <span class="dt">delta_wgt_f =</span> <span class="op">~</span>area <span class="op">*</span><span class="st"> </span><span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb27-8" title="8">            <span class="dt">beta_f =</span> <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">"ling.bbin"</span>),</a>
-<a class="sourceLine" id="cb27-9" title="9">            <span class="dt">maxlengthgroupgrowth =</span> <span class="dv">4</span>)))</a>
-<a class="sourceLine" id="cb27-10" title="10">time_actions &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb27-11" title="11">    <span class="kw"><a href="../reference/action_time.html">g3a_time</a></span>(<span class="dv">1990</span>, <span class="dv">1999</span>))</a>
-<a class="sourceLine" id="cb27-12" title="12"></a>
-<a class="sourceLine" id="cb27-13" title="13">ling_model &lt;-<span class="st"> </span><span class="kw"><a href="../reference/run_r.html">g3_to_r</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(ling_imm_actions, time_actions))</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ling_imm_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+    <span class="fu"><a href="../reference/action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,
+    <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span>
+        <span class="va">ling_imm</span>,
+        impl_f <span class="op">=</span> <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span>
+            delta_len_f <span class="op">=</span> <span class="op">~</span><span class="va">age</span> <span class="op">*</span> <span class="fl">10</span>,
+            delta_wgt_f <span class="op">=</span> <span class="op">~</span><span class="va">area</span> <span class="op">*</span> <span class="fl">20</span>,
+            beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.bbin"</span><span class="op">)</span>,
+            maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">time_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+    <span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ling_imm_actions</span>, <span class="va">time_actions</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Your actions can be combined in any order, the reasons for why are in the next section.</p>
 </div>
 <div id="ordering-of-actions" class="section level2">
@@ -473,21 +488,22 @@
 <a href="#ordering-of-actions" class="anchor"></a>Ordering of actions</h2>
 <p>Gadget2 has a strict <a href="https://hafro.github.io/gadget2/userguide/chap-order.html">Order of Calculations</a>, and re-ordering calculations may well have averse effects. Actions also have common steps to perform, for example overstocking for a prey has to be calculated, and calculated once, after each fleet has finished harvesting.</p>
 <p>To manage this, formulas within an action are labelled with a string, for example:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">lln &lt;-<span class="st"> </span><span class="kw"><a href="../reference/stock.html">g3_fleet</a></span>(<span class="st">'lln'</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb28-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(</a>
-<a class="sourceLine" id="cb28-3" title="3">    <span class="kw"><a href="../reference/action_predate.html">g3a_predate_totalfleet</a></span>(</a>
-<a class="sourceLine" id="cb28-4" title="4">        lln,</a>
-<a class="sourceLine" id="cb28-5" title="5">        <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(ling_imm),</a>
-<a class="sourceLine" id="cb28-6" title="6">        <span class="dt">suitabilities =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</a>
-<a class="sourceLine" id="cb28-7" title="7">            <span class="dt">ling_imm =</span> <span class="kw"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span>(</a>
-<a class="sourceLine" id="cb28-8" title="8">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.alpha'</span>),</a>
-<a class="sourceLine" id="cb28-9" title="9">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.l50'</span>)),</a>
-<a class="sourceLine" id="cb28-10" title="10">            <span class="dt">ling_mat =</span> <span class="kw"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span>(</a>
-<a class="sourceLine" id="cb28-11" title="11">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.alpha'</span>),</a>
-<a class="sourceLine" id="cb28-12" title="12">                <span class="op">~</span><span class="kw"><a href="../reference/language.html">g3_param</a></span>(<span class="st">'ling.lln.l50'</span>))),</a>
-<a class="sourceLine" id="cb28-13" title="13">        <span class="dt">amount_f =</span> <span class="dv">1</span>),</a>
-<a class="sourceLine" id="cb28-14" title="14">    <span class="co"># NB: step_find_desc finds a label within the formula</span></a>
-<a class="sourceLine" id="cb28-15" title="15">    <span class="cf">function</span> (s) gadget3<span class="op">:::</span><span class="kw">step_find_desc</span>(s, <span class="dt">minor_steps =</span> <span class="ot">TRUE</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lln</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'lln'</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span>
+    <span class="fu"><a href="../reference/action_predate.html">g3a_predate_totalfleet</a></span><span class="op">(</span>
+        <span class="va">lln</span>,
+        <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,
+        suitabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+            ling_imm <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span>
+                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.alpha'</span><span class="op">)</span>,
+                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.l50'</span><span class="op">)</span><span class="op">)</span>,
+            ling_mat <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span>
+                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.alpha'</span><span class="op">)</span>,
+                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.l50'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
+        amount_f <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
+    <span class="co"># NB: step_find_desc finds a label within the formula</span>
+    <span class="kw">function</span> <span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">step_find_desc</span><span class="op">(</span><span class="va">s</span>, minor_steps <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## $`003:000:lln                 `
 ## [1] "Zero biomass-caught counter for lln"
 ## 
@@ -528,20 +544,11 @@
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-        <div id="tocnav">
-      <h2 class="hasAnchor">
-<a href="#tocnav" class="anchor"></a>Contents</h2>
-      <ul class="nav nav-pills nav-stacked">
-<li><a href="#r-formula-or-the-tilde-operator">R formula, or the tilde operator</a></li>
-      <li><a href="#actions">Actions</a></li>
-      <li><a href="#stocks">Stocks</a></li>
-      <li><a href="#model-parameterization">Model parameterization</a></li>
-      <li><a href="#combining-actions">Combining actions</a></li>
-      <li><a href="#ordering-of-actions">Ordering of actions</a></li>
-      </ul>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
 </div>
-      </div>
 
 </div>
 
@@ -552,7 +559,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
