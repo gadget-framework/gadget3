@@ -1,5 +1,7 @@
 # Gadget3: Globally applicable Area Disaggregated General Ecosystem Toolbox v3
 
+[![R-CMD-check](https://github.com/gadget-framework/gadget3/workflows/R-CMD-check/badge.svg)](https://github.com/gadget-framework/gadget3/actions)
+
 Gadget3 is a framework for producing marine ecosystem models. Gadget3 creates a
 R or [TMB](http://kaskr.github.io/adcomp/_book/Introduction.html) objective
 function for you, that can then be optimised with standard tools such as
