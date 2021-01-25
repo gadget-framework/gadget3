@@ -17,7 +17,7 @@ systems would be possible
 
 Install latest version from github:
 
-    > remotes::install_github('lentinj/gadget3')
+    > remotes::install_github('gadget-framework/gadget3')
 
 ## Documentation
 
@@ -27,7 +27,7 @@ To run, do:
 
     > source('demo-ling/setup.R', echo = TRUE)
 
-For more information, read the [structure of a gadget3 model](https://lentinj.github.io/gadget3/articles/model_structure.html)
+For more information, read the [structure of a gadget3 model](https://gadget-framework.github.io/gadget3/articles/model_structure.html)
 vignette.
 
 ## Development of gadget3
