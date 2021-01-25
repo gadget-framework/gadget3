@@ -1,0 +1,31 @@
+# Based on:-
+# * https://ropenscilabs.github.io/actions_sandbox/websites-using-pkgdown-bookdown-and-blogdown.html#action-to-deploy-a-bookdown-site
+# * https://github.com/peaceiris/actions-gh-pages
+on:
+  push:
+     branches:
+       - master
+
+name: Render documentation
+
+jobs:
+  documentation:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Install package
+        run: devtools::install(dependencies = TRUE, upgrade = "always")
+        shell: Rscript {0}
+
+      - name: Render Documentation
+        run: Rscript -e "pkgdown::build_site()"
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_branch: gh-pages
+          publish_dir: ./docs
