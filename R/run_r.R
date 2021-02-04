@@ -55,17 +55,23 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_param_vector = function (x) param_lines[[x[[2]]]] <<- NA,
             g3_param = function (x) param_lines[[x[[2]]]] <<- NA)
 
+        # Find with variables / iterators to ignore
+        ignore_vars <- c(
+            lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
+            lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
+            list())
+
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
             if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
                 next
             }
-            if (var_name %in% lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }) ) {
+            if (var_name %in% ignore_vars) {
                 # It's an iterator
                 next
             }
-            if (var_name %in% lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }) ) {
+            if (var_name %in% ignore_vars) {
                 # It's a with variable
                 next
             }
