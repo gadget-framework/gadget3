@@ -6,18 +6,52 @@
 
 ## setup the immature stock first
 
+
+## recruitment and initial numbers at age come from the same distribution..
+ling_init_abund <-
+  ~exp(g3_param("ling.scalar")) * exp(g3_param_table("ling.init", expand.grid(cur_year = seq(start_year, end_year),
+                                           age = seq(
+                                             min(ling_imm__minage, ling_mat__minage),
+                                             max(ling_imm__maxage, ling_mat__maxage)))))
+
+## main a50 between bounds
+a50 <-
+  ~min(ling_imm__minage, ling_mat__minage) +
+  (max(ling_imm__maxage, ling_mat__maxage) - min(ling_imm__minage, ling_mat__minage))/(1 + exp(-0.01*g3_param('ling.mat.a50')))
+
+## ensure that old fish are not immature
+prop_m_age <-
+  gadget3:::f_substitute(~ 1/(1 + exp(-exp(g3_param("ling.mat.a"))*(age - a50))),
+                         list(a50 = a50))
+
+## ensure recruitment length at age 1 is within the appropriate range
+recl <-
+  ~4 + 16/(1+exp(-0.01*g3_param('ling.recl')))
+
+## mean length is estimated based on a Von B relationship used for immature and mature
+mean_l <-
+  gadget3:::f_substitute(~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) *
+                                                             (age - (1 + log(1 - recl/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+                         list(recl = recl))
+
+
 ling_imm_actions <- list(
   g3a_initialconditions_normalparam(ling_imm,
                                     # NB: area & age factor together (gadget2 just multiplied them)
-                                    factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param_table("lingimm.M", data.frame(age = seq(ling_imm__minage, ling_imm__maxage) )) + g3_param("ling.init.F")) * age) * g3_param_table("lingimm.init", data.frame(age = seq(ling_imm__minage, ling_imm__maxage))),
-                                    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-                                    stddev_f = ~g3_param_vector("ling.init.sd")[[age]],
+                                    # initial abundance at age is 1e4 * q
+                                    factor_f = gadget3:::f_substitute(~ling_init_abund *
+                                      exp(-1 * (g3_param_table("lingimm.M",
+                                                               data.frame(age = seq(ling_imm__minage, ling_imm__maxage) )) +
+                                                  g3_param("ling.init.F")) * age) * (1 - prop_m_age ),
+                                      list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age)),
+                                    mean_f = mean_l,
+                                    stddev_f = ~g3_param_table('lingimm.init.sd',data.frame(age = seq(ling_imm__minage, ling_imm__maxage))),
                                     alpha_f = ~g3_param("lingimm.walpha"),
                                     beta_f = ~g3_param("lingimm.wbeta")),
   g3a_renewal_normalparam(ling_imm,
-                          factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
-                          mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-                          stddev_f = ~g3_param_vector('ling.init.sd')[[age]],
+                          factor_f = ling_init_abund,
+                          mean_f = mean_l,
+                          stddev_f = ~g3_param("ling.rec.sd"),
                           alpha_f = ~g3_param("lingimm.walpha"),
                           beta_f = ~g3_param("lingimm.wbeta"),
                           run_f = ~cur_step == 1 && age == 3),
@@ -28,8 +62,8 @@ ling_imm_actions <- list(
           beta_f = ~g3_param("ling.bbin") * 10,
           maxlengthgroupgrowth = 15),
       maturity_f = g3a_mature_continuous(
-          alpha = ~0.001 * g3_param("ling.mat1"),
-          l50 = ~g3_param("ling.mat2")),
+          alpha = ~0.001 * exp(g3_param("ling.mat1")),
+          l50 = ~4 +150/(1 + exp(-0.01*g3_param("ling.mat2")))),
       output_stocks = list(ling_mat)),
   g3a_naturalmortality(ling_imm,
                        g3a_naturalmortality_exp(~g3_param_table("lingimm.M", data.frame(age = seq(ling_imm__minage, ling_imm__maxage))))),
@@ -40,9 +74,14 @@ ling_imm_actions <- list(
 ling_mat_actions <- list(
   g3a_initialconditions_normalparam(ling_mat,
                                     # NB: area & age factor together (gadget2 just multiplied them)
-                                    factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param_table("lingmat.M", data.frame(age = seq(ling_mat__minage, ling_mat__maxage))) + g3_param("ling.init.F")) * age) * g3_param_table("lingmat.init", data.frame(age = seq(ling_mat__minage, ling_mat__maxage))),
-                                    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-                                    stddev_f = ~g3_param_vector('ling.init.sd')[[age]],
+                                    factor_f =
+                                      gadget3:::f_substitute(~ling_init_abund *
+                                      exp(-1 * (g3_param_table("lingmat.M",
+                                                               data.frame(age = seq(ling_imm__minage, ling_mat__maxage) )) +
+                                                  g3_param("ling.init.F")) * age) *prop_m_age,
+                                      list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age)),
+                                    mean_f = mean_l,
+                                    stddev_f = ~g3_param_table('lingmat.init.sd',data.frame(age = seq(ling_mat__minage, ling_mat__maxage))),
                                     alpha_f = ~g3_param("lingmat.walpha"),
                                     beta_f = ~g3_param("lingmat.wbeta")),
   g3a_growmature(ling_mat,

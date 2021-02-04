@@ -5,15 +5,15 @@ library(gadget3)
 year_range <- 1982:lubridate::year(Sys.Date())
 read_data <- FALSE
 
-reitmapping <- 
+reitmapping <-
   read.table(
     system.file("demo-data", "reitmapping.tsv", package="mfdb"),
     header=TRUE,
     as.is=TRUE)
 
 defaults <- list(
-  area = mfdb_group("1" = unique(reitmapping$SUBDIVISION)),
-  timestep = mfdb_timestep_quarterly,
+  area = mfdb::mfdb_group("1" = unique(reitmapping$SUBDIVISION)),
+  timestep = mfdb::mfdb_timestep_quarterly,
   year = year_range,
   species = 'LIN')
 
@@ -25,35 +25,35 @@ areas <- structure(
 ##### Configure model stocks/fleets ###########################################
 
 ## modelled stocks
-ling_imm <- 
+ling_imm <-
   g3_stock('ling_imm', seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(3, 10)
 
-ling_mat <- 
+ling_mat <-
   g3_stock('ling_mat', seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(5, 15)
 
 ## fleets
-lln <- 
-  g3_fleet('lln') %>% 
+lln <-
+  g3_fleet('lln') %>%
   g3s_livesonareas(areas[c('1')])
 
-bmt <- 
-  g3_fleet('bmt') %>% 
+bmt <-
+  g3_fleet('bmt') %>%
   g3s_livesonareas(areas[c('1')])
 
-gil <- 
-  g3_fleet('gil') %>% 
-  g3s_livesonareas(areas[c('1')]) 
-
-foreign <- 
-  g3_fleet('foreign') %>% 
+gil <-
+  g3_fleet('gil') %>%
   g3s_livesonareas(areas[c('1')])
 
-igfs <- 
-  g3_fleet('igfs') %>% 
+foreign <-
+  g3_fleet('foreign') %>%
+  g3s_livesonareas(areas[c('1')])
+
+igfs <-
+  g3_fleet('igfs') %>%
   g3s_livesonareas(areas[c('1')])
 
 # Load required data objects
@@ -64,8 +64,8 @@ if(read_data){
   source('demo-ling/setup-indices.R')
   source('demo-ling/setup-initial_parameters.R')
 } else {
-  fs::dir_ls('demo-ling/data') %>% 
-    stringr::str_subset('.Rdata') %>% 
+  fs::dir_ls('demo-ling/data') %>%
+    stringr::str_subset('.Rdata') %>%
     lapply(load,.GlobalEnv)
 }
 
@@ -73,8 +73,8 @@ if(read_data){
 
 # Timekeeping for the model, i.e. how long we run for
 time_actions <- list(
-    g3a_time(start_year = min(defaults$year), 
-        end_year = max(defaults$year), 
+    g3a_time(start_year = min(defaults$year),
+        end_year = max(defaults$year),
         defaults$timestep),
     list())
 
@@ -133,26 +133,25 @@ ling_param[["ling.k"]] <- 90
 ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingimm.wbeta"]] <- 3.20200445996187
 ling_param[["ling.bbin"]] <- 6
-ling_param[["lingimm.init.scalar"]] <- 200
+ling_param[["ling.scalar"]] <- 0
 ling_param[["ling.init.F"]] <- 0.4
-ling_param[["ling.recl"]] <- 12
-ling_param[["ling.mat1"]] <- 70
-ling_param[["ling.mat2"]] <- 75
-ling_param[["ling.rec.scalar"]] <- 400
-ling_param[["ling.rec.1982"]] <- 1
+ling_param[["ling.recl"]] <- 0
+ling_param[["ling.mat1"]] <- 0
+ling_param[["ling.mat2"]] <- 0
+ling_param[["ling.mat.a"]] <- 0
+ling_param[["ling.mat.a50"]] <- 0
+#ling_param[["ling.rec.1982"]] <- 1
 ling_param[["ling.rec.sd"]] <- 5
-ling_param[["lingmat.init.scalar"]] <- 200
 ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingmat.wbeta"]] <- 3.20200445996187
-ling_param[["ling.igfs.alpha"]] <- 0.5
-ling_param[["ling.igfs.l50"]] <- 50
-ling_param[["ling.lln.alpha"]] <- 0.5
-ling_param[["ling.lln.l50"]] <- 50
-ling_param[["ling.bmt.alpha"]] <- 0.5
-ling_param[["ling.bmt.l50"]] <- 50
-ling_param[["ling.gil.alpha"]] <- 0.5
-ling_param[["ling.gil.l50"]] <- 50
-ling_param[["ling.init.sd"]] <- init.sigma$ms
+ling_param[["ling.igfs.alpha"]] <- 0
+ling_param[["ling.igfs.l50"]] <- 0
+ling_param[["ling.lln.alpha"]] <- 0
+ling_param[["ling.lln.l50"]] <- 0
+ling_param[["ling.bmt.alpha"]] <- 0
+ling_param[["ling.bmt.l50"]] <- 0
+ling_param[["ling.gil.alpha"]] <- 0
+ling_param[["ling.gil.l50"]] <- 0
 ling_param[["ling_si_alpha1"]] <- 6.4e-9
 ling_param[["ling_si_beta1"]] <- 1.4
 ling_param[['ling_si_alpha2']] <- 1.7e-7
@@ -163,17 +162,18 @@ ling_param[['ling_si_alpha5']] <- 5.4e-5
 ling_param[['ling_si_alpha6']] <- 5.8e-5
 ling_param[['ling_si_alpha7']] <- 7.1e-5
 ling_param[grepl('^lingimm\\.M\\.', names(ling_param))] <- 0.15
-ling_param[grepl('^lingimm\\.init\\.', names(ling_param))] <- 1
+ling_param[grepl('^ling\\.init\\.[0-9]', names(ling_param))] <- 0
 ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
-ling_param[grepl('^lingmat\\.init\\.', names(ling_param))] <- 1
 ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
+ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:10]
+ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:15]
 
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
 
 # Run model with params above
 result <- ling_model(ling_param)
-
+result[[1]]
 # List all available reports
 print(names(attributes(result)))
 
@@ -192,28 +192,28 @@ tmb_param <- attr(tmb_ling, 'parameter_template')
 
 ## I would like to do something like this:
 if(FALSE){
-  read.gadget.parameters(sprintf('%s/params.out',gd)) %>% 
+  read.gadget.parameters(sprintf('%s/params.out',gd)) %>%
     init_guess('rec.[0-9]|init.[0-9]',1,0.001,1000,1) %>%
-    init_guess('recl',12,1,20,1) %>% 
-    init_guess('rec.sd',5, 4, 20,1) %>% 
-    init_guess('Linf',160, 100, 200,1) %>% 
-    init_guess('k$',90, 40, 100,1) %>% 
-    init_guess('bbin',6, 1e-08, 100, 1) %>% 
-    init_guess('alpha', 0.5,  0.01, 3, 1) %>% 
-    init_guess('l50',50,10,100,1) %>% 
-    init_guess('walpha',lw.constants$estimate[1], 1e-10, 1,0) %>% 
-    init_guess('wbeta',lw.constants$estimate[2], 2, 4,0) %>% 
-    init_guess('M$',0.15,0.001,1,0) %>% 
-    init_guess('rec.scalar',400,1,500,1) %>% 
-    init_guess('init.scalar',200,1,300,1) %>% 
-    init_guess('mat2',mat.l50$l50,0.75*mat.l50$l50,1.25*mat.l50$l50,1) %>% 
-    init_guess('mat1',70,  10, 200, 1) %>% 
-    init_guess('init.F',0.4,0.1,1,1) %>% 
-    init_guess('p0',0,0,1,1) %>% 
-    init_guess('p2',1,0,1,1) %>% 
-    init_guess('p3',1,0.01,100,1) %>% 
-    init_guess('p4',1,0.01,100,1) %>% 
-    init_guess('mode',70,30,90,1) %>% 
+    init_guess('recl',12,1,20,1) %>%
+    init_guess('rec.sd',5, 4, 20,1) %>%
+    init_guess('Linf',160, 100, 200,1) %>%
+    init_guess('k$',90, 40, 100,1) %>%
+    init_guess('bbin',6, 1e-08, 100, 1) %>%
+    init_guess('alpha', 0.5,  0.01, 3, 1) %>%
+    init_guess('l50',50,10,100,1) %>%
+    init_guess('walpha',lw.constants$estimate[1], 1e-10, 1,0) %>%
+    init_guess('wbeta',lw.constants$estimate[2], 2, 4,0) %>%
+    init_guess('M$',0.15,0.001,1,0) %>%
+    init_guess('rec.scalar',400,1,500,1) %>%
+    init_guess('init.scalar',200,1,300,1) %>%
+    init_guess('mat2',mat.l50$l50,0.75*mat.l50$l50,1.25*mat.l50$l50,1) %>%
+    init_guess('mat1',70,  10, 200, 1) %>%
+    init_guess('init.F',0.4,0.1,1,1) %>%
+    init_guess('p0',0,0,1,1) %>%
+    init_guess('p2',1,0,1,1) %>%
+    init_guess('p3',1,0.01,100,1) %>%
+    init_guess('p4',1,0.01,100,1) %>%
+    init_guess('mode',70,30,90,1) %>%
     write.gadget.parameters(.,file=sprintf('%s/params.in',gd))
 }
 
@@ -223,34 +223,35 @@ tmb_param$value <- I(ling_param[rownames(tmb_param)])
 # Configure lower and upper bounds
 tmb_param$lower <- vapply(tmb_param$value, function (x) 0.5 * x[[1]], numeric(1))
 tmb_param$upper <- vapply(tmb_param$value, function (x) 2 * x[[1]], numeric(1))
-tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$lower <- 0.0001
-tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$upper <- 1e3
-tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
-tmb_param[grepl('^lingmat\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
-tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
-tmb_param[grepl('^lingimm\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
+#tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$lower <- 0.0001
+#tmb_param[grepl('^ling\\.rec\\.', rownames(tmb_param)),]$upper <- 1e3
+tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
+tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
+tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
+tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 
 # Disable optimisation for some parameters, to make life easier
-tmb_param[c('ling.init.sd',
-            'lingimm.walpha',
+tmb_param[c('lingimm.walpha',
             'lingimm.wbeta',
             'lingmat.walpha',
-            'lingmat.wbeta',
-            "ling_si_alpha1",
-            "ling_si_beta1" ,
-            'ling_si_alpha2',
-            "ling_si_beta2" ,
-            'ling_si_alpha3',
-            'ling_si_alpha4',
-            'ling_si_alpha5',
-            'ling_si_alpha6',
-            'ling_si_alpha7'),]$optimise <- FALSE
+            #"ling_si_alpha1",
+            #"ling_si_beta1" ,
+            #'ling_si_alpha2',
+            #"ling_si_beta2" ,
+            #'ling_si_alpha3',
+            #'ling_si_alpha4',
+            #'ling_si_alpha5',
+            #'ling_si_alpha6',
+            #'ling_si_alpha7',
+            'lingmat.wbeta'),]$optimise <- FALSE
 tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^lingimm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^lingmat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 
 # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
-ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
-
+ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param, strict = TRUE)
+writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
 # Run model once, using g3_tmb_par to reshape tmb_param into param vector.
 # Will return nll
 ling_model_tmb$fn(g3_tmb_par(tmb_param))
@@ -259,11 +260,59 @@ ling_model_tmb$fn(g3_tmb_par(tmb_param))
 ling_model_tmb$report(g3_tmb_par(tmb_param))
 
 # Run model through R optimiser, using bounds set in tmb_param
-fit <- nlminb(g3_tmb_par(tmb_param), 
-              ling_model_tmb$fn, ling_model_tmb$gr, 
-              upper = g3_tmb_upper(tmb_param),
-              lower = g3_tmb_lower(tmb_param),
-              control = list(trace = TRUE, eval.max=200, iter.max=100))
 
-# Turn fit parameters back into list, which can be used in table or R function
-param_list <- g3_tmb_relist(tmb_param, fit$par)
+
+fit.nelder <- optim(g3_tmb_par(tmb_param),
+                    ling_model_tmb$fn,
+                    #ling_model_tmb$gr,
+                    method = "Nelder-Mead",
+                    control = list(trace = 2,fnscale = 1e3))
+
+# fit <- nlminb(g3_tmb_par(tmb_param),
+#               ling_model_tmb$fn, ling_model_tmb$gr,
+#              # upper = g3_tmb_upper(tmb_param),
+#             #  lower = g3_tmb_lower(tmb_param),
+#               control = list(trace = TRUE, eval.max=200, iter.max=100))
+
+fit.opt <- optim(fit.nelder$par,
+                 ling_model_tmb$fn,
+                 ling_model_tmb$gr,
+                 method = 'BFGS',
+                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, reltol = .Machine$double.eps))
+
+fit.opt2 <- optim(fit.opt$par,
+                 ling_model_tmb$fn,
+                 ling_model_tmb$gr,
+                 method = 'BFGS',
+                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, rel.tol = .Machine$double.eps,stepmin = ))
+
+
+# fit.opt3 <- optim(fit.opt2$par,
+#                   ling_model_tmb$fn,
+#                   ling_model_tmb$gr,
+#                   method = 'BFGS',
+#                   control = list(trace = 2, fnscale = 1e3,maxit = 1000))
+#
+# fit.nlminb <- nlminb(fit.opt$par,
+#               ling_model_tmb$fn, ling_model_tmb$gr,
+#               # upper = g3_tmb_upper(tmb_param),
+#               #  lower = g3_tmb_lower(tmb_param),
+#               control = list(trace = TRUE, eval.max=200, iter.max=100))
+#
+#
+# fit.sann <- optim(fit.opt$par,
+#                   ling_model_tmb$fn, method = 'SANN',
+#                   control = list(trace = 1))
+#
+# fit.hjkb <- dfoptim::hjkb(fit.opt$par,#g3_tmb_par(tmb_param),
+#               ling_model_tmb$fn)#,
+#             #ling_model_tmb$gr,
+#                upper = g3_tmb_upper(tmb_param),
+#                lower = g3_tmb_lower(tmb_param)),
+#               control = list(trace = TRUE, eval.max=2000, iter.max=1000))
+#
+#
+#
+#
+# # Turn fit parameters back into list, which can be used in table or R function
+# param_list <- g3_tmb_relist(tmb_param, fit$par)
