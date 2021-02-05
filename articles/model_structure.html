@@ -108,7 +108,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7fd813bfc470&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7f821887b438&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -140,7 +140,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fd8153addd0&gt;
+## &lt;environment: 0x7f82184ee440&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -184,7 +184,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7fd812692078&gt;</code></pre>
+## &lt;environment: 0x7f821682adc8&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -222,7 +222,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fd815b8f378&gt;
+## &lt;environment: 0x7f82186e9e30&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -264,7 +264,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fd817680f68&gt;
+## &lt;environment: 0x7f821a23c9d8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -437,7 +437,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fd8191adac0&gt;
+## &lt;environment: 0x7f821b845b30&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
