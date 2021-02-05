@@ -165,7 +165,7 @@ length         2000       2001       2002       2003
   len80   922.10869 1228.86413 1382.24184 1474.26847
   len90  1287.34856 1715.60737 1929.73678 2058.21442
   len100 1738.17394 2316.40762 2605.52447 2778.99457
-')), "report_b__wgt: age5 has increased with time")
+'), tolerance = 1e-7), "report_b__wgt: age5 has increased with time")
 
 ok(ut_cmp_equal(
     as.data.frame(round(r$report_b__num[,'age5',], 5)),
