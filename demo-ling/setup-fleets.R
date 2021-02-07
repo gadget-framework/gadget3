@@ -5,7 +5,7 @@ igfs_landings <-
 
 
 l50 <-
-  ~4 +150/(1 + exp(-0.01*fleet_l50))
+  ~(4 +150/(1 + exp(-0.01*fleet_l50)))
 
 ## create fleet actions
 fleet_actions <-
@@ -13,9 +13,9 @@ fleet_actions <-
     lln %>%
       g3a_predate_totalfleet(list(ling_imm, ling_mat),
                              suitabilities = list(
-                               ling_imm = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.lln.alpha')),
+                               ling_imm = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.lln.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.lln.l50')))),
-                               ling_mat = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.lln.alpha')),
+                               ling_mat = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.lln.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.lln.l50'))))),
                              amount_f = g3_timeareadata('lln_landings', lln_landings[[1]] %>%
                                                           mutate(area = as.numeric(area),
@@ -24,9 +24,9 @@ fleet_actions <-
     bmt %>%
       g3a_predate_totalfleet(list(ling_imm, ling_mat),
                              suitabilities = list(
-                               ling_imm = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.bmt.alpha')),
+                               ling_imm = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.bmt.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.bmt.l50')))),
-                               ling_mat = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.bmt.alpha')),
+                               ling_mat = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.bmt.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.bmt.l50'))))),
                              amount_f = g3_timeareadata('bmt_landings', bmt_landings[[1]]%>%
                                                           mutate(area = as.numeric(area),
@@ -35,9 +35,9 @@ fleet_actions <-
     gil %>%
       g3a_predate_totalfleet(list(ling_imm, ling_mat),
                              suitabilities = list(
-                               ling_imm = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.gil.alpha')),
+                               ling_imm = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.gil.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.gil.l50')))),
-                               ling_mat = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.gil.alpha')),
+                               ling_mat = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.gil.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.gil.l50'))))),
                              amount_f = g3_timeareadata('gil_landings', gil_landings[[1]]%>%
                                                           mutate(area = as.numeric(area),
@@ -58,9 +58,9 @@ fleet_actions <-
     igfs %>%
       g3a_predate_totalfleet(list(ling_imm, ling_mat),
                              suitabilities = list(
-                               ling_imm = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.igfs.alpha')),
+                               ling_imm = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.igfs.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.igfs.l50')))),
-                               ling_mat = g3_suitability_exponentiall50(~0.01*exp(g3_param('ling.igfs.alpha')),
+                               ling_mat = g3_suitability_exponentiall50(~0.01*avoid_zero(g3_param('ling.igfs.alpha')),
                                                                         gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.igfs.l50'))))),
                              amount_f = g3_timeareadata('igfs_landings', igfs_landings%>%
                                                           mutate(area = as.numeric(area),

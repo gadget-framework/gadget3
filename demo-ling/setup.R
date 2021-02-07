@@ -152,21 +152,23 @@ ling_param[["ling.bmt.alpha"]] <- 0
 ling_param[["ling.bmt.l50"]] <- 0
 ling_param[["ling.gil.alpha"]] <- 0
 ling_param[["ling.gil.l50"]] <- 0
-ling_param[["ling_si_alpha1"]] <- 6.4e-9
-ling_param[["ling_si_beta1"]] <- 1.4
-ling_param[['ling_si_alpha2']] <- 1.7e-7
-ling_param[["ling_si_beta2"]] <- 1.3
-ling_param[['ling_si_alpha3']] <- 2.7e-5
-ling_param[['ling_si_alpha4']] <- 4.2e-5
-ling_param[['ling_si_alpha5']] <- 5.4e-5
-ling_param[['ling_si_alpha6']] <- 5.8e-5
-ling_param[['ling_si_alpha7']] <- 7.1e-5
+ling_param[["ling_si_alpha1"]] <- 0
+ling_param[["ling_si_beta1"]] <- 1
+ling_param[['ling_si_alpha2']] <- 0
+ling_param[["ling_si_beta2"]] <- 1
+ling_param[['ling_si_alpha3']] <- 0
+ling_param[['ling_si_alpha4']] <- 0
+ling_param[['ling_si_alpha5']] <- 0
+ling_param[['ling_si_alpha6']] <- 0
+ling_param[['ling_si_alpha7']] <- 0
 ling_param[grepl('^lingimm\\.M\\.', names(ling_param))] <- 0.15
 ling_param[grepl('^ling\\.init\\.[0-9]', names(ling_param))] <- 0
+ling_param[grepl('^ling\\.renew\\.[0-9]', names(ling_param))] <- 0
 ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
 ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:10]
 ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:15]
+ling_param[grepl('weight$',names(ling_param))] <- 1
 
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
@@ -234,23 +236,25 @@ tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 tmb_param[c('lingimm.walpha',
             'lingimm.wbeta',
             'lingmat.walpha',
-            #"ling_si_alpha1",
-            #"ling_si_beta1" ,
-            #'ling_si_alpha2',
-            #"ling_si_beta2" ,
-            #'ling_si_alpha3',
-            #'ling_si_alpha4',
-            #'ling_si_alpha5',
-            #'ling_si_alpha6',
-            #'ling_si_alpha7',
+            "ling_si_alpha1",
+            "ling_si_beta1" ,
+            'ling_si_alpha2',
+            "ling_si_beta2" ,
+            'ling_si_alpha3',
+            'ling_si_alpha4',
+            'ling_si_alpha5',
+            'ling_si_alpha6',
+            'ling_si_alpha7',
             'lingmat.wbeta'),]$optimise <- FALSE
 tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingimm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('weight$', rownames(tmb_param)),]$optimise <- FALSE
+
 
 # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
-ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param, strict = TRUE)
+ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
 # Run model once, using g3_tmb_par to reshape tmb_param into param vector.
 # Will return nll
@@ -261,6 +265,15 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 
 # Run model through R optimiser, using bounds set in tmb_param
 
+
+# cl <- parallel::makeCluster(spec=parallel::detectCores(), outfile="")
+# parallel::setDefaultCluster(cl=cl)
+#
+# optimParallel::optimParallel(par=g3_tmb_par(tmb_param),
+#                              fn=ling_model_tmb$fn,
+#                              gr=ling_model_tmb$gr),
+#                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
+#                              parallel=list(loginfo=TRUE))
 
 fit.nelder <- optim(g3_tmb_par(tmb_param),
                     ling_model_tmb$fn,
@@ -278,20 +291,20 @@ fit.opt <- optim(fit.nelder$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
-                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, reltol = .Machine$double.eps))
+                 control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps))
 
 fit.opt2 <- optim(fit.opt$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
-                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, rel.tol = .Machine$double.eps,stepmin = ))
+                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, reltol = .Machine$double.eps))
 
 
-# fit.opt3 <- optim(fit.opt2$par,
-#                   ling_model_tmb$fn,
-#                   ling_model_tmb$gr,
-#                   method = 'BFGS',
-#                   control = list(trace = 2, fnscale = 1e3,maxit = 1000))
+fit.opt3 <- optim(fit.opt2$par,
+                  ling_model_tmb$fn,
+                  ling_model_tmb$gr,
+                  method = 'BFGS',
+                  control = list(trace = 2, maxit = 1000, reltol = .Machine$double.eps))
 #
 # fit.nlminb <- nlminb(fit.opt$par,
 #               ling_model_tmb$fn, ling_model_tmb$gr,
