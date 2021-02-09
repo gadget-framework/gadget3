@@ -9,12 +9,13 @@
 # Gather results
 
 param_list <- ling_param
-par <- fit.opt3$value
+par <- fit.opt2$par
 
 names(par) <- gsub('\\_\\_','\\.', names(par))
 
 for(var in names(par)){
-  param_list[[var]] <- par[var]
+  print(var)
+  param_list[[var]] <- par[[var]]
 }
 ## change names (do we need to do this?)
 
@@ -24,17 +25,17 @@ res[[1]]
 out <- attributes(res)
 names(out)
 
-#out.tmb <- ling_model_tmb$report(fit.opt$par)
+out.tmb <- ling_model_tmb$report(fit.opt2$par)
 
 si_dat <-
   out[grepl('cdist_si_igfs_si.+obs',names(out))] %>%
   map(as.data.frame.table,responseName = 'obs') %>%
-  map(mutate,year=1982:(1981+n())) %>%
+  map(mutate,year=1985:(1984+n())) %>%
   bind_rows(.id='data') %>%
   mutate(data = gsub('cdist_(.+)_obs__num','\\1',data)) %>%
   left_join(out[grepl('cdist_si_igfs_si.+model',names(out))] %>%
               map(as.data.frame.table,responseName = 'model') %>%
-              map(mutate,year=1982:(1981+n())) %>%
+              map(mutate,year=1985:(1984+n())) %>%
               bind_rows(.id='data') %>%
               mutate(data = gsub('cdist_(.+)_model__num','\\1',data)) ) %>%
   as_tibble()
@@ -84,7 +85,7 @@ dat %>%
   facet_wrap(~year + step, scale = 'free')
 
 
-pout[grep('nll',names(out))] %>%
+out[grep('nll',names(out))] %>%
   map(~tibble(time = names(.), lik_score = as.numeric(.))) %>%
   bind_rows(.id = 'lik_comp') %>%
   mutate(type = gsub('.+(wgt|num|weight)','\\1',lik_comp),

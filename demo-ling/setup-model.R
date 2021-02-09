@@ -42,13 +42,24 @@ prop_m_age <-
 recl <-
   ~(4 + 16/(1+exp(-0.01*g3_param('ling.recl'))))
 
+## Linf and K should be within bounds
+linf <-
+  ~(140 + 40/(1 +exp(-g3_param("ling.Linf"))))
+
+K <-
+  ~0.001 * (40 + 60/(1+exp(-g3_param("ling.k"))))
+
+
+
 ## mean length is estimated based on a Von B relationship used for immature and mature
 mean_l <-
-  gadget3:::f_substitute(~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) *
-                                                             (age - (1 + log(1 - recl/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
-                         list(recl = recl))
+  gadget3:::f_substitute(~linf * (1 - exp(-1 * (0.001 * K) *
+                                                             (age - (1 + log(1 - recl/linf)/K)))),
+                         list(recl = recl, linf = linf, K = K))
 init_F <-
   ~(1.5/(1 + exp(-0.001*g3_param("ling.init.F"))))
+
+
 
 
 
@@ -74,13 +85,13 @@ ling_imm_actions <- list(
                           run_f = ~cur_step == 1 && age == 3),
   g3a_growmature(ling_imm,
       impl_f = g3a_grow_impl_bbinom(
-          g3a_grow_lengthvbsimple(~g3_param("ling.Linf"), ~g3_param("ling.k") * 0.001),
+          g3a_grow_lengthvbsimple(linf, K),
           g3a_grow_weightsimple(~g3_param("lingimm.walpha"), ~g3_param("lingimm.wbeta")),
           beta_f = ~avoid_zero(g3_param("ling.bbin")) * 0.01,
           maxlengthgroupgrowth = 15),
       maturity_f = g3a_mature_continuous(
           alpha = ~0.001 * exp(g3_param("ling.mat1")),
-          l50 = ~4 +150/(1 + exp(-0.01*g3_param("ling.mat2")))),
+          l50 = ~(4 +150/(1 + exp(-0.01*g3_param("ling.mat2"))))),
       output_stocks = list(ling_mat)),
   g3a_naturalmortality(ling_imm,
                        g3a_naturalmortality_exp(~g3_param_table("lingimm.M", data.frame(age = seq(ling_imm__minage, ling_imm__maxage))))),
@@ -103,9 +114,9 @@ ling_mat_actions <- list(
                                     beta_f = ~g3_param("lingmat.wbeta")),
   g3a_growmature(ling_mat,
       impl_f = g3a_grow_impl_bbinom(
-          g3a_grow_lengthvbsimple(~g3_param("ling.Linf"), ~g3_param("ling.k") * 0.001),
+          g3a_grow_lengthvbsimple(linf, K),
           g3a_grow_weightsimple(~g3_param("lingmat.walpha"), ~g3_param("lingmat.wbeta")),
-          beta_f = ~g3_param("ling.bbin") * 10,
+          beta_f = ~avoid_zero(g3_param("ling.bbin")) * 0.01,
           maxlengthgroupgrowth = 15)),
   g3a_naturalmortality(ling_mat,
                        g3a_naturalmortality_exp(~g3_param_table("lingmat.M", data.frame(age = seq(ling_mat__minage, ling_mat__maxage))))),

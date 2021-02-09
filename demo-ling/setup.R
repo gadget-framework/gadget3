@@ -128,20 +128,20 @@ ling_model <- g3_to_r(c(
 
 # Get pararameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
-ling_param[["ling.Linf"]] <- 160
-ling_param[["ling.k"]] <- 90
+ling_param[["ling.Linf"]] <- 0
+ling_param[["ling.k"]] <- 0
 ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingimm.wbeta"]] <- 3.20200445996187
 ling_param[["ling.bbin"]] <- 6
 ling_param[["ling.scalar"]] <- 0
-ling_param[["ling.init.F"]] <- 0.4
+ling_param[["ling.init.F"]] <- 0
 ling_param[["ling.recl"]] <- 0
 ling_param[["ling.mat1"]] <- 0
 ling_param[["ling.mat2"]] <- 0
 ling_param[["ling.mat.a"]] <- 0
 ling_param[["ling.mat.a50"]] <- 0
 #ling_param[["ling.rec.1982"]] <- 1
-ling_param[["ling.rec.sd"]] <- 5
+ling_param[["ling.rec.sd"]] <- 0
 ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingmat.wbeta"]] <- 3.20200445996187
 ling_param[["ling.igfs.alpha"]] <- 0
@@ -169,6 +169,9 @@ ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:10]
 ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:15]
 ling_param[grepl('weight$',names(ling_param))] <- 1
+
+ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 0
+
 
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
@@ -274,7 +277,7 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 #                              gr=ling_model_tmb$gr),
 #                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
 #                              parallel=list(loginfo=TRUE))
-
+if(FALSE){
 fit.nelder <- optim(g3_tmb_par(tmb_param),
                     ling_model_tmb$fn,
                     #ling_model_tmb$gr,
@@ -305,6 +308,14 @@ fit.opt3 <- optim(fit.opt2$par,
                   ling_model_tmb$gr,
                   method = 'BFGS',
                   control = list(trace = 2, maxit = 1000, reltol = .Machine$double.eps))
+
+ fit.opt4 <- nlminb(fit.opt3$par,
+                 ling_model_tmb$fn,
+                 ling_model_tmb$gr,
+                 method = 'BFGS',
+                 control = list(trace = TRUE, eval.max = 200, rel.tol = .Machine$double.eps))
+
+}
 #
 # fit.nlminb <- nlminb(fit.opt$par,
 #               ling_model_tmb$fn, ling_model_tmb$gr,
