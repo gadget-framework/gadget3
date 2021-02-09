@@ -35,38 +35,38 @@ ok_group('g3a_mature_constant', {
     # Single alpha/beta/gamma
     ok(cmp_code(
         g3a_mature_constant(alpha = 28, l50 = 24),
-        ~1/(1 + exp(0 - (28) * (stock__midlen - (24)))) ), "alpha = 28, l50 = 24")
+        ~1/(1 + exp((0 - (28) * (stock__midlen - (24))))) ), "alpha = 28, l50 = 24")
     ok(cmp_code(
         g3a_mature_constant(beta = 18, a50 = 83),
-        ~1/(1 + exp(0 - (18) * (age - (83)))) ), "beta = 18, a50 = 83")
+        ~1/(1 + exp((0 - (18) * (age - (83))))) ), "beta = 18, a50 = 83")
     ok(cmp_code(
         g3a_mature_constant(gamma = 82, k50 = 27),
-        ~1/(1 + exp(0 - (82) * (stock_ss(stock__wgt) - (27)))) ), "gamma = 82, k50 = 27")
+        ~1/(1 + exp((0 - (82) * (stock_ss(stock__wgt) - (27))))) ), "gamma = 82, k50 = 27")
 
     # Can combine parameters
     ok(cmp_code(
         g3a_mature_constant(alpha = 73, l50 = 16, beta = 54, a50 = 32),
-        ~1/(1 + exp(0 - (73) * (stock__midlen - (16))
-                      - (54) * (age - (32))
+        ~1/(1 + exp(((0 - (73) * (stock__midlen - (16)))
+                      - (54) * (age - (32)))
                       ))), "alpha = 73, l50 = 16, beta = 54, a50 = 32")
     ok(cmp_code(
         g3a_mature_constant(beta = 73, a50 = 67, gamma = 39, k50 = 73),
-        ~1/(1 + exp(0 - (73) * (age - (67))
+        ~1/(1 + exp(((0 - (73) * (age - (67)))
                       - (39) * (stock_ss(stock__wgt) - (73))
-                      ))), "beta = 73, a50 = 67, gamma = 39, k50 = 73")
+                      )))), "beta = 73, a50 = 67, gamma = 39, k50 = 73")
 
     # alpha/beta/gamma can be formula
     ok(cmp_code(
         g3a_mature_constant(alpha = ~g3_param("ling.mat1"), l50 = ~g3_param("ling.mat2")),
-        ~1/(1 + exp(0 - (g3_param("ling.mat1")) * (stock__midlen - (g3_param("ling.mat2")))))), "alpha = formula")
+        ~1/(1 + exp((0 - (g3_param("ling.mat1")) * (stock__midlen - (g3_param("ling.mat2"))))))), "alpha = formula")
 
     ok(cmp_code(
         g3a_mature_constant(beta = ~g3_param("ling.mat1"), a50 = ~g3_param("ling.mat2")),
-        ~1/(1 + exp(0 - (g3_param("ling.mat1")) * (age - (g3_param("ling.mat2")))))), "beta = formula")
+        ~1/(1 + exp((0 - (g3_param("ling.mat1")) * (age - (g3_param("ling.mat2"))))))), "beta = formula")
 
     ok(cmp_code(
         g3a_mature_constant(gamma = ~g3_param("ling.mat1"), k50 = ~g3_param("ling.mat2")),
-        ~1/(1 + exp(0 - (g3_param("ling.mat1")) * (stock_ss(stock__wgt) - (g3_param("ling.mat2")))))), "gamma = formula")
+        ~1/(1 + exp((0 - (g3_param("ling.mat1")) * (stock_ss(stock__wgt) - (g3_param("ling.mat2"))))))), "gamma = formula")
 })
 
 ok_group('g3a_mature', {

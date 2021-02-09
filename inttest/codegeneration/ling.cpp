@@ -288,12 +288,12 @@ Type objective_function<Type>::operator() () {
 
                     if ( cur_time == 0 ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
-                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k)))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
+                        ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((double)(10000) / (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( age - 3 + 1 - 1 ));
                         // Generate corresponding mean weight;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (lingimm__walpha)*pow(ling_imm__midlen, (Type)(lingimm__wbeta));
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                     }
                 }
             }
@@ -308,12 +308,12 @@ Type objective_function<Type>::operator() () {
 
                     if ( cur_time == 0 ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
-                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k)))))))*((double)(1) / (ling_mat_stddev ( age - 5 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
+                        ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(((ling_mat__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_mat_stddev ( age - 5 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ((double)(10000) / (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum());
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( age - 5 + 1 - 1 ));
                         // Generate corresponding mean weight;
-                        ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (lingmat__walpha)*pow(ling_mat__midlen, (Type)(lingmat__wbeta));
+                        ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = lingmat__walpha*pow(ling_mat__midlen, (Type)lingmat__wbeta);
                     }
                 }
             }
@@ -376,7 +376,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         {
-                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, (double)(0));
+                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0));
 
                             ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
                         }
@@ -395,7 +395,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         {
-                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, area*1000000 + cur_year*100 + cur_step, (double)(0));
+                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0));
 
                             ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
                         }
@@ -415,7 +415,7 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_imm overconsumption coefficient;
             ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
-            ling_imm__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100);
+            ling_imm__consratio = ((double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100));
             if ( true ) {
                 // We can't consume more fish than currently exists;
                 stopifnot((ling_imm__consratio <= (double)(1)).all());
@@ -429,7 +429,7 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_mat overconsumption coefficient;
             ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
-            ling_mat__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100);
+            ling_mat__consratio = ((double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100));
             if ( true ) {
                 // We can't consume more fish than currently exists;
                 stopifnot((ling_mat__consratio <= (double)(1)).all());
@@ -484,7 +484,7 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (exp(-(lingimm__M)*cur_step_size));
+                    ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) *= exp(-(lingimm__M)*cur_step_size);
                 }
             }
         }
@@ -496,7 +496,7 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_mat__area;
 
-                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (exp(-(lingmat__M)*cur_step_size));
+                    ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) *= exp(-(lingmat__M)*cur_step_size);
                 }
             }
         }
@@ -516,8 +516,8 @@ Type objective_function<Type>::operator() () {
                     {
                         if ( ling_imm__growth_lastcalc != std::floor(cur_step_size*12) ) {
                             // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_imm__growth_l = growth_bbinom(((ling__Linf) - ling_imm__midlen)*((double)(1) - exp(-(ling__k*(double)(0.001))*cur_step_size)), ling_imm__dl, (double)(15), ling__bbin*(double)(10));
-                            ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)))*(lingimm__walpha);
+                            ling_imm__growth_l = growth_bbinom(((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))), ling_imm__dl, (double)(15), (ling__bbin*(double)(10)));
+                            ling_imm__growth_w = ((g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)))*lingimm__walpha);
                             // Don't recalculate until cur_step_size changes;
                             ling_imm__growth_lastcalc = std::floor(cur_step_size*12);
                         }
@@ -525,7 +525,7 @@ Type objective_function<Type>::operator() () {
                             ling_imm__prevtotal = (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
                         }
                         if (cur_step_final) {
-                            auto maturity_ratio = (double)(1) / ((double)(1) + exp((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - (ling__mat2))));
+                            auto maturity_ratio = ((double)(1) / ((double)(1) + exp(((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - ling__mat2)))));
 
                             {
                                 // Grow and separate maturing ling_imm;
@@ -580,8 +580,8 @@ Type objective_function<Type>::operator() () {
                     {
                         if ( ling_mat__growth_lastcalc != std::floor(cur_step_size*12) ) {
                             // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_mat__growth_l = growth_bbinom(((ling__Linf) - ling_mat__midlen)*((double)(1) - exp(-(ling__k*(double)(0.001))*cur_step_size)), ling_mat__dl, (double)(15), ling__bbin*(double)(10));
-                            ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)))*(lingmat__walpha);
+                            ling_mat__growth_l = growth_bbinom(((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))), ling_mat__dl, (double)(15), (ling__bbin*(double)(10)));
+                            ling_mat__growth_w = ((g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)))*lingmat__walpha);
                             // Don't recalculate until cur_step_size changes;
                             ling_mat__growth_lastcalc = std::floor(cur_step_size*12);
                         }
@@ -639,14 +639,14 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    if ( cur_step == 1 && age == 5 ) {
+                    if ( (cur_step == 1 && age == 5) ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k)))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((double)(10000) / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
                         // Generate corresponding mean weight;
-                        ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (lingimm__walpha)*pow(ling_imm__midlen, (Type)(lingimm__wbeta));
+                        ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                         // Convert to total biomass;
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         // Add renewal numbers to ling_imm;
@@ -666,14 +666,14 @@ Type objective_function<Type>::operator() () {
                 {
                     auto area = ling_imm__area;
 
-                    if ( cur_step == 1 && age == 3 ) {
+                    if ( (cur_step == 1 && age == 3) ) {
                         // Calculate exp(-(dnorm**2) * 0.5);
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k)))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((double)(10000) / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
                         // Generate corresponding mean weight;
-                        ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = (lingimm__walpha)*pow(ling_imm__midlen, (Type)(lingimm__wbeta));
+                        ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                         // Convert to total biomass;
                         ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         // Add renewal numbers to ling_imm;
@@ -718,13 +718,13 @@ Type objective_function<Type>::operator() () {
         {
             // g3l_catchdistribution: Compare cdist_ldist_lln_model to cdist_ldist_lln_obs;
             {
-                auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, cur_year*1000 + cur_step, -1) - 1;
+                auto cdist_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, (cur_year*1000 + cur_step), -1) - 1;
 
                 if ( cdist_ldist_lln_obs__time_idx >= 0 ) {
                     auto cur_cdist_nll = (pow((cdist_ldist_lln_model__num / avoid_zero((cdist_ldist_lln_model__num).sum()) - cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx) / avoid_zero((cdist_ldist_lln_obs__num.col(cdist_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
 
                     {
-                        nll += ((double)(1))*cur_cdist_nll;
+                        nll += cur_cdist_nll;
                         nll_cdist_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
                         REPORT(nll_cdist_ldist_lln__num);
                         nll_cdist_ldist_lln__weight(cur_time + 1 - 1) = (double)(1);
@@ -750,8 +750,8 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3l_understocking: Combine and add to nll;
-            g3l_understocking_total = pow(g3l_understocking_total, (Type)((double)(2)));
-            nll += ((double)(1))*g3l_understocking_total;
+            g3l_understocking_total = pow(g3l_understocking_total, (Type)(double)(2));
+            nll += g3l_understocking_total;
             nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
             REPORT(nll_understocking__wgt);
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1);

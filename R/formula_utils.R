@@ -1,3 +1,5 @@
+open_bracket <- "("  # )
+
 # formula_utils: Tools for manipulating calls/formula
 
 # Turn a call into a formula, with environment env
@@ -27,6 +29,15 @@ f_substitute <- function (f, env, copy_all_env = TRUE) {
     for (n in all.vars(f)) {
         o <- mget(n, envir = env, ifnotfound = list(NULL))[[1]]
         if (!rlang::is_formula(o)) next
+
+        # NB: Bracket to avoid operator precedence issues:
+        #     substitute(1 - recl / 3, list(recl = quote(4 + 16 / 1)))
+        #     has bracketed implicitly and not part of the parse_tree.
+        #     The C++ transliterator relies on these bracket nodes to avoid
+        #     reinventing operator precedence.
+        if (is_infix_call(rlang::f_rhs(o)) && !(as.character(rlang::f_rhs(o)[[1]]) %in% c("<-", "==", "!=", ">", "<", "<=", ">="))) {
+            rlang::f_rhs(o) <- call(open_bracket, rlang::f_rhs(o))
+        }
 
         # Replace formulae with the inner expression
         if (length(o) == 3) {
@@ -178,8 +189,48 @@ f_optimize <- function (f) {
                 return(list(part))
             })))
         }, # } - Match open brace of call
+        "(" = function (x) {  # ) - Match open bracket in condition
+            if (!is.call(x)) return(x)
+
+            # Optimise innards first
+            inner <- f_optimize(x[[2]])
+
+            # Remove brackets from symbols, double-bracked expressions and infix operators
+            if (!is.call(inner) || inner[[1]] == open_bracket || !is_infix_call(inner)) {
+                return(inner)
+            }
+
+            # Preserve the bracket by default
+            return(call(open_bracket, inner))
+        },
         "+" = optim_arithmetic,
         "-" = optim_arithmetic,
         "*" = optim_arithmetic,
         "/" = optim_arithmetic)
+}
+
+# Is (x) a call to an infix operator?
+is_infix_call <- function (x) {
+    if (!is.call(x)) return(FALSE)
+
+    operator <- as.character(x[[1]])
+    # https://cran.r-project.org/doc/manuals/r-release/R-lang.html#Infix-and-prefix-operators
+    if (operator %in% c(
+            '::',
+            '$', '@',
+            '^',
+            '-', '+',
+            ':',
+            '%xyz%',
+            '*', '/',
+            '+', '-',
+            '>', '>=', '<', '<=', '==', '!=',
+            '!',
+            '&', '&&',
+            '|', '||',
+            '~',
+            '->', '->>',
+            '<-', '<<-',
+            '= ')) return(TRUE)
+    return(grepl("^%.*%$", operator, perl = TRUE))
 }

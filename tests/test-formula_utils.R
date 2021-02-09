@@ -2,6 +2,18 @@ library(unittest)
 
 library(gadget3)
 
+cmp_code <- function(a, b) {
+    a <- rlang::f_rhs(a)
+    b <- rlang::f_rhs(b)
+    attr(a, "srcref") <- NULL
+    attr(a, "srcfile") <- NULL
+    attr(a, "wholeSrcref") <- NULL
+    attr(b, "srcref") <- NULL
+    attr(b, "srcfile") <- NULL
+    attr(b, "wholeSrcref") <- NULL
+    ut_cmp_identical(a, b)
+}
+
 deep_ls <- function (env) {
     if (environmentName(env) == "R_EmptyEnv") {
         c()
@@ -24,6 +36,24 @@ ok_group("call_replace", {
         call_replace(~c(1, potato(c(2, potato(3), 4))), potato = function (x) call("parsnip", x[2])),
         ~c(1, parsnip(c(2, potato(3), 4)()))), "Make no attempt to recurse implictly---replacement function would have to call_replace too")
 })
+
+### f_substitute
+
+ok(cmp_code(
+    gadget3:::f_substitute(~x / y, list(y = ~1 + 2)),
+    ~x / (1 + 2)), "f_substitute: Auto-bracketed an inline replacement")
+
+ok(cmp_code(
+    gadget3:::f_substitute(~x / y, list(y = ~fn(2))),
+    ~x / fn(2)), "f_substitute: No extra brackets for a function call")
+
+ok(cmp_code(
+    gadget3:::f_substitute(~{x ; a}, list(
+        x = as.formula(call("~", call("<-", quote(z), 1))),
+        a = as.formula(call("~", call("<-", quote(q), 2))))),
+    ~{z <- 1 ; q <- 2}), "f_substitute: No extra brackets for assignment")
+
+### f_concatenate
 
 out_f <- gadget3:::f_concatenate(list(
     ~statement_1,
@@ -94,3 +124,15 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~-x),
     ~-x), "f_optimize: Can still negate values")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~x + ((x) + (0))),
+    ~x + x), "f_optimize: Recurse through brackets, remove from symbols")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~x + ((x + 4))),
+    ~x + (x + 4)), "f_optimize: Double brackets removed")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~x + (x + (f(4))  )),
+    ~x + (x + f(4))), "f_optimize: Functions don't need brackets")
