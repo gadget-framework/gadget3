@@ -25,6 +25,7 @@ g3a_mature_continuous <- function (alpha, l50, beta = 0, a50 = 0) {
 
     f_substitute(~g3a_mature_continuous(stock__plusdl, M0, stock__growth_l, alpha, beta, cur_step_size), list(
         M0 = g3a_mature_constant(alpha, l50, beta, a50),
+        alpha = alpha,
         beta = beta))
 }
 
