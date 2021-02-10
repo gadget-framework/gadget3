@@ -51,7 +51,10 @@ f_substitute <- function (f, env, copy_all_env = TRUE) {
             environment_merge(combined_env, rlang::f_env(o))
         } else {
             # Only copy things the formulae mentions
-            environment_merge(combined_env, rlang::f_env(o), var_names = all.names(rlang::f_rhs(o), unique = TRUE))
+            vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
+            # If a stock_x__num (e.g.) variable is mentioned, also look for it's root
+            vars_to_copy <- union(vars_to_copy, gsub("__.*", "", vars_to_copy))
+            environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
         }
     }
 
