@@ -83,7 +83,8 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             })
 
             if (rlang::is_formula(var_val)) {
-                var_defns(rlang::f_rhs(var_val), env)
+                # Recurse, get definitions for formula, considering it's environment as well as the outer one
+                var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
                 defn <- call("<-", as.symbol(var_name), rlang::f_rhs(var_val))
             } else if (is.call(var_val)) {
                 defn <- call("<-", as.symbol(var_name), var_val)

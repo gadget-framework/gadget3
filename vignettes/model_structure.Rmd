@@ -116,9 +116,6 @@ example:
 g3_to_r(g3a_time(1990, ~start_year + 4 ))
 ```
 
-TODO: This example rapidly runs out of steam since we don't substitute the
-formula's environment into the output expression. Fix it or stop suggesting it.
-
 ## Stocks
 
 Beyond ``g3a_time()``, pretty much any action will be describing changes to a
