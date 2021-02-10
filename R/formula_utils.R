@@ -18,8 +18,7 @@ environment_merge <- function (env, additions, var_names = ls(envir = additions)
 }
 
 # Substitute within formulae, merging all environments together
-# TODO: copy_all_env should default to FALSE, but currently causes problems in stock_rename
-f_substitute <- function (f, env, copy_all_env = TRUE) {
+f_substitute <- function (f, env, copy_all_env = FALSE) {
     env <- as.environment(env)
     # Copy f's environment to a new environment, ignore it's parent
     combined_env <- new.env(parent = emptyenv())
