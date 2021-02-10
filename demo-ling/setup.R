@@ -170,7 +170,7 @@ ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:
 ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:15]
 ling_param[grepl('weight$',names(ling_param))] <- 1
 
-ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 0
+ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
 
 
 # You can edit the model code with:
@@ -239,15 +239,15 @@ tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 tmb_param[c('lingimm.walpha',
             'lingimm.wbeta',
             'lingmat.walpha',
-            "ling_si_alpha1",
+            #"ling_si_alpha1",
             "ling_si_beta1" ,
-            'ling_si_alpha2',
+            #'ling_si_alpha2',
             "ling_si_beta2" ,
-            'ling_si_alpha3',
-            'ling_si_alpha4',
-            'ling_si_alpha5',
-            'ling_si_alpha6',
-            'ling_si_alpha7',
+            #'ling_si_alpha3',
+            #'ling_si_alpha4',
+            #'ling_si_alpha5',
+            #'ling_si_alpha6',
+            #'ling_si_alpha7',
             'lingmat.wbeta'),]$optimise <- FALSE
 tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
@@ -258,7 +258,7 @@ tmb_param[grepl('weight$', rownames(tmb_param)),]$optimise <- FALSE
 
 # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
-writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+# writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
 # Run model once, using g3_tmb_par to reshape tmb_param into param vector.
 # Will return nll
 ling_model_tmb$fn(g3_tmb_par(tmb_param))
@@ -294,13 +294,13 @@ fit.opt <- optim(fit.nelder$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
-                 control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps))
+                 control = list(trace = 2,maxit = 200, reltol = .Machine$double.eps^2))
 
 fit.opt2 <- optim(fit.opt$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
-                 control = list(trace = 2, fnscale = 1e3,maxit = 1000, reltol = .Machine$double.eps))
+                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
 
 
 fit.opt3 <- optim(fit.opt2$par,
@@ -309,7 +309,7 @@ fit.opt3 <- optim(fit.opt2$par,
                   method = 'BFGS',
                   control = list(trace = 2, maxit = 1000, reltol = .Machine$double.eps))
 
- fit.opt4 <- nlminb(fit.opt3$par,
+ fit.opt4 <- nlminb(fit.opt$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',

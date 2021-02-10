@@ -10,7 +10,7 @@ nll_breakdown <- TRUE  # Turn to TRUE to get per-step nll
 lik_report <- TRUE
 
 ling_likelihood_actions <- list(
-  g3l_understocking(list(ling_imm, ling_mat), nll_breakdown = nll_breakdown, weight = 100),
+  g3l_understocking(list(ling_imm, ling_mat), nll_breakdown = nll_breakdown, weight = 1e6),
 
   g3l_catchdistribution(
     'ldist_lln',
@@ -106,7 +106,7 @@ ling_likelihood_actions <- list(
     (igfs.SI1[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha1')*1e-9,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha1'),
                                             beta = ~g3_param('ling_si_beta1')),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -115,7 +115,7 @@ ling_likelihood_actions <- list(
     (igfs.SI2a[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha2')*1e-7,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha2'),
                                             beta = ~g3_param('ling_si_beta2')),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -124,7 +124,7 @@ ling_likelihood_actions <- list(
     (igfs.SI2b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha3')*1e-5,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha3'),
                                             beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -133,7 +133,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3a[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha4')*1e-5,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha4'),
                                             beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -142,7 +142,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha5')*1e-5,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha5'),
                                             beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -151,7 +151,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha6')*1e-5,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha6'),
                                             beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   g3l_distribution(
@@ -160,7 +160,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3d[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha7')*1e-5,
+    g3l_distribution_surveyindices_log(alpha = ~g3_param('ling_si_alpha7'),
                                             beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   list()
