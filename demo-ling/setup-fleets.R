@@ -5,7 +5,8 @@ igfs_landings <-
 
 
 l50 <-
-  ~(4 +150/(1 + exp(-0.01*fleet_l50)))
+  #~avoid_zero(fleet_l50)
+  ~bounded(fleet_l50,20,100)
 
 ## create fleet actions
 fleet_actions <-
