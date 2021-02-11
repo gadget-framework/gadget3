@@ -26,7 +26,7 @@ areas <- structure(
 
 ## modelled stocks
 ling_imm <-
-  g3_stock('ling_imm', seq(20, 156, 4)) %>%
+  g3_stock('ling_imm', seq(4, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(3, 10)
 
@@ -113,7 +113,10 @@ report_actions <- list(
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__gil)),
        # Report ling biomass caught by foreign
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__foreign)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)))
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)),
+       ## recruitment
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalnum)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalwgt)))
 
 ##### Run r-based model #######################################################
 

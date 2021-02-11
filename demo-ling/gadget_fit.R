@@ -12,9 +12,9 @@ param_list <- ling_param
 gadget3::g3_tmb_relist(tmb_param,fit.opt$par) -> tmp
 for(nn in names(tmp)){param_list[[nn]] <- tmp[[nn]]}
 # par <- fit.opt$par
-# 
+#
 # names(par) <- gsub('\\_\\_','\\.', names(par))
-# 
+#
 # for(var in names(par)){
 #   param_list[[var]] <- par[[var]]
 # }
@@ -69,9 +69,9 @@ dat <-
 dat %>%
   filter(grepl('si',comp)) %>%
   spread(origin,Freq) %>%
-  group_by(comp) %>% 
+  group_by(comp) %>%
   mutate(pred = model*exp(mean(log(obs)-log(model)))) %>%
-  ggplot(aes(year,obs)) + geom_point() + 
+  ggplot(aes(year,obs)) + geom_point() +
   geom_line(aes(y=pred)) +
   #ggplot(aes(model,obs)) + geom_point() +
   facet_wrap(~comp, scale = 'free')
@@ -103,8 +103,8 @@ dat %>%
   filter(comp == 'cdist_aldist_igfs_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
-  group_by(year,step,age,origin) %>% 
-  summarise(Freq = sum(Freq)) %>% 
+  group_by(year,step,age,origin) %>%
+  summarise(Freq = sum(Freq)) %>%
   spread(origin,Freq) %>%
   ggplot(aes(age,obs)) + geom_point() +
   geom_line(aes(y=model)) +
@@ -123,8 +123,8 @@ dat %>%
   filter(comp == 'cdist_aldist_bmt_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
-  group_by(year,step,age,origin) %>% 
-  summarise(Freq = sum(Freq)) %>% 
+  group_by(year,step,age,origin) %>%
+  summarise(Freq = sum(Freq)) %>%
   spread(origin,Freq) %>%
   ggplot(aes(age,obs)) + geom_point() +
   geom_line(aes(y=model)) +
@@ -153,7 +153,7 @@ out[grep('report',names(out))] %>%
          age = gsub('age','',age) %>% as.numeric(),
          year = round(as.numeric(time)/1000),
          step = as.numeric(time) - year*1e3) %>%
-  separate(data,c('stock','fleet'), sep = '_report__') 
+  separate(data,c('stock','fleet'), sep = '_report__')
 
 
 out$mat_report__num %>%
@@ -179,7 +179,7 @@ out[grep('report__num',names(out))] %>%
          yc = year-age) %>%
   group_by(year,stock,yc,step,age,length) %>%
      summarise(n = sum(Freq)) %>%
-  filter(year == 2000,step == 1) %>% 
+  filter(year == 2000,step == 1) %>%
      ggplot(aes(length,n,col = interaction(stock,as.factor(age))))+ geom_line() + facet_wrap(~year + (step-1)/4)
 
 
@@ -195,7 +195,7 @@ out[grep('report__num',names(out))] %>%
          yc = year-age) %>%
   group_by(year,yc,step,age,length) %>%
   summarise(n = sum(Freq)) %>%
-  filter(year %in% 1990:1994,step == 1) %>% 
-  ggplot(aes(length,n,col = as.factor(age)))+ geom_line() + facet_wrap(~year + (step-1)/4)
+  filter(year %in% 1990:1994,step == 1) %>%
+  ggplot(aes(length,n,col = as.factor(age)))+ geom_line() + facet_wrap(~year + (step-1)/4,scales = 'free_y')
 
 

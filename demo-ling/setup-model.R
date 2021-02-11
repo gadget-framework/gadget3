@@ -15,14 +15,14 @@ bounded <- gadget3:::g3_native(r = function (x, a, b) {
 
 ## recruitment and initial numbers at age come from the same distribution..
 ling_init_abund <-
-  ~exp(g3_param("ling.scalar")) * 
-  exp(g3_param_table("ling.init", 
+  ~exp(g3_param("ling.scalar")) *
+  exp(g3_param_table("ling.init",
                      expand.grid(cur_year = seq(start_year, end_year),
                                  age = seq(
                                    min(ling_imm__minage, ling_mat__minage),
                                    max(ling_imm__maxage, ling_mat__maxage)))))
 
-# 
+#
 # ling_init_abund <- ~g3_param("ling.scalar") * exp(
 #   if (cur_time == 0)
 #     g3_param_table("ling.init", expand.grid(
@@ -87,7 +87,7 @@ ling_imm_actions <- list(
   g3a_renewal_normalparam(ling_imm,
                           factor_f = ling_init_abund,
                           mean_f = mean_l,
-                          stddev_f = ~(15/(1+exp(-g3_param("ling.rec.sd")))),
+                          stddev_f = ~bounded(g3_param("ling.rec.sd"),1,5),
                           alpha_f = ~g3_param("lingimm.walpha"),
                           beta_f = ~g3_param("lingimm.wbeta"),
                           run_f = ~cur_step == 1 && age == 3 && cur_time > 0),
@@ -95,7 +95,7 @@ ling_imm_actions <- list(
                  impl_f = g3a_grow_impl_bbinom(
                    g3a_grow_lengthvbsimple(linf, K),
                    g3a_grow_weightsimple(~g3_param("lingimm.walpha"), ~g3_param("lingimm.wbeta")),
-                   beta_f = ~avoid_zero(g3_param("ling.bbin")) * 0.01,
+                   beta_f = ~bounded(g3_param("ling.bbin"),1,1000),
                    maxlengthgroupgrowth = 5),
                  maturity_f = g3a_mature_continuous(
                    alpha = ~(0.001 * exp(g3_param("ling.mat1"))),
@@ -124,7 +124,7 @@ ling_mat_actions <- list(
                  impl_f = g3a_grow_impl_bbinom(
                    g3a_grow_lengthvbsimple(linf, K),
                    g3a_grow_weightsimple(~g3_param("lingmat.walpha"), ~g3_param("lingmat.wbeta")),
-                   beta_f = ~avoid_zero(g3_param("ling.bbin")) * 0.01,
+                   beta_f = ~bounded(g3_param("ling.bbin"),1,1000),
                    maxlengthgroupgrowth = 5)),
   g3a_naturalmortality(ling_mat,
                        g3a_naturalmortality_exp(~g3_param_table("lingmat.M", data.frame(age = seq(ling_mat__minage, ling_mat__maxage))))),
