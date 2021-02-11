@@ -15,7 +15,10 @@
 g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
-    compile_flags = c("-O3", "-flto", "-march=native"), work_dir = tempdir(),
+    compile_flags = if (.Platform$OS.type == "windows")
+                    c("-O3", "-march=native", "-fno-asynchronous-unwind-tables")
+                    else c("-O3", "-flto", "-march=native"),
+    work_dir = tempdir(),
     output_script = FALSE, ...)
 
 g3_tmb_par(parameters)
