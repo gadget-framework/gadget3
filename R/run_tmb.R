@@ -847,7 +847,7 @@ g3_tmb_adfun <- function(cpp_code,
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
         TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
-            "-std=gnu++1y",
+            "-std=gnu++11",
             "-Wno-ignored-attributes",
             "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
             compile_flags), collapse = " "))
