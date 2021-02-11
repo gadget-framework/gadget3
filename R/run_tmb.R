@@ -790,7 +790,11 @@ print.g3_cpp <- function(x, ...) {
 # Turn a g3 TMB bit of code into an adfun
 g3_tmb_adfun <- function(cpp_code,
                          parameters = attr(cpp_code, 'parameter_template'),
-                         compile_flags = if (.Platform$OS.type == "windows") c("-O3", "-march=native") else c("-O3", "-flto", "-march=native"),
+                         compile_flags =
+                             # No -flto since it won't(?) work out of the box
+                             # https://stackoverflow.com/questions/43152633/invalid-register-for-seh-savexmm-in-cygwin
+                             if (.Platform$OS.type == "windows") c("-O3", "-march=native", "-fno-asynchronous-unwind-tables")
+                             else c("-O3", "-flto", "-march=native"),
                          work_dir = tempdir(),
                          output_script = FALSE, ...) {
     model_params <- attr(cpp_code, 'parameter_template')
