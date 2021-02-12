@@ -58,7 +58,7 @@ igfs <-
 
 # Load required data objects
 if(read_data){
-  mdb<-mfdb('Iceland')
+  mdb<-mfdb('Iceland', db_params = list(host = 'mfdb.hafro.is'))
   source('demo-ling/setup-fleet-data.R')
   source('demo-ling/setup-catchdistribution.R')
   source('demo-ling/setup-indices.R')
@@ -198,33 +198,6 @@ tmb_ling <- g3_to_tmb(c(
 # Get the parameter template to fill in
 tmb_param <- attr(tmb_ling, 'parameter_template')
 
-## I would like to do something like this:
-if(FALSE){
-  read.gadget.parameters(sprintf('%s/params.out',gd)) %>%
-    init_guess('rec.[0-9]|init.[0-9]',1,0.001,1000,1) %>%
-    init_guess('recl',12,1,20,1) %>%
-    init_guess('rec.sd',5, 4, 20,1) %>%
-    init_guess('Linf',160, 100, 200,1) %>%
-    init_guess('k$',90, 40, 100,1) %>%
-    init_guess('bbin',6, 1e-08, 100, 1) %>%
-    init_guess('alpha', 0.5,  0.01, 3, 1) %>%
-    init_guess('l50',50,10,100,1) %>%
-    init_guess('walpha',lw.constants$estimate[1], 1e-10, 1,0) %>%
-    init_guess('wbeta',lw.constants$estimate[2], 2, 4,0) %>%
-    init_guess('M$',0.15,0.001,1,0) %>%
-    init_guess('rec.scalar',400,1,500,1) %>%
-    init_guess('init.scalar',200,1,300,1) %>%
-    init_guess('mat2',mat.l50$l50,0.75*mat.l50$l50,1.25*mat.l50$l50,1) %>%
-    init_guess('mat1',70,  10, 200, 1) %>%
-    init_guess('init.F',0.4,0.1,1,1) %>%
-    init_guess('p0',0,0,1,1) %>%
-    init_guess('p2',1,0,1,1) %>%
-    init_guess('p3',1,0.01,100,1) %>%
-    init_guess('p4',1,0.01,100,1) %>%
-    init_guess('mode',70,30,90,1) %>%
-    write.gadget.parameters(.,file=sprintf('%s/params.in',gd))
-}
-
 # Copy initial guesses from R model
 tmb_param$value <- I(ling_param[rownames(tmb_param)])
 
@@ -243,9 +216,9 @@ tmb_param[c('lingimm.walpha',
             'lingimm.wbeta',
             'lingmat.walpha',
             #"ling_si_alpha1",
-            "ling_si_beta1" ,
+            #"ling_si_beta1" ,
             #'ling_si_alpha2',
-            "ling_si_beta2" ,
+            #"ling_si_beta2" ,
             #'ling_si_alpha3',
             #'ling_si_alpha4',
             #'ling_si_alpha5',
@@ -281,11 +254,11 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 #                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
 #                              parallel=list(loginfo=TRUE))
 if(FALSE){
-# fit.nelder <- optim(g3_tmb_par(tmb_param),
-#                     ling_model_tmb$fn,
-#                     #ling_model_tmb$gr,
-#                     method = "Nelder-Mead",
-#                     control = list(trace = 2,fnscale = 1e3))
+fit.nelder <- optim(fit.opt$par,
+                    ling_model_tmb$fn,
+                    #ling_model_tmb$gr,
+                    method = "Nelder-Mead",
+                    control = list(trace = 2,fnscale = 1e3))
 
 # fit <- nlminb(g3_tmb_par(tmb_param),
 #               ling_model_tmb$fn, ling_model_tmb$gr,
@@ -297,9 +270,9 @@ fit.opt <- optim(g3_tmb_par(tmb_param),
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
-                 control = list(trace = 2,maxit = 200, reltol = .Machine$double.eps^2))
+                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
 
-fit.opt2 <- optim(fit.opt$par,
+fit.opt2 <- optim(fit.nelder$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',

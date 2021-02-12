@@ -15,12 +15,13 @@ bounded <- gadget3:::g3_native(r = function (x, a, b) {
 
 ## recruitment and initial numbers at age come from the same distribution..
 ling_init_abund <-
-  ~exp(g3_param("ling.scalar")) *
-  exp(g3_param_table("ling.init",
-                     expand.grid(cur_year = seq(start_year, end_year),
-                                 age = seq(
-                                   min(ling_imm__minage, ling_mat__minage),
-                                   max(ling_imm__maxage, ling_mat__maxage)))))
+  ~bounded(g3_param("ling.scalar"), 1, 500) *
+  bounded(g3_param_table("ling.init",
+                         expand.grid(cur_year = seq(start_year, end_year),
+                                     age = seq(
+                                       min(ling_imm__minage, ling_mat__minage),
+                                       max(ling_imm__maxage, ling_mat__maxage)))),
+          0.001,1000)
 
 #
 # ling_init_abund <- ~g3_param("ling.scalar") * exp(
@@ -42,7 +43,7 @@ a50 <-
 
 ## ensure that old fish are not immature
 prop_m_age <-
-  gadget3:::f_substitute(~ 1/(1 + exp(-avoid_zero(g3_param("ling.mat.a"))*(age - a50))),
+  gadget3:::f_substitute(~ 1/(1 + exp(-bounded(g3_param("ling.mat.a"),0.5,2)*(age - a50))),
                          list(a50 = a50))
 
 ## ensure recruitment length at age 1 is within the appropriate range
@@ -51,7 +52,7 @@ recl <-
 
 ## Linf and K should be within bounds
 linf <-
-  ~bounded(g3_param("ling.Linf"),100,200)
+  ~bounded(g3_param("ling.Linf"),150,200)
 
 K <-
   ~0.001 * bounded(g3_param("ling.k"),40,120)
@@ -85,6 +86,9 @@ ling_imm_actions <- list(
                                     beta_f = ~g3_param("lingimm.wbeta")),
   g3a_renewal_normalparam(ling_imm,
                           factor_f = ling_init_abund,
+                          # gadget3:::f_substitute(~rec*exp(-g3_param_table("lingimm.M",
+                          #                                                         data.frame(age = seq(ling_imm__minage, ling_imm__maxage)))),
+                          #                                list(rec=ling_init_abund)),
                           mean_f = mean_l,
                           stddev_f = ~bounded(g3_param("ling.rec.sd"),1,5),
                           alpha_f = ~g3_param("lingimm.walpha"),
