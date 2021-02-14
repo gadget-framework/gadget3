@@ -253,12 +253,17 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 #                              gr=ling_model_tmb$gr),
 #                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
 #                              parallel=list(loginfo=TRUE))
+fit.opt <- optim(g3_tmb_par(tmb_param),
+                 ling_model_tmb$fn,
+                 ling_model_tmb$gr,
+                 method = 'BFGS',
+                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
 if(FALSE){
 fit.nelder <- optim(fit.opt$par,
                     ling_model_tmb$fn,
                     #ling_model_tmb$gr,
                     method = "Nelder-Mead",
-                    control = list(trace = 2,fnscale = 1e3))
+                    control = list(trace = 2,fnscale = 1e3, maxit = 1000))
 
 # fit <- nlminb(g3_tmb_par(tmb_param),
 #               ling_model_tmb$fn, ling_model_tmb$gr,
@@ -266,11 +271,7 @@ fit.nelder <- optim(fit.opt$par,
 #             #  lower = g3_tmb_lower(tmb_param),
 #               control = list(trace = TRUE, eval.max=200, iter.max=100))
 
-fit.opt <- optim(g3_tmb_par(tmb_param),
-                 ling_model_tmb$fn,
-                 ling_model_tmb$gr,
-                 method = 'BFGS',
-                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
+
 
 fit.opt2 <- optim(fit.nelder$par,
                  ling_model_tmb$fn,

@@ -257,4 +257,22 @@ out[grep('report__num',names(out))] %>%
   summarise(n=sum(Freq)) %>%
   ggplot(aes(year,n)) + geom_point()
 
+report <-
+  out[grep('_report__',names(out))] %>%
+  map( as.data.frame.table, stringsAsFactors = FALSE,responseName = 'n') %>%
+  map(as_tibble) %>%
+  bind_rows(.id="data") %>%
+  filter(!grepl('wgt',data)) %>%
+  separate(data, c('stock','type','fleet')) %>%
+  left_join(out[grep('_report__wgt',names(out))] %>%
+              map( as.data.frame.table, stringsAsFactors = FALSE, responseName = 'w') %>%
+              map(as_tibble) %>%
+              bind_rows(),
+            by = c("length", "area", "age", "time")) %>%
+  mutate(length = gsub('len','',length) %>% as.numeric(),
+         age = gsub('age','',age) %>% as.numeric(),
+         year = round(as.numeric(time)/1000),
+         step = as.numeric(time) - year*1e3,
+         yc = year-age)
 
+report %>% filter(fleet == 'num',stock == 'mat',step == 1) %>% group_by(year) %>% summarise(b = sum(n*w)) %>% ggplot(aes(year,b/1e6)) + geom_line()

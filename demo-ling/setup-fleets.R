@@ -6,7 +6,7 @@ igfs_landings <-
 
 l50 <-
   #~avoid_zero(fleet_l50)
-  ~bounded(fleet_l50,20,100)
+  ~bounded(fleet_l50,40,100)
 
 
 ## create fleet actions
@@ -61,9 +61,9 @@ fleet_actions <-
       g3a_predate_totalfleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(~bounded(g3_param('ling.igfs.alpha'),0.01,1),
-                                                                        gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.igfs.l50')))),
+                                                                        ~bounded(g3_param('ling.igfs.l50'),20,50)),
                                ling_mat = g3_suitability_exponentiall50(~bounded(g3_param('ling.igfs.alpha'),0.01,1),
-                                                                        gadget3:::f_substitute(l50,list(fleet_l50=~g3_param('ling.igfs.l50'))))),
+                                                                        ~bounded(g3_param('ling.igfs.l50'),20,50))),
                              amount_f = g3_timeareadata('igfs_landings', igfs_landings%>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),

@@ -15,13 +15,13 @@ bounded <- gadget3:::g3_native(r = function (x, a, b) {
 
 ## recruitment and initial numbers at age come from the same distribution..
 ling_init_abund <-
-  ~bounded(g3_param("ling.scalar"), 1, 500) *
+  ~bounded(g3_param("ling.scalar"), 1, 100) *
   bounded(g3_param_table("ling.init",
                          expand.grid(cur_year = seq(start_year, end_year),
                                      age = seq(
                                        min(ling_imm__minage, ling_mat__minage),
                                        max(ling_imm__maxage, ling_mat__maxage)))),
-          0.001,1000)
+          0.001,200)
 
 #
 # ling_init_abund <- ~g3_param("ling.scalar") * exp(
@@ -78,7 +78,7 @@ ling_imm_actions <- list(
                                     factor_f = gadget3:::f_substitute(~ling_init_abund *
                                                                         exp(-1 * (g3_param_table("lingimm.M",
                                                                                                  data.frame(age = seq(ling_imm__minage, ling_imm__maxage) )) +
-                                                                                    init_F) * age) * (1 - prop_m_age ),
+                                                                                    init_F) * (age - 3)) * (1 - prop_m_age ),
                                                                       list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age, init_F = init_F)),
                                     mean_f = mean_l,
                                     stddev_f = ~g3_param_table('lingimm.init.sd',data.frame(age = seq(ling_imm__minage, ling_imm__maxage))),
@@ -118,7 +118,7 @@ ling_mat_actions <- list(
                                       gadget3:::f_substitute(~ling_init_abund *
                                                                exp(-1 * (g3_param_table("lingmat.M",
                                                                                         data.frame(age = seq(ling_imm__minage, ling_mat__maxage) )) +
-                                                                           init_F) * age) *prop_m_age,
+                                                                           init_F) * (age - 3)) *prop_m_age,
                                                              list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age, init_F = init_F)),
                                     mean_f = mean_l,
                                     stddev_f = ~g3_param_table('lingmat.init.sd',data.frame(age = seq(ling_mat__minage, ling_mat__maxage))),
