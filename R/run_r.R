@@ -47,7 +47,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 # Add individual param lines for table contents
                 for (i in seq_len(nrow(df))) {
                     param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
-                    param_lines[[param_name]] <<- NA
+                    param_lines[[param_name]] <<- 0
                 }
             },
             g3_param_array = function (x) param_lines[[x[[2]]]] <<- 0,
