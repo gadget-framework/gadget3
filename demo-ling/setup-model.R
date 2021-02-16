@@ -1,15 +1,3 @@
-
-
-## stock actions
-bounded <- gadget3:::g3_native(r = function (x, a, b) {
-  a + (b-a)/(1+exp(x))
-}, cpp = '[](Type x, Type a, Type b) -> Type {
-    return a + (b-a)/(1+exp(x));
-}')
-
-
-
-
 ## setup the immature stock first
 
 
