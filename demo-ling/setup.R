@@ -116,7 +116,11 @@ report_actions <- list(
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)),
        ## recruitment
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalnum)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalwgt)))
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalwgt)), 
+       
+       # Report ling suitability caught by igfs
+       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__suit_igfs)),
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__suit_igfs)))
 
 ##### Run r-based model #######################################################
 
