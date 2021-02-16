@@ -24,7 +24,7 @@ ling_init_abund <-
           0.001,200)
 
 #
-# ling_init_abund <- ~g3_param("ling.scalar") * exp(
+# ling_init_abund <- ~bounded(g3_param("ling.scalar"), 1, 100) * bounded(
 #   if (cur_time == 0)
 #     g3_param_table("ling.init", expand.grid(
 #       age = seq(
@@ -33,7 +33,7 @@ ling_init_abund <-
 #   else
 #     g3_param_table("ling.renew", expand.grid(
 #       cur_year = seq(start_year, end_year)))
-# )
+# , 0.001, 200)
 
 
 
