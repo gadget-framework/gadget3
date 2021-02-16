@@ -202,8 +202,10 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__totalpredate(35,1,11);
     array<Type> ling_imm__igfs(35,1,8);
     int igfs__area = 1;
+    array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
     auto igfs__area_idx = 0;
     array<Type> ling_mat__igfs(35,1,11);
+    array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
     auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
 
@@ -342,7 +344,8 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         // Collect all suitable ling_imm biomass for igfs;
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                        ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
+                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
                     }
                 }
@@ -360,7 +363,8 @@ Type objective_function<Type>::operator() () {
 
                     if ( area == igfs__area ) {
                         // Collect all suitable ling_mat biomass for igfs;
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                        ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))));
+                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                         igfs__catch(igfs__area_idx) = (igfs__catch(igfs__area_idx) + (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum());
                     }
                 }

@@ -41,6 +41,8 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 \details{
   The actions will define the following stock instance variables for each given \var{fleet_stock} and \var{prey_stock}:
   \describe{
+    \item{\var{prey_stock__suit_fleet_stock}}{Suitability of (prey_stock) for (fleet_stock), in a prey array.
+        i.e. the result of calculating the formula in \var{suitabilities} for the current state of the prey}
     \item{\var{prey_stock__fleet_stock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
     \item{\var{fleet_stock__catch}}{Biomass of all prey caught by (fleet stock), in a fleet array}
     \item{\var{prey_stock__totalpredate}}{Biomass of total consumed (prey_stock), in a prey array}
