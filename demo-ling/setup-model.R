@@ -48,7 +48,7 @@ prop_m_age <-
 
 ## ensure recruitment length at age 1 is within the appropriate range
 recl <-
-  ~bounded(g3_param('ling.recl'),4,20)
+  ~bounded(g3_param('ling.recl'),-5,30)
 
 ## Linf and K should be within bounds
 linf <-
@@ -78,7 +78,7 @@ ling_imm_actions <- list(
                                     factor_f = gadget3:::f_substitute(~ling_init_abund *
                                                                         exp(-1 * (g3_param_table("lingimm.M",
                                                                                                  data.frame(age = seq(ling_imm__minage, ling_imm__maxage) )) +
-                                                                                    init_F) * (age - 3)) * (1 - prop_m_age ),
+                                                                                    init_F) * (age - ling_imm__minage)) * (1 - prop_m_age ),
                                                                       list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age, init_F = init_F)),
                                     mean_f = mean_l,
                                     stddev_f = ~g3_param_table('lingimm.init.sd',data.frame(age = seq(ling_imm__minage, ling_imm__maxage))),
@@ -118,7 +118,7 @@ ling_mat_actions <- list(
                                       gadget3:::f_substitute(~ling_init_abund *
                                                                exp(-1 * (g3_param_table("lingmat.M",
                                                                                         data.frame(age = seq(ling_imm__minage, ling_mat__maxage) )) +
-                                                                           init_F) * (age - 3)) *prop_m_age,
+                                                                           init_F) * (age - ling_imm__minage)) *prop_m_age,
                                                              list(ling_init_abund = ling_init_abund, prop_m_age = prop_m_age, init_F = init_F)),
                                     mean_f = mean_l,
                                     stddev_f = ~g3_param_table('lingmat.init.sd',data.frame(age = seq(ling_mat__minage, ling_mat__maxage))),
