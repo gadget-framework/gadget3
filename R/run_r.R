@@ -50,10 +50,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     param_lines[[param_name]] <<- NA
                 }
             },
-            g3_param_array = function (x) param_lines[[x[[2]]]] <<- NA,
-            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- NA,
-            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- NA,
-            g3_param = function (x) param_lines[[x[[2]]]] <<- NA)
+            g3_param_array = function (x) param_lines[[x[[2]]]] <<- 0,
+            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- 0,
+            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- 0,
+            g3_param = function (x) param_lines[[x[[2]]]] <<- 0)
 
         # Find with variables / iterators to ignore
         ignore_vars <- c(

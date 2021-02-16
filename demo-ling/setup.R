@@ -135,42 +135,15 @@ ling_model <- g3_to_r(c(
 
 # Get pararameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
-ling_param[["ling.Linf"]] <- 0
-ling_param[["ling.k"]] <- 0
 ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingimm.wbeta"]] <- 3.20200445996187
 ling_param[["ling.bbin"]] <- 6
-ling_param[["ling.scalar"]] <- 0
-ling_param[["ling.init.F"]] <- 0
-ling_param[["ling.recl"]] <- 0
-ling_param[["ling.mat1"]] <- 0
-ling_param[["ling.mat2"]] <- 0
-ling_param[["ling.mat.a"]] <- 0
-ling_param[["ling.mat.a50"]] <- 0
 #ling_param[["ling.rec.1982"]] <- 1
-ling_param[["ling.rec.sd"]] <- 0
 ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
 ling_param[["lingmat.wbeta"]] <- 3.20200445996187
-ling_param[["ling.igfs.alpha"]] <- 0
-ling_param[["ling.igfs.l50"]] <- 0
-ling_param[["ling.lln.alpha"]] <- 0
-ling_param[["ling.lln.l50"]] <- 0
-ling_param[["ling.bmt.alpha"]] <- 0
-ling_param[["ling.bmt.l50"]] <- 0
-ling_param[["ling.gil.alpha"]] <- 0
-ling_param[["ling.gil.l50"]] <- 0
-ling_param[["ling_si_alpha1"]] <- 0
 ling_param[["ling_si_beta1"]] <- 1
-ling_param[['ling_si_alpha2']] <- 0
 ling_param[["ling_si_beta2"]] <- 1
-ling_param[['ling_si_alpha3']] <- 0
-ling_param[['ling_si_alpha4']] <- 0
-ling_param[['ling_si_alpha5']] <- 0
-ling_param[['ling_si_alpha6']] <- 0
-ling_param[['ling_si_alpha7']] <- 0
 ling_param[grepl('^lingimm\\.M\\.', names(ling_param))] <- 0.15
-ling_param[grepl('^ling\\.init\\.[0-9]', names(ling_param))] <- 0
-ling_param[grepl('^ling\\.renew\\.[0-9]', names(ling_param))] <- 0
 ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
 ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:10]
