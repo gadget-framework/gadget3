@@ -46,13 +46,11 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
 
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
-    ##' @param dmu mean growth for each lengthgroup
-    ##' @param lengthgrouplen i.e. dl, the step size for length groups
+    ##' @param delt_l mean growth for each lengthgroup, as a proportion of dl
     ##' @param binn Maximum updating length, i.e. # of length groups
-    ##' @return lengthgrouplen x (lengthgrouplen + 1) matrix, initial_len -> growth jump
-    growth_bbinom <- g3_native(r = function (dmu, lengthgrouplen, binn, beta) {
+    ##' @return length(delt_l) x (length(delt_l) + 1) 2-dimensional array, initial_len -> growth jump
+    growth_bbinom <- g3_native(r = function (delt_l, binn, beta) {
         # See gadgetsim:R/function.R:growthprob:prob()
-        delt_l <- dmu / lengthgrouplen  # i.e. width of length groups
         alpha <- (beta * delt_l) / (binn - delt_l)
 
         ## possible length growth
@@ -77,10 +75,9 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
                    lgamma(alpha))
         dim(val) <- c(na,n + 1)
         return(val)
-    }, cpp = '[](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
+    }, cpp = '[](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
-        vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
         // possible length growth
@@ -113,7 +110,7 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
 
     list(
         len = f_substitute(
-            ~growth_bbinom(delta_len_f, stock__dl, maxlengthgroupgrowth, beta_f),
+            ~growth_bbinom((delta_len_f) / stock__dl, maxlengthgroupgrowth, beta_f),
             list(
                 delta_len_f = delta_len_f,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,

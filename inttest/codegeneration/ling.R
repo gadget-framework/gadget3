@@ -17,9 +17,8 @@ structure(function (param)
     {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
     }
-    growth_bbinom <- function (dmu, lengthgrouplen, binn, beta) 
+    growth_bbinom <- function (delt_l, binn, beta) 
     {
-        delt_l <- dmu/lengthgrouplen
         alpha <- (beta * delt_l)/(binn - delt_l)
         x <- 0:binn
         na <- length(alpha)
@@ -451,7 +450,7 @@ structure(function (param)
                   {
                     if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size))), ling_imm__dl, 15, (param[["ling.bbin"]] * 10))
+                      ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_imm__dl, 15, (param[["ling.bbin"]] * 10))
                       ling_imm__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]])
                       comment("Don't recalculate until cur_step_size changes")
                       ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
@@ -506,7 +505,7 @@ structure(function (param)
                   {
                     if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size))), ling_mat__dl, 15, (param[["ling.bbin"]] * 10))
+                      ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_mat__dl, 15, (param[["ling.bbin"]] * 10))
                       ling_mat__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]])
                       comment("Don't recalculate until cur_step_size changes")
                       ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
