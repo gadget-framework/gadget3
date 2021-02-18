@@ -30,7 +30,8 @@ ok_group("g3a_grow_lengthvbsimple", {
             g3a_grow_lengthvbsimple(linf, kappa),
             list(
                 stock__midlen = midlen,
-                stock__dl = diff(midlen)[[1]],
+                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
+                stock__plusdl = diff(midlen)[[1]],
                 kappa = kappa,
                 cur_step_size = 1))
     }
@@ -49,7 +50,8 @@ ok_group("g3a_grow_impl_bbinom:zero-growth", {
             g3a_grow_impl_bbinom(g3a_grow_lengthvbsimple(linf, kappa), ~0, beta, maxlengthgroupgrowth)$len,
             list(
                 stock__midlen = midlen,
-                stock__dl = diff(midlen)[[1]],
+                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
+                stock__plusdl = diff(midlen)[[1]],
                 kappa = kappa,
                 beta = beta,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,

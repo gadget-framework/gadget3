@@ -49,11 +49,12 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
 
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
-    ##' @param delt_l mean growth for each lengthgroup, as a proportion of dl
-    ##' @param binn Maximum updating length, i.e. # of length groups
+    ##' @param delt_l Vector, for each lengthgroup, mean # of length groups to grow by
+    ##' @param binn Maximum possible number of length groups to grow by
     ##' @return length(delt_l) x (length(delt_l) + 1) 2-dimensional array, initial_len -> growth jump
     growth_bbinom <- g3_native(r = function (delt_l, binn, beta) {
         # See gadgetsim:R/function.R:growthprob:prob()
+        # binn - delt_l ==> (maxlengthgroupgrowth) - (current desired lengthgroup jump)
         alpha <- (beta * delt_l) / (binn - delt_l)
 
         ## possible length growth
@@ -114,7 +115,9 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
     list(
         len = f_substitute(
             # NB: avoid_zero_vec() means zero-growth doesn't result in NaN
-            ~growth_bbinom(avoid_zero_vec((delta_len_f) / stock__dl), maxlengthgroupgrowth, avoid_zero(beta_f)),
+            # NB: We convert delta_len_f into # of length groups to jump, but badly by assuming length groups
+            #     are evenly sized
+            ~growth_bbinom(avoid_zero_vec((delta_len_f) / stock__plusdl), maxlengthgroupgrowth, avoid_zero(beta_f)),
             list(
                 delta_len_f = delta_len_f,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,
@@ -260,7 +263,7 @@ g3a_growmature <- function(stock,
     # Filter out known constants (hacky but conservative, will fail by being slow)
     growth_dependent_vars <- setdiff(
         all.vars(calcgrowth_f),
-        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__midlen'))
+        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen'))
     if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
         calcgrowth_f <- f_substitute(~{
