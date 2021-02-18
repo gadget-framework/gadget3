@@ -108,7 +108,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7ffaf06563a0&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7f9de3979f80&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -140,7 +140,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffaf04377d8&gt;
+## &lt;environment: 0x7f9ddfce3ec0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -184,7 +184,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7ffaefbe98c0&gt;</code></pre>
+## &lt;environment: 0x7f9de140ec10&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -222,7 +222,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffaf0687460&gt;
+## &lt;environment: 0x7f9de39ab5b8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -264,7 +264,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffaf0c515e8&gt;
+## &lt;environment: 0x7f9de4a8f208&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -327,9 +327,8 @@
 <span class="va">fn</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
-##     growth_bbinom &lt;- function (dmu, lengthgrouplen, binn, beta) 
+##     growth_bbinom &lt;- function (delt_l, binn, beta) 
 ##     {
-##         delt_l &lt;- dmu/lengthgrouplen
 ##         alpha &lt;- (beta * delt_l)/(binn - delt_l)
 ##         x &lt;- 0:binn
 ##         na &lt;- length(alpha)
@@ -342,6 +341,16 @@
 ##             lgamma(alpha))
 ##         dim(val) &lt;- c(na, n + 1)
 ##         return(val)
+##     }
+##     avoid_zero_vec &lt;- function (a) 
+##     {
+##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
+##             1000, 0))))/1000
+##     }
+##     avoid_zero &lt;- function (a) 
+##     {
+##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
+##             1000, 0))))/1000
 ##     }
 ##     g3a_grow_apply &lt;- function (delta_l, delta_w, input_num, 
 ##         input_wgt) 
@@ -406,8 +415,8 @@
 ##                   area &lt;- ling_imm__areas[[ling_imm__area_idx]]
 ##                   {
 ##                     comment("Calculate length/weight delta matrices for current lengthgroups")
-##                     ling_imm__growth_l &lt;- growth_bbinom((age * 
-##                       10), ling_imm__dl, 4, param[["ling.bbin"]])
+##                     ling_imm__growth_l &lt;- growth_bbinom(avoid_zero_vec((age * 
+##                       10)/ling_imm__dl), 4, avoid_zero(param[["ling.bbin"]]))
 ##                     ling_imm__growth_w &lt;- (area * 20)
 ##                     if (FALSE) 
 ##                       ling_imm__prevtotal &lt;- sum(ling_imm__num[, 
@@ -436,7 +445,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffaf39f2630&gt;
+## &lt;environment: 0x7f9de4d3ced0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")

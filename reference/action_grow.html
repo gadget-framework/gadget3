@@ -170,7 +170,7 @@
     </tr>
     <tr>
       <th>delta_len_f</th>
-      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> defining a vector for mean increase in length for <code>stock</code>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> defining a non-negative vector for mean increase in length for <code>stock</code>
     for each lengthgroup, as defined by <code>g3a_grow_lengthvbsimple</code>.</p></td>
     </tr>
     <tr>
@@ -181,7 +181,7 @@
     <tr>
       <th>impl_f</th>
       <td><p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects, as defined by <code>g3a_grow_impl_bbinom</code>.
-    Both define a matrix of length groups <code>i</code> to length group deltas <code>j</code>,
+    Both define a matrix of length groups <code>i</code> to length group deltas <code>j</code> (0..<var>maxlengthgroupgrowth</var>),
     the values in the first indicate the proportion of individuals moving from <code>i</code> to <code>i + j</code>,
     the values in the second indicate the corresponding weight increase of individuals moving from <code>i</code> to <code>i + j</code>.</p></td>
     </tr>
