@@ -17,9 +17,8 @@ structure(function (param)
     {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
     }
-    growth_bbinom <- function (dmu, lengthgrouplen, binn, beta) 
+    growth_bbinom <- function (delt_l, binn, beta) 
     {
-        delt_l <- dmu/lengthgrouplen
         alpha <- (beta * delt_l)/(binn - delt_l)
         x <- 0:binn
         na <- length(alpha)
@@ -29,6 +28,10 @@ structure(function (param)
         val <- exp(lgamma(n + 1) + lgamma(alpha + beta) + lgamma(n - x + beta) + lgamma(x + alpha) - lgamma(n - x + 1) - lgamma(x + 1) - lgamma(n + alpha + beta) - lgamma(beta) - lgamma(alpha))
         dim(val) <- c(na, n + 1)
         return(val)
+    }
+    avoid_zero <- function (a) 
+    {
+        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     g3a_grow_weightsimple_vec_rotate <- function (vec, a) 
     {
@@ -76,10 +79,6 @@ structure(function (param)
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
         return(if (length(out) < 1) def else out)
-    }
-    avoid_zero <- function (a) 
-    {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     cur_time <- -1L
     nll <- 0
@@ -146,12 +145,12 @@ structure(function (param)
     "age8", "age9", "age10")))
     ling_imm__growth_lastcalc <- -1L
     ling_imm__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
-    ling_imm__dl <- model_data$ling_imm__dl
+    ling_imm__plusdl <- 4
     ling_imm__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_imm__prevtotal <- 0
     ling_mat__growth_lastcalc <- -1L
     ling_mat__growth_l <- array(dim = c(0L, 0L), dimnames = NULL)
-    ling_mat__dl <- model_data$ling_mat__dl
+    ling_mat__plusdl <- 4
     ling_mat__growth_w <- array(dim = c(0L, 0L), dimnames = NULL)
     ling_mat__prevtotal <- 0
     ling_imm__renewalnum <- array(dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", "age8", 
@@ -451,7 +450,7 @@ structure(function (param)
                   {
                     if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_imm__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size))), ling_imm__dl, 15, (param[["ling.bbin"]] * 10))
+                      ling_imm__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
                       ling_imm__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]])
                       comment("Don't recalculate until cur_step_size changes")
                       ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
@@ -506,7 +505,7 @@ structure(function (param)
                   {
                     if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_mat__growth_l <- growth_bbinom(((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size))), ling_mat__dl, 15, (param[["ling.bbin"]] * 10))
+                      ling_mat__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
                       ling_mat__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]])
                       comment("Don't recalculate until cur_step_size changes")
                       ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
@@ -745,5 +744,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 0, ling.k = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = NA, ling.rec.1995 = NA, ling.rec.1996 = NA, ling.rec.1997 = NA, ling.rec.1998 = NA, 
-    ling.rec.1999 = NA, ling.rec.2000 = NA, ling.rec.2001 = NA, ling.rec.2002 = NA, ling.rec.2003 = NA, ling.rec.2004 = NA, ling.rec.2005 = NA, ling.rec.2006 = NA, ling.rec.2007 = NA, ling.rec.2008 = NA, ling.rec.2009 = NA, ling.rec.2010 = NA, ling.rec.2011 = NA, ling.rec.2012 = NA, ling.rec.2013 = NA, ling.rec.2014 = NA, ling.rec.2015 = NA, ling.rec.2016 = NA, ling.rec.2017 = NA, ling.rec.2018 = NA))
+}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 0, ling.k = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, ling.rec.1998 = 0, 
+    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0))

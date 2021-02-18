@@ -19,7 +19,75 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
     }
 }
 
+read.matrix <- function (x, ...) unname(as.matrix(read.table(text=x, ...)))
+
 teststock <- g3_stock('teststock', seq(10, 35, 5))
+
+ok_group("g3a_grow_lengthvbsimple", {
+    # Run g3a_grow_lengthvbsimple for given linf and midlen
+    lvs <- function (linf, midlen = seq(10, 100, 10), kappa = 100) {
+        gadget3:::f_eval(
+            g3a_grow_lengthvbsimple(linf, kappa),
+            list(
+                stock__midlen = midlen,
+                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
+                stock__plusdl = diff(midlen)[[1]],
+                kappa = kappa,
+                cur_step_size = 1))
+    }
+    ok(ut_cmp_equal(
+        lvs(linf = 150), 
+        c(140, 130, 120, 110, 100, 90, 80, 70, 60, 50)), "linf = 150")
+    ok(ut_cmp_equal(
+        lvs(linf = 55), 
+        c(45, 35, 25, 15, 5, 0, 0, 0, 0, 0), tolerance = 1e-7), "linf = 55 (linf doesn't fall negative)")
+})
+
+ok_group("g3a_grow_impl_bbinom:zero-growth", {
+    # Run g3a_grow_impl_bbinom for given linf and midlen
+    gim <- function (linf, midlen = seq(10, 100, 10), kappa = 20, beta = 0.5, maxlengthgroupgrowth = 10) {
+        gadget3:::f_eval(
+            g3a_grow_impl_bbinom(g3a_grow_lengthvbsimple(linf, kappa), ~0, beta, maxlengthgroupgrowth)$len,
+            list(
+                stock__midlen = midlen,
+                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
+                stock__plusdl = diff(midlen)[[1]],
+                kappa = kappa,
+                beta = beta,
+                maxlengthgroupgrowth = maxlengthgroupgrowth,
+                cur_step_size = 1))
+    }
+
+    ok(ut_cmp_equal(round(gim(linf = 120, maxlengthgroupgrowth = 5), 2), read.matrix('
+        8.29  8.44  0.40  0.17 0.12 0.15
+        9.00 10.00  0.00  0.00 0.00 0.00
+       11.43 14.29  1.02  0.36 0.22 0.26
+       26.56 39.35  7.50  2.00 1.11 1.18
+       26.18 50.91 21.82  2.18 0.91 0.82
+       21.00 70.00 80.00 32.00 0.00 0.00
+        0.00  0.00  0.00  0.00 0.00 1.00
+        0.02  0.05  0.08  0.13 0.21 0.51
+        0.14  0.12  0.12  0.13 0.17 0.32
+        0.37  0.14  0.10  0.10 0.11 0.19
+     ')),"linf=120, maxlengthgroupgrowth=5")
+     # TODO: rowSums(gim(linf = 120, maxlengthgroupgrowth = 5)) should be 1?
+
+    ok(ut_cmp_equal(round(gim(linf = 40, maxlengthgroupgrowth = 5), 2), read.matrix('
+        0.14 0.12 0.12 0.13 0.17 0.32
+        0.37 0.14 0.10 0.10 0.11 0.19
+        0.66 0.09 0.06 0.05 0.05 0.09
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+        1.00 0.00 0.00 0.00 0.00 0.00
+    ')),"linf=40, maxlengthgroupgrowth=5 - Linf lower than Lmax produces valid output")
+    ok(ut_cmp_equal(
+        rowSums(gim(linf = 40, maxlengthgroupgrowth = 5)),
+        rep(1, 10), tolerance = 1e-2), "linf=40, maxlengthgroupgrowth=5 - Rows sum to 1")
+})
 
 ok_group("g3a_grow_impl_bbinom", {
     actions <- list(  # dmu, lengthgrouplen, binn, beta

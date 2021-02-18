@@ -69,10 +69,9 @@ Type objective_function<Type>::operator() () {
     }
     return res;
 };
-    auto growth_bbinom = [](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
+    auto growth_bbinom = [](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
-        vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
         // possible length growth
@@ -102,6 +101,9 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
+    auto avoid_zero = [](Type a) -> Type {
+    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
+};
     auto g3a_grow_weightsimple_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
         array<Type> out(vec.size(), a);
         for (int i = 0 ; i < vec.size(); i++) {
@@ -167,9 +169,6 @@ Type objective_function<Type>::operator() () {
     auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
-    auto avoid_zero = [](Type a) -> Type {
-    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
-};
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     int cur_time = -1;
     Type nll = (double)(0);
@@ -227,12 +226,12 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     int ling_imm__growth_lastcalc = -1;
     array<Type> ling_imm__growth_l;
-    DATA_VECTOR(ling_imm__dl)
+    Type ling_imm__plusdl = (double)(4);
     array<Type> ling_imm__growth_w;
     Type ling_imm__prevtotal = (double)(0);
     int ling_mat__growth_lastcalc = -1;
     array<Type> ling_mat__growth_l;
-    DATA_VECTOR(ling_mat__dl)
+    Type ling_mat__plusdl = (double)(4);
     array<Type> ling_mat__growth_w;
     Type ling_mat__prevtotal = (double)(0);
     array<Type> ling_imm__renewalnum(35,1,8);
@@ -520,7 +519,7 @@ Type objective_function<Type>::operator() () {
                     {
                         if ( ling_imm__growth_lastcalc != std::floor(cur_step_size*12) ) {
                             // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_imm__growth_l = growth_bbinom(((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))), ling_imm__dl, (double)(15), (ling__bbin*(double)(10)));
+                            ling_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), (double)(15), avoid_zero((ling__bbin*(double)(10))));
                             ling_imm__growth_w = ((g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), (double)(15) + (double)(1)))*lingimm__walpha);
                             // Don't recalculate until cur_step_size changes;
                             ling_imm__growth_lastcalc = std::floor(cur_step_size*12);
@@ -584,7 +583,7 @@ Type objective_function<Type>::operator() () {
                     {
                         if ( ling_mat__growth_lastcalc != std::floor(cur_step_size*12) ) {
                             // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_mat__growth_l = growth_bbinom(((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))), ling_mat__dl, (double)(15), (ling__bbin*(double)(10)));
+                            ling_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__k*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), (double)(15), avoid_zero((ling__bbin*(double)(10))));
                             ling_mat__growth_w = ((g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), (double)(15) + (double)(1)))*lingmat__walpha);
                             // Don't recalculate until cur_step_size changes;
                             ling_mat__growth_lastcalc = std::floor(cur_step_size*12);

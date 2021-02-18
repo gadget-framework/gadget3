@@ -43,7 +43,7 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
     \code{\link{g3_stock}} to grow.
   }
   \item{delta_len_f}{
-    A \link{formula} defining a vector for mean increase in length for \code{stock}
+    A \link{formula} defining a non-negative vector for mean increase in length for \code{stock}
     for each lengthgroup, as defined by \code{\link{g3a_grow_lengthvbsimple}}.
   }
   \item{delta_wgt_f}{
@@ -52,7 +52,7 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   }
   \item{impl_f}{
     A pair of \link{formula} objects, as defined by \code{\link{g3a_grow_impl_bbinom}}.
-    Both define a matrix of length groups \code{i} to length group deltas \code{j},
+    Both define a matrix of length groups \code{i} to length group deltas \code{j} (0..\var{maxlengthgroupgrowth}),
     the values in the first indicate the proportion of individuals moving from \code{i} to \code{i + j},
     the values in the second indicate the corresponding weight increase of individuals moving from \code{i} to \code{i + j}.
   }

@@ -1,8 +1,11 @@
 # Returns formula for lengthvbsimple growth function
 g3a_grow_lengthvbsimple <- function (linf_f, kappa_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
+    # NB: avoid_zero_vec() converts negative growth into zero-growth, due to
+    #     https://github.com/gadget-framework/gadget3/issues/18
+    #     but zero-growth is a valid result here
     f_substitute(
-        ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size)),
+        ~avoid_zero_vec((linf_f - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size))),
         list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
@@ -46,13 +49,12 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
 
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
-    ##' @param dmu mean growth for each lengthgroup
-    ##' @param lengthgrouplen i.e. dl, the step size for length groups
-    ##' @param binn Maximum updating length, i.e. # of length groups
-    ##' @return lengthgrouplen x (lengthgrouplen + 1) matrix, initial_len -> growth jump
-    growth_bbinom <- g3_native(r = function (dmu, lengthgrouplen, binn, beta) {
+    ##' @param delt_l Vector, for each lengthgroup, mean # of length groups to grow by
+    ##' @param binn Maximum possible number of length groups to grow by
+    ##' @return length(delt_l) x (length(delt_l) + 1) 2-dimensional array, initial_len -> growth jump
+    growth_bbinom <- g3_native(r = function (delt_l, binn, beta) {
         # See gadgetsim:R/function.R:growthprob:prob()
-        delt_l <- dmu / lengthgrouplen  # i.e. width of length groups
+        # binn - delt_l ==> (maxlengthgroupgrowth) - (current desired lengthgroup jump)
         alpha <- (beta * delt_l) / (binn - delt_l)
 
         ## possible length growth
@@ -77,10 +79,9 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
                    lgamma(alpha))
         dim(val) <- c(na,n + 1)
         return(val)
-    }, cpp = '[](vector<Type> dmu, vector<Type> lengthgrouplen, int binn, Type beta) -> array<Type> {
+    }, cpp = '[](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
 
-        vector<Type> delt_l = dmu / lengthgrouplen;  // i.e. width of length groups
         vector<Type> alpha_1 = (beta * delt_l) / (binn - delt_l);
 
         // possible length growth
@@ -113,7 +114,10 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
 
     list(
         len = f_substitute(
-            ~growth_bbinom(delta_len_f, stock__dl, maxlengthgroupgrowth, beta_f),
+            # NB: avoid_zero_vec() means zero-growth doesn't result in NaN
+            # NB: We convert delta_len_f into # of length groups to jump, but badly by assuming length groups
+            #     are evenly sized
+            ~growth_bbinom(avoid_zero_vec((delta_len_f) / stock__plusdl), maxlengthgroupgrowth, avoid_zero(beta_f)),
             list(
                 delta_len_f = delta_len_f,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,
@@ -259,7 +263,7 @@ g3a_growmature <- function(stock,
     # Filter out known constants (hacky but conservative, will fail by being slow)
     growth_dependent_vars <- setdiff(
         all.vars(calcgrowth_f),
-        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__midlen'))
+        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen'))
     if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
         calcgrowth_f <- f_substitute(~{
