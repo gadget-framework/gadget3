@@ -1,8 +1,11 @@
 # Returns formula for lengthvbsimple growth function
 g3a_grow_lengthvbsimple <- function (linf_f, kappa_f) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
+    # NB: avoid_zero_vec() converts negative growth into zero-growth, due to
+    #     https://github.com/gadget-framework/gadget3/issues/18
+    #     but zero-growth is a valid result here
     f_substitute(
-        ~((linf_f) - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size)),
+        ~avoid_zero_vec((linf_f - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size))),
         list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
@@ -110,7 +113,8 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
 
     list(
         len = f_substitute(
-            ~growth_bbinom((delta_len_f) / stock__dl, maxlengthgroupgrowth, beta_f),
+            # NB: avoid_zero_vec() means zero-growth doesn't result in NaN
+            ~growth_bbinom(avoid_zero_vec((delta_len_f) / stock__dl), maxlengthgroupgrowth, avoid_zero(beta_f)),
             list(
                 delta_len_f = delta_len_f,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,
