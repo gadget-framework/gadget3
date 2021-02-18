@@ -32,7 +32,7 @@ res <- ling_model(param_list)
 res[[1]]
 
 out <- attributes(res)
-names(out)
+#names(out)
 
 #out.tmb <- ling_model_tmb$report(fit.opt2$par)
 
@@ -50,10 +50,10 @@ names(out)
 #   as_tibble()
 # ggplot(aes(year,Freq)) + geom_point() + facet_wrap(~data)
 
-suits <- 
-  out$mat_report__suit_igfs %>% 
-  as.data.frame.table(stringsAsFactors = FALSE) %>% 
-  as_tibble() %>% 
+suits <-
+  out$mat_report__suit_igfs %>%
+  as.data.frame.table(stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
   mutate(length = gsub('len','',length) %>% as.numeric(),
          area = as.numeric(area),
          age = gsub('age','',age) %>% as.numeric(),
@@ -288,33 +288,34 @@ report <-
               bind_rows(.id="data") %>%
               separate(data, c('stock','type','wgt')) %>%
               select(-c(wgt,type)),
-            by = c("stock","length", "area", "age", "time")) %>% 
-  mutate(F = -log(1-consumption/abundance)*4) %>% ## find 1/delta_t from somewhere
-  group_by(fleet,time) %>% 
-  mutate(suitability = F/max(F,na.rm = TRUE)) %>% 
-  #pivot_wider(-c(fleet,consumption,suitability),names_from = fleet, values_from = c(consumption,F) ) %>% 
+            by = c("stock","length", "area", "age", "time")) %>%
+  mutate(consumption = ifelse(consumption==0,0,consumption/weight),
+         F = -log(1-consumption/abundance)*4) %>% ## find 1/delta_t from somewhere
+  group_by(fleet,time) %>%
+  mutate(suitability = F/max(F,na.rm = TRUE)) %>%
+  #pivot_wider(-c(fleet,consumption,suitability),names_from = fleet, values_from = c(consumption,F) ) %>%
   mutate(length = gsub('len','',length) %>% as.numeric(),
          age = gsub('age','',age) %>% as.numeric(),
          year = round(as.numeric(time)/1000),
          step = as.numeric(time) - year*1e3,
-         yc = year-age) 
+         yc = year-age)
 
-report %>% 
-  filter(stock == 'mat',step == 1) %>% 
-  group_by(year) %>% 
-  summarise(b = sum(num*w)) %>% 
-  ggplot(aes(year,b/1e6)) + geom_line()
+report %>%
+  filter(stock == 'mat',step == 1,fleet == 'igfs') %>%
+  group_by(year) %>%
+  summarise(b = sum(abundance*weight),
+            F = max(F,na.rm = TRUE)) %>%
+  ggplot(aes(year,F)) + geom_line()
 
-report %>% 
-  filter(year == 2000, step == 2) %>% 
-  group_by(fleet,year,step,length) %>% 
+report %>%
+  filter(year == 2010, step == 2) %>%
+  group_by(fleet,year,step,length) %>%
   summarise(c = sum(consumption),
-            n = sum(abundance)) %>% 
-  mutate(F = -log(1-c/n)) %>% 
-  group_by(fleet,year,step) %>% 
-  mutate(s = F/max(F,na.rm = TRUE)) %>% 
-  ggplot(aes(length,s)) + geom_line() + 
+            n = sum(abundance)) %>%
+  mutate(F = -log(1-c/n)) %>%
+  group_by(fleet,year,step) %>%
+  mutate(s = F/max(F,na.rm = TRUE)) %>%
+  ggplot(aes(length,s)) + geom_line() +
   facet_wrap(~fleet)
 
 
-  
