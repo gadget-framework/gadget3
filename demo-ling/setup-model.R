@@ -49,7 +49,7 @@ K <-
 
 ## mean length is estimated based on a Von B relationship used for immature and mature
 mean_l <-
-  gadget3:::f_substitute(~linf * (1 - exp(-1 * (0.001 * K) *
+  gadget3:::f_substitute(~linf * (1 - exp(-1 * K *
                                             (age - (1 + log(1 - recl/linf)/K)))),
                          list(recl = recl, linf = linf, K = K))
 init_F <-
