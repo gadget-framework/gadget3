@@ -1,0 +1,115 @@
+---
+title: "Debugging a gadget3 model"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Model Debugging}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, message=FALSE, echo=FALSE}
+library(gadget3)
+library(magrittr)
+```
+
+## Debugging the R model
+
+In theory, the TMB and R output of gadget3 should be identically-behaving
+functions, so instead of trying to decipher what the TMB model is doing wrong,
+you can use R function instead in a more familiar environment, for example
+using standard tools such as ``options(error=recover)``.
+
+You can also use ``edit()`` to edit the R function directly and re-run the
+model:
+
+```{r, eval=FALSE}
+# Model setup will look something like this
+ling_model <- g3_to_r(...)
+
+ling_model <- edit(ling_model) ; ling_model(ling_param)
+```
+
+...this is useful if you want to add trace ``print()`` statements around a
+particular part of the model that's failing, e.g. or insert a breakpoint by
+adding a ``recover()`` line.
+
+## Debugging the TMB model
+
+It's possible to have a working R model that doesn't compile using TMB, due to
+the relative strictness of the Eigen array library in comparison to R arrays,
+for example. In which case you'll need to debug the TMB version.
+
+### Preserving your R session whilst building
+
+If the model crashes whilst forming the TMB ADFun object, then it takes your R
+session with it. To prevent this, wrap ``g3_tmb_adfun()`` with
+``TMB::gdbsource()`` as follows:
+
+```{r, eval=FALSE}
+# Model setup will look something like this
+tmb_ling <- g3_to_tmb(...)
+tmb_param <- attr(tmb_ling, 'parameter_template')
+
+writeLines(TMB::gdbsource(g3_tmb_adfun(
+    tmb_ling,
+    tmb_param,
+    compile_flags = "-g",
+    output_script = TRUE)))
+```
+
+``output_script = TRUE`` tells ``g3_tmb_adfun()`` to, after compilation, write
+a temporary R script that will build the TMB ADFun object (and presumably crash
+in the process). ``TMB::gdbsource()`` in turn runs a provided R script in a
+fresh R session wrapped in gdb. By default it will print a stacktrace and quit,
+which should show you where the crash occured.
+
+### Editing C++ code
+
+As with the R model you can edit the raw C++ source before building:
+
+```{r, eval=FALSE}
+tmb_ling <- edit(tmb_ling)
+writeLines(TMB::gdbsource(g3_tmb_adfun(
+    tmb_ling,
+    tmb_param,
+    compile_flags = "-g",
+    output_script = TRUE)))
+```
+
+Through this you can...
+
+* Print the contents of single values with ``std::cout << ling__Linf << std::endl;``
+* Use ``().cols()`` and ``().rows()`` to get the size of an array expression
+* Print the contents of array objects with ``ling_imm__consratio.print()``
+
+### Interactive debugging
+
+In theory you can use ``interactive = TRUE`` with ``TMB::gdbsource()``, however
+as this eats error messages it's better to do this by hand:
+
+```
+> g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)
+[1] "/tmp/RtmpysTVvW/file3da4a6f13a80c.R"
+
+R -d gdb
+(gdb) run --vanilla < /tmp/RtmpysTVvW/file3da4a6f13a80c.R
+ . . . Compilation, crash at some point . . .
+(gdb) up
+(gdb) up
+(gdb) up
+(gdb) call ling_imm__consratio.print()
+Array dim: 35 1 8
+Array val: -nan -nan -nan -nan
+(gdb) call ling_imm__num.print()
+Array dim: 35 1 8
+Array val: -nan -nan -nan -nan -nan
+
+(gdb) print cur_time
+$5 = 0
+```
+
+Note that for the ``.print()`` method to be available for arrays, it has to be
+referenced at least once in the model source, otherwise it won't be compiled
+in. Use ``edit(tmb_ling)`` to add it somewhere first.

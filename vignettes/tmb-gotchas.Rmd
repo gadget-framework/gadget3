@@ -92,3 +92,13 @@ This case is a somewhat artifical construct, and not a problem for midlen
 
 No easy solutions, since gadget3 doesn't have enough type information and Eigen
 needs explicit casts.
+
+## TMB::gdbsource(interactive = TRUE) eats stderr
+
+Any error messages in gdb are lost, which makes for a frustrating console
+experience. Instead run the new R session yourself, with:
+
+```
+R -d gdb
+(gdb) run --vanilla < /tmp/RtmpysTVvW/file3da4a6f13a80c.R
+```
