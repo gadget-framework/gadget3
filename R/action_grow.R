@@ -320,9 +320,13 @@ g3a_growmature <- function(stock,
 
             if (strict_mode) {
                 if (transition_f) {
-                    stopifnot(abs(stock__prevtotal - sum(stock_ss(stock__num)) - sum(stock_ss(stock__transitioning_num))) < 0.0001)
+                    stock_assert(
+                        abs(stock__prevtotal - sum(stock_ss(stock__num)) - sum(stock_ss(stock__transitioning_num))) < 0.0001,
+                        "g3a_growmature: ", stock, "__num totals are not the same before and after growth (excluding maturation)")
                 } else {
-                    stopifnot(abs(stock__prevtotal - sum(stock_ss(stock__num))) < 0.0001)
+                    stock_assert(
+                        abs(stock__prevtotal - sum(stock_ss(stock__num))) < 0.0001,
+                        "g3a_growmature: ", stock, "__num totals are not the same before and after growth")
                 }
             }
         })

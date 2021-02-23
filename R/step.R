@@ -78,6 +78,19 @@ g3_step <- function(step_f) {
     return(f_optimize(call_replace(step_f,
         debug_label = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         debug_trace = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
+        stock_assert = function (x) {
+            comment_str <- paste(vapply(tail(x, -2), function (a) {
+                if (is.symbol(a)) {
+                    # Dereference symbols
+                    a <- get(as.character(a), envir = rlang::f_env(step_f))
+                    # Stocks have a name attribute
+                    if (is.list(a) && 'name' %in% names(a)) a <- a$name
+                }
+                return(as.character(a))
+            }, character(1)), collapse = "")
+
+            return(call('assert_msg', g3_step(as.formula(call("~", x[[2]]), env = environment(step_f))), comment_str))
+        },
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))

@@ -47,10 +47,11 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2017);
     PARAMETER(ling__rec__2018);
     
-    auto stopifnot = [](bool a) -> void {
-    if (a) return;
-    std::cerr << "stopifnot() check failed" << "\n";
-    abort();
+    auto assert_msg = [](bool expr, std::string message) -> void {
+    if (!expr) {
+        std::cerr << "Check failed: " << message << "\n";
+        abort();
+    }
 };
     auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
@@ -267,7 +268,7 @@ Type objective_function<Type>::operator() () {
             // g3a_time;
             cur_time += 1;
             if ( true ) {
-                stopifnot(std::isfinite(asDouble(nll)));
+                assert_msg(std::isfinite(asDouble(nll)), "nll is NaN/Inf");
             }
             if ( cur_time > total_steps ) {
                 return nll;
@@ -420,8 +421,7 @@ Type objective_function<Type>::operator() () {
             ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
             ling_imm__consratio = ((double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100));
             if ( true ) {
-                // We can't consume more fish than currently exists;
-                stopifnot((ling_imm__consratio <= (double)(1)).all());
+                assert_msg((ling_imm__consratio <= (double)(1)).all(), "ling_imm__consratio <= 1, can't consume more fish than currently exist");
             }
             // Apply overconsumption to prey;
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
@@ -434,8 +434,7 @@ Type objective_function<Type>::operator() () {
             ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
             ling_mat__consratio = ((double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100));
             if ( true ) {
-                // We can't consume more fish than currently exists;
-                stopifnot((ling_mat__consratio <= (double)(1)).all());
+                assert_msg((ling_mat__consratio <= (double)(1)).all(), "ling_mat__consratio <= 1, can't consume more fish than currently exist");
             }
             // Apply overconsumption to prey;
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();
@@ -563,9 +562,9 @@ Type objective_function<Type>::operator() () {
                         }
                         if ( true ) {
                             if (cur_step_final) {
-                                stopifnot(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04));
+                                assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04), "ling_imm__num totals are not the same before and after growth (excluding maturation)");
                             } else {
-                                stopifnot(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04));
+                                assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum()) < (double)(1e-04), "ling_imm__num totals are not the same before and after growth");
                             }
                         }
                     }
@@ -601,7 +600,7 @@ Type objective_function<Type>::operator() () {
                             }
                         }
                         if ( true ) {
-                            stopifnot(CppAD::abs(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum()) < (double)(1e-04));
+                            assert_msg(CppAD::abs(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum()) < (double)(1e-04), "ling_mat__num totals are not the same before and after growth");
                         }
                     }
                 }
@@ -768,10 +767,10 @@ Type objective_function<Type>::operator() () {
                 {
                     // Check stock has remained finite for this step;
                     if ( true ) {
-                        stopifnot(((ling_imm__num.col(ling_imm__age_idx)).isFinite()).all());
+                        assert_msg(((ling_imm__num.col(ling_imm__age_idx)).isFinite()).all(), "ling_imm__num has become NaN/Inf in this timestep");
                     }
                     if ( true ) {
-                        stopifnot(((ling_imm__wgt.col(ling_imm__age_idx)).isFinite()).all());
+                        assert_msg(((ling_imm__wgt.col(ling_imm__age_idx)).isFinite()).all(), "ling_imm__wgt has become NaN/Inf in this timestep");
                     }
                     if (age == ling_imm__maxage) {
                         // Move oldest ling_imm into ling_imm_movement;
@@ -801,10 +800,10 @@ Type objective_function<Type>::operator() () {
                 {
                     // Check stock has remained finite for this step;
                     if ( true ) {
-                        stopifnot(((ling_mat__num.col(ling_mat__age_idx)).isFinite()).all());
+                        assert_msg(((ling_mat__num.col(ling_mat__age_idx)).isFinite()).all(), "ling_mat__num has become NaN/Inf in this timestep");
                     }
                     if ( true ) {
-                        stopifnot(((ling_mat__wgt.col(ling_mat__age_idx)).isFinite()).all());
+                        assert_msg(((ling_mat__wgt.col(ling_mat__age_idx)).isFinite()).all(), "ling_mat__wgt has become NaN/Inf in this timestep");
                     }
                     if (age == ling_mat__maxage) {
                         // Oldest ling_mat is a plus-group, combine with younger individuals;

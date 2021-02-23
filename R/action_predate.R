@@ -96,8 +96,9 @@ g3a_predate_totalfleet <- function (fleet_stock,
                 # Overconsumption rule
                 prey_stock__consratio <- overconsumption_f
                 if (strict_mode) {
-                    debug_trace("We can't consume more fish than currently exists")
-                    stopifnot(all(prey_stock__consratio <= 1))
+                    stock_assert(
+                        all(prey_stock__consratio <= 1),
+                        "g3a_predate_totalfleet: ", prey_stock, "__consratio <= 1, can't consume more fish than currently exist")
                 }
 
                 debug_trace("Apply overconsumption to prey")

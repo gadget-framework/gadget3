@@ -96,11 +96,14 @@ g3_global_env$REprintf <- g3_native(r = function(...) {
 }, cpp = NULL)
 
 
-# Implement stopifnot for C++ (assert might be disabled by NDEBUG)
-g3_global_env$stopifnot <- g3_native(r = "stopifnot", cpp = '[](bool a) -> void {
-    if (a) return;
-    std::cerr << "stopifnot() check failed" << "\\n";
-    abort();
+# Assert w/message
+g3_global_env$assert_msg <- g3_native(r = function(expr, message) {
+    if (isFALSE(expr)) stop(message)
+}, cpp = '[](bool expr, std::string message) -> void {
+    if (!expr) {
+        std::cerr << "Check failed: " << message << "\\n";
+        abort();
+    }
 }')
 
 
