@@ -49,6 +49,8 @@ be fixed in TMB.
 
 ## VECTORIZE1_t macros
 
+(documented in https://github.com/kaskr/adcomp/pull/329 )
+
 The "R-like" functions TMB provides, such as ``lgamma()`` are defined using the
 ``VECTORIZE`` macros. These macros expect a single symbol, and will produce
 mysterious errors if an expression is used.
