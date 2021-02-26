@@ -47,29 +47,6 @@ Can't do ``vector = single_value``, have to use ``vector.setConstant(single_valu
 g3 will mostly handle this automatically, but seems like something that could
 be fixed in TMB.
 
-## Parameter ordering
-
-When parameters are provided to TMB, they are flattened into one big vector. As
-a result they need to be flattened in the expected order. When providing
-defaults TMB will do this for you, but when calling the model it expects it to
-be already done.
-
-Also, in ``?MakeADFun``:
-
-```
-Do not rely upon the default arguments of any of the functions in
-the model object ‘obj$fn’, ‘obj$gr’, ‘obj$he’, ‘obj$report’. I.e.
-always use the explicit form ‘obj$fn(obj$par)’ rather than
-‘obj$fn()’.
-```
-
-The following seems to re-order in the expected way, but seems naff:
-
-    params <- list(... unordered params ...)
-    par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-
-We could abstract, but there's probably a better solution.
-
 ## VECTORIZE1_t macros
 
 The "R-like" functions TMB provides, such as ``lgamma()`` are defined using the
