@@ -123,23 +123,10 @@
 <p>Can’t do <code>vector = single_value</code>, have to use <code>vector.setConstant(single_value)</code>.</p>
 <p>g3 will mostly handle this automatically, but seems like something that could be fixed in TMB.</p>
 </div>
-<div id="parameter-ordering" class="section level2">
-<h2 class="hasAnchor">
-<a href="#parameter-ordering" class="anchor"></a>Parameter ordering</h2>
-<p>When parameters are provided to TMB, they are flattened into one big vector. As a result they need to be flattened in the expected order. When providing defaults TMB will do this for you, but when calling the model it expects it to be already done.</p>
-<p>Also, in <code>?MakeADFun</code>:</p>
-<pre><code>Do not rely upon the default arguments of any of the functions in
-the model object ‘obj$fn’, ‘obj$gr’, ‘obj$he’, ‘obj$report’. I.e.
-always use the explicit form ‘obj$fn(obj$par)’ rather than
-‘obj$fn()’.</code></pre>
-<p>The following seems to re-order in the expected way, but seems naff:</p>
-<pre><code>params &lt;- list(... unordered params ...)
-par &lt;- unlist(params[attr(model_cpp, 'parameter_template')$switch])</code></pre>
-<p>We could abstract, but there’s probably a better solution.</p>
-</div>
 <div id="vectorize1_t-macros" class="section level2">
 <h2 class="hasAnchor">
 <a href="#vectorize1_t-macros" class="anchor"></a>VECTORIZE1_t macros</h2>
+<p>(documented in <a href="https://github.com/kaskr/adcomp/pull/329" class="uri">https://github.com/kaskr/adcomp/pull/329</a> )</p>
 <p>The “R-like” functions TMB provides, such as <code><a href="https://rdrr.io/r/base/Special.html">lgamma()</a></code> are defined using the <code>VECTORIZE</code> macros. These macros expect a single symbol, and will produce mysterious errors if an expression is used.</p>
 <p>Instead of <code><a href="https://rdrr.io/r/base/Special.html">lgamma(alpha + beta)</a></code>, do something like:</p>
 <pre><code>lgamma_arg = alpha + beta; val_vec = val_vec + lgamma(lgamma_arg);</code></pre>
@@ -156,6 +143,7 @@ par &lt;- unlist(params[attr(model_cpp, 'parameter_template')$switch])</code></p
 <div id="tmbgdbsourceinteractive-true-eats-stderr" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tmbgdbsourceinteractive-true-eats-stderr" class="anchor"></a>TMB::gdbsource(interactive = TRUE) eats stderr</h2>
+<p>(documented in <a href="https://github.com/kaskr/adcomp/issues/341" class="uri">https://github.com/kaskr/adcomp/issues/341</a>)</p>
 <p>Any error messages in gdb are lost, which makes for a frustrating console experience. Instead run the new R session yourself, with:</p>
 <pre><code>R -d gdb
 (gdb) run --vanilla &lt; /tmp/RtmpysTVvW/file3da4a6f13a80c.R</code></pre>
