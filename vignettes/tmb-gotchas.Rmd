@@ -74,6 +74,8 @@ needs explicit casts.
 
 ## TMB::gdbsource(interactive = TRUE) eats stderr
 
+(documented in https://github.com/kaskr/adcomp/issues/341)
+
 Any error messages in gdb are lost, which makes for a frustrating console
 experience. Instead run the new R session yourself, with:
 
