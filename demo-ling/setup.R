@@ -116,8 +116,8 @@ report_actions <- list(
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__foreign)),
        ## recruitment
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalnum)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalwgt)), 
-       
+       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__renewalwgt)),
+
        # Report ling suitability caught by igfs
        g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__suit_igfs)),
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__suit_igfs)))
@@ -151,6 +151,31 @@ ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:
 ling_param[grepl('weight$',names(ling_param))] <- 1
 
 ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
+
+
+## Old weights
+
+ling_param['ldist_lln_weight'] <- 3331
+ling_param['aldist_lln_weight'] <- 2512
+ling_param['ldist_bmt_weight'] <- 1247
+ling_param['aldist_bmt_weight'] <- 1515
+ling_param['ldist_gil_weight'] <- 781
+ling_param['aldist_gil_weight'] <- 719
+ling_param['ldist_igfs_weight'] <- 6869
+ling_param['aldist_igfs_weight'] <- 11087
+ling_param['matp_igfs_weight'] <- 9
+ling_param['si_igfs_si1_weight'] <- 40
+ling_param['si_igfs_si2a_weight'] <- 8
+ling_param['si_igfs_si2b_weight'] <- 36
+ling_param['si_igfs_si3a_weight'] <- 19
+
+ling_param['si_igfs_si3b_weight'] <- 16
+
+ling_param['si_igfs_si3c_weight'] <- 13
+ling_param['si_igfs_si3d_weight'] <- 14.5
+#
+
+
 
 
 # You can edit the model code with:
@@ -276,7 +301,7 @@ fit.opt3 <- optim(fit.opt2$par,
 #               # upper = g3_tmb_upper(tmb_param),
 #               #  lower = g3_tmb_lower(tmb_param),
 #               control = list(trace = TRUE, eval.max=200, iter.max=100))
-#
+# #
 #
 # fit.sann <- optim(fit.opt$par,
 #                   ling_model_tmb$fn, method = 'SANN',

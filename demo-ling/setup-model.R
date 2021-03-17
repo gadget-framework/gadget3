@@ -88,7 +88,7 @@ ling_imm_actions <- list(
                    g3a_grow_weightsimple(~g3_param("lingimm.walpha"),
                                          ~g3_param("lingimm.wbeta")),
                    beta_f = ~bounded(g3_param("ling.bbin"),1,1000),
-                   maxlengthgroupgrowth = 5),
+                   maxlengthgroupgrowth = 10),
                  maturity_f = g3a_mature_continuous(
                    alpha = ~(0.001 * exp(g3_param("ling.mat1"))),
                    l50 = ~bounded(g3_param("ling.mat2"),20,120)),
@@ -118,7 +118,7 @@ ling_mat_actions <- list(
                    g3a_grow_weightsimple(~g3_param("lingmat.walpha"),
                                          ~g3_param("lingmat.wbeta")),
                    beta_f = ~bounded(g3_param("ling.bbin"),1,1000),
-                   maxlengthgroupgrowth = 5)),
+                   maxlengthgroupgrowth = 10)),
   g3a_naturalmortality(ling_mat,
                        g3a_naturalmortality_exp(~g3_param_table("lingmat.M", data.frame(age = seq(ling_mat__minage, ling_mat__maxage))))),
   g3a_age(ling_mat),

@@ -20,13 +20,13 @@ for(nn in names(tmp)){param_list[[nn]] <- tmp[[nn]]}
 # }
 ## change names (do we need to do this?)
 
-ling_model <- g3_to_r(c(
-  ling_mat_actions,
-  ling_imm_actions,
-  fleet_actions,
-  ling_likelihood_actions,
-  report_actions,
-  time_actions))
+# ling_model <- g3_to_r(c(
+#   ling_mat_actions,
+#   ling_imm_actions,
+#   fleet_actions,
+#   ling_likelihood_actions,
+#   report_actions,
+#   time_actions))
 
 res <- ling_model(param_list)
 res[[1]]
@@ -268,7 +268,7 @@ out[grep('report__num',names(out))] %>%
   summarise(n=sum(Freq)) %>%
   ggplot(aes(year,n)) + geom_point()
 
-report <-
+ report <-
   out[grep('_report__',names(out))] %>%
   map( as.data.frame.table, stringsAsFactors = FALSE,responseName = 'consumption') %>%
   map(as_tibble) %>%
@@ -301,11 +301,18 @@ report <-
          yc = year-age)
 
 report %>%
-  filter(stock == 'mat',step == 1,fleet == 'igfs') %>%
+  filter(stock == 'mat',step == 1,fleet == 'lln') %>%
   group_by(year) %>%
   summarise(b = sum(abundance*weight),
             F = max(F,na.rm = TRUE)) %>%
-  ggplot(aes(year,F)) + geom_line()
+  ggplot(aes(year,b)) + geom_line() +
+  expand_limits(y=0)
+
+report %>%
+  filter(stock == 'imm',step == 1,fleet == 'lln') %>%
+  group_by(year) %>%
+  summarise(r = sum(abundance)) %>%
+  ggplot(aes(year,r)) + geom_line()
 
 report %>%
   filter(year == 2010, step == 2) %>%
@@ -315,7 +322,7 @@ report %>%
   mutate(F = -log(1-c/n)) %>%
   group_by(fleet,year,step) %>%
   mutate(s = F/max(F,na.rm = TRUE)) %>%
-  ggplot(aes(length,s)) + geom_line() +
+  ggplot(aes(length,s,col=fleet)) + geom_line()# +
   facet_wrap(~fleet)
 
 
