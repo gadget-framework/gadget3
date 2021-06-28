@@ -122,6 +122,18 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         }
     }  # End of var_defns
 
+    # Populate scope for code block
+    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
+
+    # Wrap all steps in a function call
+    out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
+        list(as.symbol(open_curly_bracket)),
+        scope,
+        lapply(names(param_lines), function (p) substitute(stopifnot(p %in% names(param)), list(p = p))),
+        rlang::f_rhs(all_actions),
+        quote(stop("Should have return()ed somewhere in the loop")))))
+
+    # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(sym_name) {
@@ -162,18 +174,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_param_vector = repl_fn("param"),
             g3_param = repl_fn("param"))
     }
-    # Populate scope for code block
-    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
-
-    # Wrap all steps in a function call
-    out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
-        list(as.symbol(open_curly_bracket)),
-        scope,
-        lapply(names(param_lines), function (p) substitute(stopifnot(p %in% names(param)), list(p = p))),
-        rlang::f_rhs(all_actions),
-        quote(stop("Should have return()ed somewhere in the loop")))))
-
     out <- g3_functions(out)
+
+    # Turn call structure into an actual function
     out <- eval(out)
 
     # Attach data to model as closure
