@@ -593,7 +593,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
 
-        # Find any native functions used, and add them
+        # Find any g3_native functions used, and add them
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
                     && is.character(attr(all_defns[[var_name]], 'g3_native_cpp'))  # i.e. it's not a native function here
@@ -608,6 +608,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Find any g3_param stash it in param_lines
         call_replace(code,
             g3_param_table = function (x) {
+                # Find data.frame value in environment
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
@@ -730,8 +731,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             }
             scope[[var_name]] <<- defn
         }
+    }  # End of var_defns
 
-    }
     # Define all vars, populating param_lines and scope
     var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 

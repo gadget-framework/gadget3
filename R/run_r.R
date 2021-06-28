@@ -120,7 +120,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             }
             scope[[var_name]] <<- defn
         }
-    }
+    }  # End of var_defns
 
     g3_functions <- function (in_code) {
         # Replace any in-line g3 calls that may have been in formulae
