@@ -232,7 +232,7 @@ structure(function (param)
             comment("g3a_time")
             cur_time <- cur_time + 1L
             if (TRUE) 
-                assert_msg(is.finite(nll), "nll is NaN/Inf")
+                assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) 
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
@@ -368,7 +368,7 @@ structure(function (param)
             ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
             ling_imm__consratio <- (0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100)
             if (TRUE) 
-                assert_msg(~all(ling_imm__consratio <= 1), "ling_imm__consratio <= 1, can't consume more fish than currently exist")
+                assert_msg(~all(ling_imm__consratio <= 1), "g3a_predate_totalfleet: ling_imm__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
             ling_imm__overconsumption <- sum(ling_imm__totalpredate)
             ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
@@ -380,7 +380,7 @@ structure(function (param)
             ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
             ling_mat__consratio <- (0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100)
             if (TRUE) 
-                assert_msg(~all(ling_mat__consratio <= 1), "ling_mat__consratio <= 1, can't consume more fish than currently exist")
+                assert_msg(~all(ling_mat__consratio <= 1), "g3a_predate_totalfleet: ling_mat__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
             ling_mat__overconsumption <- sum(ling_mat__totalpredate)
             ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio
@@ -491,8 +491,8 @@ structure(function (param)
                     }
                     if (TRUE) 
                       if (cur_step_final) 
-                        assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]) - sum(ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx])) < 1e-04, "ling_imm__num totals are not the same before and after growth (excluding maturation)")
-                      else assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])) < 1e-04, "ling_imm__num totals are not the same before and after growth")
+                        assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]) - sum(ling_imm__transitioning_num[, ling_imm__area_idx, ling_imm__age_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth (excluding maturation)")
+                      else assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth")
                   }
                 }
             }
@@ -522,7 +522,7 @@ structure(function (param)
                       }
                     }
                     if (TRUE) 
-                      assert_msg(~abs(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])) < 1e-04, "ling_mat__num totals are not the same before and after growth")
+                      assert_msg(~abs(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx])) < 1e-04, "g3a_growmature: ling_mat__num totals are not the same before and after growth")
                   }
                 }
             }
@@ -672,9 +672,9 @@ structure(function (param)
                 {
                   comment("Check stock has remained finite for this step")
                   if (TRUE) 
-                    assert_msg(~all(is.finite(ling_imm__num[, , ling_imm__age_idx])), "ling_imm__num has become NaN/Inf in this timestep")
+                    assert_msg(~all(is.finite(ling_imm__num[, , ling_imm__age_idx])), "ling_imm__num became NaN/Inf in this timestep")
                   if (TRUE) 
-                    assert_msg(~all(is.finite(ling_imm__wgt[, , ling_imm__age_idx])), "ling_imm__wgt has become NaN/Inf in this timestep")
+                    assert_msg(~all(is.finite(ling_imm__wgt[, , ling_imm__age_idx])), "ling_imm__wgt became NaN/Inf in this timestep")
                   if (age == ling_imm__maxage) {
                     comment("Move oldest ling_imm into ling_imm_movement")
                     ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
@@ -702,9 +702,9 @@ structure(function (param)
                 {
                   comment("Check stock has remained finite for this step")
                   if (TRUE) 
-                    assert_msg(~all(is.finite(ling_mat__num[, , ling_mat__age_idx])), "ling_mat__num has become NaN/Inf in this timestep")
+                    assert_msg(~all(is.finite(ling_mat__num[, , ling_mat__age_idx])), "ling_mat__num became NaN/Inf in this timestep")
                   if (TRUE) 
-                    assert_msg(~all(is.finite(ling_mat__wgt[, , ling_mat__age_idx])), "ling_mat__wgt has become NaN/Inf in this timestep")
+                    assert_msg(~all(is.finite(ling_mat__wgt[, , ling_mat__age_idx])), "ling_mat__wgt became NaN/Inf in this timestep")
                   if (age == ling_mat__maxage) {
                     comment("Oldest ling_mat is a plus-group, combine with younger individuals")
                     ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx]
