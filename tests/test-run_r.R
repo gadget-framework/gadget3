@@ -20,12 +20,12 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
 })
 
 ok_group('g3_param_table', {
-    param <- attr(g3_to_r(list(g3a_time(2000, 2004), ~{
+    param <- attr(g3_to_r(list(g3a_time(2000, 2004, steps = rep(3, times = 4)), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
-            age = 2:3))
+            cur_step = 1:2))
     })), 'parameter_template')
     ok(ut_cmp_identical(
-        names(param),
-        paste("pt", 2000:2004, rep(2:3, each = 5), sep=".")), "Param table turned into multiple parameters")
+        sort(names(param)),
+        sort(paste("pt", 2000:2004, rep(1:2, each = 5), sep="."))), "Param table turned into multiple parameters")
 })
