@@ -160,7 +160,7 @@ ok_group('g3_tmb_relist', {
 ok_group('g3_param', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
         g3_param('a')
-        g3_param('b', value = 4)
+        g3_param('b', value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
@@ -169,11 +169,11 @@ ok_group('g3_param', {
             switch = c('a', 'b'),
             type = c("", ""),
             value = I(list(a = array(0), b = array(4))),
-            optimise = c(TRUE, TRUE),
+            optimise = c(TRUE, FALSE),
             random = c(FALSE, FALSE),
             lower = as.numeric(NA),
             upper = as.numeric(NA),
-            stringsAsFactors = FALSE)), "Param table included value values")
+            stringsAsFactors = FALSE)), "Param table included value, optimise values")
 })
 
 ok_group('g3_param_table', {
@@ -183,7 +183,7 @@ ok_group('g3_param_table', {
             cur_step = 2:3))
         g3_param_table('pg', expand.grid(
             cur_year = start_year,
-            cur_step = 1:2), value = 4)
+            cur_step = 1:2), value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
@@ -204,11 +204,11 @@ ok_group('g3_param_table', {
                 "pt.2004.3" = array(0),
                 "pg.2000.1" = array(4),
                 "pg.2000.2" = array(4))),
-            optimise = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+            optimise = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
             random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
             lower = as.numeric(NA),
             upper = as.numeric(NA),
-            stringsAsFactors = FALSE)), "Param table included value values")
+            stringsAsFactors = FALSE)), "Param table included value, optimise values")
 })
 
 

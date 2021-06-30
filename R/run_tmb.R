@@ -574,6 +574,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 # Extract named args from g3_param() call
                 find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
                 value <- find_arg('value', 0)
+                optimise <- find_arg('optimise', TRUE)
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -582,7 +583,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         # NB: Has to be a list column because values might be vectors
                         list(array(value, dim = dims)),
                         names = name)),
-                    optimise = if (dims[[1]] > 0) TRUE else logical(0),
+                    optimise = if (dims[[1]] > 0) optimise else logical(0),
                     random = if (dims[[1]] > 0) FALSE else logical(0),
                     lower = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),
                     upper = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),

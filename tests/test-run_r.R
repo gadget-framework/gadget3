@@ -22,7 +22,8 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
 ok_group('g3_param', {
     param <- attr(g3_to_r(list(g3a_time(2000, 2004), ~{
         g3_param('a')
-        g3_param('b', value = 4)
+        # NB: We don't actually use optimise, but shouldn't error if it's there
+        g3_param('b', value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
@@ -36,7 +37,8 @@ ok_group('g3_param_table', {
             cur_step = 2:3))
         g3_param_table('pg', expand.grid(
             cur_year = start_year,
-            cur_step = 1:2), value = 4)
+            # NB: We don't actually use optimise, but shouldn't error if it's there
+            cur_step = 1:2), value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
