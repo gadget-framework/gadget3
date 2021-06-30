@@ -22,6 +22,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         # Convert a g3_param* call into a reference, move it's definition to the environment
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
+            df_template <- function (name, dims = c(1)) {
+                structure(list(0), names = name)
+            }
             if (x[[1]] == 'g3_param_table') {
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
@@ -31,7 +34,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
                     scope[[paste0("..param:", param_name)]] <<- structure(
                         substitute(stopifnot(p %in% names(param)), list(p = param_name)),
-                        param_template = structure(list(0), names = param_name))
+                        param_template = df_template(param_name))
                 }
 
                 # Replace with a  param[["lookup.cur_year.cur_step"]] call
@@ -48,7 +51,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             # NB: We haven't actually used ..param:thing, but will end up in top of function anyway
             scope[[paste0("..param:", x[[2]])]] <<- structure(
                 substitute(stopifnot(p %in% names(param)), list(p = x[[2]])),
-                param_template = structure(list(0), names = x[[2]]))
+                param_template = df_template(x[[2]]))
             return(call('[[', as.symbol("param"), x[[2]]))
         }
         code <- call_replace(code,
