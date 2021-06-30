@@ -102,6 +102,16 @@ dat %>%
   geom_line(aes(y=model)) +
   facet_wrap(~year + step, scale = 'free')
 
+
+dat %>%
+  filter(comp == 'cdist_ldist_lln_') %>%
+  group_by(year,step,origin) %>%
+  mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
+  spread(origin,Freq) %>%
+  ggplot(aes(length,obs)) + geom_point() +
+  geom_line(aes(y=model)) +
+  facet_wrap(~year + step, scale = 'free')
+
 dat %>%
   filter(comp == 'cdist_ldist_igfs_') %>%
   group_by(year,step,origin) %>%
@@ -325,4 +335,11 @@ report %>%
   ggplot(aes(length,s,col=fleet)) + geom_line()# +
   facet_wrap(~fleet)
 
-
+  report %>%
+    filter(stock == 'mat',step == 1,fleet == 'lln') %>%
+    group_by(year) %>%
+    summarise(b = sum(abundance*weight),
+              F = max(F,na.rm = TRUE)) %>%
+    ggplot(aes(year,F)) + geom_line() +
+    expand_limits(y=0)
+  
