@@ -25,6 +25,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             df_template <- function (name, dims = c(1)) {
                 structure(list(0), names = name)
             }
+            if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
@@ -43,9 +44,6 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     lapply(names(df), as.symbol),
                     list(sep = ".")))))
             }
-
-            # NB: We did have a paste0() option here too, but TMB didn't have an equivalent. Make sure it isn't used.
-            stopifnot(length(x) == 2)
 
             # Default for g3_param / g3_param_vector
             # NB: We haven't actually used ..param:thing, but will end up in top of function anyway

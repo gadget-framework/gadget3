@@ -25,11 +25,6 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
 
-ok(ut_cmp_error({
-    camel <- 1998
-    g3_to_tmb(list(~{g3_param("moo", camel)}))
-}, "g3_param.*moo"), "Complained about dynamic param, we don't support")
-
 ok(grepl(
     "unknown_func(.*2.*)",
     paste(g3_to_tmb(list(~{

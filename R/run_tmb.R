@@ -585,6 +585,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     row.names = name,
                     stringsAsFactors = FALSE)
             }
+            if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             param_name <- cpp_escape_varname(x[[2]])
             if (x[[1]] == 'g3_param_table') {
                 # NB: We eval, so they can be defined in-formulae
@@ -615,8 +616,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     paste(names(df), collapse = ","),
                     ")]")))
             }
-
-            if (!(is.character(x[[2]]) && length(x) == 2)) stop("Parameter names need to be a single string, not ", deparse(x))
 
             # Add PARAMETER definition for variable
             scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
