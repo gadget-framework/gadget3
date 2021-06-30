@@ -6,7 +6,6 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
-    param_lines <- list()
 
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
@@ -20,6 +19,44 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         })
 
     var_defns <- function (code, env) {
+        # Convert a g3_param* call into a reference, move it's definition to the environment
+        # Replace any in-line g3 calls that may have been in formulae
+        repl_fn <- function(x) {
+            if (x[[1]] == 'g3_param_table') {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Add stopifnot for each row in table
+                for (i in seq_len(nrow(df))) {
+                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    scope[[paste0("..param:", param_name)]] <<- structure(
+                        substitute(stopifnot(p %in% names(param)), list(p = param_name)),
+                        param_template = structure(list(0), names = param_name))
+                }
+
+                # Replace with a  param[["lookup.cur_year.cur_step"]] call
+                return(call('[[', as.symbol("param"), as.call(c(
+                    list(as.symbol("paste"), as.character(x[[2]])),
+                    lapply(names(df), as.symbol),
+                    list(sep = ".")))))
+            }
+
+            # NB: We did have a paste0() option here too, but TMB didn't have an equivalent. Make sure it isn't used.
+            stopifnot(length(x) == 2)
+
+            # Default for g3_param / g3_param_vector
+            # NB: We haven't actually used ..param:thing, but will end up in top of function anyway
+            scope[[paste0("..param:", x[[2]])]] <<- structure(
+                substitute(stopifnot(p %in% names(param)), list(p = x[[2]])),
+                param_template = structure(list(0), names = x[[2]]))
+            return(call('[[', as.symbol("param"), x[[2]]))
+        }
+        code <- call_replace(code,
+            g3_param_table = repl_fn,
+            g3_param_array = repl_fn,
+            g3_param_vector = repl_fn,
+            g3_param = repl_fn)
+
         # Find all things that have definitions in our environment
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
@@ -37,29 +74,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             }
         }
 
-        # Find any g3_param stash it in param_lines
-        call_replace(code,
-            g3_param_table = function (x) {
-                # Find data.frame value in environment
-                # NB: We eval, so they can be defined in-formulae
-                df <- eval(x[[3]], envir = env)
-
-                # Add individual param lines for table contents
-                for (i in seq_len(nrow(df))) {
-                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
-                    param_lines[[param_name]] <<- 0
-                }
-            },
-            g3_param_array = function (x) param_lines[[x[[2]]]] <<- 0,
-            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- 0,
-            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- 0,
-            g3_param = function (x) param_lines[[x[[2]]]] <<- 0)
-
         # Find with variables / iterators to ignore
         ignore_vars <- c(
             lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
             lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
-            list())
+            list('param'))
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all.vars(code)) {
@@ -84,8 +103,8 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
             if (rlang::is_formula(var_val)) {
                 # Recurse, get definitions for formula, considering it's environment as well as the outer one
-                var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
-                defn <- call("<-", as.symbol(var_name), rlang::f_rhs(var_val))
+                var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
+                defn <- call("<-", as.symbol(var_name), var_val_code)
             } else if (is.call(var_val)) {
                 defn <- call("<-", as.symbol(var_name), var_val)
             } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
@@ -120,36 +139,21 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             }
             scope[[var_name]] <<- defn
         }
+        return(code)
     }  # End of var_defns
 
-    # Populate scope for code block
-    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
+    # Define all vars, populating scope as side effect
+    all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
         scope,
-        lapply(names(param_lines), function (p) substitute(stopifnot(p %in% names(param)), list(p = p))),
-        rlang::f_rhs(all_actions),
+        all_actions_code,
         quote(stop("Should have return()ed somewhere in the loop")))))
 
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
-        # Replace any in-line g3 calls that may have been in formulae
-        repl_fn <- function(sym_name) {
-            return(function (x) {
-                if (length(x) == 2) {
-                    # Can lookup argument directly
-                    item_name <- x[[2]]
-                } else {
-                    # Add a paste call to work the required argument
-                    item_name <- as.call(c(list(as.symbol('paste0')), as.list(x[2:length(x)])))
-                }
-                # Lookup item_name in whatever sym_name is called
-                return(call('[[', as.symbol(sym_name), item_name))
-            })
-        }
-
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
@@ -158,21 +162,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_with = function (x) call(
                 open_curly_bracket,
                 call("<-", x[[2]], g3_functions(x[[3]])),
-                g3_functions(x[[4]])),
-            g3_param_table = function (x) {
-                # NB: We eval, so they can be defined in-formulae
-                df <- eval(x[[3]], envir = rlang::f_env(all_actions))
-
-                # Generate a param[["lookup.cur_year.cur_step"]] call
-                return(call('[[', as.symbol("param"), as.call(c(
-                    list(as.symbol("paste"), as.character(x[[2]])),
-                    lapply(names(df), as.symbol),
-                    list(sep = ".")))))
-            },
-            g3_param_array = repl_fn("param"),  # TODO: Remove?
-            g3_param_matrix = repl_fn("param"),  # TODO: Remove?
-            g3_param_vector = repl_fn("param"),
-            g3_param = repl_fn("param"))
+                g3_functions(x[[4]])))
     }
     out <- g3_functions(out)
 
@@ -184,7 +174,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     environment(out) <- new.env(parent = globalenv())
     assign("model_data", model_data, envir = environment(out))
     class(out) <- c("g3_r", class(out))
-    attr(out, 'parameter_template') <- param_lines
+    attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
     return(out)
 }
 

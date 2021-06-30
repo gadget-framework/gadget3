@@ -29,3 +29,9 @@ g3_collate <- function(action_list) {
     # Order items in alphanumeric order
     return(actions[order(names(actions))])
 }
+
+scope_to_parameter_template <- function (scope, return_type) {
+    parts <- lapply(scope, function (val) attr(val, 'param_template'))
+    names(parts) <- NULL
+    if (return_type == 'data.frame') do.call(rbind, parts) else do.call(c, c(list(), parts))
+}
