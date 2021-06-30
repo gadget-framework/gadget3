@@ -26,7 +26,12 @@
 }
 
 \section{g3_param}{
-  Reference a scalar parameter by name.
+  Reference a scalar parameter by name. Arguments:
+
+  \describe{
+      \item{name}{Variable name for parameter. Required}
+      \item{value}{Initial value in model parameter_template. Default 0}
+  }
 
   For example, \code{g3_param("ling.Linf")} will register a scalar parameter
   called \var{ling.Linf}, available in the model parameter template, and be
@@ -37,7 +42,12 @@
 }
 
 \section{g3_param_vector}{
-  Reference a vector parameter by name.
+  Reference a vector parameter by name. Arguments:
+
+  \describe{
+      \item{name}{Variable name for parameter. Required}
+      \item{value}{Initial value for use in model paramter_template. Default 0}
+  }
 
   Same as \code{g3_param}, but the parameter will be expected to be a vector.
   You can then dereference with \code{[[}.
@@ -47,6 +57,12 @@
 
 \section{g3_param_table}{
   Reference a lookup-table of parameters.
+
+  \describe{
+      \item{name}{Variable name for parameter. Required}
+      \item{table}{A data.frame, one column for each variable to check, one row for possible values. Required}
+      \item{value}{Initial value for use in model parameter_template. Default 0}
+  }
 
   This is similar to providing a vector, but can use values in the model to
   provide bounds-checking.

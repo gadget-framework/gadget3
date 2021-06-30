@@ -157,15 +157,58 @@ ok_group('g3_tmb_relist', {
             "aaparam" = 550)), "g3_tmb_relist: Removing param__b works")
 })
 
-ok_group('g3_param_table', {
+ok_group('g3_param', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
-        g3_param_table('pt', expand.grid(  # NB: We can use base R
-            cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
-            age = 2:3))
+        g3_param('a')
+        g3_param('b', value = 4)
     })), 'parameter_template')
     ok(ut_cmp_identical(
-        param$switch,
-        paste("pt", 2000:2004, rep(2:3, each = 5), sep=".")), "Param table turned into multiple parameters")
+        param,
+        data.frame(
+            row.names = c('a', 'b'),
+            switch = c('a', 'b'),
+            type = c("", ""),
+            value = I(list(a = array(0), b = array(4))),
+            optimise = c(TRUE, TRUE),
+            random = c(FALSE, FALSE),
+            lower = as.numeric(NA),
+            upper = as.numeric(NA),
+            stringsAsFactors = FALSE)), "Param table included value values")
+})
+
+ok_group('g3_param_table', {
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, steps = c(3,3,3,3)), ~{
+        g3_param_table('pt', expand.grid(  # NB: We can use base R
+            cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
+            cur_step = 2:3))
+        g3_param_table('pg', expand.grid(
+            cur_year = start_year,
+            cur_step = 1:2), value = 4)
+    })), 'parameter_template')
+    ok(ut_cmp_identical(
+        param,
+        data.frame(
+            row.names = c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2'),
+            switch = c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2'),
+            type = c("", "", "", "", "", "", "", "", "", "", "", ""),
+            value = I(list(
+                "pt.2000.2" = array(0),
+                "pt.2001.2" = array(0),
+                "pt.2002.2" = array(0),
+                "pt.2003.2" = array(0),
+                "pt.2004.2" = array(0),
+                "pt.2000.3" = array(0),
+                "pt.2001.3" = array(0),
+                "pt.2002.3" = array(0),
+                "pt.2003.3" = array(0),
+                "pt.2004.3" = array(0),
+                "pg.2000.1" = array(4),
+                "pg.2000.2" = array(4))),
+            optimise = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+            random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+            lower = as.numeric(NA),
+            upper = as.numeric(NA),
+            stringsAsFactors = FALSE)), "Param table included value values")
 })
 
 

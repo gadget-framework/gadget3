@@ -571,12 +571,16 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Rework all g3_param calls
         repl_fn <- function(x) {
             df_template <- function (name, dims = c(1)) {
+                # Extract named args from g3_param() call
+                find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
+                value <- find_arg('value', 0)
+
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
                     type = if (x[[1]] == "g3_param_array") "ARRAY" else if (x[[1]] == "g3_param_vector") "VECTOR" else "",
                     value = I(structure(
                         # NB: Has to be a list column because values might be vectors
-                        list(array(0, dim = dims)),
+                        list(array(value, dim = dims)),
                         names = name)),
                     optimise = if (dims[[1]] > 0) TRUE else logical(0),
                     random = if (dims[[1]] > 0) FALSE else logical(0),

@@ -23,7 +23,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
             df_template <- function (name, dims = c(1)) {
-                structure(list(0), names = name)
+                # Extract named args from g3_param() call
+                find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
+                value <- find_arg('value', 0)
+
+                structure(list(value), names = name)
             }
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
