@@ -32,6 +32,9 @@
       \item{name}{Variable name for parameter. Required}
       \item{value}{Initial value in model parameter_template. Default 0}
       \item{optimise}{Initial optimise setting in parameter_template. Default TRUE}
+      \item{random}{Initial random setting in parameter_template. Default FALSE}
+      \item{lower}{Initial lower setting in parameter_template. Default NA}
+      \item{upper}{Initial upper setting in parameter_template. Default NA}
   }
 
   For example, \code{g3_param("ling.Linf")} will register a scalar parameter
@@ -64,6 +67,9 @@
       \item{table}{A data.frame, one column for each variable to check, one row for possible values. Required}
       \item{value}{Initial value for use in model parameter_template. Default 0}
       \item{optimise}{Initial optimise setting in parameter_template. Default TRUE}
+      \item{random}{Initial random setting in parameter_template. Default FALSE}
+      \item{lower}{Initial lower setting in parameter_template. Default NA}
+      \item{upper}{Initial upper setting in parameter_template. Default NA}
   }
 
   This is similar to providing a vector, but can use values in the model to

@@ -575,6 +575,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
                 value <- find_arg('value', 0)
                 optimise <- find_arg('optimise', TRUE)
+                random <- find_arg('random', FALSE)
+                lower <- as.numeric(find_arg('lower', NA))
+                upper <- as.numeric(find_arg('upper', NA))
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -584,9 +587,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         list(array(value, dim = dims)),
                         names = name)),
                     optimise = if (dims[[1]] > 0) optimise else logical(0),
-                    random = if (dims[[1]] > 0) FALSE else logical(0),
-                    lower = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),
-                    upper = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),
+                    random = if (dims[[1]] > 0) random else logical(0),
+                    lower = if (dims[[1]] > 0) lower else numeric(0),
+                    upper = if (dims[[1]] > 0) upper else numeric(0),
                     row.names = name,
                     stringsAsFactors = FALSE)
             }

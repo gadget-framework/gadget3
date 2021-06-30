@@ -160,7 +160,7 @@ ok_group('g3_tmb_relist', {
 ok_group('g3_param', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
         g3_param('a')
-        g3_param('b', value = 4, optimise = FALSE)
+        g3_param('b', value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
@@ -170,10 +170,10 @@ ok_group('g3_param', {
             type = c("", ""),
             value = I(list(a = array(0), b = array(4))),
             optimise = c(TRUE, FALSE),
-            random = c(FALSE, FALSE),
-            lower = as.numeric(NA),
-            upper = as.numeric(NA),
-            stringsAsFactors = FALSE)), "Param table included value, optimise values")
+            random = c(FALSE, TRUE),
+            lower = c(NA, 5),
+            upper = c(NA, 10),
+            stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
 ok_group('g3_param_table', {
@@ -183,7 +183,7 @@ ok_group('g3_param_table', {
             cur_step = 2:3))
         g3_param_table('pg', expand.grid(
             cur_year = start_year,
-            cur_step = 1:2), value = 4, optimise = FALSE)
+            cur_step = 1:2), value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param,
@@ -205,10 +205,10 @@ ok_group('g3_param_table', {
                 "pg.2000.1" = array(4),
                 "pg.2000.2" = array(4))),
             optimise = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
-            random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
-            lower = as.numeric(NA),
-            upper = as.numeric(NA),
-            stringsAsFactors = FALSE)), "Param table included value, optimise values")
+            random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
+            lower = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, 5),
+            upper = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 10, 10),
+            stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
 
