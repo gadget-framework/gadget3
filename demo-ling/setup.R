@@ -255,7 +255,11 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 #                              gr=ling_model_tmb$gr),
 #                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
 #                              parallel=list(loginfo=TRUE))
-fit.opt <- optim(g3_tmb_par(tmb_param),
+#tmp <- g3_tmb_par(tmb_param)
+
+#tmp <- set_names(rnorm(length(tmp), sd = 3),names(tmp))
+
+fit.opt <- optim(#g3_tmb_par(tmb_param),
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
@@ -288,7 +292,7 @@ fit.opt3 <- optim(fit.opt2$par,
                   method = 'BFGS',
                   control = list(trace = 2, maxit = 1000, reltol = .Machine$double.eps))
 
- fit.opt4 <- nlminb(fit.opt$par,
+ fit.opt4 <- nlminb(fit.opt3$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
