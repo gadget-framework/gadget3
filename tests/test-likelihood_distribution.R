@@ -3,12 +3,10 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
+tmb_r_compare <- function (model_fn, model_tmb, param_template) {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
+        model_tmb_report <- model_tmb$report(g3_tmb_par(param_template))
+        r_result <- model_fn(param_template$value)
         for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 as.vector(model_tmb_report[[n]]),
@@ -202,7 +200,7 @@ params <- list(
     amount_ab = 100,
     si_alpha = 0,
     si_beta = 0,
-    x=1.0)
+    surveyindices_weight = 1)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -213,6 +211,7 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
+    model_cpp <- c()
 }
 
 ok_group("Likelihood per step", {
@@ -224,7 +223,7 @@ ok_group("Likelihood per step", {
         amount_ab = 1000000,
         si_alpha = 4,
         si_beta = 2,
-        x=1.0)
+        surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -505,7 +504,9 @@ ok_group("Likelihood per step", {
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,4])))**2,
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    tmb_r_compare(model_fn, model_tmb, param_template)
 })
 
 ok_group("Likelihood per year", {
@@ -595,7 +596,7 @@ ok_group("Likelihood per year", {
         amount_ab = 1000000,
         si_alpha = 1.82,
         si_beta = 3.74,
-        x=1.0)
+        surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -765,5 +766,7 @@ ok_group("Likelihood per year", {
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    tmb_r_compare(model_fn, model_tmb, param_template)
 })

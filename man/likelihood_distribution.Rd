@@ -24,7 +24,9 @@ g3l_distribution_surveyindices_log(alpha = 0, beta = 1)
 g3l_distribution_surveyindices_linear(alpha = 0, beta = 1)
 
 g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f,
-    missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE, weight = 1,
+    missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE,
+    weight = substitute(g3_param(n, optimise = FALSE, value = 1),
+        list(n = paste0(nll_name, "_weight"))),
     run_at = 10)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
@@ -95,7 +97,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Should the nll report be broken down by time? \code{TRUE} / \code{FALSE}
   }
   \item{weight}{
-    Weighting applied to this likelihood component.
+    Weighting applied to this likelihood component. Default is a \code{g3_param}
+    that defaults to 1, allowing weights to be altered without recompiling.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.

@@ -148,7 +148,6 @@ ling_param[grepl('^lingmat\\.M\\.', names(ling_param))] <- 0.15
 ling_param[grepl('^ling\\.rec\\.', names(ling_param))] <- 1
 ling_param[grepl('^lingimm\\.init\\.sd', names(ling_param))] <- init.sigma$ms[3:10]
 ling_param[grepl('^lingmat\\.init\\.sd', names(ling_param))] <- init.sigma$ms[5:15]
-ling_param[grepl('weight$',names(ling_param))] <- 1
 
 ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
 
@@ -231,7 +230,6 @@ tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingimm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^lingmat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
-tmb_param[grepl('weight$', rownames(tmb_param)),]$optimise <- FALSE
 
 
 # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
