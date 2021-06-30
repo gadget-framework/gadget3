@@ -200,6 +200,10 @@ params <- list(
     amount_ab = 100,
     si_alpha = 0,
     si_beta = 0,
+    utcd_weight = 1,
+    utcd_weight_weight = 1,
+    utsd_weight = 1,
+    multinom_weight = 1,
     surveyindices_weight = 1)
 
 # Compile model
@@ -223,6 +227,10 @@ ok_group("Likelihood per step", {
         amount_ab = 1000000,
         si_alpha = 4,
         si_beta = 2,
+        utcd_weight = 1,
+        utcd_weight_weight = 1,
+        utsd_weight = 1,
+        multinom_weight = 1,
         surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
@@ -596,6 +604,10 @@ ok_group("Likelihood per year", {
         amount_ab = 1000000,
         si_alpha = 1.82,
         si_beta = 3.74,
+        utcd_weight = 1,
+        utcd_weight_weight = 1,
+        utsd_weight = 1,
+        multinom_weight = 1,
         surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)

@@ -70,7 +70,18 @@ g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
 }
 
 # Compare numbers caught by fleets to observation data
-g3l_catchdistribution <- function (nll_name, obs_data, fleets = list(), stocks, function_f, missing_val = 0, area_group = NULL, report = FALSE,  nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
+g3l_catchdistribution <- function (
+        nll_name,
+        obs_data,
+        fleets = list(),
+        stocks,
+        function_f,
+        missing_val = 0,
+        area_group = NULL,
+        report = FALSE,
+        nll_breakdown = FALSE,
+        weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
+        run_at = 10) {
     stopifnot(length(fleets) > 0)
     g3l_distribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = missing_val, area_group = area_group, report = report, nll_breakdown = nll_breakdown, weight = weight, run_at = run_at)
 }

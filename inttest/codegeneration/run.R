@@ -152,35 +152,35 @@ ling_model <- g3_to_r(c(
     time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
 writeLines(deparse(ling_model, width.cutoff = 500L), con = 'inttest/codegeneration/ling.R')
 
-ling_param <- list(  # ./06-ling/12-new_ass/params.in
-    "ling.Linf" = 160,
-    "ling.k" = 90,
-    "lingimm.walpha" = 2.27567436711055e-06,
-    "lingimm.wbeta" = 3.20200445996187,
-    "ling.bbin" = 6,
-    "lingimm.M" = 0.15,
-    "lingimm.init.scalar" = 200,
-    "ling.init.F" = 0.4,
-    "lingimm.init" = rep(1, 10 - 3 + 1),
-    "ling.recl" = 12,
-    "ling.mat1" = 70,
-    "ling.mat2" = 75,
-    "ling.rec.scalar" = 400,
-    "ling.rec.sd" = 5,
-    "lingmat.M" = 0.15,
-    "lingmat.init.scalar" = 200,
-    "lingmat.init" = rep(1, 15 - 5 + 1),
-    "lingmat.walpha" = 2.27567436711055e-06,
-    "lingmat.wbeta" = 3.20200445996187,
-    "ling.igfs.alpha" = 0.5,
-    "ling.igfs.l50" = 50,
-    "ling.lln.alpha" = 0.5,
-    "ling.lln.l50" = 50,
-    "ling.bmt.alpha" = 0.5,
-    "ling.bmt.l50" = 50,
-    "ling.gil.alpha" = 0.5,
-    "ling.gil.l50" = 50,
-    end = NULL)
+
+ling_param <- attr(ling_model, 'parameter_template')
+ling_param[["ling.Linf"]] <- 160
+ling_param[["ling.k"]] <- 90
+ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
+ling_param[["lingimm.wbeta"]] <- 3.20200445996187
+ling_param[["ling.bbin"]] <- 6
+ling_param[["lingimm.M"]] <- 0.15
+ling_param[["lingimm.init.scalar"]] <- 200
+ling_param[["ling.init.F"]] <- 0.4
+ling_param[["lingimm.init"]] <- rep(1, 10 - 3 + 1)
+ling_param[["ling.recl"]] <- 12
+ling_param[["ling.mat1"]] <- 70
+ling_param[["ling.mat2"]] <- 75
+ling_param[["ling.rec.scalar"]] <- 400
+ling_param[["ling.rec.sd"]] <- 5
+ling_param[["lingmat.M"]] <- 0.15
+ling_param[["lingmat.init.scalar"]] <- 200
+ling_param[["lingmat.init"]] <- rep(1, 15 - 5 + 1)
+ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
+ling_param[["lingmat.wbeta"]] <- 3.20200445996187
+ling_param[["ling.igfs.alpha"]] <- 0.5
+ling_param[["ling.igfs.l50"]] <- 50
+ling_param[["ling.lln.alpha"]] <- 0.5
+ling_param[["ling.lln.l50"]] <- 50
+ling_param[["ling.bmt.alpha"]] <- 0.5
+ling_param[["ling.bmt.l50"]] <- 50
+ling_param[["ling.gil.alpha"]] <- 0.5
+ling_param[["ling.gil.l50"]] <- 50
 # Set recrutiment for every year
 ling_param[paste('ling.rec', 1994:2018, sep = ".")] <- 1
 

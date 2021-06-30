@@ -45,6 +45,7 @@ structure(function (param)
     stopifnot("ling.rec.2016" %in% names(param))
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
+    stopifnot("ldist_lln_weight" %in% names(param))
     assert_msg <- function (expr, message) 
     {
         if (isFALSE(expr)) 
@@ -632,10 +633,10 @@ structure(function (param)
                 if (cdist_ldist_lln_obs__time_idx >= (1L)) {
                   cur_cdist_nll <- sum((cdist_ldist_lln_model__num[]/avoid_zero(sum(cdist_ldist_lln_model__num[])) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx])))^2)
                   {
-                    nll <- nll + cur_cdist_nll
+                    nll <- nll + param[["ldist_lln_weight"]] * cur_cdist_nll
                     nll_cdist_ldist_lln__num[cur_time + 1L] <- nll_cdist_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
                     attr(nll, "nll_cdist_ldist_lln__num") <- nll_cdist_ldist_lln__num
-                    nll_cdist_ldist_lln__weight[cur_time + 1L] <- 1
+                    nll_cdist_ldist_lln__weight[cur_time + 1L] <- param[["ldist_lln_weight"]]
                     attr(nll, "nll_cdist_ldist_lln__weight") <- nll_cdist_ldist_lln__weight
                   }
                 }
@@ -746,4 +747,4 @@ structure(function (param)
     }
     stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 0, ling.k = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, ling.rec.1998 = 0, 
-    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0))
+    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, ldist_lln_weight = 1))

@@ -30,7 +30,10 @@ g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f,
     run_at = 10)
 
 g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = 0, 
-    area_group = NULL, report = FALSE, nll_breakdown = FALSE, weight = 1, run_at = 10)
+    area_group = NULL, report = FALSE, nll_breakdown = FALSE,
+    weight = substitute(g3_param(n, optimise = FALSE, value = 1),
+        list(n = paste0(nll_name, "_weight"))),
+    run_at = 10)
 
 }
 
