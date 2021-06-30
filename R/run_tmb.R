@@ -52,20 +52,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(out)
     }
 
-    if (call_name %in% c("g3_param", "g3_param_array", "g3_param_matrix", "g3_param_vector")) {
-        # params will end up being a variable
-        if (!(is.character(in_call[[2]]) && length(in_call) == 2)) stop("Parameter names need to be a single string, not ", deparse(in_call))
-        return(cpp_escape_varname(in_call[[2]]))
-    }
-    if (call_name %in% c('g3_param_table')) {
-        # NB: We eval, so they can be defined in-formulae
-        df <- eval(in_call[[3]], envir = in_envir)
-        return(paste0(
-            " *",  # NB: Our lookup is tuples to pointers to Type, dereference
-            cpp_escape_varname(in_call[[2]]),
-            "[std::make_tuple(",
-            paste(names(df), collapse = ","),
-            ")]"))
+    if (call_name %in% c("g3_cpp_asis")) {
+        # Pass through C++ generated elsewhere
+        return(in_call[[2]])
     }
 
     if (call_name %in% c("g3_report")) {
@@ -556,7 +545,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
-    param_lines <- list()  # NB: Order is important, can't be an env.
 
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
@@ -569,15 +557,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             if (identical(trace, 'full')) call("Rprintf", paste0(x[[2]], "\n")) else call("comment", x[[2]])
         })
 
-    param_lines_to_cpp <- function (pl) {
-        vapply(names(pl), function (n) {
-            paste0(
-                "PARAMETER",
-                if (nzchar(pl[[n]])) paste0("_", pl[[n]]),
-                "(", cpp_escape_varname(n), ");")
-        }, character(1))
-    }
-
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr, dims = NULL) {
         dim_string <- if (is.null(dims)) "" else paste0("(", paste0(dims, collapse = ","), ")")
 
@@ -589,6 +568,70 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     }
 
     var_defns <- function (code, env) {
+        # Rework all g3_param calls
+        repl_fn <- function(x) {
+            df_template <- function (name, dims = c(1)) {
+                data.frame(
+                    switch = name,  # NB: This should be pre-C++ mangling
+                    type = if (x[[1]] == "g3_param_array") "ARRAY" else if (x[[1]] == "g3_param_vector") "VECTOR" else "",
+                    value = I(structure(
+                        # NB: Has to be a list column because values might be vectors
+                        list(array(0, dim = dims)),
+                        names = name)),
+                    optimise = if (dims[[1]] > 0) TRUE else logical(0),
+                    random = if (dims[[1]] > 0) FALSE else logical(0),
+                    lower = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),
+                    upper = if (dims[[1]] > 0) as.numeric(NA) else numeric(0),
+                    row.names = name,
+                    stringsAsFactors = FALSE)
+            }
+            param_name <- cpp_escape_varname(x[[2]])
+            if (x[[1]] == 'g3_param_table') {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Turn table into parameter-setting definition, adding individual PARAMETERs as we go
+                init_data <- vapply(seq_len(nrow(df)), function (i) {
+                    sub_param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    sub_param_tuple <- paste0(df[i,], collapse = ",")
+
+                    scope[[paste0("..param:", sub_param_name)]] <<- structure(
+                        sprintf('PARAMETER(%s);', cpp_escape_varname(sub_param_name)),
+                        param_template = df_template(sub_param_name))
+                    paste0("{std::make_tuple(", sub_param_tuple ,"), &", cpp_escape_varname(sub_param_name), "}")
+                }, character(1))
+
+                # Add definition for overall lookup
+                scope[[param_name]] <<- cpp_definition(
+                    paste0('std::map<std::tuple<', paste(rep('int', times = ncol(df)), collapse=","), '>, Type*>'),
+                    param_name,
+                    paste0("{", paste0(init_data, collapse=", "), "}"))
+
+                # Replace function call to dereference list
+                return(call("g3_cpp_asis", paste0(
+                    " *",  # NB: Our lookup is tuples to pointers to Type, dereference
+                    cpp_escape_varname(x[[2]]),
+                    "[std::make_tuple(",
+                    paste(names(df), collapse = ","),
+                    ")]")))
+            }
+
+            if (!(is.character(x[[2]]) && length(x) == 2)) stop("Parameter names need to be a single string, not ", deparse(x))
+
+            # Add PARAMETER definition for variable
+            scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
+                if (x[[1]] == 'g3_param_array') '_ARRAY'
+                else if (x[[1]] == 'g3_param_vector') '_VECTOR'
+                else '',
+                param_name), param_template = df_template(x[[2]]))
+            return(call("g3_cpp_asis", param_name))
+        }
+        code <- call_replace(code,
+            g3_param_table = repl_fn,
+            g3_param_array = repl_fn,
+            g3_param_vector = repl_fn,
+            g3_param = repl_fn)
+
         # Find all things that have definitions in our environment
         all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
         all_defns <- all_defns[!is.na(all_defns)]
@@ -604,33 +647,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     trimws(attr(all_defns[[var_name]], 'g3_native_cpp')))
             }
         }
-
-        # Find any g3_param stash it in param_lines
-        call_replace(code,
-            g3_param_table = function (x) {
-                # Find data.frame value in environment
-                # NB: We eval, so they can be defined in-formulae
-                df <- eval(x[[3]], envir = env)
-
-                # Turn table into parameter-setting definition, adding individual PARAMETERs as we go
-                init_data <- vapply(seq_len(nrow(df)), function (i) {
-                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
-                    param_tuple <- paste0(df[i,], collapse = ",")
-
-                    param_lines[[param_name]] <<- ""
-                    paste0("{std::make_tuple(", param_tuple ,"), &", cpp_escape_varname(param_name), "}")
-                }, character(1))
-
-                # Add definition for overall lookup
-                scope[[x[[2]]]] <<- cpp_definition(
-                    paste0('std::map<std::tuple<', paste(rep('int', times = ncol(df)), collapse=","), '>, Type*>'),
-                    x[[2]],
-                    paste0("{", paste0(init_data, collapse=", "), "}"))
-            },
-            g3_param_array = function (x) param_lines[[x[[2]]]] <<- "ARRAY",
-            g3_param_matrix = function (x) param_lines[[x[[2]]]] <<- "MATRIX",
-            g3_param_vector = function (x) param_lines[[x[[2]]]] <<- "VECTOR",
-            g3_param = function (x) param_lines[[x[[2]]]] <<- "")
 
         # Find with variables / iterators to ignore
         ignore_vars <- c(
@@ -661,8 +677,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
             if (rlang::is_formula(var_val)) {
                 # Recurse, get definitions for formula, considering it's environment as well as the outer one
-                var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
-                defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
+                var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
+                defn <- cpp_definition('auto', var_name, cpp_code(var_val_code, env))
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
@@ -731,10 +747,11 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             }
             scope[[var_name]] <<- defn
         }
+        return(code)
     }  # End of var_defns
 
-    # Define all vars, populating param_lines and scope
-    var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
+    # Define all vars, populating scope in process
+    all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     out <- sprintf("#include <TMB.hpp>
 template<class Type>
@@ -743,28 +760,13 @@ Type objective_function<Type>::operator() () {
 
     %s
     abort();  // Should have returned somewhere in the loop
-}\n", paste(c(
-        param_lines_to_cpp(param_lines),
-        "",
-        unlist(scope)), collapse = "\n    "),
-      cpp_code(rlang::f_rhs(all_actions), rlang::f_env(all_actions), statement = TRUE))
+}\n", paste(unlist(scope), collapse = "\n    "),
+      cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
     attr(out, 'model_data') <- model_data
-    attr(out, 'parameter_template') <- data.frame(
-        switch = names(param_lines),
-        type = unlist(param_lines),
-        value = I(structure(
-            # NB: Has to be a list column because values might be vectors
-            as.list(rep(0, length(param_lines))),
-            names = names(param_lines))),
-        optimise = if (length(param_lines) > 0) TRUE else logical(0),
-        random = if (length(param_lines) > 0) FALSE else logical(0),
-        lower = if (length(param_lines) > 0) as.numeric(NA) else numeric(0),
-        upper = if (length(param_lines) > 0) as.numeric(NA) else numeric(0),
-        row.names = names(param_lines),
-        stringsAsFactors = FALSE)
+    attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
     return(out)
 }
 
