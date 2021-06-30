@@ -149,7 +149,17 @@
   and <code>a - 1</code> in C++ output.</p>
     <h2 class="hasAnchor" id="g-param"><a class="anchor" href="#g-param"></a>g3_param</h2>
 
-    <p>Reference a scalar parameter by name.</p>
+    <p>Reference a scalar parameter by name. Arguments:</p>
+<p></p><dl>
+      <dt>name</dt><dd><p>Variable name for parameter. Required</p></dd>
+      <dt>value</dt><dd><p>Initial value in model parameter_template. Default 0</p></dd>
+      <dt>optimise</dt><dd><p>Initial optimise setting in parameter_template. Default TRUE</p></dd>
+      <dt>random</dt><dd><p>Initial random setting in parameter_template. Default FALSE</p></dd>
+      <dt>lower</dt><dd><p>Initial lower setting in parameter_template. Default NA</p></dd>
+      <dt>upper</dt><dd><p>Initial upper setting in parameter_template. Default NA</p></dd>
+  
+</dl>
+
 <p>For example, <code>g3_param("ling.Linf")</code> will register a scalar parameter
   called <var>ling.Linf</var>, available in the model parameter template, and be
   replaced by a reference to that parameter.</p>
@@ -157,13 +167,30 @@
   value.</p>
     <h2 class="hasAnchor" id="g-param-vector"><a class="anchor" href="#g-param-vector"></a>g3_param_vector</h2>
 
-    <p>Reference a vector parameter by name.</p>
+    <p>Reference a vector parameter by name. Arguments:</p>
+<p></p><dl>
+      <dt>name</dt><dd><p>Variable name for parameter. Required</p></dd>
+      <dt>value</dt><dd><p>Initial value for use in model paramter_template. Default 0</p></dd>
+  
+</dl>
+
 <p>Same as <code>g3_param</code>, but the parameter will be expected to be a vector.
   You can then dereference with <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>.</p>
 <p>For example, <code>g3_param_vector("lingimm.M")[[age - 3 + 1]]</code>.</p>
     <h2 class="hasAnchor" id="g-param-table"><a class="anchor" href="#g-param-table"></a>g3_param_table</h2>
 
     <p>Reference a lookup-table of parameters.</p>
+<p></p><dl>
+      <dt>name</dt><dd><p>Variable name for parameter. Required</p></dd>
+      <dt>table</dt><dd><p>A data.frame, one column for each variable to check, one row for possible values. Required</p></dd>
+      <dt>value</dt><dd><p>Initial value for use in model parameter_template. Default 0</p></dd>
+      <dt>optimise</dt><dd><p>Initial optimise setting in parameter_template. Default TRUE</p></dd>
+      <dt>random</dt><dd><p>Initial random setting in parameter_template. Default FALSE</p></dd>
+      <dt>lower</dt><dd><p>Initial lower setting in parameter_template. Default NA</p></dd>
+      <dt>upper</dt><dd><p>Initial upper setting in parameter_template. Default NA</p></dd>
+  
+</dl>
+
 <p>This is similar to providing a vector, but can use values in the model to
   provide bounds-checking.</p>
 <p>The function takes 2 arguments, a prefix for the generated parameters, and a
