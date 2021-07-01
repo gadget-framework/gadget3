@@ -16,6 +16,8 @@ g3a_predate_totalfleet <- function (fleet_stock,
 
     # For each prey stock...
     for (prey_stock in prey_stocks) {
+        if (is.null(suitabilities[[prey_stock$name]])) stop("No suitability function found for ", prey_stock$name)
+
         # Create variable to store biomass of stock caught
         fleet_stock_var <- as.symbol(paste0('prey_stock__', fleet_stock$name))
         suit_var <- as.symbol(paste0('prey_stock__suit_', fleet_stock$name))

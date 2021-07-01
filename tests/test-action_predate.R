@@ -33,6 +33,16 @@ prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
 fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
 fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 
+ok_group("Detect missing suitabilities", {
+    ok(ut_cmp_error(g3a_predate_totalfleet(
+        fleet_bc,
+        list(prey_a, prey_b, prey_c),
+        suitabilities = list(
+            prey_a = ~g3_param_vector("fleet_bc_a"),
+            prey_c = ~g3_param_vector("fleet_bc_c")),
+        amount_f = ~g3_param('amount_bc') * area), "prey_b"), "Threw an error on missing suitability function")
+})
+
 actions <- list(
     g3a_time(2000, 2000),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
