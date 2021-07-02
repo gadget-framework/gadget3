@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7fe4b7414ec8&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7fce1c1d4bb0&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,13 +143,36 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fe4b72f32e8&gt;
+## &lt;environment: 0x7fce1b59cd60&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## #include &lt;TMB.hpp&gt;
+## 
+## namespace map_extras {
+##     // at(), but throw (err) if item isn't available
+##     template&lt;class Type, class KeyType&gt;
+##     Type at_throw(std::map&lt;KeyType, Type&gt; map_in, KeyType key_in, std::string err) {
+##             try {
+##                 return map_in.at(key_in);
+##             } catch (const std::out_of_range&amp;) {
+##                 throw std::runtime_error("Out of range: " + err);
+##             }
+##     }
+## 
+##     // at(), but return def if item isn't available
+##     template&lt;class Type, class KeyType&gt;
+##     Type at_def(std::map&lt;KeyType, Type&gt; map_in, KeyType key_in, Type def) {
+##             try {
+##                 return map_in.at(key_in);
+##             } catch (const std::out_of_range&amp;) {
+##                 return def;
+##             }
+##     }
+## }
+## 
 ## template&lt;class Type&gt;
 ## Type objective_function&lt;Type&gt;::operator() () {
 ##     Type cows = (double)(16);
@@ -184,7 +207,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7fe4b74e55c0&gt;</code></pre>
+## &lt;environment: 0x7fce1e99af70&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -227,7 +250,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fe4b8a79930&gt;
+## &lt;environment: 0x7fce1ea02ab0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
@@ -272,7 +295,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fe4b77808d8&gt;
+## &lt;environment: 0x7fce1f5a77c8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 </div>
@@ -456,7 +479,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fe4ba167510&gt;
+## &lt;environment: 0x7fce1fa8ee00&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
