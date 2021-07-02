@@ -570,9 +570,11 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     var_defns <- function (code, env) {
         # Rework all g3_param calls
         repl_fn <- function(x) {
+            # NB: eval() because -1 won't be a symbol
+            find_arg <- function (arg_name, def) if (arg_name %in% names(x)) eval(x[[arg_name]]) else def
+
             df_template <- function (name, dims = c(1)) {
                 # Extract named args from g3_param() call
-                find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
                 value <- find_arg('value', 0)
                 optimise <- find_arg('optimise', TRUE)
                 random <- find_arg('random', FALSE)
@@ -596,6 +598,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             param_name <- cpp_escape_varname(x[[2]])
             if (x[[1]] == 'g3_param_table') {
+                ifmissing <- as.numeric(find_arg('ifmissing', NULL))
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
@@ -616,13 +619,27 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     param_name,
                     paste0("{", paste0(init_data, collapse=", "), "}"))
 
-                # Replace function call to dereference list
-                return(call("g3_cpp_asis", paste0(
-                    " *",  # NB: Our lookup is tuples to pointers to Type, dereference
-                    cpp_escape_varname(x[[2]]),
-                    "[std::make_tuple(",
-                    paste(names(df), collapse = ","),
-                    ")]")))
+                if (length(ifmissing) == 1) {
+                    ifmissing_param_name <- paste0(c(as.character(x[[2]]), 'ifmissing'), collapse = ".")
+                    scope[[ifmissing_param_name]] <<- cpp_definition("Type", ifmissing_param_name, cpp_code(ifmissing, env))
+
+                    return(call("g3_cpp_asis", paste0(
+                        " *",  # NB: Our lookup is tuples to pointers to Type, dereference
+                        "map_extras::at_def(",
+                        cpp_escape_varname(x[[2]]), ", ",
+                        "std::make_tuple(", paste(names(df), collapse = ","), "), ",
+                        '&', cpp_escape_varname(ifmissing_param_name),
+                        ")")))
+                } else {
+                    # Replace function call to dereference list
+                    return(call("g3_cpp_asis", paste0(
+                        " *",  # NB: Our lookup is tuples to pointers to Type, dereference
+                        "map_extras::at_throw(",
+                        cpp_escape_varname(x[[2]]), ", ",
+                        "std::make_tuple(", paste(names(df), collapse = ","), "), ",
+                        '"', x[[2]], '"',
+                        ")")))
+                }
             }
 
             # Add PARAMETER definition for variable
@@ -761,6 +778,29 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
     out <- sprintf("#include <TMB.hpp>
+
+namespace map_extras {
+    // at(), but throw (err) if item isn't available
+    template<class Type, class KeyType>
+    Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
+            try {
+                return map_in.at(key_in);
+            } catch (const std::out_of_range&) {
+                throw std::runtime_error(\"Out of range: \" + err);
+            }
+    }
+
+    // at(), but return def if item isn't available
+    template<class Type, class KeyType>
+    Type at_def(std::map<KeyType, Type> map_in, KeyType key_in, Type def) {
+            try {
+                return map_in.at(key_in);
+            } catch (const std::out_of_range&) {
+                return def;
+            }
+    }
+}
+
 template<class Type>
 Type objective_function<Type>::operator() () {
     %s

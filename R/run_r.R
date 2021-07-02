@@ -22,15 +22,17 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         # Convert a g3_param* call into a reference, move it's definition to the environment
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
+            # NB: eval() because -1 won't be a symbol
+            find_arg <- function (arg_name, def) if (arg_name %in% names(x)) eval(x[[arg_name]]) else def
             df_template <- function (name, dims = c(1)) {
                 # Extract named args from g3_param() call
-                find_arg <- function (arg_name, def) if (arg_name %in% names(x)) x[[arg_name]] else def
                 value <- find_arg('value', 0)
 
                 structure(list(value), names = name)
             }
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
+                ifmissing <- as.numeric(find_arg('ifmissing', NULL))
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
@@ -43,10 +45,12 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 }
 
                 # Replace with a  param[["lookup.cur_year.cur_step"]] call
-                return(call('[[', as.symbol("param"), as.call(c(
-                    list(as.symbol("paste"), as.character(x[[2]])),
-                    lapply(names(df), as.symbol),
-                    list(sep = ".")))))
+                return(call('nvl',
+                    call('[[', as.symbol("param"), as.call(c(
+                        list(as.symbol("paste"), as.character(x[[2]])),
+                        lapply(names(df), as.symbol),
+                        list(sep = ".")))),
+                    if (length(ifmissing) == 1) ifmissing else call('stop', 'Out of range: ', as.character(x[[2]]))))
             }
 
             # Default for g3_param / g3_param_vector

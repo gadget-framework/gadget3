@@ -1,4 +1,27 @@
 #include <TMB.hpp>
+
+namespace map_extras {
+    // at(), but throw (err) if item isn't available
+    template<class Type, class KeyType>
+    Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
+            try {
+                return map_in.at(key_in);
+            } catch (const std::out_of_range&) {
+                throw std::runtime_error("Out of range: " + err);
+            }
+    }
+
+    // at(), but return def if item isn't available
+    template<class Type, class KeyType>
+    Type at_def(std::map<KeyType, Type> map_in, KeyType key_in, Type def) {
+            try {
+                return map_in.at(key_in);
+            } catch (const std::out_of_range&) {
+                return def;
+            }
+    }
+}
+
 template<class Type>
 Type objective_function<Type>::operator() () {
     PARAMETER(ling__Linf);
@@ -646,7 +669,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((double)(10000) / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                         // Convert to total biomass;
@@ -673,7 +696,7 @@ Type objective_function<Type>::operator() () {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((double)(10000) / (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum());
-                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *ling__rec[std::make_tuple(cur_year)]);
+                        ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
                         // Convert to total biomass;

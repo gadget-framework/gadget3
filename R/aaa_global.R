@@ -84,6 +84,12 @@ g3_global_env$bounded <- g3_native(r = function (x, a, b) {
 # vector<Type> form of pow()
 g3_global_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
 
+# Return first non-null argument. Doesn't really make sense in C++
+g3_global_env$nvl <- g3_native(r = function(...) {
+    for (i in seq_len(...length())) if (!is.null(...elt(i))) return(...elt(i))
+    return(NULL)
+}, cpp = "not-implemented")
+
 # Rprintf equivalent for R
 g3_global_env$Rprintf <- g3_native(r = function(...) {
     cat(sprintf(...))

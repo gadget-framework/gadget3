@@ -126,6 +126,12 @@ structure(function (param)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         return(array(c(Matrix::colSums(growth.matrix), Matrix::colSums(wgt.matrix)/avoid_zero_vec(Matrix::colSums(growth.matrix))), dim = c(na, 2)))
     }
+    nvl <- function (...) 
+    {
+        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
+            return(...elt(i))
+        return(NULL)
+    }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
@@ -561,7 +567,7 @@ structure(function (param)
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))))) * (1/(ling_imm_stddev[[age - 3L + 1L]])))^2) * 0.5)
                     comment("scale results")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[[paste("ling.rec", cur_year, sep = ".")]])
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                     comment("Convert to total biomass")
@@ -586,7 +592,7 @@ structure(function (param)
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.k"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.k"]])))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
                     comment("scale results")
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * param[[paste("ling.rec", cur_year, sep = ".")]])
+                    ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                     comment("Convert to total biomass")

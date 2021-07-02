@@ -4,6 +4,12 @@ library(unittest)
 library(gadget3)
 
 tmb_r_compare <- function (model_fn, model_tmb, params) {
+    dearray <- function (x) {
+        # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
+        if (is.array(x) && length(dim(x)) == 1) return(as.vector(x))
+        return(x)
+    }
+
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         # Reformat params into a single vector in expected order
         par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
@@ -12,7 +18,7 @@ tmb_r_compare <- function (model_fn, model_tmb, params) {
         for (n in names(attributes(r_result))) {
             ok(ut_cmp_equal(
                 model_tmb_report[[n]],
-                attr(r_result, n),
+                dearray(attr(r_result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }
     } else {
@@ -397,6 +403,21 @@ params[['param_table.1.7']] <- 17
 params[['param_table.2.8']] <- 28
 params[['param_table.2.7']] <- 27
 expecteds$param_table_out <- 27
+
+# g3_param_table(ifmissing)
+param_table_ifmissing_out <- array(c(1,2,3,4,5,6))
+actions <- c(actions, ~{
+    for (ifmissing in seq(1, 6, by = 1)) {
+        param_table_ifmissing_out[[ifmissing]] <- g3_param_table(
+            'param_table_ifmissing',
+            expand.grid(ifmissing = 2:4), ifmissing = -1)
+    }
+    g3_report(param_table_ifmissing_out)
+})
+params[['param_table_ifmissing.2']] <- 27
+params[['param_table_ifmissing.3']] <- 47
+params[['param_table_ifmissing.4']] <- 22
+expecteds$param_table_ifmissing_out <- array(c(-1, 27, 47, 22, -1, -1))
 
 ###############################################################################
 
