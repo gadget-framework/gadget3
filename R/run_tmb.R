@@ -168,11 +168,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         seq_call <- call_args[[2]]
         if (is.null(seq_call$by)) stop("'by' is required in a for(seq(0, 10, by = 1)) loop: ", deparse(in_call)[[1]])
         check_operator <- if (seq_call$by > 0) " <= " else " >= "
-        iterate_operator <- if (seq_call$by == 1) "++" else if (seq_call$by == -1) "--" else sprintf(" += %d", seq_call$by)
+        iterate_operator <- if (seq_call$by == 1) "++" else if (seq_call$by == -1) "--" else sprintf(" += %d", cpp_code(seq_call$by, in_envir, next_indent, expecting_int = TRUE))
         return(paste0(
             "for (",
-            "auto ", call_args[[1]], " = ", cpp_code(seq_call[[2]], in_envir, next_indent), "; ",
-            call_args[[1]], check_operator, cpp_code(seq_call[[3]], in_envir, next_indent), "; ",
+            "auto ", call_args[[1]], " = ", cpp_code(seq_call[[2]], in_envir, next_indent, expecting_int = TRUE), "; ",
+            call_args[[1]], check_operator, cpp_code(seq_call[[3]], in_envir, next_indent, expecting_int = TRUE), "; ",
             call_args[[1]], iterate_operator, ") ",
             cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
