@@ -257,13 +257,13 @@ ling_model_tmb$report(g3_tmb_par(tmb_param))
 
 #tmp <- set_names(rnorm(length(tmp), sd = 3),names(tmp))
 
-fit.opt <- optim(#g3_tmb_par(tmb_param),
+fit.opt <- optim(g3_tmb_par(tmb_param),
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',
                  control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
 if(FALSE){
-fit.nelder <- optim(fit.opt$par,
+fit.nelder <- optim(fit.opt2$par,
                     ling_model_tmb$fn,
                     #ling_model_tmb$gr,
                     method = "Nelder-Mead",

@@ -123,7 +123,7 @@ dat %>%
 
 dat %>%
   filter(comp == 'cdist_aldist_igfs_') %>%
-  group_by(year,step,age,origin) %>%
+  group_by(year,step,age,origin) %>% 
   summarise(Freq = sum(Freq, na.rm = TRUE)) %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
@@ -153,7 +153,7 @@ dat %>%
   filter(comp == 'cdist_matp_igfs_') %>%
   group_by(year,step,length,origin) %>%
   mutate(p = Freq/sum(Freq)) %>%
-  select(-Freq) %>%
+  select(-Freq) %>% 
   spread(origin,p) %>%
   ungroup() %>%
   ggplot(aes(length,obs,col = stock)) + geom_point() +
@@ -336,7 +336,7 @@ report %>%
   facet_wrap(~fleet)
 
   report %>%
-    filter(stock == 'mat',step == 1,fleet == 'lln') %>%
+    filter(stock == 'mat',step == 1) %>%
     group_by(year) %>%
     summarise(b = sum(abundance*weight),
               F = max(F,na.rm = TRUE)) %>%
