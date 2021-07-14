@@ -1,10 +1,14 @@
-minage <-  ling_imm$iterate %>% environment() %>% .$minage
-maxage <-  ling_mat$iterate %>% environment() %>% .$maxage
-maxlength <-  ling_mat$iterate %>% environment() %>% .$lengthgroups %>% max()
-minlength <-  ling_imm$iterate %>% environment() %>% .$lengthgroups %>% min()
-dl <- ling_imm$iterate %>% environment() %>% .$stock__dl %>% min()
+## -----------------------------------------------------------------------------
+## Catch age and length distributions:
+## -----------------------------------------------------------------------------
 
-## Query length data to create IGFS catchdistribution components
+min_age <- unlist(minage) %>% min()
+max_age <- unlist(maxage) %>% max()
+min_len <- unlist(minlength) %>% min()
+max_len <- unlist(maxlength) %>% max()
+d_len <- dl$imm_stock
+
+## Query length data to create IGFS catch distribution components
 ldist.igfs <-
   mfdb_sample_count(mdb,
                     c('age', 'length'),
@@ -135,13 +139,14 @@ aldist.gil <-
                       defaults))
 
 
-
-save(aldist.bmt,file = 'demo-ling/data/aldist.bmt.Rdata')
-save(aldist.lln,file = 'demo-ling/data/aldist.lln.Rdata')
-save(aldist.igfs,file = 'demo-ling/data/aldist.igfs.Rdata')
-save(aldist.gil,file = 'demo-ling/data/aldist.gil.Rdata')
-save(ldist.bmt,file = 'demo-ling/data/ldist.bmt.Rdata')
-save(ldist.lln,file = 'demo-ling/data/ldist.lln.Rdata')
-save(ldist.igfs,file = 'demo-ling/data/ldist.igfs.Rdata')
-save(ldist.gil,file = 'demo-ling/data/ldist.gil.Rdata')
-save(matp.igfs,file = 'demo-ling/data/matp.igfs.Rdata')
+if (TRUE){
+  save(aldist.bmt,file = 'demo-ling/data/aldist.bmt.Rdata')
+  save(aldist.lln,file = 'demo-ling/data/aldist.lln.Rdata')
+  save(aldist.igfs,file = 'demo-ling/data/aldist.igfs.Rdata')
+  save(aldist.gil,file = 'demo-ling/data/aldist.gil.Rdata')
+  save(ldist.bmt,file = 'demo-ling/data/ldist.bmt.Rdata')
+  save(ldist.lln,file = 'demo-ling/data/ldist.lln.Rdata')
+  save(ldist.igfs,file = 'demo-ling/data/ldist.igfs.Rdata')
+  save(ldist.gil,file = 'demo-ling/data/ldist.gil.Rdata')
+  save(matp.igfs,file = 'demo-ling/data/matp.igfs.Rdata')
+}
