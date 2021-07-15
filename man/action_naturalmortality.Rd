@@ -8,7 +8,7 @@
 }
 
 \usage{
-g3a_naturalmortality_exp(param_f)
+g3a_naturalmortality_exp(param_f, action_step_size_f = ~cur_step_size)
 
 g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
 
@@ -17,6 +17,10 @@ g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
 \arguments{
   \item{param_f}{
     A \link{formula} to substitute for \eqn{m}.
+  }
+  \item{action_step_size_f}{
+    How much model time passes in between runs of action? defaults to \code{~cur_step_size}, i.e. every step.
+    Use \code{action_step_size_f = 1} if action only runs yearly.
   }
   \item{stock}{
     \code{\link{g3_stock}} mortality applies to.
