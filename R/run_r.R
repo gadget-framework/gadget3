@@ -74,8 +74,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
                     && !(var_name %in% names(scope))) {
+                var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 if (is.function(all_defns[[var_name]])) {
-                    scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]])
+                    fn_defn <- all_defns[[var_name]]
+                    environment(fn_defn) <- env  # TODO: This should be the output function scope, not env.
+                    scope[[var_name]] <<- call("<-", as.symbol(var_name), fn_defn)
                 } else if (is.character(all_defns[[var_name]]) && all_defns[[var_name]] != var_name) {
                     # Native function with a different name
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), as.symbol(all_defns[[var_name]]))

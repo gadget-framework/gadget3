@@ -191,6 +191,9 @@ Type objective_function<Type>::operator() () {
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 };
+    auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
+};
     auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
@@ -672,13 +675,9 @@ Type objective_function<Type>::operator() () {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
-                        // Convert to total biomass;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        // Add renewal numbers to ling_imm;
+                        // Add result to ling_imm;
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) += (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
-                        // Back to mean weight;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= avoid_zero_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
             }
@@ -699,13 +698,9 @@ Type objective_function<Type>::operator() () {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
                         // Generate corresponding mean weight;
                         ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = lingimm__walpha*pow(ling_imm__midlen, (Type)lingimm__wbeta);
-                        // Convert to total biomass;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        // Add renewal numbers to ling_imm;
+                        // Add result to ling_imm;
+                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx), ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx));
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) += (ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__renewalwgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
-                        // Back to mean weight;
-                        ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx) /= avoid_zero_vec(ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
             }
@@ -830,10 +825,8 @@ Type objective_function<Type>::operator() () {
                     }
                     if (age == ling_mat__maxage) {
                         // Oldest ling_mat is a plus-group, combine with younger individuals;
-                        ling_mat__wgt.col(ling_mat__age_idx) *= ling_mat__num.col(ling_mat__age_idx);
+                        ling_mat__wgt.col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__age_idx), ling_mat__num.col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__age_idx - 1));
                         ling_mat__num.col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__age_idx - 1);
-                        ling_mat__wgt.col(ling_mat__age_idx) += (ling_mat__wgt.col(ling_mat__age_idx - 1)*ling_mat__num.col(ling_mat__age_idx - 1));
-                        ling_mat__wgt.col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__age_idx));
                     } else {
                         if (age == ling_mat__minage) {
                             // Empty youngest ling_mat age-group;

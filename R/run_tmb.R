@@ -665,6 +665,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             if ('g3_native' %in% class(all_defns[[var_name]])
                     && is.character(attr(all_defns[[var_name]], 'g3_native_cpp'))  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
+                var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 scope[[var_name]] <<- cpp_definition(
                     'auto',
                     var_name,

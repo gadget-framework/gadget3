@@ -132,6 +132,10 @@ structure(function (param)
             return(...elt(i))
         return(NULL)
     }
+    ratio_add_vec <- function (orig_vec, orig_amount, new_vec, new_amount) 
+    {
+        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
+    }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
         out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
@@ -570,13 +574,9 @@ structure(function (param)
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
-                    comment("Convert to total biomass")
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
-                    comment("Add renewal numbers to ling_imm")
+                    comment("Add result to ling_imm")
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ratio_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx])
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + (ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx])
-                    comment("Back to mean weight")
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]/avoid_zero_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                   }
                 }
             }
@@ -595,13 +595,9 @@ structure(function (param)
                     ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
                     comment("Generate corresponding mean weight")
                     ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
-                    comment("Convert to total biomass")
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]
-                    comment("Add renewal numbers to ling_imm")
+                    comment("Add result to ling_imm")
+                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ratio_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx])
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] + (ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx])
-                    comment("Back to mean weight")
-                    ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]/avoid_zero_vec(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx])
                   }
                 }
             }
@@ -714,10 +710,8 @@ structure(function (param)
                     assert_msg(~all(is.finite(ling_mat__wgt[, , ling_mat__age_idx])), "ling_mat__wgt became NaN/Inf in this timestep")
                   if (age == ling_mat__maxage) {
                     comment("Oldest ling_mat is a plus-group, combine with younger individuals")
-                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] * ling_mat__num[, , ling_mat__age_idx]
+                    ling_mat__wgt[, , ling_mat__age_idx] <- ratio_add_vec(ling_mat__wgt[, , ling_mat__age_idx], ling_mat__num[, , ling_mat__age_idx], ling_mat__wgt[, , ling_mat__age_idx - 1L], ling_mat__num[, , ling_mat__age_idx - 1L])
                     ling_mat__num[, , ling_mat__age_idx] <- ling_mat__num[, , ling_mat__age_idx] + ling_mat__num[, , ling_mat__age_idx - 1L]
-                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx] + (ling_mat__wgt[, , ling_mat__age_idx - 1L] * ling_mat__num[, , ling_mat__age_idx - 1L])
-                    ling_mat__wgt[, , ling_mat__age_idx] <- ling_mat__wgt[, , ling_mat__age_idx]/avoid_zero_vec(ling_mat__num[, , ling_mat__age_idx])
                   }
                   else if (age == ling_mat__minage) {
                     comment("Empty youngest ling_mat age-group")

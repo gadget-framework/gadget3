@@ -65,6 +65,23 @@ actions <- c(actions, ~{
 expecteds$logspace_add_vec_0 <- c(0.6931472, 0.7443967, 0.7981389, 0.8543552)
 expecteds$logspace_add_vec_1 <- c(1.313262, 1.341154, 1.371101, 1.403186)
 
+# ratio_add_vec()
+ratio_add_vec_inp_orig_vec <- runif(10) * 100
+ratio_add_vec_inp_orig_amount <- floor(runif(10) * 10)
+ratio_add_vec_inp_new_vec <- runif(10) * 100
+ratio_add_vec_inp_new_amount <- floor(runif(10) * 10)
+ratio_add_vec_output <- rep(0, 10)
+actions <- c(actions, ~{
+    comment('ratio_add_vec')
+    ratio_add_vec_output <- ratio_add_vec(
+        ratio_add_vec_inp_orig_vec, ratio_add_vec_inp_orig_amount,
+        ratio_add_vec_inp_new_vec, ratio_add_vec_inp_new_amount)
+    g3_report(ratio_add_vec_output)
+})
+ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
+expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / ratio_add_vec_total) +
+    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / ratio_add_vec_total)
+
 ###############################################################################
 
 actions <- c(actions, ~{

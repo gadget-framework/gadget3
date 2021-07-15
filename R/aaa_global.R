@@ -5,13 +5,16 @@ g3_global_env <- new.env(parent = baseenv())
 # Define a function with separate equivalent R and C++ implementations
 # - r: R function object, or name of base function
 # - cpp: C++ lambda function, as a string vector or list('Type', 'Type', NULL) to add casts to native fn or NULL if natively supported
-g3_native <- function(r, cpp) {
+# - depends: List of other things in the environment this depends on, e.g. extra functions
+g3_native <- function(r, cpp, depends = c()) {
     # NB: We get away with using "as.numeric" for native functions with native
     #     evaluation since R will be looking for a function, not value.
     #     Ideally we'd be using a reference to base::as.numeric, but that's causing
     #     unfathomable problems in to_tmb land.
     out <- r
     attr(out, "g3_native_cpp") <- cpp
+    # Turn depends vector into something that calls each item, to work with var_defns
+    attr(out, "g3_native_depends") <- as.call(c(as.symbol("{"), lapply(depends, as.symbol)))  # }
     class(out) <- c("g3_native", class(out))
     return(out)
 }
@@ -115,3 +118,11 @@ g3_global_env$assert_msg <- g3_native(r = function(expr, message) {
 
 # Use TMB's "asDouble" as an equivalent for as.numeric
 g3_global_env$as.numeric <- g3_native(r = "as.numeric", cpp = list("asDouble", NULL))
+
+
+# Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
+g3_global_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {
+    (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount)
+}, cpp = '[&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
+}', depends = c('avoid_zero_vec'))
