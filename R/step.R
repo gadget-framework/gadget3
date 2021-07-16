@@ -43,16 +43,32 @@ g3_step <- function(step_f) {
         return(f)
     }
 
+    stock_interactvar_prefix <- function (f, prefix) {
+        stopifnot(rlang::is_formula(f))
+        stopifnot(is.character(prefix) && length(prefix) == 1)
+
+        # Find all vars prefixed with "interactvar_", and remove prefixes
+        interactvars <- all.vars(f)
+        names(interactvars) <- interactvars
+        interactvars <- interactvars[startsWith(interactvars, "interactvar_")]
+        interactvars <- gsub("^interactvar_(.+)", paste0(prefix, "_\\1"), interactvars)
+
+        # Replace iterator interactvars in expression
+        f_substitute(f, lapply(interactvars, as.symbol))
+    }
+
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
         stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+        prefix <- x[['prefix']]
+        if (is.null(prefix)) prefix <- ""  # NB: Remove any interactvar prefix by default
 
         # Recurse first, filling out any inner functions
         inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
         inner_f <- g3_step(inner_f)
 
         # Wrap with stock's code
-        out_f <- f_substitute(stock_rename(stock[[to_replace]], "stock",  stock_var), list(
+        out_f <- f_substitute(stock_rename(stock_interactvar_prefix(stock[[to_replace]], prefix), "stock",  stock_var), list(
             extension_point = inner_f))
         out_f <- stock_rename(out_f, stock_var, stock$name)
 
@@ -178,6 +194,9 @@ g3_step <- function(step_f) {
         },
         stock_iterate = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'iterate'))
+        },
+        stock_interact = function (x) {  # Arguments: stock variable, inner code block
+            return(repl_stock_fn(x, 'interact'))
         },
         stock_intersect = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'intersect'))

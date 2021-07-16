@@ -33,6 +33,7 @@ g3_storage <- function(var_name) {
         iterate = ~extension_point,
         iter_ss = list(),  # NB: No dimensions yet
         intersect = ~extension_point,
+        interact = ~extension_point,
         rename = ~extension_point,
         name = var_name), class = c("g3_stock", "list"))
 }
@@ -89,6 +90,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         iter_ss = c(inner_stock$iter_ss, list(quote(.[])[[3]])),
         intersect = f_substitute(~extension_point, list(
             extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~extension_point, list(
+            extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
             extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))

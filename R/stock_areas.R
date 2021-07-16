@@ -23,6 +23,9 @@ g3s_livesonareas <- function(inner_stock, areas) {
             intersect = f_substitute(~if (area == stock__area) {
                 extension_point
             }, list(extension_point = inner_stock$intersect), copy_all_env = TRUE),
+            interact = f_substitute(~if (area == stock__area) g3_with(interactvar_area, area, {
+                extension_point
+            }), list(extension_point = inner_stock$interact), copy_all_env = TRUE),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
             name = inner_stock$name), class = c("g3_stock", "list"))
     } else {
@@ -42,6 +45,12 @@ g3s_livesonareas <- function(inner_stock, areas) {
                     break
                 }
             }, list(extension_point = inner_stock$intersect), copy_all_env = TRUE),
+            interact = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) {
+                if (stock__areas[[stock__area_idx]] == area) g3_with(interactvar_area, area, {
+                    extension_point
+                    break
+                })
+            }, list(extension_point = inner_stock$interact), copy_all_env = TRUE),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
             name = inner_stock$name), class = c("g3_stock", "list"))
     }
@@ -75,6 +84,11 @@ g3s_areagroup <- function(inner_stock, areagroups) {
             if (stock__areagroup_idx > g3_idx(-1L)) extension_point), list(
                 lookup = stock__areagroup_lookup('getdefault', ~area, -1L),
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~g3_with(
+            stock__areagroup_idx, g3_idx(lookup),
+            if (stock__areagroup_idx > g3_idx(-1L)) g3_with(interactvar_area, area, extension_point)), list(
+                lookup = stock__areagroup_lookup('getdefault', ~area, -1L),
+                extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

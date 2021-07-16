@@ -43,6 +43,9 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         intersect = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
+                idx_f = idx_f,
+                extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
@@ -63,6 +66,8 @@ g3s_modeltime <- function (inner_stock) {
         iter_ss = c(inner_stock$iter_ss, quote(g3_idx(cur_time+1L))),
         intersect = f_substitute(~extension_point, list(
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~extension_point, list(
+                extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

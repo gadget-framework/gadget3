@@ -21,6 +21,10 @@ g3s_manual <- function(inner_stock, var_base_name, dimnames, intersect_idx_f) {
             idx_var_name = as.symbol(idx_var_name),
             intersect_idx_f = intersect_idx_f,
             extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~for (idx_var_name in seq(g3_idx(1L), g3_idx(dim_size), by = 1L)) extension_point, list(
+            idx_var_name = as.symbol(idx_var_name),
+            dim_size = length(dimnames),
+            extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
