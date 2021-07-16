@@ -3,6 +3,9 @@
 # - debug_trace(...) - Replace any stock arguments with the stock name
 # - stock_iterate(stock, block) - wrap (block) with code to iterate over (stock) lengthgroup vectors
 # - stock_intersect(stock, block) - wrap (block) with code to intersect with an outer stock we're iterating over
+# - stock_interact(stock, block, prefix) - wrap (block) with code to interact with an outer stock we're iterating over
+#       interact here means intersect over physical dimensions (area / time), and consider combinatoral explosion of rest (e.g. age)
+#       (prefix) is a string to distinguish between variables, e.g. if prefix = "prey", there will be age and prey_age variables.
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 g3_step <- function(step_f) {
