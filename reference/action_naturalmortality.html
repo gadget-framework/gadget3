@@ -133,7 +133,7 @@
     <p>Add natural mortality to a g3 model</p>
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='va'>param_f</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='va'>param_f</span>, action_step_size_f <span class='op'>=</span> <span class='op'>~</span><span class='va'>cur_step_size</span><span class='op'>)</span>
 
 <span class='fu'>g3a_naturalmortality</span><span class='op'>(</span><span class='va'>stock</span>, <span class='va'>mortality_f</span>, run_f <span class='op'>=</span> <span class='cn'>TRUE</span>, run_at <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span></pre>
 
@@ -143,6 +143,11 @@
     <tr>
       <th>param_f</th>
       <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> to substitute for \(m\).</p></td>
+    </tr>
+    <tr>
+      <th>action_step_size_f</th>
+      <td><p>How much model time passes in between runs of action? defaults to <code>~cur_step_size</code>, i.e. every step.
+    Use <code>action_step_size_f = 1</code> if action only runs yearly.</p></td>
     </tr>
     <tr>
       <th>stock</th>
