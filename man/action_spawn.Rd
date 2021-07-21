@@ -131,7 +131,7 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort},
   \code{\link{g3a_naturalmortality}},
   \code{\link{g3_stock}}
 }

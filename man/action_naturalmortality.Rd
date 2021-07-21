@@ -57,7 +57,7 @@ g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort},
   \code{\link{g3a_growmature}},
   \code{\link{g3_stock}}
 }

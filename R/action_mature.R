@@ -1,5 +1,5 @@
 g3a_mature_continuous <- function (alpha, l50, beta = 0, a50 = 0) {
-    # https://hafro.github.io/gadget2/userguide/chap-stock.html#continuous-maturity-function
+    # https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#continuous-maturity-function
     # https://github.com/Hafro/gadget2/blob/master/src/maturity.cc#L301-L304
 
     g3a_mature_continuous <- g3_native(r = function (plusdl, m0, growth_l, alpha, beta, cur_step_size) {

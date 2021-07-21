@@ -241,7 +241,7 @@ section.
 
 ## Ordering of actions
 
-Gadget2 has a strict [Order of Calculations](https://hafro.github.io/gadget2/userguide/chap-order.html),
+Gadget2 has a strict [Order of Calculations](https://gadget-framework.github.io/gadget2/userguide/chap-order.html),
 and re-ordering calculations may well have averse effects. Actions also have
 common steps to perform, for example overstocking for a prey has to be
 calculated, and calculated once, after each fleet has finished harvesting.

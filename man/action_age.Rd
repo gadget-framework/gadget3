@@ -41,7 +41,7 @@ g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stock
 }}
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockmature},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockmature},
   \code{\link{g3_stock}}
 }
 

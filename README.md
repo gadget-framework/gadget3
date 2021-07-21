@@ -8,7 +8,7 @@ function for you, that can then be optimised with standard tools such as
 ``nlminb()``.
 
 Gadget3 is primarily designed to produce models matching the behaviour of
-[gadget2](https://gadget-framework.github.io/gadget2), although implementing new modelling
+[gadget2](https://gadget-framework.github.io/gadget2/), although implementing new modelling
 systems would be possible
 
 *NB:* Currently under active development.

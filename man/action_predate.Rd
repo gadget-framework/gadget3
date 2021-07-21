@@ -66,7 +66,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockpredator},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockpredator},
   \code{\link{g3_stock}}
 }
 

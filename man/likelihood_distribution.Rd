@@ -221,7 +221,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-like.html},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-like.html},
   \code{\link{g3_stock}}
 }
 
