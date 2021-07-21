@@ -32,6 +32,12 @@ export(g3a_initialconditions_normalparam)
 # R/action_report.R
 export(g3a_report_stock)
 
+# R/action_spawn.R
+export(g3a_spawn_recriutment_ricker)
+export(g3a_spawn_length_straightline)
+export(g3a_spawn_length_exponential)
+export(g3a_spawn)
+
 # R/action_time.R
 export(g3a_time)
 
