@@ -3,7 +3,7 @@
 g3a_spawn_recriutment_ricker <- function (mu, lambda) {
     # NB: ricker is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
-        s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__num) * proportion_f),
+        s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
         r = f_substitute(~mu * s * exp(-lambda * s), list(
             mu = mu,
             lambda = lambda)))
@@ -41,6 +41,7 @@ g3a_spawn <- function(
 
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
+    stock__spawningnum <- stock_instance(stock, desc = "Number of spawning parents")
     out <- list()
     action_name <- unique_action_name()
     totalspawn_var_name <- paste(stock$name, action_name, "totalspawn", sep = "_")
@@ -49,6 +50,15 @@ g3a_spawn <- function(
     # See SpawnData::Spawn line 286
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("Collect total spawned offspring from ", stock, " spawning event")
+
+        debug_trace("Calculate spawning proportion of ", stock)
+        stock_iterate(stock, if (run_f) {
+            stock_ss(stock__spawningnum) <- stock_ss(stock__num) * proportion_f
+        } else {
+            stock_ss(stock__spawningnum) <- 0
+        })
+
+        debug_trace("Calculate total offspring of spawning population")
         # Equivalent to spawner::calcRecriutNumber()
         totalspawn_var <- 0
         stock_iterate(stock, if (run_f) {
@@ -62,21 +72,21 @@ g3a_spawn <- function(
                 # Spawndata::Spawn, pop
                 stock_ss(stock__wgt) <- ratio_add_vec(
                     stock_ss(stock__wgt),
-                    1 - proportion_f,
+                    stock_ss(stock__num) - stock_ss(stock__spawningnum),
                     stock_ss(stock__wgt) - stock_ss(stock__wgt) * weightloss_f,
-                    proportion_f)
+                    stock_ss(stock__spawningnum))
             }
             if (mortality_enabled) {
                 debug_trace("Apply spawning mortality to parents")
                 # Spawndata::Spawn, pop
                 stock_ss(stock__num) <-
-                    stock_ss(stock__num) * (1 - proportion_f) +
-                    stock_ss(stock__num) * proportion_f * exp(-mortality_f)
+                    (stock_ss(stock__num) - stock_ss(stock__spawningnum)) +
+                    stock_ss(stock__spawningnum) * exp(-mortality_f)
             }
         })
     }, list(
         totalspawn_var = as.symbol(totalspawn_var_name),
-        recriutment_s_f = f_substitute(recruitment_f$s, list(proportion_f = proportion_f)),
+        recriutment_s_f = recruitment_f$s,
         recriutment_r_f = f_substitute(recruitment_f$r, list(s = as.symbol(totalspawn_var_name))),
         proportion_f = proportion_f,
         mortality_enabled = !identical(mortality_f, 0),

@@ -88,6 +88,12 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
     \item{\code{cur_step == 1 && cur_year >= 1990}}{Spawning will happen on first step of every year after 1990}
     \item{\code{cur_step == 2 && area = 1}}{Spawning will happen on second step of every year, in the first area}
   }
+
+  The action will define the following stock instance variables for each given \var{stock} and \var{output_stock}:
+  \describe{
+    \item{\var{stock__spawningnum}}{Numbers of (stock) that are spawning in this spawning event}
+    \item{\var{output_stock__spawnednum}}{Numbers of (output_stock) that will be produced in this spawning event}
+  }
 }
 
 \value{
