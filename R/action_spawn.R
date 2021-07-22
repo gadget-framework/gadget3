@@ -50,11 +50,11 @@ g3a_spawn <- function(
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("Collect total spawned offspring from ", stock, " spawning event")
         # Equivalent to spawner::calcRecriutNumber()
-        stock_with(stock, totalspawn_var <- 0)
+        totalspawn_var <- 0
         stock_iterate(stock, if (run_f) {
             totalspawn_var <- totalspawn_var + recriutment_s_f
         })
-        stock_with(stock, totalspawn_var <- recriutment_r_f)
+        totalspawn_var <- recriutment_r_f
 
         stock_iterate(stock, if (run_f) {
             if (weightloss_enabled) {
