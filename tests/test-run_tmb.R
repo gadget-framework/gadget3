@@ -278,13 +278,20 @@ expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
 
 # Arrays with dynamic dimensions
 dynamic_dim_array <- array(0, dim = c(2,1))
+dynamic_dim_array_na <- array(NA, dim = c(2,1))
 attr(dynamic_dim_array, 'dynamic_dim') <- list(2, quote(dynamic_dim_array_dim_2))
+attr(dynamic_dim_array_na, 'dynamic_dim') <- list(2, quote(dynamic_dim_array_dim_2))
 dynamic_dim_array_dim_2 <- 4L
+dynamic_dim_array_dim_na_2 <- 4L
 actions <- c(actions, ~{
     comment('assign_scalar')
+    # NB: Under TMB this won't be NA, so set it to hide differences.
+    dynamic_dim_array_na[] <- 5
     g3_report(dynamic_dim_array)
+    g3_report(dynamic_dim_array_na)
 })
 expecteds$dynamic_dim_array <- array(0, dim = c(2, 4))
+expecteds$dynamic_dim_array_na <- array(5, dim = c(2, 4))
 
 # Data variable names are escaped
 escaped.data.scalar <- 44
