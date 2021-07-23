@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7ffc7e8e2348&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7fc18695d4e0&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,7 +143,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffc7b51b0b8&gt;
+## &lt;environment: 0x7fc18513e800&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>…or a TMB template:</p>
@@ -207,7 +207,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7ffc7ef91990&gt;</code></pre>
+## &lt;environment: 0x7fc186b38e38&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -250,7 +250,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffc7e8564d8&gt;
+## &lt;environment: 0x7fc187b7da00&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
@@ -295,7 +295,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffc7ddbd158&gt;
+## &lt;environment: 0x7fc188afb3f8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 </div>
@@ -479,7 +479,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ffc822ffe78&gt;
+## &lt;environment: 0x7fc189e165e8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
