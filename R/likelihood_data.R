@@ -107,6 +107,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             modelstock,
             sort(unique(data$time)))
     }
+    data$time <- g3s_time_labels(data$time)
     handled_columns$year <- NULL
     handled_columns$step <- NULL
 

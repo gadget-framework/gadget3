@@ -1,5 +1,14 @@
 g3s_time_convert <- function (year, step = NULL) {
-    if (is.null(step)) as.integer(year) else as.integer(year) * 1000 + as.integer(step)
+    if (is.null(step)) as.integer(year) else as.integer(year) * 1000L + as.integer(step)
+}
+
+g3s_time_labels <- function (times) {
+    if (any(times > 9999)) {
+        return(sprintf("%d-%02d",
+            times %/% 1000L,
+            times %% 1000L))
+    }
+    return(as.character(times))
 }
 
 # Time dimension, useful for data objects
@@ -34,7 +43,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         dim = c(inner_stock$dim,
             time = length(times)),
         dimnames = c(inner_stock$dimnames, list(
-            time = times)),
+            time = g3s_time_labels(times))),
         # NB: iterate same as intersect, iterating over all time won't make sense in ~all cases
         iterate = f_substitute(~g3_with(stock__time_idx, g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,

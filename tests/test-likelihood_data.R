@@ -81,11 +81,11 @@ ok_group('g3l_likelihood_data:time', {
     ")
     ok(cmp_array(ld$number, "
         length    time Freq
-          len0 1998001    1
-          len0 1998002    2
-          len0 1999001    3
-          len0 2000001    4
-          len0 2000002    5
+          len0 1998-01    1
+          len0 1998-02    2
+          len0 1999-01    3
+          len0 2000-01    4
+          len0 2000-02    5
         "), "Year gap, wonky year order preserved")
 })
 
