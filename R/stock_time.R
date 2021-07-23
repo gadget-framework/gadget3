@@ -60,19 +60,25 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
 }
 
 # Add dimension for model time (i.e. every year/step)
-g3s_modeltime <- function (inner_stock) {
+g3s_modeltime <- function (inner_stock, by_year = FALSE) {
+    # NB: Definitions are quote()d so they are defined at run-time as dynamic_dims (by g3a_time)
+    if (by_year) {
+        new_dims <- list(year = quote(end_year - start_year + 1L))
+        new_dimnames <- list(year = quote(seq(start_year, end_year)))
+        lookup <- quote(g3_idx(cur_year - start_year + 1L))
+    } else {
+        new_dims <- list(time = quote(total_steps + 1))
+        new_dimnames <- list(time = quote(sprintf("%d-%02d",
+            rep(seq(start_year, end_year), each = length(step_lengths)),
+            rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+        lookup <- quote(g3_idx(cur_time+1L))
+    }
     structure(list(
-        dim = c(inner_stock$dim, list(
-            # NB: Quoted so this is defined at run-time (by g3a_time)
-            time = quote(total_steps + 1))),
-        dimnames = c(inner_stock$dimnames, list(
-            # NB: Quoted so this is defined at run-time (by g3a_time)
-            time = quote(sprintf("%d-%02d",
-                rep(seq(start_year, end_year), each = length(step_lengths)),
-                rep(seq_along(step_lengths), times = end_year - start_year + 1))))),
+        dim = c(inner_stock$dim, new_dims),
+        dimnames = c(inner_stock$dimnames, new_dimnames),
         iterate = f_substitute(~extension_point, list(
                 extension_point = inner_stock$iterate), copy_all_env = TRUE),
-        iter_ss = c(inner_stock$iter_ss, quote(g3_idx(cur_time+1L))),
+        iter_ss = c(inner_stock$iter_ss, lookup),
         intersect = f_substitute(~extension_point, list(
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
         interact = f_substitute(~extension_point, list(
