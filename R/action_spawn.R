@@ -34,7 +34,7 @@ g3a_spawn <- function(
         run_at = 6,
         recruit_at = 8) {
     stopifnot("g3_stock" %in% class(stock))
-    stopifnot(is.list(output_stocks) && all(sapply(output_stocks, function (x) "g3_stock" %in% class(x))))
+    stopifnot(is.list(output_stocks) && all(sapply(output_stocks, g3_is_stock)))
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
     stopifnot(abs(sum(output_ratios) - 1) < 0.0001)

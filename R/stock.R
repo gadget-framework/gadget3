@@ -41,6 +41,9 @@ g3_storage <- function(var_name) {
         name = var_name), class = c("g3_stock", "list"))
 }
 
+# True iff (x) is a stock object
+g3_is_stock <- function (x) "g3_stock" %in% class(x)
+
 g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = NULL) {
     # See LengthGroupDivision::LengthGroupDivision
     stopifnot(length(lengthgroups) > 0)
