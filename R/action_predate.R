@@ -12,7 +12,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
     # fleet_stock__catch: Biomass caught by that fleet (fleet matrix, i.e. area)
     # prey_stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # prey_stock__consratio: Ratio of prey_stock__totalpredate / (current biomass), capped by overconsumption rule
-    fleet_stock__catch <- stock_instance(fleet_stock)
+    fleet_stock__catch <- stock_instance(fleet_stock, desc = "Biomass caught by fleet (fleet matrix, i.e. area)")
 
     # For each prey stock...
     for (prey_stock in prey_stocks) {
@@ -25,9 +25,9 @@ g3a_predate_totalfleet <- function (fleet_stock,
         prey_stock__wgt <- stock_instance(prey_stock)
         assign(as.character(fleet_stock_var), stock_instance(prey_stock))
         assign(as.character(suit_var), stock_instance(prey_stock, 0))
-        prey_stock__totalpredate <- stock_instance(prey_stock)
-        prey_stock__overconsumption <- 0.0
-        prey_stock__consratio <- stock_instance(prey_stock)
+        prey_stock__totalpredate <- stock_instance(prey_stock, desc = paste0("Biomass of total consumed ", prey_stock$name, " (prey matrix)"))
+        prey_stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", prey_stock$name))
+        prey_stock__consratio <- stock_instance(prey_stock, desc = "Ratio of prey_stock__totalpredate / (current biomass), capped by overconsumption rule")
 
         # Make sure counter for this fleet is zeroed
         # NB: We only have one of these per-fleet (we replace it a few times though)
