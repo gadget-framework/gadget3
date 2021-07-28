@@ -84,6 +84,14 @@ ok(ut_cmp_identical(
     c("wow", "whoah", "yay", "woo")), "f_concatenate:environment")
 
 out_f <- gadget3:::f_concatenate(list(
+    ~statement_1,
+    ~statement_2,
+    ~statement_3))
+ok(ut_cmp_identical(
+    environment(out_f),
+    environment()), "f_concatenate:Preserve environment where possible")
+
+out_f <- gadget3:::f_concatenate(list(
     as.formula("~woo()", as.environment(list(woo = 3))),
     as.formula("~yay()", as.environment(list(yay = 4))),
     as.formula("~wow()", as.environment(list(wow = 5)))), parent = as.environment(list(a=1, b=2, c=3)))

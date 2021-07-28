@@ -112,13 +112,27 @@ call_replace <- function (f, ...) {
     return(out)
 }
 
-f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
-    # Stack environments together
-    e <- parent
+# Concatenate (list_of_f) into a single call, with (parent) as the parent environment,
+# cloning formula environments as necessary
+f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
+    # Formula has same env as first item in list
+    has_same_env <- function (f) identical(environment(f), environment(list_of_f[[1]]))
+
+    orig_e <- e <- parent
     for (f in list_of_f) {
-        # NB: Actions producing multiple steps will share environments. We
-        # have to clone environments so they have separate parents.
-        e <- rlang::env_clone(rlang::f_env(f), parent = e)
+        if (is.null(orig_e)) {
+            # At top, keeping previous environment, no need to change env.
+            orig_e <- e <- environment(f)
+        } else if (identical(environment(f), orig_e)) {
+            # Environment identical to previous, no need to add anything to the stack
+        } else if (identical(parent.env(environment(f)), orig_e)) {
+            # Environment different, but has the right parent, so can re-cycle
+            orig_e <- e <- environment(f)
+        } else {
+            # Clone environment and change parent to point at previous
+            orig_e <- environment(f)
+            e <- rlang::env_clone(environment(f), parent = e)
+        }
     }
 
     # Combine all functions into one expression
