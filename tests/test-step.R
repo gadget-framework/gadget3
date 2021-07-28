@@ -39,6 +39,8 @@ ok_group("g3_step:stock_reshape", {
     dest_wider <- g3_stock('dest_wider', seq(0, 90, 10))  # Wider top and bottom
     dest_wider__num <- gadget3:::stock_instance(dest_wider)
     dest_wider__wgt <- gadget3:::stock_instance(dest_wider)
+    dest_nolength <- gadget3:::g3_storage('dest_nolength')  # No length at all
+    dest_nolength__num <- gadget3:::stock_instance(dest_nolength)
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
     actions <- list(
@@ -62,6 +64,11 @@ ok_group("g3_step:stock_reshape", {
         list('900:dest_wider' = gadget3:::g3_step(~stock_iterate(dest_wider, stock_intersect(source, {
             stock_ss(dest_wider__num) <- stock_reshape(dest_wider, stock_ss(source__num))
             g3_report(dest_wider__num)
+        })))),
+
+        list('900:dest_nolength' = gadget3:::g3_step(~stock_iterate(dest_nolength, stock_intersect(source, {
+            stock_ss(dest_nolength__num) <- stock_reshape(dest_nolength, stock_ss(source__num))
+            g3_report(dest_nolength__num)
         })))),
 
         list('999' = ~{
@@ -97,6 +104,9 @@ ok_group("g3_step:stock_reshape", {
     ok(ut_cmp_equal(
         as.vector(attr(result, 'dest_wider__num')),
         c(0, 11, 22, 33, 44, 0, 0, 0, 0, 0)), "dest_wider__num")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'dest_nolength__num')),
+        sum(11, 22, 33, 44)), "dest_nolength__num")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions)

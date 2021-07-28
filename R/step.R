@@ -113,16 +113,24 @@ g3_step <- function(step_f) {
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
-            dest_lg <- stock_definition(stock, 'stock__minlen')
 
             # Recurse first, letting renames happen
             inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
             inner_f <- g3_step(inner_f)
 
+            if (!("length" %in% names(stock$dim))) {
+                # No length dimension, so sum everything
+                out_f <- f_substitute(~sum(inner_f), list(inner_f = inner_f))
+                environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+                return(rlang::f_rhs(out_f))
+            }
+
             # Assume source stock is the first in inner_f, probably true(?)
             source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])
             source_stock <- get(source_stock_var, envir = rlang::f_env(step_f))
             source_lg <- stock_definition(source_stock, 'stock__minlen')
+
+            dest_lg <- stock_definition(stock, 'stock__minlen')
 
             # Get upper bound for length groups, if infinite guess something that should work
             # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
