@@ -89,7 +89,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         # Find with variables / iterators to ignore
         ignore_vars <- c(
             lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
-            lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
+            do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
             list('param'))
 
         # TODO: Should this loop be combined with the above?
@@ -175,10 +175,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
                 var_name = as.character(x[[2]]),
                 var = as.symbol(x[[2]]))),
-            g3_with = function (x) call(
-                open_curly_bracket,
-                call("<-", x[[2]], g3_functions(x[[3]])),
-                g3_functions(x[[4]])))
+            g3_with = function (x) as.call(c(
+                list(as.symbol(open_curly_bracket)),
+                lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),
+                list(g3_functions(x[[length(x)]])))))
     }
     out <- g3_functions(out)
 

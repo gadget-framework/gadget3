@@ -35,3 +35,20 @@ scope_to_parameter_template <- function (scope, return_type) {
     names(parts) <- NULL
     if (return_type == 'data.frame') do.call(rbind, parts) else do.call(c, c(list(), parts))
 }
+
+# Given a g3_with(x := 2, y := 4, exp) call, extract calls to set terms
+g3_with_extract_terms <- function(x) {
+    do.call(c, lapply(as.list(x), function (arg) {
+        if (is.call(arg) && arg[[1]] == ":=") {
+            list(call("<-", arg[[2]], arg[[3]]))
+        } else {
+            list()
+        }
+    }))
+}
+# g3_with_extract_terms(quote(g3_with(x := 2, parp.x := 4 + 4, moo)))
+
+# Given a g3_with() call, extract term symbols
+g3_with_extract_term_syms <- function (x) {
+    lapply(g3_with_extract_terms(x), function (c) c[[2]])
+}

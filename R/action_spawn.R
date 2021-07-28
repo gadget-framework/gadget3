@@ -59,14 +59,14 @@ g3a_spawn <- function(
 
         debug_trace("Calculate total offspring of spawning population")
         # Equivalent to spawner::calcRecriutNumber()
-        g3_with(s, 0 * nll, {  # TODO: Ugly mess to get type right
+        g3_with(s := 0 * nll, {  # TODO: Ugly mess to get type right
             stock_iterate(stock, if (run_f) {
                 s <- s + recriutment_s_f
                 stock_ss(stock__offspringnum) <- 1
             } else {
                 stock_ss(stock__offspringnum) <- 0
             })
-            g3_with(r, recriutment_r_f,
+            g3_with(r := recriutment_r_f,
                 stock_with(stock, stock__offspringnum <- r * stock__offspringnum / avoid_zero(sum(stock__offspringnum))))
         })
 

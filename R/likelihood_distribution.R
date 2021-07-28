@@ -219,7 +219,7 @@ g3l_distribution <- function (
         debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
             stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, {
-                if (compare_num) g3_with(cur_cdist_nll, number_f, {
+                if (compare_num) g3_with(cur_cdist_nll := number_f, {
                     nll <- nll + (weight) * cur_cdist_nll
                     stock_ss(nllstock__num) <- stock_ss(nllstock__num) + cur_cdist_nll
                     g3_report(nllstock__num)  # TODO: Only on penultimate step?
@@ -228,7 +228,7 @@ g3l_distribution <- function (
                     if (report) g3_report(modelstock__num)
                     if (report) g3_report(obsstock__num)
                 })
-                if (compare_wgt) g3_with(cur_cdist_nll, biomass_f, {
+                if (compare_wgt) g3_with(cur_cdist_nll := biomass_f, {
                     nll <- nll + (weight) * cur_cdist_nll
                     stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + cur_cdist_nll
                     g3_report(nllstock__wgt)  # TODO: Only on penultimate step?

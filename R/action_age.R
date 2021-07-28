@@ -84,7 +84,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         debug_label("g3a_age for ", stock)
 
         stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
-                stock__age_idx, g3_idx(age - stock__minage + 1L), {
+                stock__age_idx := g3_idx(age - stock__minage + 1L), {
             debug_trace("Check stock has remained finite for this step")
             if (strict_mode) stock_assert(all(is.finite(stock__num[age_iter_ss])), stock, "__num became NaN/Inf in this timestep")
             if (strict_mode) stock_assert(all(is.finite(stock__wgt[age_iter_ss])), stock, "__wgt became NaN/Inf in this timestep")

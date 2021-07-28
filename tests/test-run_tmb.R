@@ -367,13 +367,16 @@ g3_with_result <- 0L
 actions <- c(actions, ~{
     comment('g3_with')
     g3_with(
-        g3_with_iterator, g3_idx(2L),  # NB: Tests we can use g3 functions in definition
+        g3_with_iterator := g3_idx(2L),  # NB: Tests we can use g3 functions in definition
+        g3_with_other_exp := 1L + 2L + 3L,
         {
             g3_with_result <- g3_with_iterator - g3_idx(1)  # NB: Reverse g3_idx from definition
             g3_report(g3_with_result)
+            g3_report(g3_with_other_exp)
         })
 })
 expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
+expecteds$g3_with_other_exp <- 1L + 2L + 3L
 
 # min() & max()
 min_result <- 0.0

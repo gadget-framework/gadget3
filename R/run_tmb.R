@@ -73,15 +73,18 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name %in% c("g3_with")) {
         # Combine the variable definition with the rest of the code
-        inner <- cpp_code(in_call[[4]], in_envir, next_indent, statement = TRUE)
+        inner <- cpp_code(in_call[[length(in_call)]], in_envir, next_indent, statement = TRUE)
         if (!endsWith(inner, close_curly_bracket)) inner <- paste0(inner, ";")
 
-        return(paste0(
+        return(paste(c(
             "{",
-            next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, next_indent), ";",
-            "\n",
+            vapply(g3_with_extract_terms(in_call), function (c) {
+                paste0(
+                    next_indent, "auto ", c[[2]], " = ",
+                    cpp_code(c[[3]], in_envir, next_indent), ";\n")
+            }, character(1)),
             next_indent, inner,
-            indent, "}"))
+            indent, "}"), collapse = ""))
     }
 
     if (call_name == '<-') {
@@ -676,7 +679,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Find with variables / iterators to ignore
         ignore_vars <- c(
             lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
-            lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
+            do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
             list())
 
         # TODO: Should this loop be combined with the above?
