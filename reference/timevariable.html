@@ -170,7 +170,7 @@
 <span class='co'># Generate a fleet predation action, use g3_timeareadata to supply landings</span>
 <span class='co'># NB: Since igfs_landings only contains values for step=2, there will be no</span>
 <span class='co'>#     predation on other steps (since g3_timeareadata will return 0).</span>
-<span class='va'>predate_action</span> <span class='op'>&lt;-</span> <span class='fu'><a href='action_predate.html'>g3a_predate_totalfleet</a></span><span class='op'>(</span>
+<span class='va'>predate_action</span> <span class='op'>&lt;-</span> <span class='fu'><a href='action_predate.html'>g3a_predate_fleet</a></span><span class='op'>(</span>
     <span class='va'>igfs</span>,
     <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>ling_imm</span>, <span class='va'>ling_mat</span><span class='op'>)</span>,
     suitabilities <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
@@ -178,7 +178,8 @@
             <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.alpha'</span><span class='op'>)</span>, <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.l50'</span><span class='op'>)</span><span class='op'>)</span>,
         ling_mat <span class='op'>=</span> <span class='fu'><a href='suitability.html'>g3_suitability_exponentiall50</a></span><span class='op'>(</span>
             <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.alpha'</span><span class='op'>)</span>, <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>'ling.igfs.l50'</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
-    amount_f <span class='op'>=</span> <span class='fu'>g3_timeareadata</span><span class='op'>(</span><span class='st'>'igfs_landings'</span>, <span class='va'>igfs_landings</span><span class='op'>)</span><span class='op'>)</span>
+    catchability <span class='op'>=</span> <span class='fu'><a href='action_predate.html'>g3a_predate_catchability_totalfleet</a></span><span class='op'>(</span>
+        <span class='fu'>g3_timeareadata</span><span class='op'>(</span><span class='st'>'igfs_landings'</span>, <span class='va'>igfs_landings</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

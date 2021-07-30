@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7fc426b6e500&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7fd5d0e0d888&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,7 +143,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fc425e50828&gt;
+## &lt;environment: 0x7fd5ce8539c0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>…or a TMB template:</p>
@@ -207,7 +207,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7fc426fd1290&gt;</code></pre>
+## &lt;environment: 0x7fd5cfd84c78&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -250,7 +250,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fc426a9d7b8&gt;
+## &lt;environment: 0x7fd5cfa6a818&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
@@ -295,7 +295,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fc428c636a8&gt;
+## &lt;environment: 0x7fd5d1e2b270&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"</code></pre>
 </div>
@@ -451,7 +451,7 @@
 ##                     comment("Calculate length/weight delta matrices for current lengthgroups")
 ##                     ling_imm__growth_l &lt;- growth_bbinom(avoid_zero_vec((age * 
 ##                       10)/ling_imm__plusdl), 4, avoid_zero(param[["ling.bbin"]]))
-##                     ling_imm__growth_w &lt;- (area * 20)
+##                     ling_imm__growth_w &lt;- area * 20
 ##                     if (FALSE) 
 ##                       ling_imm__prevtotal &lt;- sum(ling_imm__num[, 
 ##                         ling_imm__area_idx, ling_imm__age_idx])
@@ -479,7 +479,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7fc429238c70&gt;
+## &lt;environment: 0x7fd5d4b340a8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"parameter_template")
@@ -533,7 +533,7 @@
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lln</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'lln'</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span>
-    <span class="fu"><a href="../reference/action_predate.html">g3a_predate_totalfleet</a></span><span class="op">(</span>
+    <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span>
         <span class="va">lln</span>,
         <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,
         suitabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
@@ -543,7 +543,7 @@
             ling_mat <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span>
                 <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.alpha'</span><span class="op">)</span>,
                 <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.l50'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
-        amount_f <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
+        catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>,
     <span class="co"># NB: step_find_desc finds a label within the formula</span>
     <span class="kw">function</span> <span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">step_find_desc</span><span class="op">(</span><span class="va">s</span>, minor_steps <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## $`003:000:lln                 `
@@ -555,26 +555,26 @@
 ## $`003:004:ling_imm            `
 ## [1] "Calculate ling_imm overconsumption coefficient"
 ## 
+## $`003:002:lln                 :ling_imm            :3e19f1f5997cd960b5a2`
+## [1] "Scale lln catch of ling_imm by total expected catch"
+## 
+## $`003:001:lln                 :ling_imm            :3e19f1f5997cd960b5a2`
+## [1] "g3a_predate_fleet for ling_imm"
+## 
 ## $`003:005:lln                 :ling_imm            `
 ## [1] "Revert to being total biomass (applying overconsumption in process)"
 ## 
 ## $`003:005:lln                 `
 ## [1] "Zero lln catch before working out post-adjustment value"
 ## 
-## $`003:001:lln                 :ling_imm            :433c407978e9a532d263`
-## [1] "g3a_predate_totalfleet for ling_imm"
-## 
 ## $`003:003:lln                 :ling_imm            `
-## [1] "Temporarily convert to being proportion of totalpredate"
-## 
-## $`003:002:lln                 :ling_imm            :433c407978e9a532d263`
-## [1] "Scale lln catch of ling_imm by total expected catch"</code></pre>
+## [1] "Temporarily convert to being proportion of totalpredate"</code></pre>
 <p>We see each step has a colon-separated name, including the following parts:</p>
 <ul>
-<li>A number corresponding to the order of calculations. If you look at the gadget2 user-guide, consumption is step 3. This can be controlled using the <code>run_at</code> parameter of <code><a href="../reference/action_predate.html">g3a_predate_totalfleet()</a></code>, or any other action.</li>
+<li>A number corresponding to the order of calculations. If you look at the gadget2 user-guide, consumption is step 3. This can be controlled using the <code>run_at</code> parameter of <code><a href="../reference/action_predate.html">g3a_predate_fleet()</a></code>, or any other action.</li>
 <li>Another number specifying the order within an action this step should be performed.</li>
 <li>The prey and where relevant the fleet name</li>
-<li>A hash, that corresponds to the parameters of the <code><a href="../reference/action_predate.html">g3a_predate_totalfleet()</a></code> call.</li>
+<li>A hash, that corresponds to the parameters of the <code><a href="../reference/action_predate.html">g3a_predate_fleet()</a></code> call.</li>
 </ul>
 <p>When a G3 model is made, it will sort the combined list of steps by name, and remove duplicates by name. This means that:</p>
 <ul>
