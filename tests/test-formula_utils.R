@@ -144,3 +144,7 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~x + (x + (f(4))  )),
     ~x + (x + f(4))), "f_optimize: Functions don't need brackets")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{x <- (2 + 2) ; y <- (4 + 4) * 6}),
+    ~{x <- 2 + 2 ; y <- (4 + 4) * 6}), "f_optimize: Remove outer brackets from definition")

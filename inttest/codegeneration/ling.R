@@ -310,9 +310,9 @@ structure(function (param)
                   area <- ling_imm__area
                   if (area == igfs__area) {
                     comment("Collect all suitable ling_imm biomass for igfs")
-                    ling_imm__suit_igfs[, ling_imm__area_idx, ling_imm__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))))
-                    ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- (ling_imm__suit_igfs[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
-                    igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
+                    ling_imm__suit_igfs[, ling_imm__area_idx, ling_imm__age_idx] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))
+                    ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__suit_igfs[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx]
+                    igfs__catch[igfs__area_idx] <- igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx])
                   }
                 }
             }
@@ -327,9 +327,9 @@ structure(function (param)
                   area <- ling_mat__area
                   if (area == igfs__area) {
                     comment("Collect all suitable ling_mat biomass for igfs")
-                    ling_mat__suit_igfs[, ling_mat__area_idx, ling_mat__age_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))))
-                    ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- (ling_mat__suit_igfs[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
-                    igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
+                    ling_mat__suit_igfs[, ling_mat__area_idx, ling_mat__age_idx] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))
+                    ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__suit_igfs[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx]
+                    igfs__catch[igfs__area_idx] <- igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx])
                   }
                 }
             }
@@ -377,7 +377,7 @@ structure(function (param)
         {
             comment("Calculate ling_imm overconsumption coefficient")
             ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
-            ling_imm__consratio <- (0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100)
+            ling_imm__consratio <- 0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100
             if (TRUE) 
                 assert_msg(~all(ling_imm__consratio <= 1), "g3a_predate_totalfleet: ling_imm__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
@@ -389,7 +389,7 @@ structure(function (param)
         {
             comment("Calculate ling_mat overconsumption coefficient")
             ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
-            ling_mat__consratio <- (0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100)
+            ling_mat__consratio <- 0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100
             if (TRUE) 
                 assert_msg(~all(ling_mat__consratio <= 1), "g3a_predate_totalfleet: ling_mat__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
@@ -411,7 +411,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   if (area == igfs__area) 
-                    igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]))
+                    igfs__catch[igfs__area_idx] <- igfs__catch[igfs__area_idx] + sum(ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx])
                 }
             }
         }
@@ -424,7 +424,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   if (area == igfs__area) 
-                    igfs__catch[igfs__area_idx] <- (igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]))
+                    igfs__catch[igfs__area_idx] <- igfs__catch[igfs__area_idx] + sum(ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx])
                 }
             }
         }
@@ -463,7 +463,7 @@ structure(function (param)
                     if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
                       ling_imm__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_imm__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]])
+                      ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]]
                       comment("Don't recalculate until cur_step_size changes")
                       ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
                     }
@@ -518,7 +518,7 @@ structure(function (param)
                     if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
                       ling_mat__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_mat__growth_w <- ((g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]])
+                      ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]]
                       comment("Don't recalculate until cur_step_size changes")
                       ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
                     }

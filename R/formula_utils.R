@@ -185,6 +185,15 @@ f_optimize <- function (f) {
             if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
             return(x)
         },
+        "<-" = function (x) {
+            if (!is.call(x)) return(x)
+            if (is.call(x[[3]]) && x[[3]][[1]] == "(") {  # )
+                # No point wrapping a definition in braces
+                x[[3]] <- x[[3]][[2]]
+            }
+            x[[3]] <- f_optimize(x[[3]])
+            return(x)
+        },
         "{" = function (x) {
             if (!is.call(x)) return(x)
             # 1-statement braces just return
