@@ -265,3 +265,15 @@ f_eval <- function (f, env_extras = list(), env_parent = g3_global_env) {
     }
     eval(rlang::f_rhs(f), env)
 }
+
+# Find all vars, minus vars that are defined within (e.g. iterators)
+all_undefined_vars <- function (code) {
+    g3_with_extract_term_syms <- function (x) {
+        lapply(g3_with_extract_terms(x), function (c) c[[2]])
+    }
+
+    setdiff(all.vars(code), c(
+        lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
+        do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
+        NULL))
+}

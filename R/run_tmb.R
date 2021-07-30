@@ -676,24 +676,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             }
         }
 
-        # Find with variables / iterators to ignore
-        ignore_vars <- c(
-            lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
-            do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
-            list())
-
         # TODO: Should this loop be combined with the above?
-        for (var_name in all.vars(code)) {
+        for (var_name in all_undefined_vars(code)) {
             if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
-                next
-            }
-            if (var_name %in% ignore_vars) {
-                # It's an iterator
-                next
-            }
-            if (var_name %in% ignore_vars) {
-                # It's a with variable
                 next
             }
             tryCatch({

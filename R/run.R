@@ -47,8 +47,3 @@ g3_with_extract_terms <- function(x) {
     }))
 }
 # g3_with_extract_terms(quote(g3_with(x := 2, parp.x := 4 + 4, moo)))
-
-# Given a g3_with() call, extract term symbols
-g3_with_extract_term_syms <- function (x) {
-    lapply(g3_with_extract_terms(x), function (c) c[[2]])
-}
