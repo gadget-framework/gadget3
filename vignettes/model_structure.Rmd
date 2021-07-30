@@ -252,7 +252,7 @@ example:
 ```{r}
 lln <- g3_fleet('lln') %>% g3s_livesonareas(1)
 lapply(
-    g3a_predate_totalfleet(
+    g3a_predate_fleet(
         lln,
         list(ling_imm),
         suitabilities = list(
@@ -262,7 +262,7 @@ lapply(
             ling_mat = g3_suitability_exponentiall50(
                 ~g3_param('ling.lln.alpha'),
                 ~g3_param('ling.lln.l50'))),
-        amount_f = 1),
+        catchability_f = g3a_predate_catchability_totalfleet(1)),
     # NB: step_find_desc finds a label within the formula
     function (s) gadget3:::step_find_desc(s, minor_steps = TRUE))
 ```
@@ -271,12 +271,12 @@ We see each step has a colon-separated name, including the following parts:
 
 * A number corresponding to the order of calculations. If you look at the
 gadget2 user-guide, consumption is step 3. This can be controlled using the
-``run_at`` parameter of ``g3a_predate_totalfleet()``, or any other action.
+``run_at`` parameter of ``g3a_predate_fleet()``, or any other action.
 * Another number specifying the order within an action this step should be
 performed.
 * The prey and where relevant the fleet name
 * A hash, that corresponds to the parameters of the
-``g3a_predate_totalfleet()`` call.
+``g3a_predate_fleet()`` call.
 
 When a G3 model is made, it will sort the combined list of steps by name, and
 remove duplicates by name. This means that:

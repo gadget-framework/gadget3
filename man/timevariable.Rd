@@ -41,7 +41,7 @@ igfs_landings <-
 # Generate a fleet predation action, use g3_timeareadata to supply landings
 # NB: Since igfs_landings only contains values for step=2, there will be no
 #     predation on other steps (since g3_timeareadata will return 0).
-predate_action <- g3a_predate_totalfleet(
+predate_action <- g3a_predate_fleet(
     igfs,
     list(ling_imm, ling_mat),
     suitabilities = list(
@@ -49,5 +49,6 @@ predate_action <- g3a_predate_totalfleet(
             ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
         ling_mat = g3_suitability_exponentiall50(
             ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-    amount_f = g3_timeareadata('igfs_landings', igfs_landings))
+    catchability = g3a_predate_catchability_totalfleet(
+        g3_timeareadata('igfs_landings', igfs_landings)))
 }

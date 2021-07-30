@@ -301,7 +301,7 @@ structure(function (param)
             ling_mat__totalpredate[] <- 0
         }
         {
-            comment("g3a_predate_totalfleet for ling_imm")
+            comment("g3a_predate_fleet for ling_imm")
             comment("Zero igfs-ling_imm biomass-consuming counter")
             ling_imm__igfs[] <- 0
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
@@ -318,7 +318,7 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_predate_totalfleet for ling_mat")
+            comment("g3a_predate_fleet for ling_mat")
             comment("Zero igfs-ling_mat biomass-consuming counter")
             ling_mat__igfs[] <- 0
             for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
@@ -341,10 +341,7 @@ structure(function (param)
                 {
                   area <- ling_imm__area
                   if (area == igfs__area) {
-                    {
-                      predate_totalfleet_E <- inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)
-                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
-                    }
+                    ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
@@ -357,10 +354,7 @@ structure(function (param)
                 {
                   area <- ling_mat__area
                   if (area == igfs__area) {
-                    {
-                      predate_totalfleet_E <- inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)
-                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (predate_totalfleet_E/igfs__catch[igfs__area_idx])
-                    }
+                    ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }
@@ -379,7 +373,7 @@ structure(function (param)
             ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
             ling_imm__consratio <- 0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100
             if (TRUE) 
-                assert_msg(~all(ling_imm__consratio <= 1), "g3a_predate_totalfleet: ling_imm__consratio <= 1, can't consume more fish than currently exist")
+                assert_msg(~all(ling_imm__consratio <= 1), "g3a_predate_fleet: ling_imm__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
             ling_imm__overconsumption <- sum(ling_imm__totalpredate)
             ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
@@ -391,7 +385,7 @@ structure(function (param)
             ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
             ling_mat__consratio <- 0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100
             if (TRUE) 
-                assert_msg(~all(ling_mat__consratio <= 1), "g3a_predate_totalfleet: ling_mat__consratio <= 1, can't consume more fish than currently exist")
+                assert_msg(~all(ling_mat__consratio <= 1), "g3a_predate_fleet: ling_mat__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
             ling_mat__overconsumption <- sum(ling_mat__totalpredate)
             ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio

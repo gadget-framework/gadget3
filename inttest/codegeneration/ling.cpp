@@ -359,7 +359,7 @@ Type objective_function<Type>::operator() () {
             ling_mat__totalpredate.setZero();
         }
         {
-            // g3a_predate_totalfleet for ling_imm;
+            // g3a_predate_fleet for ling_imm;
             // Zero igfs-ling_imm biomass-consuming counter;
             ling_imm__igfs.setZero();
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
@@ -378,7 +378,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_predate_totalfleet for ling_mat;
+            // g3a_predate_fleet for ling_mat;
             // Zero igfs-ling_mat biomass-consuming counter;
             ling_mat__igfs.setZero();
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
@@ -405,11 +405,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
-                        {
-                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0));
-
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
-                        }
+                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                         ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                     }
                 }
@@ -424,11 +420,7 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
-                        {
-                            auto predate_totalfleet_E = inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0));
-
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (predate_totalfleet_E / igfs__catch(igfs__area_idx));
-                        }
+                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                         ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                     }
                 }
@@ -447,7 +439,7 @@ Type objective_function<Type>::operator() () {
             ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
             ling_imm__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100);
             if ( true ) {
-                assert_msg((ling_imm__consratio <= (double)(1)).all(), "g3a_predate_totalfleet: ling_imm__consratio <= 1, can't consume more fish than currently exist");
+                assert_msg((ling_imm__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_imm__consratio <= 1, can't consume more fish than currently exist");
             }
             // Apply overconsumption to prey;
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
@@ -460,7 +452,7 @@ Type objective_function<Type>::operator() () {
             ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
             ling_mat__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100);
             if ( true ) {
-                assert_msg((ling_mat__consratio <= (double)(1)).all(), "g3a_predate_totalfleet: ling_mat__consratio <= 1, can't consume more fish than currently exist");
+                assert_msg((ling_mat__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_mat__consratio <= 1, can't consume more fish than currently exist");
             }
             // Apply overconsumption to prey;
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();

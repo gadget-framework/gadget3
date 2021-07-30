@@ -181,7 +181,7 @@ igfs_landings <-
             area_group = list(`1` = 1))
 
 # Generate a fleet predation action using g3_suitability_exponentiall50
-predate_action <- g3a_predate_totalfleet(
+predate_action <- g3a_predate_fleet(
     igfs,
     list(ling_imm, ling_mat),
     suitabilities = list(
@@ -189,5 +189,6 @@ predate_action <- g3a_predate_totalfleet(
             ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
         ling_mat = g3_suitability_exponentiall50(
             ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-    amount_f = g3_timeareadata('igfs_landings', igfs_landings))
+    catchability = g3a_predate_catchability_totalfleet(
+        g3_timeareadata('igfs_landings', igfs_landings)))
 }

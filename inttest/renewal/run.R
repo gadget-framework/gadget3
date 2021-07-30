@@ -42,10 +42,10 @@ ling_imm_actions <- list(
     list())
 
 fleet_actions <- list(
-    g3a_predate_totalfleet(igfs, list(ling_imm),
+    g3a_predate_fleet(igfs, list(ling_imm),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/renewal/', 'Data/fleet.igfs.data')[[1]], 'number')),
+        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/renewal/', 'Data/fleet.igfs.data')[[1]], 'number'))),
     list())
 
 ling_likelihood_actions <- list(

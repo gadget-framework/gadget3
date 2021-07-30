@@ -21,6 +21,8 @@ export(g3a_naturalmortality)
 export(g3a_naturalmortality_exp)
 
 # R/action_predate.R
+export(g3a_predate_catchability_totalfleet)
+export(g3a_predate_fleet)
 export(g3a_predate_totalfleet)
 
 # R/action_renewal.R

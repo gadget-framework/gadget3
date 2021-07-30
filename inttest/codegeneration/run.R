@@ -123,11 +123,11 @@ igfs_totaldata <- data.frame(
     total_weight = 1:4)
 igfs_obs_data <- read.table('inttest/codegeneration/catchdistribution_ldist_lln.txt', header = TRUE)
 igfs_actions <- list(
-    g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
+    g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_totaldata', igfs_totaldata)),
+        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_totaldata', igfs_totaldata))),
     list())
 
 likelihood_actions <- list(
