@@ -57,7 +57,7 @@ actions <- list(
             prey_b = ~g3_param_vector("fleet_ab_b"),
             prey_c = ~g3_param_vector("fleet_ab_c")),
         amount_f = ~g3_param('amount_ab') * area),
-    g3a_predate_totalfleet(
+    g3a_predate_fleet(
         fleet_bc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
@@ -65,7 +65,7 @@ actions <- list(
             prey_a = ~g3_param_vector("fleet_bc_a"),
             prey_b = ~g3_param_vector("fleet_bc_b"),
             prey_c = ~g3_param_vector("fleet_bc_c")),
-        amount_f = ~g3_param('amount_bc') * area),
+        catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area)),
     g3l_understocking(
         list(prey_a, prey_b, prey_c),
         power_f = ~g3_param('understocking_power'),
