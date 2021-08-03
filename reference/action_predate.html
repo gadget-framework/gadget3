@@ -135,6 +135,16 @@
 
     <pre class="usage"><span class='fu'>g3a_predate_catchability_totalfleet</span><span class='op'>(</span><span class='va'>E</span><span class='op'>)</span>
 
+<span class='fu'>g3a_predate_catchability_numberfleet</span><span class='op'>(</span><span class='va'>E</span><span class='op'>)</span>
+
+<span class='fu'>g3a_predate_catchability_linearfleet</span><span class='op'>(</span><span class='va'>E</span><span class='op'>)</span>
+
+<span class='fu'>g3a_predate_catchability_effortfleet</span><span class='op'>(</span><span class='va'>catchability_fs</span>, <span class='va'>E</span><span class='op'>)</span>
+
+<span class='fu'>g3a_predate_catchability_quotafleet</span><span class='op'>(</span><span class='va'>quota_table</span>, <span class='va'>E</span>,
+                                    sum_stocks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+                                    recalc_f <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+
 <span class='fu'>g3a_predate_fleet</span><span class='op'>(</span><span class='va'>fleet_stock</span>, <span class='va'>prey_stocks</span>, <span class='va'>suitabilities</span>, <span class='va'>catchability_f</span>,
     overconsumption_f <span class='op'>=</span> <span class='op'>~</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='fu'>logspace_add_vec</span><span class='op'>(</span><span class='op'>(</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='va'>prey_stock__consratio</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>100</span>
     , <span class='fl'>0.96</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>100</span>, run_at <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
@@ -169,6 +179,27 @@
       <th>E</th>
       <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> that returns the total biomass a stock can harvest in the current time/area,
     generally defined by a <code><a href='timevariable.html'>g3_timeareadata</a></code> table.</p></td>
+    </tr>
+    <tr>
+      <th>catchability_fs</th>
+      <td><p>A list of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects, one per stock.</p></td>
+    </tr>
+    <tr>
+      <th>quota_table</th>
+      <td><p>A data.frame with 'biomass' and 'quota' columns, where 'biomass' corresponds to total biomass of
+    <var>sum_stocks</var> stocks, the final value always being <code>Inf</code>. A quota is chosen by the largest
+    'biomass' value less than the current total biomass amount.
+    For example, <code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame(biomass = c(100, Inf), quota = I(list(~g3_param('quota.low'), ~g3_param('quota.high'))))</a></code></p></td>
+    </tr>
+    <tr>
+      <th>sum_stocks</th>
+      <td><p>Either a list of <a href='stock.html'>g3_stock</a> objects to sum when choosing a value from <var>quote_table</var>,
+    or <code>NULL</code>, in which case choose the quota based on the current prey.</p></td>
+    </tr>
+    <tr>
+      <th>recalc_f</th>
+      <td><p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> denoting when to recalculate the current quota. For example <code>~cur_step == 1</code>
+    will ensure the quota is only recalculated at the beginning of the year.</p></td>
     </tr>
     <tr>
       <th>amount_f</th>
@@ -210,7 +241,49 @@
       <dt>\(N\)</dt><dd><p>Number of stock in length cell</p></dd>
       <dt>\(W\)</dt><dd><p>Mean weight of stock in length cell</p></dd>
     
-</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_fleet</h3>
+</dl><p></p>
+
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_catchability_numberfleet</h3>
+<p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object:
+    $$ \frac{E N_{sl}}{\displaystyle \sum_{\it stocks} \sum_{\it lengths} N_{sl}} $$</p><dl>
+      <dt>\(E\)</dt><dd><p><var>E</var> argument, numbers caught by fleet</p></dd>
+      <dt>\(N\)</dt><dd><p>Number of stock in length cell</p></dd>
+    
+</dl><p></p>
+
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_catchability_linearfleet</h3>
+<p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object:
+    $$ E \Delta t N_{sl} W_{sl} $$</p><dl>
+      <dt>\(E\)</dt><dd><p><var>E</var> argument, numbers caught by fleet</p></dd>
+      <dt>\(\Delta t\)</dt><dd><p>length of current timestep</p></dd>
+      <dt>\(N\)</dt><dd><p>Number of stock in length cell</p></dd>
+      <dt>\(W\)</dt><dd><p>Mean weight of stock in length cell</p></dd>
+    
+</dl><p></p>
+
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_catchability_effortfleet</h3>
+<p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object:
+    $$ E N_{sl} W_{sl} c_{s} $$</p><dl>
+      <dt>\(E\)</dt><dd><p><var>E</var> argument, numbers caught by fleet</p></dd>
+      <dt>\(c_{s}\)</dt><dd><p><var>catchability_fs</var> argument for the current stock</p></dd>
+      <dt>\(N\)</dt><dd><p>Number of stock in length cell</p></dd>
+      <dt>\(W\)</dt><dd><p>Mean weight of stock in length cell</p></dd>
+    
+</dl><p></p>
+
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_catchability_quotafleet</h3>
+<p>A <a href='https://rdrr.io/r/stats/formula.html'>formula</a> object:
+    $$ q E \Delta t N_{sl} W_{sl} $$</p><dl>
+      <dt>\(q\)</dt><dd><p>quota chosen from <var>quota_table</var>, corresponding to the total biomass of <var>sum_stocks</var></p></dd>
+      <dt>\(E\)</dt><dd><p><var>E</var> argument, numbers caught by fleet</p></dd>
+      <dt>\(\Delta t\)</dt><dd><p>length of current timestep</p></dd>
+      <dt>\(N\)</dt><dd><p>Number of stock in length cell</p></dd>
+      <dt>\(W\)</dt><dd><p>Mean weight of stock in length cell</p></dd>
+    
+</dl><p>...if <var>recalc_f</var> is set, this will only be recaculated when true. Any other step
+    will use the previous value.</p>
+
+<p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_predate_fleet</h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol>
 <li><p>Zero fleet and prey catch counters</p></li>
 <li><p>For each prey, collect maximum desired by fleet for all prey, into a <var>prey_stock__fleet_stock</var> variable</p></li>
