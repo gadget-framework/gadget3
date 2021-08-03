@@ -200,6 +200,12 @@ g3_step <- function(step_f) {
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
             return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
         },
+        stock_is = function (x) {  # Arguments: stock variable, name of stock as symbol
+            stock_var <- x[[2]]
+            stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+
+            return(identical(stock$name, as.character(x[[3]])))
+        },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))
         },

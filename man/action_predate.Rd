@@ -1,5 +1,9 @@
 \name{action_predate}
 \alias{g3a_predate_catchability_totalfleet}
+\alias{g3a_predate_catchability_numberfleet}
+\alias{g3a_predate_catchability_linearfleet}
+\alias{g3a_predate_catchability_effortfleet}
+\alias{g3a_predate_catchability_quotafleet}
 \alias{g3a_predate_fleet}
 \alias{g3a_predate_totalfleet}
 
@@ -10,6 +14,16 @@
 
 \usage{
 g3a_predate_catchability_totalfleet(E)
+
+g3a_predate_catchability_numberfleet(E)
+
+g3a_predate_catchability_linearfleet(E)
+
+g3a_predate_catchability_effortfleet(catchability_fs, E)
+
+g3a_predate_catchability_quotafleet(quota_table, E,
+                                    sum_stocks = list(),
+                                    recalc_f = NULL)
 
 g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, catchability_f,
     overconsumption_f = ~0.96 - logspace_add_vec((0.96 - prey_stock__consratio) * 100
@@ -39,6 +53,23 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
   \item{E}{
     A \link{formula} that returns the total biomass a stock can harvest in the current time/area,
     generally defined by a \code{\link{g3_timeareadata}} table.
+  }
+  \item{catchability_fs}{
+    A list of \link{formula} objects, one per stock.
+  }
+  \item{quota_table}{
+    A data.frame with 'biomass' and 'quota' columns, where 'biomass' corresponds to total biomass of
+    \var{sum_stocks} stocks, the final value always being \code{Inf}. A quota is chosen by the largest
+    'biomass' value less than the current total biomass amount.
+    For example, \code{data.frame(biomass = c(100, Inf), quota = I(list(~g3_param('quota.low'), ~g3_param('quota.high'))))}
+  }
+  \item{sum_stocks}{
+    Either a list of \link{g3_stock} objects to sum when choosing a value from \var{quote_table},
+    or \code{NULL}, in which case choose the quota based on the current prey.
+  }
+  \item{recalc_f}{
+    A \link{formula} denoting when to recalculate the current quota. For example \code{~cur_step == 1}
+    will ensure the quota is only recalculated at the beginning of the year.
   }
   \item{amount_f}{
     Equivalent to \var{E} passed to \link{g3a_predate_catchability_totalfleet}.
@@ -78,6 +109,48 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
       \item{\eqn{W}}{Mean weight of stock in length cell}
     }
   }
+
+  \subsection{g3a_predate_catchability_numberfleet}{A \link{formula} object:
+    \deqn{ \frac{E N_{sl}}{\displaystyle \sum_{\it stocks} \sum_{\it lengths} N_{sl}} }
+    \describe{
+      \item{\eqn{E}}{\var{E} argument, numbers caught by fleet}
+      \item{\eqn{N}}{Number of stock in length cell}
+    }
+  }
+
+  \subsection{g3a_predate_catchability_linearfleet}{A \link{formula} object:
+    \deqn{ E \Delta t N_{sl} W_{sl} }
+    \describe{
+      \item{\eqn{E}}{\var{E} argument, numbers caught by fleet}
+      \item{\eqn{\Delta t}}{length of current timestep}
+      \item{\eqn{N}}{Number of stock in length cell}
+      \item{\eqn{W}}{Mean weight of stock in length cell}
+    }
+  }
+
+  \subsection{g3a_predate_catchability_effortfleet}{A \link{formula} object:
+    \deqn{ E N_{sl} W_{sl} c_{s} }
+    \describe{
+      \item{\eqn{E}}{\var{E} argument, numbers caught by fleet}
+      \item{\eqn{c_{s}}}{\var{catchability_fs} argument for the current stock}
+      \item{\eqn{N}}{Number of stock in length cell}
+      \item{\eqn{W}}{Mean weight of stock in length cell}
+    }
+  }
+
+  \subsection{g3a_predate_catchability_quotafleet}{A \link{formula} object:
+    \deqn{ q E \Delta t N_{sl} W_{sl} }
+    \describe{
+      \item{\eqn{q}}{quota chosen from \var{quota_table}, corresponding to the total biomass of \var{sum_stocks}}
+      \item{\eqn{E}}{\var{E} argument, numbers caught by fleet}
+      \item{\eqn{\Delta t}}{length of current timestep}
+      \item{\eqn{N}}{Number of stock in length cell}
+      \item{\eqn{W}}{Mean weight of stock in length cell}
+    }
+    ...if \var{recalc_f} is set, this will only be recaculated when true. Any other step
+    will use the previous value.
+  }
+
   \subsection{g3a_predate_fleet}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{Zero fleet and prey catch counters}
     \item{For each prey, collect maximum desired by fleet for all prey, into a \var{prey_stock__fleet_stock} variable}
