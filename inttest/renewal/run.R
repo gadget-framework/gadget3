@@ -120,13 +120,13 @@ g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
 
 for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     ok(all.equal(
-        unname(g2_lingimm$number[,,1,t]),
+        unname(g2_lingimm$number[,,t,1]),
         unname(g3_r$imm_report__num[,,t]),
         tolerance = 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
+        unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
         unname(g3_r$imm_report__num[,,t] * g3_r$imm_report__wgt[,,t]),
         tolerance = 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 }

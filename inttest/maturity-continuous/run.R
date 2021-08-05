@@ -124,7 +124,7 @@ ok_group("Total numbers preserved", {
         unname(g3_num_total / c(g3_num_total[[1]] / 0.9631944, head(g3_num_total, -1))),
         rep(0.963, length(year_range) * 4),
         tolerance = 1e-3), "g3_num_total: Consistently losing 0.963")
-    g2_num_total <- colSums(colSums(g2_lingimm$number[,,1,])) + colSums(colSums(g2_lingmat$number[,,1,]))
+    g2_num_total <- colSums(colSums(g2_lingimm$number[,,,1])) + colSums(colSums(g2_lingmat$number[,,,1]))
     ok(all.equal(
         unname(g2_num_total / c(g2_num_total[[1]] / 0.9631944, head(g2_num_total, -1))),
         rep(0.963, length(year_range) * 4),
@@ -133,24 +133,24 @@ ok_group("Total numbers preserved", {
 
 for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     ok(all.equal(
-        unname(g2_lingimm$number[,,1,t]),
+        unname(g2_lingimm$number[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t]),
         tolerance = 1e-4), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
+        unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
         tolerance = 1e-4), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 
     ok(all.equal(
-        unname(g2_lingmat$number[,,1,t]),
+        unname(g2_lingmat$number[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t]),
         tolerance = 1e-3), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingmat$number[,,1,t] * g2_lingmat$weight[,,1,t]),
+        unname(g2_lingmat$number[,,t,1] * g2_lingmat$weight[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
         tolerance = 1e-3), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
 }

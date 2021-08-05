@@ -195,13 +195,13 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     # NB: Losing accuracy at timesteps 17:19 (i.e 1984, which only has age5 left)
     #     Think we're noticing gadget2's "if (< verysmall) 0"
     ok(all.equal(
-        unname(g2_lingimm$number[,,1,t]),
+        unname(g2_lingimm$number[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t]),
         tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
+        unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
         tolerance = if (t %in% 17:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 
@@ -211,7 +211,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         ok(sum(g3_r$imm_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$imm_report__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
-            g2_igfs_imm$weight[,,1,t],
+            g2_igfs_imm$weight[,,t,1],
             rowSums(g3_r$imm_report__totalpredate[,1,,t]),
             tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
     }
@@ -235,13 +235,13 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     ####
 
     ok(all.equal(
-        unname(g2_lingmat$number[,,1,t]),
+        unname(g2_lingmat$number[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t]),
         tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingmat$number[,,1,t] * g2_lingmat$weight[,,1,t]),
+        unname(g2_lingmat$number[,,t,1] * g2_lingmat$weight[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
         tolerance = if (t %in% 17) 1e-3 else 1e-5), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
 
@@ -251,7 +251,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         ok(sum(g3_r$mat_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$mat_report__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
-            g2_igfs_mat$weight[,,1,t],
+            g2_igfs_mat$weight[,,t,1],
             rowSums(g3_r$mat_report__totalpredate[,1,,t]),
             tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$mat_report__totalpredate: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
     }
@@ -281,7 +281,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
             tolerance = 1e-7), paste0("g3_r$igfs_report__catch: ", t, " - Total catch internally consistent"))
     } else {
         ok(all.equal(
-            sum(g2_igfs_imm$weight[,,1,t] + g2_igfs_mat$weight[,,1,t]),
+            sum(g2_igfs_imm$weight[,,t,1] + g2_igfs_mat$weight[,,t,1]),
             g3_r$igfs_report__catch[1,t],
             tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
     }

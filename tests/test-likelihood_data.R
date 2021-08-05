@@ -340,16 +340,16 @@ ok_group('g3l_likelihood_data:area', {
           2 2001      2001.2
         ")
     ok(cmp_array(ld$number, "
-        length area time   Freq
-          len0    1 1999 1999.1
-          len0    2 1999 1999.2
-          len0    3 1999 1999.3
-          len0    1 2000    0.0
-          len0    2 2000 2000.2
-          len0    3 2000 2000.3
-          len0    1 2001 2001.1
-          len0    2 2001 2001.2
-          len0    3 2001    0.0
+        length time area   Freq
+          len0 1999    1 1999.1
+          len0 2000    1    0.0
+          len0 2001    1 2001.1
+          len0 1999    2 1999.2
+          len0 2000    2 2000.2
+          len0 2001    2 2001.2
+          len0 1999    3 1999.3
+          len0 2000    3 2000.3
+          len0 2001    3    0.0
         "), "Worked out area dimensions from data, filled in missing values")
     ok(ut_cmp_identical(area_lookup(ld), list(keys = 1:3, values = 1:3)), "1:1 mapping")
 
@@ -364,16 +364,16 @@ ok_group('g3l_likelihood_data:area', {
           b 2001      2001.2
         "), area_group = list(a = 3, b = 4, c = c(1:2)))
     ok(cmp_array(ld$number, "
-        length area time   Freq
-          len0    a 1999 1999.1
-          len0    b 1999 1999.2
-          len0    c 1999 1999.3
-          len0    a 2000    0.0
-          len0    b 2000 2000.2
-          len0    c 2000 2000.3
-          len0    a 2001 2001.1
-          len0    b 2001 2001.2
-          len0    c 2001    0.0
+        length time area   Freq
+          len0 1999    a 1999.1
+          len0 2000    a    0.0
+          len0 2001    a 2001.1
+          len0 1999    b 1999.2
+          len0 2000    b 2000.2
+          len0 2001    b 2001.2
+          len0 1999    c 1999.3
+          len0 2000    c 2000.3
+          len0 2001    c    0.0
         "), "Worked out area dimensions from data, filled in missing values")
     ok(ut_cmp_identical(area_lookup(ld), list(keys = c(3L,4L,1L,2L), values = c(1L,2L,3L,3L))), "Areas 1 & 2 both mapped to index 3 (i.e. c)")
 })

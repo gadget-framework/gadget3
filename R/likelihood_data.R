@@ -72,6 +72,24 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_map <- NULL
     }
 
+    # Work out time dimension, create an obsstock using it
+    if (!('year' %in% names(data))) {
+        stop("Data must contain a year column")
+    }
+    # NB: Let g3s_time_convert() worry about if the step column is there or not
+    data$time <- g3s_time_convert(data$year, data$step)
+    obsstock <- g3s_time(
+        g3s_clone(modelstock, paste("cdist", nll_name, "obs", sep = "_")),
+        sort(unique(data$time)))
+    if (model_history) {
+        modelstock <- g3s_time(
+            modelstock,
+            sort(unique(data$time)))
+    }
+    data$time <- g3s_time_labels(data$time)
+    handled_columns$year <- NULL
+    handled_columns$step <- NULL
+
     # NB: area has to be last, so we can sum for the entire area/time
     if ('area' %in% names(data)) {
         # NB: Ignore MFDB attributes on purpose, we're interested in the aggregated areas here
@@ -90,26 +108,9 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         }
         area_group <- area_group[order(names(area_group))]  # Dimension order should match data
         modelstock <- g3s_areagroup(modelstock, area_group)
+        obsstock <- g3s_areagroup(obsstock, area_group)
         handled_columns$area <- NULL
     }
-
-    # Work out time dimension, create an obsstock using it
-    if (!('year' %in% names(data))) {
-        stop("Data must contain a year column")
-    }
-    # NB: Let g3s_time_convert() worry about if the step column is there or not
-    data$time <- g3s_time_convert(data$year, data$step)
-    obsstock <- g3s_time(
-        g3s_clone(modelstock, paste("cdist", nll_name, "obs", sep = "_")),
-        sort(unique(data$time)))
-    if (model_history) {
-        modelstock <- g3s_time(
-            modelstock,
-            sort(unique(data$time)))
-    }
-    data$time <- g3s_time_labels(data$time)
-    handled_columns$year <- NULL
-    handled_columns$step <- NULL
 
     # Generate full table based on stock
     full_table <- as.data.frame.table(
