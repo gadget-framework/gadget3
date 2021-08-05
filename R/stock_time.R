@@ -38,6 +38,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         # Just year
         idx_f <- timelookup('getdefault', ~cur_year, -1L)
     }
+    stock__max_time_idx <- f_substitute(~g3_idx(t), list(t = length(times)))
 
     structure(list(
         dim = c(inner_stock$dim,

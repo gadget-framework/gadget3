@@ -33,6 +33,9 @@ ok_group("g3s_time: Times produced in order", {
     ok(ut_cmp_identical(
         inst$dimnames$time,
         c("2002-01", "2002-02", "2003-01", "2003-02", "2004-01", "2004-02")), "dimnames$time ordered year then step")
+    ok(ut_cmp_identical(
+        rlang:::f_rhs( gadget3:::stock_definition(inst, 'stock__max_time_idx') ),
+        quote( g3_idx(6L) )), "stock__max_time_idx: Length of array")
 })
 
 stock_modeltime <- g3_stock('stock_modeltime', 1) %>% gadget3:::g3s_modeltime()
