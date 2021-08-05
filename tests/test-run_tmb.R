@@ -31,6 +31,10 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
 
+ok(ut_cmp_error({
+    g3_to_tmb(list(~{ 2 + NA }))
+}, "NA"), "No such thing as NA in C++")
+
 ok(grepl(
     "unknown_func(.*2.*)",
     paste(g3_to_tmb(list(~{
@@ -222,6 +226,17 @@ ok_group('g3_param_table', {
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
 params <- list(rv=0)
+
+# Check constants can pass through cleanly
+constants_integer <- 999
+constants_nan <- 999
+actions <- c(actions, ~{
+    comment('constants')
+    constants_integer <- 5L ; g3_report(constants_integer)
+    constants_nan <- NaN ; g3_report(constants_nan)
+})
+expecteds$constants_integer <- 5L
+expecteds$constants_nan <- NaN
 
 # Can assign a single value to 1x1 array
 assign_to_1_1 <- array(dim = c(1,1))

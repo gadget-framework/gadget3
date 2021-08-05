@@ -20,10 +20,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         if (length(in_call) == 1) {
             if (is.integer(in_call)) {
                 return(toString(in_call))
+            } else if (is.numeric(in_call) && is.nan(in_call)) {
+                return("NAN")
             } else if (is.numeric(in_call) && !expecting_int) {
                 # Force anything numeric to be double, to avoid accidental integer division
                 return(paste0("(double)(", toString(in_call) ,")"))
-            } else if (is.logical(in_call) && !is.na(in_call)) {
+            } else if (is.logical(in_call)) {
+                if (is.na(in_call)) stop("No general equivalent to NA in C++")
                 return(if (in_call) 'true' else 'false')
             } else if (is.symbol(in_call)) {
                 return(cpp_escape_varname(in_call))
