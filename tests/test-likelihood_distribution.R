@@ -399,9 +399,7 @@ ok_group("Likelihood per step", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(r$cdist_surveyindices_model__num[,1]) -
-            log(r$cdist_surveyindices_obs__num[,1]))**2,
+        0,  # NB: We don't calculate until end
         0)), "step0_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
@@ -435,9 +433,7 @@ ok_group("Likelihood per step", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,2])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
+        0,  # NB: We don't calculate until end
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
@@ -471,9 +467,7 @@ ok_group("Likelihood per step", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,3])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,3]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,3])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,3])))**2,
+        0,  # NB: We don't calculate until end
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -507,9 +501,9 @@ ok_group("Likelihood per step", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,4])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,4]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,4])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,4])))**2,
+        sum((params$si_alpha +
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     param_template <- attr(model_cpp, "parameter_template")
@@ -736,9 +730,7 @@ ok_group("Likelihood per year", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,1]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,1])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,1])))**2,
+        0,  # NB: We don't calculate until end
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
@@ -773,9 +765,9 @@ ok_group("Likelihood per year", {
                 (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
                         sum(r$cdist_multinom_obs__num[,2]))))),
         # surveyindices:
-        sum(params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,2])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,2])))**2,
+        sum((params$si_alpha +
+            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     param_template <- attr(model_cpp, "parameter_template")

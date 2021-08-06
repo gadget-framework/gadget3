@@ -49,25 +49,38 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
                 sigma_f = sigma_f))
 }
 
-g3l_distribution_surveyindices_log <- function (alpha = 0, beta = 1) {
-    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
-    #       The outer sum is currently flattening what would probably be a vector of areas
-    f_substitute(~sum((alpha +
-        beta * log(avoid_zero_vec(stock_ss(modelstock__x))) -
-        log(avoid_zero_vec(stock_ss(obsstock__x))))**2), list(
-            alpha = alpha,
-            beta = beta))
-}
+g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NULL) {
+    stopifnot(fit == 'linear' || fit == 'log')
 
-g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
-    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
-    #       The outer sum is currently flattening what would probably be a vector of areas
-    f_substitute(~sum((alpha +
-        beta * stock_ss(modelstock__x) -
-        stock_ss(obsstock__x))**2), list(
-            alpha = alpha,
-            beta = beta))
+    surveyindices_linreg <- g3_native(r = function (N, I, fixed_alpha, fixed_beta) {
+        meanI <- mean(I)
+        meanN <- mean(N)
+        beta <- if (is.na(fixed_beta)) sum((I - meanI) * (N - meanN)) / avoid_zero(sum((N - meanN)**2)) else fixed_beta
+        alpha <- if (is.na(fixed_alpha)) meanI - beta * meanN else fixed_alpha
+        return((alpha + beta * N - I)**2)
+    }, cpp = '[&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
+        auto meanI = I.mean();
+        auto meanN = N.mean();
+        auto beta = std::isnan(asDouble(fixed_beta)) ? ((I - meanI) * (N - meanN)).sum() / avoid_zero((pow(N - meanN, (Type)2)).sum()) : fixed_beta;
+        auto alpha = std::isnan(asDouble(fixed_alpha)) ? meanI - beta * meanN : fixed_alpha;
+        return pow(alpha + beta * N - I, (Type)2);
+    }', depends = c('avoid_zero'))
+
+    # NB: stock_ss(..., 'time') means we keep the time dimension, and have a vector of model time for each area,
+    #     checking max_time_idx means we only do this once all data is collected.
+    # NB: Outer sum sums the vector of timepoints, this formula is called for each area separately.
+    f_substitute(~if (modelstock__time_idx == modelstock__max_time_idx) sum(surveyindices_linreg(
+            if(is_log) log(avoid_zero_vec(stock_ss(modelstock__x, 'time'))) else stock_ss(modelstock__x, 'time'),
+            if(is_log) log(avoid_zero_vec(stock_ss(obsstock__x, 'time'))) else stock_ss(obsstock__x, 'time'),
+            intercept_f,
+            slope_f)) else 0, list(
+        is_log = (fit == 'log'),
+        # NB: Can't use NULL in C++, Use NaN instead
+        intercept_f = if (is.null(alpha)) NaN else alpha,
+        slope_f = if (is.null(beta)) NaN else beta))
 }
+g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('log', alpha, beta)
+g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('linear', alpha, beta)
 
 # Compare numbers caught by fleets to observation data
 g3l_catchdistribution <- function (
