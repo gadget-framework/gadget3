@@ -139,9 +139,9 @@
 
 <span class='fu'>g3l_distribution_multivariate</span><span class='op'>(</span><span class='va'>rho_f</span>, <span class='va'>sigma_f</span>, over <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"area"</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='fu'>g3l_distribution_surveyindices_log</span><span class='op'>(</span>alpha <span class='op'>=</span> <span class='fl'>0</span>, beta <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+<span class='fu'>g3l_distribution_surveyindices_log</span><span class='op'>(</span>alpha <span class='op'>=</span> <span class='cn'>NULL</span>, beta <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>g3l_distribution_surveyindices_linear</span><span class='op'>(</span>alpha <span class='op'>=</span> <span class='fl'>0</span>, beta <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+<span class='fu'>g3l_distribution_surveyindices_linear</span><span class='op'>(</span>alpha <span class='op'>=</span> <span class='cn'>NULL</span>, beta <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
 <span class='fu'>g3l_distribution</span><span class='op'>(</span><span class='va'>nll_name</span>, <span class='va'>obs_data</span>, fleets <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>stocks</span>, <span class='va'>function_f</span>,
     missing_val <span class='op'>=</span> <span class='fl'>0</span>, area_group <span class='op'>=</span> <span class='cn'>NULL</span>, report <span class='op'>=</span> <span class='cn'>FALSE</span>, nll_breakdown <span class='op'>=</span> <span class='cn'>FALSE</span>,
@@ -178,11 +178,13 @@
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into surveyindices calcuations, see below.</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into surveyindices calcuations to fix intercept of linear regression,
+    or NULL if not fixed. See below.</p></td>
     </tr>
     <tr>
       <th>beta</th>
-      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into surveyindices calcuations, see below.</p></td>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> substituted into surveyindices calcuations to fix slope of linear regression,
+    or NULL if not fixed. See below.</p></td>
     </tr>
     <tr>
       <th>nll_name</th>
@@ -357,14 +359,17 @@
     in the TMB book.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution_surveyindices_log</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use as <var>function_f</var>:</p>
 <p>$$
-      \sum_{\it lengths} (\alpha + \beta \log N_{tral} - \log \nu_{tral})^2
+      \sum_{\it time} (\alpha + \beta \log N_{tral} - \log \nu_{tral})^2
     $$</p><dl>
       <dt>\(N_{tral}\)</dt><dd><p>Observation sample size for current time/area/age/length combination</p></dd>
       <dt>\(\nu_{tral}\)</dt><dd><p>Model sample size for current time/area/age/length combination</p></dd>
       <dt>\(\alpha\)</dt><dd><p><var>alpha</var> parameter</p></dd>
       <dt>\(\beta\)</dt><dd><p><var>beta</var> parameter</p></dd>
     
-</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution_surveyindices_linear</h3>
+</dl>
+
+<p>If <var>alpha</var> or <var>beta</var> is not provided, then linear regression is
+    performed on \(N\), \(\nu\) over time for each area/age/length combination.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution_surveyindices_linear</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use as <var>function_f</var>:</p>
 <p>$$
       \sum_{\it lengths} (\alpha + \beta N_{tral} - \nu_{tral})^2
@@ -374,7 +379,10 @@
       <dt>\(\alpha\)</dt><dd><p><var>alpha</var> parameter</p></dd>
       <dt>\(\beta\)</dt><dd><p><var>beta</var> parameter</p></dd>
     
-</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution</h3>
+</dl>
+
+<p>If <var>alpha</var> or <var>beta</var> is not provided, then linear regression is
+    performed on \(N\), \(\nu\) over time for each area/age/length combination.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution</h3>
 <p>Assuming <var>fleets</var> is empty, an action (i.e. list of formula objects) that will...</p><ol>
 <li><p>For all <var>stocks</var>, collect catch data into <var>modelstock</var>__num or <var>modelstock</var>__wgt, depending on the columns provided in <var>obs_data</var></p></li>
 <li><p>Compare <var>modelstock</var>__num/wgt with <var>obsstock</var>__num/wgt, using <var>function_f</var></p></li>
