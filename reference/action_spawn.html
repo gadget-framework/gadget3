@@ -133,7 +133,11 @@
     <p>Add spawning to a g3 model</p>
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_spawn_recriutment_ricker</span><span class='op'>(</span><span class='va'>mu</span>, <span class='va'>lambda</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>g3a_spawn_recruitment_fecundity</span><span class='op'>(</span><span class='va'>p0</span>, <span class='va'>p1</span>, <span class='va'>p2</span>, <span class='va'>p3</span>, <span class='va'>p4</span><span class='op'>)</span>
+
+<span class='fu'>g3a_spawn_recruitment_simplessb</span><span class='op'>(</span><span class='va'>mu</span><span class='op'>)</span>
+
+<span class='fu'>g3a_spawn_recruitment_ricker</span><span class='op'>(</span><span class='va'>mu</span>, <span class='va'>lambda</span><span class='op'>)</span>
 
 <span class='fu'>g3a_spawn_length_straightline</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>beta</span><span class='op'>)</span>
 
@@ -149,12 +153,32 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>p0</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>p1</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>p2</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>p3</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>p4</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></td>
+    </tr>
+    <tr>
       <th>mu</th>
-      <td><p>Substituted into <code>g3a_spawn_recriutment_ricker</code> formula, see below.</p></td>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></td>
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Substituted into <code>g3a_spawn_recriutment_ricker</code> formula, see below.</p></td>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_ricker</code> formula, see below.</p></td>
     </tr>
     <tr>
       <th>alpha</th>
@@ -251,7 +275,25 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recriutment_ricker</h3>
+    <p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recruitment_fecundity</h3>
+<p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects:
+    $$ S = l ^{p_{1}} a^{p_{2}} (p N_{al})^{p_{3}} W_{al}^{p_{4}} $$
+    $$ R = p_{0} S $$</p><dl>
+      <dt>\(N_{al}\)</dt><dd><p>Number of parent stock</p></dd>
+      <dt>\(W_{al}\)</dt><dd><p>Weight of parent stock</p></dd>
+      <dt>\(p\)</dt><dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+      <dt>\(p_{0..4}\)</dt><dd><p>Arguments provided to function</p></dd>
+    
+</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recruitment_simplessb</h3>
+<p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects:
+    $$ S = N_{al} p  W_{al} $$
+    $$ R = \mu S $$</p><dl>
+      <dt>\(N_{al}\)</dt><dd><p>Number of parent stock</p></dd>
+      <dt>\(W_{al}\)</dt><dd><p>Weight of parent stock</p></dd>
+      <dt>\(p\)</dt><dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+      <dt>μ</dt><dd><p>Argument provided to function</p></dd>
+    
+</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recruitment_ricker</h3>
 <p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects:
     $$ S = N_{al} p  W_{al} $$
     $$ R = \mu S e^{-\lambda S} $$</p><dl>
@@ -302,7 +344,7 @@
     <span class='co'># Spawn from ling_mat</span>
     <span class='va'>ling_mat</span>,
     <span class='co'># Use Ricker Recruitment Function to calculate # of recruits from total biomass</span>
-    recruitment_f <span class='op'>=</span> <span class='fu'>g3a_spawn_recriutment_ricker</span><span class='op'>(</span>
+    recruitment_f <span class='op'>=</span> <span class='fu'>g3a_spawn_recruitment_ricker</span><span class='op'>(</span>
         <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>"ricker.mu"</span><span class='op'>)</span>,
         <span class='op'>~</span><span class='fu'><a href='language.html'>g3_param</a></span><span class='op'>(</span><span class='st'>"ricker.lambda"</span><span class='op'>)</span><span class='op'>)</span>,
     <span class='co'># Proportion of ling_mat spawning exponential relationship based on length</span>
