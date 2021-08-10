@@ -2,6 +2,8 @@ library(unittest)
 
 library(gadget3)
 
+cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
+
 ok_group("step_id", {
     step_id <- gadget3:::step_id
     stock_a <- g3_stock('stock_aaa', seq(10, 35, 5))
@@ -122,4 +124,24 @@ ok_group("g3_step:stock_reshape", {
     } else {
         writeLines("# skip: not running TMB tests")
     }
+})
+
+ok_group("g3_step:stock_switch", {
+    # NB: Differing names, ordinarily stock_imm would be "prey_stock", e.g.
+    stock_imm <- g3_stock('ling_imm', c(1))
+    stock_mat <- g3_stock('ling_mat', c(1))
+    stock_zat <- g3_stock('ling_zat', c(1))
+
+    ok(cmp_code(
+        gadget3:::g3_step(~stock_switch(stock_imm, ling_imm = 123, ling_mat = 456, ling_pat = 789)),
+        ~123), "stock_imm: Chose ling_imm value")
+    ok(cmp_code(
+        gadget3:::g3_step(~stock_switch(stock_mat, ling_imm = 123, ling_mat = 456, ling_pat = 789)),
+        ~456), "stock_mat: Chose ling_mat value")
+    ok(ut_cmp_error(
+        gadget3:::g3_step(~stock_switch(stock_zat, ling_imm = 123, ling_mat = 456, ling_pat = 789)),
+        "ling_zat"), "stock_zat: No default, threw an error")
+    ok(cmp_code(
+        gadget3:::g3_step(~stock_switch(stock_zat, ling_imm = 123, ling_mat = 456, ling_pat = 789, 999)),
+        ~999), "stock_zat: Chose default value")
 })

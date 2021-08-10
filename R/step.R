@@ -200,11 +200,15 @@ g3_step <- function(step_f) {
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
             return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
         },
-        stock_is = function (x) {  # Arguments: stock variable, name of stock as symbol
+        stock_switch = function (x) {  # Arguments: stock variable, stock_name = answer, ... default
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
 
-            return(identical(stock$name, as.character(x[[3]])))
+            # Find param with name matching stock, return it
+            if (!is.null(x[[stock$name]])) return(x[[stock$name]])
+            # Final one isn't named, return that
+            if (!nzchar(names(x)[[length(x)]])) return(x[[length(x)]])
+            stop("stock_switch has no result for ", stock$name, ": ", deparse(x))
         },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))

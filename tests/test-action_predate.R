@@ -54,9 +54,7 @@ ok_group("g3a_predate_catchability_effortfleet", {
         g3a_predate_catchability_effortfleet(
             list(ling_imm = 123, ling_mat = 456),
             1234),
-        ~(if (stock_is(prey_stock, "ling_mat")) 456 else
-          if (stock_is(prey_stock, "ling_imm")) 123 else stop("effortfleet has no catchability for stock")) *
-            1234 * cur_step_size * stock_ss(prey_stock__fleet_stock)), "Converts list into if condition")
+        ~stock_switch(prey_stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(prey_stock__fleet_stock)), "Converts list into stock_switch")
 })
 
 ok_group("g3a_predate_catchability_quotafleet", {

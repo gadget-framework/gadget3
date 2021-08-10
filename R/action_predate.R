@@ -19,14 +19,12 @@ g3a_predate_catchability_linearfleet <- function (E) {
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {
     stopifnot(is.list(catchability_fs))
 
-    # Build catchability formula from given stock names. NB: This will get optimised away as it's used
-    catchability <- quote(stop("effortfleet has no catchability for stock"))
-    for (stock_name in names(catchability_fs)) {
-        catchability <- f_substitute(~if (stock_is(prey_stock, n)) c_f else catchability, list(
-            n = stock_name,
-            c_f = catchability_fs[[stock_name]],
-            catchability = catchability))
-    }
+    # Turn catchability into stock_switch(prey_stock, ...) call
+    catchability <- as.call(c(
+        list(
+            as.symbol("stock_switch"),
+            as.symbol("prey_stock")),
+        catchability_fs))
 
     f_substitute(
         ~catchability * E * cur_step_size * stock_ss(prey_stock__fleet_stock),
