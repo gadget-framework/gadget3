@@ -1,3 +1,24 @@
+g3a_spawn_recruitment_fecundity <- function (p0, p1, p2, p3, p4) {
+    subs <- list(p0 = p0, p1 = p1, p2 = p2, p3 = p3, p4 = p4)
+
+    # NB: ricker is calculated over an entire area, so divide up so each age/length spawn equally.
+    list(
+        s = f_substitute(~sum(
+                stock__midlen ^ p1 *
+                age ^ p2 *
+                stock_ss(stock__spawningnum) ^ p3 *
+                stock_ss(stock__wgt) ^ p4), subs),
+        r = f_substitute(~p0 * s, subs))
+}
+
+g3a_spawn_recruitment_simplessb <- function (mu) {
+    # NB: simplessb is calculated over an entire area, so divide up so each age/length spawn equally.
+    list(
+        s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
+        r = f_substitute(~mu * s, list(
+            mu = mu)))
+}
+
 # https://github.com/gadget-framework/gadget-course/blob/master/stock_interactions.Rmd#L81
 # SpawnData::calcRecruitNumber() line 466
 g3a_spawn_recruitment_ricker <- function (mu, lambda) {

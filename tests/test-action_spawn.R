@@ -24,6 +24,24 @@ stock_imm1 <- g3_stock('stock_imm1', seq(10, 40, 10)) %>% g3s_age(3, 7)
 stock_imm2 <- g3_stock('stock_imm2', seq(10, 40, 10)) %>% g3s_age(4, 7)
 stock_mat <- g3_stock('stock_mat', seq(30, 40, 10)) %>% g3s_age(5, 7)
 
+ok_group('g3a_spawn_recruitment_fecundity', {
+    ok(ut_cmp_identical(
+        rlang::f_rhs( g3a_spawn_recruitment_fecundity(90, 91, 92, 93, 94)$s ),
+        quote( sum(stock__midlen^91 * age^92 * stock_ss(stock__spawningnum)^93 * stock_ss(stock__wgt)^94) )), "g3a_spawn_recruitment_fecundity$s")
+    ok(ut_cmp_identical(
+        rlang::f_rhs( g3a_spawn_recruitment_fecundity(90, 91, 92, 93, 94)$r ),
+        quote( 90 * s  )), "g3a_spawn_recruitment_fecundity$r")
+})
+
+ok_group('g3a_spawn_recruitment_simplessb', {
+    ok(ut_cmp_identical(
+        rlang::f_rhs( g3a_spawn_recruitment_simplessb(91)$s ),
+        quote( sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)) )), "g3a_spawn_recruitment_simplessb$s")
+    ok(ut_cmp_identical(
+        rlang::f_rhs( g3a_spawn_recruitment_simplessb(91)$r ),
+        quote( 91 * s )), "g3a_spawn_recruitment_simplessb$r")
+})
+
 ok(ut_cmp_error(
     g3a_spawn(stock_mat, output_stocks = list(stock_imm1, stock_imm2), output_ratios = c(9,9,9), recruitment_f = list(s = 1, r = 1)),
     "output_ratios"), "Length of output_ratios must match")
