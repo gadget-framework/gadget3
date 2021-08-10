@@ -1,6 +1,6 @@
 # https://github.com/gadget-framework/gadget-course/blob/master/stock_interactions.Rmd#L81
 # SpawnData::calcRecruitNumber() line 466
-g3a_spawn_recriutment_ricker <- function (mu, lambda) {
+g3a_spawn_recruitment_ricker <- function (mu, lambda) {
     # NB: ricker is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
@@ -61,12 +61,12 @@ g3a_spawn <- function(
         # Equivalent to spawner::calcRecriutNumber()
         g3_with(s := 0 * nll, {  # TODO: Ugly mess to get type right
             stock_iterate(stock, if (run_f) {
-                s <- s + recriutment_s_f
+                s <- s + recruitment_s_f
                 stock_ss(stock__offspringnum) <- 1
             } else {
                 stock_ss(stock__offspringnum) <- 0
             })
-            g3_with(r := recriutment_r_f,
+            g3_with(r := recruitment_r_f,
                 stock_with(stock, stock__offspringnum <- r * stock__offspringnum / avoid_zero(sum(stock__offspringnum))))
         })
 
@@ -89,8 +89,8 @@ g3a_spawn <- function(
             }
         })
     }, list(
-        recriutment_s_f = recruitment_f$s,
-        recriutment_r_f = recruitment_f$r,
+        recruitment_s_f = recruitment_f$s,
+        recruitment_r_f = recruitment_f$r,
         proportion_f = proportion_f,
         mortality_enabled = !identical(mortality_f, 0),
         mortality_f = mortality_f,

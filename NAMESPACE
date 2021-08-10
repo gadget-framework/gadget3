@@ -39,7 +39,7 @@ export(g3a_initialconditions_normalparam)
 export(g3a_report_stock)
 
 # R/action_spawn.R
-export(g3a_spawn_recriutment_ricker)
+export(g3a_spawn_recruitment_ricker)
 export(g3a_spawn_length_straightline)
 export(g3a_spawn_length_exponential)
 export(g3a_spawn)

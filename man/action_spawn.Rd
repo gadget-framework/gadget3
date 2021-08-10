@@ -1,5 +1,5 @@
 \name{action_spawn}
-\alias{g3a_spawn_recriutment_ricker}
+\alias{g3a_spawn_recruitment_ricker}
 \alias{g3a_spawn_length_straightline}
 \alias{g3a_spawn_length_exponential}
 \alias{g3a_spawn}
@@ -10,7 +10,7 @@
 }
 
 \usage{
-g3a_spawn_recriutment_ricker(mu, lambda)
+g3a_spawn_recruitment_ricker(mu, lambda)
 
 g3a_spawn_length_straightline(alpha, beta)
 
@@ -24,8 +24,8 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
 }
 
 \arguments{
-  \item{mu}{Substituted into \code{g3a_spawn_recriutment_ricker} formula, see below.}
-  \item{lambda}{Substituted into \code{g3a_spawn_recriutment_ricker} formula, see below.}
+  \item{mu}{Substituted into \code{g3a_spawn_recruitment_ricker} formula, see below.}
+  \item{lambda}{Substituted into \code{g3a_spawn_recruitment_ricker} formula, see below.}
   \item{alpha}{Substituted into \code{g3a_spawn_length_*} formula, see below.}
   \item{beta}{Substituted into \code{g3a_spawn_length_straightline} formula, see below.}
   \item{l50}{Substituted into \code{g3a_spawn_length_exponential} formula, see below.}
@@ -97,7 +97,7 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
 }
 
 \value{
-  \subsection{g3a_spawn_recriutment_ricker}{A pair of \link{formula} objects:
+  \subsection{g3a_spawn_recruitment_ricker}{A pair of \link{formula} objects:
     \deqn{ S = N_{al} p  W_{al} }
     \deqn{ R = \mu S e^{-\lambda S} }
     \describe{
@@ -151,7 +151,7 @@ spawn_action <- g3a_spawn(
     # Spawn from ling_mat
     ling_mat,
     # Use Ricker Recruitment Function to calculate # of recruits from total biomass
-    recruitment_f = g3a_spawn_recriutment_ricker(
+    recruitment_f = g3a_spawn_recruitment_ricker(
         ~g3_param("ricker.mu"),
         ~g3_param("ricker.lambda")),
     # Proportion of ling_mat spawning exponential relationship based on length

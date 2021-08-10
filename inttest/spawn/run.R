@@ -48,7 +48,7 @@ ling_mat_actions <- lapply(list(
     g3a_age(ling_mat),
     g3a_spawn(
         ling_mat,
-        recruitment_f = g3a_spawn_recriutment_ricker(
+        recruitment_f = g3a_spawn_recruitment_ricker(
             ~g3_param("ricker.mu"),
             ~g3_param("ricker.lambda")),
         proportion_f = g3a_spawn_length_exponential(alpha = ~g3_param("spawn.prop.alpha"), l50 =  ~g3_param("spawn.prop.l50")),
