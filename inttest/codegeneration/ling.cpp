@@ -311,10 +311,10 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                {
+                if ( cur_time == 0 ) {
                     auto area = ling_imm__area;
 
-                    if ( cur_time == 0 ) {
+                    {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
@@ -331,10 +331,10 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                {
+                if ( cur_time == 0 ) {
                     auto area = ling_mat__area;
 
-                    if ( cur_time == 0 ) {
+                    {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = exp(-(pow(((ling_mat__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_mat_stddev ( age - 5 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
@@ -629,13 +629,13 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                {
+                if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
                     auto area = ling_mat__area;
 
-                    if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
+                    if ( area == ling_imm__area ) {
                         auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        if ( area == ling_imm__area ) {
+                        {
                             if ( cur_step_final ) {
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + ling_imm__transitioning_wgt.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx);
                                 ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_imm__transitioning_num.col(ling_imm__age_idx).col(ling_imm__area_idx);
@@ -656,10 +656,10 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                {
+                if ( (cur_step == 1 && age == 5) ) {
                     auto area = ling_imm__area;
 
-                    if ( (cur_step == 1 && age == 5) ) {
+                    {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
@@ -679,10 +679,10 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                {
+                if ( (cur_step == 1 && age == 3) ) {
                     auto area = ling_imm__area;
 
-                    if ( (cur_step == 1 && age == 3) ) {
+                    {
                         // Calculate exp(-(dnorm**2) * 0.5);
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = exp(-(pow(((ling_imm__midlen - ((ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__k)*(age - ((double)(1) + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__k))))))))*((double)(1) / (ling_imm_stddev ( age - 3 + 1 - 1 )))), (Type)(double)(2)))*(double)(0.5));
                         // scale results;
@@ -838,13 +838,13 @@ Type objective_function<Type>::operator() () {
             for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                 auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                {
+                if ( age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage ) {
                     auto area = ling_mat__area;
 
-                    if ( age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage ) {
+                    if ( area == ling_imm_movement__area ) {
                         auto ling_imm_movement__age_idx = age - ling_imm_movement__minage + 1 - 1;
 
-                        if ( area == ling_imm_movement__area ) {
+                        {
                             if ( cur_step_final ) {
                                 ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx) = (ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)) + ling_imm_movement__transitioning_wgt.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx)*ling_imm_movement__transitioning_num.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx);
                                 ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__age_idx).col(ling_imm_movement__area_idx);

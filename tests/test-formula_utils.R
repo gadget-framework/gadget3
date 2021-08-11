@@ -148,3 +148,13 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~{x <- (2 + 2) ; y <- (4 + 4) * 6}),
     ~{x <- 2 + 2 ; y <- (4 + 4) * 6}), "f_optimize: Remove outer brackets from definition")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~g3_with(x := 4, if (x == 2) moo)),
+    ~g3_with(x := 4, if (x == 2) moo)), "f_optimize: No g3_with change when if is dependent")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~g3_with(x := 4, if (y == 2) moo)),
+    ~if (y == 2) g3_with(x := 4, moo)), "f_optimize: Swapped g3_with/if when independent")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~g3_with(x := 4, if (y == 2) moo else oink)),
+    ~g3_with(x := 4, if (y == 2) moo else oink)), "f_optimize: Don't bother swapping if/else")

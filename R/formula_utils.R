@@ -185,6 +185,35 @@ f_optimize <- function (f) {
             if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
             return(x)
         },
+        "g3_with" = function (x) {
+            g3_with_term_names <- function (y) {
+                # Extract term assignments, fetch lhs of each
+                vapply(
+                    g3_with_extract_terms(y),
+                    function (t_call) as.character(t_call[[2]]),
+                    character(1))
+            }
+
+            if (is.call(x) && is.call(x[[length(x)]]) && x[[length(x)]][[1]] == 'if' && length(x[[length(x)]]) == 3) {
+                # g3_with -> if, try and swap around if possible.
+                if (length(intersect( all.vars(x[[length(x)]][[2]]), g3_with_term_names(x) )) == 0) {
+                    # x becomes inner if statement
+                    new_x <- x[[length(x)]]
+
+                    # Wrap statement with our g3_with call
+                    g3with_call <- x
+                    g3with_call[[length(g3with_call)]] <- new_x[[3]]
+                    new_x[[3]] <- g3with_call
+
+                    # Return whole thing for another pass to optimise innards
+                    return(new_x)
+                }
+            }
+
+            # Just recurse
+            if (is.call(x)) x <- as.call(lapply(x, f_optimize))
+            return(x)
+        },
         "<-" = function (x) {
             if (!is.call(x)) return(x)
             if (is.call(x[[3]]) && x[[3]][[1]] == "(") {  # )
