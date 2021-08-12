@@ -82,7 +82,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste(c(
             "{",
             vapply(g3_with_extract_terms(in_call), function (c) {
-                paste0(
+                if (length(c[[2]]) > 1) {
+                    stop("Malformed g3_with: ", deparse(c))
+                }
+                rv <- paste0(
                     next_indent, "auto ", c[[2]], " = ",
                     cpp_code(c[[3]], in_envir, next_indent), ";\n")
             }, character(1)),
