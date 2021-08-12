@@ -98,6 +98,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             }
             tryCatch({
                 var_val <- get(var_name, envir = env, inherits = TRUE)
+                if (!is.null(attr(var_val, "g3_global_init_val"))) {
+                    # When considering a global formula, consider the init condition
+                    var_val <- attr(var_val, "g3_global_init_val")
+                }
             }, error = function (e) {
                 lines <- trimws(grep(var_name, deparse(code, width.cutoff = 500), fixed = TRUE, value = TRUE))
                 stop(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))

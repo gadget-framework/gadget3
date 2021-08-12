@@ -8,10 +8,11 @@
 #       (prefix) is a string to distinguish between variables, e.g. if prefix = "prey", there will be age and prey_age variables.
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
-g3_step <- function(step_f) {
+g3_step <- function(step_f, recursing = FALSE) {
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)
+        old_g3_global_init_val <- attr(f, "g3_global_init_val")
         if (length(old_name) != 1) stop("Stocks should be variable references")
         f_vars <- all.vars(f)
         if (rlang::is_formula(f)) {
@@ -43,6 +44,10 @@ g3_step <- function(step_f) {
             f <- eval(call("substitute", f, as.list(subs)))
         }
 
+        # Preserve g3_global_init_val
+        # NB: We can't preserve all attributes, since then we copy the environment
+        attr(f, "g3_global_init_val") <- old_g3_global_init_val
+
         return(f)
     }
 
@@ -60,6 +65,76 @@ g3_step <- function(step_f) {
         f_substitute(f, lapply(interactvars, as.symbol))
     }
 
+    add_dependent_formula <- function (f, depend_vars, modify_ind_f = NULL) {
+        # Turn nested g3_with() into a single call
+        collapse_g3_with <- function (f) {
+            call_replace(f, g3_with = function (x) {
+                inner <- collapse_g3_with(x[[length(x)]])
+
+                if (is.call(inner) && inner[[1]] == as.symbol("g3_with")) {
+                    # There's a nested g3_with, merge with our call
+                    as.call(c(
+                        head(as.list(x), -1),
+                        tail(as.list(inner), -1)))
+                } else {
+                    # Not nested g3_with, replace with recursed version
+                    as.call(c(
+                        head(as.list(x), -1),
+                        list(inner)))
+                }
+            })
+        }
+
+        # Repeatedly look for definitions we should be adding (so we add sub-definitions)
+        while(TRUE) {
+            added_defn <- FALSE
+            for (var_name in all_undefined_vars(f)) {  # NB: all_undefined_vars will get rid of definitions from previous loop
+                defn <- environment(f)[[var_name]]
+                if (!is.call(defn)) next
+                if (!isTRUE(depend_vars) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
+                    # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
+                    if (!is.null(modify_ind_f)) {
+                        assign(var_name, modify_ind_f(defn), envir = environment(f))
+                    }
+                    next
+                }
+
+                if (!is.null(attr(defn, 'g3_global_init_val'))) {
+                    # A global formula, define recursive case here if need be
+                    if (!identical(rlang::f_rhs(defn), as.symbol("noop"))) {
+                        # Has this code already been inserted?
+                        # NB: A <- doesn't count as a definition, so have to look for exact call.
+                        existing_defn <- any(vapply(f_find(f, "<-"), function(assign_call) {
+                            identical(assign_call[[2]], as.symbol(var_name)) &&
+                            identical(assign_call[[3]], rlang::f_rhs(defn))
+                        }, logical(1)))
+
+                        if (!existing_defn) {
+                            f <- f_substitute(~{var <- defn ; f}, list(
+                                var = as.symbol(var_name),
+                                defn = defn,
+                                f = f))
+                        }
+                    }
+                    # NB: This isn't an added_defn, because it won't count in all_undefined_vars().
+                    #     We possibly need another operator to differentiate the situation.
+                } else {
+                    # This depends on one of the depend vars, so should be defined now.
+                    f <- f_substitute(~g3_with(var := defn, f), list(
+                        var = as.symbol(var_name),
+                        defn = defn,
+                        f = f))
+                    added_defn <- TRUE
+                }
+            }
+            if (!added_defn) break
+        }
+
+        # Neaten output code by collapsing the stack of g3_with()s we made
+        f <- collapse_g3_with(f)
+        return(f)
+    }
+
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
         stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
@@ -68,11 +143,16 @@ g3_step <- function(step_f) {
 
         # Recurse first, filling out any inner functions
         inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-        inner_f <- g3_step(inner_f)
+        inner_f <- g3_step(inner_f, recursing = TRUE)
 
         # Wrap with stock's code
-        out_f <- f_substitute(stock_rename(stock_interactvar_prefix(stock[[to_replace]], prefix), "stock",  stock_var), list(
-            extension_point = inner_f))
+        out_f <- stock_interactvar_prefix(stock[[to_replace]], prefix)
+        out_f <- stock_rename(out_f, "stock", stock_var)
+        # Make sure formulas are defined if they need anything the stock code defines
+        inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {
+            stock_rename(f, stock_var, stock$name)
+        })
+        out_f <- f_substitute(out_f, list(extension_point = inner_f))
         out_f <- stock_rename(out_f, stock_var, stock$name)
 
         # Add environment to formulae's environment, return inner call
@@ -94,7 +174,7 @@ g3_step <- function(step_f) {
         return(call(as.character(x[[1]]), comment_str))
     }
 
-    return(f_optimize(call_replace(step_f,
+    rv <- f_optimize(call_replace(step_f,
         debug_label = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         debug_trace = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
         stock_assert = function (x) {
@@ -108,7 +188,7 @@ g3_step <- function(step_f) {
                 return(as.character(a))
             }, character(1)), collapse = "")
 
-            return(call('assert_msg', g3_step(as.formula(call("~", x[[2]]), env = environment(step_f))), comment_str))
+            return(call('assert_msg', g3_step(as.formula(call("~", x[[2]]), env = environment(step_f)), recursing = TRUE), comment_str))
         },
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
@@ -116,7 +196,7 @@ g3_step <- function(step_f) {
 
             # Recurse first, letting renames happen
             inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-            inner_f <- g3_step(inner_f)
+            inner_f <- g3_step(inner_f, recursing = TRUE)
 
             if (!("length" %in% names(stock$dim))) {
                 # No length dimension, so sum everything
@@ -221,7 +301,15 @@ g3_step <- function(step_f) {
         },
         stock_intersect = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'intersect'))
-        })))
+        }))
+
+        if (!recursing) {
+            # Add anything that's not a global_formula to this level
+            rv <- add_dependent_formula(rv, TRUE)
+            rv <- f_optimize(rv)
+        }
+
+        return(rv)
 }
 
 # Turn number/stock/string params into a single string indentifying that step

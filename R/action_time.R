@@ -17,16 +17,20 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
     # If these are literals, they should be integers
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
+    # If a formula, make sure we use one definition
+    if (is.call(start_year)) start_year <- g3_global_formula(init_val = start_year)
+    if (is.call(end_year)) end_year <- g3_global_formula(init_val = end_year)
 
     step_lengths <- as.array(as.integer(steps))
-    step_count <- ~length(step_lengths)
+    step_count <- g3_global_formula(init_val = ~length(step_lengths))
     cur_time <- -1L
     cur_step <- 0L
     # Initial value is first step size
-    cur_step_size <- ~step_lengths[[1]] / 12.0
+    # NB: This is a formula since it ends up as a double by happy coicidence, so std::floor() works
+    cur_step_size <- g3_global_formula(init_val = ~step_lengths[[1]] / 12.0)
     cur_year <- 0L
     cur_step_final <- FALSE
-    total_steps <- ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
+    total_steps <- g3_global_formula(init_val = ~length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L)
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{

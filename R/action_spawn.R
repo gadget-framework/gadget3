@@ -129,7 +129,7 @@ g3a_spawn <- function(
 
         # Make a formula to sum all our outputs
         sum_all_outputs_f <- g3_step(f_substitute(~stock_with(output_stock, sum(output_stock__spawnednum)) + sum_all_outputs_f, list(
-            sum_all_outputs_f = sum_all_outputs_f)))
+            sum_all_outputs_f = sum_all_outputs_f)), recursing = TRUE)
 
         out_f <- g3_step(f_substitute(~{
             debug_trace("Generate normal distribution for spawned ", output_stock)
@@ -159,7 +159,7 @@ g3a_spawn <- function(
             output_ratio = output_ratio,
             output_stock_cond = ~age == output_stock__minage,
             run_f = run_f,
-            extension_point = out_f)))
+            extension_point = out_f)), recursing = TRUE)
     }
     if (length(output_stocks) == 1) {
         output_stock <- output_stocks[[1]]
@@ -167,15 +167,15 @@ g3a_spawn <- function(
         out_f <- g3_step(f_substitute(~{
             debug_label("Assign offspring from ", stock, " spawning event to ", output_stock)
             out_f
-        }, list(out_f = out_f)))
+        }, list(out_f = out_f)), recursing = TRUE)
     } else {
         out_f <- g3_step(f_substitute(~{
             debug_label("Assign offspring from ", stock, " spawning event to output stocks")
             out_f
-        }, list(out_f = out_f)))
+        }, list(out_f = out_f)), recursing = TRUE)
     }
-    out[[step_id(recruit_at, stock, action_name)]] <- f_substitute(out_f, list(
-        sum_all_outputs_f = f_optimize(sum_all_outputs_f)))
+    out[[step_id(recruit_at, stock, action_name)]] <- g3_step(f_substitute(out_f, list(
+        sum_all_outputs_f = f_optimize(sum_all_outputs_f))))
 
     return(out)
 }

@@ -101,12 +101,12 @@ g3a_step_transition <- function(input_stock,
             run_f = run_f))))
     }
 
-    f_concatenate(list(
+    g3_step(f_concatenate(list(
         g3_step(f_substitute(~{
             if (move_remainder) stock_with(input_stock, input_stock__transitioning_remainder <- input_stock__transitioning_num)
         }, list(
             move_remainder = move_remainder,
-            run_f = run_f))),
+            run_f = run_f)), recursing = TRUE),
         f_concatenate(lapply(seq_along(output_stocks), function (n) {
             # NB: Pull these from parent env so g3_step can find them
             input_stock <- input_stock
@@ -139,7 +139,7 @@ g3a_step_transition <- function(input_stock,
             }
         }, list(
             move_remainder = move_remainder,
-            run_f = run_f)))))
+            run_f = run_f)), recursing = TRUE))))
 }
 
 # Growth step for a stock

@@ -161,7 +161,7 @@ g3l_distribution <- function (
         }
 
         # Collect all of stock and dump it in modelstock
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- f_substitute(~{
             debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
             stock_iterate(stock, stock_intersect(modelstock, {
                 if (compare_num) {
@@ -177,11 +177,11 @@ g3l_distribution <- function (
             }))
         }, list(
             compare_num = !is.null(ld$number),
-            compare_wgt = !is.null(ld$weight))))
+            compare_wgt = !is.null(ld$weight)))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]], list(
-            stockidx_f = stockidx_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- g3_step(f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]], list(
+            stockidx_f = stockidx_f)))
     }
 
     # Otherwise, do fleet catch comparison
@@ -216,11 +216,12 @@ g3l_distribution <- function (
             compare_num = !is.null(ld$number),
             compare_wgt = !is.null(ld$weight),
             # Find catch from predation step
-            prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
+            prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))), recursing = TRUE)
 
         # Fix-up stock intersection, add in stockidx_f
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]], list(
             stockidx_f = stockidx_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }
 
     nllstock <- g3_storage(paste0("nll_cdist_", nll_name))

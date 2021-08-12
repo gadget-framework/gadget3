@@ -19,6 +19,14 @@ g3_native <- function(r, cpp, depends = c()) {
     return(out)
 }
 
+# A global formula is one that has an interative formula and an initial value
+# (f) will set the value within the current step, (init_val) will initialize the variable
+# outside the loop
+g3_global_formula <- function(f = ~noop, init_val = NULL) {
+    attr(f, "g3_global_init_val") <- init_val
+    return(f)
+}
+
 g3_global_env$nll <- 0.0
 
 # Transform a vector using matrix, return vec again

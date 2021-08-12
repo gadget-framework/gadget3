@@ -186,6 +186,26 @@ fn
 ``ling_imm__growth_l`` and ``ling_imm__growth_w``, and ``age`` and ``area`` are
 available to us thanks to the loops provided by the stock.
 
+We can also define formulas and reference them. Gadget3 will add the
+definitions into the code where appropriate. For example:
+
+```{r}
+custom_delta_l <- ~area * 99
+custom_delta_w <- ~ling_imm__plusdl * 44
+fn <- g3_to_r(g3a_growmature(
+    ling_imm,
+    impl_f = g3a_grow_impl_bbinom(
+        delta_len_f = ~age * custom_delta_l * 10,
+        delta_wgt_f = ~area * custom_delta_w * 20,
+        beta_f = ~g3_param("ling.bbin"),
+        maxlengthgroupgrowth = 4),
+    transition_f = ~TRUE))
+fn
+```
+
+Note that ``custom_delta_l`` is recalculated every loop, since it uses
+``area``, whereas ``custom_delta_w`` is calculated once for the step.
+
 ## Model parameterization
 
 In the ``g3a_growmature`` function above, we see a reference to
