@@ -57,6 +57,15 @@ g3_step <- function(step_f, recursing = FALSE) {
             inner <- collapse_g3_with(x[[length(x)]])
             defns <- head(as.list(x), -1)
 
+            # Remove anything := adf_marker from defns
+            defns <- Filter(
+                function(y) !(is.call(y) && identical(y[[1]], as.symbol(':=')) && identical(y[[3]], as.symbol("adf_marker"))),
+                defns)
+
+            if (length(defns) == 1) {
+                # No definitions left in this g3_with
+                return(as.call(inner))
+            }
             if (is.call(inner) && inner[[1]] == as.symbol("g3_with")) {
                 # There's a nested g3_with, merge with our call
                 return(as.call(c(
@@ -92,7 +101,7 @@ g3_step <- function(step_f, recursing = FALSE) {
             for (var_name in all_undefined_vars(f)) {  # NB: all_undefined_vars will get rid of definitions from previous loop
                 defn <- environment(f)[[var_name]]
                 if (!is.call(defn)) next
-                if (!isTRUE(depend_vars) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
+                if (!isTRUE(depend_vars) && !('stock_ss' %in% all.names(defn)) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
                     # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
                     if (!is.null(filter_fn)) {
                         assign(var_name, filter_fn(defn), envir = environment(f))
@@ -100,33 +109,19 @@ g3_step <- function(step_f, recursing = FALSE) {
                     next
                 }
 
-                if (!is.null(attr(defn, 'g3_global_init_val'))) {
-                    # A global formula, define recursive case here if need be
-                    if (!identical(rlang::f_rhs(defn), as.symbol("noop"))) {
-                        # Has this code already been inserted?
-                        # NB: A <- doesn't count as a definition, so have to look for exact call.
-                        existing_defn <- any(vapply(f_find(f, "<-"), function(assign_call) {
-                            identical(assign_call[[2]], as.symbol(var_name)) &&
-                            identical(assign_call[[3]], rlang::f_rhs(defn))
-                        }, logical(1)))
-
-                        if (!existing_defn) {
-                            f <- f_substitute(~{var <- defn ; f}, list(
-                                var = as.symbol(var_name),
-                                defn = defn,
-                                f = f))
-                        }
-                    }
-                    # NB: This isn't an added_defn, because it won't count in all_undefined_vars().
-                    #     We possibly need another operator to differentiate the situation.
+                if (is.null(attr(defn, 'g3_global_init_val')) ) {
+                    # Non-global, add scoped variable with g3_with()
+                    impl_f <- ~g3_with(var := defn, f)
+                } else if (identical(rlang::f_rhs(defn), as.symbol("noop"))) {
+                    # Global with only a initial definition, do ~nothing
+                    # NB: adf_marker will get removed later with collapse_g3_with()
+                    impl_f <- ~g3_with(var := adf_marker, f)
                 } else {
-                    # This depends on one of the depend vars, so should be defined now.
-                    f <- f_substitute(~g3_with(var := defn, f), list(
-                        var = as.symbol(var_name),
-                        defn = defn,
-                        f = f))
-                    added_defn <- TRUE
+                    # Global, add definition and marker to stop repetition
+                    impl_f <- ~g3_with(var := adf_marker, {var <- defn ; f})
                 }
+                f <- f_substitute(impl_f, list(var = as.symbol(var_name), defn = defn, f = f))
+                added_defn <- TRUE
             }
             if (!added_defn) break
         }
@@ -149,8 +144,11 @@ g3_step <- function(step_f, recursing = FALSE) {
         out_f <- stock_rename(out_f, "stock", stock_var)
         # Make sure formulas are defined if they need anything the stock code defines
         inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {
+            # NB: Ideally would do g3_step() here instead of later, but environment will be all wrong
             stock_rename(f, stock_var, stock$name)
         })
+        # Run g3_step again to fix up dependents that got added
+        inner_f <- g3_step(inner_f, recursing = TRUE)
         out_f <- f_substitute(out_f, list(extension_point = inner_f))
         out_f <- stock_rename(out_f, stock_var, stock$name)
 

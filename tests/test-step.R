@@ -149,6 +149,8 @@ ok_group("g3_step:stock_switch", {
 ok_group("g3_step:dependent_formulas", (function () {
     stock_imm <- g3s_age(g3_stock('ling_imm', 1), 1, 3)
     stock_imm__num <- gadget3:::stock_instance(stock_imm, 0)
+    stock_area <- g3s_livesonareas(g3s_age(g3_stock('area_imm', 1), 1, 3), 1:2)
+    stock_area__num <- gadget3:::stock_instance(stock_area, 0)
 
     by_age_f <- ~ 2 * age
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + by_age_f))
@@ -157,11 +159,27 @@ ok_group("g3_step:dependent_formulas", (function () {
         by_age_f := (2 * age),
         (ling_imm__num[, ling_imm__age_idx] + by_age_f))), "by_age_f: 2 * age gets inserted inside loop")
 
+    f <- gadget3:::g3_step(~stock_iterate(stock_area, stock_ss(stock_area__num) + by_age_f))
+    ok(cmp_code(f, ~for (area_imm__area_idx in seq_along(area_imm__areas)) g3_with(
+        area := area_imm__areas[[area_imm__area_idx]],
+        for (age in seq(area_imm__minage, area_imm__maxage, by = 1)) g3_with(
+            area_imm__age_idx := g3_idx(age - area_imm__minage + 1L),
+            by_age_f := (2 * age),
+            (area_imm__num[, area_imm__age_idx, area_imm__area_idx] + by_age_f)))), "by_age_f: 2 * age gets inserted inside double loop")
+
     independent_f <- ~2 * stock_imm__minage
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + independent_f))
     ok(cmp_code(f, ~g3_with(independent_f := (2 * ling_imm__minage), for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
         ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
         (ling_imm__num[, ling_imm__age_idx] + independent_f)))), "independent_f: 2 gets inserted outside loop, still renamed though")
+
+    independent_f <- ~2 * stock_area__minage
+    f <- gadget3:::g3_step(~stock_iterate(stock_area, stock_ss(stock_area__num) + independent_f))
+    ok(cmp_code(f, ~g3_with(independent_f := (2 * area_imm__minage), for (area_imm__area_idx in seq_along(area_imm__areas)) g3_with(
+        area := area_imm__areas[[area_imm__area_idx]],
+        for (age in seq(area_imm__minage, area_imm__maxage, by = 1)) g3_with(
+            area_imm__age_idx := g3_idx(age - area_imm__minage + 1L),
+            (area_imm__num[, area_imm__age_idx, area_imm__area_idx] + independent_f))))), "independent_f: 2 gets inserted outside double loop, still renamed though")
 
     global_f <- gadget3:::g3_global_formula(~4 * age, init_val = ~4 + 4)
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + global_f))
