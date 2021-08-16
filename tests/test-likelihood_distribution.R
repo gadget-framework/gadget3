@@ -191,7 +191,8 @@ actions <- c(base_actions, list(
         stocks = list(prey_b),
         area_group = areas,
         report = TRUE,  # NB: Using built-in reporting vs. version hacked in tests
-        g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+        g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))),
+    NULL))
 
 params <- list(
     fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
