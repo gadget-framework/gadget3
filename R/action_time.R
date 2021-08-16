@@ -46,5 +46,11 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
         if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }, list(
         uneven_steps = any(diff(steps) > 0))))
+
+    # Make sure variables are defined, even without uneven_steps
+    assign("cur_step_size", cur_step_size, envir = environment(out[[step_id(run_at)]]))
+    assign("step_lengths", step_lengths, envir = environment(out[[step_id(run_at)]]))
+    assign("end_year", end_year, envir = environment(out[[step_id(run_at)]]))
+
     return(as.list(out))
 }
