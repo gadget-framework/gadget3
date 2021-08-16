@@ -51,6 +51,25 @@ g3_step <- function(step_f, recursing = FALSE) {
         return(f)
     }
 
+    # Turn nested g3_with() into a single call
+    collapse_g3_with <- function (f) {
+        call_replace(f, g3_with = function (x) {
+            inner <- collapse_g3_with(x[[length(x)]])
+            defns <- head(as.list(x), -1)
+
+            if (is.call(inner) && inner[[1]] == as.symbol("g3_with")) {
+                # There's a nested g3_with, merge with our call
+                return(as.call(c(
+                    defns,
+                    tail(as.list(inner), -1))))
+            }
+            # Not nested g3_with, replace with recursed version
+            return(as.call(c(
+                defns,
+                list(inner))))
+        })
+    }
+
     stock_interactvar_prefix <- function (f, prefix) {
         stopifnot(rlang::is_formula(f))
         stopifnot(is.character(prefix) && length(prefix) == 1)
@@ -66,25 +85,6 @@ g3_step <- function(step_f, recursing = FALSE) {
     }
 
     add_dependent_formula <- function (f, depend_vars, modify_ind_f = NULL) {
-        # Turn nested g3_with() into a single call
-        collapse_g3_with <- function (f) {
-            call_replace(f, g3_with = function (x) {
-                inner <- collapse_g3_with(x[[length(x)]])
-
-                if (is.call(inner) && inner[[1]] == as.symbol("g3_with")) {
-                    # There's a nested g3_with, merge with our call
-                    as.call(c(
-                        head(as.list(x), -1),
-                        tail(as.list(inner), -1)))
-                } else {
-                    # Not nested g3_with, replace with recursed version
-                    as.call(c(
-                        head(as.list(x), -1),
-                        list(inner)))
-                }
-            })
-        }
-
         # Repeatedly look for definitions we should be adding (so we add sub-definitions)
         while(TRUE) {
             added_defn <- FALSE
@@ -130,8 +130,6 @@ g3_step <- function(step_f, recursing = FALSE) {
             if (!added_defn) break
         }
 
-        # Neaten output code by collapsing the stack of g3_with()s we made
-        f <- collapse_g3_with(f)
         return(f)
     }
 
@@ -306,6 +304,8 @@ g3_step <- function(step_f, recursing = FALSE) {
         if (!recursing) {
             # Add anything that's not a global_formula to this level
             rv <- add_dependent_formula(rv, TRUE)
+            # Neaten output code by collapsing the stack of g3_with()s we made
+            rv <- collapse_g3_with(rv)
             rv <- f_optimize(rv)
         }
 
