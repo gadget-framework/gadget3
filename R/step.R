@@ -84,7 +84,8 @@ g3_step <- function(step_f, recursing = FALSE) {
         f_substitute(f, lapply(interactvars, as.symbol))
     }
 
-    add_dependent_formula <- function (f, depend_vars, modify_ind_f = NULL) {
+    # Add any formula definitions from f into f, if they include depend_vars
+    add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
         # Repeatedly look for definitions we should be adding (so we add sub-definitions)
         while(TRUE) {
             added_defn <- FALSE
@@ -93,8 +94,8 @@ g3_step <- function(step_f, recursing = FALSE) {
                 if (!is.call(defn)) next
                 if (!isTRUE(depend_vars) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
                     # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
-                    if (!is.null(modify_ind_f)) {
-                        assign(var_name, modify_ind_f(defn), envir = environment(f))
+                    if (!is.null(filter_fn)) {
+                        assign(var_name, filter_fn(defn), envir = environment(f))
                     }
                     next
                 }
