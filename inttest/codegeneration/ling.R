@@ -638,6 +638,7 @@ structure(function (param)
                   }
                 }
             }
+            comment("Zero counters for next reporting period")
             cdist_ldist_lln_model__num[] <- 0
         }
         {

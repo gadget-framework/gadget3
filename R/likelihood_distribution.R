@@ -228,52 +228,59 @@ g3l_distribution <- function (
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
-    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- g3_step(f_substitute(~{
+
+    # Generic comparison step with __x instead of __num or __wgt
+    compare_generic_f <- g3_step(f_substitute(~{
         debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
-            stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, {
-                if (compare_num) g3_with(cur_cdist_nll := number_f, {
-                    nll <- nll + (weight) * cur_cdist_nll
-                    stock_ss(nllstock__num) <- stock_ss(nllstock__num) + cur_cdist_nll
-                    g3_report(nllstock__num)  # TODO: Only on penultimate step?
-                    stock_ss(nllstock__weight) <- weight
-                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
-                    if (report) g3_report(modelstock__num)
-                    if (report) g3_report(obsstock__num)
-                })
-                if (compare_wgt) g3_with(cur_cdist_nll := biomass_f, {
-                    nll <- nll + (weight) * cur_cdist_nll
-                    stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + cur_cdist_nll
-                    g3_report(nllstock__wgt)  # TODO: Only on penultimate step?
-                    stock_ss(nllstock__weight) <- weight
-                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
-                    if (report) g3_report(modelstock__wgt)
-                    if (report) g3_report(obsstock__wgt)
-                })
-            })))
-
-            if (report) {
-                # Don't zero counters, we'll move on to next reporting period instead
-            } else {
-                if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
-                if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
+            stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, if (function_comare_f) g3_with(
+                cur_cdist_nll := function_f, {
+                nll <- nll + (weight) * cur_cdist_nll
+                stock_ss(nllstock__x) <- stock_ss(nllstock__x) + cur_cdist_nll
+                g3_report(nllstock__x)  # TODO: Only on penultimate step?
+                stock_ss(nllstock__weight) <- weight
+                g3_report(nllstock__weight)  # TODO: Only on penultimate step?
+                if (report) g3_report(modelstock__x)
+                if (report) g3_report(obsstock__x)
+            }))))
+            if (!report) {
+                debug_trace("Zero counters for next reporting period")
+                stock_with(modelstock, modelstock__x[] <- 0)
             }
         }
     }, list(
         done_aggregating_f = ld$done_aggregating_f,
-        compare_num = !is.null(ld$number),
-        compare_wgt = !is.null(ld$weight),
+        function_comare_f = if (is.null(attr(function_f, 'do_compare_f'))) TRUE else attr(function_f, 'do_compare_f'),
+        function_f = function_f,
         report = report,
-        number_f = f_substitute(function_f, list(
-            modelstock__x = as.symbol('modelstock__num'),
-            obsstock__x = as.symbol('obsstock__num'))),
-        biomass_f = f_substitute(function_f, list(
-            modelstock__x = as.symbol('modelstock__wgt'),
-            obsstock__x = as.symbol('obsstock__wgt'))),
         weight = weight)))
-    # Fix-up stock intersection: index should be the same as observation
-    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]], list(
-        stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
+    compare_generic_f <- f_substitute(compare_generic_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
+
+    # Build list of variables that will need replacing with num/wgt later
+    var_replacements <- all.vars(compare_generic_f)[endsWith(all.vars(compare_generic_f), '__x')]
+    names(var_replacements) <- var_replacements
+
+    if (!is.null(ld$number)) {
+        compare_f <- f_substitute(
+            compare_generic_f,
+            lapply(gsub('__x$', '__num', var_replacements), as.symbol))
+        # step.R isn't doing environment for us, so we have to
+        assign(paste0(modelstock$name, '__num'), modelstock__num, envir = environment(compare_f))
+        assign(paste0(obsstock$name, '__num'), obsstock__num, envir = environment(compare_f))
+        assign(paste0(nllstock$name, '__num'), nllstock__num, envir = environment(compare_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <- compare_f
+    }
+
+    if (!is.null(ld$weight)) {
+        compare_f <- f_substitute(
+            compare_generic_f,
+            lapply(gsub('__x$', '__wgt', var_replacements), as.symbol))
+        # step.R isn't doing environment for us, so we have to
+        assign(paste0(modelstock$name, '__wgt'), modelstock__wgt, envir = environment(compare_f))
+        assign(paste0(obsstock$name, '__wgt'), obsstock__wgt, envir = environment(compare_f))
+        assign(paste0(nllstock$name, '__wgt'), nllstock__wgt, envir = environment(compare_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <- compare_f
+    }
 
     return(as.list(out))
 }

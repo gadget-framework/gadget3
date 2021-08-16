@@ -744,6 +744,7 @@ Type objective_function<Type>::operator() () {
                     }
                 }
             }
+            // Zero counters for next reporting period;
             cdist_ldist_lln_model__num.setZero();
         }
         {
