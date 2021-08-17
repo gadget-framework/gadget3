@@ -293,6 +293,48 @@ Type objective_function<Type>::operator() () {
                 assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
             }
             if ( cur_time > total_steps ) {
+                {
+                    REPORT(cdist_ldist_lln_model__num);
+                    REPORT(cur_step);
+                    REPORT(cur_step_final);
+                    REPORT(cur_time);
+                    REPORT(cur_year);
+                    REPORT(g3l_understocking_total);
+                    REPORT(igfs__catch);
+                    REPORT(ling_imm__consratio);
+                    REPORT(ling_imm__growth_l);
+                    REPORT(ling_imm__growth_lastcalc);
+                    REPORT(ling_imm__growth_w);
+                    REPORT(ling_imm__igfs);
+                    REPORT(ling_imm__num);
+                    REPORT(ling_imm__overconsumption);
+                    REPORT(ling_imm__prevtotal);
+                    REPORT(ling_imm__renewalnum);
+                    REPORT(ling_imm__renewalwgt);
+                    REPORT(ling_imm__suit_igfs);
+                    REPORT(ling_imm__totalpredate);
+                    REPORT(ling_imm__transitioning_num);
+                    REPORT(ling_imm__transitioning_wgt);
+                    REPORT(ling_imm__wgt);
+                    REPORT(ling_imm_movement__transitioning_num);
+                    REPORT(ling_imm_movement__transitioning_wgt);
+                    REPORT(ling_mat__consratio);
+                    REPORT(ling_mat__growth_l);
+                    REPORT(ling_mat__growth_lastcalc);
+                    REPORT(ling_mat__growth_w);
+                    REPORT(ling_mat__igfs);
+                    REPORT(ling_mat__num);
+                    REPORT(ling_mat__overconsumption);
+                    REPORT(ling_mat__prevtotal);
+                    REPORT(ling_mat__suit_igfs);
+                    REPORT(ling_mat__totalpredate);
+                    REPORT(ling_mat__wgt);
+                    REPORT(nll);
+                    REPORT(nll_cdist_ldist_lln__num);
+                    REPORT(nll_cdist_ldist_lln__weight);
+                    REPORT(nll_understocking__weight);
+                    REPORT(nll_understocking__wgt);
+                }
                 return nll;
             }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
@@ -790,9 +832,7 @@ Type objective_function<Type>::operator() () {
                     {
                         nll += ldist_lln_weight*cur_cdist_nll;
                         nll_cdist_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
-                        REPORT(nll_cdist_ldist_lln__num);
                         nll_cdist_ldist_lln__weight(cur_time + 1 - 1) = ldist_lln_weight;
-                        REPORT(nll_cdist_ldist_lln__weight);
                     }
                 }
             }
@@ -818,9 +858,7 @@ Type objective_function<Type>::operator() () {
             g3l_understocking_total = pow(g3l_understocking_total, (Type)(double)(2));
             nll += g3l_understocking_total;
             nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
-            REPORT(nll_understocking__wgt);
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1);
-            REPORT(nll_understocking__weight);
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;

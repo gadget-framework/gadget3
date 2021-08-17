@@ -3,7 +3,8 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # Compile actions together into a single R function, the attached environment contains:
 # - model_data: Fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
-    all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
+    actions <- g3_collate(actions)
+    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
 
@@ -172,6 +173,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 var_name = as.character(x[[2]]),
                 # Strip attributes from nll, so we don't make recursive structure
                 var = if (x[[2]] == 'nll') quote(nll[[1]]) else as.symbol(x[[2]]) )),
+            g3_report_all = function (x) g3_functions(action_reports(actions)),
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

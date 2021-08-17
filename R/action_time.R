@@ -37,7 +37,10 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
         debug_label("g3a_time")
         cur_time <- cur_time + 1L
         if (strict_mode) assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
-        if (cur_time > total_steps) return(nll)
+        if (cur_time > total_steps) {
+            g3_report_all()
+            return(nll)
+        }
         cur_year <- start_year + (cur_time %/% step_count)
         cur_step <- (cur_time %% step_count) + 1L
         # Don't bother changing step size if it's always the same

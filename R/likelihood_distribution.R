@@ -249,10 +249,8 @@ g3l_distribution <- function (
                 cur_cdist_nll := function_f, {
                 nll <- nll + (weight) * cur_cdist_nll
                 stock_ss(nllstock__x) <- stock_ss(nllstock__x) + cur_cdist_nll
-                g3_report(nllstock__x)  # TODO: Only on penultimate step?
                 stock_ss(nllstock__weight) <- weight
-                g3_report(nllstock__weight)  # TODO: Only on penultimate step?
-                if (report) g3_report(modelstock__x)
+                # NB: Have to report obsstock__x explicitly because it's just data.
                 if (report) g3_report(obsstock__x)
             }))))
             if (!report) {

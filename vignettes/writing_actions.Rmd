@@ -146,6 +146,10 @@ nmort <- function() {
 g3_to_r(list(g3a_naturalmortality(ling_imm, nmort())))
 ```
 
+As well as making values available to other steps, ``g3_global_formula``()
+can also be used to ensure that the value ends up in the model report, which will
+happen automatically for any non-constant global in the model.
+
 ## g3_native
 
 There are limits to what the Gadget3 transpilation can manage, particularly

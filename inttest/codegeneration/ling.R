@@ -240,8 +240,51 @@ structure(function (param)
             cur_time <- cur_time + 1L
             if (TRUE) 
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
-            if (cur_time > total_steps) 
+            if (cur_time > total_steps) {
+                {
+                  attr(nll, "cdist_ldist_lln_model__num") <- cdist_ldist_lln_model__num
+                  attr(nll, "cur_step") <- cur_step
+                  attr(nll, "cur_step_final") <- cur_step_final
+                  attr(nll, "cur_time") <- cur_time
+                  attr(nll, "cur_year") <- cur_year
+                  attr(nll, "g3l_understocking_total") <- g3l_understocking_total
+                  attr(nll, "igfs__catch") <- igfs__catch
+                  attr(nll, "ling_imm__consratio") <- ling_imm__consratio
+                  attr(nll, "ling_imm__growth_l") <- ling_imm__growth_l
+                  attr(nll, "ling_imm__growth_lastcalc") <- ling_imm__growth_lastcalc
+                  attr(nll, "ling_imm__growth_w") <- ling_imm__growth_w
+                  attr(nll, "ling_imm__igfs") <- ling_imm__igfs
+                  attr(nll, "ling_imm__num") <- ling_imm__num
+                  attr(nll, "ling_imm__overconsumption") <- ling_imm__overconsumption
+                  attr(nll, "ling_imm__prevtotal") <- ling_imm__prevtotal
+                  attr(nll, "ling_imm__renewalnum") <- ling_imm__renewalnum
+                  attr(nll, "ling_imm__renewalwgt") <- ling_imm__renewalwgt
+                  attr(nll, "ling_imm__suit_igfs") <- ling_imm__suit_igfs
+                  attr(nll, "ling_imm__totalpredate") <- ling_imm__totalpredate
+                  attr(nll, "ling_imm__transitioning_num") <- ling_imm__transitioning_num
+                  attr(nll, "ling_imm__transitioning_wgt") <- ling_imm__transitioning_wgt
+                  attr(nll, "ling_imm__wgt") <- ling_imm__wgt
+                  attr(nll, "ling_imm_movement__transitioning_num") <- ling_imm_movement__transitioning_num
+                  attr(nll, "ling_imm_movement__transitioning_wgt") <- ling_imm_movement__transitioning_wgt
+                  attr(nll, "ling_mat__consratio") <- ling_mat__consratio
+                  attr(nll, "ling_mat__growth_l") <- ling_mat__growth_l
+                  attr(nll, "ling_mat__growth_lastcalc") <- ling_mat__growth_lastcalc
+                  attr(nll, "ling_mat__growth_w") <- ling_mat__growth_w
+                  attr(nll, "ling_mat__igfs") <- ling_mat__igfs
+                  attr(nll, "ling_mat__num") <- ling_mat__num
+                  attr(nll, "ling_mat__overconsumption") <- ling_mat__overconsumption
+                  attr(nll, "ling_mat__prevtotal") <- ling_mat__prevtotal
+                  attr(nll, "ling_mat__suit_igfs") <- ling_mat__suit_igfs
+                  attr(nll, "ling_mat__totalpredate") <- ling_mat__totalpredate
+                  attr(nll, "ling_mat__wgt") <- ling_mat__wgt
+                  attr(nll, "nll") <- nll[[1]]
+                  attr(nll, "nll_cdist_ldist_lln__num") <- nll_cdist_ldist_lln__num
+                  attr(nll, "nll_cdist_ldist_lln__weight") <- nll_cdist_ldist_lln__weight
+                  attr(nll, "nll_understocking__weight") <- nll_understocking__weight
+                  attr(nll, "nll_understocking__wgt") <- nll_understocking__wgt
+                }
                 return(nll)
+            }
             cur_year <- start_year + (cur_time%/%step_count)
             cur_step <- (cur_time%%step_count) + 1L
             cur_step_final <- cur_step == step_count
@@ -660,9 +703,7 @@ structure(function (param)
                   {
                     nll <- nll + param[["ldist_lln_weight"]] * cur_cdist_nll
                     nll_cdist_ldist_lln__num[cur_time + 1L] <- nll_cdist_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                    attr(nll, "nll_cdist_ldist_lln__num") <- nll_cdist_ldist_lln__num
                     nll_cdist_ldist_lln__weight[cur_time + 1L] <- param[["ldist_lln_weight"]]
-                    attr(nll, "nll_cdist_ldist_lln__weight") <- nll_cdist_ldist_lln__weight
                   }
                 }
             }
@@ -688,9 +729,7 @@ structure(function (param)
             g3l_understocking_total <- g3l_understocking_total^2
             nll <- nll + g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
-            attr(nll, "nll_understocking__wgt") <- nll_understocking__wgt
             nll_understocking__weight[cur_time + 1L] <- 1
-            attr(nll, "nll_understocking__weight") <- nll_understocking__weight
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")

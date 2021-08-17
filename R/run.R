@@ -30,6 +30,39 @@ g3_collate <- function(action_list) {
     return(actions[order(names(actions))])
 }
 
+# Find all vars from collated actions that get assigned to, we'll report those.
+action_reports <- function (actions) {
+    terms <- new.env(parent = emptyenv())
+    find_assignments <- function (f, ignore_vars) call_replace(f,
+        g3_with = function (x) find_assignments(
+            x[[length(x)]],
+            # Ignore any scoped variables when recursing
+            c(ignore_vars, vapply(
+                g3_with_extract_terms(x),
+                function (term) as.character(term[[2]]),
+                character(1)))),
+        "<-" = function(x) {
+            lhs <- x[[2]]
+            # lhs is either a symbol or a subsetting call
+            if (is.symbol(lhs)) {
+                lhs <- as.character(lhs)
+            } else if (is.call(lhs)) {
+                lhs <- as.character(lhs[[2]])
+            } else {
+                stop("Unknown lhs: ", lhs)
+            }
+            if (!(lhs %in% ignore_vars)) {
+                terms[[lhs]] <<- TRUE
+            }
+        })
+    for (a in actions) find_assignments(a, c())
+
+    # Turn into a bunch of g3_report() calls
+    as.call(c(as.symbol("{"), lapply(sort(names(terms)), function (x) {
+        substitute(g3_report(x), list(x = as.symbol(x)))
+    })))
+}
+
 scope_to_parameter_template <- function (scope, return_type) {
     parts <- lapply(scope, function (val) attr(val, 'param_template'))
     names(parts) <- NULL
