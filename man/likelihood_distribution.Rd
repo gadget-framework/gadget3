@@ -287,6 +287,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 
     If \var{alpha} or \var{beta} is not provided, then linear regression is
     performed on \eqn{N}, \eqn{\nu} over time for each area/age/length combination.
+    The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
+    reported after model run, whether calculated or hard-coded.
   }
   \subsection{g3l_distribution_surveyindices_linear}{
     Returns a \link{formula} for use as \var{function_f}:
@@ -303,6 +305,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 
     If \var{alpha} or \var{beta} is not provided, then linear regression is
     performed on \eqn{N}, \eqn{\nu} over time for each area/age/length combination.
+    The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
+    reported after model run, whether calculated or hard-coded.
   }
   \subsection{g3l_distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}

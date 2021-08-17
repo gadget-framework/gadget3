@@ -227,6 +227,10 @@ ok_group("Likelihood per step", {
         sort(as.vector(r$cdist_utsd_obs__num)),
         sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
+    ok(ut_cmp_equal(
+        r$cdist_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+
     ######## cdist_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_a', 1]), c(
         sum(r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
@@ -599,6 +603,11 @@ ok_group("Likelihood per year", {
     ok(ut_cmp_equal(
         sort(as.vector(r$cdist_utsd_obs__num)),
         sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
+
+    ok(ut_cmp_equal(
+        r$cdist_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+
 
     ######## cdist_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(
