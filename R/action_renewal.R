@@ -48,8 +48,8 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
 g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
-    stock__renewalnum <- stock_instance(stock)
-    stock__renewalwgt <- stock_instance(stock)
+    stock__renewalnum <- stock_instance(stock, 0)
+    stock__renewalwgt <- stock_instance(stock, 0)
 
     out <- list()
     action_name <- unique_action_name()
@@ -74,8 +74,8 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     # See InitialCond::Initialise
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
-    stock__renewalnum <- stock_instance(stock)
-    stock__renewalwgt <- stock_instance(stock)
+    stock__renewalnum <- stock_instance(stock, 0)
+    stock__renewalwgt <- stock_instance(stock, 0)
 
     out <- list()
     action_name <- unique_action_name()

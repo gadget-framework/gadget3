@@ -144,81 +144,75 @@ likelihood_actions <- list(
 time <- list(
     g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3)),
     list())
-ling_model <- g3_to_r(c(
+model_fn <- g3_to_r(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
     likelihood_actions,
     time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
-writeLines(deparse(ling_model, width.cutoff = 500L), con = 'inttest/codegeneration/ling.R')
+writeLines(deparse(model_fn, width.cutoff = 500L), con = 'inttest/codegeneration/ling.R')
 
 
-ling_param <- attr(ling_model, 'parameter_template')
-ling_param[["ling.Linf"]] <- 160
-ling_param[["ling.k"]] <- 90
-ling_param[["lingimm.walpha"]] <- 2.27567436711055e-06
-ling_param[["lingimm.wbeta"]] <- 3.20200445996187
-ling_param[["ling.bbin"]] <- 6
-ling_param[["lingimm.M"]] <- 0.15
-ling_param[["lingimm.init.scalar"]] <- 200
-ling_param[["ling.init.F"]] <- 0.4
-ling_param[["lingimm.init"]] <- rep(1, 10 - 3 + 1)
-ling_param[["ling.recl"]] <- 12
-ling_param[["ling.mat1"]] <- 70
-ling_param[["ling.mat2"]] <- 75
-ling_param[["ling.rec.scalar"]] <- 400
-ling_param[["ling.rec.sd"]] <- 5
-ling_param[["lingmat.M"]] <- 0.15
-ling_param[["lingmat.init.scalar"]] <- 200
-ling_param[["lingmat.init"]] <- rep(1, 15 - 5 + 1)
-ling_param[["lingmat.walpha"]] <- 2.27567436711055e-06
-ling_param[["lingmat.wbeta"]] <- 3.20200445996187
-ling_param[["ling.igfs.alpha"]] <- 0.5
-ling_param[["ling.igfs.l50"]] <- 50
-ling_param[["ling.lln.alpha"]] <- 0.5
-ling_param[["ling.lln.l50"]] <- 50
-ling_param[["ling.bmt.alpha"]] <- 0.5
-ling_param[["ling.bmt.l50"]] <- 50
-ling_param[["ling.gil.alpha"]] <- 0.5
-ling_param[["ling.gil.l50"]] <- 50
+params <- attr(model_fn, 'parameter_template')
+params[["ling.Linf"]] <- 160
+params[["ling.k"]] <- 90
+params[["lingimm.walpha"]] <- 2.27567436711055e-06
+params[["lingimm.wbeta"]] <- 3.20200445996187
+params[["ling.bbin"]] <- 6
+params[["lingimm.M"]] <- 0.15
+params[["lingimm.init.scalar"]] <- 200
+params[["ling.init.F"]] <- 0.4
+params[["lingimm.init"]] <- rep(1, 10 - 3 + 1)
+params[["ling.recl"]] <- 12
+params[["ling.mat1"]] <- 70
+params[["ling.mat2"]] <- 75
+params[["ling.rec.scalar"]] <- 400
+params[["ling.rec.sd"]] <- 5
+params[["lingmat.M"]] <- 0.15
+params[["lingmat.init.scalar"]] <- 200
+params[["lingmat.init"]] <- rep(1, 15 - 5 + 1)
+params[["lingmat.walpha"]] <- 2.27567436711055e-06
+params[["lingmat.wbeta"]] <- 3.20200445996187
+params[["ling.igfs.alpha"]] <- 0.5
+params[["ling.igfs.l50"]] <- 50
+params[["ling.lln.alpha"]] <- 0.5
+params[["ling.lln.l50"]] <- 50
+params[["ling.bmt.alpha"]] <- 0.5
+params[["ling.bmt.l50"]] <- 50
+params[["ling.gil.alpha"]] <- 0.5
+params[["ling.gil.l50"]] <- 50
 # Set recrutiment for every year
-ling_param[paste('ling.rec', 1994:2018, sep = ".")] <- 1
+params[paste('ling.rec', 1994:2018, sep = ".")] <- 1
 
 writeLines("***** Running Model *****")
-system.time(r_result <- ling_model(ling_param))
+system.time(r_result <- model_fn(params))
 str(r_result)
-# NB: You can do: ling_model <- edit(ling_model) ; result <- ling_model(ling_param)
+# NB: You can do: model_fn <- edit(model_fn) ; result <- model_fn(params)
 
-tmb_ling <- g3_to_tmb(c(
+model_cpp <- g3_to_tmb(c(
     ling_mat_actions,
     ling_imm_actions,
     igfs_actions,
     likelihood_actions,
     time), strict = TRUE)
-writeLines(tmb_ling, con = 'inttest/codegeneration/ling.cpp')
+writeLines(model_cpp, con = 'inttest/codegeneration/ling.cpp')
 
-# tmb_ling <- edit(tmb_ling)
-tmb_param <- attr(tmb_ling, 'parameter_template')
+# model_cpp <- edit(model_cpp)
+tmb_param <- attr(model_cpp, 'parameter_template')
 capture.output(print(tmb_param), file = 'inttest/codegeneration/ling.tmbparam')
 # Fill parameters - Map original list into data.frame format
-tmb_param$value <- I(ling_param[tmb_param$switch])
+tmb_param$value <- I(params[tmb_param$switch])
 # Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE
 # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
 
 # Run the model with debugging:
-# tmb_ling <- edit(tmb_ling) ; writeLines(gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = c("-O0", "-g"), output_script = TRUE)))
+# model_cpp <- edit(model_cpp) ; writeLines(gdbsource(g3_tmb_adfun(model_cpp, tmb_param, compile_flags = c("-O0", "-g"), output_script = TRUE)))
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    print(system.time({ling_model_tmb <- g3_tmb_adfun(tmb_ling, tmb_param)}))
-    print(system.time(tmb_result <- ling_model_tmb$fn()))
+    print(system.time({model_tmb <- g3_tmb_adfun(model_cpp, tmb_param)}))
+    print(system.time(tmb_result <- model_tmb$fn()))
 
-    # Compare result and report output
-    stopifnot(all.equal(unattr(r_result), tmb_result, tolerance = 1e-5))
-    ling_model_tmb_report <- ling_model_tmb$report()
-    for (n in names(attributes(r_result))) {
-        ok(ut_cmp_equal(
-            as.vector(ling_model_tmb_report[[n]]),
-            as.vector(attr(r_result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 }

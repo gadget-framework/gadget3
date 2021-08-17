@@ -258,8 +258,8 @@ Type objective_function<Type>::operator() () {
     Type ling_mat__plusdl = (double)(4);
     array<Type> ling_mat__growth_w;
     Type ling_mat__prevtotal = (double)(0);
-    array<Type> ling_imm__renewalnum(35,1,8);
-    array<Type> ling_imm__renewalwgt(35,1,8);
+    array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
+    array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
     vector<Type> cdist_ldist_lln_model__num(35); cdist_ldist_lln_model__num.setZero();
     auto intintlookup_zip = [](vector<int> keys, vector<int> values) -> std::map<int, int> {
             std::map<int, int> lookup = {};

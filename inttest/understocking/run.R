@@ -31,6 +31,7 @@ igfs_report <- igfs %>% g3s_clone('igfs_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 nll_report <- rep(0, length(year_range) * 4)
 prev_nll <- 0.0
+remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
 
 ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
@@ -119,8 +120,7 @@ report_actions <- list(
        g3a_report_stock(igfs_report,igfs, ~stock_ss(igfs__catch)),
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
-           prev_nll <- nll
-           g3_report(nll_report)
+           prev_nll <- remove_nll_attributes(nll)
        }))
 
 time_actions <- list(
@@ -138,27 +138,23 @@ actions <- c(
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
 param_table <- read.table('inttest/understocking/params.in', header = TRUE)
-param <- as.list(param_table$value)
-names(param) <- param_table$switch
+params <- as.list(param_table$value)
+names(params) <- param_table$switch
 
 # Run gadget3 model
-# model_fn <- edit(model_fn) ; model_fn(param)
-r_result <- model_fn(param)
+# model_fn <- edit(model_fn) ; model_fn(params)
+r_result <- model_fn(params)
 g3_r <- attributes(r_result)
 
 # If enabled run a TMB version too
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, param)
+    model_tmb <- g3_tmb_adfun(model_cpp, params)
 
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(r_result))) {
-        ok(all.equal(
-            as.vector(model_tmb_report[[n]]),
-            as.vector(attr(r_result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 }
 
 # Run gadget2 model
