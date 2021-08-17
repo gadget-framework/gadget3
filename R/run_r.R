@@ -170,7 +170,8 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
                 var_name = as.character(x[[2]]),
-                var = as.symbol(x[[2]]))),
+                # Strip attributes from nll, so we don't make recursive structure
+                var = if (x[[2]] == 'nll') quote(nll[[1]]) else as.symbol(x[[2]]) )),
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

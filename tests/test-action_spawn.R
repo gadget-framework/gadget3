@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 stock_imm1 <- g3_stock('stock_imm1', seq(10, 40, 10)) %>% g3s_age(3, 7)
 stock_imm2 <- g3_stock('stock_imm2', seq(10, 40, 10)) %>% g3s_age(4, 7)
 stock_mat <- g3_stock('stock_mat', seq(30, 40, 10)) %>% g3s_age(5, 7)
@@ -159,5 +142,9 @@ ok_group('g3a_spawn', {
     }
 
     # Make sure the inttest model produces identical output in TMB and R
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

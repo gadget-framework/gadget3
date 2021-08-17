@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 # NB: We start at 11 to make sure we age into the right bracket
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(11, 15)
 prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(11, 13)
@@ -107,5 +90,9 @@ ok_group("age", {
     ok(ut_cmp_identical(as.vector(r$step3_prey_c__num), c(0, 0, 0, 20, 30, 0, 0)), "step3_prey_c__num: Final age of prey_b transferred, numbers rotated")
     ok(ut_cmp_equal(as.vector(r$step3_prey_c__wgt), c(0, 0, 0, 200, 300, 0, 0)), "step3_prey_c__wgt: Final age of prey_b transferred")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

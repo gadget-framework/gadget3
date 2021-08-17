@@ -3,21 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, param_template) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb_report <- model_tmb$report(g3_tmb_par(param_template))
-        r_result <- model_fn(param_template$value)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 # Zip name/value arguments together into a list
 named_list <- function(...) {
     x <- list(...)
@@ -507,9 +492,11 @@ ok_group("Likelihood per step", {
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    tmb_r_compare(model_fn, model_tmb, param_template)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })
 
 ok_group("Likelihood per year", {
@@ -771,7 +758,9 @@ ok_group("Likelihood per year", {
             log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    tmb_r_compare(model_fn, model_tmb, param_template)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

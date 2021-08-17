@@ -3,29 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    dearray <- function (x) {
-        # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
-        if (is.array(x) && length(dim(x)) == 1) return(as.vector(x))
-        return(x)
-    }
-
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                dearray(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 ok_group("g3s_time: Times produced in order", {
     inst <- g3_stock('terry', c(1)) %>% g3s_time(
         year = 2002:2004,

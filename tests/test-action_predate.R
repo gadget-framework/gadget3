@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
 unattr <- function (x) {
@@ -303,7 +286,11 @@ ok_group("No overconsumption", {
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })
 
 
@@ -370,5 +357,9 @@ ok_group("Overconsumption", {
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

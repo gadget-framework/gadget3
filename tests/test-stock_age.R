@@ -132,12 +132,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(result))) {
-        ok(ut_cmp_equal(
-            as.vector(model_tmb_report[[n]]),
-            as.vector(attr(result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 } else {
     writeLines("# skip: not running TMB tests")
 }

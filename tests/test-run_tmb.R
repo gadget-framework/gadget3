@@ -3,29 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    dearray <- function (x) {
-        # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
-        if (is.array(x) && length(dim(x)) == 1) return(as.vector(x))
-        return(x)
-    }
-
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                dearray(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2))
     g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
@@ -471,4 +448,8 @@ for (n in ls(expecteds)) {
         attr(result, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
-tmb_r_compare(model_fn, model_tmb, params)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+}
