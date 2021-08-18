@@ -27,6 +27,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 extension_point
             }), list(extension_point = inner_stock$interact), copy_all_env = TRUE),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+            name_parts = inner_stock$name_parts,
             name = inner_stock$name), class = c("g3_stock", "list"))
     } else {
         structure(list(
@@ -52,6 +53,7 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 })
             }, list(extension_point = inner_stock$interact), copy_all_env = TRUE),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+            name_parts = inner_stock$name_parts,
             name = inner_stock$name), class = c("g3_stock", "list"))
     }
 }
@@ -90,5 +92,6 @@ g3s_areagroup <- function(inner_stock, areagroups) {
                 lookup = stock__areagroup_lookup('getdefault', ~area, -1L),
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

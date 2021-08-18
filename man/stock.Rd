@@ -20,7 +20,8 @@ g3s_clone(inner_stock, var_name)
 
 \arguments{
   \item{var_name}{
-    Prefix used for all instance variables of this stock.
+    Prefix used for all instance variables of this stock. Can have multiple
+    parts that will be concatentated together, see example.
   }
   \item{lengthgroups}{
     Vector defining length groups, each entry defining the minimum value.
@@ -51,6 +52,11 @@ g3s_clone(inner_stock, var_name)
 
 # Define a stock with 3 lengthgroups
 stock <- g3_stock('name', c(1, 10, 100))
+
+# Define a stock with a multi-part name. We can then dig out species name
+stock <- g3_stock(c(species = 'ling', 'imm'), c(1, 10, 100))
+stopifnot( stock$name == 'ling_imm' )
+stopifnot( stock$name_parts[['species']] == 'ling' )
 
 # Use stock_instance to see what the array would look like
 gadget3:::stock_instance(stock)

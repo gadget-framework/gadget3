@@ -57,6 +57,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
                 idx_f = idx_f,
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
 
@@ -85,5 +86,6 @@ g3s_modeltime <- function (inner_stock, by_year = FALSE) {
         interact = f_substitute(~extension_point, list(
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

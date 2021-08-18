@@ -30,6 +30,8 @@ stock_instance <- function (stock, init_value = NA, desc = "") {
 }
 
 g3_storage <- function(var_name) {
+    stopifnot(is.character(var_name))
+
     structure(list(
         dim = list(),
         dimnames = list(),
@@ -38,7 +40,8 @@ g3_storage <- function(var_name) {
         intersect = ~extension_point,
         interact = ~extension_point,
         rename = ~extension_point,
-        name = var_name), class = c("g3_stock", "list"))
+        name_parts = var_name,
+        name = paste(var_name, collapse = "_")), class = c("g3_stock", "list"))
 }
 
 # True iff (x) is a stock object
@@ -100,6 +103,7 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
             extension_point = inner_stock$rename), copy_all_env = TRUE),
+        name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
 
