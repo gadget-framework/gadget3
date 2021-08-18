@@ -2,11 +2,11 @@
 ## Catch age and length distributions:
 ## -----------------------------------------------------------------------------
 
-min_age <- unlist(minage) %>% min()
-max_age <- unlist(maxage) %>% max()
-min_len <- unlist(minlength) %>% min()
-max_len <- unlist(maxlength) %>% max()
-d_len <- dl$imm_stock
+minage <- gadget3:::stock_definition(ling_imm, 'minage')
+maxage <- gadget3:::stock_definition(ling_mat, 'maxage')
+minlength <- gadget3:::stock_definition(ling_imm, 'lengthgroups') %>% min()
+maxlength <- gadget3:::stock_definition(ling_mat, 'lengthgroups') %>% max()
+dl <- gadget3:::stock_definition(ling_mat, 'stock__dl') %>% min()
 
 ## Query length data to create IGFS catch distribution components
 ldist.igfs <-

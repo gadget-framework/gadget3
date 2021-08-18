@@ -63,13 +63,6 @@ stock_list <-
 ## Maximum number of length groups a stock can group within a time step (maxlengthgroupgrowth)
 mlgg <- 10
 
-## Age and length bounds per stock
-minage <- lapply(stock_list, function(x){ x$iterate %>% environment %>% .$minage })
-maxage <- lapply(stock_list, function(x){ x$iterate %>% environment %>% .$maxage })
-maxlength <- lapply(stock_list, function(x){ x$iterate %>% environment() %>% .$lengthgroups %>% max() })
-minlength <- lapply(stock_list, function(x){ x$iterate %>% environment() %>% .$lengthgroups %>% min() })
-dl <- lapply(stock_list, function(x){ x$iterate %>% environment() %>% .$stock__dl %>% min() })
-
 ############ Configure fleets ##################################################
 
 ## Survey(s)
@@ -127,32 +120,32 @@ ling_model <- g3_to_r(c(
   ling_likelihood_actions,
   report_actions,
   time_actions), 
-  #  trace = T, 
-  strict = T)
+  #  trace = TRUE, 
+  strict = TRUE)
 
 # Get pararameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
-ling_param[[sprintf("%simm.walpha", species_name)]] <- 2.27567436711055e-06
-ling_param[[sprintf("%smat.walpha", species_name)]] <- 2.27567436711055e-06
+ling_param <- attr(ling_model, 'parameter_template')
+ling_param[grepl('\\.walpha$', names(ling_param))] <- 2.27567436711055e-06
+ling_param[grepl('\\.wbeta$', names(ling_param))] <- 3.20200445996187
+ling_param[grepl('\\.bbin$', names(ling_param))] <- 6
+ling_param[grepl('mat\\.M\\.', names(ling_param))] <- 0.15
+ling_param[grepl('imm\\.M\\.', names(ling_param))] <- 0.15
+ling_param[grepl('\\.rec\\.sd$', names(ling_param))] <- 1
 
-ling_param[[sprintf("%simm.wbeta", species_name)]] <- 3.20200445996187
-ling_param[[sprintf("%smat.wbeta", species_name)]] <- 3.20200445996187
+ling_param[grepl('mat\\.init\\.sd', names(ling_param))] <-
+  init.sigma %>% filter(age %in% 
+                          gadget3:::stock_definition(ling_mat, 'minage'): 
+                          gadget3:::stock_definition(ling_mat, 'maxage')) %>% .$ms
 
-ling_param[[sprintf("%s.bbin", species_name)]] <- 6
-
-ling_param[grepl(paste0('^',species_name,"imm\\.M\\."), names(ling_param))] <- 0.15
-ling_param[grepl(paste0('^',species_name,"mat\\.M\\."), names(ling_param))] <- 0.15
-ling_param[grepl(paste0('^',species_name,"\\.rec\\."), names(ling_param))] <- 1
-
-ling_param[grepl(paste0('^',species_name,"imm\\.init\\.sd"), names(ling_param))] <-
-  init.sigma %>% filter(age %in% minage$imm_stock:maxage$imm_stock) %>% .$ms
-
-ling_param[grepl(paste0('^',species_name,"mat\\.init\\.sd"), names(ling_param))] <-
-  init.sigma %>% filter(age %in% minage$mat_stock:maxage$mat_stock) %>% .$ms
+ling_param[grepl('imm\\.init\\.sd', names(ling_param))] <-
+  init.sigma %>% filter(age %in% 
+                          gadget3:::stock_definition(ling_imm, 'minage'): 
+                          gadget3:::stock_definition(ling_imm, 'maxage')) %>% .$ms
 
 ## SI's
-ling_param[[sprintf("%s_si_beta1", species_name)]] <- 1
-ling_param[[sprintf("%s_si_beta2", species_name)]] <- 1
+ling_param[grepl('_si_beta1', names(ling_param))] <- 1
+ling_param[grepl('_si_beta2', names(ling_param))] <- 1
 ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
 
 ## Old weights from gadget2
