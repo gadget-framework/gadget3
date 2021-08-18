@@ -146,7 +146,8 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>var_name</th>
-      <td><p>Prefix used for all instance variables of this stock.</p></td>
+      <td><p>Prefix used for all instance variables of this stock. Can have multiple
+    parts that will be concatentated together, see example.</p></td>
     </tr>
     <tr>
       <th>lengthgroups</th>
@@ -176,6 +177,11 @@
 
 <span class='co'># Define a stock with 3 lengthgroups</span>
 <span class='va'>stock</span> <span class='op'>&lt;-</span> <span class='fu'>g3_stock</span><span class='op'>(</span><span class='st'>'name'</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='co'># Define a stock with a multi-part name. We can then dig out species name</span>
+<span class='va'>stock</span> <span class='op'>&lt;-</span> <span class='fu'>g3_stock</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>species <span class='op'>=</span> <span class='st'>'ling'</span>, <span class='st'>'imm'</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span>, <span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/stopifnot.html'>stopifnot</a></span><span class='op'>(</span> <span class='va'>stock</span><span class='op'>$</span><span class='va'>name</span> <span class='op'>==</span> <span class='st'>'ling_imm'</span> <span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/stopifnot.html'>stopifnot</a></span><span class='op'>(</span> <span class='va'>stock</span><span class='op'>$</span><span class='va'>name_parts</span><span class='op'>[[</span><span class='st'>'species'</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>==</span> <span class='st'>'ling'</span> <span class='op'>)</span>
 
 <span class='co'># Use stock_instance to see what the array would look like</span>
 <span class='fu'>gadget3</span><span class='fu'>:::</span><span class='fu'>stock_instance</span><span class='op'>(</span><span class='va'>stock</span><span class='op'>)</span>
