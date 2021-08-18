@@ -1,0 +1,30 @@
+switch	value	lower	upper	optimise
+lingimm.init	0	0	100	0
+lingimm.init.scalar	0	0	300	0
+lingimm.rec.scalar	100	0	300	0
+lingimm.M	0	0	100	0
+lingimm.walpha	1e-1	0	100	0
+lingimm.wbeta	2	0	100	0
+lingmat.init	1	0	100	0
+lingmat.init.scalar	100	0	300	0
+lingmat.rec.scalar	100	0	300	0
+lingmat.M	0.95	0	100	0
+lingmat.walpha	1e-6	0	100	0
+lingmat.wbeta	2	0	100	0
+ling.init.F	0.4	0	100	0
+ling.mat.alpha	0.01	0	1	1
+ling.mat.l50	75	10	200	1
+ling.mat.beta	0.01	0	1	1
+ling.mat.a50	7	1	200	1
+ling.Linf	160	0	200	0
+ling.bbin       6       1e-08   100     1
+ling.k  10      1      100     1
+ricker.mu	1	0	100	0
+ricker.lambda	1e-6	0	100	0
+spawn.prop.alpha	0.5	0	100	0
+spawn.prop.l50		120	0	500	0
+; TODO: Enabling mortality results in compound inaccuracies, somewhere?
+;       The actual mortality calculation seems fine.
+spawn.mort.alpha	0	0	100	0
+spawn.mort.beta		0	0	100	0
+spawn.weightloss	0.1	0	100	0

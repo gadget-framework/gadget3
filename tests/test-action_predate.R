@@ -3,22 +3,7 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
+cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
 unattr <- function (x) {
     attributes(x) <- NULL
@@ -32,6 +17,63 @@ prey_b <- g3_stock('prey_b', seq(1, 10)) %>% g3s_livesonareas(areas[c('b')])
 prey_c <- g3_stock('prey_c', seq(1, 10)) %>% g3s_livesonareas(areas[c('c')])
 fleet_ab <- g3_fleet('fleet_ab') %>% g3s_livesonareas(areas[c('a', 'b')])
 fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
+
+ok_group("g3a_predate_catchability_totalfleet", {
+    ok(cmp_code(
+        g3a_predate_catchability_totalfleet(1234),
+        ~stock_ss(prey_stock__fleet_stock) * (1234/stock_ss(fleet_stock__catch))
+        ), "g3a_predate_catchability_totalfleet: Inserts E into formula")
+})
+
+ok_group("g3a_predate_catchability_numberfleet", {
+    ok(cmp_code(
+        g3a_predate_catchability_numberfleet(1234),
+        ~(stock_ss(prey_stock__fleet_stock)/stock_ss(prey_stock__wgt)) * (1234/stock_ss(fleet_stock__catchnum))
+        ), "g3a_predate_catchability_numberfleet: Uses __catchnum instead of __catch")
+})
+
+ok_group("g3a_predate_catchability_effortfleet", {
+    ok(cmp_code(
+        g3a_predate_catchability_effortfleet(
+            list(ling_imm = 123, ling_mat = 456),
+            1234),
+        ~stock_switch(prey_stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(prey_stock__fleet_stock)), "Converts list into stock_switch")
+})
+
+ok_group("g3a_predate_catchability_quotafleet", {
+    ok(cmp_code(
+        g3a_predate_catchability_quotafleet(data.frame(
+            biomass = c(1000, 2000, Inf),
+            quota = c(10, 20, 30)), 1234),
+        ~(if (sum(prey_stock__num * prey_stock__wgt) < 1000) 10 else
+          if (sum(prey_stock__num * prey_stock__wgt) < 2000) 20 else 30) *
+              1234 * cur_step_size * stock_ss(prey_stock__fleet_stock)), "quota_table: Quota converted into if condition")
+
+    ok(cmp_code(
+        g3a_predate_catchability_quotafleet(
+            data.frame(biomass = c(100, Inf), quota = c(0, 800)),
+            2134,
+            sum_stocks = list(prey_a, prey_b)),
+        ~(if (stock_with(prey_b, sum(prey_b__num * prey_b__wgt)) +
+             (stock_with(prey_a, sum(prey_a__num * prey_a__wgt)) + 0) < 100) 0 else 800) *
+                2134 * cur_step_size * stock_ss(prey_stock__fleet_stock)), "sum_stocks: Summing all named stocks")
+
+    out_f <- g3a_predate_catchability_quotafleet(
+            data.frame(biomass = c(100, Inf), quota = c(0, 800)),
+            2134,
+            recalc_f = ~cur_step == 1)
+    quota_var_name <- ls(environment(out_f))[startsWith(ls(environment(out_f)), "prey_stock__quotafleet_")]
+    ok(ut_cmp_identical(length(quota_var_name), 1L), "recalc_f: Quota var added to env")
+    ok(ut_cmp_identical(
+        unattr(environment(out_f)[[quota_var_name]]),
+        0.0), "recalc_f: Quota var initalized to 0")
+    ok(cmp_code(
+        out_f,
+        gadget3:::f_substitute(
+            ~(quota_var <- if (cur_step == 1) if (sum(prey_stock__num * prey_stock__wgt) <
+                100) 0 else 800 else quota_var) * 2134 * cur_step_size * stock_ss(prey_stock__fleet_stock),
+            list(quota_var = as.symbol(quota_var_name)))), "recalc_f: Assign to quota_var as part of code")
+})
 
 ok_group("Detect missing suitabilities", {
     ok(ut_cmp_error(g3a_predate_totalfleet(
@@ -57,7 +99,7 @@ actions <- list(
             prey_b = ~g3_param_vector("fleet_ab_b"),
             prey_c = ~g3_param_vector("fleet_ab_c")),
         amount_f = ~g3_param('amount_ab') * area),
-    g3a_predate_totalfleet(
+    g3a_predate_fleet(
         fleet_bc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
@@ -65,7 +107,7 @@ actions <- list(
             prey_a = ~g3_param_vector("fleet_bc_a"),
             prey_b = ~g3_param_vector("fleet_bc_b"),
             prey_c = ~g3_param_vector("fleet_bc_c")),
-        amount_f = ~g3_param('amount_bc') * area),
+        catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area)),
     g3l_understocking(
         list(prey_a, prey_b, prey_c),
         power_f = ~g3_param('understocking_power'),
@@ -244,7 +286,11 @@ ok_group("No overconsumption", {
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })
 
 
@@ -311,5 +357,9 @@ ok_group("Overconsumption", {
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

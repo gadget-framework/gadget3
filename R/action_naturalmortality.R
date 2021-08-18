@@ -1,7 +1,7 @@
-g3a_naturalmortality_exp <- function (param_f) {
+g3a_naturalmortality_exp <- function (param_f, action_step_size_f = ~cur_step_size) {
     f_substitute(
-        ~exp(-(param_f) * cur_step_size),
-        list(param_f = param_f))
+        ~exp(-(param_f) * action_step_size_f),
+        list(param_f = param_f, action_step_size_f = action_step_size_f))
 }
 
 g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) {

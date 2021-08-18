@@ -103,7 +103,7 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   Where \eqn{ \Delta{t} } is the length of the current timestep,
   \eqn{ {{\Delta}L} } is all possible length group increases i.e \code{0..maxlengthgroupgrowth}.
   }
-  \subsection{g3a_grow_impl_bbinom}{\link{formula} object converting mean growths using beta-binomia distribution. See \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#beta-binomial}}
+  \subsection{g3a_grow_impl_bbinom}{\link{formula} object converting mean growths using beta-binomia distribution. See \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#beta-binomial}}
 
   \subsection{g3a_growmature}{An action (i.e. list of formula objects) that will, for the given \var{stock}...\enumerate{
     \item{Move any maturing individuals into temporary storage, \code{stock__transitioning_num} / \code{stock__transitioning_wgt}}
@@ -113,7 +113,7 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockgrowth},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockgrowth},
   \code{\link{g3_stock}}
 }
 

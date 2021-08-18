@@ -49,25 +49,49 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
                 sigma_f = sigma_f))
 }
 
-g3l_distribution_surveyindices_log <- function (alpha = 0, beta = 1) {
-    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
-    #       The outer sum is currently flattening what would probably be a vector of areas
-    f_substitute(~sum((alpha +
-        beta * log(avoid_zero_vec(stock_ss(modelstock__x))) -
-        log(avoid_zero_vec(stock_ss(obsstock__x))))**2), list(
-            alpha = alpha,
-            beta = beta))
-}
+g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NULL) {
+    stopifnot(fit == 'linear' || fit == 'log')
 
-g3l_distribution_surveyindices_linear <- function (alpha = 0, beta = 1) {
-    # TODO: This isn't per-area, as in gadget2. Multi-area models will need more work
-    #       The outer sum is currently flattening what would probably be a vector of areas
-    f_substitute(~sum((alpha +
-        beta * stock_ss(modelstock__x) -
-        stock_ss(obsstock__x))**2), list(
-            alpha = alpha,
-            beta = beta))
+    N <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(modelstock__x, 'time'))) else ~stock_ss(modelstock__x, 'time')
+    I <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(obsstock__x, 'time'))) else ~stock_ss(obsstock__x, 'time')
+
+    surveyindices_linreg <- g3_native(r = function (N, I, fixed_alpha, fixed_beta) {
+        meanI <- mean(I)
+        meanN <- mean(N)
+        beta <- if (is.na(fixed_beta)) sum((I - meanI) * (N - meanN)) / avoid_zero(sum((N - meanN)**2)) else fixed_beta
+        alpha <- if (is.na(fixed_alpha)) meanI - beta * meanN else fixed_alpha
+        return(c(alpha = alpha, beta = beta))
+    }, cpp = '[&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
+        vector<Type> out(2);
+
+        auto meanI = I.mean();
+        auto meanN = N.mean();
+        auto beta = std::isnan(asDouble(fixed_beta)) ? ((I - meanI) * (N - meanN)).sum() / avoid_zero((pow(N - meanN, (Type)2)).sum()) : fixed_beta;
+        auto alpha = std::isnan(asDouble(fixed_alpha)) ? meanI - beta * meanN : fixed_alpha;
+        out(0) = alpha;
+        out(1) = beta;
+        return out;
+    }', depends = c('avoid_zero'))
+
+    modelstock__params <- g3_global_formula(f_substitute(
+        # NB: If we're not going to compare, don't bother recalculating linear regression
+        ~if (modelstock__time_idx != modelstock__max_time_idx) modelstock__params else surveyindices_linreg(N, I, intercept_f, slope_f),
+        list(
+            N = N, I = I,
+            # NB: Can't use NULL in C++, Use NaN instead
+            intercept_f = if (is.null(alpha)) NaN else alpha,
+            slope_f = if (is.null(beta)) NaN else beta)), init_val = c(0.0, 0.0))
+
+    # NB: stock_ss(..., 'time') means we keep the time dimension, and have a vector of model time for each area,
+    #     checking max_time_idx means we only do this once all data is collected.
+    # NB: Outer sum sums the vector of timepoints, this formula is called for each area separately.
+    out <- f_substitute(
+        ~if (modelstock__time_idx != modelstock__max_time_idx) 0 else sum((modelstock__params[[1]] + modelstock__params[[2]] * N - I)**2),
+        list(N = N, I = I))
+    return(out)
 }
+g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('log', alpha, beta)
+g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('linear', alpha, beta)
 
 # Compare numbers caught by fleets to observation data
 g3l_catchdistribution <- function (
@@ -148,7 +172,7 @@ g3l_distribution <- function (
         }
 
         # Collect all of stock and dump it in modelstock
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- f_substitute(~{
             debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
             stock_iterate(stock, stock_intersect(modelstock, {
                 if (compare_num) {
@@ -164,11 +188,11 @@ g3l_distribution <- function (
             }))
         }, list(
             compare_num = !is.null(ld$number),
-            compare_wgt = !is.null(ld$weight))))
+            compare_wgt = !is.null(ld$weight)))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]], list(
-            stockidx_f = stockidx_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]] <- g3_step(f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, stock)]], list(
+            stockidx_f = stockidx_f)))
     }
 
     # Otherwise, do fleet catch comparison
@@ -203,11 +227,12 @@ g3l_distribution <- function (
             compare_num = !is.null(ld$number),
             compare_wgt = !is.null(ld$weight),
             # Find catch from predation step
-            prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))))
+            prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))), recursing = TRUE)
 
         # Fix-up stock intersection, add in stockidx_f
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]], list(
             stockidx_f = stockidx_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }
 
     nllstock <- g3_storage(paste0("nll_cdist_", nll_name))
@@ -215,52 +240,57 @@ g3l_distribution <- function (
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
-    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- g3_step(f_substitute(~{
+
+    # Generic comparison step with __x instead of __num or __wgt
+    compare_generic_f <- g3_step(f_substitute(~{
         debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
-            stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, {
-                if (compare_num) g3_with(cur_cdist_nll, number_f, {
-                    nll <- nll + (weight) * cur_cdist_nll
-                    stock_ss(nllstock__num) <- stock_ss(nllstock__num) + cur_cdist_nll
-                    g3_report(nllstock__num)  # TODO: Only on penultimate step?
-                    stock_ss(nllstock__weight) <- weight
-                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
-                    if (report) g3_report(modelstock__num)
-                    if (report) g3_report(obsstock__num)
-                })
-                if (compare_wgt) g3_with(cur_cdist_nll, biomass_f, {
-                    nll <- nll + (weight) * cur_cdist_nll
-                    stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + cur_cdist_nll
-                    g3_report(nllstock__wgt)  # TODO: Only on penultimate step?
-                    stock_ss(nllstock__weight) <- weight
-                    g3_report(nllstock__weight)  # TODO: Only on penultimate step?
-                    if (report) g3_report(modelstock__wgt)
-                    if (report) g3_report(obsstock__wgt)
-                })
-            })))
-
-            if (report) {
-                # Don't zero counters, we'll move on to next reporting period instead
-            } else {
-                if (compare_num) stock_with(modelstock, modelstock__num[] <- 0)
-                if (compare_wgt) stock_with(modelstock, modelstock__wgt[] <- 0)
+            stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, if (function_comare_f) g3_with(
+                cur_cdist_nll := function_f, {
+                nll <- nll + (weight) * cur_cdist_nll
+                stock_ss(nllstock__x) <- stock_ss(nllstock__x) + cur_cdist_nll
+                stock_ss(nllstock__weight) <- weight
+                # NB: Have to report obsstock__x explicitly because it's just data.
+                if (report) g3_report(obsstock__x)
+            }))))
+            if (!report) {
+                debug_trace("Zero counters for next reporting period")
+                stock_with(modelstock, modelstock__x[] <- 0)
             }
         }
     }, list(
         done_aggregating_f = ld$done_aggregating_f,
-        compare_num = !is.null(ld$number),
-        compare_wgt = !is.null(ld$weight),
+        function_comare_f = if (is.null(attr(function_f, 'do_compare_f'))) TRUE else attr(function_f, 'do_compare_f'),
+        function_f = function_f,
         report = report,
-        number_f = f_substitute(function_f, list(
-            modelstock__x = as.symbol('modelstock__num'),
-            obsstock__x = as.symbol('obsstock__num'))),
-        biomass_f = f_substitute(function_f, list(
-            modelstock__x = as.symbol('modelstock__wgt'),
-            obsstock__x = as.symbol('obsstock__wgt'))),
         weight = weight)))
-    # Fix-up stock intersection: index should be the same as observation
-    out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 2)]], list(
-        stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
+    compare_generic_f <- f_substitute(compare_generic_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
+
+    # Build list of variables that will need replacing with num/wgt later
+    var_replacements <- all.vars(compare_generic_f)[endsWith(all.vars(compare_generic_f), '__x')]
+    names(var_replacements) <- var_replacements
+
+    if (!is.null(ld$number)) {
+        compare_f <- f_substitute(
+            compare_generic_f,
+            lapply(gsub('__x$', '__num', var_replacements), as.symbol))
+        # step.R isn't doing environment for us, so we have to
+        assign(paste0(modelstock$name, '__num'), modelstock__num, envir = environment(compare_f))
+        assign(paste0(obsstock$name, '__num'), obsstock__num, envir = environment(compare_f))
+        assign(paste0(nllstock$name, '__num'), nllstock__num, envir = environment(compare_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <- compare_f
+    }
+
+    if (!is.null(ld$weight)) {
+        compare_f <- f_substitute(
+            compare_generic_f,
+            lapply(gsub('__x$', '__wgt', var_replacements), as.symbol))
+        # step.R isn't doing environment for us, so we have to
+        assign(paste0(modelstock$name, '__wgt'), modelstock__wgt, envir = environment(compare_f))
+        assign(paste0(obsstock$name, '__wgt'), obsstock__wgt, envir = environment(compare_f))
+        assign(paste0(nllstock$name, '__wgt'), nllstock__wgt, envir = environment(compare_f))
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <- compare_f
+    }
 
     return(as.list(out))
 }

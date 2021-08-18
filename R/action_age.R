@@ -56,11 +56,10 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
     if (length(output_stocks) == 0) {
         final_year_f = fix_subsets(f_substitute(~{
             debug_trace("Oldest ", stock, " is a plus-group, combine with younger individuals")
-            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] * stock__num[age_iter_ss]
+            stock__wgt[age_iter_ss] <- ratio_add_vec(
+                stock__wgt[age_iter_ss], stock__num[age_iter_ss],
+                stock__wgt[age_younger_iter_ss], stock__num[age_younger_iter_ss])
             stock__num[age_iter_ss] <- stock__num[age_iter_ss] + stock__num[age_younger_iter_ss]
-            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] + (stock__wgt[age_younger_iter_ss] * stock__num[age_younger_iter_ss])
-            # Back to mean weight
-            stock__wgt[age_iter_ss] <- stock__wgt[age_iter_ss] / avoid_zero_vec(stock__num[age_iter_ss])
         }, list(
             age_iter_ss = age_iter_ss,
             age_younger_iter_ss = age_younger_iter_ss)))
@@ -85,7 +84,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         debug_label("g3a_age for ", stock)
 
         stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
-                stock__age_idx, g3_idx(age - stock__minage + 1L), {
+                stock__age_idx := g3_idx(age - stock__minage + 1L), {
             debug_trace("Check stock has remained finite for this step")
             if (strict_mode) stock_assert(all(is.finite(stock__num[age_iter_ss])), stock, "__num became NaN/Inf in this timestep")
             if (strict_mode) stock_assert(all(is.finite(stock__wgt[age_iter_ss])), stock, "__wgt became NaN/Inf in this timestep")

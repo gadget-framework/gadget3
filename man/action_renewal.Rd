@@ -94,8 +94,8 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockinitial},
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockrenew},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockinitial},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockrenew},
   \code{\link{g3_stock}}
 }
 

@@ -1,0 +1,29 @@
+[component]
+type                 stockfullprinter
+stockname            lingimm
+printfile            lingimm.out
+precision            6
+printatstart         0
+yearsandsteps
+all	all
+
+[component]
+type                 stockfullprinter
+stockname            lingmat
+printfile            lingmat.out
+precision            6
+printatstart         0
+yearsandsteps
+all	all
+
+; [component]
+; type                 predatorpreyprinter
+; predatornames        igfs
+; preynames            lingimm
+; areaaggfile          Aggfiles/catchdistribution.ldist.igfs.area.agg
+; ageaggfile           Aggfiles/catchdistribution.ldist.igfs.age.agg
+; lenaggfile           Aggfiles/catchdistribution.ldist.igfs.len.agg
+; printfile            igfs.lingimm.out
+; precision            6
+; yearsandsteps
+; all	all

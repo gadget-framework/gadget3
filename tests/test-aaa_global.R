@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                attr(r_result, n),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 params <- list()
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
@@ -65,6 +48,23 @@ actions <- c(actions, ~{
 expecteds$logspace_add_vec_0 <- c(0.6931472, 0.7443967, 0.7981389, 0.8543552)
 expecteds$logspace_add_vec_1 <- c(1.313262, 1.341154, 1.371101, 1.403186)
 
+# ratio_add_vec()
+ratio_add_vec_inp_orig_vec <- runif(10) * 100
+ratio_add_vec_inp_orig_amount <- floor(runif(10) * 10)
+ratio_add_vec_inp_new_vec <- runif(10) * 100
+ratio_add_vec_inp_new_amount <- floor(runif(10) * 10)
+ratio_add_vec_output <- rep(0, 10)
+actions <- c(actions, ~{
+    comment('ratio_add_vec')
+    ratio_add_vec_output <- ratio_add_vec(
+        ratio_add_vec_inp_orig_vec, ratio_add_vec_inp_orig_amount,
+        ratio_add_vec_inp_new_vec, ratio_add_vec_inp_new_amount)
+    g3_report(ratio_add_vec_output)
+})
+ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
+expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / gadget3:::g3_global_env$avoid_zero_vec(ratio_add_vec_total)) +
+    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / gadget3:::g3_global_env$avoid_zero_vec(ratio_add_vec_total))
+
 ###############################################################################
 
 actions <- c(actions, ~{
@@ -93,4 +93,9 @@ for (n in ls(expecteds)) {
         attr(result, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
-tmb_r_compare(model_fn, model_tmb, params)
+
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+}

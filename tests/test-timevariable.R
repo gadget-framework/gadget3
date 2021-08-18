@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                attr(r_result, n),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
 
@@ -101,9 +84,9 @@ params <- list(rv=0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
 } else {
@@ -116,4 +99,6 @@ result <- model_fn(params)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(attr(result, n), expecteds[[n]]), n)
 }
-tmb_r_compare(model_fn, model_tmb, params)
+param_template <- attr(model_cpp, "parameter_template")
+param_template$value <- params[param_template$switch]
+gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)

@@ -3,23 +3,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 ok_group('g3a_mature_constant', {
     cmp_code <- function(a, b) ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
 
@@ -160,7 +143,11 @@ ok_group('g3a_mature', {
             as.vector(r$stock_mat2__num['len30',]),
             c(51.5, 51.5, 51.5)), "stock_mat2__num: Just age 5/6/7")
 
-        tmb_r_compare(model_fn, model_tmb, params)
+        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+            param_template <- attr(model_cpp, "parameter_template")
+            param_template$value <- params[param_template$switch]
+            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        }
     })
 
     ok_group("Move all of length 30 into 90% mat1, 10% mat2", {
@@ -188,7 +175,11 @@ ok_group('g3a_mature', {
             as.vector(r$stock_mat2__num[,'age5']),
             c(0, 0, 103 * 0.1, 0)), "stock_mat2__num")
 
-        tmb_r_compare(model_fn, model_tmb, params)
+        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+            param_template <- attr(model_cpp, "parameter_template")
+            param_template$value <- params[param_template$switch]
+            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        }
     })
 
     ok_group("Move 50% of length 30, 75% of length 40", {
@@ -216,7 +207,11 @@ ok_group('g3a_mature', {
             as.vector(r$stock_mat2__num[,'age5']),
             c(0, 0, 103 * 0.5 / 2, 104 * 0.75 / 2)), "stock_mat2__num")
 
-        tmb_r_compare(model_fn, model_tmb, params)
+        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+            param_template <- attr(model_cpp, "parameter_template")
+            param_template$value <- params[param_template$switch]
+            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        }
     })
 
     ok_group("Disable with run_f = 0", {
@@ -244,6 +239,10 @@ ok_group('g3a_mature', {
             as.vector(r$stock_mat2__num[,'age5']),
             c(0, 0, 0, 0)), "stock_mat2__num same as start")
 
-        tmb_r_compare(model_fn, model_tmb, params)
+        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+            param_template <- attr(model_cpp, "parameter_template")
+            param_template$value <- params[param_template$switch]
+            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        }
     })
 })

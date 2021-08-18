@@ -19,9 +19,9 @@ g3l_distribution_multinomial(epsilon = 10)
 
 g3l_distribution_multivariate(rho_f, sigma_f, over = c("area"))
 
-g3l_distribution_surveyindices_log(alpha = 0, beta = 1)
+g3l_distribution_surveyindices_log(alpha = NULL, beta = NULL)
 
-g3l_distribution_surveyindices_linear(alpha = 0, beta = 1)
+g3l_distribution_surveyindices_linear(alpha = NULL, beta = NULL)
 
 g3l_distribution(nll_name, obs_data, fleets = list(), stocks, function_f,
     missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE,
@@ -53,10 +53,12 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Value to be used whenever the calculated probability is very unlikely. Default 10.
   }
   \item{alpha}{
-    \link{formula} substituted into surveyindices calcuations, see below.
+    \link{formula} substituted into surveyindices calcuations to fix intercept of linear regression,
+    or NULL if not fixed. See below.
   }
   \item{beta}{
-    \link{formula} substituted into surveyindices calcuations, see below.
+    \link{formula} substituted into surveyindices calcuations to fix slope of linear regression,
+    or NULL if not fixed. See below.
   }
   \item{nll_name}{
     Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
@@ -221,7 +223,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-like.html},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-like.html},
   \code{\link{g3_stock}}
 }
 
@@ -274,7 +276,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     Returns a \link{formula} for use as \var{function_f}:
 
     \deqn{
-      \sum_{\it lengths} (\alpha + \beta \log N_{tral} - \log \nu_{tral})^2
+      \sum_{\it time} (\alpha + \beta \log N_{tral} - \log \nu_{tral})^2
     }
     \describe{
       \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
@@ -282,6 +284,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
       \item{\eqn{\alpha}}{\var{alpha} parameter}
       \item{\eqn{\beta}}{\var{beta} parameter}
     }
+
+    If \var{alpha} or \var{beta} is not provided, then linear regression is
+    performed on \eqn{N}, \eqn{\nu} over time for each area/age/length combination.
+    The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
+    reported after model run, whether calculated or hard-coded.
   }
   \subsection{g3l_distribution_surveyindices_linear}{
     Returns a \link{formula} for use as \var{function_f}:
@@ -295,6 +302,11 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
       \item{\eqn{\alpha}}{\var{alpha} parameter}
       \item{\eqn{\beta}}{\var{beta} parameter}
     }
+
+    If \var{alpha} or \var{beta} is not provided, then linear regression is
+    performed on \eqn{N}, \eqn{\nu} over time for each area/age/length combination.
+    The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
+    reported after model run, whether calculated or hard-coded.
   }
   \subsection{g3l_distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}

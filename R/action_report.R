@@ -23,7 +23,6 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE,
             stock_iterate(input_stock, stock_intersect(report_stock, {
                 stock_ss(report_instance) <- stock_ss(report_instance) + (report_f)
             }))
-            stock_with(report_stock, g3_report(report_instance))
         }
     }, list(
         report_instance = as.symbol(report_stock_instance_name),

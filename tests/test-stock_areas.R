@@ -13,6 +13,9 @@ cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_a_ac <- 0.0
 stock_sum_ac_a <- 0.0
 stock_sum_ac_bcd <- 0.0
+stock_bcd__interacttotals <- gadget3:::stock_instance(stock_bcd, 0)
+stock_bcd_a_interactions <- 0L
+stock_bcd_ac_interactions <- 0L
 actions <- list(
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~0),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
@@ -58,6 +61,20 @@ actions <- list(
                     stock_ss(stock_aggregated__num) +
                     stock_ss(stock_bcd__num)
             }))
+
+            comment("interact bcd -> a")
+            stock_iterate(stock_bcd, stock_interact(stock_a, {
+                stock_ss(stock_bcd__interacttotals) <- stock_ss(stock_bcd__interacttotals) + stock_reshape(stock_bcd, stock_ss(stock_a__num))
+                stock_bcd_a_interactions <- stock_bcd_a_interactions + area * 1000L + sub_area
+            }, prefix = "sub"))
+            comment("interact bcd -> ac")
+            stock_iterate(stock_bcd, stock_interact(stock_ac, {
+                stock_ss(stock_bcd__interacttotals) <- stock_ss(stock_bcd__interacttotals) + stock_reshape(stock_bcd, stock_ss(stock_ac__num))
+                stock_bcd_ac_interactions <- stock_bcd_ac_interactions + area * 1000L + sub_area
+            }, prefix = "sub"))
+            g3_report("stock_bcd__interacttotals")
+            g3_report("stock_bcd_a_interactions")
+            g3_report("stock_bcd_ac_interactions")
         }),
         '999' = ~{
             g3_report("stock_a__num")
@@ -111,6 +128,20 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     r$stock_sum_ac_bcd,
     3010 + 30010), "stock_sum_ac_bcd: Intersection is area c")
+
+# Interaction is basically intersection for area
+ok(ut_cmp_identical(
+    r$stock_bcd_a_interactions,
+    0L), "stock_bcd_a_interactions: No interaction between bcd & a")
+ok(ut_cmp_identical(
+    r$stock_bcd_ac_interactions,
+    3003L), "stock_bcd_ac_interactions: Interact in area 3 (i.e. c")
+ok(ut_cmp_identical(
+    r$stock_bcd__interacttotals,
+    array(
+        c(0, 3010, 0),
+        dim = c(length = 1, area = 3),
+        dimnames = list(length = "len10", area = c("b", "c", "d")))), "stock_bcd__interacttotals: Summed stock_ac__num in interaction")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions)

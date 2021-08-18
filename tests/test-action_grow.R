@@ -2,23 +2,6 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                as.vector(model_tmb_report[[n]]),
-                as.vector(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 read.matrix <- function (x, ...) unname(as.matrix(read.table(text=x, ...)))
 
 teststock <- g3_stock('teststock', seq(10, 35, 5))
@@ -141,7 +124,12 @@ ok_group("g3a_grow_impl_bbinom", {
     44472.5676572519, 34669.6583623158, 26995.0549450546, 20974.8144063369,
     16247.8860873661, 15068.9788855573, 11821.5345660349, 9275.97774268346,
     7273.66758241751, 5694.90600451131, 4448.35417879727), .Dim = 6:5), tolerance = 1e-5), "Matches baseline")
-    tmb_r_compare(model_fn, model_tmb, params)
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 
     # Try comparing with a few different inputs
     for (x in 1:10) ok_group("g3a_grow_impl_bbinom random params", {
@@ -153,7 +141,11 @@ ok_group("g3a_grow_impl_bbinom", {
             beta = runif(1, 10, 30),
             initial = runif(6, 1000, 9000),
             x = 1.0)
-        tmb_r_compare(model_fn, model_tmb, params)
+        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+            param_template <- attr(model_cpp, "parameter_template")
+            param_template$value <- params[param_template$switch]
+            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        }
     })
 })
 
@@ -227,5 +219,9 @@ ok_group("g3a_growmature", {
         (600 * 100000 + 500 * 10000*0.5 + 400 * 1000*0.5) / 105500,
         NULL), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
-    tmb_r_compare(model_fn, model_tmb, params)
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
 })

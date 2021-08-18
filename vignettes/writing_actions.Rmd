@@ -106,6 +106,50 @@ which will be integer values. However, if you do want an integer it's best to
 express this explictly, i.e. ``3L``. Note that there is no difference in R code
 between ``3`` and ``3.0``.
 
+## Sub-formulas and g3_global_formula
+
+R forumlas all you to include extra definitions when defining a formula. This
+allows you to break up a definition into more readable chunks. For example:
+
+```
+ling_imm <- g3_stock('ling_imm', seq(0, 50, 10)) %>%
+    g3s_age(3, 10)
+nmort <- function() {
+    E <- ~stock__minlen * age
+    F <- ~stock__minage  # TODO: Does this work now?
+    ~E * F * 4
+}
+g3_to_r(list(g3a_naturalmortality(ling_imm, nmort())))
+```
+
+Note that:
+
+* Because the definition of ``E`` refers to ``age``, gadget3 has automatically inserted it into the loop.
+* ``F`` however can be defined outside the loop, so is.
+* They are all defined in the step, not necessarily for the whole model function. In TMB this is enforced with scoping.
+
+If you need to have something available to ther steps, it can be defined using
+``g3_global_formula`` and providing an ``init_val``:
+
+```
+ling_imm <- g3_stock('ling_imm', seq(0, 50, 10)) %>%
+    g3s_age(3, 10)
+nmort <- function() {
+    # Define a counter
+    E <- gadget3:::g3_global_formula(
+        ~E + 1, init_val = 0L)
+    # We can just give init_val, to define something global to the model
+    F <- gadget3:::g3_global_formula(
+        init_val = 99L)
+    ~E * F * 4
+}
+g3_to_r(list(g3a_naturalmortality(ling_imm, nmort())))
+```
+
+As well as making values available to other steps, ``g3_global_formula``()
+can also be used to ensure that the value ends up in the model report, which will
+happen automatically for any non-constant global in the model.
+
 ## g3_native
 
 There are limits to what the Gadget3 transpilation can manage, particularly

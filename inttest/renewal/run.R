@@ -42,10 +42,10 @@ ling_imm_actions <- list(
     list())
 
 fleet_actions <- list(
-    g3a_predate_totalfleet(igfs, list(ling_imm),
+    g3a_predate_fleet(igfs, list(ling_imm),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/renewal/', 'Data/fleet.igfs.data')[[1]], 'number')),
+        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/renewal/', 'Data/fleet.igfs.data')[[1]], 'number'))),
     list())
 
 ling_likelihood_actions <- list(
@@ -81,30 +81,27 @@ actions <- c(
   report_actions,
   time_actions)
 
-model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
+# NB: Strict = FALSE so we don't try to compare __prevtotal
+model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
 
 param_table <- read.table('inttest/renewal/params.in', header = TRUE)
-param <- as.list(param_table$value)
-names(param) <- param_table$switch
+params <- as.list(param_table$value)
+names(params) <- param_table$switch
 
 # Run gadget3 model
-# model_fn <- edit(model_fn) ; model_fn(param)
-r_result <- model_fn(param)
+# model_fn <- edit(model_fn) ; model_fn(params)
+r_result <- model_fn(params)
 g3_r <- attributes(r_result)
 
 # If enabled run a TMB version too
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, param)
+    model_tmb <- g3_tmb_adfun(model_cpp, params)
 
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(r_result))) {
-        ok(all.equal(
-            as.vector(model_tmb_report[[n]]),
-            as.vector(attr(r_result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 }
 
 # Run gadget2 model
@@ -120,13 +117,13 @@ g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
 
 for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     ok(all.equal(
-        unname(g2_lingimm$number[,,1,t]),
+        unname(g2_lingimm$number[,,t,1]),
         unname(g3_r$imm_report__num[,,t]),
         tolerance = 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
+        unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
         unname(g3_r$imm_report__num[,,t] * g3_r$imm_report__wgt[,,t]),
         tolerance = 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 }

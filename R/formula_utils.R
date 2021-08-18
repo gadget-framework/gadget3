@@ -112,13 +112,27 @@ call_replace <- function (f, ...) {
     return(out)
 }
 
-f_concatenate <- function (list_of_f, parent = emptyenv(), wrap_call = NULL) {
-    # Stack environments together
-    e <- parent
+# Concatenate (list_of_f) into a single call, with (parent) as the parent environment,
+# cloning formula environments as necessary
+f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
+    # Formula has same env as first item in list
+    has_same_env <- function (f) identical(environment(f), environment(list_of_f[[1]]))
+
+    orig_e <- e <- parent
     for (f in list_of_f) {
-        # NB: Actions producing multiple steps will share environments. We
-        # have to clone environments so they have separate parents.
-        e <- rlang::env_clone(rlang::f_env(f), parent = e)
+        if (is.null(orig_e)) {
+            # At top, keeping previous environment, no need to change env.
+            orig_e <- e <- environment(f)
+        } else if (identical(environment(f), orig_e)) {
+            # Environment identical to previous, no need to add anything to the stack
+        } else if (identical(parent.env(environment(f)), orig_e)) {
+            # Environment different, but has the right parent, so can re-cycle
+            orig_e <- e <- environment(f)
+        } else {
+            # Clone environment and change parent to point at previous
+            orig_e <- environment(f)
+            e <- rlang::env_clone(environment(f), parent = e)
+        }
     }
 
     # Combine all functions into one expression
@@ -169,6 +183,44 @@ f_optimize <- function (f) {
             # Regular if, descend either side of expression
             x[[3]] <- f_optimize(x[[3]])
             if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
+            return(x)
+        },
+        "g3_with" = function (x) {
+            g3_with_term_names <- function (y) {
+                # Extract term assignments, fetch lhs of each
+                vapply(
+                    g3_with_extract_terms(y),
+                    function (t_call) as.character(t_call[[2]]),
+                    character(1))
+            }
+
+            if (is.call(x) && is.call(x[[length(x)]]) && x[[length(x)]][[1]] == 'if' && length(x[[length(x)]]) == 3) {
+                # g3_with -> if, try and swap around if possible.
+                if (length(intersect( all.vars(x[[length(x)]][[2]]), g3_with_term_names(x) )) == 0) {
+                    # x becomes inner if statement
+                    new_x <- x[[length(x)]]
+
+                    # Wrap statement with our g3_with call
+                    g3with_call <- x
+                    g3with_call[[length(g3with_call)]] <- new_x[[3]]
+                    new_x[[3]] <- g3with_call
+
+                    # Return whole thing for another pass to optimise innards
+                    return(new_x)
+                }
+            }
+
+            # Just recurse
+            if (is.call(x)) x <- as.call(lapply(x, f_optimize))
+            return(x)
+        },
+        "<-" = function (x) {
+            if (!is.call(x)) return(x)
+            if (is.call(x[[3]]) && x[[3]][[1]] == "(") {  # )
+                # No point wrapping a definition in braces
+                x[[3]] <- x[[3]][[2]]
+            }
+            x[[3]] <- f_optimize(x[[3]])
             return(x)
         },
         "{" = function (x) {
@@ -250,4 +302,16 @@ f_eval <- function (f, env_extras = list(), env_parent = g3_global_env) {
         parent.env(parent.env(env)) <- env_parent
     }
     eval(rlang::f_rhs(f), env)
+}
+
+# Find all vars, minus vars that are defined within (e.g. iterators)
+all_undefined_vars <- function (code) {
+    g3_with_extract_term_syms <- function (x) {
+        lapply(g3_with_extract_terms(x), function (c) c[[2]])
+    }
+
+    setdiff(all.vars(code), c(
+        lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
+        do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
+        NULL))
 }

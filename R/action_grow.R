@@ -292,9 +292,9 @@ g3a_growmature <- function(stock,
 
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
 
-            if (transition_f) g3_with(maturity_ratio, maturity_f, {
+            if (transition_f) g3_with(maturity_ratio := maturity_f, {
                 debug_trace("Grow and separate maturing ", stock)
-                g3_with(growthresult, g3a_grow_apply(
+                g3_with(growthresult := g3a_grow_apply(
                         stock__growth_l * maturity_bygrowth, stock__growth_w,
                         stock_ss(stock__num) * maturity_bylength, stock_ss(stock__wgt)), {
                     stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
@@ -302,7 +302,7 @@ g3a_growmature <- function(stock,
                 })
 
                 debug_trace("Grow non-maturing ", stock)
-                g3_with(growthresult, g3a_grow_apply(
+                g3_with(growthresult := g3a_grow_apply(
                         stock__growth_l * invmaturity_bygrowth, stock__growth_w,
                         stock_ss(stock__num) * invmaturity_bylength, stock_ss(stock__wgt)), {
                     stock_ss(stock__num) <- growthresult[,g3_idx(1)]
@@ -310,7 +310,7 @@ g3a_growmature <- function(stock,
                 })
             }) else {
                 debug_trace("Update ", stock, " using delta matrices")
-                g3_with(growthresult, g3a_grow_apply(
+                g3_with(growthresult := g3a_grow_apply(
                         stock__growth_l, stock__growth_w,
                         stock_ss(stock__num), stock_ss(stock__wgt)), {
                     stock_ss(stock__num) <- growthresult[,g3_idx(1)]

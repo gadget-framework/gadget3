@@ -20,10 +20,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         if (length(in_call) == 1) {
             if (is.integer(in_call)) {
                 return(toString(in_call))
+            } else if (is.numeric(in_call) && is.nan(in_call)) {
+                return("NAN")
             } else if (is.numeric(in_call) && !expecting_int) {
                 # Force anything numeric to be double, to avoid accidental integer division
                 return(paste0("(double)(", toString(in_call) ,")"))
-            } else if (is.logical(in_call) && !is.na(in_call)) {
+            } else if (is.logical(in_call)) {
+                if (is.na(in_call)) stop("No general equivalent to NA in C++")
                 return(if (in_call) 'true' else 'false')
             } else if (is.symbol(in_call)) {
                 return(cpp_escape_varname(in_call))
@@ -73,15 +76,21 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name %in% c("g3_with")) {
         # Combine the variable definition with the rest of the code
-        inner <- cpp_code(in_call[[4]], in_envir, next_indent, statement = TRUE)
+        inner <- cpp_code(in_call[[length(in_call)]], in_envir, next_indent, statement = TRUE)
         if (!endsWith(inner, close_curly_bracket)) inner <- paste0(inner, ";")
 
-        return(paste0(
+        return(paste(c(
             "{",
-            next_indent, "auto ", in_call[[2]], " = ", cpp_code(in_call[[3]], in_envir, next_indent), ";",
-            "\n",
+            vapply(g3_with_extract_terms(in_call), function (c) {
+                if (length(c[[2]]) > 1) {
+                    stop("Malformed g3_with: ", deparse(c))
+                }
+                rv <- paste0(
+                    next_indent, "auto ", c[[2]], " = ",
+                    cpp_code(c[[3]], in_envir, next_indent), ";\n")
+            }, character(1)),
             next_indent, inner,
-            indent, "}"))
+            indent, "}"), collapse = ""))
     }
 
     if (call_name == '<-') {
@@ -542,7 +551,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 }
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
-    all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
+    actions <- g3_collate(actions)
+    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
 
@@ -665,6 +675,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             if ('g3_native' %in% class(all_defns[[var_name]])
                     && is.character(attr(all_defns[[var_name]], 'g3_native_cpp'))  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
+                var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 scope[[var_name]] <<- cpp_definition(
                     'auto',
                     var_name,
@@ -672,31 +683,23 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             }
         }
 
-        # Find with variables / iterators to ignore
-        ignore_vars <- c(
-            lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
-            lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
-            list())
-
         # TODO: Should this loop be combined with the above?
-        for (var_name in all.vars(code)) {
+        for (var_name in all_undefined_vars(code)) {
             if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
                 next
             }
-            if (var_name %in% ignore_vars) {
-                # It's an iterator
-                next
-            }
-            if (var_name %in% ignore_vars) {
-                # It's a with variable
-                next
-            }
-            tryCatch({
+            var_val <- tryCatch({
                 var_val <- get(var_name, envir = env, inherits = TRUE)
+                if (!is.null(attr(var_val, "g3_global_init_val"))) {
+                    # When considering a global formula, consider the init condition
+                    var_val <- attr(var_val, "g3_global_init_val")
+                }
+                var_val
             }, error = function (e) {
                 lines <- trimws(grep(var_name, deparse(code, width.cutoff = 500), fixed = TRUE, value = TRUE))
-                stop(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))
+                warning(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))
+                call("stop", "Incomplete model: No definition for ", var_name)
             })
 
             if (rlang::is_formula(var_val)) {
@@ -776,6 +779,13 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
     # Define all vars, populating scope in process
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
+
+    # Rework any g3_* function calls into the code we expect
+    g3_functions <- function (in_code) {
+        call_replace(in_code,
+            g3_report_all = function (x) g3_functions(action_reports(actions)))
+    }
+    all_actions_code <- g3_functions(all_actions_code)
 
     out <- sprintf("#include <TMB.hpp>
 

@@ -3,7 +3,8 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # Compile actions together into a single R function, the attached environment contains:
 # - model_data: Fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
-    all_actions <- f_concatenate(g3_collate(actions), parent = g3_global_env, wrap_call = call("while", TRUE))
+    actions <- g3_collate(actions)
+    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()
 
@@ -74,8 +75,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         for (var_name in names(all_defns)) {
             if ('g3_native' %in% class(all_defns[[var_name]])
                     && !(var_name %in% names(scope))) {
+                var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 if (is.function(all_defns[[var_name]])) {
-                    scope[[var_name]] <<- call("<-", as.symbol(var_name), all_defns[[var_name]])
+                    fn_defn <- all_defns[[var_name]]
+                    environment(fn_defn) <- env  # TODO: This should be the output function scope, not env.
+                    scope[[var_name]] <<- call("<-", as.symbol(var_name), fn_defn)
                 } else if (is.character(all_defns[[var_name]]) && all_defns[[var_name]] != var_name) {
                     # Native function with a different name
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), as.symbol(all_defns[[var_name]]))
@@ -83,31 +87,27 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             }
         }
 
-        # Find with variables / iterators to ignore
-        ignore_vars <- c(
-            lapply(f_find(code, as.symbol("for")), function (x) { x[[2]] }),
-            lapply(f_find(code, as.symbol("g3_with")), function (x) { x[[2]] }),
-            list('param'))
-
         # TODO: Should this loop be combined with the above?
-        for (var_name in all.vars(code)) {
+        for (var_name in all_undefined_vars(code)) {
             if (var_name %in% names(scope)) {
                 # Already init'ed this, ignore it.
                 next
             }
-            if (var_name %in% ignore_vars) {
-                # It's an iterator
+            if (var_name == 'param') {
+                # It's the parameter argument
                 next
             }
-            if (var_name %in% ignore_vars) {
-                # It's a with variable
-                next
-            }
-            tryCatch({
+            var_val <- tryCatch({
                 var_val <- get(var_name, envir = env, inherits = TRUE)
+                if (!is.null(attr(var_val, "g3_global_init_val"))) {
+                    # When considering a global formula, consider the init condition
+                    var_val <- attr(var_val, "g3_global_init_val")
+                }
+                var_val
             }, error = function (e) {
                 lines <- trimws(grep(var_name, deparse(code, width.cutoff = 500), fixed = TRUE, value = TRUE))
-                stop(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))
+                warning(paste(trimws(e), "Used in expression(s):", lines, sep = "\n", collapse = "\n"))
+                call("stop", "Incomplete model: No definition for ", var_name)
             })
 
             if (rlang::is_formula(var_val)) {
@@ -123,10 +123,14 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     as.symbol(var_name),
                     substitute(Matrix::sparseMatrix(dims = x, x=numeric(0), i={}, j={}), list(x = dim(var_val))))
             } else if (is.array(var_val) && all(is.na(var_val))) {
+                # Make sure everything within the dynamic dim is defined first
+                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dim'))), env)
+                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dimnames'))), env)
+
                 # Define dimensions for empty matrix
                 defn <- call("<-", as.symbol(var_name), substitute(array(dim = x, dimnames = y), list(
-                    x = dim(var_val),
-                    y = dimnames(var_val))))
+                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else dim(var_val),
+                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else dimnames(var_val))))
             } else if (is.array(var_val) && all(var_val == 0)) {
                 # Define dimensions for zero array
 
@@ -167,11 +171,13 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
             g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
                 var_name = as.character(x[[2]]),
-                var = as.symbol(x[[2]]))),
-            g3_with = function (x) call(
-                open_curly_bracket,
-                call("<-", x[[2]], g3_functions(x[[3]])),
-                g3_functions(x[[4]])))
+                # Strip attributes from nll, so we don't make recursive structure
+                var = if (x[[2]] == 'nll') quote(nll[[1]]) else as.symbol(x[[2]]) )),
+            g3_report_all = function (x) g3_functions(action_reports(actions)),
+            g3_with = function (x) as.call(c(
+                list(as.symbol(open_curly_bracket)),
+                lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),
+                list(g3_functions(x[[length(x)]])))))
     }
     out <- g3_functions(out)
 

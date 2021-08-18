@@ -12,7 +12,7 @@ Description: A framework to assist creation of ecosystem models, generating TMB
              code to optimise model runs.
              Designed to be able to reproduce gadget2 models, but able to
              utilise TMB enhancements such as AD. For more details see
-             <https://hafro.github.io/gadget2>.
+             <https://gadget-framework.github.io/gadget2/>.
 Encoding: UTF-8
 Imports:
     digest,

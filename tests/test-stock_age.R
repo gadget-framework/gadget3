@@ -13,6 +13,8 @@ cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_young_inbetween <- 0.0
 stock_sum_inbetween_old <- 0.0
 stock_sum_young_old <- 0.0
+stock_interact_young_old <- 0.0
+stock_interact_young_old_vars <- 0.0
 actions <- list(
     g3a_initialconditions(stock_young, ~age * 100 + stock_young__minlen, ~0),
     g3a_initialconditions(stock_old, ~age * 1000 + stock_old__minlen, ~0),
@@ -38,6 +40,14 @@ actions <- list(
                 stock_sum_young_old <- stock_sum_young_old + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_old__num))
             }))
             g3_report(stock_sum_young_old)
+
+            comment("stock_interact_young_old")
+            stock_iterate(stock_young, stock_interact(stock_old, {
+                stock_interact_young_old <- stock_interact_young_old + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_old__num))
+                stock_interact_young_old_vars <- stock_interact_young_old_vars + age * 100000 + sub_age
+            }, prefix = 'sub'))
+            g3_report(stock_interact_young_old)
+            g3_report(stock_interact_young_old_vars)
 
             comment("stock_inbetween_old_aggregated__num")
             stock_iterate(stock_inbetween, stock_intersect(stock_inbetween_old_aggregated, {
@@ -108,17 +118,24 @@ ok(ut_cmp_identical(
     r$stock_sum_young_old,
     0), "stock_sum_young_old: No intersection")
 
+# Interact results in a combinatorial explosion
+ok(ut_cmp_identical(
+    r$stock_interact_young_old,
+    sum(expand.grid(r$stock_young__num, r$stock_old__num))), "stock_interact_young_old: Combinatorial explosion of 2 stocks")
+ok(ut_cmp_identical(
+    r$stock_interact_young_old_vars,
+    sum(1:3) * length(4:6) * 100000 + sum(4:6) * length(1:3)), "stock_interact_young_old_vars: Sum of each age combination")
+
+
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(result))) {
-        ok(ut_cmp_equal(
-            as.vector(model_tmb_report[[n]]),
-            as.vector(attr(result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 } else {
     writeLines("# skip: not running TMB tests")
 }

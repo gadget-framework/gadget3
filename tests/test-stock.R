@@ -7,6 +7,14 @@ ok(ut_cmp_error(
     g3_stock('stock_a', c()),
     "lengthgroups"), "Can't create stock with 0 length groups")
 
+multipart <- g3_stock(c(species = "ling", "imm"), 1:5)
+ok(ut_cmp_identical(
+    multipart$name,
+    "ling_imm"), "multipart$name: Stock name got concatenated")
+ok(ut_cmp_identical(
+    multipart$name_parts[['species']],
+    "ling"), "multipart$name_parts: Can dig out just species name from multipart name")
+
 stock_a <- g3_stock('stock_a', seq(10, 10, 5))
 stock_b <- g3_stock('stock_b', seq(50, 54, 1))
 stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 200, 1000))

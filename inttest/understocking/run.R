@@ -31,6 +31,7 @@ igfs_report <- igfs %>% g3s_clone('igfs_report') %>%
   g3s_time(year = local(year_range), step = 1:4)
 nll_report <- rep(0, length(year_range) * 4)
 prev_nll <- 0.0
+remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
 
 ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
@@ -55,11 +56,11 @@ ling_mat_actions <- lapply(list(
     list()), remove_avoid_zero)
 
 fleet_actions <- list(
-    remove_avoid_zero(g3a_predate_totalfleet(igfs, list(ling_imm, ling_mat),
+    remove_avoid_zero(g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        amount_f = g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number'),
+        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number')),
         overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))),
     list())
 
@@ -100,8 +101,7 @@ ling_likelihood_actions <- list(
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/surveyindices.si.100-120.len.agg')[[1]]),
         fleets = list(),
         stocks = list(ling_imm, ling_mat),
-        g3l_distribution_surveyindices_log(alpha = 6.4e-2,
-                                           beta = 1.4),
+        g3l_distribution_surveyindices_log(),
         report = TRUE,
         nll_breakdown = TRUE)),
     list())
@@ -120,8 +120,7 @@ report_actions <- list(
        g3a_report_stock(igfs_report,igfs, ~stock_ss(igfs__catch)),
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
-           prev_nll <- nll
-           g3_report(nll_report)
+           prev_nll <- remove_nll_attributes(nll)
        }))
 
 time_actions <- list(
@@ -139,27 +138,23 @@ actions <- c(
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
 param_table <- read.table('inttest/understocking/params.in', header = TRUE)
-param <- as.list(param_table$value)
-names(param) <- param_table$switch
+params <- as.list(param_table$value)
+names(params) <- param_table$switch
 
 # Run gadget3 model
-# model_fn <- edit(model_fn) ; model_fn(param)
-r_result <- model_fn(param)
+# model_fn <- edit(model_fn) ; model_fn(params)
+r_result <- model_fn(params)
 g3_r <- attributes(r_result)
 
 # If enabled run a TMB version too
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, param)
+    model_tmb <- g3_tmb_adfun(model_cpp, params)
 
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(r_result))) {
-        ok(all.equal(
-            as.vector(model_tmb_report[[n]]),
-            as.vector(attr(r_result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 }
 
 # Run gadget2 model
@@ -195,13 +190,13 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     # NB: Losing accuracy at timesteps 17:19 (i.e 1984, which only has age5 left)
     #     Think we're noticing gadget2's "if (< verysmall) 0"
     ok(all.equal(
-        unname(g2_lingimm$number[,,1,t]),
+        unname(g2_lingimm$number[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t]),
         tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingimm$number[,,1,t] * g2_lingimm$weight[,,1,t]),
+        unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
         unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
         tolerance = if (t %in% 17:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
 
@@ -211,7 +206,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         ok(sum(g3_r$imm_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$imm_report__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
-            g2_igfs_imm$weight[,,1,t],
+            g2_igfs_imm$weight[,,t,1],
             rowSums(g3_r$imm_report__totalpredate[,1,,t]),
             tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
     }
@@ -235,13 +230,13 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     ####
 
     ok(all.equal(
-        unname(g2_lingmat$number[,,1,t]),
+        unname(g2_lingmat$number[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t]),
         tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
-        unname(g2_lingmat$number[,,1,t] * g2_lingmat$weight[,,1,t]),
+        unname(g2_lingmat$number[,,t,1] * g2_lingmat$weight[,,t,1]),
         unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
         tolerance = if (t %in% 17) 1e-3 else 1e-5), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
 
@@ -251,7 +246,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
         ok(sum(g3_r$mat_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$mat_report__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
-            g2_igfs_mat$weight[,,1,t],
+            g2_igfs_mat$weight[,,t,1],
             rowSums(g3_r$mat_report__totalpredate[,1,,t]),
             tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$mat_report__totalpredate: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
     }
@@ -281,7 +276,7 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
             tolerance = 1e-7), paste0("g3_r$igfs_report__catch: ", t, " - Total catch internally consistent"))
     } else {
         ok(all.equal(
-            sum(g2_igfs_imm$weight[,,1,t] + g2_igfs_mat$weight[,,1,t]),
+            sum(g2_igfs_imm$weight[,,t,1] + g2_igfs_mat$weight[,,t,1]),
             g3_r$igfs_report__catch[1,t],
             tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
     }

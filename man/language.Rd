@@ -3,6 +3,7 @@
 \alias{g3_param}
 \alias{g3_param_vector}
 \alias{g3_report}
+\alias{g3_report_all}
 
 \title{G3 language extensions to R}
 \description{
@@ -97,7 +98,8 @@
   Add a variable to the report output of the model.
 
   \emph{Note:} This is generally for internal use, there are higher-level
-  mechanisms such as \code{\link{g3a_report_stock}}.
+  mechanisms such as \code{\link{g3a_report_stock}}. And regardless
+  \link{g3_report_all}() will manage this for you.
 
   For example, \code{g3_report(ling_imm__num)} will produce
   ``REPORT(ling_imm__num)`` under TMB, and ``attr(nll, 'ling_imm__num') <-
@@ -106,4 +108,15 @@
   Under R reported values can be got after running the function with
   \code{attributes(nll)}, where \code{nll} is the return value of the model
   function.
+}
+
+\section{g3_report_all}{
+  Report all non-constant variables from a model.
+
+  Any variable that gets assigned to in the course of the model will be
+  reported. If a variable doesn't change (i.e. data/params/constant), then
+  there shouldn't be any point reporting.
+
+  \emph{Note:} This is added by default in \link{g3a_time}(), so shouldn't be
+  used manually unless re-implementing.
 }

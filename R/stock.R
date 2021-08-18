@@ -4,7 +4,7 @@ stock_definition <- function(stock, var_name) {
 }
 
 # Define an array that matches stock
-stock_instance <- function (stock, init_value = NA) {
+stock_instance <- function (stock, init_value = NA, desc = "") {
     if (length(stock$dim) == 0) {
         # No dimensions mean a 1-entry array
         return(array(init_value, dim = (1)))
@@ -23,19 +23,29 @@ stock_instance <- function (stock, init_value = NA) {
         attr(x, 'dynamic_dim') <- stock$dim
         attr(x, 'dynamic_dimnames') <- stock$dimnames
     }
+    if (nzchar(desc)) {
+        attr(x, 'desc') <- desc
+    }
     return(x)
 }
 
 g3_storage <- function(var_name) {
+    stopifnot(is.character(var_name))
+
     structure(list(
         dim = list(),
         dimnames = list(),
         iterate = ~extension_point,
         iter_ss = list(),  # NB: No dimensions yet
         intersect = ~extension_point,
+        interact = ~extension_point,
         rename = ~extension_point,
-        name = var_name), class = c("g3_stock", "list"))
+        name_parts = var_name,
+        name = paste(var_name, collapse = "_")), class = c("g3_stock", "list"))
 }
+
+# True iff (x) is a stock object
+g3_is_stock <- function (x) "g3_stock" %in% class(x)
 
 g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = NULL) {
     # See LengthGroupDivision::LengthGroupDivision
@@ -89,8 +99,11 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         iter_ss = c(inner_stock$iter_ss, list(quote(.[])[[3]])),
         intersect = f_substitute(~extension_point, list(
             extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        interact = f_substitute(~extension_point, list(
+            extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
             extension_point = inner_stock$rename), copy_all_env = TRUE),
+        name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
 

@@ -101,7 +101,7 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
 }
 
 \seealso{
-  \url{https://hafro.github.io/gadget2/userguide/chap-stock.html#sec:stockmature},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockmature},
   \code{\link{g3a_growmature}},
   \code{\link{g3_stock}}
 }

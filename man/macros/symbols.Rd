@@ -5,3 +5,5 @@
 \newcommand{\alpha}{\ifelse{latex}{\out{$\alpha$}}{α}}
 \newcommand{\beta}{\ifelse{latex}{\out{$\beta$}}{β}}
 \newcommand{\Delta}{\ifelse{latex}{\out{$\Delta$}}{Δ}}
+\newcommand{\lambda}{\ifelse{latex}{\out{$\lambda$}}{λ}}
+\newcommand{\mu}{\ifelse{latex}{\out{$\mu$}}{μ}}

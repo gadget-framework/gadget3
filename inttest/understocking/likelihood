@@ -45,6 +45,6 @@ biomass 0
 areaaggfile     Aggfiles/surveyindices.si.100-120.area.agg
 lenaggfile      Aggfiles/surveyindices.si.100-120.len.agg
 stocknames      lingimm lingmat
-fittype fixedloglinearfit
-slope	1.4
-intercept	6.4e-2
+fittype loglinearfit
+;slope	1.4
+;intercept	6.4e-2

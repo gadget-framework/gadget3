@@ -3,33 +3,14 @@ library(unittest)
 
 library(gadget3)
 
-tmb_r_compare <- function (model_fn, model_tmb, params) {
-    dearray <- function (x) {
-        # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
-        if (is.array(x) && length(dim(x)) == 1) return(as.vector(x))
-        return(x)
-    }
-
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        # Reformat params into a single vector in expected order
-        par <- unlist(params[attr(model_cpp, 'parameter_template')$switch])
-        model_tmb_report <- model_tmb$report(par)
-        r_result <- model_fn(params)
-        for (n in names(attributes(r_result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                dearray(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
-}
-
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2))
     g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
 }, "invalid_subset"), "Complained when trying to subset by row")
+
+ok(ut_cmp_error({
+    g3_to_tmb(list(~{ 2 + NA }))
+}, "NA"), "No such thing as NA in C++")
 
 ok(grepl(
     "unknown_func(.*2.*)",
@@ -223,6 +204,17 @@ actions <- list()
 expecteds <- new.env(parent = emptyenv())
 params <- list(rv=0)
 
+# Check constants can pass through cleanly
+constants_integer <- 999
+constants_nan <- 999
+actions <- c(actions, ~{
+    comment('constants')
+    constants_integer <- 5L ; g3_report(constants_integer)
+    constants_nan <- NaN ; g3_report(constants_nan)
+})
+expecteds$constants_integer <- 5L
+expecteds$constants_nan <- NaN
+
 # Can assign a single value to 1x1 array
 assign_to_1_1 <- array(dim = c(1,1))
 actions <- c(actions, ~{
@@ -278,13 +270,20 @@ expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
 
 # Arrays with dynamic dimensions
 dynamic_dim_array <- array(0, dim = c(2,1))
+dynamic_dim_array_na <- array(NA, dim = c(2,1))
 attr(dynamic_dim_array, 'dynamic_dim') <- list(2, quote(dynamic_dim_array_dim_2))
+attr(dynamic_dim_array_na, 'dynamic_dim') <- list(2, quote(dynamic_dim_array_dim_2))
 dynamic_dim_array_dim_2 <- 4L
+dynamic_dim_array_dim_na_2 <- 4L
 actions <- c(actions, ~{
     comment('assign_scalar')
+    # NB: Under TMB this won't be NA, so set it to hide differences.
+    dynamic_dim_array_na[] <- 5
     g3_report(dynamic_dim_array)
+    g3_report(dynamic_dim_array_na)
 })
 expecteds$dynamic_dim_array <- array(0, dim = c(2, 4))
+expecteds$dynamic_dim_array_na <- array(5, dim = c(2, 4))
 
 # Data variable names are escaped
 escaped.data.scalar <- 44
@@ -360,13 +359,16 @@ g3_with_result <- 0L
 actions <- c(actions, ~{
     comment('g3_with')
     g3_with(
-        g3_with_iterator, g3_idx(2L),  # NB: Tests we can use g3 functions in definition
+        g3_with_iterator := g3_idx(2L),  # NB: Tests we can use g3 functions in definition
+        g3_with_other_exp := 1L + 2L + 3L,
         {
             g3_with_result <- g3_with_iterator - g3_idx(1)  # NB: Reverse g3_idx from definition
             g3_report(g3_with_result)
+            g3_report(g3_with_other_exp)
         })
 })
 expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
+expecteds$g3_with_other_exp <- 1L + 2L + 3L
 
 # min() & max()
 min_result <- 0.0
@@ -446,4 +448,8 @@ for (n in ls(expecteds)) {
         attr(result, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
-tmb_r_compare(model_fn, model_tmb, params)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+}
