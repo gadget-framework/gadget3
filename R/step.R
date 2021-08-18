@@ -144,8 +144,18 @@ g3_step <- function(step_f, recursing = FALSE) {
         out_f <- stock_rename(out_f, "stock", stock_var)
         # Make sure formulas are defined if they need anything the stock code defines
         inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {
-            # NB: Ideally would do g3_step() here instead of later, but environment will be all wrong
-            stock_rename(f, stock_var, stock$name)
+            # Attach outer environment so items resolve
+            if (rlang::is_formula(f)) {
+                environment(f) <- rlang::env_clone(
+                    environment(f),
+                    parent = environment(step_f))
+            } else {
+                f <- call_to_formula(f, rlang::f_env(step_f))
+            }
+            # Fill out any stock functions, rename stocks
+            f <- stock_rename(f, stock_var, stock$name)
+            f <- g3_step(f, recursing = TRUE)
+            return(f)
         })
         # Run g3_step again to fix up dependents that got added
         inner_f <- g3_step(inner_f, recursing = TRUE)

@@ -173,6 +173,12 @@ ok_group("g3_step:dependent_formulas", (function () {
         ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
         (ling_imm__num[, ling_imm__age_idx] + independent_f)))), "independent_f: 2 gets inserted outside loop, still renamed though")
 
+    independent_switch_f <- ~2 * stock_switch(stock_imm, ling_imm = 22 + 33)
+    f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + independent_switch_f))
+    ok(cmp_code(f, ~g3_with(independent_switch_f := (2 * (22 + 33)), for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
+        ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
+        (ling_imm__num[, ling_imm__age_idx] + independent_switch_f)))), "independent_switch_f: stock_switch() resolved")
+
     independent_f <- ~2 * stock_area__minage
     f <- gadget3:::g3_step(~stock_iterate(stock_area, stock_ss(stock_area__num) + independent_f))
     ok(cmp_code(f, ~g3_with(independent_f := (2 * area_imm__minage), for (area_imm__area_idx in seq_along(area_imm__areas)) g3_with(
