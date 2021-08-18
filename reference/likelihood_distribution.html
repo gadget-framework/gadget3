@@ -369,7 +369,9 @@
 </dl>
 
 <p>If <var>alpha</var> or <var>beta</var> is not provided, then linear regression is
-    performed on \(N\), \(\nu\) over time for each area/age/length combination.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution_surveyindices_linear</h3>
+    performed on \(N\), \(\nu\) over time for each area/age/length combination.
+    The used values will be stored in a <code>cdist_<var>nll_name</var>_model__param</code> array and
+    reported after model run, whether calculated or hard-coded.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution_surveyindices_linear</h3>
 <p>Returns a <a href='https://rdrr.io/r/stats/formula.html'>formula</a> for use as <var>function_f</var>:</p>
 <p>$$
       \sum_{\it lengths} (\alpha + \beta N_{tral} - \nu_{tral})^2
@@ -382,7 +384,9 @@
 </dl>
 
 <p>If <var>alpha</var> or <var>beta</var> is not provided, then linear regression is
-    performed on \(N\), \(\nu\) over time for each area/age/length combination.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution</h3>
+    performed on \(N\), \(\nu\) over time for each area/age/length combination.
+    The used values will be stored in a <code>cdist_<var>nll_name</var>_model__param</code> array and
+    reported after model run, whether calculated or hard-coded.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3l_distribution</h3>
 <p>Assuming <var>fleets</var> is empty, an action (i.e. list of formula objects) that will...</p><ol>
 <li><p>For all <var>stocks</var>, collect catch data into <var>modelstock</var>__num or <var>modelstock</var>__wgt, depending on the columns provided in <var>obs_data</var></p></li>
 <li><p>Compare <var>modelstock</var>__num/wgt with <var>obsstock</var>__num/wgt, using <var>function_f</var></p></li>
