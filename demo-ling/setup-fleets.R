@@ -30,7 +30,7 @@ fleet_params <- list(
 fleet_actions <-
   list(
     lln %>%
-      g3a_predate_totalfleet(list(ling_imm, ling_mat),
+      g3a_predate_fleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['lln_alpha']])),
@@ -40,13 +40,13 @@ fleet_actions <-
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['lln_alpha']])),
                                  gadget3:::f_substitute(l50, list(fleet_l50 = fleet_params[['lln_l50']])))),
                              
-                             amount_f = g3_timeareadata('lln_landings', lln_landings[[1]] %>%
+                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('lln_landings', lln_landings[[1]] %>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),
-                                                                 year = as.numeric(year)))),
+                                                                 year = as.numeric(year))))),
     
     bmt %>%
-      g3a_predate_totalfleet(list(ling_imm, ling_mat),
+      g3a_predate_fleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['bmt_alpha']])),
@@ -56,13 +56,13 @@ fleet_actions <-
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['bmt_alpha']])),
                                  gadget3:::f_substitute(l50, list(fleet_l50 = fleet_params[['bmt_l50']])))),
                              
-                             amount_f = g3_timeareadata('bmt_landings', bmt_landings[[1]] %>%
+                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('bmt_landings', bmt_landings[[1]] %>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),
-                                                                 year = as.numeric(year)))),
+                                                                 year = as.numeric(year))))),
     
     gil %>%
-      g3a_predate_totalfleet(list(ling_imm, ling_mat),
+      g3a_predate_fleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['gil_alpha']])),
@@ -72,13 +72,13 @@ fleet_actions <-
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['gil_alpha']])),
                                  gadget3:::f_substitute(l50, list(fleet_l50 = fleet_params[['gil_l50']])))),
                              
-                             amount_f = g3_timeareadata('gil_landings', gil_landings[[1]] %>%
+                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('gil_landings', gil_landings[[1]] %>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),
-                                                                 year = as.numeric(year)))),
+                                                                 year = as.numeric(year))))),
     
     foreign %>%
-      g3a_predate_totalfleet(list(ling_imm, ling_mat),
+      g3a_predate_fleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['lln_alpha']])),
@@ -88,13 +88,13 @@ fleet_actions <-
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['lln_alpha']])),
                                  gadget3:::f_substitute(l50, list(fleet_l50 = fleet_params[['lln_l50']])))),
                              
-                             amount_f = g3_timeareadata('foreign_landings', foreign_landings[[1]] %>%
+                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('foreign_landings', foreign_landings[[1]] %>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),
-                                                                 year = as.numeric(year)))),
+                                                                 year = as.numeric(year))))),
     
     igfs %>%
-      g3a_predate_totalfleet(list(ling_imm, ling_mat),
+      g3a_predate_fleet(list(ling_imm, ling_mat),
                              suitabilities = list(
                                ling_imm = g3_suitability_exponentiall50(
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['igfs_alpha']])),
@@ -104,7 +104,7 @@ fleet_actions <-
                                  gadget3:::f_substitute(alpha, list(fleet_alpha = fleet_params[['igfs_alpha']])),
                                  gadget3:::f_substitute(igfs.l50, list(fleet_l50 = fleet_params[['igfs_l50']])))),
                              
-                             amount_f = g3_timeareadata('igfs_landings', igfs_landings %>%
+                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', igfs_landings %>%
                                                           mutate(area = as.numeric(area),
                                                                  step = as.numeric(step),
-                                                                 year = as.numeric(year)))))
+                                                                 year = as.numeric(year))))))
