@@ -4,18 +4,18 @@ library(unittest)
 library(gadget3)
 
 # Mini action to run suitability function for stocks and report output
-suit_report_action <- function (pred_stock, prey_stock, suit_f, run_at = 99) {
+suit_report_action <- function (pred_stock, stock, suit_f, run_at = 99) {
     out <- new.env(parent = emptyenv())
     suit_fn_name <- as.character(sys.call()[[4]][[1]])
-    suit_var_name <- paste0('prey_stock__', suit_fn_name)
-    assign(suit_var_name, gadget3:::stock_instance(prey_stock))
+    suit_var_name <- paste0('stock__', suit_fn_name)
+    assign(suit_var_name, gadget3:::stock_instance(stock))
     
     out[[gadget3:::step_id(run_at, suit_fn_name)]] <- gadget3:::g3_step(gadget3:::f_substitute(~{
         debug_label("Testing ", suit_fn_name)
-        stock_iterate(prey_stock, stock_intersect(pred_stock, {
+        stock_iterate(stock, stock_intersect(pred_stock, {
             stock_ss(suit_var) <- (suit_f)
         }))
-        stock_with(prey_stock, g3_report(suit_var))
+        stock_with(stock, g3_report(suit_var))
     }, list(
         suit_fn_name = suit_fn_name,
         suit_var = as.symbol(suit_var_name),

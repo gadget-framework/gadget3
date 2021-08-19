@@ -9,7 +9,7 @@
 
 \title{Gadget3 suitability formulae}
 \description{
-  Formula-returning functions describing predator/prey suitability relationships.
+  Formula-returning functions describing length suitability relationships.
 }
 
 \usage{
@@ -65,6 +65,11 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
   }
 }
 
+\details{
+When using these to describe a predator/prey relationship, the stock midlength \eqn{l}
+will refer to the prey midlength.
+}
+
 \value{
   \subsection{g3_suitability_exponentiall50}{
     Returns a \link{formula} for use in predation function's \var{suitabilities} argument:
@@ -73,8 +78,8 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
       \frac{1}{ 1 + e^{-\alpha (l - l_{50})} }
     }
     \describe{
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
-      \item{\eqn{l_{50}}}{Length of the prey with a 50\% probability of predation, from parameter \var{l50}}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
+      \item{\eqn{l_{50}}}{Length of the stock with a 50\% probability of predation, from parameter \var{l50}}
     }
   }
 
@@ -86,7 +91,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
     }
     \describe{
       \item{\eqn{L}}{Vector of predator midlength for each lengthgroup}
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
       \item{\eqn{p_0} .. \eqn{p_2}}{Function parameter \var{p0} .. \var{p2}}
       \item{\eqn{p_3}}{Currently unsupported. Should be used in place of \eqn{p_3} if \eqn{\log\frac{L}{l} <= p_1}}
       \item{\eqn{p_4}}{Function parameter \var{p4}}
@@ -103,7 +108,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
       (\frac{l}{(\alpha - 1)\beta\gamma}) ^ {(\alpha - 1) e^{\alpha - 1 - \frac{l}{\beta\gamma}}}
     }
     \describe{
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
       \item{\eqn{\alpha}}{Function parameter \var{alpha}}
       \item{\eqn{\beta}}{Function parameter \var{beta}}
       \item{\eqn{\gamma}}{Function parameter \var{gamma}}
@@ -123,7 +128,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
     }
     \describe{
       \item{\eqn{L}}{Vector of predator midlength for each lengthgroup}
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
       \item{\eqn{\alpha}}{Function parameter \var{alpha}}
       \item{\eqn{\beta}}{Function parameter \var{beta}}
       \item{\eqn{\gamma}}{Function parameter \var{gamma}}
@@ -138,7 +143,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
       \alpha + \beta l
     }
     \describe{
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
       \item{\eqn{\alpha}}{Function parameter \var{alpha}}
       \item{\eqn{\beta}}{Function parameter \var{beta}}
     }
@@ -163,7 +168,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
     }
     \describe{
       \item{\eqn{L}}{Vector of predator midlength for each lengthgroup}
-      \item{\eqn{l}}{Vector of prey midlength for each lengthgroup}
+      \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
       \item{\eqn{p_0} .. \eqn{p_4}}{Function parameter \var{p0} .. \var{p4}}
     }
     This is an extension to \link{g3_suitability_exponential}.
