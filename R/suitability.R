@@ -11,7 +11,7 @@ g3_suitability_exponentiall50 <- function (alpha, l50) {
 g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = ~pred_stock__midlen) {
   # TODO: We need to switch p4 for p3 when log(pred_stock__midlen/p5) - p1 is <= 0
   if (!identical(p3, p4)) stop("p3 not currently supported")
-  f_substitute(~p0 + p2 * exp(avoid_zero(-(log(p5/stock__midlen) - p1)**2/p4)), list(
+  f_substitute(~p0 + p2 * exp(avoid_zero_vec(-(log(p5/stock__midlen) - p1)**2/p4)), list(
     p0 = p0,
     p1 = p1,
     p2 = p2,
