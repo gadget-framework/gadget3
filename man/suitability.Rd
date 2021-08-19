@@ -1,4 +1,5 @@
 \name{suitability}
+\alias{g3_suitability_*}
 \alias{g3_suitability_exponentiall50}
 \alias{g3_suitability_andersen}
 \alias{g3_suitability_gamma}
