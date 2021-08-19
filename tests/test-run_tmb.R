@@ -256,7 +256,8 @@ actions <- c(actions, ~{
 expecteds$assign_to_2_2a <- array(c(0, 88, 99, 0), dim = c(2,2))
 
 # Assign zero and other scalars to column, arrays
-assign_scalar <- array(dim = c(2,3))
+assign_scalar <- array(dim = c(2,4))
+params$assign_scalar_const <- runif(1, 100, 200)
 actions <- c(actions, ~{
     comment('assign_scalar')
     assign_scalar[] <- 0  # TODO: TMB auto-setZeros, R doesn't
@@ -264,9 +265,15 @@ actions <- c(actions, ~{
     assign_scalar[,g3_idx(1)] <- 0
     assign_scalar[,g3_idx(2)] <- 88
     assign_scalar[g3_idx(2),g3_idx(3)] <- 27
+    assign_scalar[,g3_idx(4)] <- g3_param("assign_scalar_const")
     g3_report(assign_scalar)
 })
-expecteds$assign_scalar <- array(c(0, 0, 88, 88, 0, 27), dim = c(2,3))
+expecteds$assign_scalar <- array(c(
+    0, 0,
+    88, 88,
+    0, 27,
+    params$assign_scalar_const, params$assign_scalar_const,
+    NULL), dim = c(2,4))
 
 # Arrays with dynamic dimensions
 dynamic_dim_array <- array(0, dim = c(2,1))
