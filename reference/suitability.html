@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Gadget3 suitability formulae — suitability" />
-<meta property="og:description" content="Formula-returning functions describing predator/prey suitability relationships." />
+<meta property="og:description" content="Formula-returning functions describing length suitability relationships." />
 
 
 
@@ -130,7 +130,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Formula-returning functions describing predator/prey suitability relationships.</p>
+    <p>Formula-returning functions describing length suitability relationships.</p>
     </div>
 
     <pre class="usage"><span class='fu'>g3_suitability_exponentiall50</span><span class='op'>(</span><span class='va'>alpha</span>, <span class='va'>l50</span><span class='op'>)</span>
@@ -196,6 +196,10 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>When using these to describe a predator/prey relationship, the stock midlength \(l\)
+will refer to the prey midlength.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3_suitability_exponentiall50</h3>
@@ -203,8 +207,8 @@
 <p>$$
       \frac{1}{ 1 + e^{-\alpha (l - l_{50})} }
     $$</p><dl>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
-      <dt>\(l_{50}\)</dt><dd><p>Length of the prey with a 50% probability of predation, from parameter <var>l50</var></p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
+      <dt>\(l_{50}\)</dt><dd><p>Length of the stock with a 50% probability of predation, from parameter <var>l50</var></p></dd>
     
 </dl><p></p>
 
@@ -214,7 +218,7 @@
       p_0 + p_2 e^{-\frac{(\log\frac{p_5}{l} - p_1)^2}{p_4}}
     $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
       <dt>\(p_0\) .. \(p_2\)</dt><dd><p>Function parameter <var>p0</var> .. <var>p2</var></p></dd>
       <dt>\(p_3\)</dt><dd><p>Currently unsupported. Should be used in place of \(p_3\) if \(\log\frac{L}{l} &lt;= p_1\)</p></dd>
       <dt>\(p_4\)</dt><dd><p>Function parameter <var>p4</var></p></dd>
@@ -229,7 +233,7 @@
 <p>$$
       (\frac{l}{(\alpha - 1)\beta\gamma}) ^ {(\alpha - 1) e^{\alpha - 1 - \frac{l}{\beta\gamma}}}
     $$</p><dl>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
       <dt>\(\beta\)</dt><dd><p>Function parameter <var>beta</var></p></dd>
       <dt>\(\gamma\)</dt><dd><p>Function parameter <var>gamma</var></p></dd>
@@ -247,7 +251,7 @@
       \frac{\delta}{1 + e^{-\alpha - \beta l - \gamma L}}
     $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
       <dt>\(\beta\)</dt><dd><p>Function parameter <var>beta</var></p></dd>
       <dt>\(\gamma\)</dt><dd><p>Function parameter <var>gamma</var></p></dd>
@@ -260,7 +264,7 @@
 <p>$$
       \alpha + \beta l
     $$</p><dl>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
       <dt>\(\alpha\)</dt><dd><p>Function parameter <var>alpha</var></p></dd>
       <dt>\(\beta\)</dt><dd><p>Function parameter <var>beta</var></p></dd>
     
@@ -281,7 +285,7 @@
       {\big( \frac{p_3}{1 + e^{-p_0 - p_1 l - p_2 L}} \big)}^{\frac{1}{p_4}}
     $$</p><dl>
       <dt>\(L\)</dt><dd><p>Vector of predator midlength for each lengthgroup</p></dd>
-      <dt>\(l\)</dt><dd><p>Vector of prey midlength for each lengthgroup</p></dd>
+      <dt>\(l\)</dt><dd><p>Vector of stock midlength for each lengthgroup</p></dd>
       <dt>\(p_0\) .. \(p_4\)</dt><dd><p>Function parameter <var>p0</var> .. <var>p4</var></p></dd>
     
 </dl><p>This is an extension to g3_suitability_exponential.</p>
