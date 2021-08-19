@@ -89,6 +89,8 @@ dimensions, and ``stock_ss()`` will subset ``stock__num``, prividing
 These iterators will then be available to the ``maturity_f`` that the users
 provide, as demonstrated in the [Stocks] section.
 
+For more information on the ``stock_*`` functions, see ``?stock_ss``.
+
 ## Writing R code destined for C++
 
 Obviously R and C++'s type systems are quite different, and gadget3 attempts to
