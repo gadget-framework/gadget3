@@ -41,24 +41,16 @@ time_actions <- list(
 
 ##### Configure stocks #########################################################
 
-mat_stock <- paste0(species_name, "_mat")
-imm_stock <- paste0(species_name, "_imm")
-
 ## stocks
 ling_imm <-
-  g3_stock(imm_stock, lengthgroups = seq(4, 156, 4)) %>%
+  g3_stock(c(species = 'ling', 'imm'), lengthgroups = seq(4, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(minage = 3, maxage = 10)
 
 ling_mat <-
-  g3_stock(mat_stock, lengthgroups = seq(20, 156, 4)) %>%
+  g3_stock(c(species = 'ling', 'mat'), lengthgroups = seq(20, 156, 4)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(minage = 5, maxage = 15)
-
-## Will configurations change?
-stock_list <- 
-  list(imm_stock = ling_imm,
-       mat_stock = ling_mat)
 
 ## Maximum number of length groups a stock can group within a time step (maxlengthgroupgrowth)
 mlgg <- 10
@@ -119,12 +111,12 @@ ling_model <- g3_to_r(c(
   fleet_actions,
   ling_likelihood_actions,
   report_actions,
-  time_actions), 
+  time_actions),
   #  trace = TRUE, 
   strict = TRUE)
+  
 
-# Get pararameter template attached to function, fill it in
-ling_param <- attr(ling_model, 'parameter_template')
+# Get parameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
 ling_param[grepl('\\.walpha$', names(ling_param))] <- 2.27567436711055e-06
 ling_param[grepl('\\.wbeta$', names(ling_param))] <- 3.20200445996187
@@ -144,8 +136,8 @@ ling_param[grepl('imm\\.init\\.sd', names(ling_param))] <-
                           gadget3:::stock_definition(ling_imm, 'maxage')) %>% .$ms
 
 ## SI's
-ling_param[grepl('_si_beta1', names(ling_param))] <- 1
-ling_param[grepl('_si_beta2', names(ling_param))] <- 1
+ling_param[grepl('si_beta1', names(ling_param))] <- 1
+ling_param[grepl('si_beta2', names(ling_param))] <- 1
 ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
 
 ## Old weights from gadget2
@@ -176,7 +168,6 @@ result[[1]]
 # List all available reports
 print(names(attributes(result)))
 
-
 ##### Run TMB-based model #####################################################
 
 # Turn actions into C++ objective function code
@@ -204,9 +195,9 @@ tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$lower <- 0.0001
 tmb_param[grepl('^ling\\.init\\.', rownames(tmb_param)),]$upper <- 1e3
 
 # Disable optimisation for some parameters, to make life easier
-tmb_param[c('lingimm.walpha',
-            'lingimm.wbeta',
-            'lingmat.walpha',
+tmb_param[c('ling_imm.walpha',
+            'ling_imm.wbeta',
+            'ling_mat.walpha',
             #"ling_si_alpha1",
             #"ling_si_beta1" ,
             #'ling_si_alpha2',
@@ -216,11 +207,11 @@ tmb_param[c('lingimm.walpha',
             #'ling_si_alpha5',
             #'ling_si_alpha6',
             #'ling_si_alpha7',
-            'lingmat.wbeta'),]$optimise <- FALSE
-tmb_param[grepl('^lingimm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
-tmb_param[grepl('^lingmat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
-tmb_param[grepl('^lingimm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
-tmb_param[grepl('^lingmat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
+            'ling_mat.wbeta'),]$optimise <- FALSE
+tmb_param[grepl('^ling_imm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^ling_mat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^ling_imm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
+tmb_param[grepl('^ling_mat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 
 # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
 ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
