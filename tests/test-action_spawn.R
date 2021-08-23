@@ -73,8 +73,8 @@ ok_group('g3a_spawn', {
             recruitment_f = g3a_spawn_recruitment_ricker(
                 ~g3_param("ricker.mu"),
                 ~g3_param("ricker.lambda")),
-            proportion_f = g3a_spawn_length_exponential(alpha = ~g3_param("spawn.prop.alpha"), l50 =  ~g3_param("spawn.prop.l50")),
-            mortality_f = g3a_spawn_length_straightline(alpha = ~g3_param("spawn.mort.alpha"), beta =  ~g3_param("spawn.mort.beta")),
+            proportion_f = g3_suitability_exponentiall50(alpha = ~-g3_param("spawn.prop.alpha"), l50 =  ~g3_param("spawn.prop.l50")),
+            mortality_f = g3_suitability_straightline(alpha = ~g3_param("spawn.mort.alpha"), beta =  ~g3_param("spawn.mort.beta")),
             weightloss_f = ~g3_param("spawn.weightloss"),
             output_stocks = list(ling_imm),
             mean_f = 50,
