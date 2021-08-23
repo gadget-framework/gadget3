@@ -60,12 +60,12 @@ For example, a snippet from ``action_mature.R``.
 ```{r, eval=FALSE}
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at, 1, stock)]] <- g3_step(f_substitute(~{
-        stock_comment("g3a_mature for ", stock)
+        debug_label("g3a_mature for ", stock)
         # Matured stock will weigh the same
         stock_with(stock, stock_with(matured, matured__wgt <- stock__wgt))
 
         stock_iterate(stock, stock_intersect(matured, if (run_f) {
-            stock_comment("Move matured ", stock, " into temporary storage")
+            debug_label("Move matured ", stock, " into temporary storage")
             stock_ss(matured__num) <- stock_ss(stock__num) * maturity_f
             stock_ss(stock__num) <- stock_ss(stock__num) - stock_ss(matured__num)
         }))
@@ -74,8 +74,9 @@ For example, a snippet from ``action_mature.R``.
 
 Assume that ``stock`` has name "ling_imm" and ``matured`` has name "ling_imm_maturing".
 
-The first line uses ``stock_comment()`` to produce a ``comment()`` function
-call, ``comment("g3a_mature for ling_imm")``.
+The first line uses ``debug_label()`` to produce a ``debug_label()`` function
+call, ``debug_label("g3a_mature for ling_imm")``. This will be used as a code
+comment and a label for this block if producing diagrams.
 
 Next ``stock_with()`` is used to to transform ``matured__wgt <- stock__wgt``
 to use the proper stock names. We don't care about dimensions since we're
@@ -88,6 +89,8 @@ dimensions, and ``stock_ss()`` will subset ``stock__num``, prividing
 
 These iterators will then be available to the ``maturity_f`` that the users
 provide, as demonstrated in the [Stocks] section.
+
+For more information on the ``stock_*`` functions, see ``?stock_ss``.
 
 ## Writing R code destined for C++
 
