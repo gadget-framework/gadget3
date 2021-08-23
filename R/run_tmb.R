@@ -98,6 +98,20 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         assign_lhs <- in_call[[2]]
         assign_rhs <- in_call[[3]]
 
+        # Is this value a scalar?
+        value_is_scalar <- function (c_val) {
+            # Single numeric values are constants
+            if (is.numeric(c_val)) return(length(c_val) == 1)
+
+            # Single parameters are constants
+            if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
+
+            # TODO: Obviously not exhaustive, but ideally one would consider this a TMB bug.
+
+            # Dunno. Assume not.
+            return(FALSE)
+        }
+
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
@@ -107,6 +121,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         } else if (is.symbol(assign_lhs)) {
             env_defn <- mget(as.character(assign_lhs), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             lhs_is_array <- is.array(env_defn)
+        } else {
+            # No idea, but assume not.
+            lhs_is_array <- FALSE
         }
 
         if (identical(in_call[[3]], 0) && lhs_is_array) {
@@ -115,9 +132,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 cpp_code(assign_lhs, in_envir, next_indent),
                 ".setZero()"))
         }
-        if (is.numeric(in_call[[3]]) && length(in_call[[3]]) == 1 && lhs_is_array) {
+
+        if (value_is_scalar(in_call[[3]]) && lhs_is_array) {
             # Set array to a const
-            # TODO: discover the type of the inner expression, instead of just supporting single values
             return(paste0(
                 cpp_code(assign_lhs, in_envir, next_indent),
                 ".setConstant(", cpp_code(in_call[[3]], in_envir, next_indent) , ")"))
@@ -658,7 +675,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 else if (x[[1]] == 'g3_param_vector') '_VECTOR'
                 else '',
                 param_name), param_template = df_template(x[[2]]))
-            return(call("g3_cpp_asis", param_name))
+            # NB: Tell assignment if we're scalar, so it can use setConstant()
+            return(call("g3_cpp_asis", param_name, scalar = (x[[1]] == 'g3_param')))
         }
         code <- call_replace(code,
             g3_param_table = repl_fn,

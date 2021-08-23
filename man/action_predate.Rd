@@ -26,12 +26,12 @@ g3a_predate_catchability_quotafleet(quota_table, E,
                                     recalc_f = NULL)
 
 g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, catchability_f,
-    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - prey_stock__consratio) * 100
+    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - stock__consratio) * 100
     , 0.96)/100, run_at = 3)
 
 # NB: Deprecated interface, use g3a_predate_fleet with g3a_predate_catchability_totalfleet
 g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
-    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - prey_stock__consratio) * 100
+    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - stock__consratio) * 100
     , 0.96)/100, run_at = 3)
 }
 
@@ -75,9 +75,9 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     Equivalent to \var{E} passed to \link{g3a_predate_catchability_totalfleet}.
   }
   \item{overconsumption_f}{
-    Overconsumption rule, a formula that should cap all values in \var{prey_stock__consratio} to <= 95%.
+    Overconsumption rule, a formula that should cap all values in \var{stock__consratio} to <= 95%.
     You can emulate gadget2 more closely than the default with the following
-    \code{overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))} (NB: Not differentiable!)
+    \code{overconsumption_f = quote(pmin(stock__consratio, 0.95)))} (NB: Not differentiable!)
   }
   \item{run_at}{
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.

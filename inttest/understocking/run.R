@@ -61,7 +61,7 @@ fleet_actions <- list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number')),
-        overconsumption_f = quote(pmin(prey_stock__consratio, 0.95)))),
+        overconsumption_f = quote(pmin(stock__consratio, 0.95)))),
     list())
 
 ling_likelihood_actions <- list(

@@ -30,18 +30,6 @@ g3a_spawn_recruitment_ricker <- function (mu, lambda) {
             lambda = lambda)))
 }
 
-g3a_spawn_length_straightline <- function (alpha, beta) {
-    f_substitute(~alpha * stock__midlen + beta, list(
-        alpha = alpha,
-        beta = beta))
-}
-
-g3a_spawn_length_exponential <- function (alpha, l50) {
-    f_substitute(~1 / ( 1 + exp(alpha * (stock__midlen - l50)) ), list(
-        alpha = alpha,
-        l50 = l50))
-}
-
 g3a_spawn <- function(
         stock,
         recruitment_f,
