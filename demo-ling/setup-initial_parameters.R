@@ -39,3 +39,8 @@ mat.l50 <-
   dplyr::summarise(l50=min(length)) %>% 
   collect(n=Inf)
 
+if (TRUE){
+  save(mat.l50, file="demo-ling/data/mat.l50.Rdata")
+  save(lw.constants, file="demo-ling/data/lw.constants.Rdata")
+  save(init.sigma, file="demo-ling/data/init.sigma.Rdata")
+}

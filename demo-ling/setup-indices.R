@@ -1,4 +1,6 @@
-## IGFS survey indices
+## -----------------------------------------------------------------------------
+## Survey indices
+## -----------------------------------------------------------------------------
 
 igfs.SI1 <- 
   mfdb_sample_count(mdb, c('length'), c(list(
@@ -58,8 +60,18 @@ igfs.SI3d <-
   mfdb_sample_count(mdb, 
                     c('length'),
                     c(list(
-                          data_source = 'iceland-ldist',
+                      data_source = 'iceland-ldist',
                       sampling_type = 'IGFS',
                       length = mfdb_interval("len", c(100,160),open_ended = 'upper')),
                       defaults))
+
+if (TRUE){
+  save(igfs.SI1, file="demo-ling/data/igfs.SI1.Rdata")
+  save(igfs.SI2a, file="demo-ling/data/igfs.SI2a.Rdata")
+  save(igfs.SI2b, file="demo-ling/data/igfs.SI2b.Rdata")
+  save(igfs.SI3a, file="demo-ling/data/igfs.SI3a.Rdata")
+  save(igfs.SI3b, file="demo-ling/data/igfs.SI3b.Rdata")
+  save(igfs.SI3c, file="demo-ling/data/igfs.SI3c.Rdata")
+  save(igfs.SI3d, file="demo-ling/data/igfs.SI3d.Rdata")
+}
 

@@ -3,10 +3,9 @@
 /.Rprofile
 /*_*.tar.gz
 ^cran-comments$
-
 /docs
 /vignettes/*.html
 .Rproj.user
-
 /inttest/*/*.out
 /inttest/*/*.log
+/demo-ling_TEST/
