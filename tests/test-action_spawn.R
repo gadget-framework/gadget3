@@ -95,10 +95,48 @@ ok_group('g3a_spawn', {
         g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
         list())
 
+    # Add steps to exercise rest of recruitment functions, and check they produce identical TMB results
+    recruitment_test_step <- function (recruitment_f) {
+        action_name <- gadget3:::unique_action_name()
+
+        # Re-implement enough of spawning to test recruitment
+        stock <- ling_mat
+        out_var_name <- paste0('stock__rf_', sys.call()[[2]][[1]])
+        assign(out_var_name, gadget3:::stock_instance(stock))
+        out <- list()
+        out[[gadget3:::step_id(999, action_name)]] <- gadget3:::g3_step(gadget3:::f_substitute(
+            ~g3_with(s := 0 * nll, {  # TODO: Ugly mess to get type right
+                stock_iterate(stock, if (run_f) {
+                    s <- s + recruitment_s_f
+                    stock_ss(stock__outvar) <- 1
+                } else {
+                    stock_ss(stock__outvar) <- 0
+                })
+                g3_with(r := recruitment_r_f,
+                    stock_with(stock, stock__outvar <- r * stock__outvar / avoid_zero(sum(stock__outvar))))
+            }),
+            list(
+                recruitment_r_f = recruitment_f$r,
+                recruitment_s_f = recruitment_f$s,
+                stock__outvar = as.symbol(out_var_name))))
+        return(out)
+    }
+    recruitment_f_actions <- list(
+        recruitment_test_step(g3a_spawn_recruitment_fecundity(
+            p0 = runif(1, min=0.1, max=0.9),
+            p1 = runif(1, min=0.1, max=0.9),
+            p2 = runif(1, min=0.1, max=0.9),
+            p3 = runif(1, min=0.1, max=0.9),
+            p4 = runif(1, min=0.1, max=0.9))),
+        recruitment_test_step(g3a_spawn_recruitment_simplessb(runif(1, min=0.1, max=0.9))),
+        recruitment_test_step(g3a_spawn_recruitment_ricker(runif(1, min=0.1, max=0.9), runif(1, min=0.1, max=0.9))),
+        list())
+
     actions <- c(
       ling_imm_actions,
       ling_mat_actions,
       report_actions,
+      recruitment_f_actions,
       time_actions)
 
     params <- list(
