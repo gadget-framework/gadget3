@@ -419,10 +419,14 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
-                        // Collect all suitable ling_imm biomass for igfs;
-                        ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx);
-                        igfs__catch(igfs__area_idx) += (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
+                        auto fleet_area = area;
+
+                        {
+                            // Collect all suitable ling_imm biomass for igfs;
+                            ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) = ling_imm__suit_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx)*ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                            igfs__catch(igfs__area_idx) += (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
+                        }
                     }
                 }
             }
@@ -442,10 +446,14 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
-                        // Collect all suitable ling_mat biomass for igfs;
-                        ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx);
-                        igfs__catch(igfs__area_idx) += (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
+                        auto fleet_area = area;
+
+                        {
+                            // Collect all suitable ling_mat biomass for igfs;
+                            ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) = ling_mat__suit_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx)*ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                            igfs__catch(igfs__area_idx) += (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
+                        }
                     }
                 }
             }
@@ -463,8 +471,12 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
-                        ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
-                        ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                        auto fleet_area = area;
+
+                        {
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
+                        }
                     }
                 }
             }
@@ -482,8 +494,12 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
-                        ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
-                        ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                        auto fleet_area = area;
+
+                        {
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (inttypelookup_getdefault(igfs_totaldata__lookup, (area*1000000 + cur_year*100 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
+                        }
                     }
                 }
             }
@@ -541,6 +557,8 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_imm__area;
 
                     if ( area == igfs__area ) {
+                        auto fleet_area = area;
+
                         igfs__catch(igfs__area_idx) += (ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx)).sum();
                     }
                 }
@@ -561,6 +579,8 @@ Type objective_function<Type>::operator() () {
                     auto area = ling_mat__area;
 
                     if ( area == igfs__area ) {
+                        auto fleet_area = area;
+
                         igfs__catch(igfs__area_idx) += (ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx)).sum();
                     }
                 }
