@@ -139,6 +139,10 @@
 
 <span class='fu'>g3a_spawn_recruitment_ricker</span><span class='op'>(</span><span class='va'>mu</span>, <span class='va'>lambda</span><span class='op'>)</span>
 
+<span class='fu'>g3a_spawn_recruitment_bevertonholt</span><span class='op'>(</span><span class='va'>mu</span>, <span class='va'>lambda</span><span class='op'>)</span>
+
+<span class='fu'>g3a_spawn_recruitment_hockeystick</span><span class='op'>(</span><span class='va'>r0</span>, <span class='va'>blim</span><span class='op'>)</span>
+
 <span class='fu'>g3a_spawn</span><span class='op'>(</span><span class='va'>stock</span>, <span class='va'>recruitment_f</span>, proportion_f <span class='op'>=</span> <span class='fl'>1</span>, mortality_f <span class='op'>=</span> <span class='fl'>0</span>, 
           weightloss_f <span class='op'>=</span> <span class='fl'>0</span>, output_stocks <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>, 
           output_ratios <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>output_stocks</span><span class='op'>)</span>, times <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/length.html'>length</a></span><span class='op'>(</span><span class='va'>output_stocks</span><span class='op'>)</span><span class='op'>)</span>, 
@@ -174,7 +178,15 @@
     </tr>
     <tr>
       <th>lambda</th>
-      <td><p>Substituted into <code>g3a_spawn_recruitment_ricker</code> formula, see below.</p></td>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>r0</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></td>
+    </tr>
+    <tr>
+      <th>blim</th>
+      <td><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></td>
     </tr>
     <tr>
       <th>stock</th>
@@ -287,7 +299,28 @@
       <dt>μ</dt><dd><p>Argument provided to function</p></dd>
       <dt>λ</dt><dd><p>Argument provided to function</p></dd>
     
-</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn</h3>
+</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recruitment_bevertonholt</h3>
+<p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects:
+    $$ S = N_{al} p  W_{al} $$
+    $$ R = \frac{\mu S}{\lambda + S} $$</p><dl>
+      <dt>\(N_{al}\)</dt><dd><p>Number of parent stock</p></dd>
+      <dt>\(W_{al}\)</dt><dd><p>Weight of parent stock</p></dd>
+      <dt>\(p\)</dt><dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+      <dt>μ</dt><dd><p>Argument provided to function</p></dd>
+      <dt>λ</dt><dd><p>Argument provided to function</p></dd>
+    
+</dl><p></p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn_recruitment_hockeystick</h3>
+<p>A pair of <a href='https://rdrr.io/r/stats/formula.html'>formula</a> objects:
+    $$ S = N_{al} p  W_{al} $$
+    $$ R = R_0 \min{( S / B_{lim}, 1)} $$</p><dl>
+      <dt>\(N_{al}\)</dt><dd><p>Number of parent stock</p></dd>
+      <dt>\(W_{al}\)</dt><dd><p>Weight of parent stock</p></dd>
+      <dt>\(p\)</dt><dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+      <dt>\(R_0\)</dt><dd><p>Argument <code>r0</code> provided to function</p></dd>
+      <dt>\(B_{lim}\)</dt><dd><p>Argument <code>blim</code> provided to function</p></dd>
+    
+</dl><p><strong>NB:</strong> This formula is differentiable, despite using <code><a href='https://rdrr.io/r/base/Extremes.html'>min()</a></code> in the
+    definition above.</p><p></p><h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>g3a_spawn</h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol>
 <li><p>Use <var>proportion_f</var> to calculate the total parent <var>stock</var> that will spawn</p></li>
 <li><p>Use <var>recruitment_f</var> to derive the total newly spawned stock</p></li>
