@@ -30,6 +30,15 @@ g3a_spawn_recruitment_ricker <- function (mu, lambda) {
             lambda = lambda)))
 }
 
+g3a_spawn_recruitment_bevertonholt <- function (mu, lambda) {
+    # NB: bevertonholt is calculated over an entire area, so divide up so each age/length spawn equally.
+    list(
+        s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
+        r = f_substitute(~mu * s / (lambda + s), list(
+            mu = mu,
+            lambda = lambda)))
+}
+
 g3a_spawn <- function(
         stock,
         recruitment_f,
