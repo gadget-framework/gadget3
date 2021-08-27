@@ -131,6 +131,7 @@ ok_group('g3a_spawn', {
         recruitment_test_step(g3a_spawn_recruitment_simplessb(runif(1, min=0.1, max=0.9))),
         recruitment_test_step(g3a_spawn_recruitment_ricker(runif(1, min=0.1, max=0.9), runif(1, min=0.1, max=0.9))),
         recruitment_test_step(g3a_spawn_recruitment_bevertonholt(runif(1, min=0.1, max=0.9), runif(1, min=0.1, max=0.9))),
+        recruitment_test_step(g3a_spawn_recruitment_hockeystick(runif(1, min=0.1, max=0.9), runif(1, min=0.1, max=0.9))),
         list())
 
     actions <- c(

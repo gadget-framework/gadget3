@@ -3,6 +3,7 @@
 \alias{g3a_spawn_recruitment_simplessb}
 \alias{g3a_spawn_recruitment_ricker}
 \alias{g3a_spawn_recruitment_bevertonholt}
+\alias{g3a_spawn_recruitment_hockeystick}
 \alias{g3a_spawn}
 
 \title{Gadget3 spawning action}
@@ -19,6 +20,8 @@ g3a_spawn_recruitment_ricker(mu, lambda)
 
 g3a_spawn_recruitment_bevertonholt(mu, lambda)
 
+g3a_spawn_recruitment_hockeystick(r0, blim)
+
 g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0, 
           weightloss_f = 0, output_stocks = list(), 
           output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
@@ -34,6 +37,8 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
   \item{p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
   \item{mu}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{lambda}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{r0}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{stock}{
      The mature \code{\link{g3_stock}} that will spawn in this action.
   }
@@ -143,6 +148,19 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
       \item{\mu}{Argument provided to function}
       \item{\lambda}{Argument provided to function}
     }
+  }
+  \subsection{g3a_spawn_recruitment_hockeystick}{A pair of \link{formula} objects:
+    \deqn{ S = N_{al} p  W_{al} }
+    \deqn{ R = R_0 \min{( S / B_{lim}, 1)} }
+    \describe{
+      \item{\eqn{N_{al}}}{Number of parent stock}
+      \item{\eqn{W_{al}}}{Weight of parent stock}
+      \item{\eqn{p}}{Proportion of parent stock spawning, from \var{proportion_f}}
+      \item{\eqn{R_0}}{Argument \code{r0} provided to function}
+      \item{\eqn{B_{lim}}}{Argument \code{blim} provided to function}
+    }
+    \strong{NB:} This formula is differentiable, despite using \code{min()} in the
+    definition above.
   }
   \subsection{g3a_spawn}{An action (i.e. list of formula objects) that will, for the given \var{stock}...\enumerate{
     \item{Use \var{proportion_f} to calculate the total parent \var{stock} that will spawn}

@@ -39,6 +39,16 @@ g3a_spawn_recruitment_bevertonholt <- function (mu, lambda) {
             lambda = lambda)))
 }
 
+g3a_spawn_recruitment_hockeystick <- function (r0, blim) {
+    # NB: hockeystick is calculated over an entire area, so divide up so each age/length spawn equally.
+    list(
+        s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
+        # NB: Equivalent to r0 * pmin(s/blim, 1), but differentiable
+        r = f_substitute(~r0 * logspace_add(-1000 * s / blim, -1000) / -1000, list(
+            r0 = r0,
+            blim = blim)))
+}
+
 g3a_spawn <- function(
         stock,
         recruitment_f,
