@@ -110,8 +110,8 @@ g3a_predate_fleet <- function (fleet_stock,
         suit_var <- as.symbol(paste0('stock__suit_', fleet_stock$name))
         stock__num <- stock_instance(stock)
         stock__wgt <- stock_instance(stock)
-        assign(as.character(fleet_stock_var), stock_instance(stock))
-        assign(as.character(suit_var), stock_instance(stock, 0))
+        assign(as.character(fleet_stock_var), stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", fleet_stock$name)))
+        assign(as.character(suit_var), stock_instance(stock, 0, desc = paste("Suitability of ", stock$name, " for ", fleet_stock$name)))
         stock__totalpredate <- stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
         stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", stock$name))
         stock__consratio <- stock_instance(stock, desc = paste0("Ratio of ", stock$name, "__totalpredate / (current biomass), capped by overconsumption rule"))
@@ -138,7 +138,7 @@ g3a_predate_fleet <- function (fleet_stock,
             debug_trace("Zero ", fleet_stock, "-", stock, " biomass-consuming counter")
             stock_with(stock, stock__fleet_stock[] <- 0)
 
-            stock_iterate(stock, stock_intersect(fleet_stock, {
+            stock_iterate(stock, stock_interact(fleet_stock, {
                 debug_trace("Collect all suitable ", stock, " biomass for ", fleet_stock)
                 stock_ss(stock__suit_fleet_stock) <- suit_f
                 stock_ss(stock__fleet_stock) <- (stock_ss(stock__suit_fleet_stock)
@@ -148,7 +148,7 @@ g3a_predate_fleet <- function (fleet_stock,
                     + sum(stock_ss(stock__fleet_stock)))
                 if (catchnum_required) stock_ss(fleet_stock__catchnum) <- (stock_ss(fleet_stock__catchnum)
                     + sum(stock_ss(stock__suit_fleet_stock) * stock_ss(stock__num)))
-            }))
+            }, prefix = 'fleet'))
         }, list(
             catchnum_required = "fleet_stock__catchnum" %in% all.vars(catchability_f),
             suit_f = suitabilities[[stock$name]],
@@ -158,12 +158,12 @@ g3a_predate_fleet <- function (fleet_stock,
         # After all prey is collected (not just this stock), scale by total expected, update catch params
         out[[step_id(run_at, 2, fleet_stock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", fleet_stock, " catch of ", stock, " by total expected catch")
-            stock_iterate(stock, stock_intersect(fleet_stock, {
+            stock_iterate(stock, stock_interact(fleet_stock, {
                 # NB: In gadget2, E == wanttoeat, stock_ss(fleet__catch) == totalcons[inarea][predl]
                 stock_ss(stock__fleet_stock) <- catchability_f
                 stock_ss(stock__totalpredate) <- stock_ss(stock__totalpredate) + stock_ss(stock__fleet_stock)
                 # NB: In gadget2, stock__fleet_stock == (*cons[inarea][prey])[predl], totalpredator.cc#68
-            }))
+            }, prefix = 'fleet'))
         }, list(
             catchability_f = f_substitute(catchability_f, list(stock__fleet_stock = fleet_stock_var)),
             stock__fleet_stock = fleet_stock_var)))
@@ -219,12 +219,12 @@ g3a_predate_fleet <- function (fleet_stock,
             })
 
             debug_trace("Update total catch")
-            stock_iterate(stock, stock_intersect(fleet_stock, {
+            stock_iterate(stock, stock_interact(fleet_stock, {
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
                     + sum(stock_ss(stock__fleet_stock)))
                 if (catchnum_required) stock_ss(fleet_stock__catchnum) <- (stock_ss(fleet_stock__catchnum)
                     + sum(stock_ss(stock__fleet_stock) / stock__wgt))
-            }))
+            }, prefix = 'fleet'))
         }, list(
             catchnum_required = "fleet_stock__catchnum" %in% all.vars(catchability_f),
             stock__fleet_stock = fleet_stock_var)))
