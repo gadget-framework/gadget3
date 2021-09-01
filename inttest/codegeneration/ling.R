@@ -45,7 +45,7 @@ structure(function (param)
     stopifnot("ling.rec.2016" %in% names(param))
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
-    stopifnot("sumofsquares_ldist_lln_weight" %in% names(param))
+    stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
     assert_msg <- function (expr, message) 
     {
         if (isFALSE(expr)) 
@@ -685,7 +685,7 @@ structure(function (param)
         {
             ling_imm__area_idx <- (1)
             {
-                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for sumofsquares_ldist_lln")
+                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for cdist_sumofsquares_ldist_lln")
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   area <- ling_imm__area
@@ -699,7 +699,7 @@ structure(function (param)
         {
             ling_mat__area_idx <- (1)
             {
-                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for sumofsquares_ldist_lln")
+                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for cdist_sumofsquares_ldist_lln")
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   area <- ling_mat__area
@@ -717,9 +717,9 @@ structure(function (param)
                 if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                   cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
                   {
-                    nll <- nll + param[["sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
+                    nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
                     nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                    nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["sumofsquares_ldist_lln_weight"]]
+                    nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
                   }
                 }
             }
@@ -829,4 +829,4 @@ structure(function (param)
     }
     stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 0, ling.k = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, ling.rec.1998 = 0, 
-    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, sumofsquares_ldist_lln_weight = 1))
+    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))

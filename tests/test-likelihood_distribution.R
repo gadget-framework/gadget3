@@ -99,26 +99,26 @@ base_actions <- list(
         amount_f = ~g3_param('amount_ab') * area),
     named_list(
         # Capture data just before final step erases it
-        gadget3:::step_id(10, 'g3l_distribution', 'sumofsquares_utcd', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_model__num)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'sumofsquares_utsd', 1, 'zzzz'), report_step('cdist_sumofsquares_utsd_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utsd', 1, 'zzzz'), report_step('cdist_sumofsquares_utsd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'sumofsquares_utcd_weight', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_weight_model__wgt', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd_weight', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_weight_model__wgt', 4, array(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_weight_model__wgt)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'multinomial_multinom', 1, 'zzzz'), report_step('cdist_multinomial_multinom_model__num', 4, array(
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_multinomial_multinom', 1, 'zzzz'), report_step('cdist_multinomial_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinomial_multinom_model__num)
             dim = c(2L),
             dimnames = list(
@@ -195,11 +195,11 @@ params <- list(
     amount_ab = 100,
     si_alpha = 0,
     si_beta = 0,
-    sumofsquares_utcd_weight = 1,
-    sumofsquares_utcd_weight_weight = 1,
-    sumofsquares_utsd_weight = 1,
-    multinomial_multinom_weight = 1,
-    surveyindices_log_surveyindices_weight = 1)
+    cdist_sumofsquares_utcd_weight = 1,
+    cdist_sumofsquares_utcd_weight_weight = 1,
+    cdist_sumofsquares_utsd_weight = 1,
+    cdist_multinomial_multinom_weight = 1,
+    adist_surveyindices_log_surveyindices_weight = 1)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -222,11 +222,11 @@ ok_group("Likelihood per step", {
         amount_ab = 1000000,
         si_alpha = 4,
         si_beta = 2,
-        sumofsquares_utcd_weight = 1,
-        sumofsquares_utcd_weight_weight = 1,
-        sumofsquares_utsd_weight = 1,
-        multinomial_multinom_weight = 1,
-        surveyindices_log_surveyindices_weight = 1)
+        cdist_sumofsquares_utcd_weight = 1,
+        cdist_sumofsquares_utcd_weight_weight = 1,
+        cdist_sumofsquares_utsd_weight = 1,
+        cdist_multinomial_multinom_weight = 1,
+        adist_surveyindices_log_surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -237,8 +237,8 @@ ok_group("Likelihood per step", {
         sort(sd_data$number)), "cdist_sumofsquares_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
     ok(ut_cmp_equal(
-        r$cdist_surveyindices_log_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        r$adist_surveyindices_log_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
     ######## cdist_sumofsquares_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
@@ -356,15 +356,15 @@ ok_group("Likelihood per step", {
          NULL)), "step3_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
     ########
 
-    ######## cdist_surveyindices_log_surveyindices_model__num
+    ######## adist_surveyindices_log_surveyindices_model__num
     ok(ut_cmp_equal(
-        as.vector(r$cdist_surveyindices_log_surveyindices_model__num),
+        as.vector(r$adist_surveyindices_log_surveyindices_model__num),
         c(
             sum(r$step0_prey_b__num),
             sum(r$step1_prey_b__num),
             sum(r$step2_prey_b__num),
             sum(r$step3_prey_b__num),
-            NULL)), "cdist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
+            NULL)), "adist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, sum(
@@ -501,8 +501,8 @@ ok_group("Likelihood per step", {
                         sum(r$cdist_multinomial_multinom_obs__num[,4]))))),
         # surveyindices:
         sum((params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_log_surveyindices_model__num[,])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_log_surveyindices_obs__num[,])))**2),
+            params$si_beta * log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -599,11 +599,11 @@ ok_group("Likelihood per year", {
         amount_ab = 1000000,
         si_alpha = 1.82,
         si_beta = 3.74,
-        sumofsquares_utcd_weight = 1,
-        sumofsquares_utcd_weight_weight = 1,
-        sumofsquares_utsd_weight = 1,
-        multinomial_multinom_weight = 1,
-        surveyindices_log_surveyindices_weight = 1)
+        cdist_sumofsquares_utcd_weight = 1,
+        cdist_sumofsquares_utcd_weight_weight = 1,
+        cdist_sumofsquares_utsd_weight = 1,
+        cdist_multinomial_multinom_weight = 1,
+        adist_surveyindices_log_surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -614,8 +614,8 @@ ok_group("Likelihood per year", {
         sort(sd_data$number)), "cdist_sumofsquares_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
     ok(ut_cmp_equal(
-        r$cdist_surveyindices_log_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        r$adist_surveyindices_log_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
 
     ######## cdist_sumofsquares_utsd_model__num
@@ -693,13 +693,13 @@ ok_group("Likelihood per year", {
          NULL)), "step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
     ########
 
-    ######## cdist_surveyindices_surveyindices_model__num
+    ######## adist_surveyindices_surveyindices_model__num
     ok(ut_cmp_equal(
-        as.vector(r$cdist_surveyindices_log_surveyindices_model__num),
+        as.vector(r$adist_surveyindices_log_surveyindices_model__num),
         c(
             sum(r$step0_prey_b__num) + sum(r$step1_prey_b__num),
             sum(r$step2_prey_b__num) + sum(r$step3_prey_b__num),
-            NULL)), "cdist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
+            NULL)), "adist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, 0), "step0_nll: nll not calculated yet")
@@ -772,8 +772,8 @@ ok_group("Likelihood per year", {
                         sum(r$cdist_multinomial_multinom_obs__num[,2]))))),
         # surveyindices:
         sum((params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_log_surveyindices_model__num[,])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_log_surveyindices_obs__num[,])))**2),
+            params$si_beta * log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

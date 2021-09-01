@@ -294,7 +294,7 @@ ok(all.equal(
 ok(all.equal(
     sum(g3_r$nll_report),
     sum(
-        1 * sum(g3_r$nll_cdist_surveyindices_log_si_igfs_si1__num),
+        1 * sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
         10 * sum(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
         10 * sum(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
         10 * sum(g3_r$nll_understocking__wgt)),
@@ -352,5 +352,5 @@ ok(all.equal(
 #     to only years with reasonable amounts of stock.
 ok(all.equal(
     g2_nll_si_likelihood_value,
-    sum(g3_r$nll_cdist_surveyindices_log_si_igfs_si1__num),
-    tolerance = 1e-6), "g3_r$nll_cdist_surveyindices_log_si_igfs_si1__num: Total matches reported likelihood value")
+    sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
+    tolerance = 1e-6), "g3_r$nll_adist_surveyindices_log_si_igfs_si1__num: Total matches reported likelihood value")

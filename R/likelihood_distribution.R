@@ -136,7 +136,11 @@ g3l_distribution <- function (
 
     # Add our called name / function name to labels & nll_name
     prefix <- paste0(this_name, "_", function_f_name, ": ")
-    nll_name <- paste(function_f_name, nll_name, sep = "_")
+    nll_name <- paste(
+        if (length(fleets) > 0) 'cdist' else 'adist',
+        function_f_name,
+        nll_name,
+        sep = "_")
 
     # Convert data to stocks
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report)
@@ -228,7 +232,7 @@ g3l_distribution <- function (
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }
 
-    nllstock <- g3_storage(paste0("nll_cdist_", nll_name))
+    nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)

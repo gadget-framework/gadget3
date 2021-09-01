@@ -37,12 +37,12 @@ out <- attributes(res)
 #out.tmb <- ling_model_tmb$report(fit.opt2$par)
 
 # si_dat <-
-#   out[grepl('cdist_surveyindices_log_si_igfs_si.+obs',names(out))] %>%
+#   out[grepl('adist_surveyindices_log_si_igfs_si.+obs',names(out))] %>%
 #   map(as.data.frame.table,responseName = 'obs') %>%
 #   map(mutate,year=1985:(1984+n())) %>%
 #   bind_rows(.id='data') %>%
 #   mutate(data = gsub('cdist_(.+)_obs__num','\\1',data)) %>%
-#   left_join(out[grepl('cdist_surveyindices_log_si_igfs_si.+model',names(out))] %>%
+#   left_join(out[grepl('adist_surveyindices_log_si_igfs_si.+model',names(out))] %>%
 #               map(as.data.frame.table,responseName = 'model') %>%
 #               map(mutate,year=1985:(1984+n())) %>%
 #               bind_rows(.id='data') %>%

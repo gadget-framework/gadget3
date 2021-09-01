@@ -34,18 +34,18 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
                 length_vec[[1]] <- 0
             }
 
-            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
+            modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
         } else {
             length_groups <- sort(unique(data$length))
 
             # Default to open-ended, as there's no way to specify the maximum
-            modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
+            modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
             data$length <- paste0('len', data$length)  # Make data match autoset groups
         }
         handled_columns$length <- NULL
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
-        modelstock <- g3_stock(paste("cdist", nll_name, "model", sep = "_"), c(0))
+        modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), c(0))
         data$length <- 'len0'
     }
 
@@ -79,7 +79,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     # NB: Let g3s_time_convert() worry about if the step column is there or not
     data$time <- g3s_time_convert(data$year, data$step)
     obsstock <- g3s_time(
-        g3s_clone(modelstock, paste("cdist", nll_name, "obs", sep = "_")),
+        g3s_clone(modelstock, paste(nll_name, "obs", sep = "_")),
         sort(unique(data$time)))
     if (model_history) {
         modelstock <- g3s_time(

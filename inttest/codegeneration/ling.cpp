@@ -70,7 +70,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2017);
     PARAMETER(ling__rec__2018);
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
-    PARAMETER(sumofsquares_ldist_lln_weight);
+    PARAMETER(cdist_sumofsquares_ldist_lln_weight);
     auto assert_msg = [](bool expr, std::string message) -> void {
     if (!expr) {
         std::cerr << "Check failed: " << message << "\n";
@@ -811,7 +811,7 @@ Type objective_function<Type>::operator() () {
             auto ling_imm__area_idx = 0;
 
             {
-                // g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for sumofsquares_ldist_lln;
+                // g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for cdist_sumofsquares_ldist_lln;
                 for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
@@ -828,7 +828,7 @@ Type objective_function<Type>::operator() () {
             auto ling_mat__area_idx = 0;
 
             {
-                // g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for sumofsquares_ldist_lln;
+                // g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for cdist_sumofsquares_ldist_lln;
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
@@ -850,9 +850,9 @@ Type objective_function<Type>::operator() () {
                     auto cur_cdist_nll = (pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
 
                     {
-                        nll += sumofsquares_ldist_lln_weight*cur_cdist_nll;
+                        nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;
                         nll_cdist_sumofsquares_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
-                        nll_cdist_sumofsquares_ldist_lln__weight(cur_time + 1 - 1) = sumofsquares_ldist_lln_weight;
+                        nll_cdist_sumofsquares_ldist_lln__weight(cur_time + 1 - 1) = cdist_sumofsquares_ldist_lln_weight;
                     }
                 }
             }
