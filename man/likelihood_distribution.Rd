@@ -4,7 +4,7 @@
 \alias{g3l_distribution_multivariate}
 \alias{g3l_distribution_surveyindices_log}
 \alias{g3l_distribution_surveyindices_linear}
-\alias{g3l_distribution}
+\alias{g3l_abundancedistribution}
 \alias{g3l_catchdistribution}
 
 \title{Gadget3 likelihood actions}
@@ -23,7 +23,7 @@ g3l_distribution_surveyindices_log(alpha = NULL, beta = NULL)
 
 g3l_distribution_surveyindices_linear(alpha = NULL, beta = NULL)
 
-g3l_distribution(nll_name, obs_data, fleets, stocks, function_f,
+g3l_abundancedistribution(nll_name, obs_data, fleets, stocks, function_f,
     missing_val = 0, area_group = NULL, report = FALSE, nll_breakdown = FALSE,
     weight = substitute(g3_param(n, optimise = FALSE, value = 1),
         list(n = paste0(nll_name, "_weight"))),
@@ -122,8 +122,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
   the columns in \var{obs_data} (a number column will compare by individuals, and produce a corresponding num report).
   If \var{nll_breakdown} is \code{TRUE}, this will be an array with one entry per timestep.
 
-  The only difference between \var{g3l_distribution} and \var{g3l_catchdistribution} is the latter insists that at least one fleet
-  is provided, so it can compare catch rather than abundance.
+  \var{g3l_abundancedistribution} compares abundance of stocks, \var{g3l_catchdistribution} compares fleet catch.
+  Thus providing fleets is mandatory for \var{g3l_catchdistribution}, and an error for \var{g3l_abundancedistribution}.
 
   \subsection{obs_data and data aggregation}{
     The \var{obs_data} data.frame, as well as providing the observation data to
@@ -308,7 +308,7 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
     reported after model run, whether calculated or hard-coded.
   }
-  \subsection{g3l_distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
+  \subsection{g3l_*distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
     \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
   }

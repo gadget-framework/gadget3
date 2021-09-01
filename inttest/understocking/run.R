@@ -93,7 +93,7 @@ ling_likelihood_actions <- list(
         g3l_distribution_multinomial(),
         report = TRUE,
         nll_breakdown = TRUE)),
-    remove_avoid_zero(g3l_distribution(
+    remove_avoid_zero(g3l_abundancedistribution(
         'si_igfs_si1',
         weight = 40,
         obs_data = structure(

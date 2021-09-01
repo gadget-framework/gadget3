@@ -129,6 +129,7 @@ g3l_distribution <- function (
     # Find name of function user called, error if it was catchdistribution but with missing fleets
     this_name <- as.character(sys.call()[[1]])
     if (this_name == "g3l_catchdistribution" && length(fleets) == 0) stop("Fleets must be supplied for g3l_catchdistribution")
+    if (this_name == "g3l_abundancedistribution" && length(fleets) > 0) stop("Fleets must not be supplied for g3l_abundancedistribution")
 
     # Find name of function user called, and g3l_substitution function used
     function_f_name <- if (is.call(substitute(function_f))) as.character(substitute(function_f)[[1]]) else "custom"
@@ -292,3 +293,4 @@ g3l_distribution <- function (
     return(as.list(out))
 }
 g3l_catchdistribution <- g3l_distribution
+g3l_abundancedistribution <- g3l_distribution

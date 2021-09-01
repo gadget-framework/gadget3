@@ -62,6 +62,13 @@ ok(ut_cmp_error(g3l_catchdistribution(
     stocks = list(prey_a, prey_b, prey_c),
     area_group = areas,
     g3l_distribution_sumofsquares()), "Fleets must be supplied"), "g3l_catchdistribution: Invalid without fleets")
+ok(ut_cmp_error(g3l_abundancedistribution(
+    'utcd',
+    cd_data,
+    fleets = list(fleet_abc),
+    stocks = list(prey_a, prey_b, prey_c),
+    area_group = areas,
+    g3l_distribution_sumofsquares()), "Fleets must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
 
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
@@ -178,7 +185,7 @@ actions <- c(base_actions, list(
         list(prey_a),
         area_group = areas,
         g3l_distribution_multinomial()),
-    g3l_distribution(
+    g3l_abundancedistribution(
         'surveyindices',
         surveyindices_data,
         fleets = list(),
@@ -572,7 +579,7 @@ ok_group("Likelihood per year", {
             list(prey_a),
             area_group = areas,
             g3l_distribution_multinomial()),
-        g3l_distribution(
+        g3l_abundancedistribution(
             'surveyindices',
             surveyindices_data,
             fleets = list(),
