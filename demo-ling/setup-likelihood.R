@@ -103,7 +103,7 @@ ling_likelihood_actions <- list(
     g3l_distribution_sumofsquares(),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si1',
     (igfs.SI1[[1]]),
     fleets = list(),
@@ -112,7 +112,7 @@ ling_likelihood_actions <- list(
                                        beta = g3_stock_param(species_name, "si_beta1")),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si2a',
     (igfs.SI2a[[1]]),
     fleets = list(),
@@ -121,7 +121,7 @@ ling_likelihood_actions <- list(
                                        beta = g3_stock_param(species_name, "si_beta2")),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si2b',
     (igfs.SI2b[[1]]),
     fleets = list(),
@@ -130,7 +130,7 @@ ling_likelihood_actions <- list(
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si3a',
     (igfs.SI3a[[1]]),
     fleets = list(),
@@ -139,7 +139,7 @@ ling_likelihood_actions <- list(
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si3b',
     (igfs.SI3b[[1]]),
     fleets = list(),
@@ -148,7 +148,7 @@ ling_likelihood_actions <- list(
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si3c',
     (igfs.SI3b[[1]]),
     fleets = list(),
@@ -157,7 +157,7 @@ ling_likelihood_actions <- list(
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
-  g3l_distribution(
+  g3l_abundancedistribution(
     'si_igfs_si3d',
     (igfs.SI3d[[1]]),
     fleets = list(),

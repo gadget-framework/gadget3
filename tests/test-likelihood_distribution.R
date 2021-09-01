@@ -54,6 +54,22 @@ multinomial_data$number <- floor(runif(length(multinomial_data$year), min=100, m
 surveyindices_data <- expand.grid(year = 1999:2000, step = c(1, 2))
 surveyindices_data$number <- floor(runif(length(surveyindices_data$year), min=100, max=999))
 
+# Can't make catchdistribution without fleets
+ok(ut_cmp_error(g3l_catchdistribution(
+    'utcd',
+    cd_data,
+    fleets = list(),
+    stocks = list(prey_a, prey_b, prey_c),
+    area_group = areas,
+    g3l_distribution_sumofsquares()), "Fleets must be supplied"), "g3l_catchdistribution: Invalid without fleets")
+ok(ut_cmp_error(g3l_abundancedistribution(
+    'utcd',
+    cd_data,
+    fleets = list(fleet_abc),
+    stocks = list(prey_a, prey_b, prey_c),
+    area_group = areas,
+    g3l_distribution_sumofsquares()), "Fleets must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
+
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
 report_step <- function (var_name, steps, initial_val) {
@@ -90,27 +106,27 @@ base_actions <- list(
         amount_f = ~g3_param('amount_ab') * area),
     named_list(
         # Capture data just before final step erases it
-        gadget3:::step_id(10, 'g3l_distribution', 'utcd', 1, 'zzzz'), report_step('cdist_utcd_model__num', 4, array(
-            # NB: Lift definition from deparse(r$cdist_utcd_model__num)
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_model__num)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'utsd', 1, 'zzzz'), report_step('cdist_utsd_model__num', 4, array(
-            # NB: Lift definition from deparse(r$cdist_utsd_model__num)
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utsd', 1, 'zzzz'), report_step('cdist_sumofsquares_utsd_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_sumofsquares_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'utcd_weight', 1, 'zzzz'), report_step('cdist_utcd_weight_model__wgt', 4, array(
-            # NB: Lift definition from deparse(r$cdist_utcd_weight_model__wgt)
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd_weight', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_weight_model__wgt', 4, array(
+            # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_weight_model__wgt)
             dim = c(2L, 2L),
             dimnames = list(
                 c("len1", "len6"),
                 c("x", "y")))),
-        gadget3:::step_id(10, 'g3l_distribution', 'multinom', 1, 'zzzz'), report_step('cdist_multinom_model__num', 4, array(
-            # NB: Lift definition from deparse(r$cdist_multinom_model__num)
+        gadget3:::step_id(10, 'g3l_distribution', 'cdist_multinomial_multinom', 1, 'zzzz'), report_step('cdist_multinomial_multinom_model__num', 4, array(
+            # NB: Lift definition from deparse(r$cdist_multinomial_multinom_model__num)
             dim = c(2L),
             dimnames = list(
                 c("len1", "len6")))),
@@ -122,14 +138,14 @@ base_actions <- list(
         gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, gadget3:::stock_instance(prey_c)),
         gadget3:::step_id(990, 'nll'), report_step('nll', 4, 0.0),
         gadget3:::step_id(999),  ~{
-            g3_report(cdist_utcd_model__num)
-            g3_report(cdist_utcd_obs__num)
-            g3_report(cdist_utcd_weight_model__wgt)
-            g3_report(cdist_utcd_weight_obs__wgt)
-            g3_report(cdist_utsd_model__num)
-            g3_report(cdist_utsd_obs__num)
-            g3_report(cdist_multinom_model__num)
-            g3_report(cdist_multinom_obs__num)
+            g3_report(cdist_sumofsquares_utcd_model__num)
+            g3_report(cdist_sumofsquares_utcd_obs__num)
+            g3_report(cdist_sumofsquares_utcd_weight_model__wgt)
+            g3_report(cdist_sumofsquares_utcd_weight_obs__wgt)
+            g3_report(cdist_sumofsquares_utsd_model__num)
+            g3_report(cdist_sumofsquares_utsd_obs__num)
+            g3_report(cdist_multinomial_multinom_model__num)
+            g3_report(cdist_multinomial_multinom_obs__num)
             g3_report(prey_a__wgt)
             g3_report(prey_b__wgt)
             g3_report(prey_c__wgt)
@@ -169,7 +185,7 @@ actions <- c(base_actions, list(
         list(prey_a),
         area_group = areas,
         g3l_distribution_multinomial()),
-    g3l_distribution(
+    g3l_abundancedistribution(
         'surveyindices',
         surveyindices_data,
         fleets = list(),
@@ -186,11 +202,11 @@ params <- list(
     amount_ab = 100,
     si_alpha = 0,
     si_beta = 0,
-    utcd_weight = 1,
-    utcd_weight_weight = 1,
-    utsd_weight = 1,
-    multinom_weight = 1,
-    surveyindices_weight = 1)
+    cdist_sumofsquares_utcd_weight = 1,
+    cdist_sumofsquares_utcd_weight_weight = 1,
+    cdist_sumofsquares_utsd_weight = 1,
+    cdist_multinomial_multinom_weight = 1,
+    adist_surveyindices_log_surveyindices_weight = 1)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -213,287 +229,287 @@ ok_group("Likelihood per step", {
         amount_ab = 1000000,
         si_alpha = 4,
         si_beta = 2,
-        utcd_weight = 1,
-        utcd_weight_weight = 1,
-        utsd_weight = 1,
-        multinom_weight = 1,
-        surveyindices_weight = 1)
+        cdist_sumofsquares_utcd_weight = 1,
+        cdist_sumofsquares_utcd_weight_weight = 1,
+        cdist_sumofsquares_utsd_weight = 1,
+        cdist_multinomial_multinom_weight = 1,
+        adist_surveyindices_log_surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        sort(as.vector(r$cdist_utsd_obs__num)),
-        sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
+        sort(as.vector(r$cdist_sumofsquares_utsd_obs__num)),
+        sort(sd_data$number)), "cdist_sumofsquares_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
     ok(ut_cmp_equal(
-        r$cdist_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        r$adist_surveyindices_log_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
-    ######## cdist_utsd_model__num
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_a', 1]), c(
+    ######## cdist_sumofsquares_utsd_model__num
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step0_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_c', 1]), c(
+        sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
-        0)), "step0_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0)), "step0_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_a', 2]), c(
         0,
-        0)), "step0_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utsd_model__num[,'prey_c', 2]), c(
+        0)), "step0_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step1_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 1]), c(
+        sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
-        0)), "step1_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 2]), c(
         0,
-        0)), "step1_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 2]), c(
+        0)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_a', 1]), c(
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(r$step2_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step2_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step2_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_c', 1]), c(
+        sum(r$step2_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
-        0)), "step2_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0)), "step2_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_a', 2]), c(
         0,
-        0)), "step2_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utsd_model__num[,'prey_c', 2]), c(
+        0)), "step2_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(r$step2_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step2_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step2_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_a', 1]), c(
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(r$step3_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step3_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step3_cdist_utsd_model__num[,'prey_a',1]: prey_a in area 1")
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_c', 1]), c(
+        sum(r$step3_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
-        0)), "step3_cdist_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_a', 2]), c(
+        0)), "step3_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_a', 2]), c(
         0,
-        0)), "step3_cdist_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utsd_model__num[,'prey_c', 2]), c(
+        0)), "step3_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(r$step3_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step3_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step3_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
     ########
 
-    ######## cdist_utcd_model__num
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utcd_model__num[,1]), c(
+    ######## cdist_sumofsquares_utcd_model__num
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
              sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
              sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
              sum(r$step0_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step0_cdist_utsd_model__num[,1]: all prey in area a/b")
-    ok(ut_cmp_equal(as.vector(r$step0_cdist_utcd_model__num[,2]), c(
+         NULL)), "step0_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
              sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
              sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step0_cdist_utsd_model__num[,2]: all prey in area c")
+         NULL)), "step0_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,1]), c(
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
              sum(r$step1_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
              sum(r$step1_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
              sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step1_cdist_utsd_model__num[,1]: all prey in area a/b")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,2]), c(
+         NULL)), "step1_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
              sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
              sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step1_cdist_utsd_model__num[,2]: all prey in area c")
+         NULL)), "step1_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utcd_model__num[,1]), c(
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
              sum(r$step2_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
              sum(r$step2_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
              sum(r$step2_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step2_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step2_cdist_utsd_model__num[,1]: all prey in area a/b")
-    ok(ut_cmp_equal(as.vector(r$step2_cdist_utcd_model__num[,2]), c(
+         NULL)), "step2_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
              sum(r$step2_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
              sum(r$step2_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step2_cdist_utsd_model__num[,2]: all prey in area c")
+         NULL)), "step2_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utcd_model__num[,1]), c(
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
              sum(r$step3_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
              sum(r$step3_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
              sum(r$step3_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step3_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step3_cdist_utsd_model__num[,1]: all prey in area a/b")
-    ok(ut_cmp_equal(as.vector(r$step3_cdist_utcd_model__num[,2]), c(
+         NULL)), "step3_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
+    ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
              sum(r$step3_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
              sum(r$step3_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step3_cdist_utsd_model__num[,2]: all prey in area c")
+         NULL)), "step3_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
     ########
 
-    ######## cdist_surveyindices_model__num
+    ######## adist_surveyindices_log_surveyindices_model__num
     ok(ut_cmp_equal(
-        as.vector(r$cdist_surveyindices_model__num),
+        as.vector(r$adist_surveyindices_log_surveyindices_model__num),
         c(
             sum(r$step0_prey_b__num),
             sum(r$step1_prey_b__num),
             sum(r$step2_prey_b__num),
             sum(r$step3_prey_b__num),
-            NULL)), "cdist_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
+            NULL)), "adist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step0_cdist_utsd_model__num[,1,1] / sum(r$step0_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,1,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        (r$step0_cdist_sumofsquares_utsd_model__num[,1,1] / sum(r$step0_cdist_sumofsquares_utsd_model__num[,,1]) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,1,1] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,1])) ** 2,
         # utsd: stock 2 / area 1
-        (r$step0_cdist_utsd_model__num[,2,1] / sum(r$step0_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        (r$step0_cdist_sumofsquares_utsd_model__num[,2,1] / sum(r$step0_cdist_sumofsquares_utsd_model__num[,,1]) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,1,1] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,1])) ** 2,
         # utsd: stock 1 / area 2
-        (r$step0_cdist_utsd_model__num[,1,2] / sum(r$step0_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step0_cdist_sumofsquares_utsd_model__num[,1,2] / sum(r$step0_cdist_sumofsquares_utsd_model__num[,,2]) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,1,2] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,2])) ** 2,
         # utsd: stock 2 / area 2
-        (r$step0_cdist_utsd_model__num[,2,2] / sum(r$step0_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step0_cdist_sumofsquares_utsd_model__num[,2,2] / sum(r$step0_cdist_sumofsquares_utsd_model__num[,,2]) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,1,2] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,2])) ** 2,
         # utcd: area 1
-        (r$step0_cdist_utcd_model__num[,1] / sum(r$step0_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,1] / sum(r$cdist_utcd_obs__num[,1,1])) ** 2,
+        (r$step0_cdist_sumofsquares_utcd_model__num[,1] / sum(r$step0_cdist_sumofsquares_utcd_model__num[,1]) -
+            r$cdist_sumofsquares_utcd_obs__num[,1,1] / sum(r$cdist_sumofsquares_utcd_obs__num[,1,1])) ** 2,
         # utcd: area 2
-        (r$step0_cdist_utcd_model__num[,2] / sum(r$step0_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        (r$step0_cdist_sumofsquares_utcd_model__num[,2] / sum(r$step0_cdist_sumofsquares_utcd_model__num[,2]) -
+            r$cdist_sumofsquares_utcd_obs__num[,1,2] / sum(r$cdist_sumofsquares_utcd_obs__num[,1,2])) ** 2,
         # utcd_weight: area 1
-        (r$step0_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step0_cdist_utcd_weight_model__wgt[,1])) -
-            r$cdist_utcd_weight_obs__wgt[,1,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,1]))) ** 2,
+        (r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,1])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step0_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step0_cdist_utcd_weight_model__wgt[,2])) -
-            r$cdist_utcd_weight_obs__wgt[,1,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,1,2]))) ** 2,
+        (r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step0_cdist_multinom_model__num/g3_avoid_zero(sum(r$step0_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,1]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step0_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step0_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,1])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,1]))))),
         # surveyindices:
         0,  # NB: We don't calculate until end
         0)), "step0_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step1_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,1,2,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,1]))) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,1]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step1_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,2,2,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,1]))) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,1]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step1_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step1_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step1_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,2]))) ** 2,
         # utcd: area 1
-        (r$step1_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step1_cdist_utcd_model__num[,1])) -
-            r$cdist_utcd_obs__num[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,1]))) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_model__num[,1] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utcd_model__num[,1])) -
+            r$cdist_sumofsquares_utcd_obs__num[,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,2,1]))) ** 2,
         # utcd: area 2
-        (r$step1_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step1_cdist_utcd_model__num[,2])) -
-            r$cdist_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,2]))) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_model__num[,2] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utcd_model__num[,2])) -
+            r$cdist_sumofsquares_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,2,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step1_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step1_cdist_utcd_weight_model__wgt[,1])) -
-            r$cdist_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,1]))) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step1_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step1_cdist_utcd_weight_model__wgt[,2])) -
-            r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step1_cdist_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,2]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,2])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,2]))))),
         # surveyindices:
         0,  # NB: We don't calculate until end
         r$step0_nll)), "step1_nll: Sum of squares, including step0_nll")
 
     ok(ut_cmp_equal(r$step2_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step2_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,1,3,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,3,1]))) ** 2,
+        (r$step2_cdist_sumofsquares_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,3,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,3,1]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step2_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,2,3,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,3,1]))) ** 2,
+        (r$step2_cdist_sumofsquares_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,3,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,3,1]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step2_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,1,3,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,3,2]))) ** 2,
+        (r$step2_cdist_sumofsquares_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,3,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,3,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step2_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step2_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,2,3,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,3,2]))) ** 2,
+        (r$step2_cdist_sumofsquares_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,3,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,3,2]))) ** 2,
         # utcd: area 1
-        (r$step2_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step2_cdist_utcd_model__num[,1])) -
-            r$cdist_utcd_obs__num[,3,1] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,3,1]))) ** 2,
+        (r$step2_cdist_sumofsquares_utcd_model__num[,1] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utcd_model__num[,1])) -
+            r$cdist_sumofsquares_utcd_obs__num[,3,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,3,1]))) ** 2,
         # utcd: area 2
-        (r$step2_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step2_cdist_utcd_model__num[,2])) -
-            r$cdist_utcd_obs__num[,3,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,3,2]))) ** 2,
+        (r$step2_cdist_sumofsquares_utcd_model__num[,2] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utcd_model__num[,2])) -
+            r$cdist_sumofsquares_utcd_obs__num[,3,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,3,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step2_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step2_cdist_utcd_weight_model__wgt[,1])) -
-            r$cdist_utcd_weight_obs__wgt[,3,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,3,1]))) ** 2,
+        (r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,1])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step2_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step2_cdist_utcd_weight_model__wgt[,2])) -
-            r$cdist_utcd_weight_obs__wgt[,3,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,3,2]))) ** 2,
+        (r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,3] * log(g3_logspace_add_vec(r$step2_cdist_multinom_model__num/g3_avoid_zero(sum(r$step2_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,3]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,3])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,3]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,3] * log(g3_logspace_add_vec(r$step2_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step2_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,3]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,3])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,3]))))),
         # surveyindices:
         0,  # NB: We don't calculate until end
         r$step1_nll)), "step2_nll: Sum of squares, including step1_nll")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,1,4,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,4,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,4,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,4,1]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,2,4,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,4,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,4,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,4,1]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,1,4,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,4,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,4,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,4,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,2,4,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,4,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,4,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,4,2]))) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,1])) -
-            r$cdist_utcd_obs__num[,4,1] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,4,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_model__num[,1])) -
+            r$cdist_sumofsquares_utcd_obs__num[,4,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,4,1]))) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,2])) -
-            r$cdist_utcd_obs__num[,4,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,4,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_model__num[,2])) -
+            r$cdist_sumofsquares_utcd_obs__num[,4,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,4,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step3_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,1])) -
-            r$cdist_utcd_weight_obs__wgt[,4,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,4,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,1])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
-            r$cdist_utcd_weight_obs__wgt[,4,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,4,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,4] * log(g3_logspace_add_vec(r$step3_cdist_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,4]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,4])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,4]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,4] * log(g3_logspace_add_vec(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,4]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,4])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,4]))))),
         # surveyindices:
         sum((params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
+            params$si_beta * log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -563,7 +579,7 @@ ok_group("Likelihood per year", {
             list(prey_a),
             area_group = areas,
             g3l_distribution_multinomial()),
-        g3l_distribution(
+        g3l_abundancedistribution(
             'surveyindices',
             surveyindices_data,
             fleets = list(),
@@ -590,54 +606,54 @@ ok_group("Likelihood per year", {
         amount_ab = 1000000,
         si_alpha = 1.82,
         si_beta = 3.74,
-        utcd_weight = 1,
-        utcd_weight_weight = 1,
-        utsd_weight = 1,
-        multinom_weight = 1,
-        surveyindices_weight = 1)
+        cdist_sumofsquares_utcd_weight = 1,
+        cdist_sumofsquares_utcd_weight_weight = 1,
+        cdist_sumofsquares_utsd_weight = 1,
+        cdist_multinomial_multinom_weight = 1,
+        adist_surveyindices_log_surveyindices_weight = 1)
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        sort(as.vector(r$cdist_utsd_obs__num)),
-        sort(sd_data$number)), "cdist_utsd_obs__num: Imported from data.frame, order not necessarily the same")
+        sort(as.vector(r$cdist_sumofsquares_utsd_obs__num)),
+        sort(sd_data$number)), "cdist_sumofsquares_utsd_obs__num: Imported from data.frame, order not necessarily the same")
 
     ok(ut_cmp_equal(
-        r$cdist_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "cdist_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        r$adist_surveyindices_log_surveyindices_model__params,
+        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
 
-    ######## cdist_utsd_model__num
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 1]), c(
+    ######## cdist_sumofsquares_utsd_model__num
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(
             (r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
             (r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,])),
         sum(
             sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]),
             sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,])),
-        NULL)), "step1_cdist_utsd_model__num[,'prey_a',1]: prey_a summed over year")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 1]), c(
+        NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a summed over year")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
         0,
-        NULL)), "step1_cdist_utsd_model__num[,'prey_c',1]: No prey_c in first area")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_a', 2]), c(
+        NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in first area")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 2]), c(
         0,
         0,
-        NULL)), "step1_cdist_utsd_model__num[,'prey_a',2]: No prey_a in second area")
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utsd_model__num[,'prey_c', 2]), c(
+        NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in second area")
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(
             (r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
             (r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,])),
         sum(
             sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]),
             sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,])),
-        NULL)), "step1_cdist_utsd_model__num[,'prey_c',2]: prey_c summed over year")
+        NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c summed over year")
     ########
 
-    ######## cdist_utcd_model__num
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,1]), c(
+    ######## cdist_sumofsquares_utcd_model__num
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
              sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
              sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1]),
@@ -648,20 +664,20 @@ ok_group("Likelihood per year", {
              sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1]),
              sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
              sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
-         NULL)), "step1_cdist_utcd_model__num[,1]: all prey from a/b and steps 0 & 1")
+         NULL)), "step1_cdist_sumofsquares_utcd_model__num[,1]: all prey from a/b and steps 0 & 1")
 
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_model__num[,2]), c(
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
              sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1]),
              sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
              sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1]),
              sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
-         NULL)), "step1_cdist_utcd_model__num[,2]: all prey from c and steps 0/1")
+         NULL)), "step1_cdist_sumofsquares_utcd_model__num[,2]: all prey from c and steps 0/1")
     ########
 
-    ######## cdist_utcd_weight_model__wgt
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_weight_model__wgt[,1]), c(
+    ######## cdist_sumofsquares_utcd_weight_model__wgt
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1]), c(
          sum(
              sum(r$step0_prey_a__fleet_abc[1:5,1]),
              sum(r$step0_prey_b__fleet_abc[1:5,1]),
@@ -672,99 +688,99 @@ ok_group("Likelihood per year", {
              sum(r$step0_prey_b__fleet_abc[6:10,1]),
              sum(r$step1_prey_a__fleet_abc[6:10,1]),
              sum(r$step1_prey_b__fleet_abc[6:10,1])),
-         NULL)), "step1_cdist_utcd_weight_model__wgt[,1]: total biomass of prey from a/b and steps 0 & 1")
+         NULL)), "step1_cdist_sumofsquares_utcd_weight_model__wgt[,1]: total biomass of prey from a/b and steps 0 & 1")
 
-    ok(ut_cmp_equal(as.vector(r$step1_cdist_utcd_weight_model__wgt[,2]), c(
+    ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]), c(
          sum(
              sum(r$step0_prey_c__fleet_abc[1:5,1]),
              sum(r$step1_prey_c__fleet_abc[1:5,1])),
          sum(
              sum(r$step0_prey_c__fleet_abc[6:10,1]),
              sum(r$step1_prey_c__fleet_abc[6:10,1])),
-         NULL)), "step1_cdist_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
+         NULL)), "step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
     ########
 
-    ######## cdist_surveyindices_model__num
+    ######## adist_surveyindices_surveyindices_model__num
     ok(ut_cmp_equal(
-        as.vector(r$cdist_surveyindices_model__num),
+        as.vector(r$adist_surveyindices_log_surveyindices_model__num),
         c(
             sum(r$step0_prey_b__num) + sum(r$step1_prey_b__num),
             sum(r$step2_prey_b__num) + sum(r$step3_prey_b__num),
-            NULL)), "cdist_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
+            NULL)), "adist_surveyindices_log_surveyindices_model__num: Built-in reporting gave us step 0..3 abundance")
     ########
 
     ok(ut_cmp_equal(r$step0_nll, 0), "step0_nll: nll not calculated yet")
 
     ok(ut_cmp_equal(r$step1_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step1_cdist_utsd_model__num[,1,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
+        (r$step1_cdist_sumofsquares_utsd_model__num[,1,1] / sum(r$step1_cdist_sumofsquares_utsd_model__num[,,1]) -
             # NB: Still using first time data, unlike per-step example
-            r$cdist_utsd_obs__num[,1,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+            r$cdist_sumofsquares_utsd_obs__num[,1,1,1] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,1])) ** 2,
         # utsd: stock 2 / area 1
-        (r$step1_cdist_utsd_model__num[,2,1] / sum(r$step1_cdist_utsd_model__num[,,1]) -
-            r$cdist_utsd_obs__num[,2,1,1] / sum(r$cdist_utsd_obs__num[,,1,1])) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,2,1] / sum(r$step1_cdist_sumofsquares_utsd_model__num[,,1]) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,1,1] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,1])) ** 2,
         # utsd: stock 1 / area 2
-        (r$step1_cdist_utsd_model__num[,1,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,1,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,1,2] / sum(r$step1_cdist_sumofsquares_utsd_model__num[,,2]) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,1,2] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,2])) ** 2,
         # utsd: stock 2 / area 2
-        (r$step1_cdist_utsd_model__num[,2,2] / sum(r$step1_cdist_utsd_model__num[,,2]) -
-            r$cdist_utsd_obs__num[,2,1,2] / sum(r$cdist_utsd_obs__num[,,1,2])) ** 2,
+        (r$step1_cdist_sumofsquares_utsd_model__num[,2,2] / sum(r$step1_cdist_sumofsquares_utsd_model__num[,,2]) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,1,2] / sum(r$cdist_sumofsquares_utsd_obs__num[,,1,2])) ** 2,
         # utcd: area 1
-        (r$step1_cdist_utcd_model__num[,1] / sum(r$step1_cdist_utcd_model__num[,1]) -
-            r$cdist_utcd_obs__num[,1,1] / sum(r$cdist_utcd_obs__num[,1,1])) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_model__num[,1] / sum(r$step1_cdist_sumofsquares_utcd_model__num[,1]) -
+            r$cdist_sumofsquares_utcd_obs__num[,1,1] / sum(r$cdist_sumofsquares_utcd_obs__num[,1,1])) ** 2,
         # utcd: area 2
-        (r$step1_cdist_utcd_model__num[,2] / sum(r$step1_cdist_utcd_model__num[,2]) -
-            r$cdist_utcd_obs__num[,1,2] / sum(r$cdist_utcd_obs__num[,1,2])) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_model__num[,2] / sum(r$step1_cdist_sumofsquares_utcd_model__num[,2]) -
+            r$cdist_sumofsquares_utcd_obs__num[,1,2] / sum(r$cdist_sumofsquares_utcd_obs__num[,1,2])) ** 2,
         # utcd_weight: area 1
-        (r$step1_cdist_utcd_weight_model__wgt[,1] / sum(r$step1_cdist_utcd_weight_model__wgt[,1]) -
-            r$cdist_utcd_weight_obs__wgt[,1,1] / sum(r$cdist_utcd_weight_obs__wgt[,1,1])) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1] / sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1]) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,1] / sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,1])) ** 2,
         # utcd_weight: area 2
-        (r$step1_cdist_utcd_weight_model__wgt[,2] / sum(r$step1_cdist_utcd_weight_model__wgt[,2]) -
-            r$cdist_utcd_weight_obs__wgt[,1,2] / sum(r$cdist_utcd_weight_obs__wgt[,1,2])) ** 2,
+        (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2] / sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2] / sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2])) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step1_cdist_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,1])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,1]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,1])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,1]))))),
         # surveyindices:
         0,  # NB: We don't calculate until end
         0)), "step1_nll: Sum of squares")
 
     ok(ut_cmp_equal(r$step3_nll, sum(
         # utsd: stock 1 / area 1
-        (r$step3_cdist_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
+        (r$step3_cdist_sumofsquares_utsd_model__num[,1,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,1])) -
             # NB: Second time data, not 4th as in per-step example
-            r$cdist_utsd_obs__num[,1,2,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,1]))) ** 2,
+            r$cdist_sumofsquares_utsd_obs__num[,1,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,1]))) ** 2,
         # utsd: stock 2 / area 1
-        (r$step3_cdist_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,1])) -
-            r$cdist_utsd_obs__num[,2,2,1] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,2,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,1])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,1]))) ** 2,
         # utsd: stock 1 / area 2
-        (r$step3_cdist_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,1,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,1,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,2]))) ** 2,
         # utsd: stock 2 / area 2
-        (r$step3_cdist_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_utsd_model__num[,,2])) -
-            r$cdist_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_utsd_obs__num[,,2,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utsd_model__num[,2,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utsd_model__num[,,2])) -
+            r$cdist_sumofsquares_utsd_obs__num[,2,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utsd_obs__num[,,2,2]))) ** 2,
         # utcd: area 1
-        (r$step3_cdist_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,1])) -
-            r$cdist_utcd_obs__num[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_model__num[,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_model__num[,1])) -
+            r$cdist_sumofsquares_utcd_obs__num[,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,2,1]))) ** 2,
         # utcd: area 2
-        (r$step3_cdist_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_model__num[,2])) -
-            r$cdist_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_obs__num[,2,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_model__num[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_model__num[,2])) -
+            r$cdist_sumofsquares_utcd_obs__num[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_obs__num[,2,2]))) ** 2,
         # utcd_weight: area 1
-        (r$step3_cdist_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,1])) -
-            r$cdist_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,1]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,1] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,1])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,1] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,1]))) ** 2,
         # utcd_weight: area 2
-        (r$step3_cdist_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_utcd_weight_model__wgt[,2])) -
-            r$cdist_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_utcd_weight_obs__wgt[,2,2]))) ** 2,
+        (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
+            r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step3_cdist_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinom_model__num)) *
-            10000, (1/(length(r$cdist_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
-                (sum(g3_lgamma_vec(1 + r$cdist_multinom_obs__num[,2])) - lgamma(1 +
-                        sum(r$cdist_multinom_obs__num[,2]))))),
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
+            10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
+                (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,2])) - lgamma(1 +
+                        sum(r$cdist_multinomial_multinom_obs__num[,2]))))),
         # surveyindices:
         sum((params$si_alpha +
-            params$si_beta * log(g3_avoid_zero(r$cdist_surveyindices_model__num[,])) -
-            log(g3_avoid_zero(r$cdist_surveyindices_obs__num[,])))**2),
+            params$si_beta * log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_model__num[,])) -
+            log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

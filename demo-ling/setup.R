@@ -141,22 +141,22 @@ ling_param[grepl('si_beta2', names(ling_param))] <- 1
 ling_param[grepl('si_igfs_si.+weight$',names(ling_param))] <- 1
 
 ## Old weights from gadget2
-ling_param['ldist_lln_weight'] <- 3331
-ling_param['aldist_lln_weight'] <- 2512
-ling_param['ldist_bmt_weight'] <- 1247
-ling_param['aldist_bmt_weight'] <- 1515
-ling_param['ldist_gil_weight'] <- 781
-ling_param['aldist_gil_weight'] <- 719
-ling_param['ldist_igfs_weight'] <- 6869
-ling_param['aldist_igfs_weight'] <- 11087
-ling_param['matp_igfs_weight'] <- 9
-ling_param['si_igfs_si1_weight'] <- 40
-ling_param['si_igfs_si2a_weight'] <- 8
-ling_param['si_igfs_si2b_weight'] <- 36
-ling_param['si_igfs_si3a_weight'] <- 19
-ling_param['si_igfs_si3b_weight'] <- 16
-ling_param['si_igfs_si3c_weight'] <- 13
-ling_param['si_igfs_si3d_weight'] <- 14.5
+ling_param['cdist_sumofsquares_ldist_lln_weight'] <- 3331
+ling_param['cdist_sumofsquares_aldist_lln_weight'] <- 2512
+ling_param['cdist_sumofsquares_ldist_bmt_weight'] <- 1247
+ling_param['cdist_sumofsquares_aldist_bmt_weight'] <- 1515
+ling_param['cdist_sumofsquares_ldist_gil_weight'] <- 781
+ling_param['cdist_sumofsquares_aldist_gil_weight'] <- 719
+ling_param['cdist_sumofsquares_ldist_igfs_weight'] <- 6869
+ling_param['cdist_sumofsquares_aldist_igfs_weight'] <- 11087
+ling_param['cdist_sumofsquares_matp_igfs_weight'] <- 9
+ling_param['adist_surveyindices_log_si_igfs_si1_weight'] <- 40
+ling_param['adist_surveyindices_log_si_igfs_si2a_weight'] <- 8
+ling_param['adist_surveyindices_log_si_igfs_si2b_weight'] <- 36
+ling_param['adist_surveyindices_log_si_igfs_si3a_weight'] <- 19
+ling_param['adist_surveyindices_log_si_igfs_si3b_weight'] <- 16
+ling_param['adist_surveyindices_log_si_igfs_si3c_weight'] <- 13
+ling_param['adist_surveyindices_log_si_igfs_si3d_weight'] <- 14.5
 
 # You can edit the model code with:
 #ling_model <- edit(ling_model)

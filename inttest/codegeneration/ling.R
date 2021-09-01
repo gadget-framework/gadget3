@@ -45,7 +45,7 @@ structure(function (param)
     stopifnot("ling.rec.2016" %in% names(param))
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
-    stopifnot("ldist_lln_weight" %in% names(param))
+    stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
     assert_msg <- function (expr, message) 
     {
         if (isFALSE(expr)) 
@@ -215,17 +215,17 @@ structure(function (param)
     "age8", "age9", "age10")))
     ling_imm__renewalwgt <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
     "age8", "age9", "age10")))
-    cdist_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
+    cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
     intintlookup_zip <- function (keys, values) 
     {
         list(keys = keys, values = values)
     }
-    times_cdist_ldist_lln_obs__keys <- model_data$times_cdist_ldist_lln_obs__keys
-    times_cdist_ldist_lln_obs__values <- model_data$times_cdist_ldist_lln_obs__values
-    times_cdist_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_ldist_lln_obs__keys, times_cdist_ldist_lln_obs__values)
-    cdist_ldist_lln_obs__num <- model_data$cdist_ldist_lln_obs__num
-    nll_cdist_ldist_lln__num <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
-    nll_cdist_ldist_lln__weight <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+    times_cdist_sumofsquares_ldist_lln_obs__keys <- model_data$times_cdist_sumofsquares_ldist_lln_obs__keys
+    times_cdist_sumofsquares_ldist_lln_obs__values <- model_data$times_cdist_sumofsquares_ldist_lln_obs__values
+    times_cdist_sumofsquares_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
+    cdist_sumofsquares_ldist_lln_obs__num <- model_data$cdist_sumofsquares_ldist_lln_obs__num
+    nll_cdist_sumofsquares_ldist_lln__num <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+    nll_cdist_sumofsquares_ldist_lln__weight <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
     g3l_understocking_total <- 0
     nll_understocking__wgt <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
     nll_understocking__weight <- array(0, dim = c(time = total_steps + 1), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, end_year), each = length(step_lengths)), rep(seq_along(step_lengths), times = end_year - start_year + 1))))
@@ -242,7 +242,7 @@ structure(function (param)
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) {
                 {
-                  attr(nll, "cdist_ldist_lln_model__num") <- cdist_ldist_lln_model__num
+                  attr(nll, "cdist_sumofsquares_ldist_lln_model__num") <- cdist_sumofsquares_ldist_lln_model__num
                   attr(nll, "cur_step") <- cur_step
                   attr(nll, "cur_step_final") <- cur_step_final
                   attr(nll, "cur_time") <- cur_time
@@ -278,8 +278,8 @@ structure(function (param)
                   attr(nll, "ling_mat__totalpredate") <- ling_mat__totalpredate
                   attr(nll, "ling_mat__wgt") <- ling_mat__wgt
                   attr(nll, "nll") <- nll[[1]]
-                  attr(nll, "nll_cdist_ldist_lln__num") <- nll_cdist_ldist_lln__num
-                  attr(nll, "nll_cdist_ldist_lln__weight") <- nll_cdist_ldist_lln__weight
+                  attr(nll, "nll_cdist_sumofsquares_ldist_lln__num") <- nll_cdist_sumofsquares_ldist_lln__num
+                  attr(nll, "nll_cdist_sumofsquares_ldist_lln__weight") <- nll_cdist_sumofsquares_ldist_lln__weight
                   attr(nll, "nll_understocking__weight") <- nll_understocking__weight
                   attr(nll, "nll_understocking__wgt") <- nll_understocking__wgt
                 }
@@ -685,13 +685,13 @@ structure(function (param)
         {
             ling_imm__area_idx <- (1)
             {
-                comment("g3l_catchdistribution: Collect catch from igfs/ling_imm for ldist_lln")
+                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for cdist_sumofsquares_ldist_lln")
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   area <- ling_imm__area
                   {
                     comment("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
+                    cdist_sumofsquares_ldist_lln_model__num[] <- cdist_sumofsquares_ldist_lln_model__num[] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx])
                   }
                 }
             }
@@ -699,32 +699,32 @@ structure(function (param)
         {
             ling_mat__area_idx <- (1)
             {
-                comment("g3l_catchdistribution: Collect catch from igfs/ling_mat for ldist_lln")
+                comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for cdist_sumofsquares_ldist_lln")
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   area <- ling_mat__area
                   {
                     comment("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
-                    cdist_ldist_lln_model__num[] <- cdist_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
+                    cdist_sumofsquares_ldist_lln_model__num[] <- cdist_sumofsquares_ldist_lln_model__num[] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx])
                   }
                 }
             }
         }
         {
-            comment("g3l_catchdistribution: Compare cdist_ldist_lln_model to cdist_ldist_lln_obs")
+            comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
             {
-                cdist_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_ldist_lln_obs__lookup, (cur_year * 1000L + cur_step), -1L)
-                if (cdist_ldist_lln_obs__time_idx >= (1L)) {
-                  cur_cdist_nll <- sum((cdist_ldist_lln_model__num[]/avoid_zero(sum(cdist_ldist_lln_model__num[])) - cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_ldist_lln_obs__num[, cdist_ldist_lln_obs__time_idx])))^2)
+                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 1000L + cur_step), -1L)
+                if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
+                  cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
                   {
-                    nll <- nll + param[["ldist_lln_weight"]] * cur_cdist_nll
-                    nll_cdist_ldist_lln__num[cur_time + 1L] <- nll_cdist_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                    nll_cdist_ldist_lln__weight[cur_time + 1L] <- param[["ldist_lln_weight"]]
+                    nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
+                    nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
+                    nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
                   }
                 }
             }
             comment("Zero counters for next reporting period")
-            cdist_ldist_lln_model__num[] <- 0
+            cdist_sumofsquares_ldist_lln_model__num[] <- 0
         }
         {
             comment("Reset understocking total")
@@ -829,4 +829,4 @@ structure(function (param)
     }
     stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 0, ling.k = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, ling.rec.1998 = 0, 
-    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, ldist_lln_weight = 1))
+    ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))

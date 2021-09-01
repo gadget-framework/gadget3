@@ -93,7 +93,7 @@ ling_likelihood_actions <- list(
         g3l_distribution_multinomial(),
         report = TRUE,
         nll_breakdown = TRUE)),
-    remove_avoid_zero(g3l_distribution(
+    remove_avoid_zero(g3l_abundancedistribution(
         'si_igfs_si1',
         weight = 40,
         obs_data = structure(
@@ -294,17 +294,17 @@ ok(all.equal(
 ok(all.equal(
     sum(g3_r$nll_report),
     sum(
-        1 * sum(g3_r$nll_cdist_si_igfs_si1__num),
-        10 * sum(g3_r$nll_cdist_ldist_igfs_ss__num),
-        10 * sum(g3_r$nll_cdist_ldist_igfs_mn__num),
+        1 * sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
+        10 * sum(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
+        10 * sum(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
         10 * sum(g3_r$nll_understocking__wgt)),
-    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_ldist_igfs_ss__num/g3_r$nll_understocking__wgt consistent with each other")
+    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num/g3_r$nll_understocking__wgt consistent with each other")
 ok(ut_cmp_identical(
-    dim(g3_r$nll_cdist_ldist_igfs_ss__num),
-    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs_ss__num: Broken up into individual timesteps")
+    dim(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num: Broken up into individual timesteps")
 ok(ut_cmp_identical(
-    dim(g3_r$nll_cdist_ldist_igfs_mn__num),
-    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_ldist_igfs_mn__num: Broken up into individual timesteps")
+    dim(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_multinomial_ldist_igfs_mn__num: Broken up into individual timesteps")
 ok(ut_cmp_identical(
     dim(g3_r$nll_understocking__wgt),
     c(time = as.integer(length(year_range) * 4))), "g3_r$nll_understocking__wgt: Broken up into individual timesteps")
@@ -327,12 +327,12 @@ g2_nll_si_weight <- g2_nll[g2_nll$component == 'si.100-120', 'weight']
 
 ok(all.equal(
     g2_nll_ldist_ss.igfs$likelihood_value,
-    as.vector(g3_r$nll_cdist_ldist_igfs_ss__num),
-    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs_ss__num - ldist.igfs matches")
+    as.vector(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num - ldist.igfs matches")
 ok(all.equal(
     g2_nll_ldist_mn.igfs$likelihood_value,
-    as.vector(g3_r$nll_cdist_ldist_igfs_mn__num),
-    tolerance = 1e-4), "g3_r$nll_cdist_ldist_igfs_mn__num - ldist.igfs matches")
+    as.vector(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_multinomial_ldist_igfs_mn__num - ldist.igfs matches")
 ok(all.equal(
     as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
         g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
@@ -352,5 +352,5 @@ ok(all.equal(
 #     to only years with reasonable amounts of stock.
 ok(all.equal(
     g2_nll_si_likelihood_value,
-    sum(g3_r$nll_cdist_si_igfs_si1__num),
-    tolerance = 1e-6), "g3_r$nll_cdist_si_igfs_si1__num: Total matches reported likelihood value")
+    sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
+    tolerance = 1e-6), "g3_r$nll_adist_surveyindices_log_si_igfs_si1__num: Total matches reported likelihood value")

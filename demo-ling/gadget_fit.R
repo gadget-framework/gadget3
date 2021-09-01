@@ -37,12 +37,12 @@ out <- attributes(res)
 #out.tmb <- ling_model_tmb$report(fit.opt2$par)
 
 # si_dat <-
-#   out[grepl('cdist_si_igfs_si.+obs',names(out))] %>%
+#   out[grepl('adist_surveyindices_log_si_igfs_si.+obs',names(out))] %>%
 #   map(as.data.frame.table,responseName = 'obs') %>%
 #   map(mutate,year=1985:(1984+n())) %>%
 #   bind_rows(.id='data') %>%
 #   mutate(data = gsub('cdist_(.+)_obs__num','\\1',data)) %>%
-#   left_join(out[grepl('cdist_si_igfs_si.+model',names(out))] %>%
+#   left_join(out[grepl('adist_surveyindices_log_si_igfs_si.+model',names(out))] %>%
 #               map(as.data.frame.table,responseName = 'model') %>%
 #               map(mutate,year=1985:(1984+n())) %>%
 #               bind_rows(.id='data') %>%
@@ -94,7 +94,7 @@ dat %>%
 
 
 dat %>%
-  filter(comp == 'cdist_ldist_gil_') %>%
+  filter(comp == 'cdist_sumofsquares_ldist_gil_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   spread(origin,Freq) %>%
@@ -104,7 +104,7 @@ dat %>%
 
 
 dat %>%
-  filter(comp == 'cdist_ldist_lln_') %>%
+  filter(comp == 'cdist_sumofsquares_ldist_lln_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   spread(origin,Freq) %>%
@@ -113,7 +113,7 @@ dat %>%
   facet_wrap(~year + step, scale = 'free')
 
 dat %>%
-  filter(comp == 'cdist_ldist_igfs_') %>%
+  filter(comp == 'cdist_sumofsquares_ldist_igfs_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   spread(origin,Freq) %>%
@@ -122,7 +122,7 @@ dat %>%
   facet_wrap(~year + step, scale = 'free')
 
 dat %>%
-  filter(comp == 'cdist_aldist_igfs_') %>%
+  filter(comp == 'cdist_sumofsquares_aldist_igfs_') %>%
   group_by(year,step,age,origin) %>% 
   summarise(Freq = sum(Freq, na.rm = TRUE)) %>%
   group_by(year,step,origin) %>%
@@ -133,7 +133,7 @@ dat %>%
   facet_wrap(~year + step, scale = 'free')
 
 dat %>%
-  filter(comp == 'cdist_aldist_igfs_') %>%
+  filter(comp == 'cdist_sumofsquares_aldist_igfs_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   group_by(year,step,age,origin) %>%
@@ -150,7 +150,7 @@ dat %>%
 
 
 dat %>%
-  filter(comp == 'cdist_matp_igfs_') %>%
+  filter(comp == 'cdist_sumofsquares_matp_igfs_') %>%
   group_by(year,step,length,origin) %>%
   mutate(p = Freq/sum(Freq)) %>%
   select(-Freq) %>% 
@@ -162,7 +162,7 @@ dat %>%
 
 
 dat %>%
-  filter(comp == 'cdist_ldist_bmt_') %>%
+  filter(comp == 'cdist_sumofsquares_ldist_bmt_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   spread(origin,Freq) %>%
@@ -170,7 +170,7 @@ dat %>%
   geom_point(aes(y=model),col='red') +
   facet_wrap(~year + step, scale = 'free')
 dat %>%
-  filter(comp == 'cdist_aldist_bmt_') %>%
+  filter(comp == 'cdist_sumofsquares_aldist_bmt_') %>%
   group_by(year,step,origin) %>%
   mutate(Freq = Freq/sum(Freq,na.rm = TRUE)) %>%
   group_by(year,step,age,origin) %>%

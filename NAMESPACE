@@ -56,7 +56,7 @@ export(g3l_distribution_multivariate)
 export(g3l_distribution_surveyindices_linear)
 export(g3l_distribution_surveyindices_log)
 export(g3l_catchdistribution)
-export(g3l_distribution)
+export(g3l_abundancedistribution)
 
 # R/likelihood_understocking.R
 export(g3l_understocking)

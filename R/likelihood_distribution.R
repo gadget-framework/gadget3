@@ -93,23 +93,6 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
 g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('log', alpha, beta)
 g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('linear', alpha, beta)
 
-# Compare numbers caught by fleets to observation data
-g3l_catchdistribution <- function (
-        nll_name,
-        obs_data,
-        fleets = list(),
-        stocks,
-        function_f,
-        missing_val = 0,
-        area_group = NULL,
-        report = FALSE,
-        nll_breakdown = FALSE,
-        weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
-        run_at = 10) {
-    stopifnot(length(fleets) > 0)
-    g3l_distribution(nll_name, obs_data, fleets, stocks, function_f, missing_val = missing_val, area_group = area_group, report = report, nll_breakdown = nll_breakdown, weight = weight, run_at = run_at)
-}
-
 # Compare model state to observation data
 # - obs_data: Real-world observations. data.frame containing colums:
 #    - year
@@ -135,15 +118,30 @@ g3l_distribution <- function (
         nll_breakdown = FALSE,
         weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
         run_at = 10) {
+    stopifnot(is.character(nll_name) && length(nll_name) == 1)
+    stopifnot(is.data.frame(obs_data))
+    stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
+    stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
+    stopifnot(rlang::is_formula(function_f))
+
     out <- new.env(parent = emptyenv())
 
-    # Define prefix matching our public name
-    parent.call <- if (length(sys.call(-1)) > 0) as.character(sys.call(-1)[[1]]) else ''
-    if (parent.call == 'g3l_catchdistribution') {
-        prefix <- "g3l_catchdistribution: "
-    } else {
-        prefix <- "g3l_distribution: "
-    }
+    # Find name of function user called, error if it was catchdistribution but with missing fleets
+    this_name <- as.character(sys.call()[[1]])
+    if (this_name == "g3l_catchdistribution" && length(fleets) == 0) stop("Fleets must be supplied for g3l_catchdistribution")
+    if (this_name == "g3l_abundancedistribution" && length(fleets) > 0) stop("Fleets must not be supplied for g3l_abundancedistribution")
+
+    # Find name of function user called, and g3l_substitution function used
+    function_f_name <- if (is.call(substitute(function_f))) as.character(substitute(function_f)[[1]]) else "custom"
+    function_f_name <- gsub("^g3l_distribution_", "", function_f_name)
+
+    # Add our called name / function name to labels & nll_name
+    prefix <- paste0(this_name, "_", function_f_name, ": ")
+    nll_name <- paste(
+        if (length(fleets) > 0) 'cdist' else 'adist',
+        function_f_name,
+        nll_name,
+        sep = "_")
 
     # Convert data to stocks
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report)
@@ -235,7 +233,7 @@ g3l_distribution <- function (
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }
 
-    nllstock <- g3_storage(paste0("nll_cdist_", nll_name))
+    nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
@@ -294,3 +292,5 @@ g3l_distribution <- function (
 
     return(as.list(out))
 }
+g3l_catchdistribution <- g3l_distribution
+g3l_abundancedistribution <- g3l_distribution
