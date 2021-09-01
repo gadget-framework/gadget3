@@ -994,5 +994,10 @@ g3_tmb_relist <- function (parameters, par) {
 
     # Relist based on table's value
     # NB: Subset should match eqivalent operation in g3_tmb_par()
-    utils::relist(par, unclass(parameters$value[parameters$optimise]))
+    out <- utils::relist(par, unclass(parameters$value[parameters$optimise]))
+    # Copy unoptimised parameters from table
+    out <- c(parameters$value[!parameters$optimise], out)
+    # Re-order to match template list
+    out <- out[names(parameters$value)]
+    return(out)
 }

@@ -83,7 +83,11 @@ g3_tmb_relist(parameters, par)
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
-  \subsection{g3_tmb_relist}{A value list for the \var{parameters} table, filled in with values from parameter vector}
+  \subsection{g3_tmb_relist}{
+    The \var{parameters} table value column, but with optimised
+    values replaced with contents of \var{par} vector.
+    i.e. the inverse operation to \link{g3_tmb_par}.
+  }
 }
 
 \examples{

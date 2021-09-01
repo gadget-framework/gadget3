@@ -111,11 +111,13 @@ ok_group('g3_tmb_relist', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
         g3_param_vector('param_vec')
+        g3_param('unopt_param', optimise = FALSE)
         g3_param('aaparam')
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
         param.b = 66,
+        unopt_param = 95,
         param_vec = 6:10)[rownames(param)])
 
     ok(ut_cmp_identical(
@@ -126,7 +128,8 @@ ok_group('g3_tmb_relist', {
         list(
             "param.b" = 660,
             "param_vec" = c(60, 70, 80, 90, 100),
-            "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots")
+            "unopt_param" = 95,
+            "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots, used old unopt_param value")
 
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_error(
@@ -140,8 +143,10 @@ ok_group('g3_tmb_relist', {
             param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
             aaparam = 550)),
         list(
+            "param.b" = 66,
             "param_vec" = c(60, 70, 80, 90, 100),
-            "aaparam" = 550)), "g3_tmb_relist: Removing param__b works")
+            "unopt_param" = 95,
+            "aaparam" = 550)), "g3_tmb_relist: Works without param.b set, use initial table value")
 })
 
 ok_group('g3_param', {
