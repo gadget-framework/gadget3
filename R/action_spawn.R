@@ -69,7 +69,8 @@ g3a_spawn <- function(
 
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
-    stock__spawningnum <- stock_instance(stock, desc = "Number of spawning parents")
+    stock__spawnprop <- stock_instance(stock, desc = "Proportion of parents that are spawning")
+    stock__spawningnum <- stock_instance(stock, desc = "Total number of spawning parents")
     stock__offspringnum <- stock_instance(stock, desc = "Total number of offspring these parents produce")
     out <- list()
     action_name <- unique_action_name()
@@ -80,8 +81,10 @@ g3a_spawn <- function(
 
         debug_trace("Calculate spawning proportion of ", stock)
         stock_iterate(stock, if (run_f) {
-            stock_ss(stock__spawningnum) <- stock_ss(stock__num) * proportion_f
+            stock_ss(stock__spawnprop) <- proportion_f
+            stock_ss(stock__spawningnum) <- stock_ss(stock__num) * stock_ss(stock__spawnprop)
         } else {
+            stock_ss(stock__spawnprop) <- 0
             stock_ss(stock__spawningnum) <- 0
         })
 
