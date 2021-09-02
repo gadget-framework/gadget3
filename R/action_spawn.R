@@ -115,8 +115,8 @@ g3a_spawn <- function(
                 debug_trace("Apply spawning mortality to parents")
                 # Spawndata::Spawn, pop
                 stock_ss(stock__num) <-
-                    (stock_ss(stock__num) - stock_ss(stock__spawningnum)) +
-                    stock_ss(stock__spawningnum) * exp(-mortality_f)
+                    stock_ss(stock__num) -
+                    stock_ss(stock__spawningnum) * (1.0 - mortality_f)
             }
         })
     }, list(
@@ -124,7 +124,7 @@ g3a_spawn <- function(
         recruitment_r_f = recruitment_f$r,
         proportion_f = proportion_f,
         mortality_enabled = !identical(mortality_f, 0),
-        mortality_f = mortality_f,
+        mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
         weightloss_enabled = !identical(weightloss_f, 0),
         weightloss_f = weightloss_f,
         run_f = run_f)))
