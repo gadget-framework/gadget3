@@ -82,20 +82,31 @@
 }
 
 \section{stock_ss}{
-  \code{stock_ss(stock_var, [ dimname, dimname, ... ])}
+  \code{stock_ss(stock_var, [ dimname = override, dimname = override, ... ])}
 
   Subsets \var{stock_var} to get a length vector for the current iteration
   of \link{stock_iterate}(). If \var{dimname}s are supplied, then these
-  dimensions will be preserved (e.g. if you're trying to sum across ages).
+  dimensions overwritten with the suppled override, which could be a missing
+  value, to preserve a dimension. See final example.
 
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
-> gadget3:::g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock) }))
+> stock__num <- gadget3:::stock_instance(stock)
+> gadget3:::g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock__num) }))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
   halibut__age_idx := g3_idx(age - halibut__minage + 1L), {
-    x <- x + stock[, halibut__age_idx]
+    x <- x + stock__num[, halibut__age_idx]
   })}
+
+\preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
+> stock__num <- gadget3:::stock_instance(stock)
+> gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
+~stock__num[, stock__age_idx, 5]
+> gadget3:::g3_step(~stock_ss(stock__num, age = i + 1))
+~stock__num[, i + 1, stock__area_idx]
+> gadget3:::g3_step(~stock_ss(stock__num, area = , age = j))
+~stock__num[, j, ]}
 
   }
 }
