@@ -49,7 +49,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         iterate = f_substitute(~g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
                 extension_point = inner_stock$iterate), copy_all_env = TRUE),
-        iter_ss = c(inner_stock$iter_ss, as.symbol("stock__time_idx")),
+        iter_ss = c(inner_stock$iter_ss, time = as.symbol("stock__time_idx")),
         intersect = f_substitute(~g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
@@ -67,13 +67,13 @@ g3s_modeltime <- function (inner_stock, by_year = FALSE) {
     if (by_year) {
         new_dims <- list(year = quote(end_year - start_year + 1L))
         new_dimnames <- list(year = quote(seq(start_year, end_year)))
-        lookup <- quote(g3_idx(cur_year - start_year + 1L))
+        lookup <- list(year = quote(g3_idx(cur_year - start_year + 1L)))
     } else {
         new_dims <- list(time = quote(total_steps + 1))
         new_dimnames <- list(time = quote(sprintf("%d-%02d",
             rep(seq(start_year, end_year), each = length(step_lengths)),
             rep(seq_along(step_lengths), times = end_year - start_year + 1))))
-        lookup <- quote(g3_idx(cur_time+1L))
+        lookup <- list(time = quote(g3_idx(cur_time+1L)))
     }
     structure(list(
         dim = c(inner_stock$dim, new_dims),

@@ -25,7 +25,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
 
     # Convert list of subset args into an actual call
     to_subset_call <- function (l) {
-        as.call(c(list(as.symbol("["), as.symbol(".")), l))
+        as.call(c(list(as.symbol("["), as.symbol(".")), unname(l)))
     }
 
     # Mangle stock_num / stock_wgt to remove non-age parameters

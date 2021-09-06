@@ -268,7 +268,7 @@ g3_step <- function(step_f, recursing = FALSE) {
 
             # Replace unwanted dimensions with missing symbol
             ss[names(stock$dimnames) %in% wanted_dims] <- list(quote(x[])[[3]])
-            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), unname(ss))), "stock", stock_var))
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
@@ -285,7 +285,7 @@ g3_step <- function(step_f, recursing = FALSE) {
 
             # Replace unwanted dimensions with missing symbol
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
-            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), ss)), "stock", stock_var))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), unname(ss))), "stock", stock_var))
         },
         stock_switch = function (x) {  # Arguments: stock variable, stock_name = answer, ... default
             stock_var <- x[[2]]
