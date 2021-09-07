@@ -4,6 +4,7 @@
 \alias{g3_param_vector}
 \alias{g3_report}
 \alias{g3_report_all}
+\alias{g3_with}
 
 \title{G3 language extensions to R}
 \description{
@@ -119,4 +120,12 @@
 
   \emph{Note:} This is added by default in \link{g3a_time}(), so shouldn't be
   used manually unless re-implementing.
+}
+
+\section{g3_with}{
+  As R \link{with}(), but supports \code{var := val} syntax, e.g.
+  \code{g3_with(var1 := val1, var2 := val2, { . . . })}.
+
+  The main reason for existing is so that \code{var1} can be replaced by
+  substitute, which won't substitute a name in a list.
 }
