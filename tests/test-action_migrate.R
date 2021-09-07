@@ -8,6 +8,28 @@ stock_acd <- (g3_stock('stock_acd', seq(10, 40, 10))
     |> g3s_age(3, 7)
     |> g3s_livesonareas(areas[c('a', 'c', 'd')]))
 
+ok_group("g3a_migrate_normalize", {
+    mn <- function (migratematrix, area_idx, row_total = 1) {
+        gadget3:::f_eval(g3a_migrate_normalize(row_total), list(
+            stock__migratematrix = migratematrix,
+            stock__area_idx = area_idx))
+    }
+
+    ok(ut_cmp_equal(
+        mn(array(c(sqrt(0.2), 0), dim = c(3,3)), 1),
+        c(0.8, 0, 0.2)), "Correct row selected, output balanced by adjusting stationary individuals")
+    ok(ut_cmp_equal(
+        mn(array(c(sqrt(0.2), 0), dim = c(3,3)), 2),
+        c(0, 1, 0)), "Attempts to set proportion of stationary individuals ignored")
+    ok(ut_cmp_equal(
+        mn(array(c(sqrt(0.2), 0, 0), dim = c(3,3)), 3),
+        c(0.2, 0, 0.8)), "Output balanced by adjusting stationary individuals")
+
+    ok(ut_cmp_equal(
+        mn(array(c(sqrt(0.2), 0), dim = c(3,3)), 1, row_total = 10),
+        c(0.98, 0, 0.02)), "Correct row selected, output balanced by adjusting stationary individuals")
+})
+
 ok_group("g3a_migrate", {
     actions <- list(
         g3a_time(start_year = 2000, end_year = 2004, steps = c(3,3,3,3)),

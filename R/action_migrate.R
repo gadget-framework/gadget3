@@ -3,13 +3,13 @@ g3a_migrate_normalize <- function(row_total = 1) {
         vec[[src_idx]] <- 0  # Clear no-movement part of array
         vec <- vec ** 2  # ~abs(x) for all entries
         vec[[src_idx]] <- row_total - sum(vec)  # No-movement part should balance other entries
-        vec[[src_idx]] <- vec[[src_idx]] / row_total  # Normalise rest
+        vec <- vec / row_total  # Normalise rest
         return(vec)
     }, cpp = '[](vector<Type> vec, int src_idx, double row_total) {
         vec(src_idx) = 0;
         vec = pow(vec, (Type)2);
         vec(src_idx) = row_total - vec.sum();
-        vec(src_idx) /= row_total;
+        vec /= row_total;
         return vec;
     }')
 
