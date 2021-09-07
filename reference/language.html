@@ -226,6 +226,12 @@
   there shouldn't be any point reporting.</p>
 <p><em>Note:</em> This is added by default in <a href='action_time.html'>g3a_time</a>(), so shouldn't be
   used manually unless re-implementing.</p>
+    <h2 class="hasAnchor" id="g-with"><a class="anchor" href="#g-with"></a>g3_with</h2>
+
+    <p>As R <a href='https://rdrr.io/r/base/with.html'>with</a>(), but supports <code>var := val</code> syntax, e.g.
+  <code>g3_with(var1 := val1, var2 := val2, { . . . })</code>.</p>
+<p>The main reason for existing is so that <code>var1</code> can be replaced by
+  substitute, which won't substitute a name in a list.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
