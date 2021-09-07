@@ -148,6 +148,17 @@
 <pre><code>R -d gdb
 (gdb) run --vanilla &lt; /tmp/RtmpysTVvW/file3da4a6f13a80c.R</code></pre>
 </div>
+<div id="subsetting-is-by-reference" class="section level2">
+<h2 class="hasAnchor">
+<a href="#subsetting-is-by-reference" class="anchor"></a>Subsetting is by-reference</h2>
+<p>Subsetting will be by reference, unlike R. i.e the following will report 0:</p>
+<pre><code>DATA_ARRAY(x);
+auto y = x.col(0);
+x.col(0).setZero();
+REPORT(y)</code></pre>
+<p>This is particuarly problematic with <code>g3_with</code>, that currently uses <code>auto</code> to save deriving types properly.</p>
+<p>A workaround is to force a copy to a vector, either by filling a <code>vector&lt;Type&gt;</code> variable or adding <code>.vec()</code>. See stock__premigrate in R/action_migrate.R.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
