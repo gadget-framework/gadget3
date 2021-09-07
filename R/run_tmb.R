@@ -442,7 +442,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
     }
 
-    if (call_name %in% c("is.na")) {
+    if (call_name %in% c("is.nan")) {
         if (is.symbol(in_call[[2]])) {
             env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             if (is.numeric(env_defn) && length(env_defn) == 1) {

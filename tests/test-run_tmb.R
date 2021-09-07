@@ -310,6 +310,29 @@ actions <- c(actions, ~{
 # items in the produced report, so reports will differ TMB/R
 expecteds$escaped_data_output <- escaped.data.scalar + sum(escaped.data.array)
 
+# is.nan / is.finite
+is_nan_nan_scalar_input <- NaN
+is_nan_finite_scalar_input <- 4
+is_nan_finite_array_input <- 1:4
+is_nan_nan_array_input <- rep(NaN, 5)
+is_nan_output <- 0L
+is_finite_output <- 0L
+actions <- c(actions, ~{
+    comment('is.nan / is.finite')
+    is_nan_output <- is_nan_output + (if (is.nan(is_nan_nan_scalar_input)) 1 else 0)
+    is_nan_output <- is_nan_output + (if (is.nan(is_nan_finite_scalar_input)) 2 else 0)
+    is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_finite_array_input))) 4 else 0)
+    is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_array_input))) 8 else 0)
+    g3_report(is_nan_output)
+    is_finite_output <- is_finite_output + (if (is.finite(is_nan_nan_scalar_input)) 1 else 0)
+    is_finite_output <- is_finite_output + (if (is.finite(is_nan_finite_scalar_input)) 2 else 0)
+    is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_finite_array_input))) 4 else 0)
+    is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_array_input))) 8 else 0)
+    g3_report(is_finite_output)
+})
+expecteds$is_nan_output <- 1 + 8
+expecteds$is_finite_output <- 2 + 4
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0
