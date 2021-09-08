@@ -504,6 +504,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").sum()"))
     }
 
+    if (call_name == "prod") {
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").prod()"))
+    }
+
     if (call_name %in% c("colSums", "Matrix::colSums")) {
         # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
         return(paste0("(vector<Type>)((", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum())"))
