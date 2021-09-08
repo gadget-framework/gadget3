@@ -124,6 +124,37 @@ g3l_distribution <- function (
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
 
+    # Replace any __x vars in (f) with (repl_postfix), e.g. "num"
+    generic_var_replace <- function (f, repl_postfix) {
+        # Find all vars ending in __x
+        replace_vars <- all.vars(f)
+        replace_vars <- replace_vars[endsWith(replace_vars, '__x')]
+
+        # Turn into a list of __x = __postfix
+        names(replace_vars) <- replace_vars
+        replace_vars <- gsub('__x$', paste0("__", repl_postfix), replace_vars)
+
+        # Apply to formula
+        out_f <- f_substitute(f, lapply(replace_vars, as.symbol))
+
+        # step.R isn't doing environment for us, so do it manually
+        for (real_name in replace_vars) {
+            # Work backwards to guess the actual var name
+            if (grepl("^nll_.dist_", real_name)) {
+                var_name <- gsub("^.*__", "nllstock__", real_name)
+            } else if (grepl("^.dist_.*_model__", real_name)) {
+                var_name <- gsub("^.*__", "modelstock__", real_name)
+            } else if (grepl("^.dist_.*_obs__", real_name)) {
+                var_name <- gsub("^.*__", "obsstock__", real_name)
+            } else {
+                next
+            }
+            assign(real_name, get(var_name), envir = environment(out_f))
+        }
+
+        return(out_f)
+    }
+
     out <- new.env(parent = emptyenv())
 
     # Find name of function user called, error if it was catchdistribution but with missing fleets
@@ -240,7 +271,7 @@ g3l_distribution <- function (
     nllstock__weight <- stock_instance(nllstock, 0)
 
     # Generic comparison step with __x instead of __num or __wgt
-    compare_generic_f <- g3_step(f_substitute(~{
+    compare_f <- g3_step(f_substitute(~{
         debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
         if (done_aggregating_f) {
             stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, if (function_comare_f) g3_with(
@@ -262,32 +293,16 @@ g3l_distribution <- function (
         function_f = function_f,
         report = report,
         weight = weight)))
-    compare_generic_f <- f_substitute(compare_generic_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
-
-    # Build list of variables that will need replacing with num/wgt later
-    var_replacements <- all.vars(compare_generic_f)[endsWith(all.vars(compare_generic_f), '__x')]
-    names(var_replacements) <- var_replacements
+    compare_f <- f_substitute(compare_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     if (!is.null(ld$number)) {
-        compare_f <- f_substitute(
-            compare_generic_f,
-            lapply(gsub('__x$', '__num', var_replacements), as.symbol))
-        # step.R isn't doing environment for us, so we have to
-        assign(paste0(modelstock$name, '__num'), modelstock__num, envir = environment(compare_f))
-        assign(paste0(obsstock$name, '__num'), obsstock__num, envir = environment(compare_f))
-        assign(paste0(nllstock$name, '__num'), nllstock__num, envir = environment(compare_f))
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <- compare_f
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <-
+            generic_var_replace(compare_f, 'num')
     }
 
     if (!is.null(ld$weight)) {
-        compare_f <- f_substitute(
-            compare_generic_f,
-            lapply(gsub('__x$', '__wgt', var_replacements), as.symbol))
-        # step.R isn't doing environment for us, so we have to
-        assign(paste0(modelstock$name, '__wgt'), modelstock__wgt, envir = environment(compare_f))
-        assign(paste0(obsstock$name, '__wgt'), obsstock__wgt, envir = environment(compare_f))
-        assign(paste0(nllstock$name, '__wgt'), nllstock__wgt, envir = environment(compare_f))
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <- compare_f
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <-
+            generic_var_replace(compare_f, 'wgt')
     }
 
     return(as.list(out))
