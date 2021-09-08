@@ -28,12 +28,22 @@ actions <- list(
         area_group = areas,
         report = TRUE,
         g3l_distribution_sumofsquares()),
+    g3l_controlset(
+        'controlset',
+        data.frame(
+            age = 1:5,
+            reader1 = c(2,3,4,5,1),
+            stringsAsFactors = FALSE),
+        input_betas = c(2, 2, 1, 1, 1),
+        transform_fs = list(
+            reader1 = ~g3_param_array('reader1matrix')[age, destage])),
     NULL)
 
 params <- list(
     fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
     amount_a = 100,
     reader1matrix = diag(5)[c(2:5,1),],
+    controlset_weight = 1,
     cdist_sumofsquares_utsd_weight = 1)
 
 # Compile model

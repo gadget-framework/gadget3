@@ -53,6 +53,9 @@ export(g3a_spawn)
 # R/action_time.R
 export(g3a_time)
 
+# R/likelihood_controlset.R
+export(g3l_controlset)
+
 # R/likelihood_distribution.R
 export(g3l_distribution_sumofsquares)
 export(g3l_distribution_multinomial)
