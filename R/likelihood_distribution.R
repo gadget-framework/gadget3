@@ -112,6 +112,7 @@ g3l_distribution <- function (
         fleets = list(),
         stocks,
         function_f,
+        transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
         report = FALSE,
@@ -123,16 +124,17 @@ g3l_distribution <- function (
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
+    stopifnot(is.list(transform_fs) && all(sapply(transform_fs, rlang::is_formula)))
 
     # Replace any __x vars in (f) with (repl_postfix), e.g. "num"
     generic_var_replace <- function (f, repl_postfix) {
-        # Find all vars ending in __x
+        # Find all vars ending in _x or __x
         replace_vars <- all.vars(f)
-        replace_vars <- replace_vars[endsWith(replace_vars, '__x')]
+        replace_vars <- replace_vars[endsWith(replace_vars, '_x')]
 
-        # Turn into a list of __x = __postfix
+        # Turn into a list of _x = _postfix
         names(replace_vars) <- replace_vars
-        replace_vars <- gsub('__x$', paste0("__", repl_postfix), replace_vars)
+        replace_vars <- gsub('(\\_+)x$', paste0("\\1", repl_postfix), replace_vars)
 
         # Apply to formula
         out_f <- f_substitute(f, lapply(replace_vars, as.symbol))
@@ -264,6 +266,48 @@ g3l_distribution <- function (
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }
 
+    # Add any required transforms
+    for (tf_name in names(transform_fs)) {
+        if (tf_name != 'age') stop("Transforms for dimensions other than age not supported yet")
+
+        # Build up subset call to a destination
+        ss_call <- call("stock_ss", quote(modelstock__x))
+        ss_call[[tf_name]] <- as.symbol(paste0("modelstock__dest", tf_name, "_idx"))
+
+        transform_f <- g3_step(f_substitute(~{
+            debug_label(prefix, "Transform ", modelstock, " ", tf_name)
+            if (done_aggregating_f) {
+                stock_with(modelstock, {
+                    modelstock__pretransform_x[] <- modelstock__x
+                    modelstock__x[] <- 0
+                })
+                stock_iterate(modelstock, {
+                    # TODO: We need something like modelstock$iterate_f$age here, but they're already combined
+                    for (destage in seq(modelstock__minage, modelstock__maxage, by = 1)) g3_with(
+                        modelstock__destage_idx := g3_idx(destage - modelstock__minage + 1L), {
+                            ss <- ss + transform_f * stock_ss(modelstock__pretransform_x)
+                    })
+                })
+            }
+        }, list(
+            done_aggregating_f = ld$done_aggregating_f,
+            ss = ss_call,
+            transform_f = transform_fs[[tf_name]],
+            tf_name = tf_name)))
+
+        if (!is.null(ld$number)) {
+            modelstock__pretransform_num <- stock_instance(modelstock, 0)
+            out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <-
+                generic_var_replace(transform_f, 'num')
+        }
+
+        if (!is.null(ld$weight)) {
+            modelstock__pretransform_wgt <- stock_instance(modelstock, 0)
+            out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <-
+                generic_var_replace(transform_f, 'wgt')
+        }
+    }
+
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
     nllstock__num <- stock_instance(nllstock, 0)
@@ -296,12 +340,12 @@ g3l_distribution <- function (
     compare_f <- f_substitute(compare_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     if (!is.null(ld$number)) {
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'num')]] <-
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 3, 'num')]] <-
             generic_var_replace(compare_f, 'num')
     }
 
     if (!is.null(ld$weight)) {
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 2, 'wgt')]] <-
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 3, 'wgt')]] <-
             generic_var_replace(compare_f, 'wgt')
     }
 
