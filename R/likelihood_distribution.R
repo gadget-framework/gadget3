@@ -52,8 +52,8 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
 g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NULL) {
     stopifnot(fit == 'linear' || fit == 'log')
 
-    N <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(modelstock__x, 'time'))) else ~stock_ss(modelstock__x, 'time')
-    I <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(obsstock__x, 'time'))) else ~stock_ss(obsstock__x, 'time')
+    N <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(modelstock__x, time =))) else ~stock_ss(modelstock__x, time = )
+    I <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(obsstock__x, time =))) else ~stock_ss(obsstock__x, time = )
 
     surveyindices_linreg <- g3_native(r = function (N, I, fixed_alpha, fixed_beta) {
         meanI <- mean(I)
@@ -82,7 +82,7 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
             intercept_f = if (is.null(alpha)) NaN else alpha,
             slope_f = if (is.null(beta)) NaN else beta)), init_val = c(0.0, 0.0))
 
-    # NB: stock_ss(..., 'time') means we keep the time dimension, and have a vector of model time for each area,
+    # NB: stock_ss(..., time = ) means we keep the time dimension, and have a vector of model time for each area,
     #     checking max_time_idx means we only do this once all data is collected.
     # NB: Outer sum sums the vector of timepoints, this formula is called for each area separately.
     out <- f_substitute(

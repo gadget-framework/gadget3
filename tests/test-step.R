@@ -126,6 +126,20 @@ ok_group("g3_step:stock_reshape", {
     }
 })
 
+ok_group("g3_step:stock_ss", {
+     stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
+     stock__num <- gadget3:::stock_instance(stock)
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
+         ~stock__num[, stock__age_idx, 5]), "Can replace individual dimension subsets with something else (area)")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, age = i + 1)),
+         ~stock__num[, i + 1, stock__area_idx]), "Can replace individual dimension subsets with something else (age)")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, area = , age = j)),
+         ~stock__num[, j, ]), "Missing values are honoured too")
+})
+
 ok_group("g3_step:stock_switch", {
     # NB: Differing names, ordinarily stock_imm would be "prey_stock", e.g.
     stock_imm <- g3_stock('ling_imm', c(1))

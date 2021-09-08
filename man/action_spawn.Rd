@@ -101,6 +101,7 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
 
   The action will define the following stock instance variables for each given \var{stock} and \var{output_stock}:
   \describe{
+    \item{\var{stock__spawnprop}}{Proportion of (stock) that are spawning in this spawning event}
     \item{\var{stock__spawningnum}}{Numbers of (stock) that are spawning in this spawning event}
     \item{\var{output_stock__spawnednum}}{Numbers of (output_stock) that will be produced in this spawning event}
   }

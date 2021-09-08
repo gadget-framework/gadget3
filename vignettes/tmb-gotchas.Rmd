@@ -83,3 +83,21 @@ experience. Instead run the new R session yourself, with:
 R -d gdb
 (gdb) run --vanilla < /tmp/RtmpysTVvW/file3da4a6f13a80c.R
 ```
+
+## Subsetting is by-reference
+
+Subsetting will be by reference, unlike R. i.e the following will report 0:
+
+```
+DATA_ARRAY(x);
+auto y = x.col(0);
+x.col(0).setZero();
+REPORT(y)
+```
+
+This is particuarly problematic with ``g3_with``, that currently uses ``auto``
+to save deriving types properly.
+
+A workaround is to force a copy to a vector, either by filling a
+``vector<Type>`` variable or adding ``.vec()``. See stock__premigrate in
+R/action_migrate.R.

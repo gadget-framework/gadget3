@@ -69,7 +69,8 @@ g3a_spawn <- function(
 
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
-    stock__spawningnum <- stock_instance(stock, desc = "Number of spawning parents")
+    stock__spawnprop <- stock_instance(stock, desc = "Proportion of parents that are spawning")
+    stock__spawningnum <- stock_instance(stock, desc = "Total number of spawning parents")
     stock__offspringnum <- stock_instance(stock, desc = "Total number of offspring these parents produce")
     out <- list()
     action_name <- unique_action_name()
@@ -80,8 +81,10 @@ g3a_spawn <- function(
 
         debug_trace("Calculate spawning proportion of ", stock)
         stock_iterate(stock, if (run_f) {
-            stock_ss(stock__spawningnum) <- stock_ss(stock__num) * proportion_f
+            stock_ss(stock__spawnprop) <- proportion_f
+            stock_ss(stock__spawningnum) <- stock_ss(stock__num) * stock_ss(stock__spawnprop)
         } else {
+            stock_ss(stock__spawnprop) <- 0
             stock_ss(stock__spawningnum) <- 0
         })
 
@@ -112,8 +115,8 @@ g3a_spawn <- function(
                 debug_trace("Apply spawning mortality to parents")
                 # Spawndata::Spawn, pop
                 stock_ss(stock__num) <-
-                    (stock_ss(stock__num) - stock_ss(stock__spawningnum)) +
-                    stock_ss(stock__spawningnum) * exp(-mortality_f)
+                    stock_ss(stock__num) -
+                    stock_ss(stock__spawningnum) * (1.0 - mortality_f)
             }
         })
     }, list(
@@ -121,7 +124,7 @@ g3a_spawn <- function(
         recruitment_r_f = recruitment_f$r,
         proportion_f = proportion_f,
         mortality_enabled = !identical(mortality_f, 0),
-        mortality_f = mortality_f,
+        mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
         weightloss_enabled = !identical(weightloss_f, 0),
         weightloss_f = weightloss_f,
         run_f = run_f)))

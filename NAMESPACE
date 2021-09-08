@@ -16,6 +16,10 @@ export(g3a_mature_constant)
 export(g3a_mature_continuous)
 export(g3a_mature)
 
+# R/action_migrate.R
+export(g3a_migrate_normalize)
+export(g3a_migrate)
+
 # R/action_naturalmortality.R
 export(g3a_naturalmortality)
 export(g3a_naturalmortality_exp)

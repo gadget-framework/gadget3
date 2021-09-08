@@ -442,7 +442,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
     }
 
-    if (call_name %in% c("is.na")) {
+    if (call_name %in% c("is.nan")) {
         if (is.symbol(in_call[[2]])) {
             env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             if (is.numeric(env_defn) && length(env_defn) == 1) {
@@ -994,5 +994,10 @@ g3_tmb_relist <- function (parameters, par) {
 
     # Relist based on table's value
     # NB: Subset should match eqivalent operation in g3_tmb_par()
-    utils::relist(par, unclass(parameters$value[parameters$optimise]))
+    out <- utils::relist(par, unclass(parameters$value[parameters$optimise]))
+    # Copy unoptimised parameters from table
+    out <- c(parameters$value[!parameters$optimise], out)
+    # Re-order to match template list
+    out <- out[names(parameters$value)]
+    return(out)
 }
