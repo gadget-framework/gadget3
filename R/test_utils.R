@@ -4,11 +4,11 @@
 ut_tmb_r_compare <- function (model_fn, model_tmb, param_template) {
     dearray <- function (x) {
         # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
-        if (is.array(x) && length(dim(x)) == 1) return(as.vector(x))
+        if (is.array(x) && length(dim(x)) == 1) x <- as.vector(x)
         # TMB Will produce 0/1 for TRUE/FALSE
-        if (is.logical(x)) return(as.numeric(x))
+        if (is.logical(x)) x <- as.numeric(x)
         # TMB Won't have array labels
-        names(dim(x)) <- NULL
+        if (!is.null(dim(x))) names(dim(x)) <- NULL
         return(unname(x))
     }
 
