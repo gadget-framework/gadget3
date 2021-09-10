@@ -727,7 +727,13 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             if (rlang::is_formula(var_val)) {
                 # Recurse, get definitions for formula, considering it's environment as well as the outer one
                 var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
-                defn <- cpp_definition('auto', var_name, cpp_code(var_val_code, env))
+                if (var_name %in% names(scope)) {
+                    # var_name got defined as a side-effect of the above (it's a g3_param)
+                    # so don't change anything
+                    defn <- scope[[var_name]]
+                } else {
+                    defn <- cpp_definition('auto', var_name, cpp_code(var_val_code, env))
+                }
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
             } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
