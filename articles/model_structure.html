@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7ff60326b958&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7f8dbebf8be8&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,9 +143,13 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ff600ec1b70&gt;
+## &lt;environment: 0x7f8dbf10df20&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"actions")
+## attr(,"actions")[[1]]
+## ~cows + pigs
+## &lt;environment: 0x7f8dbebf8be8&gt;</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -209,7 +213,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7ff602b18bf0&gt;</code></pre>
+## &lt;environment: 0x7f8dbf5ec6b0&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -259,9 +263,27 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ff603f462e0&gt;
+## &lt;environment: 0x7f8dc05be460&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"actions")
+## attr(,"actions")$`000`
+## ~{
+##     debug_label("g3a_time")
+##     cur_time &lt;- cur_time + 1L
+##     if (strict_mode) 
+##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
+##     if (cur_time &gt; total_steps) {
+##         g3_report_all()
+##         return(nll)
+##     }
+##     cur_year &lt;- start_year + (cur_time%/%step_count)
+##     cur_step &lt;- (cur_time%%step_count) + 1L
+##     cur_step_final &lt;- cur_step == step_count
+##     if (trace_mode) 
+##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
+## }
+## &lt;environment: 0x7f8dbd9a5118&gt;</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -311,9 +333,27 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ff604d73038&gt;
+## &lt;environment: 0x7f8dc16d9be8&gt;
 ## attr(,"class")
-## [1] "g3_r"     "function"</code></pre>
+## [1] "g3_r"     "function"
+## attr(,"actions")
+## attr(,"actions")$`000`
+## ~{
+##     debug_label("g3a_time")
+##     cur_time &lt;- cur_time + 1L
+##     if (strict_mode) 
+##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
+##     if (cur_time &gt; total_steps) {
+##         g3_report_all()
+##         return(nll)
+##     }
+##     cur_year &lt;- start_year + (cur_time%/%step_count)
+##     cur_step &lt;- (cur_time%%step_count) + 1L
+##     cur_step_final &lt;- cur_step == step_count
+##     if (trace_mode) 
+##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
+## }
+## &lt;environment: 0x7f8dc1235480&gt;</code></pre>
 </div>
 <div id="stocks" class="section level2">
 <h2 class="hasAnchor">
@@ -495,9 +535,41 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ff6031cd958&gt;
+## &lt;environment: 0x7f8dbf2f67d8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
+## attr(,"actions")
+## attr(,"actions")$`005:ling_imm            :4e6ce20f8ec197c80cab`
+## ~{
+##     debug_label("g3a_grow for ling_imm")
+##     for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(`:=`(ling_imm__age_idx, 
+##         g3_idx(age - ling_imm__minage + 1L)), for (ling_imm__area_idx in seq_along(ling_imm__areas)) g3_with(`:=`(area, 
+##         ling_imm__areas[[ling_imm__area_idx]]), {
+##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")
+##         ling_imm__growth_l &lt;- growth_bbinom(avoid_zero_vec((age * 
+##             10)/ling_imm__plusdl), 4, avoid_zero(g3_param("ling.bbin")))
+##         ling_imm__growth_w &lt;- area * 20
+##         if (strict_mode) 
+##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, 
+##                 ling_imm__age_idx])
+##         debug_trace("Update ling_imm using delta matrices")
+##         g3_with(`:=`(growthresult, g3a_grow_apply(ling_imm__growth_l, 
+##             ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, 
+##                 ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, 
+##                 ling_imm__age_idx])), {
+##             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                 g3_idx(1)]
+##             ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                 g3_idx(2)]
+##         })
+##         if (strict_mode) 
+##             assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, 
+##                 ling_imm__area_idx, ling_imm__age_idx])) &lt; 1e-04, 
+##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
+##     }))
+## }
+## &lt;environment: 0x7f8dc0d69bb0&gt;
+## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
 ## [1] 0</code></pre>
@@ -649,9 +721,42 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7ff60632d528&gt;
+## &lt;environment: 0x7f8dc0c65ea8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
+## attr(,"actions")
+## attr(,"actions")$`005:ling_imm            :66b9ec4f30b4ade3c3e0`
+## ~g3_with(`:=`(custom_delta_w, (ling_imm__plusdl * 44)), {
+##     debug_label("g3a_grow for ling_imm")
+##     for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(`:=`(ling_imm__age_idx, 
+##         g3_idx(age - ling_imm__minage + 1L)), for (ling_imm__area_idx in seq_along(ling_imm__areas)) g3_with(`:=`(area, 
+##         ling_imm__areas[[ling_imm__area_idx]]), `:=`(custom_delta_l, 
+##         (area * 99)), {
+##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")
+##         ling_imm__growth_l &lt;- growth_bbinom(avoid_zero_vec((age * 
+##             custom_delta_l * 10)/ling_imm__plusdl), 4, avoid_zero(g3_param("ling.bbin")))
+##         ling_imm__growth_w &lt;- area * custom_delta_w * 20
+##         if (strict_mode) 
+##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, 
+##                 ling_imm__age_idx])
+##         debug_trace("Update ling_imm using delta matrices")
+##         g3_with(`:=`(growthresult, g3a_grow_apply(ling_imm__growth_l, 
+##             ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, 
+##                 ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, 
+##                 ling_imm__age_idx])), {
+##             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                 g3_idx(1)]
+##             ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, 
+##                 g3_idx(2)]
+##         })
+##         if (strict_mode) 
+##             assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, 
+##                 ling_imm__area_idx, ling_imm__age_idx])) &lt; 1e-04, 
+##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
+##     }))
+## })
+## &lt;environment: 0x7f8dc17414b0&gt;
+## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
 ## [1] 0</code></pre>
