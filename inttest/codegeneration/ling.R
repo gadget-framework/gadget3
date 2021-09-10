@@ -146,7 +146,7 @@ structure(function (param)
     step_lengths <- model_data$step_lengths
     end_year <- 2018L
     start_year <- 1994L
-    total_steps <- length(step_lengths) * (end_year - start_year) + length(step_lengths) - 1L
+    total_steps <- length(step_lengths) * (end_year - start_year + 0L) + length(step_lengths) - 1L
     cur_year <- 0L
     step_count <- length(step_lengths)
     cur_step <- 0L

@@ -202,7 +202,7 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(step_lengths)
     int end_year = 2018;
     int start_year = 1994;
-    auto total_steps = (step_lengths).size()*(end_year - start_year) + (step_lengths).size() - 1;
+    auto total_steps = (step_lengths).size()*(end_year - start_year + 0) + (step_lengths).size() - 1;
     int cur_year = 0;
     auto step_count = (step_lengths).size();
     int cur_step = 0;

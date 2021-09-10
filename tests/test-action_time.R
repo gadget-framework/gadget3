@@ -36,12 +36,15 @@ all_year <- array(dim = c(1))
 attr(all_year, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
 all_step_final <- array(FALSE, dim = c(1))
 attr(all_step_final, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
+all_cur_year_projection <- array(FALSE, dim = c(1))
+attr(all_cur_year_projection, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
 
 actions <- list(
     g3a_time(
         start_year = ~as_integer(g3_param('p_start_year')),
         end_year = ~as_integer(g3_param('p_end_year')),
-        steps = ~g3_param_vector('steps')),
+        steps = ~g3_param_vector('steps'),
+        project_years = ~g3_param('project_years', default = 0, optimise = TRUE)),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -49,12 +52,14 @@ actions <- list(
             all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
             all_year[g3_idx(cur_time + 1)] <- cur_year
             all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
+            all_cur_year_projection[g3_idx(cur_time + 1)] <- cur_year_projection
 
             nll <- nll + g3_param('x')  # ...or TMB falls over
         }))
 params <- list(
     p_start_year = 1990,
     p_end_year = 1997,
+    project_years = 0,
     steps = c(3,3,6),
     x=1.0)
 model_fn <- g3_to_r(actions)
@@ -86,6 +91,9 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     as.vector(attr(result, 'all_step_final')),
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
+ok(ut_cmp_identical(
+    as.vector(attr(result, 'all_cur_year_projection')),
+    rep(FALSE, (1997 - 1990 + 1) * 3)), "cur_year_projection populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     param_template <- attr(model_cpp, "parameter_template")
@@ -100,6 +108,7 @@ ok_group('even steps', {
         p_start_year = 1992,
         p_end_year = 1999,
         steps = c(4,4,4),
+        project_years = 0,
         x=1.0)
     result <- model_fn(params)
     # str(r)
@@ -119,6 +128,46 @@ ok_group('even steps', {
     ok(ut_cmp_identical(
         as.vector(attr(result, 'all_step_final')),
         rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_cur_year_projection')),
+        rep(FALSE, (1999 - 1992 + 1) * 3)), "cur_year_projection populated")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
+
+ok_group("projection: Project_years = 4", {
+    params <- list(
+        p_start_year = 1992,
+        p_end_year = 1999,
+        steps = c(4,4,4),
+        project_years = 4,
+        x=1.0)
+    result <- model_fn(params)
+
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_time')),
+        as.integer(1:(3 * (1999 - 1992 + 1 + 4)) - 1)), "cur_time populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step')),
+        as.integer(rep(c(1,2,3), 1999 - 1992 + 1 + 4))), "cur_step populated")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'all_step_size')),
+        as.numeric(rep(c(4/12,4/12,4/12), 1999 - 1992 + 1 + 4))), "cur_step_size populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_year')),
+        as.integer(rep(1992:(1999 + 4), each = 3))), "cur_year populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step_final')),
+        rep(c(FALSE, FALSE, TRUE), 1999 - 1992 + 1 + 4)), "cur_step_final populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_cur_year_projection')),
+        c(rep(FALSE, (1999 - 1992 + 1) * 3), rep(TRUE, 4 * 3))), "cur_year_projection populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
