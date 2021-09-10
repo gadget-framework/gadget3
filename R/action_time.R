@@ -12,16 +12,18 @@
 # - total_steps: Total # of iterations before model stops
 g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) {
     if ("mfdb_group" %in% class(steps)) steps <- vapply(steps, length, numeric(1))
-    if (sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
+    if (is.numeric(steps) && sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
+    step_lengths <- steps
 
     # If these are literals, they should be integers
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
+    if (is.numeric(step_lengths)) step_lengths <- as.array(as.integer(step_lengths))
     # If a formula, make sure we use one definition
     if (is.call(start_year)) start_year <- g3_global_formula(init_val = start_year)
     if (is.call(end_year)) end_year <- g3_global_formula(init_val = end_year)
+    if (is.call(step_lengths)) step_lengths <- g3_global_formula(init_val = step_lengths)
 
-    step_lengths <- as.array(as.integer(steps))
     step_count <- g3_global_formula(init_val = ~length(step_lengths))
     cur_time <- -1L
     cur_step <- 0L
@@ -48,7 +50,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), run_at = 0) 
         cur_step_final <- cur_step == step_count
         if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }, list(
-        uneven_steps = any(diff(steps) > 0))))
+        uneven_steps = if(is.numeric(steps)) any(diff(steps) > 0) else TRUE)))
 
     # Make sure variables are defined, even without uneven_steps
     assign("cur_step_size", cur_step_size, envir = environment(out[[step_id(run_at)]]))

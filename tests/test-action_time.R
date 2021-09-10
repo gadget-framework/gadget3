@@ -38,7 +38,10 @@ all_step_final <- array(FALSE, dim = c(1))
 attr(all_step_final, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
 
 actions <- list(
-    g3a_time(1990, 1997, steps = c(3,3,6)),
+    g3a_time(
+        start_year = ~as_integer(g3_param('p_start_year')),
+        end_year = ~as_integer(g3_param('p_end_year')),
+        steps = ~g3_param_vector('steps')),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -58,11 +61,24 @@ actions <- list(
 
             nll <- nll + g3_param('x')  # ...or TMB falls over
         }))
-params <- list(x=1.0)
+params <- list(
+    p_start_year = 1990,
+    p_end_year = 1997,
+    steps = c(3,3,6),
+    x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
 # str(r)
+
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
+    # model_cpp <- edit(model_cpp)
+    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+} else {
+    writeLines("# skip: not compiling TMB model")
+    model_cpp <- c()
+}
 
 ok(ut_cmp_identical(
     as.vector(attr(result, 'all_time')),
@@ -81,9 +97,6 @@ ok(ut_cmp_identical(
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
     param_template <- attr(model_cpp, "parameter_template")
     param_template$value <- params[param_template$switch]
     gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
@@ -92,30 +105,11 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 ok_group('even steps', {
-    actions <- list(
-        g3a_time(1992, 1999, steps = c(4,4,4)),
-        list(
-            '999' = ~{
-                all_time[g3_idx(cur_time + 1)] <- cur_time
-                g3_report(all_time)
-
-                all_step[g3_idx(cur_time + 1)] <- cur_step
-                g3_report(all_step)
-
-                all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
-                g3_report(all_step_size)
-
-                all_year[g3_idx(cur_time + 1)] <- cur_year
-                g3_report(all_year)
-
-                all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
-                g3_report(all_step_final)
-
-                nll <- nll + g3_param('x')  # ...or TMB falls over
-            }))
-    params <- list(x=1.0)
-    model_fn <- g3_to_r(actions)
-    # model_fn <- edit(model_fn)
+    params <- list(
+        p_start_year = 1992,
+        p_end_year = 1999,
+        steps = c(4,4,4),
+        x=1.0)
     result <- model_fn(params)
     # str(r)
 
@@ -136,9 +130,6 @@ ok_group('even steps', {
         rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
