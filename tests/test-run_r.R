@@ -19,6 +19,14 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
     ok(ut_cmp_identical(n, model_fn_n(list(nll = n))), "Edited function works too")
 })
 
+ok_group("g3_to_r: attr.actions", {
+    actions <- list(
+        list("001" = ~{ 1 + 1 }, "002" = ~{2 + 2}),
+        "003" = ~{3 + 3})
+    model_fn <- g3_to_r(actions)
+    ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
+})
+
 ok_group('g3_param', {
     param <- attr(g3_to_r(list(g3a_time(2000, 2004), ~{
         g3_param('a')

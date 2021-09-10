@@ -203,6 +203,15 @@ ok_group('g3_param_table', {
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
+ok_group("g3_to_tmb: attr.actions", {
+    actions <- list(
+        list("001" = ~{ 1 + 1 }, "002" = ~{2 + 2}),
+        "003" = ~{3 + 3})
+    model_fn <- g3_to_tmb(actions)
+    ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
+})
+
+
 
 ###############################################################################
 actions <- list()
@@ -426,6 +435,20 @@ actions <- c(actions, ~{
     g3_report(negate_x)
 })
 expecteds$negate_x <- -10
+
+# sum() & prod()
+sumprod_input <- runif(10)
+sumprod_sum <- 0
+sumprod_prod <- 0
+actions <- c(actions, ~{
+    comment('sum/prod')
+    sumprod_sum <- sum(sumprod_input)
+    sumprod_prod <- prod(sumprod_input)
+    g3_report(sumprod_sum)
+    g3_report(sumprod_prod)
+})
+expecteds$sumprod_sum <- sum(sumprod_input)
+expecteds$sumprod_prod <- prod(sumprod_input)
 
 # g3_param_table()
 pt_a <- 2L ; pt_b <- 7L

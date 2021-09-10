@@ -55,8 +55,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
             modelstock <- g3s_agegroup(modelstock, age_groups)
         } else {
-            age_groups <- seq(min(data$age), max(data$age))
-            modelstock <- g3s_agegroup(modelstock, age_groups)
+            modelstock <- g3s_age(modelstock, min(data$age), max(data$age))
             data$age <- paste0('age', data$age)  # Make data match autoset groups
         }
         handled_columns$age <- NULL
