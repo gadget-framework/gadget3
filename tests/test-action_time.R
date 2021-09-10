@@ -45,19 +45,10 @@ actions <- list(
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
-            g3_report(all_time)
-
             all_step[g3_idx(cur_time + 1)] <- cur_step
-            g3_report(all_step)
-
             all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
-            g3_report(all_step_size)
-
             all_year[g3_idx(cur_time + 1)] <- cur_year
-            g3_report(all_year)
-
             all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
-            g3_report(all_step_final)
 
             nll <- nll + g3_param('x')  # ...or TMB falls over
         }))
