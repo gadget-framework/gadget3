@@ -203,6 +203,15 @@ ok_group('g3_param_table', {
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
+ok_group("g3_to_tmb: attr.actions", {
+    actions <- list(
+        list("001" = ~{ 1 + 1 }, "002" = ~{2 + 2}),
+        "003" = ~{3 + 3})
+    model_fn <- g3_to_tmb(actions)
+    ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
+})
+
+
 
 ###############################################################################
 actions <- list()

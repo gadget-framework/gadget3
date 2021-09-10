@@ -572,8 +572,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 }
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
-    actions <- g3_collate(actions)
-    all_actions <- f_concatenate(actions, parent = g3_global_env, wrap_call = call("while", TRUE))
+    collated_actions <- g3_collate(actions)
+    all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
 
@@ -805,7 +805,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
         call_replace(in_code,
-            g3_report_all = function (x) g3_functions(action_reports(actions)))
+            g3_report_all = function (x) g3_functions(action_reports(collated_actions)))
     }
     all_actions_code <- g3_functions(all_actions_code)
 
@@ -844,6 +844,7 @@ Type objective_function<Type>::operator() () {
     out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
+    attr(out, 'actions') <- actions
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
     return(out)

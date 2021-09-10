@@ -150,6 +150,7 @@ model_fn <- g3_to_r(c(
     igfs_actions,
     likelihood_actions,
     time), strict = TRUE, trace = FALSE)  # NB: "trace" turns comments into debug statements
+attr(model_fn, 'actions') <- NULL  # Actions output is a bit too verbose for us
 writeLines(deparse(model_fn, width.cutoff = 500L), con = 'inttest/codegeneration/ling.R')
 
 

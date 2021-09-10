@@ -78,7 +78,15 @@ g3_tmb_relist(parameters, par)
 }
 
 \value{
-  \subsection{g3_to_tmb}{A string of C++ code that can be used as an input to \var{g3_tmb_adfun}.}
+  \subsection{g3_to_tmb}{
+    A string of C++ code that can be used as an input to \var{g3_tmb_adfun}, with the following attributes:
+    \describe{
+      \item{actions}{The original \var{actions} list given to the function}
+      \item{model_data}{An environment containing data attached to the model}
+      \item{parameter_template}{A data.frame to be filled in and used as \var{parameters} in the other \code{g3_tmb_*} functions}
+    }
+    Use e.g. \code{attr(cpp_code, 'parameter_template')} to retrieve them.
+  }
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
