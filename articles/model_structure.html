@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x7f8dbebf8be8&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x7f9b868864f8&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,13 +143,13 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7f8dbf10df20&gt;
+## &lt;environment: 0x7f9b8974bf40&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
 ## attr(,"actions")[[1]]
 ## ~cows + pigs
-## &lt;environment: 0x7f8dbebf8be8&gt;</code></pre>
+## &lt;environment: 0x7f9b868864f8&gt;</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -213,7 +213,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7f8dbf5ec6b0&gt;</code></pre>
+## &lt;environment: 0x7f9b8a294c58&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -233,8 +233,8 @@
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     end_year &lt;- 1999L
 ##     start_year &lt;- 1990L
-##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
-##         length(step_lengths) - 1L
+##     total_steps &lt;- length(step_lengths) * (end_year - start_year + 
+##         0L) + length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- length(step_lengths)
 ##     cur_step &lt;- 0L
@@ -263,7 +263,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7f8dc05be460&gt;
+## &lt;environment: 0x7f9b8b827a18&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -283,7 +283,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7f8dbd9a5118&gt;</code></pre>
+## &lt;environment: 0x7f9b869ea0f0&gt;</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -303,8 +303,8 @@
 ##     step_lengths &lt;- structure(12L, .Dim = 1L)
 ##     start_year &lt;- 1990L
 ##     end_year &lt;- start_year + 4
-##     total_steps &lt;- length(step_lengths) * (end_year - start_year) + 
-##         length(step_lengths) - 1L
+##     total_steps &lt;- length(step_lengths) * (end_year - start_year + 
+##         0L) + length(step_lengths) - 1L
 ##     cur_year &lt;- 0L
 ##     step_count &lt;- length(step_lengths)
 ##     cur_step &lt;- 0L
@@ -333,7 +333,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7f8dc16d9be8&gt;
+## &lt;environment: 0x7f9b8aa91148&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -353,7 +353,7 @@
 ##     if (trace_mode) 
 ##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x7f8dc1235480&gt;</code></pre>
+## &lt;environment: 0x7f9b8bf7c780&gt;</code></pre>
 </div>
 <div id="stocks" class="section level2">
 <h2 class="hasAnchor">
@@ -535,7 +535,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7f8dbf2f67d8&gt;
+## &lt;environment: 0x7f9b8992a3d0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -568,7 +568,7 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## }
-## &lt;environment: 0x7f8dc0d69bb0&gt;
+## &lt;environment: 0x7f9b8ce8db10&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
@@ -721,7 +721,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x7f8dc0c65ea8&gt;
+## &lt;environment: 0x7f9b8cd67948&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -755,7 +755,7 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## })
-## &lt;environment: 0x7f8dc17414b0&gt;
+## &lt;environment: 0x7f9b8aaebe40&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin

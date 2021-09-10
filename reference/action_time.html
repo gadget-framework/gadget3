@@ -133,7 +133,8 @@
     <p>Add timekeeping to a g3 model</p>
     </div>
 
-    <pre class="usage"><span class='fu'>g3a_time</span><span class='op'>(</span><span class='va'>start_year</span>, <span class='va'>end_year</span>, steps <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>as.array</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>12</span><span class='op'>)</span><span class='op'>)</span>, run_at <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>g3a_time</span><span class='op'>(</span><span class='va'>start_year</span>, <span class='va'>end_year</span>, steps <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/array.html'>as.array</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>12</span><span class='op'>)</span><span class='op'>)</span>,
+         project_years <span class='op'>=</span> <span class='fl'>0L</span>, run_at <span class='op'>=</span> <span class='fl'>0</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,6 +154,10 @@
     for example, <code><a href='https://rdrr.io/r/base/c.html'>c(3,3,3,3)</a></code> for quarterly steps within a year.</p></td>
     </tr>
     <tr>
+      <th>project_years</th>
+      <td><p>Number of years to continue running after the "end" of the model.</p></td>
+    </tr>
+    <tr>
       <th>run_at</th>
       <td><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href='../articles/model_structure.html'>vignette("model_structure")</a></code>.</p></td>
     </tr>
@@ -166,6 +171,7 @@
     <dt><var>cur_step_size</var></dt><dd><p>Proportion of year this step contains, e.g. quarterly = 3/12</p></dd>
     <dt><var>cur_year</var></dt><dd><p>Current year</p></dd>
     <dt><var>cur_step_final</var></dt><dd><p>TRUE iff this is the final step of the year</p></dd>
+    <dt><var>cur_year_projection</var></dt><dd><p>TRUE iff we are currently projecting past <var>end_year</var></p></dd>
     <dt><var>total_steps</var></dt><dd><p>Total # of iterations before model stops</p></dd>
   
 </dl>
