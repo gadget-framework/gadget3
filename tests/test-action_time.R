@@ -26,12 +26,16 @@ ok_group("MFDB compatibility", {
 })
 
 
-expected_steps <- 8 * 3  # i.e. 1990..1997, with 3 steps
-all_time <- array(dim = c(expected_steps))
-all_step <- array(dim = c(expected_steps))
-all_step_size <- array(dim = c(expected_steps))
-all_year <- array(dim = c(expected_steps))
-all_step_final <- array(FALSE, dim = c(expected_steps))
+all_time <- array(dim = c(1))
+attr(all_time, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
+all_step <- array(dim = c(1))
+attr(all_step, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
+all_step_size <- array(dim = c(1))
+attr(all_step_size, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
+all_year <- array(dim = c(1))
+attr(all_year, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
+all_step_final <- array(FALSE, dim = c(1))
+attr(all_step_final, 'dynamic_dim') <- list(quote(as_integer(total_steps + 1L)))
 
 actions <- list(
     g3a_time(1990, 1997, steps = c(3,3,6)),
@@ -58,37 +62,31 @@ params <- list(x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 result <- model_fn(params)
-r <- attributes(result)
 # str(r)
 
 ok(ut_cmp_identical(
-    as.vector(r$all_time),
-    as.integer(1:expected_steps - 1)), "cur_time populated")
+    as.vector(attr(result, 'all_time')),
+    as.integer(1:((1997 - 1990 + 1) * 3) - 1)), "cur_time populated")
 ok(ut_cmp_identical(
-    as.vector(r$all_step),
+    as.vector(attr(result, 'all_step')),
     as.integer(rep(c(1,2,3), 8))), "cur_step populated")
 ok(ut_cmp_identical(
-    as.vector(r$all_step_size),
+    as.vector(attr(result, 'all_step_size')),
     as.numeric(rep(c(3/12,3/12,6/12), 8))), "cur_step_size populated")
 ok(ut_cmp_identical(
-    as.vector(r$all_year),
+    as.vector(attr(result, 'all_year')),
     as.integer(rep(1990:1997, each = 3))), "cur_year populated")
 ok(ut_cmp_identical(
-    as.vector(r$all_step_final),
+    as.vector(attr(result, 'all_step_final')),
     rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(result))) {
-        ok(ut_cmp_equal(
-            model_tmb_report[[n]],
-            # NB: as.numeric to avoid differences with logical
-            as.numeric(as.vector(attr(result, n))),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 } else {
     writeLines("# skip: not running TMB tests")
 }
@@ -119,37 +117,31 @@ ok_group('even steps', {
     model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
-    r <- attributes(result)
     # str(r)
 
     ok(ut_cmp_identical(
-        as.vector(r$all_time),
-        as.integer(1:expected_steps - 1)), "cur_time populated")
+        as.vector(attr(result, 'all_time')),
+        as.integer(1:((1999 - 1992 + 1) * 3) - 1)), "cur_time populated")
     ok(ut_cmp_identical(
-        as.vector(r$all_step),
+        as.vector(attr(result, 'all_step')),
         as.integer(rep(c(1,2,3), 8))), "cur_step populated")
     ok(ut_cmp_equal(
-        as.vector(r$all_step_size),
+        as.vector(attr(result, 'all_step_size')),
         as.numeric(rep(c(4/12,4/12,4/12), 8))), "cur_step_size populated")
     ok(ut_cmp_identical(
-        as.vector(r$all_year),
+        as.vector(attr(result, 'all_year')),
         as.integer(rep(1992:1999, each = 3))), "cur_year populated")
     ok(ut_cmp_identical(
-        as.vector(r$all_step_final),
+        as.vector(attr(result, 'all_step_final')),
         rep(c(FALSE, FALSE, TRUE), 8)), "cur_step_final populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions)
         # model_cpp <- edit(model_cpp)
         model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        model_tmb_report <- model_tmb$report()
-        for (n in names(attributes(result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                # NB: as.numeric to avoid differences with logical
-                as.numeric(as.vector(attr(result, n))),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     } else {
         writeLines("# skip: not running TMB tests")
     }
