@@ -29,15 +29,12 @@ g3a_migrate <- function(
 
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
+    stock__postmigratenum <- stock_instance(stock)
     stock__migratematrix <- structure(
         array(
             dim = list(dest_area = stock$dim$area, area = stock$dim$area),
             dimnames = list(dest_area = stock$dimnames$area, area = stock$dimnames$area)),
         desc = "Migration matrix")
-    # NB: This is global to force assignment to be by value: g3_with(x, stock_ss(stock__num)) will store a reference.
-    stock__premigrate <- structure(
-        array(dim = stock$dim[[1]]),
-        desc = "Temporary copy of stock numbers for migration")
 
     out <- list()
     action_name <- unique_action_name()
@@ -51,6 +48,7 @@ g3a_migrate <- function(
     out[[step_id(run_at, stock, 2, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_migrate: Migration of ", stock)
         
+        stock_with(stock, stock__postmigratenum[] <- 0)
         stock_iterate(stock, if (run_f) {
             debug_trace("Fill in any gaps in the migration matrix")
             if (any(is.nan(stock__migratematrix[,stock__area_idx]))) {
@@ -61,14 +59,17 @@ g3a_migrate <- function(
             }
 
             debug_trace("Apply migration matrix to current stock")
-            stock__premigrate <- stock_ss(stock__num)
-            stock_ss(stock__num) <- 0  # Temporarily remove stock that we're redistributing
             for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], {
-                stock_ss(stock__num, area = stock__destarea_idx) <-
-                    stock_ss(stock__num, area = stock__destarea_idx) +
-                    stock__migratematrix[stock__destarea_idx, stock__area_idx] * stock__premigrate
+                stock_ss(stock__postmigratenum, area = stock__destarea_idx) <-
+                    stock_ss(stock__postmigratenum, area = stock__destarea_idx) +
+                    stock__migratematrix[stock__destarea_idx, stock__area_idx] * stock_ss(stock__num)
             })
+        } else {
+            debug_trace("Copy not-migrating stocks")
+            stock_ss(stock__postmigratenum) <- stock_ss(stock__postmigratenum) + stock_ss(stock__num)
         })
+        debug_trace("Switch around __postmigratenum and __num")
+        stock_with(stock, stock__num <- stock__postmigratenum)
     }, list(
         migrate_f = migrate_f,
         normalize_f = normalize_f,
