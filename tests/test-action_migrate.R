@@ -37,11 +37,13 @@ ok_group("g3a_migrate", {
         g3a_migrate(
             stock_acd,
             # TODO: Can we name our areas here?
-            ~if (area == 1 && dest_area == 4) g3_param("migrate_spring") else 0,
+            ~if (area == 4 && dest_area == 1) g3_param("migrate_spring") else 0,
             run_f = ~cur_step == 2),
         g3a_migrate(
             stock_acd,
-            ~if (dest_area == 1) g3_param("migrate_winter") else 0,
+            ~if (area == 1 && dest_area == 3) g3_param("migrate_winter")
+              else if (area == 3 && dest_area == 4) g3_param("migrate_winter")
+              else 0,
             run_f = ~cur_step == 4),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
         list())
@@ -81,15 +83,18 @@ ok_group("g3a_migrate", {
     for (t in 1:attr(result, 'cur_time')) {
         if ((t-1) %% 4 == 1) {
             # Spring migration, apply it ourselves
-            expected_nums['d'] <- expected_nums['d'] + expected_nums['a'] * 0.4
-            expected_nums['a'] <- expected_nums['a'] - expected_nums['a'] * 0.4
+            expected_nums['a'] <- expected_nums['a'] + expected_nums['d'] * 0.4
+            expected_nums['d'] <- expected_nums['d'] - expected_nums['d'] * 0.4
         }
         if ((t-1) %% 4 == 3) {
             # Autumn migration, apply it ourselves
-            expected_nums['a'] <- expected_nums['a'] + expected_nums['c'] * 0.6
-            expected_nums['a'] <- expected_nums['a'] + expected_nums['d'] * 0.6
+            # NB: We shouldn't be migrating anything direct a -> d
+            # c -> d
+            expected_nums['d'] <- expected_nums['d'] + expected_nums['c'] * 0.6
             expected_nums['c'] <- expected_nums['c'] - expected_nums['c'] * 0.6
-            expected_nums['d'] <- expected_nums['d'] - expected_nums['d'] * 0.6
+            # a -> c
+            expected_nums['c'] <- expected_nums['c'] + expected_nums['a'] * 0.6
+            expected_nums['a'] <- expected_nums['a'] - expected_nums['a'] * 0.6
         }
         ok(ut_cmp_equal(model_nums[,t], expected_nums), paste0("Model numbers matched expected, t = ", t))
     }
