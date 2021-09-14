@@ -66,7 +66,9 @@ bounded_param <- function(stock, param_name, bounds,id='full'){
 ## Creates stock-specific reference to unbounded table
 g3_stock_table <- function(stock, param_name,id = 'full'){
   
-  stock_param <- g3_stock_param(stock,id = id, param_name = param_name)
+  stock_param <- paste(g3_stock_name(stock,id=id),param_name,sep = '.')
+    
+    #g3_stock_param(stock,id = id, param_name = param_name)
   vars <- list(stock_param = stock_param,
                minage = gadget3:::stock_definition(stock, 'minage'),
                maxage = gadget3:::stock_definition(stock, 'maxage'))
@@ -84,7 +86,7 @@ bounded_table <- function(stock, param_name, bounds,id='full'){
   }
   
   ## Unbound table
-  stock_tab <- g3_stock_table(stock, param_name)
+  stock_tab <- g3_stock_table(stock, param_name, id = id)
   
   ## Bounds
   vars <- bounds[[param_name, exact = FALSE]]
