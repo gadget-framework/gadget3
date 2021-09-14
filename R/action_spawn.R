@@ -66,9 +66,8 @@ g3a_spawn <- function(
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
     stopifnot(abs(sum(output_ratios) - 1) < 0.0001)
-
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
     stock__spawnprop <- stock_instance(stock, desc = "Proportion of parents that are spawning")
     stock__spawningnum <- stock_instance(stock, desc = "Total number of spawning parents")
     stock__offspringnum <- stock_instance(stock, desc = "Total number of offspring these parents produce")

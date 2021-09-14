@@ -9,8 +9,8 @@ g3a_naturalmortality <- function (stock, mortality_f, run_f = TRUE, run_at = 4) 
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
 
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
 
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (run_f) {
         debug_label("Natural mortality for ", stock)

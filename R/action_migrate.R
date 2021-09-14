@@ -27,8 +27,8 @@ g3a_migrate <- function(
     stopifnot(g3_is_stock(stock))
     stopifnot(rlang::is_formula(migrate_f))
 
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
     stock__postmigratenum <- stock_instance(stock)
     stock__postmigratewgt <- stock_instance(stock)
     stock__migratematrix <- structure(
