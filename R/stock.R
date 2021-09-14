@@ -44,6 +44,12 @@ g3_storage <- function(var_name) {
         name = paste(var_name, collapse = "_")), class = c("g3_stock", "list"))
 }
 
+# Print method, only really interested in dimensions
+print.g3_stock <- function (x, ...) {
+    cat("g3_stock", x$name, "with dimensions:\n")
+    print(x$dimnames)
+}
+
 # True iff (x) is a stock object
 g3_is_stock <- function (x) "g3_stock" %in% class(x)
 

@@ -95,6 +95,7 @@ export(g3_suitability_richards)
 export(g3_stock)
 export(g3_fleet)
 export(g3s_clone)
+S3method(print, g3_stock)
 
 # R/stock_age.R
 export(g3s_age)
