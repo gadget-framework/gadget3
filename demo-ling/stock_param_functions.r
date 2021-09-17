@@ -2,19 +2,33 @@
 
 ## Extract species string from stock object
 stock_species <- function(stock){
+  return(g3_stock_name(stock,'species'))
+}
+
+g3_stock_name <- function(stock,id='full'){
   stopifnot(gadget3:::g3_is_stock(stock))
-  return(stock$name_parts[['species']])
+  if(id[1] == 'full'){
+    return(stock$name)
+  } else if(setequal(id,intersect(id, names(stock$name_parts)))){
+    return(paste(stock$name_parts[id],collapse = '_'))
+  } else {
+    stop(sprintf('id should be %s, supplied %s', 
+                 paste(names(stock$name_parts),collapse = ', '),
+                 id))
+  }
 }
 
 ## Create stock/species-specific parameter
-g3_stock_param <- function(stock_name, param_name){
-  stock_param <- paste(stock_name, param_name, sep = ".")
+g3_stock_param <- function(stock, param_name, id = 'full'){
+  stock_param <- paste(g3_stock_name(stock,id), param_name, sep = ".")
   out <- gadget3:::f_substitute(~g3_param(x), list(x=stock_param))
   return(out)
 }
 
+
+
 ## Adds bounds to a g3_param
-bounded_param <- function(stock_name, param_name, bounds){
+bounded_param <- function(stock, param_name, bounds,id='full'){
   
   ## Check names
   # TO-DO: rather than an error, create an unbounded parameter param_name is not found in bounds?
@@ -23,7 +37,7 @@ bounded_param <- function(stock_name, param_name, bounds){
   }
   
   ## Unbounded parameter
-  param0 <- g3_stock_param(stock_name, param_name)
+  param0 <- g3_stock_param(stock, param_name,id)
   
   ## Bounds
   #which(sapply(names(fleet_bounds), FUN=grepl, param_name))
@@ -50,9 +64,11 @@ bounded_param <- function(stock_name, param_name, bounds){
 }
 
 ## Creates stock-specific reference to unbounded table
-g3_stock_table <- function(stock, param_name){
-  stopifnot(gadget3:::g3_is_stock(stock))
-  stock_param <- paste(stock$name, param_name, sep = ".")
+g3_stock_table <- function(stock, param_name,id = 'full'){
+  
+  stock_param <- paste(g3_stock_name(stock,id=id),param_name,sep = '.')
+    
+    #g3_stock_param(stock,id = id, param_name = param_name)
   vars <- list(stock_param = stock_param,
                minage = gadget3:::stock_definition(stock, 'minage'),
                maxage = gadget3:::stock_definition(stock, 'maxage'))
@@ -62,7 +78,7 @@ g3_stock_table <- function(stock, param_name){
 }
 
 ## Function to insert stock/species name into g3 param table (just by age)
-bounded_table <- function(stock, param_name, bounds){
+bounded_table <- function(stock, param_name, bounds,id='full'){
   
   ## Check names
   if (!param_name %in% names(bounds)){
@@ -70,7 +86,7 @@ bounded_table <- function(stock, param_name, bounds){
   }
   
   ## Unbound table
-  stock_tab <- g3_stock_table(stock, param_name)
+  stock_tab <- g3_stock_table(stock, param_name, id = id)
   
   ## Bounds
   vars <- bounds[[param_name, exact = FALSE]]

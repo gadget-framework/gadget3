@@ -7,7 +7,8 @@
 }
 
 \usage{
-g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
+g3a_time(start_year, end_year, steps = as.array(c(12)),
+         project_years = 0L, run_at = 0)
 
 }
 
@@ -23,6 +24,9 @@ g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
     vector of step lengths which should should sum to 12,
     for example, \code{c(3,3,3,3)} for quarterly steps within a year.
   }
+  \item{project_years}{
+    Number of years to continue running after the "end" of the model.
+  }
   \item{run_at}{
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
   }
@@ -36,6 +40,7 @@ g3a_time(start_year, end_year, steps = as.array(c(12)), run_at = 0)
     \item{\var{cur_step_size}}{Proportion of year this step contains, e.g. quarterly = 3/12}
     \item{\var{cur_year}}{Current year}
     \item{\var{cur_step_final}}{TRUE iff this is the final step of the year}
+    \item{\var{cur_year_projection}}{TRUE iff we are currently projecting past \var{end_year}}
     \item{\var{total_steps}}{Total # of iterations before model stops}
   }
 }

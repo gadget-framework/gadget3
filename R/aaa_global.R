@@ -129,6 +129,10 @@ g3_global_env$assert_msg <- g3_native(r = function(expr, message) {
 
 # Use TMB's "asDouble" as an equivalent for as.numeric
 g3_global_env$as.numeric <- g3_native(r = "as.numeric", cpp = list("asDouble", NULL))
+# NB: It's as*_*integer, since as.integer won't be valid C++
+g3_global_env$as_integer <- g3_native(r = "as.integer", cpp = '[](Type v) -> int {
+    return std::floor(asDouble(v));
+}')
 
 
 # Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
