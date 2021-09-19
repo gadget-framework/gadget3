@@ -108,8 +108,8 @@ ling_likelihood_actions <- list(
     (igfs.SI1[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha1"),
-                                       beta = g3_stock_param(species_name, "si_beta1")),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha1", id = 'species'),
+                                       beta = g3_stock_param(ling_imm, "si_beta1", id = 'species')),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
   g3l_abundancedistribution(
@@ -117,8 +117,8 @@ ling_likelihood_actions <- list(
     (igfs.SI2a[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha2"),
-                                       beta = g3_stock_param(species_name, "si_beta2")),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha2", id = 'species'),
+                                       beta = g3_stock_param(ling_imm, "si_beta2", id = 'species')),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
   g3l_abundancedistribution(
@@ -126,7 +126,7 @@ ling_likelihood_actions <- list(
     (igfs.SI2b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha3"),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha3", id = 'species'),
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
@@ -135,7 +135,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3a[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha4"),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha4", id = 'species'),
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
@@ -144,7 +144,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha5"),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha5", id = 'species'),
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
@@ -153,7 +153,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3b[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha6"),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha6", id = 'species'),
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
@@ -162,7 +162,7 @@ ling_likelihood_actions <- list(
     (igfs.SI3d[[1]]),
     fleets = list(),
     stocks = list(ling_imm, ling_mat),
-    g3l_distribution_surveyindices_log(alpha = g3_stock_param(species_name, "si_alpha7"),
+    g3l_distribution_surveyindices_log(alpha = g3_stock_param(ling_imm, "si_alpha7", id = 'species'),
                                        beta = 1),
     nll_breakdown = nll_breakdown,     report = lik_report),
   
