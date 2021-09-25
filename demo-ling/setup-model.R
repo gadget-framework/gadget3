@@ -62,7 +62,7 @@ init_abund <- gadget3:::f_substitute(~scalar * bounded(
                                           max(imm_maxage, mat_maxage)))), lower, upper),
   c(model_params,
     model_params$init,
-    scalar = bounded_param(stock_species(ling_imm), "scalar", model_params),
+    scalar = bounded_param(ling_imm, "scalar", model_params, id = 'species'),
     init = paste(stock_species(ling_imm), "init", sep=".")))
 
 # RENEWAL
@@ -70,23 +70,23 @@ renewal <- gadget3:::f_substitute(~scalar * bounded(
   g3_param_table(renew, expand.grid(cur_year = seq(start_year, end_year))), lower, upper),
   c(model_params,
     model_params$renew,
-    scalar = bounded_param(stock_species(ling_imm), "scalar", model_params),
+    scalar = bounded_param(ling_imm, "scalar", model_params, id = 'species'),
     renew = paste(stock_species(ling_imm), "renew", sep=".")))
 
 ## Ensure that old fish are not immature
 # a50 is bounded
 prop_m_age <- 
   gadget3:::f_substitute(~ 1/(1 + exp(-mat.a*(age - a50))), 
-                         list('a50' = bounded_param(stock_species(ling_imm), "mat.a50", model_params),
-                              'mat.a' = bounded_param(stock_species(ling_imm), "mat.a", model_params)))
+                         list('a50' = bounded_param(ling_imm, "mat.a50", model_params, id = 'species'),
+                              'mat.a' = bounded_param(ling_imm, "mat.a", model_params, id = 'species')))
 
 ## mean length is estimated based on a Von B relationship used for immature and mature
 mean_l <-
   gadget3:::f_substitute(~Linf * (1 - exp(-1 * K * (age - (1 + log(1 - recl/Linf)/K)))),
-                         list('recl' = bounded_param(stock_species(ling_imm), "recl", model_params), 
-                              'Linf' = bounded_param(stock_species(ling_imm), "Linf", model_params), 
+                         list('recl' = bounded_param(ling_imm, "recl", model_params, id = 'species'), 
+                              'Linf' = bounded_param(ling_imm, "Linf", model_params, id = 'species'), 
                               'K' = gadget3:::f_substitute(~0.001 * K, 
-                                                           list(K = bounded_param(stock_species(ling_mat), "K", model_params)))))
+                                                           list(K = bounded_param(ling_imm, "K", model_params, id = 'species')))))
 
 ling_imm_actions <- list(
   
@@ -99,12 +99,12 @@ ling_imm_actions <- list(
                                         c(model_params,
                                           init_abund = init_abund,
                                           prop_m_age = prop_m_age,
-                                          init.F = bounded_param(stock_species(ling_imm), "init.F", model_params),
+                                          init.F = bounded_param(ling_imm, "init.F", model_params, id = 'species'),
                                           M = bounded_table(ling_imm, "M", model_params))),
                                     mean_f = mean_l,
                                     stddev_f = bounded_table(ling_imm, "init.sd", model_params),
-                                    alpha_f = bounded_param(ling_imm$name, "walpha", model_params),
-                                    beta_f = bounded_param(ling_imm$name, "wbeta", model_params)),
+                                    alpha_f = bounded_param(ling_imm, "walpha", model_params),
+                                    beta_f = bounded_param(ling_imm, "wbeta", model_params)),
   
   g3a_renewal_normalparam(ling_imm,
                           factor_f = renewal,
@@ -112,24 +112,24 @@ ling_imm_actions <- list(
                           #                                                 data.frame(age = seq(ling_imm__minage, ling_imm__maxage)))),
                           #                        list(rec=ling_init_abund)),
                           mean_f = mean_l,
-                          stddev_f = bounded_param(stock_species(ling_imm), "rec.sd", model_params),
-                          alpha_f = bounded_param(ling_imm$name, "walpha", model_params),
-                          beta_f = bounded_param(ling_imm$name, "wbeta", model_params),
+                          stddev_f = bounded_param(ling_imm, "rec.sd", model_params, id = 'species'),
+                          alpha_f = bounded_param(ling_imm, "walpha", model_params),
+                          beta_f = bounded_param(ling_imm, "wbeta", model_params),
                           run_f = gadget3:::f_substitute(~cur_step == 1 && age == imm_minage && cur_time > 0, model_params)),
                                                     
   g3a_growmature(ling_imm,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(bounded_param(stock_species(ling_imm), "Linf", model_params),
+                   g3a_grow_lengthvbsimple(bounded_param(ling_imm, "Linf", model_params, id = 'species'),
                                            gadget3:::f_substitute(~0.001 * K, 
-                                                                  list(K = bounded_param(stock_species(ling_imm), "K", model_params)))),      
-                   g3a_grow_weightsimple(bounded_param(ling_imm$name, "walpha", model_params),  
-                                         bounded_param(ling_imm$name, "wbeta", model_params)),   
-                   beta_f = bounded_param(stock_species(ling_imm), "bbin", model_params),
+                                                                  list(K = bounded_param(ling_imm, "K", model_params, id = 'species')))),      
+                   g3a_grow_weightsimple(bounded_param(ling_imm, "walpha", model_params),  
+                                         bounded_param(ling_imm, "wbeta", model_params)),   
+                   beta_f = bounded_param(ling_imm, "bbin", model_params, id = 'species'),
                    maxlengthgroupgrowth = mlgg),
                  maturity_f = g3a_mature_continuous(
                    alpha = gadget3:::f_substitute(~(0.001 * exp(mat1)), 
-                                                  list(mat1 = bounded_param(stock_species(ling_imm), "mat1", model_params))),
-                   l50 = bounded_param(stock_species(ling_imm), "mat2", model_params)),
+                                                  list(mat1 = bounded_param(ling_imm, "mat1", model_params, id = 'species'))),
+                   l50 = bounded_param(ling_imm, "mat2", model_params, id = 'species')),
                  output_stocks = list(ling_mat)),
   
   g3a_naturalmortality(ling_imm,
@@ -150,21 +150,21 @@ ling_mat_actions <- list(
                                                              c(model_params,
                                                                init_abund = init_abund,
                                                                prop_m_age = prop_m_age,
-                                                               init.F = bounded_param(stock_species(ling_mat), "init.F", model_params),
+                                                               init.F = bounded_param(ling_mat, "init.F", model_params, id = 'species'),
                                                                M = paste(ling_mat$name, "M", sep="."))),
                                     mean_f = mean_l,
                                     stddev_f = bounded_table(ling_mat, "init.sd", model_params),
-                                    alpha_f = bounded_param(ling_mat$name, "walpha", model_params),
-                                    beta_f = bounded_param(ling_mat$name, "wbeta", model_params)),
+                                    alpha_f = bounded_param(ling_mat, "walpha", model_params),
+                                    beta_f = bounded_param(ling_mat, "wbeta", model_params)),
   
   g3a_growmature(ling_mat,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(bounded_param(stock_species(ling_mat), "Linf", model_params),
+                   g3a_grow_lengthvbsimple(bounded_param(ling_mat, "Linf", model_params, id = 'species'),
                                            gadget3:::f_substitute(~0.001 * K, 
-                                                                  list(K = bounded_param(stock_species(ling_mat), "K", model_params)))),  
-                   g3a_grow_weightsimple(bounded_param(ling_mat$name, "walpha", model_params),  
-                                         bounded_param(ling_mat$name, "wbeta", model_params)),   
-                   beta_f = bounded_param(stock_species(ling_mat), "bbin", model_params),
+                                                                  list(K = bounded_param(ling_mat, "K", model_params, id = 'species')))),  
+                   g3a_grow_weightsimple(bounded_param(ling_mat, "walpha", model_params),  
+                                         bounded_param(ling_mat, "wbeta", model_params)),   
+                   beta_f = bounded_param(ling_mat, "bbin", model_params, id = 'species'),
                    maxlengthgroupgrowth = mlgg)),
   
   g3a_naturalmortality(ling_mat,
