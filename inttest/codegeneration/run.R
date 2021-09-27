@@ -207,7 +207,7 @@ tmb_param$value <- I(params[tmb_param$switch])
 # Fixed parameters with: tmb_param["ling.Linf", "optimise"] <- FALSE
 
 # Run the model with debugging:
-# model_cpp <- edit(model_cpp) ; writeLines(gdbsource(g3_tmb_adfun(model_cpp, tmb_param, compile_flags = c("-O0", "-g"), output_script = TRUE)))
+# model_cpp <- edit(model_cpp) ; writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, tmb_param, compile_flags = c("-O0", "-g"), output_script = TRUE)))
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     print(system.time({model_tmb <- g3_tmb_adfun(model_cpp, tmb_param)}))
