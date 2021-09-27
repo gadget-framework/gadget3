@@ -12,6 +12,7 @@
 # - cur_year_projection: Is this year a projection?
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
+# - total_years: Total # of years before model stops
 g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_years = 0L, run_at = 0) {
     if ("mfdb_group" %in% class(steps)) steps <- vapply(steps, length, numeric(1))
     if (is.numeric(steps) && sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
@@ -41,6 +42,9 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
     total_steps <- g3_global_formula(init_val = f_substitute(
         ~length(step_lengths) * (end_year - start_year + project_years) + length(step_lengths) - 1L,
         list(project_years = if (have_projection_years) quote(project_years) else 0L)))
+    total_years <- g3_global_formula(init_val = f_substitute(
+        ~end_year - start_year + project_years + 1L,
+        list(project_years = if (have_projection_years) quote(project_years) else 0L)))
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{
@@ -66,6 +70,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
     assign("cur_step_size", cur_step_size, envir = environment(out[[step_id(run_at)]]))
     assign("step_lengths", step_lengths, envir = environment(out[[step_id(run_at)]]))
     assign("end_year", end_year, envir = environment(out[[step_id(run_at)]]))
+    assign("total_years", total_years, envir = environment(out[[step_id(run_at)]]))
 
     return(as.list(out))
 }
