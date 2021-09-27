@@ -274,11 +274,14 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__num(total_steps + 1); nll_cdist_sumofsquares_ldist_lln__num.setZero();
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__weight(total_steps + 1); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
+};
+    vector<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
+    vector<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
     Type g3l_understocking_total = (double)(0);
-    vector<Type> nll_understocking__wgt(total_steps + 1); nll_understocking__wgt.setZero();
-    vector<Type> nll_understocking__weight(total_steps + 1); nll_understocking__weight.setZero();
+    vector<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
+    vector<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;
