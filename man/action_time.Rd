@@ -41,7 +41,8 @@ g3a_time(start_year, end_year, steps = as.array(c(12)),
     \item{\var{cur_year}}{Current year}
     \item{\var{cur_step_final}}{TRUE iff this is the final step of the year}
     \item{\var{cur_year_projection}}{TRUE iff we are currently projecting past \var{end_year}}
-    \item{\var{total_steps}}{Total # of iterations before model stops}
+    \item{\var{total_steps}}{Total # of iterations (including projection) before model stops}
+    \item{\var{total_years}}{Total # of years (including projection) before model stops}
   }
 }
 

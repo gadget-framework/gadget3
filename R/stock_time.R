@@ -65,14 +65,14 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
 g3s_modeltime <- function (inner_stock, by_year = FALSE) {
     # NB: Definitions are quote()d so they are defined at run-time as dynamic_dims (by g3a_time)
     if (by_year) {
-        new_dims <- list(year = quote(end_year - start_year + 1L))
-        new_dimnames <- list(year = quote(seq(start_year, end_year)))
+        new_dims <- list(year = quote(as_integer(total_years)))
+        new_dimnames <- list(year = quote(seq(start_year, start_year + total_years - 1L)))
         lookup <- list(year = quote(g3_idx(cur_year - start_year + 1L)))
     } else {
-        new_dims <- list(time = quote(total_steps + 1))
+        new_dims <- list(time = quote(as_integer(total_steps + 1)))
         new_dimnames <- list(time = quote(sprintf("%d-%02d",
-            rep(seq(start_year, end_year), each = length(step_lengths)),
-            rep(seq_along(step_lengths), times = end_year - start_year + 1))))
+            rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)),
+            rep(seq_along(step_lengths), times = total_years))))
         lookup <- list(time = quote(g3_idx(cur_time+1L)))
     }
     structure(list(

@@ -53,6 +53,7 @@ actions <- list(
             all_year[g3_idx(cur_time + 1)] <- cur_year
             all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
             all_cur_year_projection[g3_idx(cur_time + 1)] <- cur_year_projection
+            g3_report(total_years)
 
             nll <- nll + g3_param('x')  # ...or TMB falls over
         }))
@@ -94,6 +95,9 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     as.vector(attr(result, 'all_cur_year_projection')),
     rep(FALSE, (1997 - 1990 + 1) * 3)), "cur_year_projection populated")
+ok(ut_cmp_identical(
+    attr(result, 'total_years'),
+    1997 - 1990 + 1), "total_years populated")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     param_template <- attr(model_cpp, "parameter_template")
@@ -131,6 +135,9 @@ ok_group('even steps', {
     ok(ut_cmp_identical(
         as.vector(attr(result, 'all_cur_year_projection')),
         rep(FALSE, (1999 - 1992 + 1) * 3)), "cur_year_projection populated")
+    ok(ut_cmp_identical(
+        attr(result, 'total_years'),
+        1999 - 1992 + 1), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
@@ -168,6 +175,9 @@ ok_group("projection: Project_years = 4", {
     ok(ut_cmp_identical(
         as.vector(attr(result, 'all_cur_year_projection')),
         c(rep(FALSE, (1999 - 1992 + 1) * 3), rep(TRUE, 4 * 3))), "cur_year_projection populated")
+    ok(ut_cmp_identical(
+        attr(result, 'total_years'),
+        1999 - 1992 + 1 + 4), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")

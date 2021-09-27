@@ -118,12 +118,9 @@ g3_global_env$REprintf <- g3_native(r = function(...) {
 
 # Assert w/message
 g3_global_env$assert_msg <- g3_native(r = function(expr, message) {
-    if (isFALSE(expr)) stop(message)
+    if (isFALSE(expr)) warning(message)
 }, cpp = '[](bool expr, std::string message) -> void {
-    if (!expr) {
-        std::cerr << "Check failed: " << message << "\\n";
-        abort();
-    }
+    if (!expr) warning(message.c_str());
 }')
 
 

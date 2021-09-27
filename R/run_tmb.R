@@ -945,15 +945,19 @@ g3_tmb_adfun <- function(cpp_code,
 
     if (output_script) {
         tmp_script_path <- tempfile(fileext = ".R")
+        tmp_data_path <- paste0(tmp_script_path, "data")
+        tmb_data <- attr(cpp_code, 'model_data')
+        save(tmb_data, tmb_parameters, tmb_map, tmb_random, file = tmp_data_path)
         writeLines(c(
             "library(TMB)",
             deparse(call("dyn.load", so_path)),
+            deparse(call("load", tmp_data_path)),
             "",
             deparse(call("MakeADFun",
-                data = as.list(attr(cpp_code, 'model_data')),
-                parameters = tmb_parameters,
-                map = as.list(tmb_map),
-                random = tmb_random,
+                data = as.list(tmb_data),
+                parameters = quote(tmb_parameters),
+                map = quote(as.list(tmb_map)),
+                random = quote(tmb_random),
                 DLL = base_name)),
             ""), con = tmp_script_path)
         return(tmp_script_path)

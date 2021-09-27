@@ -19,7 +19,8 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
     If TRUE, turn all comments into print statements.
   }
   \item{strict}{
-    If TRUE, enable extra sanity checking in actions.
+    If TRUE, enable extra sanity checking in actions. Any invalid conditions
+    (e.g. more/less fish after growth) will result in a warning.
   }
 }
 
