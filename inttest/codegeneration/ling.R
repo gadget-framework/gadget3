@@ -49,7 +49,7 @@ structure(function (param)
     assert_msg <- function (expr, message) 
     {
         if (isFALSE(expr)) 
-            stop(message)
+            warning(message)
     }
     Rprintf <- function (...) 
     {

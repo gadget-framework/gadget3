@@ -39,7 +39,8 @@ g3_tmb_relist(parameters, par)
     If TRUE, turn all comments into print statements.
   }
   \item{strict}{
-    If TRUE, enable extra sanity checking in actions.
+    If TRUE, enable extra sanity checking in actions. Any invalid conditions
+    (e.g. more/less fish after growth) will result in a warning.
   }
   \item{cpp_code}{
     cpp_code as produced by \var{g3_to_tmb}.
