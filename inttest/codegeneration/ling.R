@@ -715,7 +715,7 @@ structure(function (param)
         {
             comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
             {
-                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 1000L + cur_step), -1L)
+                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
                 if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                   cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
                   {

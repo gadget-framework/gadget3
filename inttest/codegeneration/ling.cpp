@@ -844,7 +844,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
             {
-                auto cdist_sumofsquares_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*1000 + cur_step), -1) - 1;
+                auto cdist_sumofsquares_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
                     auto cur_cdist_nll = (pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();

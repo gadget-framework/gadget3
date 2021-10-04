@@ -1,14 +1,25 @@
 g3s_time_convert <- function (year, step = NULL) {
-    if (is.null(step)) as.integer(year) else as.integer(year) * 1000L + as.integer(step)
+    if (is.null(step)) {
+        as.integer(year)
+    } else if (any(step > 9)) {
+        as.integer(year) * 100L + as.integer(step)
+    } else {
+        as.integer(year) * 10L + as.integer(step)
+    }
 }
 
 g3s_time_labels <- function (times) {
-    if (any(times > 9999)) {
-        return(sprintf("%d-%02d",
-            times %/% 1000L,
-            times %% 1000L))
+    if (all(times > 100000)) {
+        sprintf("%d-%02d",
+            times %/% 100L,
+            times %% 100L)
+    } else if (all(times > 10000)) {
+        sprintf("%d-%02d",
+            times %/% 10L,
+            times %% 10L)
+    } else {
+        as.character(times)
     }
-    return(as.character(times))
 }
 
 # Time dimension, useful for data objects
@@ -31,9 +42,12 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         as.integer(times),
         seq_along(times))
 
-    if (any(times > 9999)) {
+    if (all(times > 100000)) {
+        # Year + 2-char step
+        idx_f <- timelookup('getdefault', ~cur_year * 100L + cur_step, -1L)
+    } else if (all(times > 10000)) {
         # Year + step
-        idx_f <- timelookup('getdefault', ~cur_year * 1000L + cur_step, -1L)
+        idx_f <- timelookup('getdefault', ~cur_year * 10L + cur_step, -1L)
     } else {
         # Just year
         idx_f <- timelookup('getdefault', ~cur_year, -1L)
