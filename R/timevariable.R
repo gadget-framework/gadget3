@@ -9,7 +9,15 @@ g3_intlookup <- function (lookup_name, keys, values) {
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
     return(function (req_type, inner_f, extra_arg = NULL) {
         inttypelookup_zip <- g3_native(r = function (keys, values) {
-            list(keys = keys, values = values)
+            if (max(keys) < 1e+05) {
+                out <- list()
+                out[as.integer(keys)] <- as.list(values)
+            } else {
+                out <- as.list(values)
+                names(out) <- keys
+                out <- as.environment(out)
+            }
+            return(out)
         }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
 
@@ -21,8 +29,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_get <- g3_native(r = function (lookup, key) {
-            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-            if (length(out) < 1) {
+            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else lookup[key][[1]]
+            if (is.null(out)) {
                 our_args <- as.list(sys.call())
                 stop(key, " not in ", our_args[[2]])
             }
@@ -33,8 +41,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_getdefault <- g3_native(r = function (lookup, key, def) {
-            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-            return(if (length(out) < 1) def else out)
+            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else lookup[key][[1]]
+            return(if (is.null(out)) def else out)
         }, cpp = '[](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
         }')
