@@ -424,7 +424,9 @@ structure(function (param)
                   if (area == igfs__area) {
                     fleet_area <- area
                     {
-                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
+                        0
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
@@ -442,7 +444,9 @@ structure(function (param)
                   if (area == igfs__area) {
                     fleet_area <- area
                     {
-                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
+                        0
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
