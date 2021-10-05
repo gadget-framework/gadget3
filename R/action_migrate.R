@@ -30,6 +30,7 @@ g3a_migrate <- function(
     stock__num <- stock_instance(stock)
     stock__wgt <- stock_instance(stock)
     stock__postmigratenum <- stock_instance(stock)
+    stock__postmigratewgt <- stock_instance(stock)
     stock__migratematrix <- structure(
         array(
             dim = list(dest_area = stock$dim$area, area = stock$dim$area),
@@ -49,6 +50,7 @@ g3a_migrate <- function(
         debug_label("g3a_migrate: Migration of ", stock)
         
         stock_with(stock, stock__postmigratenum[] <- 0)
+        stock_with(stock, stock__postmigratewgt[] <- 0)
         stock_iterate(stock, if (run_f) {
             debug_trace("Fill in any gaps in the migration matrix")
             if (any(is.nan(stock__migratematrix[,stock__area_idx]))) {
@@ -59,17 +61,22 @@ g3a_migrate <- function(
             }
 
             debug_trace("Apply migration matrix to current stock")
-            for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], {
+            for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], migrate_prop := stock__migratematrix[stock__destarea_idx, stock__area_idx], {
+                stock_ss(stock__postmigratewgt, area = stock__destarea_idx) <- ratio_add_vec(
+                    stock_ss(stock__postmigratewgt, area = stock__destarea_idx), stock_ss(stock__postmigratenum, area = stock__destarea_idx),
+                    stock_ss(stock__wgt), migrate_prop * stock_ss(stock__num))
                 stock_ss(stock__postmigratenum, area = stock__destarea_idx) <-
                     stock_ss(stock__postmigratenum, area = stock__destarea_idx) +
-                    stock__migratematrix[stock__destarea_idx, stock__area_idx] * stock_ss(stock__num)
+                    migrate_prop * stock_ss(stock__num)
             })
         } else {
             debug_trace("Copy not-migrating stocks")
+            stock_ss(stock__postmigratewgt) <- stock_ss(stock__postmigratewgt) + stock_ss(stock__wgt)
             stock_ss(stock__postmigratenum) <- stock_ss(stock__postmigratenum) + stock_ss(stock__num)
         })
         debug_trace("Switch around __postmigratenum and __num")
         stock_with(stock, stock__num <- stock__postmigratenum)
+        stock_with(stock, stock__wgt <- stock__postmigratewgt)
     }, list(
         migrate_f = migrate_f,
         normalize_f = normalize_f,
