@@ -57,6 +57,8 @@ jobs:
       - name: Install system dependencies
         if: runner.os == 'Linux'
         run: |
+          # NB: Installing CRAN curl (for rcmdcheck) is failing silently without the library headers
+          sudo apt install libcurl4-openssl-dev
           while read -r cmd
           do
             eval sudo $cmd

@@ -9,7 +9,15 @@ g3_intlookup <- function (lookup_name, keys, values) {
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
     return(function (req_type, inner_f, extra_arg = NULL) {
         inttypelookup_zip <- g3_native(r = function (keys, values) {
-            list(keys = keys, values = values)
+            if (max(keys) < 1e+05) {
+                out <- list()
+                out[as.integer(keys)] <- as.list(values)
+            } else {
+                out <- as.list(values)
+                names(out) <- keys
+                out <- as.environment(out)
+            }
+            return(out)
         }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
 
@@ -21,8 +29,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_get <- g3_native(r = function (lookup, key) {
-            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-            if (length(out) < 1) {
+            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else lookup[key][[1]]
+            if (is.null(out)) {
                 our_args <- as.list(sys.call())
                 stop(key, " not in ", our_args[[2]])
             }
@@ -33,8 +41,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_getdefault <- g3_native(r = function (lookup, key, def) {
-            out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-            return(if (length(out) < 1) def else out)
+            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else lookup[key][[1]]
+            return(if (is.null(out)) def else out)
         }, cpp = '[](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
         }')
@@ -77,6 +85,31 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     for (n in c('area', 'year', 'step', value_field)) {
         if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
     }
+
+    if (length(unique(df$area)) == 1) {
+        # All lengths the same, no point adding to the lookup
+        times <- g3s_time_convert(df$year, df$step)
+        mult <- g3s_time_multiplier(times)
+
+        lookup <- g3_intlookup(lookup_name,
+            keys = as.integer(times),
+            values = as.numeric(df[[value_field]]))
+
+        # Return formula that does the lookup
+        out_f <- lookup('getdefault', f_substitute(
+            ~cur_year * mult + cur_step * step_required,
+            list(
+                step_required = if (mult > 1L) 1 else 0,
+                mult = mult)), 0)
+
+        # Wrap with check that we're in the correct area
+        out_f <- f_substitute(
+            ~if (area != our_area) 0 else out_f,
+            list(our_area = df$area[[1]], out_f = out_f))
+
+        return(out_f)
+    }
+
     lookup <- g3_intlookup(lookup_name,
         keys = as.integer(df$area * 1000000L + df$year * 100L + df$step),
         values = as.numeric(df[[value_field]]))

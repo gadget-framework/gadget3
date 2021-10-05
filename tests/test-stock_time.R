@@ -15,6 +15,14 @@ ok_group("g3s_time: Times produced in order", {
         quote( g3_idx(6L) )), "stock__max_time_idx: Length of array")
 })
 
+stock_timeyear <- g3_stock('stock_timeyear', 1) %>% g3s_time(year = c(2002, 2004))
+stock_timeyear__num <- gadget3:::stock_instance(stock_timeyear, 0)
+stock_timestep <- g3_stock('stock_timestep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2000, 2003),c(1,2)) ))
+stock_timestep__num <- gadget3:::stock_instance(stock_timestep, 0)
+# NB: There isn't 12 steps to use, but still changes mode
+stock_timebigstep <- g3_stock('stock_timebigstep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2001, 2003),c(1,12)) ))
+stock_timebigstep__num <- gadget3:::stock_instance(stock_timebigstep, 0)
+
 stock_modeltime <- g3_stock('stock_modeltime', 1) %>% gadget3:::g3s_modeltime()
 stock_modeltime__num <- gadget3:::stock_instance(stock_modeltime, 0)
 stock_modelyear <- g3_stock('stock_modelyear', 1) %>% gadget3:::g3s_modeltime(by_year = TRUE)
@@ -24,14 +32,17 @@ stock_modeltime_iterator <- 100
 actions <- list(
     g3a_time(2000, 2004, steps = c(6,6), project_years = ~g3_param('projectyears')),
     list(
-        stock_modeltime = gadget3:::g3_step(~{
+        "500:stock_time" = gadget3:::g3_step(~{
+            stock_iterate(stock_timeyear, stock_ss(stock_timeyear__num) <- stock_ss(stock_timeyear__num) + stock_modeltime_iterator)
+            stock_iterate(stock_timestep, stock_ss(stock_timestep__num) <- stock_ss(stock_timestep__num) + stock_modeltime_iterator)
+            stock_iterate(stock_timebigstep, stock_ss(stock_timebigstep__num) <- stock_ss(stock_timebigstep__num) + stock_modeltime_iterator)
+        }),
+        "500:stock_modeltime" = gadget3:::g3_step(~{
             stock_iterate(stock_modeltime, stock_ss(stock_modeltime__num) <- stock_ss(stock_modeltime__num) + stock_modeltime_iterator)
             stock_iterate(stock_modelyear, stock_ss(stock_modelyear__num) <- stock_ss(stock_modelyear__num) + stock_modeltime_iterator)
-            stock_modeltime_iterator <- stock_modeltime_iterator + 1
-            g3_report(stock_modeltime__num)
-            g3_report(stock_modelyear__num)
         }),
         "999" = ~{
+            stock_modeltime_iterator <- stock_modeltime_iterator + 1
             nll <- g3_param('nll')
         }))
 params <- list(
@@ -54,6 +65,24 @@ ok_group("g3s_modeltime", {
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)
 
+    ok(ut_cmp_identical(
+        r$stock_timeyear__num,
+        structure(
+            c(104 + 105, 108 + 109),
+            .Dim = structure(1:2, .Names = c("length", "time")),
+            .Dimnames = list(length = "len1", time = c("2002", "2004")))), "stock_timeyear__num: 2002, 2004")
+    ok(ut_cmp_identical(
+        r$stock_timestep__num,
+        structure(
+            c(100, 107),
+            .Dim = structure(1:2, .Names = c("length", "time")),
+            .Dimnames = list(length = "len1", time = c("2000-01", "2003-02")))), "stock_timestep__num: 2000-01, 2003-02")
+    ok(ut_cmp_identical(
+        r$stock_timebigstep__num,
+        structure(
+            c(102, 0),
+            .Dim = structure(1:2, .Names = c("length", "time")),
+            .Dimnames = list(length = "len1", time = c("2001-01", "2003-12")))), "stock_timebigstep__num: 2001-01")
     ok(ut_cmp_identical(
         r$stock_modeltime__num,
         structure(

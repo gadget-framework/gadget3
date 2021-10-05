@@ -57,8 +57,10 @@ structure(function (param)
     }
     inttypelookup_getdefault <- function (lookup, key, def) 
     {
-        out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-        return(if (length(out) < 1) def else out)
+        out <- if (is.environment(lookup)) 
+            lookup[[as.character(key)]]
+        else lookup[key][[1]]
+        return(if (is.null(out)) def else out)
     }
     avoid_zero_vec <- function (a) 
     {
@@ -138,8 +140,10 @@ structure(function (param)
     }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
-        out <- lookup$values[which(lookup$keys == key, arr.ind = TRUE)]
-        return(if (length(out) < 1) def else out)
+        out <- if (is.environment(lookup)) 
+            lookup[[as.character(key)]]
+        else lookup[key][[1]]
+        return(if (is.null(out)) def else out)
     }
     cur_time <- -1L
     nll <- 0
@@ -185,7 +189,16 @@ structure(function (param)
     "age10", "age11", "age12", "age13", "age14", "age15")))
     inttypelookup_zip <- function (keys, values) 
     {
-        list(keys = keys, values = values)
+        if (max(keys) < 1e+05) {
+            out <- list()
+            out[as.integer(keys)] <- as.list(values)
+        }
+        else {
+            out <- as.list(values)
+            names(out) <- keys
+            out <- as.environment(out)
+        }
+        return(out)
     }
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
     igfs_totaldata__values <- model_data$igfs_totaldata__values
@@ -218,7 +231,16 @@ structure(function (param)
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
     intintlookup_zip <- function (keys, values) 
     {
-        list(keys = keys, values = values)
+        if (max(keys) < 1e+05) {
+            out <- list()
+            out[as.integer(keys)] <- as.list(values)
+        }
+        else {
+            out <- as.list(values)
+            names(out) <- keys
+            out <- as.environment(out)
+        }
+        return(out)
     }
     times_cdist_sumofsquares_ldist_lln_obs__keys <- model_data$times_cdist_sumofsquares_ldist_lln_obs__keys
     times_cdist_sumofsquares_ldist_lln_obs__values <- model_data$times_cdist_sumofsquares_ldist_lln_obs__values
@@ -402,7 +424,9 @@ structure(function (param)
                   if (area == igfs__area) {
                     fleet_area <- area
                     {
-                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
+                      ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
+                        0
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
@@ -420,7 +444,9 @@ structure(function (param)
                   if (area == igfs__area) {
                     fleet_area <- area
                     {
-                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * (inttypelookup_getdefault(igfs_totaldata__lookup, (area * 1000000L + cur_year * 100L + cur_step), 0)/igfs__catch[igfs__area_idx])
+                      ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
+                        0
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
@@ -715,7 +741,7 @@ structure(function (param)
         {
             comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
             {
-                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 1000L + cur_step), -1L)
+                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
                 if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                   cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
                   {
