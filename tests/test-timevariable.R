@@ -95,6 +95,28 @@ actions <- c(actions, gadget3:::f_substitute(~{
 expecteds$single_area_1 <- 198311
 expecteds$single_area_2 <- 0
 
+# no-area form works as expected
+no_area_lookup <- g3_timeareadata('no_area_lookup', read.table(header = TRUE, text = "
+year	step	total_weight
+1983	1	198311
+1983	2	198321
+1984	1	198411
+"))
+
+no_area_1 <- 0
+no_area_2 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('no_area_lookup')
+    cur_year <- 1983 ; cur_step <- 1 ; area <- 1
+    no_area_1 <- lookup_f
+    g3_report(no_area_1)
+    cur_year <- 1983 ; cur_step <- 2 ; area <- 2
+    no_area_2 <- lookup_f
+    g3_report(no_area_2)
+}, list(lookup_f = no_area_lookup)))
+expecteds$no_area_1 <- 198311
+expecteds$no_area_2 <- 198321
+
 ###############################################################################
 
 actions <- c(actions, ~{

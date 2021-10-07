@@ -79,14 +79,14 @@ g3_intlookup <- function (lookup_name, keys, values) {
     })
 }
 
-# Turn a year/step/area/value data.frame into a formula
+# Turn a year/step/[area]/value data.frame into a formula
 g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     # TODO: Should accept area_group
-    for (n in c('area', 'year', 'step', value_field)) {
+    for (n in c('year', 'step', value_field)) {
         if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
     }
 
-    if (length(unique(df$area)) == 1) {
+    if (is.null(df$area) || length(unique(df$area)) == 1) {
         # All lengths the same, no point adding to the lookup
         times <- g3s_time_convert(df$year, df$step)
         mult <- g3s_time_multiplier(times)
@@ -102,10 +102,12 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
                 step_required = if (mult > 1L) 1 else 0,
                 mult = mult)), 0)
 
-        # Wrap with check that we're in the correct area
-        out_f <- f_substitute(
-            ~if (area != our_area) 0 else out_f,
-            list(our_area = df$area[[1]], out_f = out_f))
+        if (!is.null(df$area)) {
+            # Wrap with check that we're in the correct area
+            out_f <- f_substitute(
+                ~if (area != our_area) 0 else out_f,
+                list(our_area = df$area[[1]], out_f = out_f))
+        }
 
         return(out_f)
     }
