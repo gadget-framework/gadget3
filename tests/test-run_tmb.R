@@ -436,6 +436,19 @@ actions <- c(actions, ~{
 })
 expecteds$negate_x <- -10
 
+# Modulo assumes integer
+modulo_x <- 10
+modulo_y <- 11
+actions <- c(actions, ~{
+    comment('modulo')
+    modulo_x <- as_integer(modulo_x) %% 2
+    modulo_y <- as_integer(modulo_y) %% 2
+    g3_report(modulo_x)
+    g3_report(modulo_y)
+})
+expecteds$modulo_x <- 0
+expecteds$modulo_y <- 1
+
 # sum() & prod()
 sumprod_input <- runif(10)
 sumprod_sum <- 0
