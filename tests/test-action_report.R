@@ -30,6 +30,7 @@ actions <- list(
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num)),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
     list('999' = ~{ nll <- nll + g3_param('x') }))
+actions <- c(actions, list(g3a_report_history(actions)))
 params <- list(
     x=1.0)
             
@@ -80,6 +81,43 @@ ok_group("report", {
           len1 young 2002   20
           len1   old 2002  280
     "), "agg_report__num: Aggregated report only has young/old")
+
+    ok(ut_cmp_identical(
+        grep('^hist_', names(r), value = TRUE),
+        c("hist_prey_a__num", "hist_prey_a__wgt")), "Logged history of numbers / weight (ignored reports though)")
+    ok(cmp_array(r$hist_prey_a__num, "
+        length   age    time Freq
+        len1    age1 2000-01   10
+        len1    age2 2000-01   20
+        len1    age3 2000-01   30
+        len1    age4 2000-01   40
+        len1    age5 2000-01   50
+        len1    age1 2000-02   10
+        len1    age2 2000-02   20
+        len1    age3 2000-02   30
+        len1    age4 2000-02   40
+        len1    age5 2000-02   50
+        len1    age1 2001-01    0
+        len1    age2 2001-01   10
+        len1    age3 2001-01   20
+        len1    age4 2001-01   30
+        len1    age5 2001-01   90
+        len1    age1 2001-02    0
+        len1    age2 2001-02   10
+        len1    age3 2001-02   20
+        len1    age4 2001-02   30
+        len1    age5 2001-02   90
+        len1    age1 2002-01    0
+        len1    age2 2002-01    0
+        len1    age3 2002-01   10
+        len1    age4 2002-01   20
+        len1    age5 2002-01  120
+        len1    age1 2002-02    0
+        len1    age2 2002-02    0
+        len1    age3 2002-02   10
+        len1    age4 2002-02   20
+        len1    age5 2002-02  120
+  "), "hist_prey_a__num: Full history")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
