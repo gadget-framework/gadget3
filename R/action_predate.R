@@ -108,8 +108,8 @@ g3a_predate_fleet <- function (fleet_stock,
         # Create variable to store biomass of stock caught
         fleet_stock_var <- as.symbol(paste0('stock__', fleet_stock$name))
         suit_var <- as.symbol(paste0('stock__suit_', fleet_stock$name))
-        stock__num <- stock_instance(stock)
-        stock__wgt <- stock_instance(stock)
+        stock__num <- stock_instance(stock, 0)
+        stock__wgt <- stock_instance(stock, 1)
         assign(as.character(fleet_stock_var), stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", fleet_stock$name)))
         assign(as.character(suit_var), stock_instance(stock, 0, desc = paste("Suitability of ", stock$name, " for ", fleet_stock$name)))
         stock__totalpredate <- stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))

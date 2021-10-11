@@ -1,25 +1,28 @@
 # Assign number / mean weight based on formulae
 g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
 
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_initialconditions for ", stock)
-        stock_iterate(stock, {
+        stock_iterate(stock, if (run_f) {
             stock_ss(stock__num) <- num_f
             stock_ss(stock__wgt) <- wgt_f
         })
-    }, list(num_f = num_f, wgt_f = wgt_f)))
+    }, list(
+        num_f = num_f,
+        wgt_f = wgt_f,
+        run_f = run_f)))
     return(out)
 }
 
 # Steps to set up renewal of stocks on first step
 g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~cur_time == 0L, run_at = 0) {
     # See InitialCond::Initialise
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
 
     out <- list()
     action_name <- unique_action_name()
@@ -46,16 +49,16 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
 
 # Assign number / mean weight based on formulae
 g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
     stock__renewalnum <- stock_instance(stock, 0)
     stock__renewalwgt <- stock_instance(stock, 0)
 
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (cur_time == 0L) {
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_renewal for ", stock)
-        stock_iterate(stock, {
+        stock_iterate(stock, if (run_f) {
             stock_ss(stock__renewalnum) <- num_f
             stock_ss(stock__renewalwgt) <- wgt_f
 
@@ -65,15 +68,17 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
                 stock_ss(stock__renewalwgt), stock_ss(stock__renewalnum))
             stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
         })
-    }, list(num_f = num_f, wgt_f = wgt_f)))
+    }, list(
+        num_f = num_f, wgt_f = wgt_f,
+        run_f = run_f)))
     return(out)
 }
 
 # Steps to set up renewal of stocks on any stock
 g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE, run_at = 8) {
     # See InitialCond::Initialise
-    stock__num <- stock_instance(stock)
-    stock__wgt <- stock_instance(stock)
+    stock__num <- stock_instance(stock, 0)
+    stock__wgt <- stock_instance(stock, 1)
     stock__renewalnum <- stock_instance(stock, 0)
     stock__renewalwgt <- stock_instance(stock, 0)
 
