@@ -196,7 +196,7 @@ Type objective_function<Type>::operator() () {
         };
     int cur_time = -1;
     Type nll = (double)(0);
-    DATA_IVECTOR(step_lengths)
+    vector<int> step_lengths(4); step_lengths.setConstant(3);
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - start_year + 0) + (step_lengths).size() - 1;
@@ -207,17 +207,17 @@ Type objective_function<Type>::operator() () {
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
     int ling_imm__area = 1;
-    array<Type> ling_imm__num(35,1,8);
+    array<Type> ling_imm__num(35,1,8); ling_imm__num.setZero();
     DATA_VECTOR(ling_imm__midlen)
     DATA_VECTOR(ling_imm_stddev)
-    array<Type> ling_imm__wgt(35,1,8);
+    array<Type> ling_imm__wgt(35,1,8); ling_imm__wgt.setConstant((double)(1));
     int ling_mat__minage = 5;
     int ling_mat__maxage = 15;
     int ling_mat__area = 1;
-    array<Type> ling_mat__num(35,1,11);
+    array<Type> ling_mat__num(35,1,11); ling_mat__num.setZero();
     DATA_VECTOR(ling_mat__midlen)
     DATA_VECTOR(ling_mat_stddev)
-    array<Type> ling_mat__wgt(35,1,11);
+    array<Type> ling_mat__wgt(35,1,11); ling_mat__wgt.setConstant((double)(1));
     vector<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
     array<Type> ling_mat__totalpredate(35,1,11);

@@ -741,14 +741,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
                     dims = dim(var_val))
-            } else if (is.array(var_val) && (all(is.na(var_val)) || all(var_val == 0))) {
+            } else if (is.array(var_val) && ( length(var_val) < 2 || all(is.na(var_val)) || all(var_val == var_val[[1]]) )) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
-                    cpp_type <- 'vector<Type>'
+                    cpp_type <- 'vector'
                 } else {
                     # NB: Otherwise array. We only use matrix<> when we know we want matrix multiplication
-                    cpp_type <- 'array<Type>'
+                    cpp_type <- 'array'
                 }
+                cpp_type <- paste0(cpp_type, if (is.integer(var_val)) '<int>' else '<Type>')
                 if (all(dim(var_val) == 0)) {
                     defn <- cpp_definition(cpp_type, var_name)
                 } else if (!is.null(attr(var_val, 'dynamic_dim'))) {
@@ -769,9 +770,12 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         var_name,
                         dims = dim(var_val))
                 }
-                if (length(var_val) > 0 && !any(is.na(var_val))) {
-                    # If not NA or empty, must be zero. So init to zero
+                if (length(var_val) < 1 || is.na(var_val[[1]])) {
+                    # Value is NA, so leave uninitialized
+                } else if (var_val[[1]] == 0) {
                     defn <- paste0(defn, " ", var_name, ".setZero();")
+                } else {
+                    defn <- paste0(defn, " ", var_name, ".setConstant(", cpp_code(var_val[[1]], env),");")
                 }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
