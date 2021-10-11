@@ -86,7 +86,7 @@ ok_group("Detect missing suitabilities", {
 })
 
 actions <- list(
-    g3a_time(2000, 2000),
+    g3a_time(2000, ~2000 + g3_param('years') - 1),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
@@ -107,7 +107,9 @@ actions <- list(
             prey_a = ~g3_param_vector("fleet_bc_a"),
             prey_b = ~g3_param_vector("fleet_bc_b"),
             prey_c = ~g3_param_vector("fleet_bc_c")),
-        catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area)),
+        catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area),
+        # NB: Only run on even years
+        run_f = ~cur_year %% 2L == 0L),
     g3l_understocking(
         list(prey_a, prey_b, prey_c),
         power_f = ~g3_param('understocking_power'),
@@ -141,6 +143,7 @@ actions <- list(
 
             g3_report(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
+actions <- c(actions, list(g3a_report_history(actions, "prey_.*__fleet_.*")))
 params <- list(
     fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
     fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
@@ -151,6 +154,7 @@ params <- list(
     fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
     amount_bc = 100,
     understocking_power = 2,
+    years = 1,
     x=1.0)
 
 # Compile model
@@ -175,6 +179,7 @@ ok_group("No overconsumption", {
         fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         amount_bc = 50,
         understocking_power = 2,
+        years = 1,
         x=1.0)
     result <- model_fn(params)
     r <- attributes(result)
@@ -305,6 +310,7 @@ ok_group("Overconsumption", {
         fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
         amount_bc = 50,
         understocking_power = 1,
+        years = 1,
         x=1.0)
     result <- model_fn(params)
     r <- attributes(result)
@@ -356,6 +362,68 @@ ok_group("Overconsumption", {
         as.vector(r$prey_c__num),
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    }
+})
+
+ok_group("run_f disabling", {
+    params <- list(
+        fleet_ab_a = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        fleet_ab_b = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        fleet_ab_c = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        amount_ab = 10,
+        fleet_bc_a = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        fleet_bc_b = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        fleet_bc_c = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+        amount_bc = 10,
+        understocking_power = 1,
+        years = 4,
+        x=1.0)
+    result <- model_fn(params)
+    r <- attributes(result)
+    # str(as.list(r), vec.len = 10000)
+
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_a__fleet_ab),
+        structure(
+            c(10, 10, 10, 10),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "a", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_a__fleet_ab: Continually fished")
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_b__fleet_ab),
+        structure(
+            c(20, 20, 20, 20),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "b", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_b__fleet_ab: Continually fished")
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_c__fleet_ab),
+        structure(
+            c(0, 0, 0, 0),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "c", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_c__fleet_ab: Not fished")
+
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_a__fleet_bc),
+        structure(
+            c(0, 0, 0, 0),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "a", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_a__fleet_bc: Not fished")
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_b__fleet_bc),
+        structure(
+            c(20, 0, 20, 0),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "b", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_b__fleet_bc: Only fished on even years")
+    ok(ut_cmp_equal(
+        colSums(r$hist_prey_c__fleet_bc),
+        structure(
+            c(30, 0, 30, 0),
+            .Dim = c(area = 1L, time = 4L),
+            .Dimnames = list(area = "c", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_c__fleet_bc: Only fished on even years")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
