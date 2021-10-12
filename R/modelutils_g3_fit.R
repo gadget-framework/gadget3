@@ -379,26 +379,6 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
 }
 
-## Locates all unique stock and fleet objects from a collated actions object
-find_stocks_fleets <- function(name, env){
-  
-  out <- list()
-  obj_names <- NULL
-  
-  while(!identical(env, emptyenv())){
-    ## Check whether the environment contains the object
-    if (exists(name, envir = env, inherits = FALSE)){
-      ## Check for duplicates
-      if (!env[[name]]$name %in% obj_names){
-        out[[env[[name]]$name]] <- env[[name]]
-        obj_names <- c(obj_names, env[[name]]$name)
-      }
-    }  
-    env <- parent.env(env)
-  }
-  return(out)
-}
-
 extract_year_step <- function(data){
   
   data %>% 
