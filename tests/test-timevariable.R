@@ -117,6 +117,33 @@ actions <- c(actions, gadget3:::f_substitute(~{
 expecteds$no_area_1 <- 198311
 expecteds$no_area_2 <- 198321
 
+# no-step
+no_step_lookup <- g3_timeareadata('no_step_lookup', read.table(header = TRUE, text = "
+year	area	total_weight
+1983	1	19831
+1983	2	19832
+1984	3	19843
+"))
+
+no_step_1 <- 0
+no_step_2 <- 0
+no_step_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('no_step_lookup')
+    cur_year <- 1984 ; cur_step <- 1 ; area <- 3
+    no_step_1 <- lookup_f
+    g3_report(no_step_1)
+    cur_year <- 1984 ; cur_step <- 2 ; area <- 3
+    no_step_2 <- lookup_f
+    g3_report(no_step_2)
+    cur_year <- 1984 ; cur_step <- 3 ; area <- 2
+    no_step_2 <- lookup_f
+    g3_report(no_step_3)
+}, list(lookup_f = no_step_lookup)))
+expecteds$no_step_1 <- 19843
+expecteds$no_step_2 <- 19843
+expecteds$no_step_3 <- 0
+
 ###############################################################################
 
 actions <- c(actions, ~{

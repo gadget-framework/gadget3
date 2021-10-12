@@ -16,7 +16,7 @@ g3_timeareadata(lookup_name, df, value_field = "total_weight")
     A unique name for this lookup, e.g. \code{"igfs_landings"}.
   }
   \item{df}{
-    A \link{data.frame} with area (optional), year, step and \var{value_field} columns.
+    A \link{data.frame} with area (optional), year, step (optional) and \var{value_field} columns.
   }
   \item{value_field}{
     Column name that contains output value.

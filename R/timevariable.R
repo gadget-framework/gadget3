@@ -81,41 +81,41 @@ g3_intlookup <- function (lookup_name, keys, values) {
 
 # Turn a year/step/[area]/value data.frame into a formula
 g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
+    # What's the next power of 10?
+    next_mult <- function (x) 10 ** ceiling(log10(x))
+
     # TODO: Should accept area_group
-    for (n in c('year', 'step', value_field)) {
+    for (n in c('year', value_field)) {
         if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
     }
 
-    if (is.null(df$area) || length(unique(df$area)) == 1) {
-        # All lengths the same, no point adding to the lookup
-        times <- g3s_time_convert(df$year, df$step)
-        mult <- g3s_time_multiplier(times)
+    # All lengths the same, no point adding to the lookup
+    times <- g3s_time_convert(df$year, df$step)  # NB: if step column missing, this will be NULL
+    year_mult <- g3s_time_multiplier(times)
 
-        lookup <- g3_intlookup(lookup_name,
-            keys = as.integer(times),
-            values = as.numeric(df[[value_field]]))
-
-        # Return formula that does the lookup
-        out_f <- lookup('getdefault', f_substitute(
-            ~cur_year * mult + cur_step * step_required,
-            list(
-                step_required = if (mult > 1L) 1 else 0,
-                mult = mult)), 0)
-
-        if (!is.null(df$area)) {
-            # Wrap with check that we're in the correct area
-            out_f <- f_substitute(
-                ~if (area != our_area) 0 else out_f,
-                list(our_area = df$area[[1]], out_f = out_f))
-        }
-
-        return(out_f)
-    }
+    # Count potential areas, 0, 1, many
+    area_count <- if (is.null(df$area)) 0 else if (length(df$area) > 1 && any(df$area[[1]] != df$area)) 2 else 1
+    area_mult <- if (area_count > 1) next_mult(max(times)) else 0
 
     lookup <- g3_intlookup(lookup_name,
-        keys = as.integer(df$area * 1000000L + df$year * 100L + df$step),
+        keys = as.integer(times + (if (area_count > 1) area_mult * df$area else 0)),
         values = as.numeric(df[[value_field]]))
-        
+
     # Return formula that does the lookup
-    return(lookup('getdefault', ~area * 1000000L + cur_year * 100L + cur_step, 0))
+    out_f <- lookup('getdefault', f_substitute(
+        ~area * area_mult + cur_year * year_mult + cur_step * step_mult,
+        list(
+            area_mult = area_mult,
+            # Mult is zero ==> There is no step.
+            step_mult = if (year_mult > 1L) 1 else 0,
+            year_mult = year_mult)), 0)
+
+    if (area_count == 1) {
+        # Wrap lookup with check that we're in the correct area
+        out_f <- f_substitute(
+            ~if (area != our_area) 0 else out_f,
+            list(our_area = df$area[[1]], out_f = out_f))
+    }
+
+    return(out_f)
 }
