@@ -147,12 +147,12 @@
 
 <span class='fu'>g3a_predate_fleet</span><span class='op'>(</span><span class='va'>fleet_stock</span>, <span class='va'>prey_stocks</span>, <span class='va'>suitabilities</span>, <span class='va'>catchability_f</span>,
     overconsumption_f <span class='op'>=</span> <span class='op'>~</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='fu'>logspace_add_vec</span><span class='op'>(</span><span class='op'>(</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='va'>stock__consratio</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>100</span>
-    , <span class='fl'>0.96</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>100</span>, run_at <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
+    , <span class='fl'>0.96</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>100</span>, run_f <span class='op'>=</span> <span class='op'>~</span><span class='cn'>TRUE</span>, run_at <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span>
 
 <span class='co'># NB: Deprecated interface, use g3a_predate_fleet with g3a_predate_catchability_totalfleet</span>
 <span class='fu'>g3a_predate_totalfleet</span><span class='op'>(</span><span class='va'>fleet_stock</span>, <span class='va'>prey_stocks</span>, <span class='va'>suitabilities</span>, <span class='va'>amount_f</span>,
     overconsumption_f <span class='op'>=</span> <span class='op'>~</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='fu'>logspace_add_vec</span><span class='op'>(</span><span class='op'>(</span><span class='fl'>0.96</span> <span class='op'>-</span> <span class='va'>stock__consratio</span><span class='op'>)</span> <span class='op'>*</span> <span class='fl'>100</span>
-    , <span class='fl'>0.96</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>100</span>, run_at <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></pre>
+    , <span class='fl'>0.96</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>100</span>, run_f <span class='op'>=</span> <span class='op'>~</span><span class='cn'>TRUE</span>, run_at <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,6 +210,10 @@
       <td><p>Overconsumption rule, a formula that should cap all values in <var>stock__consratio</var> to &lt;= 95<!-- %. -->
     You can emulate gadget2 more closely than the default with the following
     <code>overconsumption_f = quote(pmin(stock__consratio, 0.95)))</code> (NB: Not differentiable!)</p></td>
+    </tr>
+    <tr>
+      <th>run_f</th>
+      <td><p><a href='https://rdrr.io/r/stats/formula.html'>formula</a> specifying a condition for running this action, default always runs.</p></td>
     </tr>
     <tr>
       <th>run_at</th>
