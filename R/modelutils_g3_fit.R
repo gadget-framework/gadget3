@@ -14,7 +14,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## Setup new report actions and update the action list
   ## ---------------------------------------------------------------------------
   
-  report_actions <- g3a_report_history(actions = all_actions)
+  report_actions <- g3a_report_history(actions = attr(model, 'actions'))
   
   
   ## ---------------------------------------------------------------------------
@@ -212,7 +212,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
       tmp[grepl('.history__renewalnum', names(tmp))] %>% 
       purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>% 
       dplyr::bind_rows(.id = 'comp') %>% 
-      dplyr::mutate(stock = gsub('(.+)_history__renewalnum$', '\\1', .data$comp),
+      dplyr::mutate(stock = gsub('hist_(.+)__renewalnum$', '\\1', .data$comp),
                     age = gsub('age', '', .data$age) %>% as.numeric()) %>% 
       extract_year_step() %>%
       dplyr::filter(.data$age == min(.data$age),
@@ -233,22 +233,22 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     tmp[grepl('.history__', names(tmp)) & !grepl('wgt|num|suit', names(tmp))] %>% 
     purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'biomass_consumed') %>% 
     dplyr::bind_rows(.id='comp') %>% 
-    dplyr::mutate(stock = gsub('(.+)_history__(.+)', '\\1', .data$comp),
-                  fleet = gsub('(.+)_history__(.+)', '\\2', .data$comp)) %>% 
+    dplyr::mutate(stock = gsub('hist_(.+)__(.+)', '\\1', .data$comp),
+                  fleet = gsub('hist_(.+)__(.+)', '\\2', .data$comp)) %>% 
     dplyr::select(-.data$comp) %>% 
     
     dplyr::left_join(
       tmp[grepl('.history__wgt', names(tmp))] %>% 
         purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'weight') %>% 
         dplyr::bind_rows(.id='comp') %>% 
-        dplyr::mutate(stock = gsub('(.+)_history__wgt', '\\1', .data$comp)) %>% 
+        dplyr::mutate(stock = gsub('hist_(.+)__wgt', '\\1', .data$comp)) %>% 
         dplyr::select(-.data$comp) %>% 
         dplyr::left_join(
           
           tmp[grepl('.history__num', names(tmp))] %>% 
             purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'abundance') %>% 
             dplyr::bind_rows(.id='comp') %>% 
-            dplyr::mutate(stock = gsub('(.+)_history__num', '\\1', .data$comp)) %>% 
+            dplyr::mutate(stock = gsub('hist_(.+)__num', '\\1', .data$comp)) %>% 
             dplyr::select(-.data$comp)
         )
     ) %>% 
@@ -397,50 +397,6 @@ find_stocks_fleets <- function(name, env){
     env <- parent.env(env)
   }
   return(out)
-}
-
-g3a_report_history <- function(actions, vars = '__num$|__wgt$'){
-  
-  ## Extract stock and fleet objects from collated actions
-  stocks <- find_stocks_fleets(name = 'stock', env = attr(actions, '.Env'))
-  fleets <- find_stocks_fleets(name = 'fleet_stock', env = attr(actions, '.Env'))
-  
-  cat('Compiling model fit for:', 
-      '\n\nstocks = ', paste(names(stocks), collapse = ', '),
-      '\nfleets = ', paste(names(fleets), collapse = ', '), '\n\n')
-  
-  ## Loop over stocks & setup reporting actions
-  report_actions_fit <- list()
-  for (i in names(stocks)){
-    
-    ## Assign stock object to current environment
-    assign(i, stocks[[i]])
-    
-    ## Setup report actions
-    ## TODO: make easier to report specific variables (using vars above)
-    for (j in paste0(i, '__', c('num', 'wgt', 
-                                'renewalnum', 'renewalwgt', 
-                                names(fleets), 
-                                paste0('suit_', names(fleets))))){
-      
-      ## Check whether the stock instance exists
-      if (!exists(j, attr(actions, '.Env'))) next
-      
-      report_actions_fit <- c(report_actions_fit, 
-                              list(
-                                g3a_report_stock(report_stock =
-                                                   g3s_clone(inner_stock = stocks[[i]], var_name = paste0(i, '_history')) %>% 
-                                                   g3s_time(year = seq(get('start_year', envir = attr(actions, '.Env')),
-                                                                       get('end_year', envir = attr(actions, '.Env'))),
-                                                            step = 1:length(get('step_lengths', envir = attr(actions, '.Env')))),
-                                                 input_stock = stocks[[i]],
-                                                 report_f = as.formula(sprintf('~stock_ss(%s)', j))
-                                )
-                              )
-      )
-    }
-  }
-  return(report_actions_fit)
 }
 
 extract_year_step <- function(data){
