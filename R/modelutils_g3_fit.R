@@ -5,8 +5,10 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## Get and collate actions 
   fit_env <- new.env(parent = emptyenv())
   actions <- attr(model, 'actions')
-  collated_actions <- gadget3:::g3_collate(actions) 
-  all_actions <- gadget3:::f_concatenate(collated_actions, parent = fit_env, wrap_call = call('while', TRUE))
+  collated_actions <- g3_collate(actions) 
+  all_actions <- f_concatenate(collated_actions, 
+                               parent = fit_env, 
+                               wrap_call = call('while', TRUE))
   
   ## ---------------------------------------------------------------------------
   ## Setup new report actions and update the action list
@@ -64,7 +66,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   fleetnames = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\4', .data$comp),
                   origin = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\5', .data$comp),
                   name = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\3.\\4', .data$comp),
-                  length = gsub('len', '', length) %>% as.numeric(),
+                  length = gsub('len', '', .data$length) %>% as.numeric(),
                   area = as.numeric(.data$area)) %>%
     dplyr::select(-.data$comp) %>%
     extract_year_step() %>%
