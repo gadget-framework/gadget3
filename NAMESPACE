@@ -2,6 +2,9 @@ importFrom("methods", "is")
 importFrom("stats", "as.formula", "formula", "dnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
+importFrom(magrittr,"%>%")
+importFrom(rlang,.data)
+
 # R/action_age.R
 export(g3a_age)
 
