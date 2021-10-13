@@ -2,20 +2,28 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
   ## To-do: add checks for arguments
   
-  ## Get and collate actions 
-  fit_env <- new.env(parent = emptyenv())
-  actions <- attr(model, 'actions')
-  collated_actions <- g3_collate(actions) 
-  all_actions <- f_concatenate(collated_actions, 
-                               parent = fit_env, 
-                               wrap_call = call('while', TRUE))
-  
   ## ---------------------------------------------------------------------------
-  ## Setup new report actions and update the action list
+  ## Setup new report actions 
   ## ---------------------------------------------------------------------------
   
-  report_actions <- g3a_report_history(actions = attr(model, 'actions'))
+  ## Extract fleet names from '__suit_' variables in collated actions
+  model_actions <- attr(model, 'actions')
+  all_actions <- f_concatenate(g3_collate(model_actions), 
+                               parent = g3_global_env, 
+                               wrap_call = call("while", TRUE))
+  var_names <- all.names(rlang::f_rhs(all_actions), unique = TRUE)
+  fleet_names <- var_names[grepl('__suit_', var_names)]
+  fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
   
+  ## Variables to report
+  vars_to_report <- c('__num$',
+                      '__wgt$',
+                      '__renewalnum$',
+                      '__suit',
+                      paste0('__', fleet_names, "$"))
+  
+  report_actions <- g3a_report_history(actions = model_actions,
+                                       var_re = paste(vars_to_report, collapse = '|'))
   
   ## ---------------------------------------------------------------------------
   ## Update actions and re-run model
@@ -34,7 +42,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   #   }) 
   
   ## Compile and run model
-  new_model <- g3_to_r(c(actions, report_actions))
+  new_model <- g3_to_r(c(model_actions, list(report_actions)))
   model_output <- new_model(params)
   
   ##############################################################################
@@ -55,7 +63,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
   ## Using attribute names for processing
   tmp <- attributes(model_output)
-
+  
   ## Merge together catch distribution observations and predictions
   dat <- 
     tmp[grep('^cdist_.+__num$', names(tmp))] %>%
@@ -157,14 +165,14 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## ----------------------------------------------------------------------
   #
   ## Suitability
-  if (any(grepl('.history__suit_', names(tmp)))){
+  if (any(grepl('hist_(.+)__suit_', names(tmp)))){
     
     suitability <-
-      tmp[grep('.history__suit_', names(tmp))] %>% 
+      tmp[grep('hist_(.+)__suit_', names(tmp))] %>% 
       purrr::map(as.data.frame.table, stringsAsFactors = F) %>%
       dplyr::bind_rows(.id = 'comp') %>%
-      dplyr::mutate(stock = gsub('(.+)_(history__suit)_(.+)', '\\1', .data$comp),
-                    fleet = gsub('(.+)_(history__suit)_(.+)', '\\3', .data$comp),
+      dplyr::mutate(stock = gsub('hist_(.+)__suit_(.+)$', '\\1', .data$comp),
+                    fleet = gsub('hist_(.+)__suit_(.+)$', '\\2', .data$comp),
                     area = as.numeric(.data$area),
                     length = gsub('len','', .data$length) %>% as.numeric(),
                     age = gsub('age','', .data$age) %>% as.numeric()) %>%
@@ -206,10 +214,10 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## Recruitment summed over all steps if argument rec.steps is NULL
   if (is.null(rec.steps)) rec.steps <- 1:length(get('step_lengths', envir = attr(all_actions, '.Env'))) 
   
-  if (any(grepl('.history__renewalnum', names(tmp)))){
+  if (any(grepl('hist_(.+)__renewalnum$', names(tmp)))){
     
     stock.recruitment <-
-      tmp[grepl('.history__renewalnum', names(tmp))] %>% 
+      tmp[grepl('hist_(.+)__renewalnum$', names(tmp))] %>% 
       purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>% 
       dplyr::bind_rows(.id = 'comp') %>% 
       dplyr::mutate(stock = gsub('hist_(.+)__renewalnum$', '\\1', .data$comp),
@@ -230,7 +238,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
   ## Merge fleet and stock reports
   all_reports <- 
-    tmp[grepl('.history__', names(tmp)) & !grepl('wgt|num|suit', names(tmp))] %>% 
+    tmp[grepl('hist_', names(tmp)) & !grepl('wgt$|num$|suit', names(tmp))] %>% 
     purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'biomass_consumed') %>% 
     dplyr::bind_rows(.id='comp') %>% 
     dplyr::mutate(stock = gsub('hist_(.+)__(.+)', '\\1', .data$comp),
@@ -238,14 +246,14 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::select(-.data$comp) %>% 
     
     dplyr::left_join(
-      tmp[grepl('.history__wgt', names(tmp))] %>% 
+      tmp[grepl('hist_(.+)__wgt', names(tmp))] %>% 
         purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'weight') %>% 
         dplyr::bind_rows(.id='comp') %>% 
         dplyr::mutate(stock = gsub('hist_(.+)__wgt', '\\1', .data$comp)) %>% 
         dplyr::select(-.data$comp) %>% 
         dplyr::left_join(
           
-          tmp[grepl('.history__num', names(tmp))] %>% 
+          tmp[grepl('hist_(.+)__num', names(tmp))] %>% 
             purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'abundance') %>% 
             dplyr::bind_rows(.id='comp') %>% 
             dplyr::mutate(stock = gsub('hist_(.+)__num', '\\1', .data$comp)) %>% 
@@ -274,7 +282,8 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                      mean_length = mean(.data$length),
                      stddev_length = stats::sd(.data$length),
                      mean_weight = mean(.data$weight)) %>% 
-    dplyr::ungroup()
+    dplyr::ungroup() %>% 
+    dplyr::mutate(age = gsub('age', '', .data$age) %>% as.numeric())
   
   ## Stock prey
   stock.prey <- 
@@ -384,7 +393,7 @@ extract_year_step <- function(data){
   data %>% 
     tidyr::extract(col = 'time', 
                    into = c('year', 'step'), 
-                   regex="^(\\d+)-(\\d+)$", convert=TRUE) %>% 
+                   regex='^(\\d+)-(\\d+)$', convert=TRUE) %>% 
     return()
   
 }
