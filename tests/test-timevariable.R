@@ -134,6 +134,31 @@ expecteds$no_step_1 <- 19843
 expecteds$no_step_2 <- 19843
 expecteds$no_step_3 <- 0
 
+# Make sure we can have zero / negative values in a lookup
+zero_key_idx <- 0L
+zero_key_lookup <- gadget3:::g3_intlookup('zero_key_lookup', c(0, -1, 1), c(2, 3, 4))('getdefault', ~zero_key_idx, -1L)
+zero_key_1 <- 0
+zero_key_2 <- 0
+zero_key_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('zero_key_lookup')
+
+    zero_key_idx <- 0L
+    zero_key_1 <- lookup_f
+    g3_report(zero_key_1)
+
+    zero_key_idx <- -1L
+    zero_key_2 <- lookup_f
+    g3_report(zero_key_2)
+
+    zero_key_idx <- 2L
+    zero_key_3 <- lookup_f
+    g3_report(zero_key_3)
+}, list(lookup_f = zero_key_lookup)))
+expecteds$zero_key_1 <- 2
+expecteds$zero_key_2 <- 3
+expecteds$zero_key_3 <- -1
+
 ###############################################################################
 
 actions <- c(actions, ~{

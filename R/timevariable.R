@@ -9,7 +9,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
     return(function (req_type, inner_f, extra_arg = NULL) {
         inttypelookup_zip <- g3_native(r = function (keys, values) {
-            if (max(keys) < 1e+05) {
+            if (min(keys) > 0 && max(keys) < 1e+05) {
                 out <- list()
                 out[as.integer(keys)] <- as.list(values)
             } else {
@@ -17,6 +17,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
                 names(out) <- keys
                 out <- as.environment(out)
             }
+            attr(out, 'key_var') <- deparse(sys.call()[[2]])
+            attr(out, 'value_var') <- deparse(sys.call()[[3]])
             return(out)
         }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
             std::map<int, Type> lookup = {};
