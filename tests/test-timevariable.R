@@ -134,6 +134,31 @@ expecteds$no_step_1 <- 19843
 expecteds$no_step_2 <- 19843
 expecteds$no_step_3 <- 0
 
+# "Simple" (i.e. mapping to a vector) lookups should return defaults
+simple_vec_idx <- 0L
+simple_vec_lookup <- gadget3:::g3_intlookup('simple_vec_lookup', c(1, 2, 3), c(2, 3, 4))('getdefault', ~simple_vec_idx, -1L)
+simple_vec_1 <- 0
+simple_vec_2 <- 0
+simple_vec_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('simple_vec_lookup')
+
+    simple_vec_idx <- -1L # NB: Out of bounds of what a vector can do in R
+    simple_vec_1 <- lookup_f
+    g3_report(simple_vec_1)
+
+    simple_vec_idx <- 3L
+    simple_vec_2 <- lookup_f
+    g3_report(simple_vec_2)
+
+    simple_vec_idx <- 4L
+    simple_vec_3 <- lookup_f
+    g3_report(simple_vec_3)
+}, list(lookup_f = simple_vec_lookup)))
+expecteds$simple_vec_1 <- -1
+expecteds$simple_vec_2 <- 4
+expecteds$simple_vec_3 <- -1
+
 # Make sure we can have zero / negative values in a lookup
 zero_key_idx <- 0L
 zero_key_lookup <- gadget3:::g3_intlookup('zero_key_lookup', c(0, -1, 1), c(2, 3, 4))('getdefault', ~zero_key_idx, -1L)
