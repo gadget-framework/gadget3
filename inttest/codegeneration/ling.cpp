@@ -202,6 +202,7 @@ Type objective_function<Type>::operator() () {
     auto total_steps = (step_lengths).size()*(end_year - start_year + 0) + (step_lengths).size() - 1;
     int cur_year = 0;
     auto step_count = (step_lengths).size();
+    auto cur_year_projection = false;
     int cur_step = 0;
     auto cur_step_final = false;
     int ling_imm__minage = 3;
@@ -299,6 +300,7 @@ Type objective_function<Type>::operator() () {
                     REPORT(cur_step_final);
                     REPORT(cur_time);
                     REPORT(cur_year);
+                    REPORT(cur_year_projection);
                     REPORT(g3l_understocking_total);
                     REPORT(igfs__catch);
                     REPORT(ling_imm__consratio);
@@ -338,6 +340,7 @@ Type objective_function<Type>::operator() () {
                 return nll;
             }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year > end_year;
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
             if ( false ) {
@@ -474,7 +477,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (area*(double)(0) + cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
                     }
@@ -497,7 +500,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (area*(double)(0) + cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
                     }

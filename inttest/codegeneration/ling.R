@@ -59,7 +59,7 @@ structure(function (param)
     {
         out <- if (is.environment(lookup)) 
             lookup[[as.character(key)]]
-        else lookup[key][[1]]
+        else tryCatch(lookup[[key]], error = function(x) NULL)
         return(if (is.null(out)) def else out)
     }
     avoid_zero_vec <- function (a) 
@@ -142,7 +142,7 @@ structure(function (param)
     {
         out <- if (is.environment(lookup)) 
             lookup[[as.character(key)]]
-        else lookup[key][[1]]
+        else tryCatch(lookup[[key]], error = function(x) NULL)
         return(if (is.null(out)) def else out)
     }
     cur_time <- -1L
@@ -153,6 +153,7 @@ structure(function (param)
     total_steps <- length(step_lengths) * (end_year - start_year + 0L) + length(step_lengths) - 1L
     cur_year <- 0L
     step_count <- length(step_lengths)
+    cur_year_projection <- FALSE
     cur_step <- 0L
     cur_step_final <- FALSE
     ling_imm__minage <- 3L
@@ -189,7 +190,7 @@ structure(function (param)
     "age10", "age11", "age12", "age13", "age14", "age15")))
     inttypelookup_zip <- function (keys, values) 
     {
-        if (max(keys) < 1e+05) {
+        if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
             out[as.integer(keys)] <- as.list(values)
         }
@@ -198,6 +199,8 @@ structure(function (param)
             names(out) <- keys
             out <- as.environment(out)
         }
+        attr(out, "key_var") <- deparse(sys.call()[[2]])
+        attr(out, "value_var") <- deparse(sys.call()[[3]])
         return(out)
     }
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
@@ -231,7 +234,7 @@ structure(function (param)
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
     intintlookup_zip <- function (keys, values) 
     {
-        if (max(keys) < 1e+05) {
+        if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
             out[as.integer(keys)] <- as.list(values)
         }
@@ -240,6 +243,8 @@ structure(function (param)
             names(out) <- keys
             out <- as.environment(out)
         }
+        attr(out, "key_var") <- deparse(sys.call()[[2]])
+        attr(out, "value_var") <- deparse(sys.call()[[3]])
         return(out)
     }
     times_cdist_sumofsquares_ldist_lln_obs__keys <- model_data$times_cdist_sumofsquares_ldist_lln_obs__keys
@@ -271,6 +276,7 @@ structure(function (param)
                   attr(nll, "cur_step_final") <- cur_step_final
                   attr(nll, "cur_time") <- cur_time
                   attr(nll, "cur_year") <- cur_year
+                  attr(nll, "cur_year_projection") <- cur_year_projection
                   attr(nll, "g3l_understocking_total") <- g3l_understocking_total
                   attr(nll, "igfs__catch") <- igfs__catch
                   attr(nll, "ling_imm__consratio") <- ling_imm__consratio
@@ -310,6 +316,7 @@ structure(function (param)
                 return(nll)
             }
             cur_year <- start_year + (cur_time%/%step_count)
+            cur_year_projection <- cur_year > end_year
             cur_step <- (cur_time%%step_count) + 1L
             cur_step_final <- cur_step == step_count
             if (FALSE) 
@@ -426,7 +433,7 @@ structure(function (param)
                     {
                       ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
                         0
-                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (area * 0 + cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
@@ -446,7 +453,7 @@ structure(function (param)
                     {
                       ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
                         0
-                      else inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else inttypelookup_getdefault(igfs_totaldata__lookup, (area * 0 + cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
