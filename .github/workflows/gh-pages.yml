@@ -17,7 +17,7 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v1
 
       - name: Install build-docs prerequisites
-        run: Rscript -e 'install.packages(c("pkgdown", "devtools"))'
+        run: Rscript -e 'install.packages(c("pkgdown", "devtools", "textshaping"))'
 
       - name: Install package
         run: devtools::install(dependencies = TRUE, upgrade = "always")
