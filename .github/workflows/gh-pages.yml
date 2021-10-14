@@ -18,7 +18,10 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt install libharfbuzz-dev libfribidi-dev
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04", package = c("pkgdown", "devtools", "textshaping")))')
 
       - name: Install build-docs prerequisites
         run: Rscript -e 'install.packages(c("pkgdown", "devtools", "textshaping"))'
