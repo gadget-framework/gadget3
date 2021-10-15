@@ -117,7 +117,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
             # and turn it into a scalar
             # TODO: Ideally we share something with "Array subsetting" below, instead of working it out again
-            lhs_is_array <- any(vapply(tail(assign_lhs, -2), deparse, character(1)) == "")
+            lhs_is_array <- any(vapply(tail(assign_lhs, -2), function (x) deparse1(x, collapse = ""), character(1)) == "")
         } else if (is.symbol(assign_lhs)) {
             env_defn <- mget(as.character(assign_lhs), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             lhs_is_array <- is.array(env_defn)
