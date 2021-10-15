@@ -226,7 +226,7 @@ g3a_predate_fleet <- function (fleet_stock,
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
                     + sum(stock_ss(stock__fleet_stock)))
                 if (catchnum_required) stock_ss(fleet_stock__catchnum) <- (stock_ss(fleet_stock__catchnum)
-                    + sum(stock_ss(stock__fleet_stock) / stock__wgt))
+                    + sum(stock_ss(stock__fleet_stock) / stock_ss(stock__wgt)))
             }, prefix = 'fleet'))
         }, list(
             catchnum_required = "fleet_stock__catchnum" %in% all.vars(catchability_f),
