@@ -340,7 +340,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_initialconditions_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
@@ -364,7 +364,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_initialconditions_normalparam for ling_mat;
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 ) {
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 && true ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                     {
@@ -749,7 +749,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 5) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 5) && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
@@ -776,7 +776,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 3) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 3) && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
