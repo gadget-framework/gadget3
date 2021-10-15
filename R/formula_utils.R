@@ -166,6 +166,7 @@ f_optimize <- function (f) {
             # 0/1 (op) x --> x
             return(rhs)
         }
+        # NB: Can't cancel 0 * x, since type information will be lost in the process
 
         call(op, lhs, rhs)
     }
