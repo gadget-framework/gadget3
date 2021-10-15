@@ -55,7 +55,7 @@ structure(function (param)
     {
         cat(sprintf(...))
     }
-    inttypelookup_getdefault <- function (lookup, key, def) 
+    intintlookup_getdefault <- function (lookup, key, def) 
     {
         out <- if (is.environment(lookup)) 
             lookup[[as.character(key)]]
@@ -138,13 +138,6 @@ structure(function (param)
     {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
     }
-    intintlookup_getdefault <- function (lookup, key, def) 
-    {
-        out <- if (is.environment(lookup)) 
-            lookup[[as.character(key)]]
-        else tryCatch(lookup[[key]], error = function(x) NULL)
-        return(if (is.null(out)) def else out)
-    }
     cur_time <- -1L
     nll <- 0
     step_lengths <- array(3L, dim = 4L, dimnames = NULL)
@@ -188,7 +181,7 @@ structure(function (param)
     "age11", "age12", "age13", "age14", "age15")))
     ling_mat__suit_igfs <- array(0, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age5", "age6", "age7", "age8", "age9", 
     "age10", "age11", "age12", "age13", "age14", "age15")))
-    inttypelookup_zip <- function (keys, values) 
+    intintlookup_zip <- function (keys, values) 
     {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
@@ -205,7 +198,7 @@ structure(function (param)
     }
     igfs_totaldata__keys <- model_data$igfs_totaldata__keys
     igfs_totaldata__values <- model_data$igfs_totaldata__values
-    igfs_totaldata__lookup <- inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
+    igfs_totaldata__lookup <- intintlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_imm__consratio <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
     "age8", "age9", "age10")))
     ling_imm__overconsumption <- structure(0, desc = "Total overconsumption of ling_imm")
@@ -232,21 +225,6 @@ structure(function (param)
     ling_imm__renewalwgt <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156"), area = "area1", age = c("age3", "age4", "age5", "age6", "age7", 
     "age8", "age9", "age10")))
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("len20", "len24", "len28", "len32", "len36", "len40", "len44", "len48", "len52", "len56", "len60", "len64", "len68", "len72", "len76", "len80", "len84", "len88", "len92", "len96", "len100", "len104", "len108", "len112", "len116", "len120", "len124", "len128", "len132", "len136", "len140", "len144", "len148", "len152", "len156")))
-    intintlookup_zip <- function (keys, values) 
-    {
-        if (min(keys) > 0 && max(keys) < 1e+05) {
-            out <- list()
-            out[as.integer(keys)] <- as.list(values)
-        }
-        else {
-            out <- as.list(values)
-            names(out) <- keys
-            out <- as.environment(out)
-        }
-        attr(out, "key_var") <- deparse(sys.call()[[2]])
-        attr(out, "value_var") <- deparse(sys.call()[[3]])
-        return(out)
-    }
     times_cdist_sumofsquares_ldist_lln_obs__keys <- model_data$times_cdist_sumofsquares_ldist_lln_obs__keys
     times_cdist_sumofsquares_ldist_lln_obs__values <- model_data$times_cdist_sumofsquares_ldist_lln_obs__values
     times_cdist_sumofsquares_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
@@ -433,7 +411,7 @@ structure(function (param)
                     {
                       ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
                         0
-                      else inttypelookup_getdefault(igfs_totaldata__lookup, (area * 0 + cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else intintlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
@@ -453,7 +431,7 @@ structure(function (param)
                     {
                       ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
                         0
-                      else inttypelookup_getdefault(igfs_totaldata__lookup, (area * 0 + cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else intintlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }

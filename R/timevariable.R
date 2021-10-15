@@ -86,7 +86,16 @@ g3_intlookup <- function (lookup_name, keys, values) {
 # Turn a year/step/[area]/value data.frame into a formula
 g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     # What's the next power of 10?
-    next_mult <- function (x) 10 ** ceiling(log10(x))
+    next_mult <- function (x) as.integer(10 ** ceiling(log10(x)))
+
+    remove_multzero <- function (f) call_replace(f, "*" = function (x) {
+        if (isTRUE(all.equal(x[[2]], 0))) return(0)
+        if (isTRUE(all.equal(x[[3]], 0))) return(0)
+        return(as.call(list(
+            x[[1]],
+            remove_multzero(x[[2]]),
+            remove_multzero(x[[3]]))))
+    })
 
     # TODO: Should accept area_group
     for (n in c('year', value_field)) {
@@ -95,24 +104,24 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
 
     # All lengths the same, no point adding to the lookup
     times <- g3s_time_convert(df$year, df$step)  # NB: if step column missing, this will be NULL
-    year_mult <- g3s_time_multiplier(times)
+    year_mult <- as.integer(g3s_time_multiplier(times))
 
     # Count potential areas, 0, 1, many
     area_count <- if (is.null(df$area)) 0 else if (length(df$area) > 1 && any(df$area[[1]] != df$area)) 2 else 1
-    area_mult <- if (area_count > 1) next_mult(max(times)) else 0
+    area_mult <- if (area_count > 1) next_mult(max(times)) else 0L
 
     lookup <- g3_intlookup(lookup_name,
         keys = as.integer(times + (if (area_count > 1) area_mult * df$area else 0)),
-        values = as.numeric(df[[value_field]]))
+        values = df[[value_field]])
 
     # Return formula that does the lookup
-    out_f <- lookup('getdefault', f_substitute(
+    out_f <- lookup('getdefault', remove_multzero(f_substitute(
         ~area * area_mult + cur_year * year_mult + cur_step * step_mult,
         list(
             area_mult = area_mult,
             # Mult is zero ==> There is no step.
-            step_mult = if (year_mult > 1L) 1 else 0,
-            year_mult = year_mult)), 0)
+            step_mult = if (year_mult > 1L) 1L else 0L,
+            year_mult = year_mult))), 0)
 
     if (area_count == 1) {
         # Wrap lookup with check that we're in the correct area
