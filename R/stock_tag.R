@@ -1,16 +1,18 @@
-g3s_tag <- function(inner_stock, tag_ids) {
+g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
     stopifnot(g3_is_stock(inner_stock))
     stopifnot(is.integer(tag_ids) && length(tag_ids) > 0)
 
     # If no names given, add some
     if (is.null(names(tag_ids))) names(tag_ids) <- tag_ids
 
-    # Should always have a zero "untagged" tag
+    # Find / add the "untagged" tag
     if (0 %in% tag_ids) {
-        stock__untagged_idx <- f_substitute(~g3_idx(x), list(x = which(tag_ids == 0L)))
-    } else {
+        stock__untagged_idx <- substitute(g3_idx(x), list(x = as.integer(which(tag_ids == 0L))))
+    } else if (isTRUE(force_untagged)) {
         tag_ids <- c(untagged = 0, tag_ids)
-        stock__untagged_idx <- ~g3_idx(1L)
+        stock__untagged_idx <- quote( g3_idx(1L) )
+    } else {
+        stock__untagged_idx <- NA
     }
 
     stock__tag_ids <- as.array(structure(
