@@ -5,9 +5,13 @@ g3s_tag <- function(inner_stock, tag_ids) {
     # If no names given, add some
     if (is.null(names(tag_ids))) names(tag_ids) <- tag_ids
 
-    # The first item is always a zero "untagged" tag
-    tag_ids <- c(untagged = 0, tag_ids)
-    stock__untagged_idx <- ~g3_idx(1L)
+    # Should always have a zero "untagged" tag
+    if (0 %in% tag_ids) {
+        stock__untagged_idx <- f_substitute(~g3_idx(x), list(x = which(tag_ids == 0L)))
+    } else {
+        tag_ids <- c(untagged = 0, tag_ids)
+        stock__untagged_idx <- ~g3_idx(1L)
+    }
 
     stock__tag_ids <- as.array(structure(
         as.integer(tag_ids),
