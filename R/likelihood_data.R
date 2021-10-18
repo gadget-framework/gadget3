@@ -61,6 +61,18 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         handled_columns$age <- NULL
     }
 
+    if ('tag' %in% names(data)) {
+        if (is.factor(data$tag)) {
+            tag_ids <- structure(
+                seq_along(levels(data$tag)),
+                names = levels(data$tag))
+        } else {
+            tag_ids <- as.integer(unique(data$tag))
+        }
+        modelstock <- g3s_tag(modelstock, tag_ids, force_untagged = FALSE)
+        handled_columns$tag <- NULL
+    }
+
     if ('stock' %in% names(data)) {
         stock_groups <- levels(as.factor(data$stock))
         stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)

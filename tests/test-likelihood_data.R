@@ -377,3 +377,31 @@ ok_group('g3l_likelihood_data:area', {
         "), "Worked out area dimensions from data, filled in missing values")
     ok(ut_cmp_identical(area_lookup(ld), list(keys = c(3L,4L,1L,2L), values = c(1L,2L,3L,3L))), "Areas 1 & 2 both mapped to index 3 (i.e. c)")
 })
+
+ok_group('g3l_likelihood_data:tag', {
+    ld <- gadget3:::g3l_likelihood_data('ut', read.table(header = TRUE, stringsAsFactors = TRUE, text = "
+        tag year number
+          a 1999      1999.1
+          b 1999      1999.2
+          c 1999      1999.3
+          b 2000      2000.2
+          c 2000      2000.3
+          a 2001      2001.1
+          b 2001      2001.2
+        "))
+    ok(cmp_array(ld$number, "
+        length    tag time   Freq
+        len0        a 1999 1999.1
+        len0        b 1999 1999.2
+        len0        c 1999 1999.3
+        len0        a 2000    0.0
+        len0        b 2000 2000.2
+        len0        c 2000 2000.3
+        len0        a 2001 2001.1
+        len0        b 2001 2001.2
+        len0        c 2001    0.0
+        "), "Worked out tag dimensions from data")
+    ok(ut_cmp_identical(
+        gadget3:::stock_definition(ld$modelstock, 'stock__tag_ids'),
+        as.array(c(a = 1L, b = 2L, c = 3L))), "stock__tag_ids: Worked out from factor")
+})
