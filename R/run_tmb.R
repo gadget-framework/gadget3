@@ -929,7 +929,8 @@ g3_tmb_adfun <- function(cpp_code,
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
-    base_name <- paste0('g3_tmb_', digest::sha1(cpp_code))
+    # NB: as.character() strips attributes, so only use the code to define our digest
+    base_name <- paste0('g3_tmb_', digest::sha1(as.character(cpp_code)))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
 
