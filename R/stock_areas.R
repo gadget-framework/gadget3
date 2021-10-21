@@ -65,6 +65,11 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         names(areagroups) <- paste0('area', vapply(areagroups, function (ag) ag[[1]], numeric(1)))
     }
 
+    if (all(vapply(areagroups, length, integer(1)) == 1)) {
+        # All groups are only 1 item long, this doesn't need areagroups
+        return(g3s_livesonareas(inner_stock, unlist(areagroups)))
+    }
+
     stock__areagroup_lookup <- g3_intlookup(
         inner_stock$name,
         keys = as.integer(unlist(areagroups)),

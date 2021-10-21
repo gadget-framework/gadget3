@@ -351,7 +351,6 @@ ok_group('g3l_likelihood_data:area', {
           len0 2000    3 2000.3
           len0 2001    3    0.0
         "), "Worked out area dimensions from data, filled in missing values")
-    ok(ut_cmp_identical(area_lookup(ld), list(keys = 1:3, values = 1:3)), "1:1 mapping")
 
     ld <- gadget3:::g3l_likelihood_data('ut', read.table(header = TRUE, stringsAsFactors = TRUE, text = "
         area year number

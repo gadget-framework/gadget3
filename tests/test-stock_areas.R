@@ -8,6 +8,7 @@ stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(unname(areas[c('a', 'c')]))  # NB: Remove names so we generate defaults
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])
 stock_aggregated <- g3_stock('stock_aggregated', c(10)) %>% g3s_areagroup(list(areas[c('b', 'c')], areas[c('d')]))
+stock_1agg <- g3_stock('stock_1agg', c(10)) %>% g3s_areagroup(list(areas[c('b')], areas[c('c')]))
     
 cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_a_ac <- 0.0
@@ -21,6 +22,7 @@ actions <- list(
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
     g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
     g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
+    g3a_initialconditions(stock_1agg, ~area * 1 + stock_bcd__minlen, ~0),
     list(
         '5' = gadget3:::g3_step(~{
             comment("stock_sum_a_ac")
@@ -62,6 +64,27 @@ actions <- list(
                     stock_ss(stock_bcd__num)
             }))
 
+            comment("stock_1agg stock_a")
+            stock_iterate(stock_a, stock_intersect(stock_1agg, {
+                stock_ss(stock_1agg__num) <-
+                    stock_ss(stock_1agg__num) +
+                    stock_ss(stock_a__num)
+            }))
+
+            comment("stock_1agg stock_ac")
+            stock_iterate(stock_ac, stock_intersect(stock_1agg, {
+                stock_ss(stock_1agg__num) <-
+                    stock_ss(stock_1agg__num) +
+                    stock_ss(stock_ac__num)
+            }))
+
+            comment("stock_1agg stock_bcd")
+            stock_iterate(stock_bcd, stock_intersect(stock_1agg, {
+                stock_ss(stock_1agg__num) <-
+                    stock_ss(stock_1agg__num) +
+                    stock_ss(stock_bcd__num)
+            }))
+
             comment("interact bcd -> a")
             stock_iterate(stock_bcd, stock_interact(stock_a, {
                 stock_ss(stock_bcd__interacttotals) <- stock_ss(stock_bcd__interacttotals) + stock_reshape(stock_bcd, stock_ss(stock_a__num))
@@ -72,15 +95,9 @@ actions <- list(
                 stock_ss(stock_bcd__interacttotals) <- stock_ss(stock_bcd__interacttotals) + stock_reshape(stock_bcd, stock_ss(stock_ac__num))
                 stock_bcd_ac_interactions <- stock_bcd_ac_interactions + area * 1000L + sub_area
             }, prefix = "sub"))
-            g3_report("stock_bcd__interacttotals")
-            g3_report("stock_bcd_a_interactions")
-            g3_report("stock_bcd_ac_interactions")
         }),
         '999' = ~{
-            g3_report("stock_a__num")
-            g3_report("stock_ac__num")
-            g3_report("stock_bcd__num")
-            g3_report("stock_aggregated__num")
+            g3_report_all()
             nll <- nll + g3_param('x')
             return(nll)
         }))
@@ -117,6 +134,12 @@ ok(ut_cmp_identical(
         (12) + (3010) + (20010 + 30010),
         # NB: Area d --> init + stock_bcd
         14 + 40010), dim = c(length = 1, area = 2), dimnames = list(length = "len10", area = c("area2", "area4")))), "stock_aggregated__num combination of all stocks")
+
+ok(ut_cmp_identical(
+    r$stock_1agg__num,
+    array(c(
+        12 + r$stock_bcd__num[1,'b'],
+        13 + r$stock_ac__num[1,'area3'] + r$stock_bcd__num[1,'c']), dim = c(length = 1, area = 2), dimnames = list(length = "len10", area = c("area2.b", "area3.c")))), "stock_1agg__num, got values for areas b & c")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
