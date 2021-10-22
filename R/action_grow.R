@@ -161,9 +161,10 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
 
     # Sum together all length group brackets for both length & weight
+    growth.matrix.sum <- colSums(growth.matrix)
     return(array(c(
-        Matrix::colSums(growth.matrix),
-        Matrix::colSums(wgt.matrix) / avoid_zero_vec(Matrix::colSums(growth.matrix)) ), dim = c(na, 2)))
+        growth.matrix.sum,
+        colSums(wgt.matrix) / avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
 }, cpp = '[](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_l = delta_l_ar.matrix();
