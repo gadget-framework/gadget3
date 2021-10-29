@@ -58,13 +58,13 @@ ok(ut_cmp_identical(
     r$stock_a__minlen,
     array(
         c(10),
-        dimnames = list("len10"),
+        dimnames = list("10:Inf"),
         dim = c(1))), "stock_a__minlen")
 ok(ut_cmp_identical(
     r$stock_a__midlen,
     array(
         c(10.5),
-        dimnames = list("len10"),
+        dimnames = list("10:Inf"),
         dim = c(1))), "stock_a__midlen")
 ok(ut_cmp_identical(
     r$stock_a__dl,
@@ -76,13 +76,13 @@ ok(ut_cmp_identical(
     r$stock_b__minlen,
     array(
         c(50, 51, 52, 53, 54),
-        dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
+        dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
         dim = c(5))), "stock_b__minlen")
 ok(ut_cmp_identical(
     r$stock_b__midlen,
     array(
         c(50.5, 51.5, 52.5, 53.5, 54.5),
-        dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
+        dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
         dim = c(5))), "stock_b__midlen")
 ok(ut_cmp_identical(
     r$stock_b__dl,
@@ -94,13 +94,13 @@ ok(ut_cmp_identical(
     r$stock_wonky__minlen,
     array(
         c(0, 10, 100, 200, 1000),
-        dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
+        dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
         dim = c(5))), "stock_wonky__minlen")
 ok(ut_cmp_equal(
     r$stock_wonky__midlen,
     array(
         c(5, 55, 150, 600, 1005),
-        dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
+        dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
         dim = c(5))), "stock_wonky__midlen")
 ok(ut_cmp_equal(
     r$stock_wonky__dl,

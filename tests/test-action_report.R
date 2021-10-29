@@ -55,31 +55,31 @@ ok_group("report", {
 
     ok(cmp_array(r$raw_report__num, "
         length  age time Freq
-          len1 age1 2000   20
-          len1 age2 2000   40
-          len1 age3 2000   60
-          len1 age4 2000   80
-          len1 age5 2000  100
-          len1 age1 2001    0
-          len1 age2 2001   20
-          len1 age3 2001   40
-          len1 age4 2001   60
-          len1 age5 2001  180
-          len1 age1 2002    0
-          len1 age2 2002    0
-          len1 age3 2002   20
-          len1 age4 2002   40
-          len1 age5 2002  240
+         1:Inf age1 2000   20
+         1:Inf age2 2000   40
+         1:Inf age3 2000   60
+         1:Inf age4 2000   80
+         1:Inf age5 2000  100
+         1:Inf age1 2001    0
+         1:Inf age2 2001   20
+         1:Inf age3 2001   40
+         1:Inf age4 2001   60
+         1:Inf age5 2001  180
+         1:Inf age1 2002    0
+         1:Inf age2 2002    0
+         1:Inf age3 2002   20
+         1:Inf age4 2002   40
+         1:Inf age5 2002  240
     "), "raw_report__num: Can see growth happening")
 
     ok(cmp_array(r$agg_report__num, "
         length   age time Freq
-          len1 young 2000  120
-          len1   old 2000  180
-          len1 young 2001   60
-          len1   old 2001  240
-          len1 young 2002   20
-          len1   old 2002  280
+         1:Inf young 2000  120
+         1:Inf   old 2000  180
+         1:Inf young 2001   60
+         1:Inf   old 2001  240
+         1:Inf young 2002   20
+         1:Inf   old 2002  280
     "), "agg_report__num: Aggregated report only has young/old")
 
     ok(ut_cmp_identical(
@@ -87,36 +87,36 @@ ok_group("report", {
         c("hist_prey_a__num", "hist_prey_a__wgt")), "Logged history of numbers / weight (ignored reports though)")
     ok(cmp_array(r$hist_prey_a__num, "
         length   age    time Freq
-        len1    age1 2000-01   10
-        len1    age2 2000-01   20
-        len1    age3 2000-01   30
-        len1    age4 2000-01   40
-        len1    age5 2000-01   50
-        len1    age1 2000-02   10
-        len1    age2 2000-02   20
-        len1    age3 2000-02   30
-        len1    age4 2000-02   40
-        len1    age5 2000-02   50
-        len1    age1 2001-01    0
-        len1    age2 2001-01   10
-        len1    age3 2001-01   20
-        len1    age4 2001-01   30
-        len1    age5 2001-01   90
-        len1    age1 2001-02    0
-        len1    age2 2001-02   10
-        len1    age3 2001-02   20
-        len1    age4 2001-02   30
-        len1    age5 2001-02   90
-        len1    age1 2002-01    0
-        len1    age2 2002-01    0
-        len1    age3 2002-01   10
-        len1    age4 2002-01   20
-        len1    age5 2002-01  120
-        len1    age1 2002-02    0
-        len1    age2 2002-02    0
-        len1    age3 2002-02   10
-        len1    age4 2002-02   20
-        len1    age5 2002-02  120
+         1:Inf  age1 2000-01   10
+         1:Inf  age2 2000-01   20
+         1:Inf  age3 2000-01   30
+         1:Inf  age4 2000-01   40
+         1:Inf  age5 2000-01   50
+         1:Inf  age1 2000-02   10
+         1:Inf  age2 2000-02   20
+         1:Inf  age3 2000-02   30
+         1:Inf  age4 2000-02   40
+         1:Inf  age5 2000-02   50
+         1:Inf  age1 2001-01    0
+         1:Inf  age2 2001-01   10
+         1:Inf  age3 2001-01   20
+         1:Inf  age4 2001-01   30
+         1:Inf  age5 2001-01   90
+         1:Inf  age1 2001-02    0
+         1:Inf  age2 2001-02   10
+         1:Inf  age3 2001-02   20
+         1:Inf  age4 2001-02   30
+         1:Inf  age5 2001-02   90
+         1:Inf  age1 2002-01    0
+         1:Inf  age2 2002-01    0
+         1:Inf  age3 2002-01   10
+         1:Inf  age4 2002-01   20
+         1:Inf  age5 2002-01  120
+         1:Inf  age1 2002-02    0
+         1:Inf  age2 2002-02    0
+         1:Inf  age3 2002-02   10
+         1:Inf  age4 2002-02   20
+         1:Inf  age5 2002-02  120
   "), "hist_prey_a__num: Full history")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

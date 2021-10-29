@@ -110,26 +110,26 @@ base_actions <- list(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_model__num)
             dim = c(2L, 2L),
             dimnames = list(
-                c("len1", "len6"),
+                c("1:6", "6:10"),
                 c("x", "y")))),
         gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utsd', 1, 'zzzz'), report_step('cdist_sumofsquares_utsd_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utsd_model__num)
             dim = c(2L, 2L, 2L),
             dimnames = list(
-                c("len1", "len6"),
+                c("1:6", "6:10"),
                 c("prey_a", "prey_c"),
                 c("x", "y")))),
         gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd_weight', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_weight_model__wgt', 4, array(
             # NB: Lift definition from deparse(r$cdist_sumofsquares_utcd_weight_model__wgt)
             dim = c(2L, 2L),
             dimnames = list(
-                c("len1", "len6"),
+                c("1:6", "6:10"),
                 c("x", "y")))),
         gadget3:::step_id(10, 'g3l_distribution', 'cdist_multinomial_multinom', 1, 'zzzz'), report_step('cdist_multinomial_multinom_model__num', 4, array(
             # NB: Lift definition from deparse(r$cdist_multinomial_multinom_model__num)
             dim = c(2L),
             dimnames = list(
-                c("len1", "len6")))),
+                c("1:6", "6:10")))),
         gadget3:::step_id(990, 'prey_a__fleet_abc'), report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
         gadget3:::step_id(990, 'prey_b__fleet_abc'), report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
         gadget3:::step_id(990, 'prey_c__fleet_abc'), report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),

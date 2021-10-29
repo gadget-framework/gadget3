@@ -128,19 +128,19 @@ ok_group('g3a_mature', {
             as.vector(r$stock_imm__num[,'age5']),
             c(101, 102, 0, 104)), "stock_imm__num")
         ok(ut_cmp_equal(
-            as.vector(r$stock_imm__num['len30',]),
+            as.vector(r$stock_imm__num[length = '30:40',]),
             c(103 * 3, (103 * 2) / 2, 0, 0, 0)), "stock_imm__num: age3 and half of age4 left behind, since they don't fit in mature stocks")
         ok(ut_cmp_equal(
             as.vector(r$stock_mat1__num[,'age5']),
             c(10, 20, 30 + (103 / 2), 40)), "stock_mat1__num (NB: Added to existing numbers)")
         ok(ut_cmp_equal(
-            as.vector(r$stock_mat1__num['len30',]),
+            as.vector(r$stock_mat1__num[length = '30:40',]),
             c(60 + (103 * 2) / 2, 81.5, 81.5, 81.5)), "stock_mat1__num: Got half of age4")
         ok(ut_cmp_equal(
             as.vector(r$stock_mat2__num[,'age5']),
             c(0, 0, 103 / 2, 0)), "stock_mat2__num")
         ok(ut_cmp_equal(
-            as.vector(r$stock_mat2__num['len30',]),
+            as.vector(r$stock_mat2__num[length = '30:40',]),
             c(51.5, 51.5, 51.5)), "stock_mat2__num: Just age 5/6/7")
 
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

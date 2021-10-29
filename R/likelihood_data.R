@@ -34,6 +34,9 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
                 length_vec[[1]] <- 0
             }
 
+            # We want to use our own names, so remove MFDB's
+            names(length_vec) <- NULL
+
             modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
 
             # Convert data$length to use our naming

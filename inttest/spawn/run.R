@@ -23,8 +23,12 @@ ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
-imm_report <- g3s_clone(ling_imm, 'imm_report') %>% g3s_time(year = local(year_range), step = 1:4)
-mat_report <- g3s_clone(ling_mat, 'mat_report') %>% g3s_time(year = local(year_range), step = 1:4)
+imm_report <- g3_stock('imm_report', seq(20, 160, 4), open_ended = FALSE) %>% 
+    g3s_livesonareas(c(1)) %>%
+    g3s_age(3, 10) %>% g3s_time(year = local(year_range), step = 1:4)
+mat_report <- g3_stock('mat_report', seq(20, 160, 4), open_ended = FALSE) %>%
+    g3s_livesonareas(c(1)) %>%
+    g3s_age(5, 15) %>% g3s_time(year = local(year_range), step = 1:4)
 
 ling_imm_actions <- lapply(list(
     g3a_initialconditions_normalparam(ling_imm,
