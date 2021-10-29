@@ -35,18 +35,26 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             }
 
             modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
+
+            # Convert data$length to use our naming
+            data$length <- factor(data$length, levels = names(length_groups))
+            levels(data$length) <- modelstock$dimnames$length
         } else {
             length_groups <- sort(unique(data$length))
 
             # Default to open-ended, as there's no way to specify the maximum
             modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
-            data$length <- paste0('len', data$length)  # Make data match autoset groups
+            # Convert length data to use our naming
+            data$length <- factor(
+                data$length,
+                levels = length_groups,
+                labels = modelstock$dimnames$length)
         }
         handled_columns$length <- NULL
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), c(0))
-        data$length <- 'len0'
+        data$length <- modelstock$dimnames$length
     }
 
     if ('age' %in% names(data)) {
