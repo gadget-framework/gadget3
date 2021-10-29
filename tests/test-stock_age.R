@@ -98,14 +98,14 @@ ok(ut_cmp_identical(
     array(
         c(1000010, 5000010),
         dim = c(length = 1, age = 2),
-        dimnames = list(length = "10:Inf", age = c("age1","age5")))), "stock_aggregated__num populated")
+        dimnames = list(length = "10:Inf", age = c("1:2","5:6")))), "stock_aggregated__num populated")
 
 ok(ut_cmp_identical(
     r$stock_inbetween_old_aggregated__num,
     array(
         c(20010, 50010 + 5010 + 6010),
         dim = c(length = 1, age = 2),
-        dimnames = list(length = "10:Inf", age = c("age1","age5")))), "stock_inbetween_old_aggregated__num populated")
+        dimnames = list(length = "10:Inf", age = c("1:2","5:6")))), "stock_inbetween_old_aggregated__num populated")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(

@@ -286,19 +286,19 @@ ok_group('g3l_likelihood_data:age', {
             z = structure(quote(seq(7, 10)), min = 7, max = 10)))
     ok(cmp_array(ld$number, "
         length  age time   Freq
-          0:Inf   x 1999 1999.1
-          0:Inf   y 1999 1999.2
-          0:Inf   z 1999    0.0
-          0:Inf   x 2000 2000.1
-          0:Inf   y 2000    0.0
-          0:Inf   z 2000    0.0
-          0:Inf   x 2001 2001.1
-          0:Inf   y 2001 2001.2
-          0:Inf   z 2001    0.0
+          0:Inf 1:3 1999 1999.1
+          0:Inf 4:6 1999 1999.2
+          0:Inf 7:10 1999   0.0
+          0:Inf 1:3 2000 2000.1
+          0:Inf 4:6 2000    0.0
+          0:Inf 7:10 2000   0.0
+          0:Inf 1:3 2001 2001.1
+          0:Inf 4:6 2001 2001.2
+          0:Inf 7:10 2001   0.0
         "), "Worked out age dimensions from attributes, filled in missing values")
     ok(ut_cmp_identical(ld_minages(ld), array(
         c(x = 1L, y = 4L, z = 7L),
-        dimnames = list(c("x", "y", "z")),
+        dimnames = list(c("1:3", "4:6", "7:10")),
         dim = 3)), "agegroups using minages from attribute")
 })
 

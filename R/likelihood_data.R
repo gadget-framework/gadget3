@@ -64,10 +64,22 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         if (!is.null(attr(data, 'age', exact = TRUE))) {
             age_groups <- attr(data, 'age', exact = TRUE)
             age_groups <- lapply(age_groups, mfdb_eval)  # Convert seq(2, 4) back to 2,3,4
-            modelstock <- g3s_agegroup(modelstock, age_groups)
+
+            # We want to use our own names, so remove MFDB's
+            modelstock <- g3s_agegroup(modelstock, unname(age_groups))
+
+            # Convert data$age to use our naming
+            data$age <- factor(data$age, levels = names(age_groups))
+            levels(data$age) <- modelstock$dimnames$age
         } else {
+            age_groups <- seq(min(data$age), max(data$age))
+
             modelstock <- g3s_age(modelstock, min(data$age), max(data$age))
-            data$age <- paste0('age', data$age)  # Make data match autoset groups
+            # Convert age data to use our naming
+            data$age <- factor(
+                data$age,
+                levels = age_groups,
+                labels = modelstock$dimnames$age)
         }
         handled_columns$age <- NULL
     }
