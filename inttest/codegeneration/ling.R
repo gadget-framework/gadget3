@@ -57,9 +57,14 @@ structure(function (param)
     }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
-        out <- if (is.environment(lookup)) 
-            lookup[[as.character(key)]]
-        else tryCatch(lookup[[key]], error = function(x) NULL)
+        if (is.environment(lookup)) {
+            out <- lookup[[as.character(key)]]
+        }
+        else {
+            out <- if (key < 1) 
+                NULL
+            else lookup[key][[1]]
+        }
         return(if (is.null(out)) def else out)
     }
     avoid_zero_vec <- function (a) 

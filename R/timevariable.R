@@ -31,8 +31,12 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_get <- g3_native(r = function (lookup, key) {
-            # NB: [1][[1]] returns NULL if key is missing (select first item, i.e. NULL, then de-list it)
-            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else tryCatch(lookup[[key]], error = function (x) NULL)
+            if (is.environment(lookup)) {
+                out <- lookup[[as.character(key)]]
+            } else {
+                # NB: [1][[1]] returns NULL if key is missing (select first item, i.e. NULL, then de-list it)
+                out <- if (key < 1) NULL else lookup[key][[1]]
+            }
             if (is.null(out)) {
                 our_args <- as.list(sys.call())
                 stop(key, " not in ", our_args[[2]])
@@ -44,8 +48,12 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }')
 
         inttypelookup_getdefault <- g3_native(r = function (lookup, key, def) {
-            # NB: [1][[1]] returns NULL if key is missing (select first item, i.e. NULL, then de-list it)
-            out <- if (is.environment(lookup)) lookup[[as.character(key)]] else tryCatch(lookup[[key]], error = function (x) NULL)
+            if (is.environment(lookup)) {
+                out <- lookup[[as.character(key)]]
+            } else {
+                # NB: [1][[1]] returns NULL if key is missing (select first item, i.e. NULL, then de-list it)
+                out <- if (key < 1) NULL else lookup[key][[1]]
+            }
             return(if (is.null(out)) def else out)
         }, cpp = '[](std::map<int, Type> lookup, int key, Type def) -> Type {
             return lookup.count(key) > 0 ? lookup[key] : def;
