@@ -113,19 +113,19 @@ ok(ut_cmp_identical(
     array(
         c(110),
         dim = c(length = 1, area = 1),
-        dimnames = list(length = "len10", area = "a"))), "stock_a__num populated, used names from areas lookup")
+        dimnames = list(length = "10:Inf", area = "a"))), "stock_a__num populated, used names from areas lookup")
 ok(ut_cmp_identical(
     r$stock_ac__num,
     array(
         c(1010, 3010),
         dim = c(length = 1, area = 2),
-        dimnames = list(length = "len10", area = c("area1","area3")))), "stock_ac__num populated, generated default names")
+        dimnames = list(length = "10:Inf", area = c("area1","area3")))), "stock_ac__num populated, generated default names")
 ok(ut_cmp_identical(
     r$stock_bcd__num,
     array(
         c(20010, 30010, 40010),
         dim = c(length = 1, area = 3),
-        dimnames = list(length = "len10", area = c("b", "c", "d")))), "stock_bcd__num populated, used names from areas lookup")
+        dimnames = list(length = "10:Inf", area = c("b", "c", "d")))), "stock_bcd__num populated, used names from areas lookup")
 
 ok(ut_cmp_identical(
     r$stock_aggregated__num,
@@ -133,13 +133,13 @@ ok(ut_cmp_identical(
         # NB: Areas b & c --> init + stock_ac + stock_bcd
         (12) + (3010) + (20010 + 30010),
         # NB: Area d --> init + stock_bcd
-        14 + 40010), dim = c(length = 1, area = 2), dimnames = list(length = "len10", area = c("area2", "area4")))), "stock_aggregated__num combination of all stocks")
+        14 + 40010), dim = c(length = 1, area = 2), dimnames = list(length = "10:Inf", area = c("area2", "area4")))), "stock_aggregated__num combination of all stocks")
 
 ok(ut_cmp_identical(
     r$stock_1agg__num,
     array(c(
         12 + r$stock_bcd__num[1,'b'],
-        13 + r$stock_ac__num[1,'area3'] + r$stock_bcd__num[1,'c']), dim = c(length = 1, area = 2), dimnames = list(length = "len10", area = c("area2.b", "area3.c")))), "stock_1agg__num, got values for areas b & c")
+        13 + r$stock_ac__num[1,'area3'] + r$stock_bcd__num[1,'c']), dim = c(length = 1, area = 2), dimnames = list(length = "10:Inf", area = c("area2.b", "area3.c")))), "stock_1agg__num, got values for areas b & c")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
@@ -164,7 +164,7 @@ ok(ut_cmp_identical(
     array(
         c(0, 3010, 0),
         dim = c(length = 1, area = 3),
-        dimnames = list(length = "len10", area = c("b", "c", "d")))), "stock_bcd__interacttotals: Summed stock_ac__num in interaction")
+        dimnames = list(length = "10:Inf", area = c("b", "c", "d")))), "stock_bcd__interacttotals: Summed stock_ac__num in interaction")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions)

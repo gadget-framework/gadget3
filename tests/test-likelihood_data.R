@@ -66,9 +66,9 @@ ok_group('g3l_likelihood_data:time', {
     ")
     ok(cmp_array(ld$number, "
         length time Freq
-          len0 1998    1
-          len0 2001    3
-          len0 2002    2
+          0:Inf 1998    1
+          0:Inf 2001    3
+          0:Inf 2002    2
         "), "Year gap, wonky year order preserved")
 
     ld <- generate_ld("
@@ -81,11 +81,11 @@ ok_group('g3l_likelihood_data:time', {
     ")
     ok(cmp_array(ld$number, "
         length    time Freq
-          len0 1998-01    1
-          len0 1998-02    2
-          len0 1999-01    3
-          len0 2000-01    4
-          len0 2000-02    5
+          0:Inf 1998-01    1
+          0:Inf 1998-02    2
+          0:Inf 1999-01    3
+          0:Inf 2000-01    4
+          0:Inf 2000-02    5
         "), "Year gap, wonky year order preserved")
 })
 
@@ -99,12 +99,12 @@ ok_group('g3l_likelihood_data:length', {
     ")
     ok(cmp_array(ld$number, "
         length time Freq
-          len0 1999    1
-          len0 2000    2
-          len0 2001    3
+          0:Inf 1999    1
+          0:Inf 2000    2
+          0:Inf 2001    3
         "), "Default single length dimension if none supplied")
     ok(ut_cmp_identical(ld$modelstock$dimnames, list(
-        length = "len0")), "modelstock got default length dimension if none supplied")
+        length = "0:Inf")), "modelstock got default length dimension if none supplied")
 
     ld <- generate_ld("
         year length number
@@ -121,22 +121,22 @@ ok_group('g3l_likelihood_data:length', {
     ")
     ok(cmp_array(ld$number, "
         length time Freq
-          len1 1999    1
-          len5 1999    4
-         len10 1999    7
-         len30 1999    0
-          len1 2000    2
-          len5 2000    5
-         len10 2000    0
-         len30 2000    11
-          len1 2001    3
-          len5 2001    6
-         len10 2001    9
-         len30 2001    12
+           1:5 1999    1
+          5:10 1999    4
+         10:30 1999    7
+        30:Inf 1999    0
+           1:5 2000    2
+          5:10 2000    5
+         10:30 2000    0
+        30:Inf 2000    11
+           1:5 2001    3
+          5:10 2001    6
+         10:30 2001    9
+        30:Inf 2001    12
         "), "Lengths read from data, missing 2000/10 1999/30 filled in with 0")
     ok(ut_cmp_identical(
         ld_minlen(ld),
-        c(len1 = 1L, len5 = 5L, len10 = 10L, len30 = 30L)), "minlen set via. data")
+        c("1:5" = 1L, "5:10" = 5L, "10:30" = 10L, "30:Inf" = 30L)), "minlen set via. data")
     ok(ut_cmp_identical(ld_upperlen(ld), Inf), "If we guess from data, open-ended is only sensible option")
 
     ok(ut_cmp_error(generate_ld("
@@ -172,19 +172,19 @@ ok_group('g3l_likelihood_data:length', {
             c = structure(quote(seq(40, 80)), min = 40, max = 80)))
     ok(cmp_array(ld$number, "
         length time   Freq
-             a 1999 1999.1
-             b 1999 1999.2
-             c 1999 1999.3
-             a 2000 2000.1
-             b 2000 2000.2
-             c 2000    0.0
-             a 2001 2001.1
-             b 2001 2001.2
-             c 2001 2001.3
-        "), "Use lengths and their names from attribute, gaps filled in")
+         10:20 1999 1999.1
+         20:40 1999 1999.2
+         40:80 1999 1999.3
+         10:20 2000 2000.1
+         20:40 2000 2000.2
+         40:80 2000    0.0
+         10:20 2001 2001.1
+         20:40 2001 2001.2
+         40:80 2001 2001.3
+        "), "Use lengths, removed names from attribute, gaps filled in")
     ok(ut_cmp_identical(
         ld_minlen(ld),
-        c(a = 10, b = 20, c = 40)), "minlen set by attribute")
+        c("10:20" = 10, "20:40" = 20, "40:80" = 40)), "minlen set by attribute")
     ok(ut_cmp_identical(ld_upperlen(ld), 80), "Upperlen set by attribute")
     ok(ut_cmp_identical(ld_dl(ld), c(10, 20, 40)), "dl difference up to upper bound")
     ok(ut_cmp_identical(ld_plusdl(ld), 10), "plusdl is the mode")
@@ -206,22 +206,22 @@ ok_group('g3l_likelihood_data:length', {
             c = structure(quote(seq(40, 80)), min = 40, max = 80, max_open_ended = TRUE)))
     ok(cmp_array(ld$number, "
         length time   Freq
-             a 1999 1999.1
-             b 1999 1999.2
-             c 1999 1999.3
-             a 2000 2000.1
-             b 2000 2000.2
-             c 2000    0.0
-             a 2001 2001.1
-             b 2001 2001.2
-             c 2001 2001.3
-        "), "Use lengths and their names from attribute, gaps filled in")
+         10:20 1999 1999.1
+         20:40 1999 1999.2
+        40:Inf 1999 1999.3
+         10:20 2000 2000.1
+         20:40 2000 2000.2
+        40:Inf 2000    0.0
+         10:20 2001 2001.1
+         20:40 2001 2001.2
+        40:Inf 2001 2001.3
+        "), "Use lengths, removed names from attribute, gaps filled in")
     ok(ut_cmp_identical(ld_upperlen(ld), Inf), "upperlen now infinite")
     ok(ut_cmp_identical(ld_dl(ld), c(10, 20, 10)), "dl assumes final group is as big as the mode")
     ok(ut_cmp_identical(ld_plusdl(ld), 10), "plusdl is the mode")
     ok(ut_cmp_identical(
         ld_minlen(ld),
-        c(a = 10, b = 20, c = 40)), "minlen doesn't include the plusgroup separately")
+        c("10:20" = 10, "20:40" = 20, "40:Inf" = 40)), "minlen doesn't include the plusgroup separately")
 
     ld <- generate_ld("
         year length number
@@ -235,13 +235,13 @@ ok_group('g3l_likelihood_data:length', {
         2001      c      2001.3
         ",
         length = list(
-            a = structure(quote(seq(10, 20)), min = 10, max = 20, min_open_ended = TRUE),
-            b = structure(quote(seq(20, 40)), min = 20, max = 40),
-            c = structure(quote(seq(40, 80)), min = 40, max = 80)))
+            "10:20" = structure(quote(seq(10, 20)), min = 10, max = 20, min_open_ended = TRUE),
+            "20:40" = structure(quote(seq(20, 40)), min = 20, max = 40),
+            "40:Inf" = structure(quote(seq(40, 80)), min = 40, max = 80)))
     ok(ut_cmp_identical(ld_upperlen(ld), 80), "upperlen set by attribute")
     ok(ut_cmp_identical(
         ld_minlen(ld),
-        c(a = 0, b = 20, c = 40)), "minlen down to zero due to min_open_ended")
+        c("0:20" = 0, "20:40" = 20, "40:80" = 40)), "minlen down to zero due to min_open_ended")
 })
 
 
@@ -258,18 +258,18 @@ ok_group('g3l_likelihood_data:age', {
         ")
     ok(cmp_array(ld$number, "
         length  age time   Freq
-          len0 age3 1999 1999.3
-          len0 age4 1999 1999.4
-          len0 age5 1999    0.0
-          len0 age6 1999 1999.6
-          len0 age3 2000 2000.3
-          len0 age4 2000    0.0
-          len0 age5 2000    0.0
-          len0 age6 2000 2000.6
-          len0 age3 2001    0.0
-          len0 age4 2001 2001.4
-          len0 age5 2001    0.0
-          len0 age6 2001 2001.6
+          0:Inf age3 1999 1999.3
+          0:Inf age4 1999 1999.4
+          0:Inf age5 1999    0.0
+          0:Inf age6 1999 1999.6
+          0:Inf age3 2000 2000.3
+          0:Inf age4 2000    0.0
+          0:Inf age5 2000    0.0
+          0:Inf age6 2000 2000.6
+          0:Inf age3 2001    0.0
+          0:Inf age4 2001 2001.4
+          0:Inf age5 2001    0.0
+          0:Inf age6 2001 2001.6
         "), "Worked out age dimensions from data, filled in missing values, including entirely absent ones")
 
     ld <- generate_ld("
@@ -286,19 +286,19 @@ ok_group('g3l_likelihood_data:age', {
             z = structure(quote(seq(7, 10)), min = 7, max = 10)))
     ok(cmp_array(ld$number, "
         length  age time   Freq
-          len0   x 1999 1999.1
-          len0   y 1999 1999.2
-          len0   z 1999    0.0
-          len0   x 2000 2000.1
-          len0   y 2000    0.0
-          len0   z 2000    0.0
-          len0   x 2001 2001.1
-          len0   y 2001 2001.2
-          len0   z 2001    0.0
+          0:Inf 1:3 1999 1999.1
+          0:Inf 4:6 1999 1999.2
+          0:Inf 7:10 1999   0.0
+          0:Inf 1:3 2000 2000.1
+          0:Inf 4:6 2000    0.0
+          0:Inf 7:10 2000   0.0
+          0:Inf 1:3 2001 2001.1
+          0:Inf 4:6 2001 2001.2
+          0:Inf 7:10 2001   0.0
         "), "Worked out age dimensions from attributes, filled in missing values")
     ok(ut_cmp_identical(ld_minages(ld), array(
         c(x = 1L, y = 4L, z = 7L),
-        dimnames = list(c("x", "y", "z")),
+        dimnames = list(c("1:3", "4:6", "7:10")),
         dim = 3)), "agegroups using minages from attribute")
 })
 
@@ -341,15 +341,15 @@ ok_group('g3l_likelihood_data:area', {
         ")
     ok(cmp_array(ld$number, "
         length time area   Freq
-          len0 1999    1 1999.1
-          len0 2000    1    0.0
-          len0 2001    1 2001.1
-          len0 1999    2 1999.2
-          len0 2000    2 2000.2
-          len0 2001    2 2001.2
-          len0 1999    3 1999.3
-          len0 2000    3 2000.3
-          len0 2001    3    0.0
+          0:Inf 1999    1 1999.1
+          0:Inf 2000    1    0.0
+          0:Inf 2001    1 2001.1
+          0:Inf 1999    2 1999.2
+          0:Inf 2000    2 2000.2
+          0:Inf 2001    2 2001.2
+          0:Inf 1999    3 1999.3
+          0:Inf 2000    3 2000.3
+          0:Inf 2001    3    0.0
         "), "Worked out area dimensions from data, filled in missing values")
 
     ld <- gadget3:::g3l_likelihood_data('ut', read.table(header = TRUE, stringsAsFactors = TRUE, text = "
@@ -364,15 +364,15 @@ ok_group('g3l_likelihood_data:area', {
         "), area_group = list(a = 3, b = 4, c = c(1:2)))
     ok(cmp_array(ld$number, "
         length time area   Freq
-          len0 1999    a 1999.1
-          len0 2000    a    0.0
-          len0 2001    a 2001.1
-          len0 1999    b 1999.2
-          len0 2000    b 2000.2
-          len0 2001    b 2001.2
-          len0 1999    c 1999.3
-          len0 2000    c 2000.3
-          len0 2001    c    0.0
+          0:Inf 1999    a 1999.1
+          0:Inf 2000    a    0.0
+          0:Inf 2001    a 2001.1
+          0:Inf 1999    b 1999.2
+          0:Inf 2000    b 2000.2
+          0:Inf 2001    b 2001.2
+          0:Inf 1999    c 1999.3
+          0:Inf 2000    c 2000.3
+          0:Inf 2001    c    0.0
         "), "Worked out area dimensions from data, filled in missing values")
     ok(ut_cmp_identical(area_lookup(ld), list(keys = c(3L,4L,1L,2L), values = c(1L,2L,3L,3L))), "Areas 1 & 2 both mapped to index 3 (i.e. c)")
 })
@@ -390,15 +390,15 @@ ok_group('g3l_likelihood_data:tag', {
         "))
     ok(cmp_array(ld$number, "
         length    tag time   Freq
-        len0        a 1999 1999.1
-        len0        b 1999 1999.2
-        len0        c 1999 1999.3
-        len0        a 2000    0.0
-        len0        b 2000 2000.2
-        len0        c 2000 2000.3
-        len0        a 2001 2001.1
-        len0        b 2001 2001.2
-        len0        c 2001    0.0
+        0:Inf        a 1999 1999.1
+        0:Inf        b 1999 1999.2
+        0:Inf        c 1999 1999.3
+        0:Inf        a 2000    0.0
+        0:Inf        b 2000 2000.2
+        0:Inf        c 2000 2000.3
+        0:Inf        a 2001 2001.1
+        0:Inf        b 2001 2001.2
+        0:Inf        c 2001    0.0
         "), "Worked out tag dimensions from data")
     ok(ut_cmp_identical(
         gadget3:::stock_definition(ld$modelstock, 'stock__tag_ids'),

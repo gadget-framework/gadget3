@@ -80,32 +80,32 @@ ok(ut_cmp_identical(
     array(
         c(110, 210, 310),
         dim = c(length = 1, age = 3),
-        dimnames = list(length = "len10", age = c("age1","age2","age3")))), "stock_young__num populated")
+        dimnames = list(length = "10:Inf", age = c("age1","age2","age3")))), "stock_young__num populated")
 ok(ut_cmp_identical(
     r$stock_old__num,
     array(
         c(4010, 5010, 6010),
         dim = c(length = 1, age = 3),
-        dimnames = list(length = "len10", age = c("age4","age5","age6")))), "stock_old__num populated")
+        dimnames = list(length = "10:Inf", age = c("age4","age5","age6")))), "stock_old__num populated")
 ok(ut_cmp_identical(
     r$stock_inbetween__num,
     array(
         c(20010, 30010, 40010, 50010),
         dim = c(length = 1, age = 4),
-        dimnames = list(length = "len10", age = c("age2","age3","age4","age5")))), "stock_inbetween__num populated")
+        dimnames = list(length = "10:Inf", age = c("age2","age3","age4","age5")))), "stock_inbetween__num populated")
 ok(ut_cmp_identical(
     r$stock_aggregated__num,
     array(
         c(1000010, 5000010),
         dim = c(length = 1, age = 2),
-        dimnames = list(length = "len10", age = c("age1","age5")))), "stock_aggregated__num populated")
+        dimnames = list(length = "10:Inf", age = c("1:2","5:6")))), "stock_aggregated__num populated")
 
 ok(ut_cmp_identical(
     r$stock_inbetween_old_aggregated__num,
     array(
         c(20010, 50010 + 5010 + 6010),
         dim = c(length = 1, age = 2),
-        dimnames = list(length = "len10", age = c("age1","age5")))), "stock_inbetween_old_aggregated__num populated")
+        dimnames = list(length = "10:Inf", age = c("1:2","5:6")))), "stock_inbetween_old_aggregated__num populated")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(
