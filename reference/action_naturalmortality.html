@@ -192,13 +192,13 @@
   <code><a href='stock.html'>g3_stock</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>
-<span class='va'>ling_imm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>10</span><span class='op'>)</span>
-
-<span class='co'># Natural mortality for immature ling</span>
-<span class='va'>naturalmortality_action</span> <span class='op'>&lt;-</span> <span class='fu'>g3a_naturalmortality</span><span class='op'>(</span><span class='va'>ling_imm</span>,
-    <span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='op'>~</span><span class='fu'><a href='language.html'>g3_param_vector</a></span><span class='op'>(</span><span class='st'>"lingimm.M"</span><span class='op'>)</span><span class='op'>[[</span><span class='va'>age</span> <span class='op'>-</span> <span class='fl'>3</span> <span class='op'>+</span> <span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>ling_imm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'ling_imm'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>20</span>, <span class='fl'>156</span>, <span class='fl'>4</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='fu'><a href='stock_age.html'>g3s_age</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fl'>10</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Natural mortality for immature ling</span></span>
+<span class='r-in'><span class='va'>naturalmortality_action</span> <span class='op'>&lt;-</span> <span class='fu'>g3a_naturalmortality</span><span class='op'>(</span><span class='va'>ling_imm</span>,</span>
+<span class='r-in'>    <span class='fu'>g3a_naturalmortality_exp</span><span class='op'>(</span><span class='op'>~</span><span class='fu'><a href='language.html'>g3_param_vector</a></span><span class='op'>(</span><span class='st'>"lingimm.M"</span><span class='op'>)</span><span class='op'>[[</span><span class='va'>age</span> <span class='op'>-</span> <span class='fl'>3</span> <span class='op'>+</span> <span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

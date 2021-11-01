@@ -94,7 +94,7 @@
 <div id="debugging-the-r-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#debugging-the-r-model" class="anchor"></a>Debugging the R model</h2>
-<p>In theory, the TMB and R output of gadget3 should be identically-behaving functions, so instead of trying to decipher what the TMB model is doing wrong, you can use R function instead in a more familiar environment, for example using standard tools such as <code><a href="https://rdrr.io/r/base/options.html">options(error=recover)</a></code>.</p>
+<p>In theory, the TMB and R output of gadget3 should be identically-behaving functions, so instead of trying to decipher what the TMB model is doing wrong, you can use R function instead in a more familiar environment, for example using standard tools such as <code>options(error=recover)</code>.</p>
 <p>You can also use <code><a href="https://rdrr.io/r/utils/edit.html">edit()</a></code> to edit the R function directly and re-run the model:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Model setup will look something like this</span>
@@ -165,7 +165,7 @@ Array val: -nan -nan -nan -nan -nan
 
 (gdb) print cur_time
 $5 = 0</code></pre>
-<p>Note that for the <code>.print()</code> method to be available for arrays, it has to be referenced at least once in the model source, otherwise it won’t be compiled in. Use <code><a href="https://rdrr.io/r/utils/edit.html">edit(tmb_ling)</a></code> to add it somewhere first.</p>
+<p>Note that for the <code>.print()</code> method to be available for arrays, it has to be referenced at least once in the model source, otherwise it won’t be compiled in. Use <code>edit(tmb_ling)</code> to add it somewhere first.</p>
 </div>
 </div>
   </div>

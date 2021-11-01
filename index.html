@@ -110,7 +110,7 @@
 <a href="#development-of-gadget3" class="anchor"></a>Development of gadget3</h2>
 <p>By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
 <ol>
-<li><code><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</a></code></li>
+<li><code>Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</code></li>
 <li>
 <code>make test</code>, which turns it on by default</li>
 </ol>

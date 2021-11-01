@@ -143,7 +143,7 @@
 
     <p>Adds a <code>- 1</code> to the supplied expression, but only in C++ (which has 0-based
   indexes). Under R the expression is passed through unchanged.</p>
-<p><em>Note:</em> This is generally for internal use, as <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code> will do this
+<p><em>Note:</em> This is generally for internal use, as <code>[[</code> will do this
   automatically for you.</p>
 <p>For example, <code>g3_idx(a)</code> will be replaced with <code>a</code> in R output
   and <code>a - 1</code> in C++ output.</p>
@@ -176,7 +176,7 @@
 </dl>
 
 <p>Same as <code>g3_param</code>, but the parameter will be expected to be a vector.
-  You can then dereference with <code><a href='https://rdrr.io/r/base/Extract.html'>[[</a></code>.</p>
+  You can then dereference with <code>[[</code>.</p>
 <p>For example, <code>g3_param_vector("lingimm.M")[[age - 3 + 1]]</code>.</p>
     <h2 class="hasAnchor" id="g-param-table"><a class="anchor" href="#g-param-table"></a>g3_param_table</h2>
 
@@ -216,7 +216,7 @@
   ``REPORT(ling_imm__num)`` under TMB, and ``attr(nll, 'ling_imm__num') &lt;-
   ling_imm__num`` under R.</p>
 <p>Under R reported values can be got after running the function with
-  <code><a href='https://rdrr.io/r/base/attributes.html'>attributes(nll)</a></code>, where <code>nll</code> is the return value of the model
+  <code>attributes(nll)</code>, where <code>nll</code> is the return value of the model
   function.</p>
     <h2 class="hasAnchor" id="g-report-all"><a class="anchor" href="#g-report-all"></a>g3_report_all</h2>
 

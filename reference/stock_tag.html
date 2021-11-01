@@ -164,29 +164,30 @@
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>
-
-<span class='co'># Make a lookup of text names to integers</span>
-<span class='va'>tags</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'H1-00'</span>, <span class='st'>'H1-01'</span><span class='op'>)</span>
-<span class='va'>tags</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>tags</span><span class='op'>)</span>, names <span class='op'>=</span> <span class='va'>tags</span><span class='op'>)</span>
-
-<span class='co'># prey_a can have any of these tags</span>
-<span class='va'>prey_a</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'prey_a'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'>g3s_tag</span><span class='op'>(</span><span class='va'>tags</span><span class='op'>)</span>
-
-<span class='co'># Use stock_instance to see what the array would look like</span>
-<span class='fu'>gadget3</span><span class='fu'>:::</span><span class='fu'>stock_instance</span><span class='op'>(</span><span class='va'>prey_a</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;        tag
-#&gt; length  untagged H1-00 H1-01
-#&gt;   len1        NA    NA    NA
-#&gt;   len2        NA    NA    NA
-#&gt;   len3        NA    NA    NA
-#&gt;   len4        NA    NA    NA
-#&gt;   len5        NA    NA    NA
-#&gt;   len6        NA    NA    NA
-#&gt;   len7        NA    NA    NA
-#&gt;   len8        NA    NA    NA
-#&gt;   len9        NA    NA    NA
-#&gt;   len10       NA    NA    NA</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Make a lookup of text names to integers</span></span>
+<span class='r-in'><span class='va'>tags</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'H1-00'</span>, <span class='st'>'H1-01'</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>tags</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq_along</a></span><span class='op'>(</span><span class='va'>tags</span><span class='op'>)</span>, names <span class='op'>=</span> <span class='va'>tags</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># prey_a can have any of these tags</span></span>
+<span class='r-in'><span class='va'>prey_a</span> <span class='op'>&lt;-</span> <span class='fu'><a href='stock.html'>g3_stock</a></span><span class='op'>(</span><span class='st'>'prey_a'</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='fu'>g3s_tag</span><span class='op'>(</span><span class='va'>tags</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Use stock_instance to see what the array would look like</span></span>
+<span class='r-in'><span class='fu'>gadget3</span><span class='fu'>:::</span><span class='fu'>stock_instance</span><span class='op'>(</span><span class='va'>prey_a</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         tag</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> length   untagged H1-00 H1-01</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   1:2          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   2:3          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   3:4          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   4:5          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   5:6          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   6:7          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   7:8          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   8:9          NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   9:10         NA    NA    NA</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   10:Inf       NA    NA    NA</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
