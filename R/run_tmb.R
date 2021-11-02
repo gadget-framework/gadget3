@@ -972,7 +972,8 @@ g3_tmb_adfun <- function(cpp_code,
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
-        DLL = base_name))
+        DLL = base_name,
+        ...))
 }
 
 # Turn parameter_template table into a vector for TMB
