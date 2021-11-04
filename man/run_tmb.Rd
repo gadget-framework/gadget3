@@ -170,4 +170,9 @@ fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
 # Go back to a list of parameters, suitable for the R version
 param_list <- g3_tmb_relist(tmb_param, fit$par)
 
+# Rebuild, only including "Fun" (i.e. without auto-differentiation)
+# Result will only work for tmb$report
+tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
+result <- tmb$report(g3_tmb_par(tmb_param))
+
 }
