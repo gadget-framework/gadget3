@@ -4,6 +4,20 @@
 ##
 ## -----------------------------------------------------------------------------
 
+## stocks
+ling_imm <-
+  g3_stock(c(species = 'ling', 'imm'), lengthgroups = seq(4, 156, 4)) %>%
+  g3s_livesonareas(areas[c('1')]) %>%
+  g3s_age(minage = 3, maxage = 10)
+
+ling_mat <-
+  g3_stock(c(species = 'ling', 'mat'), lengthgroups = seq(20, 156, 4)) %>%
+  g3s_livesonareas(areas[c('1')]) %>%
+  g3s_age(minage = 5, maxage = 15)
+
+## Maximum number of length groups a stock can group within a time step (maxlengthgroupgrowth)
+mlgg <- 10
+
 # -----------------------------
 # Define bounded parameters
 # -----------------------------

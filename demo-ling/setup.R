@@ -39,47 +39,6 @@ time_actions <- list(
            defaults$timestep),
   list())
 
-##### Configure stocks #########################################################
-
-## stocks
-ling_imm <-
-  g3_stock(c(species = 'ling', 'imm'), lengthgroups = seq(4, 156, 4)) %>%
-  g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(minage = 3, maxage = 10)
-
-ling_mat <-
-  g3_stock(c(species = 'ling', 'mat'), lengthgroups = seq(20, 156, 4)) %>%
-  g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(minage = 5, maxage = 15)
-
-## Maximum number of length groups a stock can group within a time step (maxlengthgroupgrowth)
-mlgg <- 10
-
-############ Configure fleets ##################################################
-
-## Survey(s)
-igfs <-
-  g3_fleet('igfs') %>%
-  g3s_livesonareas(areas[c('1')])
-
-## Commercial
-lln <-
-  g3_fleet('lln') %>%
-  g3s_livesonareas(areas[c('1')])
-
-bmt <-
-  g3_fleet('bmt') %>%
-  g3s_livesonareas(areas[c('1')])
-
-gil <-
-  g3_fleet('gil') %>%
-  g3s_livesonareas(areas[c('1')])
-
-foreign <-
-  g3_fleet('foreign') %>%
-  g3s_livesonareas(areas[c('1')])
-
-
 #### Load required data objects ################################################
 
 if(read_data){
@@ -97,8 +56,8 @@ if(read_data){
 
 ##### Configure model actions #################################################
 
-source('demo-ling/setup-fleets.R')  # Generates fleet_actions
 source('demo-ling/setup-model.R')  # Generates mat_actions / imm_actions
+source('demo-ling/setup-fleets.R')  # Generates fleet_actions
 source('demo-ling/setup-likelihood.R')  # Generates likelihood_actions
 source('demo-ling/setup-report_actions.R')  # Generates report actions
 

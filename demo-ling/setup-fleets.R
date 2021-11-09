@@ -4,6 +4,28 @@
 ##
 ## -----------------------------------------------------------------------------
 
+## Survey(s)
+igfs <-
+  g3_fleet('igfs') %>%
+  g3s_livesonareas(areas[c('1')])
+
+## Commercial
+lln <-
+  g3_fleet('lln') %>%
+  g3s_livesonareas(areas[c('1')])
+
+bmt <-
+  g3_fleet('bmt') %>%
+  g3s_livesonareas(areas[c('1')])
+
+gil <-
+  g3_fleet('gil') %>%
+  g3s_livesonareas(areas[c('1')])
+
+foreign <-
+  g3_fleet('foreign') %>%
+  g3s_livesonareas(areas[c('1')])
+
 ## Bounded parameters for fleet suitabilities
 fleet_bounds <- list(
   
