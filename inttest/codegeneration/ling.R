@@ -51,10 +51,6 @@ structure(function (param)
         if (isFALSE(expr)) 
             warning(message)
     }
-    Rprintf <- function (...) 
-    {
-        cat(sprintf(...))
-    }
     intintlookup_getdefault <- function (lookup, key, def) 
     {
         if (is.environment(lookup)) {
@@ -249,7 +245,7 @@ structure(function (param)
     ling_imm_movement__area <- 1L
     while (TRUE) {
         {
-            comment("g3a_time")
+            comment("g3a_time: Start of time period")
             cur_time <- cur_time + 1L
             if (TRUE) 
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -303,8 +299,6 @@ structure(function (param)
             cur_year_projection <- cur_year > end_year
             cur_step <- (cur_time%%step_count) + 1L
             cur_step_final <- cur_step == step_count
-            if (FALSE) 
-                Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
         }
         {
             ling_imm__area_idx <- (1)

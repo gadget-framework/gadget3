@@ -276,7 +276,7 @@ Type objective_function<Type>::operator() () {
 
     while (true) {
         {
-            // g3a_time;
+            // g3a_time: Start of time period;
             cur_time += 1;
             if ( true ) {
                 assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
@@ -331,9 +331,6 @@ Type objective_function<Type>::operator() () {
             cur_year_projection = cur_year > end_year;
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
-            if ( false ) {
-                Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
-            }
         }
         {
             auto ling_imm__area_idx = 0;
