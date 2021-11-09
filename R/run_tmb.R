@@ -819,9 +819,19 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     }
     all_actions_code <- g3_functions(all_actions_code)
 
-    out <- sprintf("#include <TMB.hpp>
+    out <- sprintf("template<class Type>
+Type objective_function<Type>::operator() () {
+    %s
 
-namespace map_extras {
+    %s
+    abort();  // Should have returned somewhere in the loop
+}\n", paste(unlist(scope), collapse = "\n    "),
+      cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
+    out <- strsplit(out, "\n")[[1]]
+
+    # Include map_extras namespace if we use it
+    if (any(grepl("map_extras::", out, fixed = TRUE))) {
+        out <- c(strsplit("namespace map_extras {
     // at(), but throw (err) if item isn't available
     template<class Type, class KeyType>
     Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
@@ -841,17 +851,12 @@ namespace map_extras {
                 return def;
             }
     }
-}
+}", "\n")[[1]], "", out)
+    }
 
-template<class Type>
-Type objective_function<Type>::operator() () {
-    %s
+    # Make sure we include TMB
+    out <- c("#include <TMB.hpp>", "", out)
 
-    %s
-    abort();  // Should have returned somewhere in the loop
-}\n", paste(unlist(scope), collapse = "\n    "),
-      cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
-    out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
     attr(out, 'actions') <- actions
