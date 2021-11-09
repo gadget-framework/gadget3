@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x556b040f4788&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x55cf79a47718&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,39 +143,17 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x556b03ef6878&gt;
+## &lt;environment: 0x55cf79849ae0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
 ## attr(,"actions")[[1]]
 ## ~cows + pigs
-## &lt;environment: 0x556b040f4788&gt;</code></pre>
+## &lt;environment: 0x55cf79a47718&gt;</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## #include &lt;TMB.hpp&gt;
-## 
-## namespace map_extras {
-##     // at(), but throw (err) if item isn't available
-##     template&lt;class Type, class KeyType&gt;
-##     Type at_throw(std::map&lt;KeyType, Type&gt; map_in, KeyType key_in, std::string err) {
-##             try {
-##                 return map_in.at(key_in);
-##             } catch (const std::out_of_range&amp;) {
-##                 throw std::runtime_error("Out of range: " + err);
-##             }
-##     }
-## 
-##     // at(), but return def if item isn't available
-##     template&lt;class Type, class KeyType&gt;
-##     Type at_def(std::map&lt;KeyType, Type&gt; map_in, KeyType key_in, Type def) {
-##             try {
-##                 return map_in.at(key_in);
-##             } catch (const std::out_of_range&amp;) {
-##                 return def;
-##             }
-##     }
-## }
 ## 
 ## template&lt;class Type&gt;
 ## Type objective_function&lt;Type&gt;::operator() () {
@@ -199,7 +177,7 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span></code></pre></div>
 <pre><code>## $`000`
 ## ~{
-##     debug_label("g3a_time")
+##     debug_label("g3a_time: Start of time period")
 ##     cur_time &lt;- cur_time + 1L
 ##     if (strict_mode) 
 ##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -211,10 +189,8 @@
 ##     cur_year_projection &lt;- cur_year &gt; end_year
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
-##     if (trace_mode) 
-##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x556b04542898&gt;</code></pre>
+## &lt;environment: 0x55cf79eb9880&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -224,10 +200,6 @@
 ##     {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
-##     }
-##     Rprintf &lt;- function (...) 
-##     {
-##         cat(sprintf(...))
 ##     }
 ##     cur_time &lt;- -1L
 ##     nll &lt;- 0
@@ -243,7 +215,7 @@
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
-##             comment("g3a_time")
+##             comment("g3a_time: Start of time period")
 ##             cur_time &lt;- cur_time + 1L
 ##             if (FALSE) 
 ##                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -261,19 +233,17 @@
 ##             cur_year_projection &lt;- cur_year &gt; end_year
 ##             cur_step &lt;- (cur_time%%step_count) + 1L
 ##             cur_step_final &lt;- cur_step == step_count
-##             if (FALSE) 
-##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ##         }
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x556b04e08868&gt;
+## &lt;environment: 0x55cf7a666c18&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
 ## attr(,"actions")$`000`
 ## ~{
-##     debug_label("g3a_time")
+##     debug_label("g3a_time: Start of time period")
 ##     cur_time &lt;- cur_time + 1L
 ##     if (strict_mode) 
 ##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -285,10 +255,8 @@
 ##     cur_year_projection &lt;- cur_year &gt; end_year
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
-##     if (trace_mode) 
-##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x556b037d7040&gt;</code></pre>
+## &lt;environment: 0x55cf79334438&gt;</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -298,10 +266,6 @@
 ##     {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
-##     }
-##     Rprintf &lt;- function (...) 
-##     {
-##         cat(sprintf(...))
 ##     }
 ##     cur_time &lt;- -1L
 ##     nll &lt;- 0
@@ -317,7 +281,7 @@
 ##     cur_step_final &lt;- FALSE
 ##     while (TRUE) {
 ##         {
-##             comment("g3a_time")
+##             comment("g3a_time: Start of time period")
 ##             cur_time &lt;- cur_time + 1L
 ##             if (FALSE) 
 ##                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -335,19 +299,17 @@
 ##             cur_year_projection &lt;- cur_year &gt; end_year
 ##             cur_step &lt;- (cur_time%%step_count) + 1L
 ##             cur_step_final &lt;- cur_step == step_count
-##             if (FALSE) 
-##                 Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ##         }
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x556b0625cd10&gt;
+## &lt;environment: 0x55cf7ba6ef80&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
 ## attr(,"actions")$`000`
 ## ~{
-##     debug_label("g3a_time")
+##     debug_label("g3a_time: Start of time period")
 ##     cur_time &lt;- cur_time + 1L
 ##     if (strict_mode) 
 ##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
@@ -359,10 +321,8 @@
 ##     cur_year_projection &lt;- cur_year &gt; end_year
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
-##     if (trace_mode) 
-##         Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
 ## }
-## &lt;environment: 0x556b05d07938&gt;</code></pre>
+## &lt;environment: 0x55cf7b5790c8&gt;</code></pre>
 </div>
 <div id="stocks" class="section level2">
 <h2 class="hasAnchor">
@@ -547,7 +507,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x556b0433e068&gt;
+## &lt;environment: 0x55cf79e08130&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -580,7 +540,7 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## }
-## &lt;environment: 0x556b06e1a818&gt;
+## &lt;environment: 0x55cf7c62cd98&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
@@ -736,7 +696,7 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x556b064d47e8&gt;
+## &lt;environment: 0x55cf7bce2da0&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -770,7 +730,7 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## })
-## &lt;environment: 0x556b06088d90&gt;
+## &lt;environment: 0x55cf7b89b188&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
