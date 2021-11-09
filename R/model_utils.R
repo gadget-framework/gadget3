@@ -6,7 +6,7 @@ g3a_initial_abund <- function(scalar,
                               p_age = 1){
   f_substitute(
     ~scalar * init * exp(-1 * (M + init_F) * 
-                           age - minage) * p_age,
+                           (age - minage)) * p_age,
     list(scalar = scalar, 
          init = init, 
          M = M, 
