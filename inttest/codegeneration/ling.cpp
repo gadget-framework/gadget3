@@ -244,14 +244,14 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     int ling_imm__growth_lastcalc = -1;
-    array<Type> ling_imm__growth_l;
+    array<Type> ling_imm__growth_l(35,16);
     Type ling_imm__plusdl = (double)(4);
-    array<Type> ling_imm__growth_w;
+    array<Type> ling_imm__growth_w(35,16);
     Type ling_imm__prevtotal = (double)(0);
     int ling_mat__growth_lastcalc = -1;
-    array<Type> ling_mat__growth_l;
+    array<Type> ling_mat__growth_l(35,16);
     Type ling_mat__plusdl = (double)(4);
-    array<Type> ling_mat__growth_w;
+    array<Type> ling_mat__growth_w(35,16);
     Type ling_mat__prevtotal = (double)(0);
     array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
     array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();

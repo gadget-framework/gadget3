@@ -213,14 +213,18 @@ structure(function (param)
     ling_imm__transitioning_wgt <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", 
     "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_imm__growth_lastcalc <- -1L
-    ling_imm__growth_l <- array(NA, dim = c(0L, 0L), dimnames = NULL)
+    ling_imm__growth_l <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
+    "9", "10", "11", "12", "13", "14", "15")))
     ling_imm__plusdl <- 4
-    ling_imm__growth_w <- array(NA, dim = c(0L, 0L), dimnames = NULL)
+    ling_imm__growth_w <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
+    "9", "10", "11", "12", "13", "14", "15")))
     ling_imm__prevtotal <- 0
     ling_mat__growth_lastcalc <- -1L
-    ling_mat__growth_l <- array(NA, dim = c(0L, 0L), dimnames = NULL)
+    ling_mat__growth_l <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
+    "9", "10", "11", "12", "13", "14", "15")))
     ling_mat__plusdl <- 4
-    ling_mat__growth_w <- array(NA, dim = c(0L, 0L), dimnames = NULL)
+    ling_mat__growth_w <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
+    "9", "10", "11", "12", "13", "14", "15")))
     ling_mat__prevtotal <- 0
     ling_imm__renewalnum <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
     "age6", "age7", "age8", "age9", "age10")))
@@ -545,8 +549,8 @@ structure(function (param)
                   {
                     if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_imm__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_imm__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]]
+                      ling_imm__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
+                      ling_imm__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15 + 1)) * param[["lingimm.walpha"]]
                       comment("Don't recalculate until cur_step_size changes")
                       ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
                     }
@@ -601,8 +605,8 @@ structure(function (param)
                   {
                     if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
                       comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_mat__growth_l <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_mat__growth_w <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]]
+                      ling_mat__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.k"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15, avoid_zero((param[["ling.bbin"]] * 10)))
+                      ling_mat__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15 + 1)) * param[["lingmat.walpha"]]
                       comment("Don't recalculate until cur_step_size changes")
                       ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
                     }
