@@ -245,7 +245,7 @@ ok_group("Likelihood per step", {
 
     ok(ut_cmp_equal(
         r$adist_surveyindices_log_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        c(params$si_alpha, params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
     ######## cdist_sumofsquares_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
@@ -622,7 +622,7 @@ ok_group("Likelihood per year", {
 
     ok(ut_cmp_equal(
         r$adist_surveyindices_log_surveyindices_model__params,
-        c(alpha = params$si_alpha, beta = params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
+        c(params$si_alpha, params$si_beta)), "adist_surveyindices_log_surveyindices_model__params: Reported our hard-coded linear regression parameters")
 
 
     ######## cdist_sumofsquares_utsd_model__num
