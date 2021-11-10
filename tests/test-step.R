@@ -87,6 +87,15 @@ ok_group("g3_step:stock_reshape", {
     # model_fn <- edit(model_fn)
     result <- model_fn(params)
 
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_to_tmb(actions, trace = FALSE)
+        # model_cpp <- edit(model_cpp)
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    } else {
+        writeLines("# skip: not compiling TMB model")
+        model_cpp <- c()
+    }
+
     ok(ut_cmp_identical(
         all.vars(body(model_fn))[endsWith(all.vars(body(model_fn)), '_lgmatrix')],
         c("source_dest_2group_lgmatrix",
@@ -111,16 +120,9 @@ ok_group("g3_step:stock_reshape", {
         sum(11, 22, 33, 44)), "dest_nolength__num")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        model_tmb_report <- model_tmb$report()
-        for (n in names(attributes(result))) {
-            ok(ut_cmp_equal(
-                model_tmb_report[[n]],
-                as.vector(attr(result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     } else {
         writeLines("# skip: not running TMB tests")
     }
