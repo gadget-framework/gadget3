@@ -53,6 +53,15 @@ model_fn <- g3_to_r(actions)
 result <- model_fn(params)
 r <- attributes(result)
 
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
+    # model_cpp <- edit(model_cpp)
+    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+} else {
+    writeLines("# skip: not compiling TMB model")
+    model_cpp <- c()
+}
+
 # We populated min/mean/dl
 ok(ut_cmp_identical(
     r$stock_a__minlen,
@@ -110,17 +119,9 @@ ok(ut_cmp_equal(
     10), "stock_wonky__plusdl")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(result))) {
-        ok(ut_cmp_equal(
-            model_tmb$report()[[n]],
-            # NB: TMB drops the dimensions, so we need to also
-            as.vector(attr(result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 } else {
     writeLines("# skip: not running TMB tests")
 }
