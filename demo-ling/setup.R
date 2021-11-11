@@ -2,12 +2,20 @@ library(mfdb)
 library(tidyverse)
 library(gadget3)
 
+## Configure what parts of the demo run, set environment variables to turn on/off
+## e.g. Sys.setenv(demo_ling_read_data = TRUE)
+setdefault <- function (n, def) as.logical(Sys.getenv(n, as.character(def)))
+demo_ling_read_data <- setdefault("demo_ling_read_data", FALSE)
+demo_ling_run_r <- setdefault("demo_ling_run_r", TRUE)
+demo_ling_compile_tmb <- setdefault("demo_ling_compile_tmb", TRUE)
+demo_ling_run_tmb <- setdefault("demo_ling_run_tmb", TRUE)
+demo_ling_optimize_tmb <- setdefault("demo_ling_optimize_tmb", TRUE)
+
 ## functions for inserting species name into param references
 source("demo-ling/stock_param_functions.r")
 
 ## Some model parameters...
 year_range <- 1982:lubridate::year(Sys.Date())
-read_data <- FALSE
 
 ## Stock info.
 species_name <- "ling"
@@ -41,7 +49,7 @@ time_actions <- list(
 
 #### Load required data objects ################################################
 
-if(read_data){
+if(demo_ling_read_data){
   mdb <- mfdb('Iceland', db_params = list(host = 'mfdb.hafro.is'))
   #  mdb <- mfdb("../../mfdb/copy/iceland.duckdb")
   source('demo-ling/setup-fleet-data.R')
@@ -120,12 +128,16 @@ ling_param['adist_surveyindices_log_si_igfs_si3d_weight'] <- 14.5
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
 
-# Run model with params above
-result <- ling_model(ling_param)
-result[[1]]
+if (demo_ling_run_r) {
+    # Run model with params above
+    result <- ling_model(ling_param)
 
-# List all available reports
-print(names(attributes(result)))
+    # nll
+    print(result[[1]])
+
+    # List all available reports
+    print(names(attributes(result)))
+}
 
 ##### Run TMB-based model #####################################################
 
@@ -172,24 +184,32 @@ tmb_param[grepl('^ling_mat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_imm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_mat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 
-# Compile and generate TMB ADFun (see ?TMB::MakeADFun)
-ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
-# writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+if (demo_ling_compile_tmb) {
+    # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
+    ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
+    # writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+}
 
-# Run model once, using g3_tmb_par to reshape tmb_param into param vector.
-# Will return nll
-ling_model_tmb$fn(g3_tmb_par(tmb_param))
+if (demo_ling_run_tmb) {
+    # Run model once, using g3_tmb_par to reshape tmb_param into param vector.
+    # Will return nll
+    ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
-# Run model once, returning model report
-ling_model_tmb$report(g3_tmb_par(tmb_param))
+    # Run model once, returning model report
+    ling_model_tmb$report(g3_tmb_par(tmb_param))
+}
 
-# Run model through R optimiser, using bounds set in tmb_param
-fit.opt <- optim(g3_tmb_par(tmb_param),
-                 ling_model_tmb$fn,
-                 ling_model_tmb$gr,
-                 method = 'BFGS',
-                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
+if (demo_ling_optimize_tmb) {
+    # Run model through R optimiser, using bounds set in tmb_param
+    fit.opt <- optim(g3_tmb_par(tmb_param),
+                     ling_model_tmb$fn,
+                     ling_model_tmb$gr,
+                     method = 'BFGS',
+                     control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
 
+    # Re-run with fitted parameters, returning report
+    ling_model_tmb$report(g3_tmb_par(fit.opt$par))
+}
 
 # cl <- parallel::makeCluster(spec=parallel::detectCores(), outfile="")
 # parallel::setDefaultCluster(cl=cl)
