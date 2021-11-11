@@ -804,6 +804,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
+
+            attr(defn, 'report_dimnames') <- dimnames(var_val)
             scope[[var_name]] <<- defn
         }
         return(code)
@@ -862,6 +864,7 @@ Type objective_function<Type>::operator() () {
     attr(out, 'actions') <- actions
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
+    attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
     return(out)
 }
 
@@ -972,13 +975,40 @@ g3_tmb_adfun <- function(cpp_code,
             ""), con = tmp_script_path)
         return(tmp_script_path)
     }
-    return(TMB::MakeADFun(
+    fn <- TMB::MakeADFun(
         data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
         DLL = base_name,
-        ...))
+        ...)
+
+    report_dimnames <- attr(cpp_code, 'report_dimnames')
+    fn$orig_report <- fn$report
+    fn$report <- function (...) {
+        out <- fn$orig_report(...)
+        # Patch report names back again
+        for (dimname in names(report_dimnames)) {
+            if (!(dimname %in% names(out))) next
+
+            # 1-dimension arrays lose their array-ness, restore it.
+            if (!is.array(out[[dimname]])) out[[dimname]] <- array(
+                out[[dimname]],
+                length(out[[dimname]]))
+
+            # Find and bodge any dynamic dims into having something that fits
+            for (di in seq_along(report_dimnames[[dimname]])) {
+                if (is.null(report_dimnames[[dimname]][[di]])) {
+                    report_dimnames[[dimname]][[di]] <- seq_len(dim(out[[dimname]])[[di]])
+                }
+            }
+
+            names(dim(out[[dimname]])) <- names(report_dimnames[[dimname]])
+            dimnames(out[[dimname]]) <- report_dimnames[[dimname]]
+        }
+        return(out)
+    }
+    return(fn)
 }
 
 # Turn parameter_template table into a vector for TMB

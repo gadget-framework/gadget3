@@ -7,9 +7,11 @@ ut_tmb_r_compare <- function (model_fn, model_tmb, param_template) {
         if (is.array(x) && length(dim(x)) == 1) x <- as.vector(x)
         # TMB Will produce 0/1 for TRUE/FALSE
         if (is.logical(x)) x <- as.numeric(x)
-        # TMB Won't have array labels
-        if (!is.null(dim(x))) names(dim(x)) <- NULL
-        return(unname(x))
+        # TMB can't produce dynamic dimnames
+        if (is.array(x) && "time" %in% names(dimnames(x))) {
+            dimnames(x)$time <- seq_along(dimnames(x)$time)
+        }
+        return(x)
     }
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -17,7 +19,7 @@ ut_tmb_r_compare <- function (model_fn, model_tmb, param_template) {
         r_result <- model_fn(param_template$value)
         for (n in names(attributes(r_result))) {
             unittest::ok(unittest::ut_cmp_equal(
-                model_tmb_report[[n]],
+                dearray(model_tmb_report[[n]]),
                 dearray(attr(r_result, n)),
                 tolerance = 1e-5), paste("TMB and R match", n))
         }

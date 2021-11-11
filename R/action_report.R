@@ -57,7 +57,7 @@ g3a_report_history <- function (actions, var_re = "__num$|__wgt$", run_at = 11) 
             dimnames <- dimnames(defn)
             if (is.null(dimnames)) dimnames <- lapply(dim(defn), function (x) NULL)
             dim(defn) <- c(dim(defn), time = 1)
-            dimnames(defn) <- c(dimnames, list(time = 1))
+            dimnames(defn) <- c(dimnames, list(time = NULL))
 
             # Make sure dynamic_dims are defined
             if (is.null(attr(defn, "dynamic_dim"))) {
