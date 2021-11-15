@@ -1,11 +1,12 @@
 open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
 
-# Compile actions together into a single R function, the attached environment contains:
-# - model_data: Fixed values refered to within function
+# Compile actions together into a single R function,
+# The attached environment contains model_data, i.e. fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
-    model_data <- new.env(parent = emptyenv())
+    # NB: Needs to be globalenv() to evaluate core R
+    model_env <- new.env(parent = globalenv())
     scope <- list()
 
     # Enable / disable strict mode & trace mode
@@ -110,6 +111,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 call("stop", "Incomplete model: No definition for ", var_name)
             })
 
+            defn <- logical(0)
             if (rlang::is_formula(var_val)) {
                 # Recurse, get definitions for formula, considering it's environment as well as the outer one
                 var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
@@ -137,11 +139,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 # Add single-value literal to code
                 defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
             } else {
-                # Bung in model_data
-                defn <- call("<-", as.symbol(var_name), call("$", as.symbol("model_data"), as.symbol(var_name)))
-                assign(var_name, var_val, envir = model_data)
+                # Bung in model_env, no need to define
+                assign(var_name, var_val, envir = model_env)
             }
-            scope[[var_name]] <<- defn
+            if (!identical(defn, logical(0))) scope[[var_name]] <<- defn
         }
         return(code)
     }  # End of var_defns
@@ -176,9 +177,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     out <- eval(out)
 
     # Attach data to model as closure
-    # NB: Needs to be globalenv() to evaluate core R
-    environment(out) <- new.env(parent = globalenv())
-    assign("model_data", model_data, envir = environment(out))
+    environment(out) <- model_env
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')

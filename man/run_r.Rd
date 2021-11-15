@@ -29,10 +29,12 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
   The following attributes will be set:
   \describe{
     \item{actions}{The original \var{actions} list given to the function}
-    \item{model_data}{An environment containing data attached to the model}
     \item{parameter_template}{A list of all parameters expected by the model, to fill in}
   }
   Use e.g. \code{attr(fn, 'parameter_template')} to retrieve them.
+
+  Invariant model data will be stored as a closure, i.e. in \code{environment(fn)}.
+  This can be fetched with \code{environment(fn)$cdist_sumofsquares_ldist_gil_obs__num}.
 
   The function will return \var{nll} produced by the model.
   You can also use \code{attributes(nll)} to get any report variables from the model.
@@ -85,4 +87,8 @@ nll <- fn(list(
 
 # Get the report from the last model run
 report <- attributes(nll)
+
+# Fetch a value from the model data
+environment(fn)$ling_imm__midlen
+\dontshow{stopifnot(dim(environment(fn)$ling_imm__midlen) == 35)}
 }
