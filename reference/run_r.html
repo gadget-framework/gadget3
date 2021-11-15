@@ -158,10 +158,11 @@
     <p>A function that takes a <var>params</var> variable, that defines all <var>g3_param</var>s required by the model.
   The following attributes will be set:</p><dl>
     <dt>actions</dt><dd><p>The original <var>actions</var> list given to the function</p></dd>
-    <dt>model_data</dt><dd><p>An environment containing data attached to the model</p></dd>
     <dt>parameter_template</dt><dd><p>A list of all parameters expected by the model, to fill in</p></dd>
   
 </dl><p>Use e.g. <code>attr(fn, 'parameter_template')</code> to retrieve them.</p>
+<p>Invariant model data will be stored as a closure, i.e. in <code>environment(fn)</code>.
+  This can be fetched with <code>environment(fn)$cdist_sumofsquares_ldist_gil_obs__num</code>.</p>
 <p>The function will return <var>nll</var> produced by the model.
   You can also use <code>attributes(nll)</code> to get any report variables from the model.</p>
 
@@ -212,6 +213,18 @@
 <span class='r-in'></span>
 <span class='r-in'><span class='co'># Get the report from the last model run</span></span>
 <span class='r-in'><span class='va'>report</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/attributes.html'>attributes</a></span><span class='op'>(</span><span class='va'>nll</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Fetch a value from the model data</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='op'>(</span><span class='va'>fn</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ling_imm__midlen</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   20:24   24:28   28:32   32:36   36:40   40:44   44:48   48:52   52:56   56:60 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      22      26      30      34      38      42      46      50      54      58 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   60:64   64:68   68:72   72:76   76:80   80:84   84:88   88:92   92:96  96:100 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      62      66      70      74      78      82      86      90      94      98 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 100:104 104:108 108:112 112:116 116:120 120:124 124:128 128:132 132:136 136:140 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     102     106     110     114     118     122     126     130     134     138 </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> 140:144 144:148 148:152 152:156 156:Inf </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     142     146     150     154     158 </span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/base/stopifnot.html'>stopifnot</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/dim.html'>dim</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/environment.html'>environment</a></span><span class='op'>(</span><span class='va'>fn</span><span class='op'>)</span><span class='op'>$</span><span class='va'>ling_imm__midlen</span><span class='op'>)</span> <span class='op'>==</span> <span class='fl'>35</span><span class='op'>)</span></span>
 </pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
