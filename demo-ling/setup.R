@@ -40,13 +40,6 @@ areas <- structure(
   seq_along(defaults$area),
   names = names(defaults$area))
 
-# Timekeeping for the model, i.e. how long we run for
-time_actions <- list(
-  g3a_time(start_year = min(defaults$year),
-           end_year = max(defaults$year),
-           defaults$timestep),
-  list())
-
 #### Load required data objects ################################################
 
 if(demo_ling_read_data){
@@ -64,24 +57,32 @@ if(demo_ling_read_data){
 
 ##### Configure model actions #################################################
 
+# Timekeeping for the model, i.e. how long we run for
+time_actions <- list(
+  g3a_time(start_year = min(defaults$year),
+           end_year = max(defaults$year),
+           defaults$timestep),
+  list())
+
 source('demo-ling/setup-model.R')  # Generates mat_actions / imm_actions
 source('demo-ling/setup-fleets.R')  # Generates fleet_actions
 source('demo-ling/setup-likelihood.R')  # Generates likelihood_actions
-source('demo-ling/setup-report_actions.R')  # Generates report actions
 
-##### Run r-based model #######################################################
-
-# Turn actions into an R function
-ling_model <- g3_to_r(c(
+actions <- c(
   ling_mat_actions,
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
-  report_actions,
-  time_actions),
-  #  trace = TRUE, 
-  strict = TRUE)
-  
+  time_actions)
+
+# Generate reports for all abundance and catch ling_imm/ling_mat variables
+actions <- c(actions, list(
+    g3a_report_history(actions, '^ling_(imm|mat)__(num|wgt|igfs|lln|bmt|gil|foreign|suit_igfs|renewalnum|renewalwgt)$')))
+
+##### Run r-based model #######################################################
+
+# Turn actions into an R function
+ling_model <- g3_to_r(actions)
 
 # Get parameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
@@ -142,12 +143,7 @@ if (demo_ling_run_r) {
 ##### Run TMB-based model #####################################################
 
 # Turn actions into C++ objective function code
-tmb_ling <- g3_to_tmb(c(
-  ling_mat_actions,
-  ling_imm_actions,
-  fleet_actions,
-  ling_likelihood_actions,
-  time_actions))
+tmb_ling <- g3_to_tmb(actions)
 
 # Get the parameter template to fill in
 tmb_param <- attr(tmb_ling, 'parameter_template')

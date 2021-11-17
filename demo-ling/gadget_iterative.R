@@ -102,13 +102,7 @@ ss_func <- function(opt){
   # }
   ## change names (do we need to do this?)
   
-  # ling_model <- g3_to_r(c(
-  #   ling_mat_actions,
-  #   ling_imm_actions,
-  #   fleet_actions,
-  #   ling_likelihood_actions,
-  #   report_actions,
-  #   time_actions))
+  # ling_model <- g3_to_r(actions)
   
   res <- ling_model(param_list)
   attributes(res)
