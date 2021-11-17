@@ -3,7 +3,9 @@ library(unittest)
 
 library(gadget3)
 
-cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
+cmp_code <- function (a, b) ut_cmp_identical(
+    deparse(gadget3:::f_optimize(a)),
+    deparse(gadget3:::f_optimize(b)))
 
 unattr <- function (x) {
     attributes(x) <- NULL
