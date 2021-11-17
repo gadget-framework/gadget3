@@ -203,11 +203,13 @@ if (demo_ling_optimize_tmb) {
                      method = 'BFGS',
                      control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
     save(fit.opt, file="demo-ling/data/fit.opt.Rdata")
-
-    # Re-run with fitted parameters, returning report
-    ling_model_tmb$report(g3_tmb_par(fit.opt$par))
 } else {
     load("demo-ling/data/fit.opt.Rdata")
+}
+
+if (demo_ling_run_tmb) {
+    # Re-run with fitted parameters, returning report
+    ling_model_tmb$report(fit.opt$par)
 }
 
 # cl <- parallel::makeCluster(spec=parallel::detectCores(), outfile="")
