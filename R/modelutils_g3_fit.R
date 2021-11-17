@@ -76,7 +76,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   name = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\3.\\4', .data$comp),
                   #length = gsub('len', '', .data$length) %>% as.numeric(),
                   area = as.numeric(.data$area)) %>%
-    dplyr::bind_cols(split_length(.$length)) %>%
+    split_length() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     dplyr::select(-.data$comp) %>%
     extract_year_step() %>%
@@ -94,7 +94,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
       dplyr::group_by(.data$year, .data$step, .data$area, .data$length, .data$age, .data$name) %>%
       dplyr::mutate(pred.ratio = .data$predicted / sum(.data$predicted, na.rm = TRUE),
                     obs.ratio = .data$observed / sum(.data$observed, na.rm = TRUE),
-                    length = avg.length) %>%
+                    length = .data$avg.length) %>%
       dplyr::ungroup() %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$age, 
@@ -118,8 +118,8 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                     observed = .data$observed / sum(.data$observed, na.rm = TRUE),
                     predicted = .data$predicted / sum(.data$predicted, na.rm = TRUE),
                     residuals = ifelse(.data$observed == 0, NA, .data$observed - .data$predicted)) %>% 
-      dplyr::ungroup() %>% 
-      dplyr::mutate(age = split_age(.data$age)) %>% 
+      dplyr::ungroup() %>%
+      split_age() %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$lower, .data$upper, .data$avg.length, .data$age,  
                     .data$fleetnames, .data$obs, .data$total.catch, .data$observed,
@@ -136,6 +136,12 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## TODO add parameters
   if (any(grepl('^adist_.+__num$', names(tmp)))){
     
+    sidat_params <- 
+      tmp[grepl('^adist_.+__params$', names(tmp))] %>% 
+      purrr::map(stats::setNames, c('alpha', 'beta')) %>% 
+      dplyr::bind_rows(.id = 'id') %>%
+      dplyr::mutate(id = gsub('^adist_|_model__params$', '', .data$id))
+    
     sidat <- 
       tmp[grep('^adist_.+__num$',names(tmp))] %>%
       purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>%
@@ -147,14 +153,12 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                     name = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\2.\\4', .data$comp),
                     #length = gsub('len', '', .data$length) %>% as.numeric(),
                     area = as.numeric(.data$area)) %>%
-      dplyr::bind_cols(split_length(.$length)) %>% 
+      split_length() %>% 
       extract_year_step() %>%
       dplyr::select(-.data$comp) %>%
       tidyr::pivot_wider(names_from = .data$origin, values_from = .data$Freq) %>%
       dplyr::mutate(id = paste(.data$index, .data$type, .data$fleet, sep = '_')) %>% 
-      dplyr::left_join(tmp[grepl('^adist_.+__params$', names(tmp))] %>% 
-                         dplyr::bind_rows(.id = 'id') %>%
-                         dplyr::mutate(id = gsub('^adist_|_model__params$', '', .data$id))) %>% 
+      dplyr::left_join(sidat_params, by = 'id') %>% 
       dplyr::rename(observed = .data$obs, number = .data$model, intercept = .data$alpha, slope = .data$beta) %>% 
       dplyr::mutate(predicted = ifelse(.data$type == 'log', 
                                        exp(.data$intercept) * .data$number^.data$slope,
@@ -260,9 +264,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   fleet = gsub('hist_(.+)__(.+)', '\\2', .data$comp)) %>% 
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
-    dplyr::bind_cols(split_length(.$length)) %>% 
+    split_length() %>% 
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
-    mutate(number_consumed = 
+    dplyr::mutate(number_consumed = 
                     ifelse(.data$biomass_consumed == 0, 0, .data$biomass_consumed / .data$weight)) %>%
     extract_year_step() %>% 
     tibble::as_tibble()
@@ -275,7 +279,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::mutate(stock = gsub('hist_(.+)__num', '\\1', .data$comp)) %>% 
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
-    dplyr::bind_cols(split_length(.$length)) %>%
+    split_length() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     extract_year_step() %>% 
     tibble::as_tibble()
@@ -429,16 +433,24 @@ extract_year_step <- function(data){
   
 }
 
-split_age <- function(age_col){
-  tmp <- 
-    utils::strcapture("(.*):(.*)", age_col, data.frame(lower = character(), upper = character())) %>% 
-    dplyr::mutate(age = ifelse(.data$lower == .data$upper, paste0('age', .data$lower), paste0('all', .data$lower))) 
-    return(tmp$age)
+split_age <- function(data){
+  tmp <-
+    data %>% 
+    dplyr::mutate(lower_age = gsub('(.+):(.+)', '\\1', .data$age),
+                  upper_age = gsub('(.+):(.+)', '\\2', .data$age)) %>% 
+    dplyr::mutate(age = ifelse(.data$lower_age == .data$upper_age, 
+                               paste0('age', .data$lower_age), paste0('all', .data$lower_age))) %>% 
+    dplyr::select(-.data$upper_age, -.data$lower_age)
+    return(tmp)
 }
 
-split_length <- function(len_col){
-  tmp <- 
-    utils::strcapture("(.*):(.*)", len_col, data.frame(lower = numeric(), upper = numeric())) 
+split_length <- function(data){
+  
+  tmp <-
+    data %>% 
+    dplyr::mutate(lower = gsub('(.+):(.+)', '\\1', .data$length) %>% as.numeric(),
+                  upper = gsub('(.+):(.+)', '\\2', .data$length) %>% as.numeric())
+  
   return(tmp)
 }
 
