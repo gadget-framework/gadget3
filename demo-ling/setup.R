@@ -10,6 +10,7 @@ demo_ling_run_r <- setdefault("demo_ling_run_r", TRUE)
 demo_ling_compile_tmb <- setdefault("demo_ling_compile_tmb", TRUE)
 demo_ling_run_tmb <- setdefault("demo_ling_run_tmb", TRUE)
 demo_ling_optimize_tmb <- setdefault("demo_ling_optimize_tmb", TRUE)
+demo_ling_fit <- setdefault("demo_ling_fit", FALSE)
 
 ## functions for inserting species name into param references
 source("demo-ling/stock_param_functions.r")
@@ -210,4 +211,9 @@ if (demo_ling_optimize_tmb) {
 if (demo_ling_run_tmb) {
     # Re-run with fitted parameters, returning report
     ling_model_tmb$report(fit.opt$par)
+}
+
+if (demo_ling_fit) {
+    fit <- gadget3:::g3_fit(ling_model, g3_tmb_relist(tmb_param, fit.opt$par))
+    fit
 }
