@@ -21,6 +21,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         })
 
     var_defns <- function (code, env) {
+        to_call <- function (x) str2lang(deparse1(x))
         # Convert a g3_param* call into a reference, move it's definition to the environment
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
@@ -133,11 +134,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
                 defn <- call("<-", as.symbol(var_name), substitute(array(v, dim = x, dimnames = y), list(
                     v = if (length(var_val) > 0) var_val[[1]] else NA,  # NB: All values are the same
-                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else dim(var_val),
-                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else dimnames(var_val))))
+                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else to_call(dim(var_val)),
+                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else to_call(dimnames(var_val)))))
             } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
                 # Add single-value literal to code
-                defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
+                defn <- call("<-", as.symbol(var_name), to_call(var_val))
             } else {
                 # Bung in model_env, no need to define
                 assign(var_name, var_val, envir = model_env)
@@ -181,6 +182,27 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
+    return(g3_r_compile(out))
+}
+
+# Generate a srcRef'ed, optimized function
+g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
+    model_string <- deparse(model)
+    base_name <- paste0('g3_r_', digest::sha1(model_string))
+    r_path <- paste0(file.path(work_dir, base_name), '.R')
+
+    # Write out file so srcRef is populated
+    writeLines(c(
+        'out <-', model_string,
+        NULL), r_path)
+    source(r_path)
+
+    # Restore model data
+    environment(out) <- environment(model)
+
+    # Optimize model function
+    out <- compiler::cmpfun(out, options = list(optimize = optimize))
+
     return(out)
 }
 

@@ -46,13 +46,11 @@ structure(function (param)
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
     stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
-    assert_msg <- function (expr, message) 
-    {
+    assert_msg <- function(expr, message) {
         if (isFALSE(expr)) 
             warning(message)
     }
-    intintlookup_getdefault <- function (lookup, key, def) 
-    {
+    intintlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
         }
@@ -63,16 +61,13 @@ structure(function (param)
         }
         return(if (is.null(out)) def else out)
     }
-    avoid_zero_vec <- function (a) 
-    {
+    avoid_zero_vec <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
-    logspace_add_vec <- function (a, b) 
-    {
+    logspace_add_vec <- function(a, b) {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
     }
-    growth_bbinom <- function (delt_l, binn, beta) 
-    {
+    growth_bbinom <- function(delt_l, binn, beta) {
         alpha <- (beta * delt_l)/(binn - delt_l)
         x <- 0:binn
         na <- length(alpha)
@@ -83,26 +78,21 @@ structure(function (param)
         dim(val) <- c(na, n + 1)
         return(val)
     }
-    avoid_zero <- function (a) 
-    {
+    avoid_zero <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
-    g3a_grow_weightsimple_vec_rotate <- function (vec, a) 
-    {
+    g3a_grow_weightsimple_vec_rotate <- function(vec, a) {
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
         out[is.na(out)] <- vec[length(vec)]
         out
     }
-    pow_vec <- function (a, b) 
-    {
+    pow_vec <- function(a, b) {
         a^b
     }
-    g3a_grow_weightsimple_vec_extrude <- function (vec, a) 
-    {
+    g3a_grow_weightsimple_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
     }
-    g3a_grow_apply <- function (delta_l, delta_w, input_num, input_wgt) 
-    {
+    g3a_grow_apply <- function(delta_l, delta_w, input_num, input_wgt) {
         na <- dim(delta_l)[[1]]
         n <- dim(delta_l)[[2]] - 1
         avoid_zero_vec <- function(a) {
@@ -130,14 +120,12 @@ structure(function (param)
         growth.matrix.sum <- colSums(growth.matrix)
         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
     }
-    nvl <- function (...) 
-    {
+    nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
             return(...elt(i))
         return(NULL)
     }
-    ratio_add_vec <- function (orig_vec, orig_amount, new_vec, new_amount) 
-    {
+    ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
     }
     cur_time <- -1L
@@ -155,32 +143,31 @@ structure(function (param)
     ling_imm__maxage <- 10L
     ling_imm__area <- 1L
     ling_imm__num <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", "age6", 
-    "age7", "age8", "age9", "age10")))
+        "age7", "age8", "age9", "age10")))
     ling_imm__wgt <- array(1, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", "age6", 
-    "age7", "age8", "age9", "age10")))
+        "age7", "age8", "age9", "age10")))
     ling_mat__minage <- 5L
     ling_mat__maxage <- 15L
     ling_mat__area <- 1L
     ling_mat__num <- array(0, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", "age8", 
-    "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+        "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_mat__wgt <- array(1, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", "age8", 
-    "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+        "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     igfs__catch <- array(NA, dim = c(area = 1L), dimnames = list(area = "area1"))
     ling_imm__totalpredate <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
-    "age6", "age7", "age8", "age9", "age10")))
+        "age6", "age7", "age8", "age9", "age10")))
     ling_mat__totalpredate <- array(NA, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
-    "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+        "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_imm__igfs <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", "age6", 
-    "age7", "age8", "age9", "age10")))
+        "age7", "age8", "age9", "age10")))
     igfs__area <- 1L
     ling_imm__suit_igfs <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
-    "age6", "age7", "age8", "age9", "age10")))
+        "age6", "age7", "age8", "age9", "age10")))
     ling_mat__igfs <- array(NA, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", "age8", 
-    "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+        "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_mat__suit_igfs <- array(0, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
-    "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
-    intintlookup_zip <- function (keys, values) 
-    {
+        "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+    intintlookup_zip <- function(keys, values) {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
             out[as.integer(keys)] <- as.list(values)
@@ -196,34 +183,34 @@ structure(function (param)
     }
     igfs_totaldata__lookup <- intintlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_imm__consratio <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
-    "age6", "age7", "age8", "age9", "age10")))
+        "age6", "age7", "age8", "age9", "age10")))
     ling_imm__overconsumption <- structure(0, desc = "Total overconsumption of ling_imm")
     ling_mat__consratio <- array(NA, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
-    "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
+        "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_mat__overconsumption <- structure(0, desc = "Total overconsumption of ling_mat")
     cur_step_size <- step_lengths[[1]]/12
     ling_imm__transitioning_num <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", 
-    "age5", "age6", "age7", "age8", "age9", "age10")))
+        "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_imm__transitioning_wgt <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", 
-    "age5", "age6", "age7", "age8", "age9", "age10")))
+        "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_imm__growth_lastcalc <- -1L
     ling_imm__growth_l <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
-    "9", "10", "11", "12", "13", "14", "15")))
+        "9", "10", "11", "12", "13", "14", "15")))
     ling_imm__plusdl <- 4
     ling_imm__growth_w <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
-    "9", "10", "11", "12", "13", "14", "15")))
+        "9", "10", "11", "12", "13", "14", "15")))
     ling_imm__prevtotal <- 0
     ling_mat__growth_lastcalc <- -1L
     ling_mat__growth_l <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
-    "9", "10", "11", "12", "13", "14", "15")))
+        "9", "10", "11", "12", "13", "14", "15")))
     ling_mat__plusdl <- 4
     ling_mat__growth_w <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
-    "9", "10", "11", "12", "13", "14", "15")))
+        "9", "10", "11", "12", "13", "14", "15")))
     ling_mat__prevtotal <- 0
     ling_imm__renewalnum <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
-    "age6", "age7", "age8", "age9", "age10")))
+        "age6", "age7", "age8", "age9", "age10")))
     ling_imm__renewalwgt <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
-    "age6", "age7", "age8", "age9", "age10")))
+        "age6", "age7", "age8", "age9", "age10")))
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
     times_cdist_sumofsquares_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
     as_integer <- as.integer
