@@ -946,6 +946,14 @@ g3_tmb_adfun <- function(cpp_code,
     if (!any(vapply(getLoadedDLLs(), function (x) x[['path']] == so_path, logical(1)))) {
         writeLines(cpp_code, con = cpp_path)
 
+        # _R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_ (read: in CMD check) will
+        # result in a stray symbols.rds being generated and a NOTE. Turn it off.
+        prev_symtbl_val <- Sys.getenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_", unset = NA)
+        if (!is.na(prev_symtbl_val)) {
+            on.exit(Sys.setenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_" = prev_symtbl_val))
+        }
+        Sys.unsetenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_")
+
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
         TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
