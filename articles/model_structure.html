@@ -111,7 +111,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></code></pre></div>
 <pre><code>## Class 'formula'  language ~cows + pigs
-##   ..- attr(*, ".Environment")=&lt;environment: 0x55d585dc82f8&gt;</code></pre>
+##   ..- attr(*, ".Environment")=&lt;environment: 0x558838243058&gt;</code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/str.html">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -143,13 +143,13 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x55d5859a9700&gt;
+## &lt;bytecode: 0x5588367dca98&gt;
+## &lt;environment: 0x558837e23708&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
 ## attr(,"actions")[[1]]
-## ~cows + pigs
-## &lt;environment: 0x55d585dc82f8&gt;</code></pre>
+## ~cows + pigs</code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -190,14 +190,13 @@
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
 ## }
-## &lt;environment: 0x55d586228410&gt;</code></pre>
+## &lt;environment: 0x5588384a0518&gt;</code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
-##     assert_msg &lt;- function (expr, message) 
-##     {
+##     assert_msg &lt;- function(expr, message) {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
 ##     }
@@ -237,7 +236,8 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x55d58353e310&gt;
+## &lt;bytecode: 0x55883a535290&gt;
+## &lt;environment: 0x5588392cfc90&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -255,15 +255,13 @@
 ##     cur_year_projection &lt;- cur_year &gt; end_year
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
-## }
-## &lt;environment: 0x55d585590fe8&gt;</code></pre>
+## }</code></pre>
 <p>In this case our years have been hard-coded, but their definitions could themselves be formula and the end result will be added to the model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## function (param) 
 ## {
-##     assert_msg &lt;- function (expr, message) 
-##     {
+##     assert_msg &lt;- function(expr, message) {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
 ##     }
@@ -303,7 +301,8 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x55d587ad1b60&gt;
+## &lt;bytecode: 0x55883b7493b8&gt;
+## &lt;environment: 0x55883aaba7b8&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -321,8 +320,7 @@
 ##     cur_year_projection &lt;- cur_year &gt; end_year
 ##     cur_step &lt;- (cur_time%%step_count) + 1L
 ##     cur_step_final &lt;- cur_step == step_count
-## }
-## &lt;environment: 0x55d58791c120&gt;</code></pre>
+## }</code></pre>
 </div>
 <div id="stocks" class="section level2">
 <h2 class="hasAnchor">
@@ -382,8 +380,7 @@
 <pre><code>## function (param) 
 ## {
 ##     stopifnot("ling.bbin" %in% names(param))
-##     growth_bbinom &lt;- function (delt_l, binn, beta) 
-##     {
+##     growth_bbinom &lt;- function(delt_l, binn, beta) {
 ##         alpha &lt;- (beta * delt_l)/(binn - delt_l)
 ##         x &lt;- 0:binn
 ##         na &lt;- length(alpha)
@@ -397,19 +394,15 @@
 ##         dim(val) &lt;- c(na, n + 1)
 ##         return(val)
 ##     }
-##     avoid_zero_vec &lt;- function (a) 
-##     {
+##     avoid_zero_vec &lt;- function(a) {
 ##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
 ##             1000, 0))))/1000
 ##     }
-##     avoid_zero &lt;- function (a) 
-##     {
+##     avoid_zero &lt;- function(a) {
 ##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
 ##             1000, 0))))/1000
 ##     }
-##     g3a_grow_apply &lt;- function (delta_l, delta_w, input_num, 
-##         input_wgt) 
-##     {
+##     g3a_grow_apply &lt;- function(delta_l, delta_w, input_num, input_wgt) {
 ##         na &lt;- dim(delta_l)[[1]]
 ##         n &lt;- dim(delta_l)[[2]] - 1
 ##         avoid_zero_vec &lt;- function(a) {
@@ -444,31 +437,32 @@
 ##         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), 
 ##             dim = c(na, 2)))
 ##     }
-##     assert_msg &lt;- function (expr, message) 
-##     {
+##     assert_msg &lt;- function(expr, message) {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
 ##     }
 ##     ling_imm__minage &lt;- 3L
 ##     ling_imm__maxage &lt;- 10L
-##     ling_imm__growth_l &lt;- array(NA, dim = 6:5, dimnames = list(
-##         length = c("0:10", "10:20", "20:30", "30:40", "40:50", 
-##         "50:Inf"), delta = c("0", "1", "2", "3", "4")))
+##     ling_imm__growth_l &lt;- array(NA, dim = structure(6:5, .Names = c("length", 
+##         "delta")), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), delta = c("0", 
+##         "1", "2", "3", "4")))
 ##     ling_imm__plusdl &lt;- 10
-##     ling_imm__growth_w &lt;- array(NA, dim = 6:5, dimnames = list(
-##         length = c("0:10", "10:20", "20:30", "30:40", "40:50", 
-##         "50:Inf"), delta = c("0", "1", "2", "3", "4")))
+##     ling_imm__growth_w &lt;- array(NA, dim = structure(6:5, .Names = c("length", 
+##         "delta")), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), delta = c("0", 
+##         "1", "2", "3", "4")))
 ##     ling_imm__prevtotal &lt;- 0
 ##     ling_imm__num &lt;- array(0, dim = c(length = 6L, area = 2L, 
-##     age = 8L), dimnames = list(length = c("0:10", "10:20", "20:30", 
-##     "30:40", "40:50", "50:Inf"), area = c("area1", "area2"), 
-##         age = c("age3", "age4", "age5", "age6", "age7", "age8", 
-##         "age9", "age10")))
+##         age = 8L), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), area = c("area1", 
+##         "area2"), age = c("age3", "age4", "age5", "age6", "age7", 
+##         "age8", "age9", "age10")))
 ##     ling_imm__wgt &lt;- array(1, dim = c(length = 6L, area = 2L, 
-##     age = 8L), dimnames = list(length = c("0:10", "10:20", "20:30", 
-##     "30:40", "40:50", "50:Inf"), area = c("area1", "area2"), 
-##         age = c("age3", "age4", "age5", "age6", "age7", "age8", 
-##         "age9", "age10")))
+##         age = 8L), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), area = c("area1", 
+##         "area2"), age = c("age3", "age4", "age5", "age6", "age7", 
+##         "age8", "age9", "age10")))
 ##     while (TRUE) {
 ##         {
 ##             comment("g3a_grow for ling_imm")
@@ -510,7 +504,8 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x55d5895faf60&gt;
+## &lt;bytecode: 0x55883abb8b08&gt;
+## &lt;environment: 0x55883a185848&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -543,7 +538,6 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## }
-## &lt;environment: 0x55d5889e3b10&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
@@ -565,8 +559,7 @@
 <pre><code>## function (param) 
 ## {
 ##     stopifnot("ling.bbin" %in% names(param))
-##     growth_bbinom &lt;- function (delt_l, binn, beta) 
-##     {
+##     growth_bbinom &lt;- function(delt_l, binn, beta) {
 ##         alpha &lt;- (beta * delt_l)/(binn - delt_l)
 ##         x &lt;- 0:binn
 ##         na &lt;- length(alpha)
@@ -580,19 +573,15 @@
 ##         dim(val) &lt;- c(na, n + 1)
 ##         return(val)
 ##     }
-##     avoid_zero_vec &lt;- function (a) 
-##     {
+##     avoid_zero_vec &lt;- function(a) {
 ##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
 ##             1000, 0))))/1000
 ##     }
-##     avoid_zero &lt;- function (a) 
-##     {
+##     avoid_zero &lt;- function(a) {
 ##         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 
 ##             1000, 0))))/1000
 ##     }
-##     g3a_grow_apply &lt;- function (delta_l, delta_w, input_num, 
-##         input_wgt) 
-##     {
+##     g3a_grow_apply &lt;- function(delta_l, delta_w, input_num, input_wgt) {
 ##         na &lt;- dim(delta_l)[[1]]
 ##         n &lt;- dim(delta_l)[[2]] - 1
 ##         avoid_zero_vec &lt;- function(a) {
@@ -627,31 +616,32 @@
 ##         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), 
 ##             dim = c(na, 2)))
 ##     }
-##     assert_msg &lt;- function (expr, message) 
-##     {
+##     assert_msg &lt;- function(expr, message) {
 ##         if (isFALSE(expr)) 
 ##             warning(message)
 ##     }
 ##     ling_imm__plusdl &lt;- 10
 ##     ling_imm__minage &lt;- 3L
 ##     ling_imm__maxage &lt;- 10L
-##     ling_imm__growth_l &lt;- array(NA, dim = 6:5, dimnames = list(
-##         length = c("0:10", "10:20", "20:30", "30:40", "40:50", 
-##         "50:Inf"), delta = c("0", "1", "2", "3", "4")))
-##     ling_imm__growth_w &lt;- array(NA, dim = 6:5, dimnames = list(
-##         length = c("0:10", "10:20", "20:30", "30:40", "40:50", 
-##         "50:Inf"), delta = c("0", "1", "2", "3", "4")))
+##     ling_imm__growth_l &lt;- array(NA, dim = structure(6:5, .Names = c("length", 
+##         "delta")), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), delta = c("0", 
+##         "1", "2", "3", "4")))
+##     ling_imm__growth_w &lt;- array(NA, dim = structure(6:5, .Names = c("length", 
+##         "delta")), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), delta = c("0", 
+##         "1", "2", "3", "4")))
 ##     ling_imm__prevtotal &lt;- 0
 ##     ling_imm__num &lt;- array(0, dim = c(length = 6L, area = 2L, 
-##     age = 8L), dimnames = list(length = c("0:10", "10:20", "20:30", 
-##     "30:40", "40:50", "50:Inf"), area = c("area1", "area2"), 
-##         age = c("age3", "age4", "age5", "age6", "age7", "age8", 
-##         "age9", "age10")))
+##         age = 8L), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), area = c("area1", 
+##         "area2"), age = c("age3", "age4", "age5", "age6", "age7", 
+##         "age8", "age9", "age10")))
 ##     ling_imm__wgt &lt;- array(1, dim = c(length = 6L, area = 2L, 
-##     age = 8L), dimnames = list(length = c("0:10", "10:20", "20:30", 
-##     "30:40", "40:50", "50:Inf"), area = c("area1", "area2"), 
-##         age = c("age3", "age4", "age5", "age6", "age7", "age8", 
-##         "age9", "age10")))
+##         age = 8L), dimnames = list(length = c("0:10", "10:20", 
+##         "20:30", "30:40", "40:50", "50:Inf"), area = c("area1", 
+##         "area2"), age = c("age3", "age4", "age5", "age6", "age7", 
+##         "age8", "age9", "age10")))
 ##     while (TRUE) {
 ##         {
 ##             custom_delta_w &lt;- (ling_imm__plusdl * 44)
@@ -702,7 +692,8 @@
 ##     }
 ##     stop("Should have return()ed somewhere in the loop")
 ## }
-## &lt;environment: 0x55d5874c9aa0&gt;
+## &lt;bytecode: 0x558839fb5298&gt;
+## &lt;environment: 0x5588382e5080&gt;
 ## attr(,"class")
 ## [1] "g3_r"     "function"
 ## attr(,"actions")
@@ -736,7 +727,6 @@
 ##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")
 ##     }))
 ## })
-## &lt;environment: 0x55d587cd1f18&gt;
 ## 
 ## attr(,"parameter_template")
 ## attr(,"parameter_template")$ling.bbin
