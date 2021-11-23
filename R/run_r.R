@@ -197,8 +197,9 @@ g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
         NULL), r_path)
     source(r_path)
 
-    # Restore model data
+    # Restore model data and attributes
     environment(out) <- environment(model)
+    attributes(out) <- attributes(model)
 
     # Optimize model function
     out <- compiler::cmpfun(out, options = list(optimize = optimize))
