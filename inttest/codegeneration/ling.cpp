@@ -74,7 +74,7 @@ Type objective_function<Type>::operator() () {
     auto assert_msg = [](bool expr, std::string message) -> void {
     if (!expr) warning(message.c_str());
 };
-    auto inttypelookup_getdefault = [](std::map<int, Type> lookup, int key, Type def) -> Type {
+    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
             return lookup.count(key) > 0 ? lookup[key] : def;
         };
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
@@ -191,33 +191,31 @@ Type objective_function<Type>::operator() () {
     auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 };
-    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
-            return lookup.count(key) > 0 ? lookup[key] : def;
-        };
     int cur_time = -1;
     Type nll = (double)(0);
-    DATA_IVECTOR(step_lengths)
+    vector<int> step_lengths(4); step_lengths.setConstant(3);
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - start_year + 0) + (step_lengths).size() - 1;
     int cur_year = 0;
     auto step_count = (step_lengths).size();
+    auto cur_year_projection = false;
     int cur_step = 0;
     auto cur_step_final = false;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
     int ling_imm__area = 1;
-    array<Type> ling_imm__num(35,1,8);
+    array<Type> ling_imm__num(35,1,8); ling_imm__num.setZero();
     DATA_VECTOR(ling_imm__midlen)
     DATA_VECTOR(ling_imm_stddev)
-    array<Type> ling_imm__wgt(35,1,8);
+    array<Type> ling_imm__wgt(35,1,8); ling_imm__wgt.setConstant((double)(1));
     int ling_mat__minage = 5;
     int ling_mat__maxage = 15;
     int ling_mat__area = 1;
-    array<Type> ling_mat__num(35,1,11);
+    array<Type> ling_mat__num(35,1,11); ling_mat__num.setZero();
     DATA_VECTOR(ling_mat__midlen)
     DATA_VECTOR(ling_mat_stddev)
-    array<Type> ling_mat__wgt(35,1,11);
+    array<Type> ling_mat__wgt(35,1,11); ling_mat__wgt.setConstant((double)(1));
     vector<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
     array<Type> ling_mat__totalpredate(35,1,11);
@@ -226,38 +224,6 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
     array<Type> ling_mat__igfs(35,1,11);
     array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
-    auto inttypelookup_zip = [](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
-            std::map<int, Type> lookup = {};
-
-            assert(keys.size() == values.size());
-            for (size_t i = 0; i < keys.size(); ++i) {
-                lookup[keys[i]] = values[i];
-            }
-            return lookup;
-        };
-    DATA_IVECTOR(igfs_totaldata__keys)
-    DATA_VECTOR(igfs_totaldata__values)
-    auto igfs_totaldata__lookup = inttypelookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
-    array<Type> ling_imm__consratio(35,1,8);
-    Type ling_imm__overconsumption = (double)(0);
-    array<Type> ling_mat__consratio(35,1,11);
-    Type ling_mat__overconsumption = (double)(0);
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
-    array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
-    array<Type> ling_imm__transitioning_wgt(35,1,8);
-    int ling_imm__growth_lastcalc = -1;
-    array<Type> ling_imm__growth_l;
-    Type ling_imm__plusdl = (double)(4);
-    array<Type> ling_imm__growth_w;
-    Type ling_imm__prevtotal = (double)(0);
-    int ling_mat__growth_lastcalc = -1;
-    array<Type> ling_mat__growth_l;
-    Type ling_mat__plusdl = (double)(4);
-    array<Type> ling_mat__growth_w;
-    Type ling_mat__prevtotal = (double)(0);
-    array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
-    array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
-    vector<Type> cdist_sumofsquares_ldist_lln_model__num(35); cdist_sumofsquares_ldist_lln_model__num.setZero();
     auto intintlookup_zip = [](vector<int> keys, vector<int> values) -> std::map<int, int> {
             std::map<int, int> lookup = {};
 
@@ -267,6 +233,29 @@ Type objective_function<Type>::operator() () {
             }
             return lookup;
         };
+    DATA_IVECTOR(igfs_totaldata__keys)
+    DATA_IVECTOR(igfs_totaldata__values)
+    auto igfs_totaldata__lookup = intintlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    array<Type> ling_imm__consratio(35,1,8);
+    Type ling_imm__overconsumption = (double)(0);
+    array<Type> ling_mat__consratio(35,1,11);
+    Type ling_mat__overconsumption = (double)(0);
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
+    array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
+    array<Type> ling_imm__transitioning_wgt(35,1,8);
+    int ling_imm__growth_lastcalc = -1;
+    array<Type> ling_imm__growth_l(35,16);
+    Type ling_imm__plusdl = (double)(4);
+    array<Type> ling_imm__growth_w(35,16);
+    Type ling_imm__prevtotal = (double)(0);
+    int ling_mat__growth_lastcalc = -1;
+    array<Type> ling_mat__growth_l(35,16);
+    Type ling_mat__plusdl = (double)(4);
+    array<Type> ling_mat__growth_w(35,16);
+    Type ling_mat__prevtotal = (double)(0);
+    array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
+    array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
+    vector<Type> cdist_sumofsquares_ldist_lln_model__num(35); cdist_sumofsquares_ldist_lln_model__num.setZero();
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
@@ -287,7 +276,7 @@ Type objective_function<Type>::operator() () {
 
     while (true) {
         {
-            // g3a_time;
+            // g3a_time: Start of time period;
             cur_time += 1;
             if ( true ) {
                 assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
@@ -299,6 +288,7 @@ Type objective_function<Type>::operator() () {
                     REPORT(cur_step_final);
                     REPORT(cur_time);
                     REPORT(cur_year);
+                    REPORT(cur_year_projection);
                     REPORT(g3l_understocking_total);
                     REPORT(igfs__catch);
                     REPORT(ling_imm__consratio);
@@ -338,18 +328,16 @@ Type objective_function<Type>::operator() () {
                 return nll;
             }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year > end_year;
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
-            if ( false ) {
-                Rprintf("** Tick: %d-%d\n", cur_year, cur_step);
-            }
         }
         {
             auto ling_imm__area_idx = 0;
 
             {
                 // g3a_initialconditions_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
@@ -373,7 +361,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_initialconditions_normalparam for ling_mat;
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 ) {
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 && true ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                     {
@@ -474,7 +462,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : intintlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
                     }
@@ -497,7 +485,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : inttypelookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : intintlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
                     }
@@ -758,7 +746,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 5) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 5) && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
@@ -785,7 +773,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 3) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 3) && true ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {

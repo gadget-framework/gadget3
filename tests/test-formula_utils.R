@@ -121,6 +121,9 @@ ok(ut_cmp_identical(
     gadget3:::f_optimize(~x * 1 + y),
     ~x + y), "f_optimize: Recurse through arithmetic")
 ok(ut_cmp_identical(
+    gadget3:::f_optimize(~y * 0 + 0 * z + 99),
+    ~y * 0 + 0 * z + 99), "f_optimize: Multiplication by zero *doesn't* cancel out")
+ok(ut_cmp_identical(
     gadget3:::f_optimize(~0 + x + 0),
     ~x), "f_optimize: Recurse through arithmetic")
 ok(ut_cmp_identical(
@@ -158,3 +161,7 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~g3_with(x := 4, if (y == 2) moo else oink)),
     ~g3_with(x := 4, if (y == 2) moo else oink)), "f_optimize: Don't bother swapping if/else")
+
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x + 0) y / 1),
+    ~if (x) y), "f_optimize: Optimize through if condition")

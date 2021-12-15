@@ -144,7 +144,7 @@ g3a_spawn <- function(
             debug_trace("Generate normal distribution for spawned ", output_stock)
             # Equivalent to Spawner::Storage, pre-calcRecruitNumber()
             stock_with(output_stock, output_stock__spawnednum[] <- 0)
-            stock_iterate(output_stock, if (run_f && output_stock_cond) {
+            stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
                 stock_ss(output_stock__spawnednum) <- exp(-(((output_stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
             })
             extension_point
@@ -152,7 +152,7 @@ g3a_spawn <- function(
             # sum_all_outputs_f equivalent to sum in Spawner::addSpawnStock()
             stock_with(output_stock, stock_with(stock,
                 output_stock__spawnednum <- (output_stock__spawnednum / avoid_zero(sum_all_outputs_f)) * sum(stock__offspringnum) * output_ratio))
-            stock_iterate(output_stock, if (run_f && output_stock_cond) {
+            stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
                 stock_ss(output_stock__wgt) <- ratio_add_vec(
                     stock_ss(output_stock__wgt),
                     stock_ss(output_stock__num),
@@ -167,6 +167,7 @@ g3a_spawn <- function(
             beta_f = beta_f,
             output_ratio = output_ratio,
             output_stock_cond = ~age == output_stock__minage,
+            renew_into_f = renewal_into(stock),
             run_f = run_f,
             extension_point = out_f)), recursing = TRUE)
     }

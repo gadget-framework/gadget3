@@ -72,11 +72,6 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         stock__plusdl <- stat_mode(diff(lengthgroups))
     }
 
-    # If no names given, make some up
-    if (is.null(names(lengthgroups))) {
-        names(lengthgroups) <- paste0('len', lengthgroups)
-    }
-
     # stock__dl is size of each lengthgroup
     # stock__upperlen is the final upper bound of the groups
     if (isTRUE(open_ended)) {
@@ -88,6 +83,11 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         stock__dl <- unname(diff(lengthgroups))
         stock__upperlen <- unname(tail(lengthgroups, 1))
         lengthgroups <- head(lengthgroups, -1)
+    }
+
+    # If no names given, make some up
+    if (is.null(names(lengthgroups))) {
+        names(lengthgroups) <- paste0(lengthgroups, ':', c(tail(lengthgroups, -1), stock__upperlen))
     }
 
     # Force array so type is stable in TMB

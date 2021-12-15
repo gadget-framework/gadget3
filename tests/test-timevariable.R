@@ -24,38 +24,28 @@ year	step	area	total_weight
 1984	2	2	198422
 "))
 
-tad_get_1 <- 0
+tad_lookup_1 <- 0
+tad_lookup_2 <- 0
+tad_lookup_3 <- 0
 actions <- c(actions, gadget3:::f_substitute(~{
-    comment('tad_get_1')
-    cur_year <- 1983
-    cur_step <- 1
-    area <- 1
-    tad_get_1 <- lookup_f
-    g3_report(tad_get_1)
-}, list(lookup_f = tad_lookup)))
-expecteds$tad_get_1 <- 198311
+    comment('tad_lookup')
+    cur_year <- 1983 ; cur_step <- 1 ; area <- 1
+    tad_lookup_1 <- lookup_f
+    g3_report(tad_lookup_1)
 
-tad_get_2 <- 0
-actions <- c(actions, gadget3:::f_substitute(~{
-    comment('tad_get_2')
-    cur_year <- 1984
-    cur_step <- 2
-    area <- 1
-    tad_get_2 <- lookup_f
-    g3_report(tad_get_2)
-}, list(lookup_f = tad_lookup)))
-expecteds$tad_get_2 <- 198421
+    cur_year <- 1984 ; cur_step <- 2 ; area <- 1
+    tad_lookup_2 <- lookup_f
+    g3_report(tad_lookup_2)
 
-tad_get_3 <- 0
-actions <- c(actions, gadget3:::f_substitute(~{
-    comment('tad_get_3')
-    cur_year <- 2008  # NB: 2008 not in table
-    cur_step <- 2
-    area <- 1
-    tad_get_3 <- lookup_f
-    g3_report(tad_get_3)
+    # NB: 2008 not in table
+    cur_year <- 2008 ; cur_step <- 2 ; area <- 1
+    tad_lookup_3 <- lookup_f
+    g3_report(tad_lookup_3)
+
 }, list(lookup_f = tad_lookup)))
-expecteds$tad_get_3 <- 0  # i.e. missing value
+expecteds$tad_lookup_1 <- 198311
+expecteds$tad_lookup_2 <- 198421
+expecteds$tad_lookup_3 <- 0
 
 # Check a lookup with a single value in it still works
 single_lookup <- gadget3:::g3_intlookup('single_lookup', c(1), c(100))
@@ -116,6 +106,83 @@ actions <- c(actions, gadget3:::f_substitute(~{
 }, list(lookup_f = no_area_lookup)))
 expecteds$no_area_1 <- 198311
 expecteds$no_area_2 <- 198321
+
+# no-step
+no_step_lookup <- g3_timeareadata('no_step_lookup', read.table(header = TRUE, text = "
+year	area	total_weight
+1983	1	19831
+1983	2	19832
+1984	3	19843
+"))
+
+no_step_1 <- 0
+no_step_2 <- 0
+no_step_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('no_step_lookup')
+    cur_year <- 1984 ; cur_step <- 1 ; area <- 3
+    no_step_1 <- lookup_f
+    g3_report(no_step_1)
+    cur_year <- 1984 ; cur_step <- 2 ; area <- 3
+    no_step_2 <- lookup_f
+    g3_report(no_step_2)
+    cur_year <- 1984 ; cur_step <- 3 ; area <- 2
+    no_step_2 <- lookup_f
+    g3_report(no_step_3)
+}, list(lookup_f = no_step_lookup)))
+expecteds$no_step_1 <- 19843
+expecteds$no_step_2 <- 19843
+expecteds$no_step_3 <- 0
+
+# "Simple" (i.e. mapping to a vector) lookups should return defaults
+simple_vec_idx <- 0L
+simple_vec_lookup <- gadget3:::g3_intlookup('simple_vec_lookup', c(1, 2, 3), c(2, 3, 4))('getdefault', ~simple_vec_idx, -1L)
+simple_vec_1 <- 0
+simple_vec_2 <- 0
+simple_vec_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('simple_vec_lookup')
+
+    simple_vec_idx <- -1L # NB: Out of bounds of what a vector can do in R
+    simple_vec_1 <- lookup_f
+    g3_report(simple_vec_1)
+
+    simple_vec_idx <- 3L
+    simple_vec_2 <- lookup_f
+    g3_report(simple_vec_2)
+
+    simple_vec_idx <- 4L
+    simple_vec_3 <- lookup_f
+    g3_report(simple_vec_3)
+}, list(lookup_f = simple_vec_lookup)))
+expecteds$simple_vec_1 <- -1
+expecteds$simple_vec_2 <- 4
+expecteds$simple_vec_3 <- -1
+
+# Make sure we can have zero / negative values in a lookup
+zero_key_idx <- 0L
+zero_key_lookup <- gadget3:::g3_intlookup('zero_key_lookup', c(0, -1, 1), c(2, 3, 4))('getdefault', ~zero_key_idx, -1L)
+zero_key_1 <- 0
+zero_key_2 <- 0
+zero_key_3 <- 0
+actions <- c(actions, gadget3:::f_substitute(~{
+    comment('zero_key_lookup')
+
+    zero_key_idx <- 0L
+    zero_key_1 <- lookup_f
+    g3_report(zero_key_1)
+
+    zero_key_idx <- -1L
+    zero_key_2 <- lookup_f
+    g3_report(zero_key_2)
+
+    zero_key_idx <- 2L
+    zero_key_3 <- lookup_f
+    g3_report(zero_key_3)
+}, list(lookup_f = zero_key_lookup)))
+expecteds$zero_key_1 <- 2
+expecteds$zero_key_2 <- 3
+expecteds$zero_key_3 <- -1
 
 ###############################################################################
 

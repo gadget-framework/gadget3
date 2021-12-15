@@ -1,3 +1,9 @@
+# Generate function saying whether this lengthgroup should be renewed into
+renewal_into <- function (stock) {
+    if (!is.null(stock$dim$tag)) return(~stock__tag_idx == stock__untagged_idx)
+    return(TRUE)
+}
+
 # Assign number / mean weight based on formulae
 g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
     stock__num <- stock_instance(stock, 0)
@@ -7,13 +13,14 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
     action_name <- unique_action_name()
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_initialconditions for ", stock)
-        stock_iterate(stock, if (run_f) {
+        stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__num) <- num_f
             stock_ss(stock__wgt) <- wgt_f
         })
     }, list(
         num_f = num_f,
         wgt_f = wgt_f,
+        renew_into_f = renewal_into(stock),
         run_f = run_f)))
     return(out)
 }
@@ -28,7 +35,7 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
     action_name <- unique_action_name()
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_initialconditions_normalparam for ", stock)
-        stock_iterate(stock, if (run_f) {
+        stock_iterate(stock, if (run_f && renew_into_f) {
             debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
             stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
             debug_trace("scale results")
@@ -39,6 +46,7 @@ g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f
         })
     }, list(
         run_f = run_f,
+        renew_into_f = renewal_into(stock),
         factor_f = factor_f,
         mean_f = mean_f,
         stddev_f = stddev_f,
@@ -58,7 +66,7 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
     action_name <- unique_action_name()
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_renewal for ", stock)
-        stock_iterate(stock, if (run_f) {
+        stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__renewalnum) <- num_f
             stock_ss(stock__renewalwgt) <- wgt_f
 
@@ -70,6 +78,7 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
         })
     }, list(
         num_f = num_f, wgt_f = wgt_f,
+        renew_into_f = renewal_into(stock),
         run_f = run_f)))
     return(out)
 }
@@ -86,7 +95,7 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
     action_name <- unique_action_name()
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_renewal_normalparam for ", stock)
-        stock_iterate(stock, if (run_f) {
+        stock_iterate(stock, if (run_f && renew_into_f) {
             debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
             stock_ss(stock__renewalnum) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
             debug_trace("scale results")
@@ -103,6 +112,7 @@ g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f,
         })
     }, list(
         run_f = run_f,
+        renew_into_f = renewal_into(stock),
         factor_f = factor_f,
         mean_f = mean_f,
         stddev_f = stddev_f,

@@ -166,6 +166,7 @@ f_optimize <- function (f) {
             # 0/1 (op) x --> x
             return(rhs)
         }
+        # NB: Can't cancel 0 * x, since type information will be lost in the process
 
         call(op, lhs, rhs)
     }
@@ -181,6 +182,7 @@ f_optimize <- function (f) {
                 return (if (length(x) > 3) f_optimize(x[[4]]) else quote({}))
             }
             # Regular if, descend either side of expression
+            x[[2]] <- f_optimize(x[[2]])
             x[[3]] <- f_optimize(x[[3]])
             if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
             return(x)

@@ -48,7 +48,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{
-        debug_label("g3a_time")
+        debug_label("g3a_time: Start of time period")
         cur_time <- cur_time + 1L
         if (strict_mode) assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
         if (cur_time > total_steps) {
@@ -56,14 +56,12 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
             return(nll)
         }
         cur_year <- start_year + (cur_time %/% step_count)
-        if (have_projection_years) cur_year_projection <- (cur_year > end_year)
+        cur_year_projection <- (cur_year > end_year)
         cur_step <- (cur_time %% step_count) + 1L
         # Don't bother changing step size if it's always the same
         if (uneven_steps) cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
-        if (trace_mode) Rprintf("** Tick: %d-%d\n", cur_year, cur_step)
     }, list(
-        have_projection_years = have_projection_years,
         uneven_steps = if(is.numeric(steps)) any(diff(steps) > 0) else TRUE)))
 
     # Make sure variables are defined, even without uneven_steps

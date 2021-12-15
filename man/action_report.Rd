@@ -1,5 +1,6 @@
 \name{action_report}
 \alias{g3a_report_stock}
+\alias{g3a_report_history}
 
 \title{Gadget3 report actions}
 \description{
@@ -10,6 +11,7 @@
 g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE, 
     run_at = 11)
 
+g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
 }
 
 \arguments{
@@ -21,6 +23,12 @@ g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE,
   }
   \item{report_f}{
     \link{formula} specifying what to collect, for instance \code{~stock_ss(input_stock__num)} or \code{~stock_ss(input_stock__wgt)}.
+  }
+  \item{actions}{
+    List of actions that model will consist of.
+  }
+  \item{var_re}{
+    Regular expression specifying variables to log history for.
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
@@ -50,6 +58,9 @@ g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE,
     \item{Iterate over \var{input_stock}, collecting data into \var{report_stock}}
     \item{Add the contents of \var{report_stock}__\var{instance_name} to the model report}
   }}
+  \subsection{g3a_report_history}{
+    An action (i.e. list of formula objects) that will store the current state of each variable found matching \var{var_re}.
+  }
 }
 
 \seealso{
@@ -72,4 +83,10 @@ actions <- list(
     g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num)),
     g3a_report_stock(raw_report, ling_imm, ~stock_ss(ling_imm__num)))
 # "raw_report__num" and "agg_report__num" will be available in the model report
+
+# Report history of all "__num" and "__wgt" variables
+actions <- c(actions, list(g3a_report_history(actions)))
+
+# Report history of just "ling_imm__num"
+actions <- c(actions, list(g3a_report_history(actions, "^ling_imm__num$")))
 }

@@ -42,7 +42,13 @@ g3s_age <- function(inner_stock, minage, maxage) {
 g3s_agegroup <- function(inner_stock, agegroups) {
     # If no names given, make some up
     if (is.null(names(agegroups))) {
-        names(agegroups) <- paste0('age', vapply(agegroups, function (ag) ag[[1]], numeric(1)))
+        names(agegroups) <- vapply(agegroups, function (ag) {
+            if (all(diff(ag) == 1)) {
+                paste(ag[[1]], tail(ag, 1), sep = ":")
+            } else {
+                paste(ag, collapse = ",")
+            }
+        }, character(1))
     }
 
     stock__agegroup_lookup <- g3_intlookup(

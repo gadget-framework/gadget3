@@ -81,8 +81,8 @@ ok_group("g3a_migrate", {
     }
 
     # Check one age/length pair to simplify matters
-    model_nums <- attr(result, 'report_acd__num')[length = 'len10', age = 'age3',,]
-    model_wgts <- attr(result, 'report_acd__wgt')[length = 'len10', age = 'age3',,]
+    model_nums <- attr(result, 'report_acd__num')[length = '10:20', age = 'age3',,]
+    model_wgts <- attr(result, 'report_acd__wgt')[length = '10:20', age = 'age3',,]
     expected_nums <- model_nums[,1]
     expected_wgts <- model_wgts[,1]
     ratio_add_vec <- function (orig_vec, orig_amount, new_vec, new_amount) (orig_vec * orig_amount + new_vec * new_amount)/(orig_amount + new_amount)

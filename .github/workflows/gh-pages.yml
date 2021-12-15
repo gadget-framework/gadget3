@@ -10,14 +10,22 @@ name: Render documentation
 
 jobs:
   documentation:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Install system dependencies
+        run: |
+          Rscript -e 'install.packages("remotes")'
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04", package = c("pkgdown", "devtools", "textshaping")))')
+
       - name: Install build-docs prerequisites
-        run: Rscript -e 'install.packages(c("pkgdown", "devtools"))'
+        run: Rscript -e 'install.packages(c("pkgdown", "devtools", "textshaping"))'
 
       - name: Install package
         run: devtools::install(dependencies = TRUE, upgrade = "always")

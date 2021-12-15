@@ -53,18 +53,27 @@ model_fn <- g3_to_r(actions)
 result <- model_fn(params)
 r <- attributes(result)
 
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
+    # model_cpp <- edit(model_cpp)
+    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+} else {
+    writeLines("# skip: not compiling TMB model")
+    model_cpp <- c()
+}
+
 # We populated min/mean/dl
 ok(ut_cmp_identical(
     r$stock_a__minlen,
     array(
         c(10),
-        dimnames = list("len10"),
+        dimnames = list("10:Inf"),
         dim = c(1))), "stock_a__minlen")
 ok(ut_cmp_identical(
     r$stock_a__midlen,
     array(
         c(10.5),
-        dimnames = list("len10"),
+        dimnames = list("10:Inf"),
         dim = c(1))), "stock_a__midlen")
 ok(ut_cmp_identical(
     r$stock_a__dl,
@@ -76,13 +85,13 @@ ok(ut_cmp_identical(
     r$stock_b__minlen,
     array(
         c(50, 51, 52, 53, 54),
-        dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
+        dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
         dim = c(5))), "stock_b__minlen")
 ok(ut_cmp_identical(
     r$stock_b__midlen,
     array(
         c(50.5, 51.5, 52.5, 53.5, 54.5),
-        dimnames = list(c("len50", "len51", "len52", "len53", "len54")),
+        dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
         dim = c(5))), "stock_b__midlen")
 ok(ut_cmp_identical(
     r$stock_b__dl,
@@ -94,13 +103,13 @@ ok(ut_cmp_identical(
     r$stock_wonky__minlen,
     array(
         c(0, 10, 100, 200, 1000),
-        dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
+        dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
         dim = c(5))), "stock_wonky__minlen")
 ok(ut_cmp_equal(
     r$stock_wonky__midlen,
     array(
         c(5, 55, 150, 600, 1005),
-        dimnames = list(c("len0", "len10", "len100", "len200", "len1000")),
+        dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
         dim = c(5))), "stock_wonky__midlen")
 ok(ut_cmp_equal(
     r$stock_wonky__dl,
@@ -110,17 +119,9 @@ ok(ut_cmp_equal(
     10), "stock_wonky__plusdl")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-    model_tmb_report <- model_tmb$report()
-    for (n in names(attributes(result))) {
-        ok(ut_cmp_equal(
-            model_tmb$report()[[n]],
-            # NB: TMB drops the dimensions, so we need to also
-            as.vector(attr(result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
-    }
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
 } else {
     writeLines("# skip: not running TMB tests")
 }

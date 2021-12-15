@@ -73,7 +73,8 @@ g3_stock_table <- function(stock, param_name,id = 'full'){
                minage = gadget3:::stock_definition(stock, 'minage'),
                maxage = gadget3:::stock_definition(stock, 'maxage'))
   out <- gadget3:::f_substitute(~g3_param_table(stock_param, 
-                                                data.frame(age = seq(minage, maxage))), vars)
+                                                data.frame(age = seq(minage, maxage))), 
+                                vars)
   return(out)
 }
 

@@ -2,6 +2,9 @@ importFrom("methods", "is")
 importFrom("stats", "as.formula", "formula", "dnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
+importFrom(magrittr,"%>%")
+importFrom(rlang,.data)
+
 # R/action_age.R
 export(g3a_age)
 
@@ -41,6 +44,7 @@ export(g3a_initialconditions_normalparam)
 
 # R/action_report.R
 export(g3a_report_stock)
+export(g3a_report_history)
 
 # R/action_spawn.R
 export(g3a_spawn_recruitment_fecundity)
@@ -49,6 +53,10 @@ export(g3a_spawn_recruitment_ricker)
 export(g3a_spawn_recruitment_bevertonholt)
 export(g3a_spawn_recruitment_hockeystick)
 export(g3a_spawn)
+
+# R/action_tagging.R
+export(g3a_predate_tagrelease)
+export(g3a_tag_shedding)
 
 # R/action_time.R
 export(g3a_time)
@@ -104,6 +112,9 @@ export(g3s_agegroup)
 # R/stock_areas.R
 export(g3s_livesonareas)
 export(g3s_areagroup)
+
+# R/stock_tag.R
+export(g3s_tag)
 
 # R/stock_time.R
 export(g3s_time)

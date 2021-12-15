@@ -58,9 +58,9 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
     surveyindices_linreg <- g3_native(r = function (N, I, fixed_alpha, fixed_beta) {
         meanI <- mean(I)
         meanN <- mean(N)
-        beta <- if (is.na(fixed_beta)) sum((I - meanI) * (N - meanN)) / avoid_zero(sum((N - meanN)**2)) else fixed_beta
-        alpha <- if (is.na(fixed_alpha)) meanI - beta * meanN else fixed_alpha
-        return(c(alpha = alpha, beta = beta))
+        beta <- if (is.nan(fixed_beta)) sum((I - meanI) * (N - meanN)) / avoid_zero(sum((N - meanN)**2)) else fixed_beta
+        alpha <- if (is.nan(fixed_alpha)) meanI - beta * meanN else fixed_alpha
+        return(c(alpha, beta))
     }, cpp = '[&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 

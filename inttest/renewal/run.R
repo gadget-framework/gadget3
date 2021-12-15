@@ -12,7 +12,7 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>%
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
-imm_report <- g3_stock('imm_report', seq(20, 156, 4)) %>%
+imm_report <- g3_stock('imm_report', seq(20, 160, 4), open_ended = FALSE) %>%
   # NB: No area
   g3s_age(3, 5) %>%
   g3s_time(year = local(year_range), step = 1:4)

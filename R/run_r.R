@@ -1,11 +1,12 @@
 open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editors don't get confused
 
-# Compile actions together into a single R function, the attached environment contains:
-# - model_data: Fixed values refered to within function
+# Compile actions together into a single R function,
+# The attached environment contains model_data, i.e. fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
-    model_data <- new.env(parent = emptyenv())
+    # NB: Needs to be globalenv() to evaluate core R
+    model_env <- new.env(parent = globalenv())
     scope <- list()
 
     # Enable / disable strict mode & trace mode
@@ -20,6 +21,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         })
 
     var_defns <- function (code, env) {
+        to_call <- function (x) str2lang(deparse1(x))
         # Convert a g3_param* call into a reference, move it's definition to the environment
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
@@ -110,6 +112,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 call("stop", "Incomplete model: No definition for ", var_name)
             })
 
+            defn <- logical(0)
             if (rlang::is_formula(var_val)) {
                 # Recurse, get definitions for formula, considering it's environment as well as the outer one
                 var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
@@ -122,35 +125,25 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     "<-",
                     as.symbol(var_name),
                     substitute(Matrix::sparseMatrix(dims = x, x=numeric(0), i={}, j={}), list(x = dim(var_val))))
-            } else if (is.array(var_val) && all(is.na(var_val))) {
-                # Make sure everything within the dynamic dim is defined first
-                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dim'))), env)
-                var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dimnames'))), env)
-
-                # Define dimensions for empty matrix
-                defn <- call("<-", as.symbol(var_name), substitute(array(dim = x, dimnames = y), list(
-                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else dim(var_val),
-                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else dimnames(var_val))))
-            } else if (is.array(var_val) && all(var_val == 0)) {
-                # Define dimensions for zero array
+            } else if (is.array(var_val) && ( length(var_val) < 2 || all(is.na(var_val)) || all(var_val == var_val[[1]]) )) {
+                # Define dimensions for all-equal array
 
                 # Make sure everything within the dynamic dim is defined first
                 var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dim'))), env)
                 var_defns(as.call(c(as.symbol(open_curly_bracket), attr(var_val, 'dynamic_dimnames'))), env)
 
                 defn <- call("<-", as.symbol(var_name), substitute(array(v, dim = x, dimnames = y), list(
-                    v = var_val[[1]],  # NB: Might be 0 or FALSE, either way all values are the same
-                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else dim(var_val),
-                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else dimnames(var_val))))
+                    v = if (length(var_val) > 0) var_val[[1]] else NA,  # NB: All values are the same
+                    x = if (!is.null(attr(var_val, 'dynamic_dim'))) as.call(c(as.symbol("c"), attr(var_val, 'dynamic_dim'))) else to_call(dim(var_val)),
+                    y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else to_call(dimnames(var_val)))))
             } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
                 # Add single-value literal to code
-                defn <- call("<-", as.symbol(var_name), parse(text = deparse(var_val))[[1]])
+                defn <- call("<-", as.symbol(var_name), to_call(var_val))
             } else {
-                # Bung in model_data
-                defn <- call("<-", as.symbol(var_name), call("$", as.symbol("model_data"), as.symbol(var_name)))
-                assign(var_name, var_val, envir = model_data)
+                # Bung in model_env, no need to define
+                assign(var_name, var_val, envir = model_env)
             }
-            scope[[var_name]] <<- defn
+            if (!identical(defn, logical(0))) scope[[var_name]] <<- defn
         }
         return(code)
     }  # End of var_defns
@@ -185,12 +178,32 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     out <- eval(out)
 
     # Attach data to model as closure
-    # NB: Needs to be globalenv() to evaluate core R
-    environment(out) <- new.env(parent = globalenv())
-    assign("model_data", model_data, envir = environment(out))
+    environment(out) <- model_env
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
+    return(g3_r_compile(out))
+}
+
+# Generate a srcRef'ed, optimized function
+g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
+    model_string <- deparse(model)
+    base_name <- paste0('g3_r_', digest::sha1(model_string))
+    r_path <- paste0(file.path(work_dir, base_name), '.R')
+
+    # Write out file so srcRef is populated
+    writeLines(c(
+        'out <-', model_string,
+        NULL), r_path)
+    source(r_path)
+
+    # Restore model data and attributes
+    environment(out) <- environment(model)
+    attributes(out) <- attributes(model)
+
+    # Optimize model function
+    out <- compiler::cmpfun(out, options = list(optimize = optimize))
+
     return(out)
 }
 

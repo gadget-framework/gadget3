@@ -123,7 +123,9 @@ ok_group("g3a_grow_impl_bbinom", {
     37658.1016483506, 29043.7267350904, 22317.4314305221, 57032.8699935755,
     44472.5676572519, 34669.6583623158, 26995.0549450546, 20974.8144063369,
     16247.8860873661, 15068.9788855573, 11821.5345660349, 9275.97774268346,
-    7273.66758241751, 5694.90600451131, 4448.35417879727), .Dim = 6:5), tolerance = 1e-5), "Matches baseline")
+    7273.66758241751, 5694.90600451131, 4448.35417879727),
+        .Dimnames = list(length = c("10:15", "15:20", "20:25", "25:30", "30:35", "35:Inf"), delta = c("0", "1", "2", "3", "4")),
+        .Dim = c(length = 6, delta = 5)), tolerance = 1e-5), "Matches baseline")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
@@ -157,6 +159,7 @@ ok_group("g3a_growmature", {
             ~g3_param_vector("initial_wgt")),
         g3a_growmature(teststock,
             impl_f = list(
+                delta_dim = as.character(0:6),
                 len = ~g3_param_array('growth_matrix'),
                 wgt = ~g3_param_array('weight_matrix'))),
         list(

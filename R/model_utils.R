@@ -6,20 +6,20 @@ g3a_initial_abund <- function(scalar,
                               p_age = 1){
   f_substitute(
     ~scalar * init * exp(-1 * (M + init_F) * 
-                           age - minage) * p_age,
+                           (age - minage)) * p_age,
     list(scalar = scalar, 
          init = init, 
          M = M, 
          init_F = init_F,
          minage = minage,
-         p_age)
+         p_age = p_age)
   )
   
 }
 
 g3a_initial_vonb <- function(Linf, K, recl, K_scale = 0.001){
   f_substitute(
-    ~Linf * (1 - exp(-1 * K_scale * K * (age - (1 + log(1 - recl/Linf)/K)))),
+    ~Linf * (1 - exp(-1 * (K_scale * K) * (age - (1 + log(1 - recl/Linf)/(K_scale*K))))),
     list(K_scale = K_scale,
          Linf = Linf,
          K = K,
@@ -39,7 +39,7 @@ g3a_initial_sigma <- function(alpha, beta, gamma, mean_l){
     list(alpha = alpha,
          beta = beta,
          gamma = gamma,
-         mean_l)
+         mean_l=mean_l)
   )
 }
 

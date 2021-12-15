@@ -2,12 +2,21 @@ library(mfdb)
 library(tidyverse)
 library(gadget3)
 
+## Configure what parts of the demo run, set environment variables to turn on/off
+## e.g. Sys.setenv(demo_ling_read_data = TRUE)
+setdefault <- function (n, def) as.logical(Sys.getenv(n, as.character(def)))
+demo_ling_read_data <- setdefault("demo_ling_read_data", FALSE)
+demo_ling_run_r <- setdefault("demo_ling_run_r", TRUE)
+demo_ling_compile_tmb <- setdefault("demo_ling_compile_tmb", TRUE)
+demo_ling_run_tmb <- setdefault("demo_ling_run_tmb", TRUE)
+demo_ling_optimize_tmb <- setdefault("demo_ling_optimize_tmb", TRUE)
+demo_ling_fit <- setdefault("demo_ling_fit", FALSE)
+
 ## functions for inserting species name into param references
 source("demo-ling/stock_param_functions.r")
 
 ## Some model parameters...
 year_range <- 1982:lubridate::year(Sys.Date())
-read_data <- FALSE
 
 ## Stock info.
 species_name <- "ling"
@@ -32,57 +41,9 @@ areas <- structure(
   seq_along(defaults$area),
   names = names(defaults$area))
 
-# Timekeeping for the model, i.e. how long we run for
-time_actions <- list(
-  g3a_time(start_year = min(defaults$year),
-           end_year = max(defaults$year),
-           defaults$timestep),
-  list())
-
-##### Configure stocks #########################################################
-
-## stocks
-ling_imm <-
-  g3_stock(c(species = 'ling', 'imm'), lengthgroups = seq(4, 156, 4)) %>%
-  g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(minage = 3, maxage = 10)
-
-ling_mat <-
-  g3_stock(c(species = 'ling', 'mat'), lengthgroups = seq(20, 156, 4)) %>%
-  g3s_livesonareas(areas[c('1')]) %>%
-  g3s_age(minage = 5, maxage = 15)
-
-## Maximum number of length groups a stock can group within a time step (maxlengthgroupgrowth)
-mlgg <- 10
-
-############ Configure fleets ##################################################
-
-## Survey(s)
-igfs <-
-  g3_fleet('igfs') %>%
-  g3s_livesonareas(areas[c('1')])
-
-## Commercial
-lln <-
-  g3_fleet('lln') %>%
-  g3s_livesonareas(areas[c('1')])
-
-bmt <-
-  g3_fleet('bmt') %>%
-  g3s_livesonareas(areas[c('1')])
-
-gil <-
-  g3_fleet('gil') %>%
-  g3s_livesonareas(areas[c('1')])
-
-foreign <-
-  g3_fleet('foreign') %>%
-  g3s_livesonareas(areas[c('1')])
-
-
 #### Load required data objects ################################################
 
-if(read_data){
+if(demo_ling_read_data){
   mdb <- mfdb('Iceland', db_params = list(host = 'mfdb.hafro.is'))
   #  mdb <- mfdb("../../mfdb/copy/iceland.duckdb")
   source('demo-ling/setup-fleet-data.R')
@@ -97,24 +58,32 @@ if(read_data){
 
 ##### Configure model actions #################################################
 
-source('demo-ling/setup-fleets.R')  # Generates fleet_actions
+# Timekeeping for the model, i.e. how long we run for
+time_actions <- list(
+  g3a_time(start_year = min(defaults$year),
+           end_year = max(defaults$year),
+           defaults$timestep),
+  list())
+
 source('demo-ling/setup-model.R')  # Generates mat_actions / imm_actions
+source('demo-ling/setup-fleets.R')  # Generates fleet_actions
 source('demo-ling/setup-likelihood.R')  # Generates likelihood_actions
-source('demo-ling/setup-report_actions.R')  # Generates report actions
 
-##### Run r-based model #######################################################
-
-# Turn actions into an R function
-ling_model <- g3_to_r(c(
+actions <- c(
   ling_mat_actions,
   ling_imm_actions,
   fleet_actions,
   ling_likelihood_actions,
-  report_actions,
-  time_actions),
-  #  trace = TRUE, 
-  strict = TRUE)
-  
+  time_actions)
+
+# Generate reports for all abundance and catch ling_imm/ling_mat variables
+actions <- c(actions, list(
+    g3a_report_history(actions, '^ling_(imm|mat)__(num|wgt|igfs|lln|bmt|gil|foreign|suit_igfs|renewalnum|renewalwgt)$')))
+
+##### Run r-based model #######################################################
+
+# Turn actions into an R function
+ling_model <- g3_to_r(actions)
 
 # Get parameter template attached to function, fill it in
 ling_param <- attr(ling_model, 'parameter_template')
@@ -161,22 +130,21 @@ ling_param['adist_surveyindices_log_si_igfs_si3d_weight'] <- 14.5
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
 
-# Run model with params above
-result <- ling_model(ling_param)
-result[[1]]
+if (demo_ling_run_r) {
+    # Run model with params above
+    result <- ling_model(ling_param)
 
-# List all available reports
-print(names(attributes(result)))
+    # nll
+    print(result[[1]])
+
+    # List all available reports
+    print(names(attributes(result)))
+}
 
 ##### Run TMB-based model #####################################################
 
 # Turn actions into C++ objective function code
-tmb_ling <- g3_to_tmb(c(
-  ling_mat_actions,
-  ling_imm_actions,
-  fleet_actions,
-  ling_likelihood_actions,
-  time_actions))
+tmb_ling <- g3_to_tmb(actions)
 
 # Get the parameter template to fill in
 tmb_param <- attr(tmb_ling, 'parameter_template')
@@ -213,110 +181,39 @@ tmb_param[grepl('^ling_mat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_imm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_mat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 
-# Compile and generate TMB ADFun (see ?TMB::MakeADFun)
-ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
-# writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+if (demo_ling_compile_tmb) {
+    # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
+    ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
+    # writeLines(TMB::gdbsource(g3_tmb_adfun(tmb_ling, tmb_param, compile_flags = "-g", output_script = TRUE)))
+}
 
-# Run model once, using g3_tmb_par to reshape tmb_param into param vector.
-# Will return nll
-ling_model_tmb$fn(g3_tmb_par(tmb_param))
+if (demo_ling_run_tmb) {
+    # Run model once, using g3_tmb_par to reshape tmb_param into param vector.
+    # Will return nll
+    ling_model_tmb$fn(g3_tmb_par(tmb_param))
 
-# Run model once, returning model report
-ling_model_tmb$report(g3_tmb_par(tmb_param))
+    # Run model once, returning model report
+    ling_model_tmb$report(g3_tmb_par(tmb_param))
+}
 
-# Run model through R optimiser, using bounds set in tmb_param
-fit.opt <- optim(g3_tmb_par(tmb_param),
-                 ling_model_tmb$fn,
-                 ling_model_tmb$gr,
-                 method = 'BFGS',
-                 control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
-
-
-# cl <- parallel::makeCluster(spec=parallel::detectCores(), outfile="")
-# parallel::setDefaultCluster(cl=cl)
-#
-# optimParallel::optimParallel(par=g3_tmb_par(tmb_param),
-#                              fn=ling_model_tmb$fn,
-#                              gr=ling_model_tmb$gr),
-#                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
-#                              parallel=list(loginfo=TRUE))
-#tmp <- g3_tmb_par(tmb_param)
-
-#tmp <- set_names(rnorm(length(tmp), sd = 3),names(tmp))
-
-
-if (FALSE){
-  
-  
-  
-  # cl <- parallel::makeCluster(spec=parallel::detectCores(), outfile="")
-  # parallel::setDefaultCluster(cl=cl)
-  #
-  # optimParallel::optimParallel(par=g3_tmb_par(tmb_param),
-  #                              fn=ling_model_tmb$fn,
-  #                              gr=ling_model_tmb$gr),
-  #                              control = list(trace = 2, fnscale = 1e3,maxit = 200, reltol = .Machine$double.eps),
-  #                              parallel=list(loginfo=TRUE))
-  
-  
-  fit.nelder <- optim(fit.opt$par,
-                      ling_model_tmb$fn,
-                      #ling_model_tmb$gr,
-                      method = "Nelder-Mead",
-                      control = list(trace = 2,fnscale = 1e3, maxit = 1000))
-  
-  # fit <- nlminb(g3_tmb_par(tmb_param),
-  #               ling_model_tmb$fn, ling_model_tmb$gr,
-  #              # upper = g3_tmb_upper(tmb_param),
-  #             #  lower = g3_tmb_lower(tmb_param),
-  #               control = list(trace = TRUE, eval.max=200, iter.max=100))
-  
-  
-  
-  fit.opt2 <- optim(fit.nelder$par,
-                    ling_model_tmb$fn,
-                    ling_model_tmb$gr,
-                    method = 'BFGS',
-                    control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
-  
-  
-  fit.opt3 <- optim(fit.opt2$par,
-                    ling_model_tmb$fn,
-                    ling_model_tmb$gr,
-                    method = 'BFGS',
-                    control = list(trace = 2, maxit = 1000, reltol = .Machine$double.eps))
-  
-  fit.opt4 <- nlminb(fit.opt$par,
+if (demo_ling_optimize_tmb) {
+    # Run model through R optimiser, using bounds set in tmb_param
+    fit.opt <- optim(g3_tmb_par(tmb_param),
                      ling_model_tmb$fn,
                      ling_model_tmb$gr,
                      method = 'BFGS',
-                     control = list(trace = TRUE, eval.max = 200, rel.tol = .Machine$double.eps))
-  
+                     control = list(trace = 2,maxit = 1000, reltol = .Machine$double.eps^2))
+    save(fit.opt, file="demo-ling/data/fit.opt.Rdata")
+} else {
+    load("demo-ling/data/fit.opt.Rdata")
 }
-#
-# fit.nlminb <- nlminb(fit.opt$par,
-#               ling_model_tmb$fn, ling_model_tmb$gr,
-#               # upper = g3_tmb_upper(tmb_param),
-#               #  lower = g3_tmb_lower(tmb_param),
-#               control = list(trace = TRUE, eval.max=200, iter.max=100))
-#
-#
-# fit.sann <- optim(fit.opt$par,
-#                   ling_model_tmb$fn, method = 'SANN',
-#                   control = list(trace = 1))
-#
-# fit.hjkb <- dfoptim::hjkb(fit.opt$par,#g3_tmb_par(tmb_param),
-#               ling_model_tmb$fn)#,
-#             #ling_model_tmb$gr,
-#                upper = g3_tmb_upper(tmb_param),
-#                lower = g3_tmb_lower(tmb_param)),
-#               control = list(trace = TRUE, eval.max=2000, iter.max=1000))
-#
-#
-#
-#
-# # Turn fit parameters back into list, which can be used in table or R function
-# param_list <- g3_tmb_relist(tmb_param, fit$par)
 
+if (demo_ling_run_tmb) {
+    # Re-run with fitted parameters, returning report
+    ling_model_tmb$report(fit.opt$par)
+}
 
-
+if (demo_ling_fit) {
+    fit <- gadget3:::g3_fit(ling_model, g3_tmb_relist(tmb_param, fit.opt$par))
+    fit
+}

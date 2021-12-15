@@ -113,6 +113,7 @@ g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgro
     }')
 
     list(
+        delta_dim = seq(0, maxlengthgroupgrowth),
         len = f_substitute(
             # NB: avoid_zero_vec() means zero-growth doesn't result in NaN
             # NB: We convert delta_len_f into # of length groups to jump, but badly by assuming length groups
@@ -161,9 +162,10 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
 
     # Sum together all length group brackets for both length & weight
+    growth.matrix.sum <- colSums(growth.matrix)
     return(array(c(
-        Matrix::colSums(growth.matrix),
-        Matrix::colSums(wgt.matrix) / avoid_zero_vec(Matrix::colSums(growth.matrix)) ), dim = c(na, 2)))
+        growth.matrix.sum,
+        colSums(wgt.matrix) / avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
 }, cpp = '[](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_l = delta_l_ar.matrix();
@@ -232,8 +234,12 @@ g3a_growmature <- function(stock,
     stock__num <- stock_instance(stock, 0)
     stock__wgt <- stock_instance(stock, 1)
     stock__growth_num <- stock_instance(stock)
-    stock__growth_l <- array(dim = c(0, 0))  # NB: Dimensions will vary based on impl input
-    stock__growth_w <- array(dim = c(0, 0))
+    stock__growth_l <- array(
+        dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
+        dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
+    stock__growth_w <- array(
+        dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
+        dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
     stock__transitioning_num <- stock_instance(stock, 0)
     stock__transitioning_wgt <- stock_instance(stock)
 
@@ -257,8 +263,8 @@ g3a_growmature <- function(stock,
     # If we can, try and only recalc growth when necessary
     calcgrowth_f <- f_substitute(~{
         debug_trace("Calculate length/weight delta matrices for current lengthgroups")
-        stock__growth_l <- impl_l_f
-        stock__growth_w <- impl_w_f
+        stock__growth_l[] <- impl_l_f
+        stock__growth_w[] <- impl_w_f
     }, list(impl_l_f = impl_f$len, impl_w_f = impl_f$wgt))
     # Filter out known constants (hacky but conservative, will fail by being slow)
     growth_dependent_vars <- setdiff(

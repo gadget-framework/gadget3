@@ -117,7 +117,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
             # and turn it into a scalar
             # TODO: Ideally we share something with "Array subsetting" below, instead of working it out again
-            lhs_is_array <- any(vapply(tail(assign_lhs, -2), deparse, character(1)) == "")
+            lhs_is_array <- any(vapply(tail(assign_lhs, -2), function (x) deparse1(x, collapse = ""), character(1)) == "")
         } else if (is.symbol(assign_lhs)) {
             env_defn <- mget(as.character(assign_lhs), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             lhs_is_array <- is.array(env_defn)
@@ -435,7 +435,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
             call_name,
-            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int || (call_name == "==") || (call_name == "!="))))
+            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int || (call_name == "==") || (call_name == "!=") || (call_name == "%"))))
     }
 
     if (call_name == "(") {
@@ -741,14 +741,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
                     dims = dim(var_val))
-            } else if (is.array(var_val) && (all(is.na(var_val)) || all(var_val == 0))) {
+            } else if (is.array(var_val) && ( length(var_val) < 2 || all(is.na(var_val)) || all(var_val == var_val[[1]]) )) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
-                    cpp_type <- 'vector<Type>'
+                    cpp_type <- 'vector'
                 } else {
                     # NB: Otherwise array. We only use matrix<> when we know we want matrix multiplication
-                    cpp_type <- 'array<Type>'
+                    cpp_type <- 'array'
                 }
+                cpp_type <- paste0(cpp_type, if (is.integer(var_val)) '<int>' else '<Type>')
                 if (all(dim(var_val) == 0)) {
                     defn <- cpp_definition(cpp_type, var_name)
                 } else if (!is.null(attr(var_val, 'dynamic_dim'))) {
@@ -769,9 +770,12 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         var_name,
                         dims = dim(var_val))
                 }
-                if (length(var_val) > 0 && !any(is.na(var_val))) {
-                    # If not NA or empty, must be zero. So init to zero
+                if (length(var_val) < 1 || is.na(var_val[[1]])) {
+                    # Value is NA, so leave uninitialized
+                } else if (var_val[[1]] == 0) {
                     defn <- paste0(defn, " ", var_name, ".setZero();")
+                } else {
+                    defn <- paste0(defn, " ", var_name, ".setConstant(", cpp_code(var_val[[1]], env),");")
                 }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
@@ -800,6 +804,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             } else {
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
+
+            attr(defn, 'report_dimnames') <- dimnames(var_val)
             scope[[var_name]] <<- defn
         }
         return(code)
@@ -815,9 +821,19 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     }
     all_actions_code <- g3_functions(all_actions_code)
 
-    out <- sprintf("#include <TMB.hpp>
+    out <- sprintf("template<class Type>
+Type objective_function<Type>::operator() () {
+    %s
 
-namespace map_extras {
+    %s
+    abort();  // Should have returned somewhere in the loop
+}\n", paste(unlist(scope), collapse = "\n    "),
+      cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
+    out <- strsplit(out, "\n")[[1]]
+
+    # Include map_extras namespace if we use it
+    if (any(grepl("map_extras::", out, fixed = TRUE))) {
+        out <- c(strsplit("namespace map_extras {
     // at(), but throw (err) if item isn't available
     template<class Type, class KeyType>
     Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
@@ -837,22 +853,18 @@ namespace map_extras {
                 return def;
             }
     }
-}
+}", "\n")[[1]], "", out)
+    }
 
-template<class Type>
-Type objective_function<Type>::operator() () {
-    %s
+    # Make sure we include TMB
+    out <- c("#include <TMB.hpp>", "", out)
 
-    %s
-    abort();  // Should have returned somewhere in the loop
-}\n", paste(unlist(scope), collapse = "\n    "),
-      cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
-    out <- strsplit(out, "\n")[[1]]
     class(out) <- c("g3_cpp", class(out))
 
     attr(out, 'actions') <- actions
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
+    attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
     return(out)
 }
 
@@ -925,13 +937,22 @@ g3_tmb_adfun <- function(cpp_code,
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
-    base_name <- paste0('g3_tmb_', digest::sha1(cpp_code))
+    # NB: as.character() strips attributes, so only use the code to define our digest
+    base_name <- paste0('g3_tmb_', digest::sha1(as.character(cpp_code)))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
 
     # If not loaded yet, compile & load
     if (!any(vapply(getLoadedDLLs(), function (x) x[['path']] == so_path, logical(1)))) {
         writeLines(cpp_code, con = cpp_path)
+
+        # _R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_ (read: in CMD check) will
+        # result in a stray symbols.rds being generated and a NOTE. Turn it off.
+        prev_symtbl_val <- Sys.getenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_", unset = NA)
+        if (!is.na(prev_symtbl_val)) {
+            on.exit(Sys.setenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_" = prev_symtbl_val))
+        }
+        Sys.unsetenv("_R_SHLIB_BUILD_OBJECTS_SYMBOL_TABLES_")
 
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
@@ -962,12 +983,40 @@ g3_tmb_adfun <- function(cpp_code,
             ""), con = tmp_script_path)
         return(tmp_script_path)
     }
-    return(TMB::MakeADFun(
+    fn <- TMB::MakeADFun(
         data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
         map = as.list(tmb_map),
         random = tmb_random,
-        DLL = base_name))
+        DLL = base_name,
+        ...)
+
+    report_dimnames <- attr(cpp_code, 'report_dimnames')
+    fn$orig_report <- fn$report
+    fn$report <- function (...) {
+        out <- fn$orig_report(...)
+        # Patch report names back again
+        for (dimname in names(report_dimnames)) {
+            if (!(dimname %in% names(out))) next
+
+            # 1-dimension arrays lose their array-ness, restore it.
+            if (!is.array(out[[dimname]])) out[[dimname]] <- array(
+                out[[dimname]],
+                length(out[[dimname]]))
+
+            # Find and bodge any dynamic dims into having something that fits
+            for (di in seq_along(report_dimnames[[dimname]])) {
+                if (is.null(report_dimnames[[dimname]][[di]])) {
+                    report_dimnames[[dimname]][[di]] <- seq_len(dim(out[[dimname]])[[di]])
+                }
+            }
+
+            names(dim(out[[dimname]])) <- names(report_dimnames[[dimname]])
+            dimnames(out[[dimname]]) <- report_dimnames[[dimname]]
+        }
+        return(out)
+    }
+    return(fn)
 }
 
 # Turn parameter_template table into a vector for TMB
