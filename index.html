@@ -23,6 +23,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -35,18 +37,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.999</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -84,32 +80,32 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3" class="anchor"></a>Gadget3: Globally applicable Area Disaggregated General Ecosystem Toolbox v3</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3">Gadget3: Globally applicable Area Disaggregated General Ecosystem Toolbox v3<a class="anchor" aria-label="anchor" href="#gadget3-globally-applicable-area-disaggregated-general-ecosystem-toolbox-v3"></a>
+</h1></div>
 
-<p>Gadget3 is a framework for producing marine ecosystem models. Gadget3 creates a R or <a href="http://kaskr.github.io/adcomp/_book/Introduction.html">TMB</a> objective function for you, that can then be optimised with standard tools such as <code><a href="https://rdrr.io/r/stats/nlminb.html">nlminb()</a></code>.</p>
-<p>Gadget3 is primarily designed to produce models matching the behaviour of <a href="https://gadget-framework.github.io/gadget2/">gadget2</a>, although implementing new modelling systems would be possible</p>
+<p>Gadget3 is a framework for producing marine ecosystem models. Gadget3 creates a R or <a href="http://kaskr.github.io/adcomp/_book/Introduction.html" class="external-link">TMB</a> objective function for you, that can then be optimised with standard tools such as <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb()</a></code>.</p>
+<p>Gadget3 is primarily designed to produce models matching the behaviour of <a href="https://gadget-framework.github.io/gadget2/" class="external-link">gadget2</a>, although implementing new modelling systems would be possible</p>
 <p><em>NB:</em> Currently under active development.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>Install latest version from github:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="op">&gt;</span><span class="st"> </span>remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">'gadget-framework/gadget3'</span>)</span></code></pre></div>
 </div>
-<div id="documentation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#documentation" class="anchor"></a>Documentation</h2>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
 <p>For a quick start, look at the [demo-ling] example in this repository.</p>
 <p>To run, do:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">&gt;</span><span class="st"> </span><span class="kw">source</span>(<span class="st">'demo-ling/setup.R'</span>, <span class="dt">echo =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
-<p>For more information, read the <a href="https://gadget-framework.github.io/gadget3/articles/model_structure.html">structure of a gadget3 model</a> vignette.</p>
+<p>For more information, read the <a href="https://gadget-framework.github.io/gadget3/articles/model_structure.html" class="external-link">structure of a gadget3 model</a> vignette.</p>
 </div>
-<div id="development-of-gadget3" class="section level2">
-<h2 class="hasAnchor">
-<a href="#development-of-gadget3" class="anchor"></a>Development of gadget3</h2>
+<div class="section level2">
+<h2 id="development-of-gadget3">Development of gadget3<a class="anchor" aria-label="anchor" href="#development-of-gadget3"></a>
+</h2>
 <p>By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
-<ol>
+<ol style="list-style-type: decimal">
 <li><code>Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</code></li>
 <li>
 <code>make test</code>, which turns it on by default</li>
@@ -120,36 +116,48 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-2">GPL-2</a></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Jamie Lentin <br><small class="roles"> Author, maintainer </small>  </li>
-<li>Bjarki Thor Elvarsson <br><small class="roles"> Author </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-2" class="external-link">GPL-2</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/gadget-framework/gadget3/actions"><img src="https://github.com/gadget-framework/gadget3/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="authors.html#citation">Citing gadget3</a></li>
 </ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Jamie Lentin <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Bjarki Thor Elvarsson <br><small class="roles"> Author </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
 </div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/gadget-framework/gadget3/actions" class="external-link"><img src="https://github.com/gadget-framework/gadget3/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Jamie Lentin, Bjarki Thor Elvarsson.</p>
+  <p></p>
+<p>Developed by Jamie Lentin, Bjarki Thor Elvarsson.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -157,6 +165,8 @@
 
   
 
+
+  
 
   </body>
 </html>
