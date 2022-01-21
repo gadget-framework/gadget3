@@ -77,6 +77,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   #length = gsub('len', '', .data$length) %>% as.numeric(),
                   area = as.numeric(.data$area)) %>%
     split_length() %>%
+    dplyr::group_by(.data$name) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>% 
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     dplyr::select(-.data$comp) %>%
     extract_year_step() %>%
@@ -265,6 +268,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
     split_length() %>% 
+    dplyr::group_by(.data$stock, .data$fleet) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     dplyr::mutate(number_consumed = 
                     ifelse(.data$biomass_consumed == 0, 0, .data$biomass_consumed / .data$weight)) %>%
@@ -280,6 +286,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
     split_length() %>%
+    dplyr::group_by(.data$stock) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     extract_year_step() %>% 
     tibble::as_tibble()
@@ -453,4 +462,14 @@ split_length <- function(data){
   
   return(tmp)
 }
+
+replace_inf <- function(data){
+  ind <- is.infinite(data$upper)
+  if (any(ind)){
+    replacement <- abs(diff(sort(unique(data$upper[!ind]), decreasing = TRUE)[1:2]))
+    data$upper[ind] <- data$lower[ind] + replacement
+  }
+  return(data)
+}
+
 
