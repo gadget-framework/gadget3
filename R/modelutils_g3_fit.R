@@ -22,12 +22,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                       '__suit',
                       paste0('__', fleet_names, "$"))
   
+  ## Update actions
   report_actions <- g3a_report_history(actions = model_actions,
                                        var_re = paste(vars_to_report, collapse = '|'))
-  
-  ## ---------------------------------------------------------------------------
-  ## Update actions and re-run model
-  ## ---------------------------------------------------------------------------
   
   ## TODO - REMOVE EXISTING ACTIONS IF THEY EXIST
   # tmp_actions <- 
@@ -41,19 +38,44 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   #     }
   #   }) 
   
+  ## --------------------------------------------------------------
+  ## Parameters
+  ## --------------------------------------------------------------
+  
+  ## List of params supplied not the tmb_template
+  if (class(params) == "list"){
+    
+    out_params <-
+      unlist(params) %>%
+      tibble::enframe(name='switch')  
+    
+  }else{
+    
+    ## tmb_template provided
+    if (class(params) == "data.frame"){
+      
+      ## Transform bounded parameter values
+      ## Note, this will only work if the lower and upper bounds 
+      ## are in the parameter template and are called 'param.lower' 'param.upper'
+      out_params <- transform_bounded_params(params)
+      out_params$optimise <- as.numeric(out_params$optimise)
+      out_params$value <- unlist(out_params$value)
+      
+      ## Extract list of parameter values for the R model
+      params <- params$value
+      
+    }
+    else  stop("The params argument must be a data.frame or list")
+  }
+    
+  ## ---------------------------------------------------------------------------
+  
   ## Compile and run model
   new_model <- g3_to_r(c(model_actions, list(report_actions)))
   model_output <- new_model(params)
   
   ##############################################################################
   ##############################################################################
-  
-  ## COLLATE OUTPUT:
-  ## Parameters first
-  ## ADD BOUNDS AND WHETHER OR NOT OPTIMISED
-  params <- 
-    unlist(params) %>% 
-    tibble::enframe(name='switch')  
   
   ## --------------------------------------------------------------
   ## Catch distributions
@@ -425,7 +447,8 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     stock.full = stock.full,
     fleet.info = fleet.info,
     stock.recruitment = stock.recruitment,
-    res.by.year = res.by.year
+    res.by.year = res.by.year,
+    params = tibble::as_tibble(out_params)
   )
   class(out) <- c('gadget.fit',class(out))
   return(out)
@@ -471,5 +494,45 @@ replace_inf <- function(data){
   }
   return(data)
 }
+
+transform_bounded_params <- function(params){
+  
+  ## Identify the bounded switches
+  bounded_params <- params$switch[(grepl('\\.lower$', params$switch))]
+  
+  if (length(bounded_params) > 0){
+    
+    bounded_params <- gsub('\\.lower$', '', bounded_params)
+    
+    for (i in bounded_params){
+      
+      ## Is it a varying parameter?
+      value_index <- grepl(paste0(i, '\\.[0-9]{1,4}$'), params$switch)
+      
+      if (!any(value_index)){
+        value_index <- grepl(paste0(i, '$'), params$switch)
+      } 
+      
+      ## Fill in values
+      params$value[value_index] <-
+        as.list(eval_bounded(
+          unlist(params$value[value_index]),
+          params$value[grepl(paste0(i, '.lower$'), params$switch)][[1]],
+          params$value[grepl(paste0(i, '.upper$'), params$switch)][[1]]
+        ))
+    }
+  }
+  return(params)
+}
+
+value_from_bounds <- function(x, lower, upper){
+  if (x == lower && x == upper) return(x)
+  else  return(log((upper - lower)/(x - lower) - 1))
+}
+
+eval_bounded <- function(x, lower, upper){
+  return(lower + (upper - lower)/(1 + exp(x)))
+}
+
 
 
