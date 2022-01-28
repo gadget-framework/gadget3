@@ -43,26 +43,30 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## --------------------------------------------------------------
   
   ## List of params supplied not the tmb_template
-  if (class(params) == "list"){
+  if (is.data.frame(params)){
     
-    out_params <-
-      unlist(params) %>%
-      tibble::enframe(name='switch')  
+    ## Transform bounded parameter values
+    ## Note, this will only work if the lower and upper bounds 
+    ## are in the parameter template and are called 'param.lower' 'param.upper'
+    param_list <- transform_bounded_params(params$value)
+    out_params <- params
+    out_params$value[names(param_list)] <- param_list
+    out_params$optimise <- as.numeric(out_params$optimise)
+    out_params$value <- unlist(out_params$value)
+    
+    ## Extract list of parameter values for the R model
+    params <- params$value
     
   }else{
     
-    ## tmb_template provided
-    if (class(params) == "data.frame"){
+    ## list provided
+    if (is.list(params)){
       
-      ## Transform bounded parameter values
-      ## Note, this will only work if the lower and upper bounds 
-      ## are in the parameter template and are called 'param.lower' 'param.upper'
-      out_params <- transform_bounded_params(params)
-      out_params$optimise <- as.numeric(out_params$optimise)
-      out_params$value <- unlist(out_params$value)
-      
-      ## Extract list of parameter values for the R model
-      params <- params$value
+      out_params <-
+        params %>% 
+        transform_bounded_params() %>% 
+        unlist() %>%
+        tibble::enframe(name='switch')  
       
     }
     else  stop("The params argument must be a data.frame or list")
@@ -498,28 +502,26 @@ replace_inf <- function(data){
 transform_bounded_params <- function(params){
   
   ## Identify the bounded switches
-  bounded_params <- params$switch[(grepl('\\.lower$', params$switch))]
+  param_names <- names(params)
+  bounded_params <- grepl('\\.lower$', param_names)
   
-  if (length(bounded_params) > 0){
+  if (any(bounded_params)){
     
-    bounded_params <- gsub('\\.lower$', '', bounded_params)
+    bounded_names <- gsub('\\.lower$', '', param_names[bounded_params])
     
-    for (i in bounded_params){
+    for (i in bounded_names){
       
       ## Is it a varying parameter?
-      value_index <- grepl(paste0(i, '\\.[0-9]{1,4}$'), params$switch)
+      value_index <- grepl(paste0(i, '\\.[0-9]{1,4}$'), param_names)
       
       if (!any(value_index)){
-        value_index <- grepl(paste0(i, '$'), params$switch)
+        value_index <- grepl(paste0(i, '$'), param_names)
       } 
       
       ## Fill in values
-      params$value[value_index] <-
-        as.list(eval_bounded(
-          unlist(params$value[value_index]),
-          params$value[grepl(paste0(i, '.lower$'), params$switch)][[1]],
-          params$value[grepl(paste0(i, '.upper$'), params$switch)][[1]]
-        ))
+      params[value_index] <- as.list(eval_bounded(unlist(params[value_index]),
+                                                  params[grepl(paste0(i, '.lower$'), param_names)][[1]],
+                                                  params[grepl(paste0(i, '.upper$'), param_names)][[1]]))
     }
   }
   return(params)
