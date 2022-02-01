@@ -16,27 +16,20 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
   
   ## Variables to report
-  vars_to_report <- c('__num$',
-                      '__wgt$',
-                      '__renewalnum$',
-                      '__suit',
-                      paste0('__', fleet_names, "$"))
+  report_vars_start <- c('__num$', '__wgt$')
+  report_vars_end <- c('__renewalnum$', '__suit', paste0('__', fleet_names, "$"))
   
   ## Update actions
-  report_actions <- g3a_report_history(actions = model_actions,
-                                       var_re = paste(vars_to_report, collapse = '|'))
+  report_actions_start <- g3a_report_history(actions = model_actions,
+                                                       var_re = paste(report_vars_start, collapse = '|'),
+                                                       run_at = 1)
   
-  ## TODO - REMOVE EXISTING ACTIONS IF THEY EXIST
-  # tmp_actions <- 
-  #   actions %>% 
-  #   purrr::keep(function(x){
-  #   keep(function(x){
-  #     if (length(x) == 0) return(TRUE)
-  #     else{
-  #       return(!grepl('g3a_report_stock', 
-  #                     as.list(attr(x[[1]], '.Env'))$f[[2]][[3]]))
-  #     }
-  #   }) 
+  report_actions_end <- g3a_report_history(actions = model_actions,
+                                                     var_re = paste(report_vars_end, collapse = '|'),
+                                                     run_at = 11)
+  
+  ## Remove existing report actions
+  model_actions <- remove_report_actions(model_actions)
   
   ## --------------------------------------------------------------
   ## Parameters
@@ -75,7 +68,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## ---------------------------------------------------------------------------
   
   ## Compile and run model
-  new_model <- g3_to_r(c(model_actions, list(report_actions)))
+  new_model <- g3_to_r(c(model_actions, 
+                                   list(report_actions_start), 
+                                   list(report_actions_end)))
   model_output <- new_model(params)
   
   ##############################################################################
@@ -536,5 +531,19 @@ eval_bounded <- function(x, lower, upper){
   return(lower + (upper - lower)/(1 + exp(x)))
 }
 
-
+remove_report_actions <- function(x){
+  
+  lapply(x, function(y){
+    
+    if (length(y) < 1) return(y)
+    else{
+      rep_actions <- grepl('011:g3a_report', names(y))
+      if (any(rep_actions)){
+        out <- within(y, rm(list = names(y)[rep_actions]))
+      }
+      else out <- y
+    }
+    return(out)
+  })
+}
 
