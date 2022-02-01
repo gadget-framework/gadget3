@@ -149,6 +149,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                     residuals = ifelse(.data$observed == 0, NA, .data$observed - .data$predicted)) %>% 
       dplyr::ungroup() %>%
       split_age() %>% 
+      dplyr::mutate(age = ifelse(.data$type == 'aldist', 
+                                 paste0('age', .data$lower_age), 
+                                 paste0('all', .data$lower_age))) %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$lower, .data$upper, .data$avg.length, .data$age,  
                     .data$fleetnames, .data$obs, .data$total.catch, .data$observed,
@@ -473,10 +476,7 @@ split_age <- function(data){
   tmp <-
     data %>% 
     dplyr::mutate(lower_age = gsub('(.+):(.+)', '\\1', .data$age),
-                  upper_age = gsub('(.+):(.+)', '\\2', .data$age)) %>% 
-    dplyr::mutate(age = ifelse(.data$lower_age == .data$upper_age, 
-                               paste0('age', .data$lower_age), paste0('all', .data$lower_age))) %>% 
-    dplyr::select(-.data$upper_age, -.data$lower_age)
+                  upper_age = gsub('(.+):(.+)', '\\2', .data$age)) 
     return(tmp)
 }
 
