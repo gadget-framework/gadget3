@@ -27,15 +27,28 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~not.a.function(2)))
 }, "not\\.a\\.function"), "An unknown function has to at least be a valid C++ function")
 
+ok(ut_cmp_error({
+    g3_tmb_adfun(g3_to_tmb(list(~{
+        g3_param('randomandoptimise', random = TRUE, optimise = TRUE)
+        g3_param('ro2', random = TRUE, optimise = TRUE)
+    })))
+}, "randomandoptimise,ro2"), "Specifying random and optimise isn't allowed")
+
+ok(ut_cmp_error({
+    g3_tmb_adfun(g3_to_tmb(list(~{ g3_param_table('randomandoptimise', expand.grid(cur_step = 2:3), random = TRUE, optimise = TRUE) })))
+}, "randomandoptimise"), "Specifying random and optimise isn't allowed")
+
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
         g3_param_vector('param_vec')
         g3_param('aaparam')
+        g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
         param.b = 66,
+        randomparam = 2,
         param_vec = 6:10)[rownames(param)])
 
     ok(ut_cmp_identical(g3_tmb_par(param), c(
@@ -47,6 +60,11 @@ ok_group('g3_tmb_par', {
     ok(ut_cmp_identical(g3_tmb_par(param), c(
         param__b = 66,
         aaparam = 55)), "g3_tmb_par: Turning off optimise removed values")
+
+    ok(ut_cmp_identical(g3_tmb_par(param, include_random = TRUE), c(
+        param__b = 66,
+        aaparam = 55,
+        randomparam = 2)), "g3_tmb_par: randomparam visible if include_random on")
 })
 
 ok_group('g3_tmb_lower', {
@@ -54,10 +72,13 @@ ok_group('g3_tmb_lower', {
         g3_param('param.b')
         g3_param_vector('param_vec')
         g3_param('aaparam')
+        # NB: Never visible
+        g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
         param.b = 66,
+        randomparam = 2,
         param_vec = 6:10)[rownames(param)])
     param$lower <- c(
         aaparam = 500,
@@ -84,10 +105,13 @@ ok_group('g3_tmb_upper', {
         g3_param('param.b')
         g3_param_vector('param_vec')
         g3_param('aaparam')
+        # NB: Never visible
+        g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
         param.b = 66,
+        randomparam = 2,
         param_vec = 6:10)[rownames(param)])
     param$upper <- c(
         aaparam = 500,
@@ -112,12 +136,14 @@ ok_group('g3_tmb_relist', {
         g3_param('param.b')
         g3_param_vector('param_vec')
         g3_param('unopt_param', optimise = FALSE)
+        g3_param('randomparam', random = TRUE)
         g3_param('aaparam')
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
         param.b = 66,
         unopt_param = 95,
+        randomparam = 2,
         param_vec = 6:10)[rownames(param)])
 
     ok(ut_cmp_identical(
@@ -129,6 +155,7 @@ ok_group('g3_tmb_relist', {
             "param.b" = 660,
             "param_vec" = c(60, 70, 80, 90, 100),
             "unopt_param" = 95,
+            "randomparam" = 2,
             "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots, used old unopt_param value")
 
     param['param.b', 'optimise'] <- FALSE
@@ -146,6 +173,7 @@ ok_group('g3_tmb_relist', {
             "param.b" = 66,
             "param_vec" = c(60, 70, 80, 90, 100),
             "unopt_param" = 95,
+            "randomparam" = 2,
             "aaparam" = 550)), "g3_tmb_relist: Works without param.b set, use initial table value")
 })
 
@@ -211,7 +239,34 @@ ok_group("g3_to_tmb: attr.actions", {
     ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
 })
 
+ok_group("g3_to_tmb: Can use random parameters", local({
+    stock__prevrec <- gadget3:::g3_global_formula(init_val = 0.0)
 
+    # Make sure we can use random = TRUE in an action, specifying TMB arguments correctly
+    actions <- c(
+        g3a_time(1990, 1992),
+        list("010:g3l_custom" = gadget3:::f_substitute(~if (cur_step_final) {
+            nll <- nll + dnorm(x, stock__prevrec, sigma, 1)
+            stock__prevrec <- x
+        }, list(
+            x = ~g3_param_table('rp', expand.grid(cur_year = seq(start_year, end_year)), random = TRUE),
+            sigma = ~g3_param('sigma', default = 0.2, optimize = TRUE)
+        ))),
+        list()
+    )
+
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
+    param_tbl <- attr(model_cpp, 'parameter_template')
+    param_tbl$value <- lapply(param_tbl$value, function (x) runif(1))
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, param_tbl, compile_flags = c("-O0", "-g"))
+        res <- optim(g3_tmb_par(param_tbl), model_tmb$fn, model_tmb$gr, method = 'BFGS')
+        ok(res$convergence == 0, "Model ran successfully and converged")
+    } else {
+        writeLines("# skip: not compiling TMB model")
+    }
+}))
 
 ###############################################################################
 actions <- list()

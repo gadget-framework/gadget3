@@ -13,7 +13,7 @@ g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = ~pred_stock__
  # if (!identical(p3, p4)) stop("p3 not currently supported")
   f_substitute(~p0 + 
                  p2 * exp(-(log(p5/stock__midlen) - p1)**2/p4) * bounded(100*(p1 - log(p5/stock__midlen)),0,1) +
-                 p2 * exp(-(log(p5/stock__midlen) - p1)**2/p3) * bounded(100*(log(p5/stock__midlen)) - p1,0,1), 
+                 p2 * exp(-(log(p5/stock__midlen) - p1)**2/p3) * bounded(100*(log(p5/stock__midlen)) - p1,0,1),
                list(
                  p0 = p0,
                  p1 = p1,

@@ -607,7 +607,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             df_template <- function (name, dims = c(1)) {
                 # Extract named args from g3_param() call
                 value <- find_arg('value', 0)
-                optimise <- find_arg('optimise', TRUE)
+                optimise <- find_arg('optimise', !find_arg('random', FALSE))  # i.e. default is opposite of random
                 random <- find_arg('random', FALSE)
                 lower <- as.numeric(find_arg('lower', NA))
                 upper <- as.numeric(find_arg('upper', NA))
@@ -936,6 +936,12 @@ g3_tmb_adfun <- function(cpp_code,
     }
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
+    if (any(parameters$random & parameters$optimise)) {
+        stop("Parameters with random=TRUE & optimise=TRUE doesn't make sense: ", paste(
+            parameters[parameters$random & parameters$optimise, 'switch'],
+            collapse = ","))
+    }
+
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
     # NB: as.character() strips attributes, so only use the code to define our digest
     base_name <- paste0('g3_tmb_', digest::sha1(as.character(cpp_code)))
@@ -1020,9 +1026,11 @@ g3_tmb_adfun <- function(cpp_code,
 }
 
 # Turn parameter_template table into a vector for TMB
-g3_tmb_par <- function (parameters) {
+g3_tmb_par <- function (parameters, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
-    p <- parameters[parameters$optimise, c('switch', 'value')]
+    p <- parameters[
+        (if (include_random) parameters$random else FALSE) |
+        parameters$optimise, c('switch', 'value')]
 
     unlist(structure(
         p$value,
@@ -1032,7 +1040,9 @@ g3_tmb_par <- function (parameters) {
 # Turn parameter template into vectors of upper/lower bounds
 g3_tmb_bound <- function (parameters, bound) {
     # Get all parameters we're thinking of optimising
-    p <- parameters[parameters$optimise & !is.na(parameters[[bound]]), c('switch', 'value', bound)]
+    p <- parameters[
+        !is.na(parameters[[bound]]) &
+        parameters$optimise, c('switch', 'value', bound)]
 
     # Get the length of all values
     p$val_len <- vapply(p[['value']], length, integer(1))
@@ -1048,7 +1058,7 @@ g3_tmb_bound <- function (parameters, bound) {
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
 
-g3_tmb_relist <- function (parameters, par) {
+g3_tmb_relist <- function (parameters, par, include_random = FALSE) {
     if (!identical(
         # NB: A fit$par won't have numeric identifiers at the end to keep them unique
             gsub("\\d+$", "", names(par)),
@@ -1058,9 +1068,13 @@ g3_tmb_relist <- function (parameters, par) {
 
     # Relist based on table's value
     # NB: Subset should match eqivalent operation in g3_tmb_par()
-    out <- utils::relist(par, unclass(parameters$value[parameters$optimise]))
+    out <- utils::relist(par, unclass(parameters$value[
+        (if (include_random) parameters$random else FALSE) |
+        parameters$optimise]))
     # Copy unoptimised parameters from table
-    out <- c(parameters$value[!parameters$optimise], out)
+    out <- c(parameters$value[!(
+        (if (include_random) parameters$random else FALSE) |
+        parameters$optimise)], out)
     # Re-order to match template list
     out <- out[names(parameters$value)]
     return(out)
