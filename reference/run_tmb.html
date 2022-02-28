@@ -72,13 +72,13 @@
     work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,
     output_script <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
 
-<span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
+<span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
 <span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
 
 <span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
 
-<span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span><span class="op">)</span></code></pre></div>
+<span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -97,6 +97,8 @@
     modified to provide initial conditions, etc.</p></dd>
 <dt>par</dt>
 <dd><p>Parameter vector, as produced by <code>g3_tmb_par()</code> or <code>nlminb(...)$par</code>.</p></dd>
+<dt>include_random</dt>
+<dd><p>Should random parameters assumed to be part of par (hint: Generally they shouldn't, unless you're using $report()).</p></dd>
 <dt>compile_flags</dt>
 <dd><p>List of extra flags to compile with, use e.g. "-g" to enable debugging output.</p></dd>
 <dt>work_dir</dt>
