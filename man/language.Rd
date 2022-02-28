@@ -2,6 +2,7 @@
 \alias{g3_idx}
 \alias{g3_param}
 \alias{g3_param_vector}
+\alias{g3_param_table}
 \alias{g3_report}
 \alias{g3_report_all}
 \alias{g3_with}
