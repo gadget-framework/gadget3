@@ -16,44 +16,65 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
   
   ## Variables to report
-  vars_to_report <- c('__num$',
-                      '__wgt$',
-                      '__renewalnum$',
-                      '__suit',
-                      paste0('__', fleet_names, "$"))
+  report_vars_start <- c('__num$', '__wgt$')
+  report_vars_end <- c('__renewalnum$', '__suit', paste0('__', fleet_names, "$"))
   
-  report_actions <- g3a_report_history(actions = model_actions,
-                                       var_re = paste(vars_to_report, collapse = '|'))
+  ## Update actions
+  report_actions_start <- g3a_report_history(actions = model_actions,
+                                                       var_re = paste(report_vars_start, collapse = '|'),
+                                                       run_at = 1)
   
+  report_actions_end <- g3a_report_history(actions = model_actions,
+                                                     var_re = paste(report_vars_end, collapse = '|'),
+                                                     run_at = 11)
+  
+  ## Remove existing report actions
+  model_actions <- remove_report_actions(model_actions)
+  
+  ## --------------------------------------------------------------
+  ## Parameters
+  ## --------------------------------------------------------------
+  
+  ## List of params supplied not the tmb_template
+  if (is.data.frame(params)){
+    
+    ## Transform bounded parameter values
+    ## Note, this will only work if the lower and upper bounds 
+    ## are in the parameter template and are called 'param.lower' 'param.upper'
+    param_list <- transform_bounded_params(params$value)
+    out_params <- params
+    out_params$value[names(param_list)] <- param_list
+    out_params$optimise <- as.numeric(out_params$optimise)
+    out_params$value <- unlist(out_params$value)
+    
+    ## Extract list of parameter values for the R model
+    params <- params$value
+    
+  }else{
+    
+    ## list provided
+    if (is.list(params)){
+      
+      out_params <-
+        params %>% 
+        transform_bounded_params() %>% 
+        unlist() %>%
+        tibble::enframe(name='switch')  
+      
+    }
+    else  stop("The params argument must be a data.frame or list")
+  }
+    
   ## ---------------------------------------------------------------------------
-  ## Update actions and re-run model
-  ## ---------------------------------------------------------------------------
-  
-  ## TODO - REMOVE EXISTING ACTIONS IF THEY EXIST
-  # tmp_actions <- 
-  #   actions %>% 
-  #   purrr::keep(function(x){
-  #   keep(function(x){
-  #     if (length(x) == 0) return(TRUE)
-  #     else{
-  #       return(!grepl('g3a_report_stock', 
-  #                     as.list(attr(x[[1]], '.Env'))$f[[2]][[3]]))
-  #     }
-  #   }) 
   
   ## Compile and run model
-  new_model <- g3_to_r(c(model_actions, list(report_actions)))
+  new_model <- g3_to_r(c(model_actions, 
+                                   list(report_actions_start), 
+                                   list(report_actions_end)))
   model_output <- new_model(params)
   
   ##############################################################################
   ##############################################################################
-  
-  ## COLLATE OUTPUT:
-  ## Parameters first
-  ## ADD BOUNDS AND WHETHER OR NOT OPTIMISED
-  params <- 
-    unlist(params) %>% 
-    tibble::enframe(name='switch')  
   
   ## --------------------------------------------------------------
   ## Catch distributions
@@ -77,6 +98,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   #length = gsub('len', '', .data$length) %>% as.numeric(),
                   area = as.numeric(.data$area)) %>%
     split_length() %>%
+    dplyr::group_by(.data$name) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>% 
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     dplyr::select(-.data$comp) %>%
     extract_year_step() %>%
@@ -120,6 +144,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                     residuals = ifelse(.data$observed == 0, NA, .data$observed - .data$predicted)) %>% 
       dplyr::ungroup() %>%
       split_age() %>% 
+      dplyr::mutate(age = ifelse(.data$type == 'aldist', 
+                                 paste0('age', .data$lower_age), 
+                                 paste0('all', .data$lower_age))) %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$lower, .data$upper, .data$avg.length, .data$age,  
                     .data$fleetnames, .data$obs, .data$total.catch, .data$observed,
@@ -265,6 +292,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
     split_length() %>% 
+    dplyr::group_by(.data$stock, .data$fleet) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     dplyr::mutate(number_consumed = 
                     ifelse(.data$biomass_consumed == 0, 0, .data$biomass_consumed / .data$weight)) %>%
@@ -280,6 +310,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
     split_length() %>%
+    dplyr::group_by(.data$stock) %>% 
+    dplyr::group_modify(~replace_inf(.x)) %>% 
+    dplyr::ungroup() %>%
     dplyr::mutate(avg.length = (.data$lower + .data$upper)/2) %>% 
     extract_year_step() %>% 
     tibble::as_tibble()
@@ -416,7 +449,8 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     stock.full = stock.full,
     fleet.info = fleet.info,
     stock.recruitment = stock.recruitment,
-    res.by.year = res.by.year
+    res.by.year = res.by.year,
+    params = tibble::as_tibble(out_params)
   )
   class(out) <- c('gadget.fit',class(out))
   return(out)
@@ -437,10 +471,7 @@ split_age <- function(data){
   tmp <-
     data %>% 
     dplyr::mutate(lower_age = gsub('(.+):(.+)', '\\1', .data$age),
-                  upper_age = gsub('(.+):(.+)', '\\2', .data$age)) %>% 
-    dplyr::mutate(age = ifelse(.data$lower_age == .data$upper_age, 
-                               paste0('age', .data$lower_age), paste0('all', .data$lower_age))) %>% 
-    dplyr::select(-.data$upper_age, -.data$lower_age)
+                  upper_age = gsub('(.+):(.+)', '\\2', .data$age)) 
     return(tmp)
 }
 
@@ -452,5 +483,67 @@ split_length <- function(data){
                   upper = gsub('(.+):(.+)', '\\2', .data$length) %>% as.numeric())
   
   return(tmp)
+}
+
+replace_inf <- function(data){
+  ind <- is.infinite(data$upper)
+  if (any(ind)){
+    replacement <- abs(diff(sort(unique(data$upper[!ind]), decreasing = TRUE)[1:2]))
+    data$upper[ind] <- data$lower[ind] + replacement
+  }
+  return(data)
+}
+
+transform_bounded_params <- function(params){
+  
+  ## Identify the bounded switches
+  param_names <- names(params)
+  bounded_params <- grepl('\\.lower$', param_names)
+  
+  if (any(bounded_params)){
+    
+    bounded_names <- gsub('\\.lower$', '', param_names[bounded_params])
+    
+    for (i in bounded_names){
+      
+      ## Is it a varying parameter?
+      value_index <- grepl(paste0(i, '\\.[0-9]{1,4}$'), param_names)
+      
+      if (!any(value_index)){
+        value_index <- grepl(paste0(i, '$'), param_names)
+      } 
+      
+      ## Fill in values
+      params[value_index] <- as.list(eval_bounded(unlist(params[value_index]),
+                                                  params[grepl(paste0(i, '.lower$'), param_names)][[1]],
+                                                  params[grepl(paste0(i, '.upper$'), param_names)][[1]]))
+    }
+  }
+  return(params)
+}
+
+value_from_bounds <- function(x, lower, upper){
+  if (x == lower && x == upper) return(x)
+  else  return(log((upper - lower)/(x - lower) - 1))
+}
+
+eval_bounded <- function(x, lower, upper){
+  return(lower + (upper - lower)/(1 + exp(x)))
+}
+
+remove_report_actions <- function(x){
+  
+  lapply(x, function(y){
+    
+    if (length(y) < 1) return(y)
+    else{
+      rep_actions <- grepl('011:g3a_report', names(y))
+      if (any(rep_actions)){
+        out <- within(y, rm(list = names(y)[rep_actions]))
+      }
+      else out <- y
+    }
+    return(out)
+  })
 }
 

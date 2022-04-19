@@ -95,6 +95,13 @@ g3_global_env$bounded <- g3_native(r = function (x, a, b) {
     return a + (b-a)/(1+exp(x));
 }')
 
+# Return vector (x) bounded between (a) and (b)
+g3_global_env$bounded_vec <- g3_native(r = function (x, a, b) {
+  a + (b-a)/(1+exp(x))
+}, cpp = '[](vector<Type> x, Type a, Type b) -> vector<Type> {
+    return a + (b-a)/(1+exp(x));
+}')
+
 # vector<Type> form of pow()
 g3_global_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
 

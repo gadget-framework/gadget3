@@ -267,9 +267,9 @@ g3a_growmature <- function(stock,
         stock__growth_w[] <- impl_w_f
     }, list(impl_l_f = impl_f$len, impl_w_f = impl_f$wgt))
     # Filter out known constants (hacky but conservative, will fail by being slow)
-    growth_dependent_vars <- setdiff(
+    growth_dependent_vars <- sort(setdiff(
         all.vars(calcgrowth_f),
-        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen'))
+        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen')))
     if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
         calcgrowth_f <- f_substitute(~{
@@ -286,6 +286,17 @@ g3a_growmature <- function(stock,
                 debug_trace("Don't recalculate until cur_step_size changes")
                 # NB: stock__growth_lastcalc is integer, cur_step_size is fractional
                 stock__growth_lastcalc <- floor(cur_step_size * 12L)
+            }
+        }, list(calcgrowth_f = calcgrowth_f))
+    } else if (identical(growth_dependent_vars, c('cur_step_size', 'cur_year'))) {
+        # Growth dependent on timestep/year, only recalculate when required
+        stock__growth_lastcalc <- -1L
+        calcgrowth_f <- f_substitute(~{
+            if (stock__growth_lastcalc != floor(cur_step_size * 12L) * 10000L + cur_year) {
+                calcgrowth_f
+                debug_trace("Don't recalculate until cur_step_size changes")
+                # NB: stock__growth_lastcalc is integer, cur_step_size is fractional
+                stock__growth_lastcalc <- floor(cur_step_size * 12L) * 10000L + cur_year
             }
         }, list(calcgrowth_f = calcgrowth_f))
     }

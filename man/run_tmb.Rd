@@ -21,13 +21,13 @@ g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     work_dir = tempdir(),
     output_script = FALSE, ...)
 
-g3_tmb_par(parameters)
+g3_tmb_par(parameters, include_random = FALSE)
 
 g3_tmb_lower(parameters)
 
 g3_tmb_upper(parameters)
 
-g3_tmb_relist(parameters, par)
+g3_tmb_relist(parameters, par, include_random = FALSE)
 
 }
 
@@ -51,6 +51,9 @@ g3_tmb_relist(parameters, par)
   }
   \item{par}{
     Parameter vector, as produced by \code{g3_tmb_par()} or \code{nlminb(...)$par}.
+  }
+  \item{include_random}{
+    Should random parameters assumed to be part of par (hint: Generally they shouldn't, unless you're using $report()).
   }
   \item{compile_flags}{
     List of extra flags to compile with, use e.g. "-g" to enable debugging output.
