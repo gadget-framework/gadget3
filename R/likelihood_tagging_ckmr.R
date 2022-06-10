@@ -1,7 +1,7 @@
 g3l_tagging_ckmr <- function (
         nll_name,
         obs_data,
-        fleets = list(),
+        fleets,
         parent_stocks,
         offspring_stocks,
         weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
@@ -10,6 +10,14 @@ g3l_tagging_ckmr <- function (
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(parent_stocks) && all(sapply(parent_stocks, g3_is_stock)))
     stopifnot(is.list(offspring_stocks) && all(sapply(offspring_stocks, g3_is_stock)))
+
+    # Convert obsdata into an array
+    stopifnot(colnames(obs_data) == c('year', 'parent_age', 'offspring_age', 'mo_pairs'))
+    obsdata_pairs_var_name <- paste0(nll_name, '_obspairs')
+    assign(obsdata_pairs_var_name, t(array(
+        as.integer(c(obs_data$year, obs_data$parent_age, obs_data$offspring_age, obs_data$mo_pairs)),
+        dim = c(length(obs_data$year), 4),
+        dimnames = list(NULL, c('year', 'parent_age', 'offspring_age', 'mo_pairs')))))
 
     # Get definition for all stocks provided
     stock_definitions <- function (var_name, stocks) {
@@ -73,23 +81,26 @@ g3l_tagging_ckmr <- function (
         debug_label("g3l_tagging_ckmr: Work out expected pairs and compare to existing data")
 
         # Iterate over sensible spawning_year / offspring_age / parent_age combinations
-        stock_with(modelhist, if (cur_step_final && cur_year - modelhist__minage > start_year) {  # i.e. restrict so seq() returns sensible results
-            for (spawning_year in seq(cur_year - modelhist__minage + 1, start_year, by = -1)) g3_with(
-              offspring_age := cur_year - start_year,
-              modelhist__offspring_idx := g3_idx(offspring_age - modelhist__minage + 1), {
-                for (parent_age in seq(offspring_age, modelhist__maxage, by = 1)) g3_with(
-                  modelhist__parent_idx := g3_idx(parent_age - modelhist__minage + 1), {
-                    g3_with(
-                      # i.e. # spawned per-parent at this time
-                      fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero_vec(modelhist__spawning[,modelhist__offspring_idx]),
-                      # (3.4) is something like this:-
-                      cur_ckmr_nll := (fecundity_of_parents[modelhist__parent_idx] / modelhist__catch[modelhist__parent_idx]) / sum(fecundity_of_parents), {
-                        nll <- nll + (weight) * unname(cur_ckmr_nll)
-                    })
+        stock_with(modelhist, if (cur_step_final) {
+            for (i in seq(g3_idx(1), g3_idx(ncol(obsdata_pairs)), by = 1)) if (as_integer(obsdata_pairs[g3_idx(1), i]) == cur_year) {
+                g3_with(
+                  parent_age := as_integer(obsdata_pairs[g3_idx(2), i]),
+                  modelhist__parent_idx := g3_idx(parent_age - modelhist__minage + 1),
+                  offspring_age := as_integer(obsdata_pairs[g3_idx(3), i]),
+                  modelhist__offspring_idx := g3_idx(offspring_age - modelhist__minage + 1),
+                  mopairs := as_integer(obsdata_pairs[g3_idx(4), i]),
+                  # i.e. # spawned per-parent at this time
+                  fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero_vec(modelhist__spawning[,modelhist__offspring_idx]),
+                  # Convert to a probability using (3.4):-
+                  cur_ckmr_p := (fecundity_of_parents[modelhist__parent_idx] / modelhist__catch[modelhist__parent_idx]) / sum(fecundity_of_parents), {
+                    # Pseudo-likelihood as per (4.1)
+                    nll <- nll + (weight) * log((mopairs) * unname(cur_ckmr_p))
+                    # TODO: Consider (4.2) here too?
                 })
-            })
+            }
         })
     }, list(
+        obsdata_pairs = as.symbol(obsdata_pairs_var_name),
         weight = weight)))
 
     return(as.list(out))

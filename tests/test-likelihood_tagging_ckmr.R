@@ -3,6 +3,14 @@ library(unittest)
 
 library(gadget3)
 
+table_string <- function (str) {
+    read.table(
+        textConnection(str),
+        blank.lines.skip = TRUE,
+        header = TRUE,
+        stringsAsFactors = FALSE)
+}
+
 ok_group('g3a_likelihood_tagging_ckmr', {
     year_range <- 1982:1990
 
@@ -68,7 +76,11 @@ ok_group('g3a_likelihood_tagging_ckmr', {
     likelihood_actions <- list(
         g3l_tagging_ckmr(
             'tagging_ckmr',
-            list(),
+            table_string('
+year parent_age offspring_age mo_pairs
+1989         5              3        1
+1990         10             4        2
+            '),
             fleets = list(fleet_ckmr),
             parent_stocks = list(ling_mat),
             offspring_stocks = list(ling_imm)),
