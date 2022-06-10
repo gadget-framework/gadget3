@@ -72,16 +72,21 @@
     <h2>Arguments</h2>
     <dl><dt>inner_stock</dt>
 <dd><p>A <code><a href="stock.html">g3_stock</a></code> that we extend with an age dimension</p></dd>
-<dt>minage</dt>
+
+  <dt>minage</dt>
 <dd><p>Minimum age to store, integer.</p></dd>
-<dt>maxage</dt>
+
+  <dt>maxage</dt>
 <dd><p>Maximum age to store, integer.</p></dd>
-<dt>agegroups</dt>
+
+  <dt>agegroups</dt>
 <dd><p>(optionally named) list of vectors of ages, grouping them together.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-s-age">g3s_age<a class="anchor" aria-label="anchor" href="#g-s-age"></a></h3>
 <p>A <code><a href="stock.html">g3_stock</a></code> with an additional 'age' dimension.</p>
 <p>When iterating over the stock, iterate over each age in turn,
@@ -90,7 +95,9 @@
       <var>age</var> is betweem <var>minage</var> and <var>maxage</var>.</p>
 <p>If an age dimension already exists, it is redefined with new
       parameters.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-s-agegroup">g3s_agegroup<a class="anchor" aria-label="anchor" href="#g-s-agegroup"></a></h3>
 <p>A <code><a href="stock.html">g3_stock</a></code> with an additional 'age' dimension.</p>
 <p>When iterating over the stock, iterate over each agegroup in turn,
@@ -98,6 +105,8 @@
 <p>When intersecting with another stock, only do anything if
       <var>age</var> is part of one of the groups.</p>
 </div>
+
+
     </div>
 
     <div id="ref-examples">
@@ -143,7 +152,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

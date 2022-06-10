@@ -1,10 +1,10 @@
 pandoc: 2.7.3
-pkgdown: 2.0.3
+pkgdown: 2.0.4
 pkgdown_sha: ~
 articles:
   model-debugging: model-debugging.html
   model_structure: model_structure.html
   tmb-gotchas: tmb-gotchas.html
   writing_actions: writing_actions.html
-last_built: 2022-06-10T11:12Z
+last_built: 2022-06-10T17:28Z
 

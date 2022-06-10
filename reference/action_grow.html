@@ -79,41 +79,57 @@
     <h2>Arguments</h2>
     <dl><dt>linf_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> to substitute for \(L_\infty\).</p></dd>
-<dt>kappa_f</dt>
+
+  <dt>kappa_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> to substitute for \(\kappa\).</p></dd>
-<dt>alpha_f</dt>
+
+  <dt>alpha_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> to substitute for \(\alpha\).</p></dd>
-<dt>beta_f</dt>
+
+  <dt>beta_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> to substitute for \(\beta\).</p></dd>
-<dt>maxlengthgroupgrowth</dt>
+
+  <dt>maxlengthgroupgrowth</dt>
 <dd><p>An integer with the maximum length groups an individual can jump in one step.</p></dd>
-<dt>stock</dt>
+
+  <dt>stock</dt>
 <dd><p><code><a href="stock.html">g3_stock</a></code> to grow.</p></dd>
-<dt>delta_len_f</dt>
+
+  <dt>delta_len_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> defining a non-negative vector for mean increase in length for <code>stock</code>
     for each lengthgroup, as defined by <code>g3a_grow_lengthvbsimple</code>.</p></dd>
-<dt>delta_wgt_f</dt>
+
+  <dt>delta_wgt_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> defining the corresponding weight increase as a matrix of
     lengthgroup to lengthgroup delta for <code>stock</code>, as defined by <code>g3a_grow_weightsimple</code>.</p></dd>
-<dt>impl_f</dt>
+
+  <dt>impl_f</dt>
 <dd><p>A pair of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects, as defined by <code>g3a_grow_impl_bbinom</code>.
     Both define a matrix of length groups <code>i</code> to length group deltas <code>j</code> (0..<var>maxlengthgroupgrowth</var>),
     the values in the first indicate the proportion of individuals moving from <code>i</code> to <code>i + j</code>,
     the values in the second indicate the corresponding weight increase of individuals moving from <code>i</code> to <code>i + j</code>.</p></dd>
-<dt>maturity_f</dt>
+
+  <dt>maturity_f</dt>
 <dd><p>A maturity <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a>, as defined by <code><a href="action_mature.html">g3a_mature_constant</a></code>.</p></dd>
-<dt>output_stocks</dt>
+
+  <dt>output_stocks</dt>
 <dd><p>List of <code><a href="stock.html">g3_stock</a></code>s that maturing <var>stock</var> should move into.</p></dd>
-<dt>output_ratios</dt>
+
+  <dt>output_ratios</dt>
 <dd><p>Vector of proportions for how to distribute into <var>output_stocks</var>, summing to 1, default evenly spread.</p></dd>
-<dt>transition_f</dt>
+
+  <dt>transition_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a contition for running maturation steps as well as growth, default final step of year.</p></dd>
-<dt>run_f</dt>
+
+  <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
-<dt>transition_at</dt>
+
+  <dt>transition_at</dt>
 <dd><p>Integer order that transition actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -126,26 +142,37 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-a-grow-lengthvbsimple">g3a_grow_lengthvbsimple<a class="anchor" aria-label="anchor" href="#g-a-grow-lengthvbsimple"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_len_f</var>:</p>
 <p>$$ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa{\Delta}t}) $$</p>
 <p>Where \( \Delta{t} \) is the length of the current timestep.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-a-grow-weightsimple">g3a_grow_weightsimple<a class="anchor" aria-label="anchor" href="#g-a-grow-weightsimple"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_wgt_f</var>:</p>
 <p>$$ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) $$</p>
 <p>Where \( \Delta{t} \) is the length of the current timestep,
   \( {{\Delta}L} \) is all possible length group increases i.e <code>0..maxlengthgroupgrowth</code>.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-a-grow-impl-bbinom">g3a_grow_impl_bbinom<a class="anchor" aria-label="anchor" href="#g-a-grow-impl-bbinom"></a></h3>
 <p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object converting mean growths using beta-binomia distribution. See <a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#beta-binomial" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#beta-binomial</a></p>
-</div><div class="section">
+</div>
+
+
+<p></p>
+<div class="section">
 <h3 id="g-a-growmature">g3a_growmature<a class="anchor" aria-label="anchor" href="#g-a-growmature"></a></h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol><li><p>Move any maturing individuals into temporary storage, <code>stock__transitioning_num</code> / <code>stock__transitioning_wgt</code></p></li>
 <li><p>Calculate increase in length/weight using <var>growth_f</var> and <var>impl_f</var></p></li>
 <li><p>Move the contents of the temporary storage into <var>output_stocks</var></p></li>
 </ol></div>
+
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -187,7 +214,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

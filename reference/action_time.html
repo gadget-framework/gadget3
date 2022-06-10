@@ -71,16 +71,21 @@
     <h2>Arguments</h2>
     <dl><dt>start_year</dt>
 <dd><p>Year model run will start.</p></dd>
-<dt>end_year</dt>
+
+  <dt>end_year</dt>
 <dd><p>After this year, model run will stop.</p></dd>
-<dt>steps</dt>
+
+  <dt>steps</dt>
 <dd><p>Either an MFDB time grouping, e.g. <code>mfdb::mfdb_timestep_quarterly</code>, or a
     vector of step lengths which should should sum to 12,
     for example, <code>c(3,3,3,3)</code> for quarterly steps within a year.</p></dd>
-<dt>project_years</dt>
+
+  <dt>project_years</dt>
 <dd><p>Number of years to continue running after the "end" of the model.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -112,11 +117,14 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-a-time">g3a_time<a class="anchor" aria-label="anchor" href="#g-a-time"></a></h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol><li><p>Define <var>cur_*</var> variables listed above</p></li>
 <li><p>If we've reached the end of the model, return <var>nll</var></p></li>
 </ol></div>
+
+
     </div>
 
     <div id="ref-examples">
@@ -140,7 +148,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

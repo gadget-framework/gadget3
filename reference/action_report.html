@@ -73,18 +73,25 @@
     <h2>Arguments</h2>
     <dl><dt>report_stock</dt>
 <dd><p>The <code><a href="stock.html">g3_stock</a></code> to aggregate into</p></dd>
-<dt>input_stock</dt>
+
+  <dt>input_stock</dt>
 <dd><p>The <code><a href="stock.html">g3_stock</a></code> that will be aggregated</p></dd>
-<dt>report_f</dt>
+
+  <dt>report_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying what to collect, for instance <code>~stock_ss(input_stock__num)</code> or <code>~stock_ss(input_stock__wgt)</code>.</p></dd>
-<dt>actions</dt>
+
+  <dt>actions</dt>
 <dd><p>List of actions that model will consist of.</p></dd>
-<dt>var_re</dt>
+
+  <dt>var_re</dt>
 <dd><p>Regular expression specifying variables to log history for.</p></dd>
-<dt>run_f</dt>
+
+  <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -100,14 +107,19 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-a-report-stock">g3a_report_stock<a class="anchor" aria-label="anchor" href="#g-a-report-stock"></a></h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol><li><p>Iterate over <var>input_stock</var>, collecting data into <var>report_stock</var></p></li>
 <li><p>Add the contents of <var>report_stock</var>__<var>instance_name</var> to the model report</p></li>
-</ol></div><div class="section">
+</ol></div>
+<p></p>
+<div class="section">
 <h3 id="g-a-report-history">g3a_report_history<a class="anchor" aria-label="anchor" href="#g-a-report-history"></a></h3>
 <p>An action (i.e. list of formula objects) that will store the current state of each variable found matching <var>var_re</var>.</p>
 </div>
+
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -151,7 +163,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

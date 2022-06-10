@@ -92,53 +92,70 @@
 <dd><p>When comparing proportions of lengthgroups, specifies the dimensions that define the total.
     For example the default "area" means the proprtion of the current lengthgroup to all individuals
     in that area.</p></dd>
-<dt>rho_f</dt>
+
+  <dt>rho_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into multivariate calcuations, see below.</p></dd>
-<dt>sigma_f</dt>
+
+  <dt>sigma_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into multivariate calcuations, see below.</p></dd>
-<dt>epsilon</dt>
+
+  <dt>epsilon</dt>
 <dd><p>Value to be used whenever the calculated probability is very unlikely. Default 10.</p></dd>
-<dt>alpha</dt>
+
+  <dt>alpha</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into surveyindices calcuations to fix intercept of linear regression,
     or NULL if not fixed. See below.</p></dd>
-<dt>beta</dt>
+
+  <dt>beta</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into surveyindices calcuations to fix slope of linear regression,
     or NULL if not fixed. See below.</p></dd>
-<dt>nll_name</dt>
+
+  <dt>nll_name</dt>
 <dd><p>Character string, used to define the variable name for <var>obsstock</var> and <var>modelstock</var>.</p></dd>
-<dt>obs_data</dt>
+
+  <dt>obs_data</dt>
 <dd><p>Data.frame of observation data, for example the results of
     mfdb_sample_count.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
-<dt>fleets</dt>
+
+  <dt>fleets</dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects to collect catch data for.
     If empty, will collect abundance data for <var>stocks</var> instead.</p></dd>
-<dt>stocks</dt>
+
+  <dt>stocks</dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects to collect catch or abundance data for,
     depending if <var>stocks</var> were provided.</p></dd>
-<dt>function_f</dt>
+
+  <dt>function_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> to compare <var>obsstock__x</var> to <var>modelstock__x</var> and generate nll,
     defined by one of the <var>g3l_distribution_</var>* functions.</p>
 <p>This will be adapted to compare either number (<var>modelstock__num</var>) or weight (<var>modelstock__wgt</var>)
     depending on what columns <var>obs_data</var> has.</p></dd>
-<dt>missing_val</dt>
+
+  <dt>missing_val</dt>
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
-<dt>area_group</dt>
+
+  <dt>area_group</dt>
 <dd><p>mfdb_group or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
-<dt>report</dt>
+
+  <dt>report</dt>
 <dd><p>If TRUE, add model and observation arrays to the model report, called
     <code>cdist_<var>nll_name</var>_model__num/wgt</code> and <code>cdist_<var>nll_name</var>_obs__num/wgt</code>
     respectively</p></dd>
-<dt>nll_breakdown</dt>
+
+  <dt>nll_breakdown</dt>
 <dd><p>Should the nll report be broken down by time? <code>TRUE</code> / <code>FALSE</code></p></dd>
-<dt>weight</dt>
+
+  <dt>weight</dt>
 <dd><p>Weighting applied to this likelihood component. Default is a <code>g3_param</code>
     that defaults to 1, allowing weights to be altered without recompiling.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -194,11 +211,22 @@
 
       <dt>stock</dt>
 <dd><p>Optional.
-        If missing all stocks in <var>stocks</var> will be summed to compare to the
-        data.</p>
+        If this and stock_re are missing all stocks in <var>stocks</var> will be
+        summed to compare to the data.</p>
 <p>The values in the stocks column should match the names of the stocks
         given in the <var>stocks</var> parameter. This column can be factor or
         character.</p>
+<p>Any missing stocks (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+
+      <dt>stock_re</dt>
+<dd><p>Optional.
+        If this and stock are missing all stocks in <var>stocks</var> will be summed
+        to compare to the data.</p>
+<p>The values in the stocks column will be used as regular expressions to
+        match the names of the stocks given in the <var>stocks</var> parameter. For
+        example, '_mat_' will match both 'ghd_mat_f' and 'ghd_mat_m' and will
+        be compared against the sum of the 2 stocks.</p>
 <p>Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.</p></dd>
 
@@ -244,7 +272,8 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-l-distribution-sumofsquares">g3l_distribution_sumofsquares<a class="anchor" aria-label="anchor" href="#g-l-distribution-sumofsquares"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>:</p>
 <p>$$ \sum_{\it lengths} \Big( \frac{N_{tral}}{N_{tr}} - \frac{\nu_{tral}}{\nu_{tr}}  \Big) ^2 $$</p><dl><dt>\(N_{tral}\)</dt>
@@ -261,7 +290,11 @@
 
     
 </dl><p></p>
-</div><div class="section">
+</div>
+
+
+<p></p>
+<div class="section">
 <h3 id="g-l-distribution-multinomial">g3l_distribution_multinomial<a class="anchor" aria-label="anchor" href="#g-l-distribution-multinomial"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>:</p>
 <p>$$
@@ -285,7 +318,9 @@
 
     
 </dl><p></p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-l-distribution-multivariate">g3l_distribution_multivariate<a class="anchor" aria-label="anchor" href="#g-l-distribution-multivariate"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>, which calls TMB's <code>SCALE(AR1(rho), sigma)(x)</code>, where
     <var>rho</var> and <var>sigma</var> are parameters, and <code>x</code> is defined as:</p>
@@ -304,7 +339,9 @@
     
 </dl><p>For more information, see <a href="Autoregressive%20processes">http://kaskr.github.io/adcomp/_book/Densities.html#autoregressive-processes</a>
     in the TMB book.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-l-distribution-surveyindices-log">g3l_distribution_surveyindices_log<a class="anchor" aria-label="anchor" href="#g-l-distribution-surveyindices-log"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>:</p>
 <p>$$
@@ -326,7 +363,9 @@
     performed on \(N\), \(\nu\) over time for each area/age/length combination.
     The used values will be stored in a <code>cdist_<var>nll_name</var>_model__param</code> array and
     reported after model run, whether calculated or hard-coded.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-l-distribution-surveyindices-linear">g3l_distribution_surveyindices_linear<a class="anchor" aria-label="anchor" href="#g-l-distribution-surveyindices-linear"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>:</p>
 <p>$$
@@ -348,17 +387,23 @@
     performed on \(N\), \(\nu\) over time for each area/age/length combination.
     The used values will be stored in a <code>cdist_<var>nll_name</var>_model__param</code> array and
     reported after model run, whether calculated or hard-coded.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-l-distribution">g3l_*distribution<a class="anchor" aria-label="anchor" href="#g-l-distribution"></a></h3>
 <p>Assuming <var>fleets</var> is empty, an action (i.e. list of formula objects) that will...</p><ol><li><p>For all <var>stocks</var>, collect catch data into <var>modelstock</var>__num or <var>modelstock</var>__wgt, depending on the columns provided in <var>obs_data</var></p></li>
 <li><p>Compare <var>modelstock</var>__num/wgt with <var>obsstock</var>__num/wgt, using <var>function_f</var></p></li>
 </ol><p>The output of <var>function_f</var> is summed over all stock dimensions (age/area) and time and added to <code>nll</code>.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-l-catchdistribution">g3l_catchdistribution<a class="anchor" aria-label="anchor" href="#g-l-catchdistribution"></a></h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol><li><p>For all <var>fleets</var> and <var>stocks</var> combinations, collect catch data into <var>modelstock</var>__num or <var>modelstock</var>__wgt, depending on the columns provided in <var>obs_data</var></p></li>
 <li><p>Compare <var>modelstock</var>__num/wgt with <var>obsstock</var>__num/wgt, using <var>function_f</var></p></li>
 </ol><p>The output of <var>function_f</var> is summed over all stock dimensions (age/area) and time and added to <code>nll</code>.</p>
 </div>
+
+
     </div>
 
     <div id="ref-examples">
@@ -409,7 +454,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

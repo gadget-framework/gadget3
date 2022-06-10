@@ -72,21 +72,27 @@
     <h2>Arguments</h2>
     <dl><dt>inner_stock</dt>
 <dd><p>A <code><a href="stock.html">g3_stock</a></code> that we extend with an area dimension</p></dd>
-<dt>areas</dt>
+
+  <dt>areas</dt>
 <dd><p>A vector of numeric areas that the stock is part of</p></dd>
-<dt>areagroups</dt>
+
+  <dt>areagroups</dt>
 <dd><p>A list mapping names to vectors of numeric areas the stock is part of</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-s-livesonareas">g3s_livesonareas<a class="anchor" aria-label="anchor" href="#g-s-livesonareas"></a></h3>
 <p>A <code><a href="stock.html">g3_stock</a></code> with an additional 'area' dimension.</p>
 <p>When iterating over the stock, iterate over each area in turn,
       <var>area</var> will be set to the current integer area.</p>
 <p>When intersecting with another stock, only do anything if
       <var>area</var> is also part of our list of areas.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-s-areagroup">g3s_areagroup<a class="anchor" aria-label="anchor" href="#g-s-areagroup"></a></h3>
 <p>A <code><a href="stock.html">g3_stock</a></code> with an additional 'area' dimension.</p>
 <p>When iterating over the stock, iterate over each areagroup in turn,
@@ -94,6 +100,8 @@
 <p>When intersecting with another stock, only do anything if
       <var>area</var> is part of one of the groups.</p>
 </div>
+
+
     </div>
 
     <div id="ref-examples">
@@ -142,7 +150,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

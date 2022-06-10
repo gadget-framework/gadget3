@@ -79,19 +79,26 @@
     <h2>Arguments</h2>
     <dl><dt>nll_name</dt>
 <dd><p>Character string, used to define the variable name for <var>obsstock</var> and <var>modelstock</var>.</p></dd>
-<dt>obs_data</dt>
+
+  <dt>obs_data</dt>
 <dd><p>Data.frame of observed mother-offspring pairs with columns year / parent_age / offspring_age / mo_pairs</p></dd>
-<dt>fleets</dt>
+
+  <dt>fleets</dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects to collect catch data for.</p></dd>
-<dt>parent_stocks</dt>
+
+  <dt>parent_stocks</dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects that are parents in a <a href="action_spawn.html">g3a_spawn</a> action</p></dd>
-<dt>offspring_stocks</dt>
+
+  <dt>offspring_stocks</dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects that are <code>output_stocks</code> in a <a href="action_spawn.html">g3a_spawn</a> action</p></dd>
-<dt>weight</dt>
+
+  <dt>weight</dt>
 <dd><p>Weighting applied to this likelihood component. Default is a <code>g3_param</code>
     that defaults to 1, allowing weights to be altered without recompiling.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -127,13 +134,16 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-l-tagging-ckmr">g3l_tagging_ckmr<a class="anchor" aria-label="anchor" href="#g-l-tagging-ckmr"></a></h3>
 <p>An action (i.e. list of formula objects) that will...</p><ol><li><p>For all <var>parent_stocks</var> and <var>offspring_stocks</var>, collect spawing rate into
     <var>modelhist</var>__spawning and <var>modelhist</var>__spawned, total number of parents and total number of spawned offspring respectively</p></li>
 <li><p>For all <var>fleets</var>, collect catch data into <var>modelhist</var>__catch</p></li>
 <li><p>For any observed pairs that year, include the probability of that event happening into <code>nll</code></p></li>
 </ol></div>
+
+
     </div>
 
   </div>
@@ -148,7 +158,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

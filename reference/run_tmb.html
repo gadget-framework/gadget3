@@ -85,29 +85,40 @@
     <h2>Arguments</h2>
     <dl><dt>actions</dt>
 <dd><p>A list of actions (i.e. list of formula objects), as produced by <var>g3a_</var>* functions.</p></dd>
-<dt>trace</dt>
+
+  <dt>trace</dt>
 <dd><p>If TRUE, turn all comments into print statements.</p></dd>
-<dt>strict</dt>
+
+  <dt>strict</dt>
 <dd><p>If TRUE, enable extra sanity checking in actions. Any invalid conditions
     (e.g. more/less fish after growth) will result in a warning.</p></dd>
-<dt>cpp_code</dt>
+
+  <dt>cpp_code</dt>
 <dd><p>cpp_code as produced by <var>g3_to_tmb</var>.</p></dd>
-<dt>parameters</dt>
+
+  <dt>parameters</dt>
 <dd><p>Parameter table as produced by <code>attr(g3_to_tmb(...), 'parameter_template')</code>,
     modified to provide initial conditions, etc.</p></dd>
-<dt>par</dt>
+
+  <dt>par</dt>
 <dd><p>Parameter vector, as produced by <code>g3_tmb_par()</code> or <code>nlminb(...)$par</code>.</p></dd>
-<dt>include_random</dt>
+
+  <dt>include_random</dt>
 <dd><p>Should random parameters assumed to be part of par (hint: Generally they shouldn't, unless you're using $report()).</p></dd>
-<dt>compile_flags</dt>
+
+  <dt>compile_flags</dt>
 <dd><p>List of extra flags to compile with, use e.g. "-g" to enable debugging output.</p></dd>
-<dt>work_dir</dt>
+
+  <dt>work_dir</dt>
 <dd><p>Directory to write and compile .cpp files in. Defaults to R's current temporary directory</p></dd>
-<dt>output_script</dt>
+
+  <dt>output_script</dt>
 <dd><p>If <code>TRUE</code>, create a temporary R script that runs <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a>, and return the location.
     This can then be directly used with <a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a> or <code><a href="https://callr.r-lib.org/reference/rscript.html" class="external-link">callr::rscript</a></code>.</p></dd>
-<dt>...</dt>
+
+  <dt>...</dt>
 <dd><p>Any other options handed directly to MakeADFun</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -123,7 +134,8 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-to-tmb">g3_to_tmb<a class="anchor" aria-label="anchor" href="#g-to-tmb"></a></h3>
 <p>A string of C++ code that can be used as an input to <var>g3_tmb_adfun</var>, with the following attributes:</p><dl><dt>actions</dt>
 <dd><p>The original <var>actions</var> list given to the function</p></dd>
@@ -136,24 +148,36 @@
 
     
 </dl><p>Use e.g. <code>attr(cpp_code, 'parameter_template')</code> to retrieve them.</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-tmb-adfun-1">g3_tmb_adfun<a class="anchor" aria-label="anchor" href="#g-tmb-adfun-1"></a></h3>
 <p>An ADFun as produced by TMB's MakeADFun, or location of temporary script if <var>output_script</var> is TRUE</p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-tmb-par">g3_tmb_par<a class="anchor" aria-label="anchor" href="#g-tmb-par"></a></h3>
 <p>Values extracted from <var>parameters</var> table converted into a vector of values for <code>obj$fn(par)</code> or <code>nlminb</code></p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-tmb-lower">g3_tmb_lower<a class="anchor" aria-label="anchor" href="#g-tmb-lower"></a></h3>
 <p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-tmb-upper">g3_tmb_upper<a class="anchor" aria-label="anchor" href="#g-tmb-upper"></a></h3>
 <p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-tmb-relist">g3_tmb_relist<a class="anchor" aria-label="anchor" href="#g-tmb-relist"></a></h3>
 <p>The <var>parameters</var> table value column, but with optimised
     values replaced with contents of <var>par</var> vector.
     i.e. the inverse operation to g3_tmb_par.</p>
 </div>
+
+
     </div>
 
     <div id="ref-examples">
@@ -248,7 +272,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

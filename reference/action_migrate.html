@@ -74,17 +74,23 @@
     <dl><dt>row_total</dt>
 <dd><p>When calculating the proportion of individuals that will stay in place, use this total
     for what rows are expected to sum to.</p></dd>
-<dt>stock</dt>
+
+  <dt>stock</dt>
 <dd><p>The <code><a href="stock.html">g3_stock</a></code> that will migrate in this action.</p></dd>
-<dt>migrate_f</dt>
+
+  <dt>migrate_f</dt>
 <dd><p>A formula describing the migration in terms of (source) <code>area</code> and <code>dest_area</code>.</p></dd>
-<dt>normalize_f</dt>
+
+  <dt>normalize_f</dt>
 <dd><p>Function to normalize a vector of possible destinations, to make sure fish
     aren't added or destroyed.</p></dd>
-<dt>run_f</dt>
+
+  <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
-<dt>run_at</dt>
+
+  <dt>run_at</dt>
 <dd><p>Integer order that spawning actions will be run within model, see "Ordering of actions" in <code><a href="../articles/model_structure.html">vignette("model_structure")</a></code>.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -107,7 +113,8 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <div class="section">
+    <p></p>
+<div class="section">
 <h3 id="g-a-migrate-normalize">g3a_migrate_normalize<a class="anchor" aria-label="anchor" href="#g-a-migrate-normalize"></a></h3>
 <p>A formula transforming <code>stock__migratematrix[,stock__area_idx]</code> (i.e.
     all possible destinations from a given area) by:</p>
@@ -115,11 +122,15 @@
 <li><p>Altering the proportion of static individuals so a row sums to <var>row_total</var></p></li>
 <li><p>Dividing by row_total so a row sums to 1</p></li>
 </ol><p></p>
-</div><div class="section">
+</div>
+<p></p>
+<div class="section">
 <h3 id="g-a-migrate">g3a_migrate<a class="anchor" aria-label="anchor" href="#g-a-migrate"></a></h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol><li><p>Fill in <var>stock__migratematrix</var> using <var>migrate_f</var> and <var>normalize_f</var></p></li>
 <li><p>Apply movement to <var>stock</var></p></li>
 </ol></div>
+
+
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -161,7 +172,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
