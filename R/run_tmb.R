@@ -1040,9 +1040,7 @@ g3_tmb_par <- function (parameters, include_random = FALSE) {
 # Turn parameter template into vectors of upper/lower bounds
 g3_tmb_bound <- function (parameters, bound) {
     # Get all parameters we're thinking of optimising
-    p <- parameters[
-        !is.na(parameters[[bound]]) &
-        parameters$optimise, c('switch', 'value', bound)]
+    p <- parameters[parameters$optimise, c('switch', 'value', bound)]
 
     # Get the length of all values
     p$val_len <- vapply(p[['value']], length, integer(1))

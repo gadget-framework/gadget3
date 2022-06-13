@@ -90,14 +90,22 @@ ok_group('g3_tmb_lower', {
         param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
         aaparam = 500)), "g3_tmb_lower: All lower bounds in right order")
 
-    param['param_vec', 'lower'] <- NA
+    param['param_vec', 'lower'] <- 3
     ok(ut_cmp_identical(g3_tmb_lower(param), c(
         param__b = 600,
-        aaparam = 500)), "g3_tmb_lower: Cleared param_vec by setting NA")
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
+        aaparam = 500)), "g3_tmb_lower: Set all lower values of param_vec in one go")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param_vec")
 
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_identical(g3_tmb_lower(param), c(
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_lower: Cleared param.b by setting optimise = F")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
 ok_group('g3_tmb_upper', {
@@ -122,13 +130,23 @@ ok_group('g3_tmb_upper', {
         param__b = 600,
         param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
         aaparam = 500)), "g3_tmb_upper: All upper bounds in right order")
-    param['param_vec', 'upper'] <- NA
+
+    param['param_vec', 'upper'] <- 3
     ok(ut_cmp_identical(g3_tmb_upper(param), c(
         param__b = 600,
-        aaparam = 500)), "g3_tmb_upper: Cleared param_vec by setting NA")
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
+        aaparam = 500)), "g3_tmb_upper: Set all lower values of param_vec in one go")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_upper: Structure matches par after setting param_vec")
+
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_identical(g3_tmb_upper(param), c(
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
 ok_group('g3_tmb_relist', {

@@ -154,6 +154,10 @@ tmb_param$value <- I(list(
     lingimm.wbeta = 3.20200445996187,
     lingimm.M = rep(0.15,3,10))[rownames(tmb_param)])
 
+# We can set lower/upper bounds for multiple properties at once with grepl()
+tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0
+tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
+
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
 
