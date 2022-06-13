@@ -611,6 +611,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 random <- find_arg('random', FALSE)
                 lower <- as.numeric(find_arg('lower', NA))
                 upper <- as.numeric(find_arg('upper', NA))
+                parscale <- as.numeric(find_arg('parscale', NA))
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -623,6 +624,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     random = if (dims[[1]] > 0) random else logical(0),
                     lower = if (dims[[1]] > 0) lower else numeric(0),
                     upper = if (dims[[1]] > 0) upper else numeric(0),
+                    parscale = if (dims[[1]] > 0) parscale else numeric(0),
                     row.names = name,
                     stringsAsFactors = FALSE)
             }
@@ -1049,6 +1051,19 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
 g3_tmb_par <- function (parameters, include_random = FALSE) g3_tmb_bound(parameters, 'value', include_random)
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
+g3_tmb_parscale <- function (parameters) {
+    out <- g3_tmb_bound(parameters, 'parscale')
+
+    # Fill in any gaps with mean of lower/upper
+    lower <- g3_tmb_lower(parameters)
+    upper <- g3_tmb_upper(parameters)
+    out[is.na(out)] <- vapply(
+        which(is.na(out)),
+        function (i) mean(c(lower[i], upper[i])),
+        numeric(1))
+
+    return(out)
+}
 
 g3_tmb_relist <- function (parameters, par, include_random = FALSE) {
     if (!identical(

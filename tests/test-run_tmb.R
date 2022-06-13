@@ -149,6 +149,18 @@ ok_group('g3_tmb_upper', {
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
+ok_group('g3_tmb_parscale', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.lu', lower = 4, upper = 8)
+        g3_param('param.ps', parscale = 22)
+        g3_param('param.lups', lower = 4, upper = 8, parscale = 44)
+    })), 'parameter_template')
+    ok(ut_cmp_identical(g3_tmb_parscale(param), c(
+        param__lu = 6,
+        param__ps = 22,
+        param__lups = 44)), "We use mean(lower, upper) when parscale not available")
+})
+
 ok_group('g3_tmb_relist', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
@@ -211,6 +223,7 @@ ok_group('g3_param', {
             random = c(FALSE, TRUE),
             lower = c(NA, 5),
             upper = c(NA, 10),
+            parscale = as.numeric(c(NA, NA)),  # NB: Not derived yet, only when calling g3_tmb_parscale()
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
@@ -246,6 +259,8 @@ ok_group('g3_param_table', {
             random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
             lower = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, 5),
             upper = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 10, 10),
+            # NB: Not derived yet, only when calling g3_tmb_parscale()
+            parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
