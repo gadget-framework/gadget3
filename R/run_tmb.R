@@ -1025,34 +1025,28 @@ g3_tmb_adfun <- function(cpp_code,
     return(fn)
 }
 
-# Turn parameter_template table into a vector for TMB
-g3_tmb_par <- function (parameters, include_random = FALSE) {
+# Turn parameter template into vectors of upper/lower bounds
+g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
     p <- parameters[
         (if (include_random) parameters$random else FALSE) |
-        parameters$optimise, c('switch', 'value')]
+        parameters$optimise, c('switch', 'value', bound)]
 
-    unlist(structure(
-        p$value,
-        names = cpp_escape_varname(p$switch)))
-}
+    if (bound == 'value') {
+        out <- p$value
+    } else {
+        # Get the length of all values
+        p$val_len <- vapply(p[['value']], length, integer(1))
 
-# Turn parameter template into vectors of upper/lower bounds
-g3_tmb_bound <- function (parameters, bound) {
-    # Get all parameters we're thinking of optimising
-    p <- parameters[parameters$optimise, c('switch', 'value', bound)]
-
-    # Get the length of all values
-    p$val_len <- vapply(p[['value']], length, integer(1))
-
-    # Turn into a list with same dimensions as each value
-    out <- structure(
-        lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len'])),
-        names = cpp_escape_varname(p$switch))
+        # Turn into a list with same dimensions as each value
+        out <- lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len']))
+    }
+    names(out) <- cpp_escape_varname(p$switch)
 
     # Unlist the result to condense list back to vector
     unlist(out)
 }
+g3_tmb_par <- function (parameters, include_random = FALSE) g3_tmb_bound(parameters, 'value', include_random)
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
 
