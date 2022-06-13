@@ -15,6 +15,12 @@ full-install: build
 build:
 	R CMD build .
 
+examples: install
+	Rscript -e 'devtools::run_examples(run_donttest = FALSE, run_dontrun = FALSE, document = FALSE)'
+
+vignettes: install
+	Rscript -e 'tools::buildVignettes(dir=".")'
+
 test: install
 	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="" Rscript $$f || exit 1; done
 
@@ -41,4 +47,4 @@ serve-docs:
 	echo 'pkgdown::build_site()' | R --vanilla
 	cd docs && python2 -m SimpleHTTPServer
 
-.PHONY: all install build test inttest check check-as-cran coverage wincheck serve-docs
+.PHONY: all install build test examples vignettes inttest check check-as-cran coverage wincheck serve-docs
