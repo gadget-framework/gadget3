@@ -26,7 +26,8 @@ g3a_time(start_year, end_year, steps = as.array(c(12)),
     for example, \code{c(3,3,3,3)} for quarterly steps within a year.
   }
   \item{project_years}{
-    Number of years to continue running after the "end" of the model.
+    Number of years to continue running after the "end" of the model, or if negative
+    stop early before the end of the model.
 
     Defaults to an unoptimized \code{project_years} parameter, set to 0 (i.e. no projection).
   }
