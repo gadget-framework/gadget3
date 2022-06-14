@@ -166,7 +166,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 var_name = as.character(x[[2]]),
                 # Strip attributes from nll, so we don't make recursive structure
                 var = if (x[[2]] == 'nll') quote(nll[[1]]) else as.symbol(x[[2]]) )),
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions)),
+            g3_report_all = function (x) g3_functions(action_reports(collated_actions, g3_report = '.')),
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

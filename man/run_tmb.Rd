@@ -13,7 +13,7 @@
 }
 
 \usage{
-g3_to_tmb(actions, trace = FALSE, strict = FALSE)
+g3_to_tmb(actions, trace = FALSE, strict = FALSE, adreport_re = '^$')
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     compile_flags = if (.Platform$OS.type == "windows")
@@ -44,6 +44,13 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
   \item{strict}{
     If TRUE, enable extra sanity checking in actions. Any invalid conditions
     (e.g. more/less fish after growth) will result in a warning.
+  }
+  \item{adreport_re}{
+    Regular expression, variables that match this will be added to the
+    \code{ADREPORT}, for use with \link[TMB:sdreport]{sdreport}.
+
+    The default \code{'^$'}, doesn't match anything so no variables will be
+    \code{ADREPORT}ed.
   }
   \item{cpp_code}{
     cpp_code as produced by \var{g3_to_tmb}.

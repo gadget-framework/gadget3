@@ -18,14 +18,30 @@ ok_group("action_reports", {
     ok(cmp_code(gadget3:::action_reports(list(
         ~{y <- 1},
         ~{y <- 1 ; x <- 2}
-        ~{})), quote({
+        ~{}), g3_report = '.'), quote({
         g3_report(x)
         g3_report(y)
     })), "Don't return duplicates, results are sorted")
 
     ok(cmp_code(gadget3:::action_reports(list(
         ~g3_with(x := 1, z := 2, {y <- 1 ; x <- 2}),
-        ~{})), quote({
+        ~{rr <- 1},
+        ~{}), g3_report = '.'), quote({
+        g3_report(rr)
         g3_report(y)
     })), "g3_with vars are ignored")
+
+    ok(cmp_code(gadget3:::action_reports(list(
+        ~{ p_p <- 1 ; p_q <- 1 ; p_r <- 1},
+        ~{ q_p <- 1 ; q_q <- 1 ; q_r <- 1},
+        ~{}), p_rep = '^p_', q_rep = '^q_', r_rep = 'r', z_rep = 'z'), quote({
+        p_rep(p_p)
+        p_rep(p_q)
+        p_rep(p_r)
+        q_rep(q_p)
+        q_rep(q_q)
+        q_rep(q_r)
+        r_rep(p_r)
+        r_rep(q_r)
+    })), "Can generate multiple report functions with filters")
 })
