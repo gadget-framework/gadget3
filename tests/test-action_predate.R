@@ -88,7 +88,7 @@ ok_group("Detect missing suitabilities", {
 })
 
 actions <- list(
-    g3a_time(2000, ~2000 + g3_param('years') - 1),
+    g3a_time(2000, ~2000 + g3_param('years') - 1, project_years = 0),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),

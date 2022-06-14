@@ -65,7 +65,7 @@ ok_group('g3a_mature', {
         "output_ratios"), "output_ratios must sum to 1")
 
     actions <- list(
-        g3a_time(2000, 2000),
+        g3a_time(2000, 2000, project_years = 0),
         g3a_initialconditions(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
         g3a_initialconditions(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
         g3a_initialconditions(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),

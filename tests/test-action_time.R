@@ -43,8 +43,7 @@ actions <- list(
     g3a_time(
         start_year = ~as_integer(g3_param('p_start_year')),
         end_year = ~as_integer(g3_param('p_end_year')),
-        steps = ~g3_param_vector('steps'),
-        project_years = ~g3_param('project_years', default = 0, optimise = TRUE)),
+        steps = ~g3_param_vector('steps')),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time

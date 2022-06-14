@@ -13,7 +13,7 @@
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
 # - total_years: Total # of years before model stops
-g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_years = 0L, run_at = 0) {
+g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
     if ("mfdb_group" %in% class(steps)) steps <- vapply(steps, length, numeric(1))
     if (is.numeric(steps) && sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
     step_lengths <- steps

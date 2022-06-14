@@ -8,7 +8,8 @@
 
 \usage{
 g3a_time(start_year, end_year, steps = as.array(c(12)),
-         project_years = 0L, run_at = 0)
+     project_years = ~g3_param('project_years', default = 0, optimize = FALSE),
+     run_at = 0)
 
 }
 
@@ -26,6 +27,8 @@ g3a_time(start_year, end_year, steps = as.array(c(12)),
   }
   \item{project_years}{
     Number of years to continue running after the "end" of the model.
+
+    Defaults to an unoptimized \code{project_years} parameter, set to 0 (i.e. no projection).
   }
   \item{run_at}{
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.

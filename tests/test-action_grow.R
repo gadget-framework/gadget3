@@ -74,7 +74,7 @@ ok_group("g3a_grow_impl_bbinom:zero-growth", {
 
 ok_group("g3a_grow_impl_bbinom", {
     actions <- list(  # dmu, lengthgrouplen, binn, beta
-        g3a_time(2000, 2001),
+        g3a_time(2000, 2001, project_years = 0),
         g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
         g3a_growmature(teststock,
             impl_f = g3a_grow_impl_bbinom(
@@ -153,7 +153,7 @@ ok_group("g3a_grow_impl_bbinom", {
 
 ok_group("g3a_growmature", {
     actions <- list(
-        g3a_time(2000, 2001),
+        g3a_time(2000, 2001, project_years = 0),
         g3a_initialconditions(teststock,
             ~g3_param_vector("initial_num"),
             ~g3_param_vector("initial_wgt")),

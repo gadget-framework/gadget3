@@ -142,7 +142,7 @@ likelihood_actions <- list(
     list())
 
 time <- list(
-    g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3)),
+    g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3), project_years = 0),
     list())
 model_fn <- g3_to_r(c(
     ling_mat_actions,

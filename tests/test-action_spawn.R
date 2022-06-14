@@ -92,7 +92,7 @@ ok_group('g3a_spawn', {
            list())
 
     time_actions <- list(
-        g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
+        g3a_time(min(year_range), max(year_range), c(3,3,3,3), project_years = 0),
         list())
 
     # Add steps to exercise rest of recruitment functions, and check they produce identical TMB results

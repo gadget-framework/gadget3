@@ -28,7 +28,7 @@ ok_group("g3_to_r: attr.actions", {
 })
 
 ok_group('g3_param', {
-    param <- attr(g3_to_r(list(g3a_time(2000, 2004), ~{
+    param <- attr(g3_to_r(list(g3a_time(2000, 2004, project_years = 0), ~{
         g3_param('a')
         # NB: We don't actually use optimise, but shouldn't error if it's there
         g3_param('b', value = 4, optimise = FALSE)
@@ -39,7 +39,7 @@ ok_group('g3_param', {
 })
 
 ok_group('g3_param_table', {
-    param <- attr(g3_to_r(list(g3a_time(2000, 2004, steps = rep(3, times = 4)), ~{
+    param <- attr(g3_to_r(list(g3a_time(2000, 2004, steps = rep(3, times = 4), project_years = 0), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
             cur_step = 2:3))

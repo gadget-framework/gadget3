@@ -154,6 +154,7 @@ cpp <- edit(cpp)
 # Set initial conditions for parameters
 tmb_param <- attr(cpp, 'parameter_template')
 tmb_param$value <- I(list(
+    project_years = 0,
     ling.init.F = 0.4,
     ling.Linf = 160,
     ling.k = 90,
