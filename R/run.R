@@ -31,7 +31,8 @@ g3_collate <- function(action_list) {
 }
 
 # Find all vars from collated actions that get assigned to, we'll report those.
-action_reports <- function (actions) {
+# ... is list of functions to regex filter, e.g. g3_report = '.'
+action_reports <- function (actions, ...) {
     terms <- new.env(parent = emptyenv())
     find_assignments <- function (f, ignore_vars) call_replace(f,
         g3_with = function (x) find_assignments(
@@ -57,9 +58,17 @@ action_reports <- function (actions) {
         })
     for (a in actions) find_assignments(a, c())
 
-    # Turn into a bunch of g3_report() calls
-    as.call(c(as.symbol("{"), lapply(sort(names(terms)), function (x) {
-        substitute(g3_report(x), list(x = as.symbol(x)))
+    # For each action_reports() argument, filter terms by the regex value
+    # and treat the name as the name of the report function.
+    concatenate_calls <- function (x) as.call(c(as.symbol("{"), x))
+    f_optimize(concatenate_calls(lapply(seq_len(...length()), function (arg_i) {
+        fn_name <- ...names()[arg_i]  # i.e. the argument name
+        fn_regex <- ...elt(arg_i)  # i.e. the argument value
+        report_var_names <- sort(grep(fn_regex, names(terms), value = TRUE))
+
+        concatenate_calls(lapply(
+            report_var_names,
+            function (x) call(fn_name, as.symbol(x))))
     })))
 }
 

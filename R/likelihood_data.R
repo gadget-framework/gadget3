@@ -1,4 +1,4 @@
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE, all_stocks = list()) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
@@ -97,11 +97,28 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     }
 
     if ('stock' %in% names(data)) {
+        if ('stock_re' %in% names(data)) stop("Don't support both stock and stock_re")
         stock_groups <- levels(as.factor(data$stock))
         stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)
+
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
         handled_columns$stock <- NULL
+    } else if ('stock_re' %in% names(data)) {
+        # Start off with everything mapping to NULL
+        stock_map <- structure(
+            rep(list(NULL), length(all_stocks)),
+            names = vapply(all_stocks, function (s) s$name, character(1)))
+
+        # For each regex, find all matches and map to that index
+        stock_regexes <- as.character(data$stock_re[!duplicated(data$stock_re)])
+        for (i in rev(seq_along(stock_regexes))) {  # NB: Reverse so first ones have precedence
+            stock_map[grep(stock_regexes[[i]], names(stock_map))] <- i
+        }
+
+        # NB: We have to replace stockidx_f later whenever we intersect over these
+        modelstock <- g3s_manual(modelstock, 'stock', stock_regexes, ~stockidx_f)
+        handled_columns$stock_re <- NULL
     } else {
         stock_map <- NULL
     }

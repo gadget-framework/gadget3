@@ -32,7 +32,7 @@ input_stock <- g3_stock('input_stock', c(10, 20, 30, 40, 50, 75, 100)) %>%
     g3s_livesonareas(1:3) %>%
     g3s_age(1, 3)
 actions <- list(
-    g3a_time(2000, 2000, steps = c(3, 3, 5, 1)),
+    g3a_time(2000, 2000, steps = c(3, 3, 5, 1), project_years = 0),
     g3a_initialconditions_normalparam(
         input_stock,
         factor_f = ~ 1 + age * g3_param('factor.age') + area * g3_param('factor.area'),

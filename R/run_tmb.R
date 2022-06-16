@@ -571,7 +571,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         paste(deparse(in_call), collapse = "\n"))
 }
 
-g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
+g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$') {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
@@ -611,6 +611,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 random <- find_arg('random', FALSE)
                 lower <- as.numeric(find_arg('lower', NA))
                 upper <- as.numeric(find_arg('upper', NA))
+                parscale <- as.numeric(find_arg('parscale', NA))
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -623,6 +624,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     random = if (dims[[1]] > 0) random else logical(0),
                     lower = if (dims[[1]] > 0) lower else numeric(0),
                     upper = if (dims[[1]] > 0) upper else numeric(0),
+                    parscale = if (dims[[1]] > 0) parscale else numeric(0),
                     row.names = name,
                     stringsAsFactors = FALSE)
             }
@@ -817,7 +819,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
         call_replace(in_code,
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions)))
+            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.', ADREPORT = adreport_re)))
     }
     all_actions_code <- g3_functions(all_actions_code)
 
@@ -1025,38 +1027,43 @@ g3_tmb_adfun <- function(cpp_code,
     return(fn)
 }
 
-# Turn parameter_template table into a vector for TMB
-g3_tmb_par <- function (parameters, include_random = FALSE) {
+# Turn parameter template into vectors of upper/lower bounds
+g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
     p <- parameters[
         (if (include_random) parameters$random else FALSE) |
-        parameters$optimise, c('switch', 'value')]
-
-    unlist(structure(
-        p$value,
-        names = cpp_escape_varname(p$switch)))
-}
-
-# Turn parameter template into vectors of upper/lower bounds
-g3_tmb_bound <- function (parameters, bound) {
-    # Get all parameters we're thinking of optimising
-    p <- parameters[
-        !is.na(parameters[[bound]]) &
         parameters$optimise, c('switch', 'value', bound)]
 
-    # Get the length of all values
-    p$val_len <- vapply(p[['value']], length, integer(1))
+    if (bound == 'value') {
+        out <- p$value
+    } else {
+        # Get the length of all values
+        p$val_len <- vapply(p[['value']], length, integer(1))
 
-    # Turn into a list with same dimensions as each value
-    out <- structure(
-        lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len'])),
-        names = cpp_escape_varname(p$switch))
+        # Turn into a list with same dimensions as each value
+        out <- lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len']))
+    }
+    names(out) <- cpp_escape_varname(p$switch)
 
     # Unlist the result to condense list back to vector
     unlist(out)
 }
+g3_tmb_par <- function (parameters, include_random = FALSE) g3_tmb_bound(parameters, 'value', include_random)
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
+g3_tmb_parscale <- function (parameters) {
+    out <- g3_tmb_bound(parameters, 'parscale')
+
+    # Fill in any gaps with mean of lower/upper
+    lower <- g3_tmb_lower(parameters)
+    upper <- g3_tmb_upper(parameters)
+    out[is.na(out)] <- vapply(
+        which(is.na(out)),
+        function (i) mean(c(lower[i], upper[i])),
+        numeric(1))
+
+    return(out)
+}
 
 g3_tmb_relist <- function (parameters, par, include_random = FALSE) {
     if (!identical(

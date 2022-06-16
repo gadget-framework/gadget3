@@ -175,7 +175,7 @@ g3l_distribution <- function (
         sep = "_")
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report, all_stocks = stocks)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {

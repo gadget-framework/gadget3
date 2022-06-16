@@ -5,10 +5,10 @@ library(gadget3)
 
 
 # Helper to generate ld from table string and attributes
-generate_ld <- function (tbl, ...) {
+generate_ld <- function (tbl, all_stocks = list(), ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
-    gadget3:::g3l_likelihood_data('ut', structure(tbl, ...))
+    gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks)
 }
 
 # Dig minlen out of modelstock
@@ -403,4 +403,90 @@ ok_group('g3l_likelihood_data:tag', {
     ok(ut_cmp_identical(
         gadget3:::stock_definition(ld$modelstock, 'stock__tag_ids'),
         as.array(c(a = 1L, b = 2L, c = 3L))), "stock__tag_ids: Worked out from factor")
+})
+
+ok_group('g3l_likelihood_data:stock', {
+    ld <- generate_ld("
+        age year number
+          3 1999      1999.3
+          4 1999      1999.4
+          6 1999      1999.6
+          3 2000      2000.3
+          6 2000      2000.6
+          4 2001      2001.4
+          6 2001      2001.6
+        ")
+    ok(is.null(ld$stock_map), "No stock column, so no stock map")
+
+    ok(ut_cmp_error(generate_ld("
+        age year stock stock_re number
+          3 1999    a  a$       1999.3
+        "), "stock.*stock_re"), "Can't have both stock & stock_re")
+
+    ld <- generate_ld("
+        age year stock number
+          3 1999    a  1999.3
+          4 1999    b  1999.4
+          6 1999    a  1999.6
+          3 2000    a  2000.3
+          6 2000    b  2000.6
+          4 2001    b  2001.4
+          6 2001    b  2001.6
+        ")
+    ok(ut_cmp_identical(dimnames(ld$number)$stock, c("a", "b")), "Array has stocks a & b")
+    ok(ut_cmp_identical(ld$stock_map, list(a = 1L, b = 2L)), "stock_map is 1:1 mapping")
+
+    # Generate a list of stocks "stock_(imm,mat)_(f,m)"
+    stocks <- lapply(paste(
+        'stock',
+        rep(c('imm', 'mat'), each = 2),
+        c('f', 'm'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year stock_re number
+          3 1999    _f$  1999.3
+          4 1999    ^stock_mat  1999.4
+          6 1999    ^stock_imm  1999.6
+          3 2000    ^stock_mat  2000.3
+          6 2000    ^stock_imm  2000.6
+          4 2001    ^stock_imm  2001.4
+          6 2001    ^stock_mat  2001.6
+        ", all_stocks = stocks)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)$stock,
+        c("_f$", "^stock_mat", "^stock_imm")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$stock_map,
+        list(
+            stock_imm_f = 1L,
+            stock_imm_m = 3L,
+            stock_mat_f = 1L,
+            stock_mat_m = 2L)), "Stock map used first regexes first")
+
+    # Generate a list of stocks "stock_(imm,mat)_f" (NB: not male)
+    stocks <- lapply(paste(
+        'stock',
+        rep(c('imm', 'mat'), each = 2),
+        c('f', 'm'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year stock_re number
+          3 1999    _mat_f$  1999.3
+          4 1999    _mat_f$  1999.4
+          6 1999    _imm_f$  1999.6
+          3 2000    _mat_f$  2000.3
+          6 2000    _imm_f$  2000.6
+          4 2001    _imm_f$  2001.4
+          6 2001    _mat_f$  2001.6
+        ", all_stocks = stocks)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)$stock,
+        c("_mat_f$", "_imm_f$")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$stock_map,
+        list(
+            stock_imm_f = 2L,
+            stock_imm_m = NULL,
+            stock_mat_f = 1L,
+            stock_mat_m = NULL)), "Stock map ignored unused stocks")
 })

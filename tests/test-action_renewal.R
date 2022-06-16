@@ -10,7 +10,7 @@ stock_b <- g3_stock('stock_b', seq(10, 100, 10)) %>% g3s_age(5, 10)
 stock_b_report <- g3s_clone(stock_b, 'report_b') %>% g3s_time(year = 2000:2003)
     
 actions <- list(
-    g3a_time(2000, 2003),
+    g3a_time(2000, 2003, project_years = 0),
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
     g3a_initialconditions_normalparam(stock_b,

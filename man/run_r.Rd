@@ -74,6 +74,7 @@ fn <- edit(fn)
 
 # Run the model for provided parameters
 nll <- fn(list(
+    project_years = 0,
     ling.init.F = 0.4,
     ling.Linf = 160,
     ling.k = 90,

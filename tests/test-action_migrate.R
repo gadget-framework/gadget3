@@ -32,7 +32,7 @@ ok_group("g3a_migrate_normalize", {
 
 ok_group("g3a_migrate", {
     actions <- list(
-        g3a_time(start_year = 2000, end_year = 2004, steps = c(3,3,3,3)),
+        g3a_time(start_year = 2000, end_year = 2004, steps = c(3,3,3,3), project_years = 0),
         g3a_initialconditions(stock_acd,
             ~area * 100 + stock_acd__minlen,
             ~area * 10 + stock_acd__minlen),

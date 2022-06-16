@@ -73,7 +73,7 @@ report_actions <- list(
        list())
 
 time_actions <- list(
-    g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
+    g3a_time(min(year_range), max(year_range), c(3,3,3,3), project_years = 0),
     list())
 
 actions <- c(

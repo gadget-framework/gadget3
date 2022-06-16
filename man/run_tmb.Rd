@@ -4,6 +4,7 @@
 \alias{g3_tmb_par}
 \alias{g3_tmb_lower}
 \alias{g3_tmb_upper}
+\alias{g3_tmb_parscale}
 \alias{g3_tmb_relist}
 
 \title{Gadget3 actions into TMB code}
@@ -12,7 +13,7 @@
 }
 
 \usage{
-g3_to_tmb(actions, trace = FALSE, strict = FALSE)
+g3_to_tmb(actions, trace = FALSE, strict = FALSE, adreport_re = '^$')
 
 g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     compile_flags = if (.Platform$OS.type == "windows")
@@ -26,6 +27,8 @@ g3_tmb_par(parameters, include_random = FALSE)
 g3_tmb_lower(parameters)
 
 g3_tmb_upper(parameters)
+
+g3_tmb_parscale(parameters)
 
 g3_tmb_relist(parameters, par, include_random = FALSE)
 
@@ -41,6 +44,13 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
   \item{strict}{
     If TRUE, enable extra sanity checking in actions. Any invalid conditions
     (e.g. more/less fish after growth) will result in a warning.
+  }
+  \item{adreport_re}{
+    Regular expression, variables that match this will be added to the
+    \code{ADREPORT}, for use with \link[TMB:sdreport]{sdreport}.
+
+    The default \code{'^$'}, doesn't match anything so no variables will be
+    \code{ADREPORT}ed.
   }
   \item{cpp_code}{
     cpp_code as produced by \var{g3_to_tmb}.
@@ -95,6 +105,7 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
+  \subsection{g3_tmb_parscale}{Parscale extracted from \var{parameters} table, or mean of lower/upper if NA, converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_relist}{
     The \var{parameters} table value column, but with optimised
     values replaced with contents of \var{par} vector.
@@ -143,6 +154,7 @@ cpp <- edit(cpp)
 # Set initial conditions for parameters
 tmb_param <- attr(cpp, 'parameter_template')
 tmb_param$value <- I(list(
+    project_years = 0,
     ling.init.F = 0.4,
     ling.Linf = 160,
     ling.k = 90,
@@ -153,6 +165,10 @@ tmb_param$value <- I(list(
     lingimm.walpha = 2.27567436711055e-06,
     lingimm.wbeta = 3.20200445996187,
     lingimm.M = rep(0.15,3,10))[rownames(tmb_param)])
+
+# We can set lower/upper bounds for multiple properties at once with grepl()
+tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0
+tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
@@ -168,6 +184,8 @@ result <- tmb$fn(g3_tmb_par(tmb_param))
 fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param),
+    # NB: We don't have to set parscale, it will be derived from upper/lower
+    parscale = g3_tmb_parscale(tmb_param),
     control = list(iter.max=1))
 
 # Go back to a list of parameters, suitable for the R version

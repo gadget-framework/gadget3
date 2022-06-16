@@ -70,6 +70,9 @@ export(g3l_distribution_surveyindices_log)
 export(g3l_catchdistribution)
 export(g3l_abundancedistribution)
 
+# R/likelihood_tagging_ckmr.R
+export(g3l_tagging_ckmr)
+
 # R/likelihood_understocking.R
 export(g3l_understocking)
 
@@ -88,6 +91,7 @@ S3method(print, g3_cpp)
 export(g3_tmb_par)
 export(g3_tmb_lower)
 export(g3_tmb_upper)
+export(g3_tmb_parscale)
 export(g3_tmb_relist)
 
 # R/suitability.R

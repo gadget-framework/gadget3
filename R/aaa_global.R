@@ -122,6 +122,13 @@ g3_global_env$REprintf <- g3_native(r = function(...) {
     cat(sprintf(...))
 }, cpp = NULL)
 
+g3_global_env$print_array <- g3_native(r = function(ar_name, ar) {
+    writeLines(ar_name)
+    print(ar)
+}, cpp = '[](const char * ar_name, array<Type> ar) {
+    Rprintf(ar_name);
+    ar.print();
+}')
 
 # Assert w/message
 g3_global_env$assert_msg <- g3_native(r = function(expr, message) {

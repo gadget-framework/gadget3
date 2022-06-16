@@ -171,12 +171,25 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
       }
       \item{stock}{
         Optional.
-        If missing all stocks in \var{stocks} will be summed to compare to the
-        data.
+        If this and stock_re are missing all stocks in \var{stocks} will be
+        summed to compare to the data.
 
         The values in the stocks column should match the names of the stocks
         given in the \var{stocks} parameter. This column can be factor or
         character.
+
+        Any missing stocks (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+      \item{stock_re}{
+        Optional.
+        If this and stock are missing all stocks in \var{stocks} will be summed
+        to compare to the data.
+
+        The values in the stocks column will be used as regular expressions to
+        match the names of the stocks given in the \var{stocks} parameter. For
+        example, '_mat_' will match both 'ghd_mat_f' and 'ghd_mat_m' and will
+        be compared against the sum of the 2 stocks.
 
         Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.

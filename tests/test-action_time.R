@@ -43,8 +43,7 @@ actions <- list(
     g3a_time(
         start_year = ~as_integer(g3_param('p_start_year')),
         end_year = ~as_integer(g3_param('p_end_year')),
-        steps = ~g3_param_vector('steps'),
-        project_years = ~g3_param('project_years', default = 0, optimise = TRUE)),
+        steps = ~g3_param_vector('steps')),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -178,6 +177,46 @@ ok_group("projection: Project_years = 4", {
     ok(ut_cmp_identical(
         attr(result, 'total_years'),
         1999 - 1992 + 1 + 4), "total_years populated")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
+
+ok_group("projection: Project_years = -3", {
+    params <- list(
+        p_start_year = 1992,
+        p_end_year = 1999,
+        steps = c(4,4,4),
+        project_years = -3,
+        x=1.0)
+    result <- model_fn(params)
+
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_time')),
+        as.integer(1:(3 * (1999 - 1992 + 1 - 3)) - 1)), "cur_time populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step')),
+        as.integer(rep(c(1,2,3), 1999 - 1992 + 1 - 3))), "cur_step populated")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'all_step_size')),
+        as.numeric(rep(c(4/12,4/12,4/12), 1999 - 1992 + 1 - 3))), "cur_step_size populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_year')),
+        as.integer(rep(1992:(1999 - 3), each = 3))), "cur_year populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step_final')),
+        rep(c(FALSE, FALSE, TRUE), 1999 - 1992 + 1 - 3)), "cur_step_final populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_cur_year_projection')),
+        c(rep(FALSE, (1999 - 1992 + 1 - 3) * 3), rep(TRUE, 0))), "cur_year_projection populated (NB: No projection since we removed years)")
+    ok(ut_cmp_identical(
+        attr(result, 'total_years'),
+        1999 - 1992 + 1 - 3), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")

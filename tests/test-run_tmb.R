@@ -90,14 +90,22 @@ ok_group('g3_tmb_lower', {
         param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
         aaparam = 500)), "g3_tmb_lower: All lower bounds in right order")
 
-    param['param_vec', 'lower'] <- NA
+    param['param_vec', 'lower'] <- 3
     ok(ut_cmp_identical(g3_tmb_lower(param), c(
         param__b = 600,
-        aaparam = 500)), "g3_tmb_lower: Cleared param_vec by setting NA")
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
+        aaparam = 500)), "g3_tmb_lower: Set all lower values of param_vec in one go")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param_vec")
 
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_identical(g3_tmb_lower(param), c(
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_lower: Cleared param.b by setting optimise = F")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
 ok_group('g3_tmb_upper', {
@@ -122,13 +130,35 @@ ok_group('g3_tmb_upper', {
         param__b = 600,
         param_vec1 = 100, param_vec2 = 100, param_vec3 = 100, param_vec4 = 100, param_vec5 = 100,
         aaparam = 500)), "g3_tmb_upper: All upper bounds in right order")
-    param['param_vec', 'upper'] <- NA
+
+    param['param_vec', 'upper'] <- 3
     ok(ut_cmp_identical(g3_tmb_upper(param), c(
         param__b = 600,
-        aaparam = 500)), "g3_tmb_upper: Cleared param_vec by setting NA")
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
+        aaparam = 500)), "g3_tmb_upper: Set all lower values of param_vec in one go")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_upper: Structure matches par after setting param_vec")
+
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_identical(g3_tmb_upper(param), c(
+        param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
+    ok(ut_cmp_identical(
+        names(g3_tmb_par(param)),
+        names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
+})
+
+ok_group('g3_tmb_parscale', {
+    param <- attr(g3_to_tmb(list(~{
+        g3_param('param.lu', lower = 4, upper = 8)
+        g3_param('param.ps', parscale = 22)
+        g3_param('param.lups', lower = 4, upper = 8, parscale = 44)
+    })), 'parameter_template')
+    ok(ut_cmp_identical(g3_tmb_parscale(param), c(
+        param__lu = 6,
+        param__ps = 22,
+        param__lups = 44)), "We use mean(lower, upper) when parscale not available")
 })
 
 ok_group('g3_tmb_relist', {
@@ -178,7 +208,7 @@ ok_group('g3_tmb_relist', {
 })
 
 ok_group('g3_param', {
-    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, project_years = 0), ~{
         g3_param('a')
         g3_param('b', value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
     })), 'parameter_template')
@@ -193,11 +223,12 @@ ok_group('g3_param', {
             random = c(FALSE, TRUE),
             lower = c(NA, 5),
             upper = c(NA, 10),
+            parscale = as.numeric(c(NA, NA)),  # NB: Not derived yet, only when calling g3_tmb_parscale()
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
 ok_group('g3_param_table', {
-    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, steps = c(3,3,3,3)), ~{
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, steps = c(3,3,3,3), project_years = 0), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
             cur_step = 2:3))
@@ -228,6 +259,8 @@ ok_group('g3_param_table', {
             random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
             lower = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, 5),
             upper = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 10, 10),
+            # NB: Not derived yet, only when calling g3_tmb_parscale()
+            parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
@@ -244,7 +277,7 @@ ok_group("g3_to_tmb: Can use random parameters", local({
 
     # Make sure we can use random = TRUE in an action, specifying TMB arguments correctly
     actions <- c(
-        g3a_time(1990, 1992),
+        g3a_time(1990, 1992, project_years = 0),
         list("010:g3l_custom" = gadget3:::f_substitute(~if (cur_step_final) {
             nll <- nll + dnorm(x, stock__prevrec, sigma, 1)
             stock__prevrec <- x
