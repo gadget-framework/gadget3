@@ -22,14 +22,14 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
     if (is.numeric(step_lengths)) step_lengths <- as.array(as.integer(step_lengths))
-    if (is.numeric(project_years)) project_years <- as.integer(project_years)
+    if (is.numeric(project_years)) project_years <- f_substitute(
+      ~g3_param('project_years', default = x, optimize = FALSE), list(x = as.integer(project_years)))
     # If a formula, make sure we use one definition
     if (is.call(start_year)) start_year <- g3_global_formula(init_val = start_year)
     if (is.call(end_year)) end_year <- g3_global_formula(init_val = end_year)
     if (is.call(step_lengths)) step_lengths <- g3_global_formula(init_val = step_lengths)
     if (is.call(project_years)) project_years <- g3_global_formula(init_val = project_years)
 
-    have_projection_years <- !identical(project_years, 0L)
     step_count <- g3_global_formula(init_val = ~length(step_lengths))
     cur_time <- -1L
     cur_step <- 0L
@@ -41,10 +41,10 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
     cur_year_projection <- FALSE
     total_steps <- g3_global_formula(init_val = f_substitute(
         ~length(step_lengths) * (end_year - start_year + project_years) + length(step_lengths) - 1L,
-        list(project_years = if (have_projection_years) quote(project_years) else 0L)))
+        list(project_years = quote(project_years))))
     total_years <- g3_global_formula(init_val = f_substitute(
         ~end_year - start_year + project_years + 1L,
-        list(project_years = if (have_projection_years) quote(project_years) else 0L)))
+        list(project_years = quote(project_years))))
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{
