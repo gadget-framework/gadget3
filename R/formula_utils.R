@@ -17,6 +17,16 @@ environment_merge <- function (env, additions, var_names = ls(envir = additions)
     return(NULL)
 }
 
+# Make a formula with explicitly specified environment
+g3_formula <- function (code, ...) {
+    f <- sys.call()[[2]]  # Get unevaluated argument
+
+    # Ensure it's a call, starting with tilde
+    if (!is.call(f) || f[[1]] != as.symbol('~')) f <- call("~", f)
+
+    formula(f, env = as.environment(list(...)))
+}
+
 # Substitute within formulae, merging all environments together
 f_substitute <- function (f, env, copy_all_env = FALSE) {
     env <- as.environment(env)

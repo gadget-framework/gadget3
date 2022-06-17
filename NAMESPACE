@@ -61,6 +61,9 @@ export(g3a_tag_shedding)
 # R/action_time.R
 export(g3a_time)
 
+# R/formula_utils.R
+export(g3_formula)
+
 # R/likelihood_distribution.R
 export(g3l_distribution_sumofsquares)
 export(g3l_distribution_multinomial)

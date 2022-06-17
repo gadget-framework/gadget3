@@ -14,6 +14,16 @@ cmp_code <- function(a, b) {
     ut_cmp_identical(a, b)
 }
 
+cmp_environment <- function (a, b) {
+    ordered_list <- function (x) {
+        x <- as.list(x)
+        # NB: Can't order an empty list
+        if (length(x) > 0) x[order(names(x))] else x
+    }
+
+    ut_cmp_identical(ordered_list(a), ordered_list(b))
+}
+
 deep_ls <- function (env) {
     if (environmentName(env) == "R_EmptyEnv") {
         c()
@@ -36,6 +46,37 @@ ok_group("call_replace", {
         call_replace(~c(1, potato(c(2, potato(3), 4))), potato = function (x) call("parsnip", x[2])),
         ~c(1, parsnip(c(2, potato(3), 4)()))), "Make no attempt to recurse implictly---replacement function would have to call_replace too")
 })
+
+### g3_formula
+
+ok(cmp_code(
+    g3_formula(x + y),
+    ~x + y), "g3_formula: Turned raw code into formula")
+ok(cmp_code(
+    g3_formula(x),
+    ~x), "g3_formula: Turned symbol into formula")
+ok(cmp_code(
+    g3_formula(2),
+    ~2), "g3_formula: Turned constant into formula")
+
+ok(cmp_environment(
+    environment(g3_formula( x + y )),
+    list()), "g3_formula: Environment of created formula empty by default")
+
+ok(cmp_environment(
+    environment(g3_formula( x + y, x = 2 + 2, y = paste0('a', 'b') )),
+    list(x = 4, y = 'ab' )), "g3_formula: Environment based on supplied arguments, evaluated versions added")
+
+
+ok(cmp_code(
+    g3_formula(~x + y),
+    ~x + y), "g3_formula: Formula still formula")
+ok(cmp_environment(
+    environment(g3_formula( ~x + y )),
+    list()), "g3_formula: Environment of supplied formula replaced")
+ok(cmp_environment(
+    environment(g3_formula( ~x + y, x = 2 + 2, y = paste0('a', 'b') )),
+    list(x = 4, y = 'ab' )), "g3_formula: Environment based on supplied arguments, evaluated versions added")
 
 ### f_substitute
 
