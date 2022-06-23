@@ -1,7 +1,7 @@
 call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
 g3l_distribution_sumofsquares <- function (over = c('area')) {
-    f_substitute(~sum((
+    f_substitute(~sum(stock_ss(obsstock__keepx) * (
         stock_ss(modelstock__x) / avoid_zero(sum(modelstock_total_f)) -
         stock_ss(obsstock__x) / avoid_zero(sum(obsstock_total_f))) ** 2), list(
             modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x, 'time')), over),
@@ -13,13 +13,13 @@ g3l_distribution_multinomial <- function (epsilon = 10) {
     # multinomial.cc defines sumlog/likely as below
     sumlog <- substitute(
         sum(lgamma_vec(1 + data)) - lgamma(1 + sum(data)), list(
-            data = quote(stock_ss(obsstock__x))))
+            data = quote(stock_ss(obsstock__keepx) * stock_ss(obsstock__x))))
 
     likely <- substitute(
         -sum(data * log(logspace_add_vec(
             dist / avoid_zero(sum(dist)) * 10000,
             (1 / (length(data) * epsilon)) * 10000) / 10000)), list(
-                data = quote(stock_ss(obsstock__x)),
+                data = quote(stock_ss(obsstock__keepx) * stock_ss(obsstock__x)),
                 dist = quote(stock_ss(modelstock__x)),
                 epsilon = epsilon))
 
@@ -128,11 +128,12 @@ g3l_distribution <- function (
     generic_var_replace <- function (f, repl_postfix) {
         # Find all vars ending in __x
         replace_vars <- all.vars(f)
-        replace_vars <- replace_vars[endsWith(replace_vars, '__x')]
+        replace_vars <- replace_vars[endsWith(replace_vars, '__x') | endsWith(replace_vars, '__keepx')]
 
         # Turn into a list of __x = __postfix
         names(replace_vars) <- replace_vars
         replace_vars <- gsub('__x$', paste0("__", repl_postfix), replace_vars)
+        replace_vars <- gsub('__keepx$', paste0("__keep", repl_postfix), replace_vars)
 
         # Apply to formula
         out_f <- f_substitute(f, lapply(replace_vars, as.symbol))
@@ -181,10 +182,16 @@ g3l_distribution <- function (
     if (!is.null(ld$number)) {
         modelstock__num <- stock_instance(modelstock, 0)
         obsstock__num <- stock_instance(obsstock, ld$number)
+        # NB: run_tmb will ignore this value in place of TMB's generated one. This is a fallback for run_r
+        obsstock__keepnum <- stock_instance(obsstock, 1L)
+        attr(obsstock__keepnum, 'indicator_for') <- as.character(g3_step(~stock_with(obsstock, obsstock__num))[[2]])
     }
     if (!is.null(ld$weight)) {
         modelstock__wgt <- stock_instance(modelstock, 0)
         obsstock__wgt <- stock_instance(obsstock, ld$weight)
+        # NB: run_tmb will ignore this value in place of TMB's generated one. This is a fallback for run_r
+        obsstock__keepwgt <- stock_instance(obsstock, 1L)
+        attr(obsstock__keepwgt, 'indicator_for') <- as.character(g3_step(~stock_with(obsstock, obsstock__wgt))[[2]])
     }
 
     # If there are no fleets, do abundance comparison

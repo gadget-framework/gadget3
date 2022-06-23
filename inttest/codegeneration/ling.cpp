@@ -260,6 +260,7 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
+    DATA_ARRAY_INDICATOR(cdist_sumofsquares_ldist_lln_obs__keepnum, cdist_sumofsquares_ldist_lln_obs__num)
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
@@ -835,7 +836,7 @@ Type objective_function<Type>::operator() () {
                 auto cdist_sumofsquares_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
-                    auto cur_cdist_nll = (pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
+                    auto cur_cdist_nll = (cdist_sumofsquares_ldist_lln_obs__keepnum.col(cdist_sumofsquares_ldist_lln_obs__time_idx)*pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
 
                     {
                         nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;

@@ -743,6 +743,19 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
                     dims = dim(var_val))
+            } else if (!is.null(attr(var_val, 'indicator_for' ))) {
+                # Indicator variable for something else
+                indicator_for <- as.symbol(attr(var_val, 'indicator_for'))
+
+                # Define what we're an indicator for first
+                var_defns(as.call(c(as.symbol(open_curly_bracket), indicator_for )), env)
+
+                # NB: Base our dimensionality on the parent variable, ignore the actual value
+                cpp_type <- if (length(dim(get(indicator_for, envir = env, inherits = TRUE))) == 1) 'VECTOR' else 'ARRAY'
+                defn <- paste0('DATA_', cpp_type, '_INDICATOR(',
+                    cpp_escape_varname(var_name) , ', ',
+                    cpp_escape_varname(indicator_for) , ')')
+
             } else if (is.array(var_val) && ( length(var_val) < 2 || all(is.na(var_val)) || all(var_val == var_val[[1]]) )) {
                 if (length(dim(var_val)) == 1) {
                     # NB: vector isn't just an alias, more goodies are available to the vector class
