@@ -3,6 +3,17 @@ library(unittest)
 
 library(gadget3)
 
+# rep(), but allow (times) to extract fractional portions of (x)
+frac_rep <- function (x, times = 1) {
+    x <- c(
+        # Repeat sequence whole-part times
+        rep(x, times = floor(times)),
+        # Fractional part is proportion of sequence
+        head(x, round((times - floor(times)) * length(x))),
+        NULL)
+    return(x)
+}
+
 ok_group("MFDB compatibility", {
     # Fake mfdb default groupings
     timestep_quarterly <- structure(
@@ -44,6 +55,7 @@ actions <- list(
         start_year = ~as_integer(g3_param('p_start_year')),
         end_year = ~as_integer(g3_param('p_end_year')),
         step_lengths = ~g3_param_vector('step_lengths'),
+        final_year_steps = ~as_integer(g3_param('final_year_steps'))),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -61,6 +73,7 @@ params <- list(
     p_end_year = 1997,
     project_years = 0,
     step_lengths = c(3,3,6),
+    final_year_steps = 3,
     x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
@@ -111,6 +124,7 @@ ok_group('even steps', {
         p_start_year = 1992,
         p_end_year = 1999,
         step_lengths = c(4,4,4),
+        final_year_steps = 3,
         project_years = 0,
         x=1.0)
     result <- model_fn(params)
@@ -152,6 +166,7 @@ ok_group("projection: Project_years = 4", {
         p_start_year = 1992,
         p_end_year = 1999,
         step_lengths = c(4,4,4),
+        final_year_steps = 3,
         project_years = 4,
         x=1.0)
     result <- model_fn(params)
@@ -192,6 +207,7 @@ ok_group("projection: Project_years = -3", {
         p_start_year = 1992,
         p_end_year = 1999,
         step_lengths = c(4,4,4),
+        final_year_steps = 3,
         project_years = -3,
         x=1.0)
     result <- model_fn(params)
@@ -217,6 +233,52 @@ ok_group("projection: Project_years = -3", {
     ok(ut_cmp_identical(
         attr(result, 'total_years'),
         1999 - 1992 + 1 - 3), "total_years populated")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
+
+ok_group("Short final year: final_year_steps = 1", {
+    params <- list(
+        p_start_year = 1992,
+        p_end_year = 1999,
+        step_lengths = c(4,4,4),
+        final_year_steps = 1,
+        project_years = 0,
+        x=1.0)
+    result <- model_fn(params)
+
+    # 1992..1998 whole years, and single step for 1999
+    test_total_steps <- 3 * (1998 - 1992 + 1) + 1
+
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_time')),
+        as.integer(0:(test_total_steps - 1))), "cur_time populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step')),
+        as.integer(frac_rep(c(1,2,3), test_total_steps / 3 ))), "cur_step populated")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'all_step_size')),
+        as.numeric(frac_rep(c(4/12,4/12,4/12), test_total_steps / 3 ))), "cur_step_size populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_year')),
+        as.integer(c(
+            rep(1992:1998, each = 3),
+            1999))), "cur_year populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step_final')),
+        frac_rep(c(FALSE, FALSE, TRUE), test_total_steps / 3)), "cur_step_final populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_cur_year_projection')),
+        frac_rep(FALSE, test_total_steps )), "cur_year_projection populated (NB: No projection since we removed years)")
+    ok(ut_cmp_identical(
+        attr(result, 'total_years'),
+        ceiling(test_total_steps / 3)), "total_years populated (NB: Ignores final_year_steps)")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")

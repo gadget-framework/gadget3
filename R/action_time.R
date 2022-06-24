@@ -3,6 +3,7 @@
 # - end_year: Stop at the end of this year (i.e. inclusive)
 # - step_lengths: MFDB group or vector of steps in a year,
 #       each element is a number of months, should sum to 12
+# - final_year_steps: # of steps in final year, default all (i.e. inclusive)
 # - project_years: Number of years to project after the end of the model
 # Once added to a model, the following variables will be available:
 # - cur_time: Current iteration of model, starts at 0 and increments until finished
@@ -13,14 +14,16 @@
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
 # - total_years: Total # of years before model stops
-g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
+g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), final_year_steps = quote( length(step_lengths) ), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
     if ("mfdb_group" %in% class(step_lengths)) step_lengths <- vapply(step_lengths, length, numeric(1))
     if (is.numeric(step_lengths) && sum(step_lengths) != 12) stop("step_lengths should sum to 12 (i.e. represent a whole year)")
+    if (is.call(step_lengths) && !is.call(final_year_steps)) stop("If step_lengths is a call/formula, final_year_steps should also be a call/formula")
 
     # If these are literals, they should be integers
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
     if (is.numeric(step_lengths)) step_lengths <- as.array(as.integer(step_lengths))
+    if (is.numeric(final_year_steps)) final_year_steps <- as.integer(final_year_steps)
     if (is.numeric(project_years)) project_years <- as.integer(project_years)
     # If a formula, make sure we use one definition
     if (is.call(start_year)) start_year <- g3_global_formula(init_val = start_year)
@@ -39,8 +42,10 @@ g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), proje
     cur_step_final <- FALSE
     cur_year_projection <- FALSE
     total_steps <- g3_global_formula(init_val = f_substitute(
-        ~length(step_lengths) * (end_year - start_year + project_years) + length(step_lengths) - 1L,
-        list(project_years = if (have_projection_years) quote(project_years) else 0L)))
+        ~length(step_lengths) * (end_year - start_year + project_years) + final_year_steps - 1L,
+        list(
+            project_years = if (have_projection_years) quote(project_years) else 0L,
+            final_year_steps = final_year_steps )))
     total_years <- g3_global_formula(init_val = f_substitute(
         ~end_year - start_year + project_years + 1L,
         list(project_years = if (have_projection_years) quote(project_years) else 0L)))
