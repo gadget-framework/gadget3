@@ -7,7 +7,7 @@
 }
 
 \usage{
-g3a_time(start_year, end_year, steps = as.array(c(12)),
+g3a_time(start_year, end_year, step_lengths = as.array(c(12)),
      project_years = ~g3_param('project_years', default = 0, optimize = FALSE),
      run_at = 0)
 
@@ -20,7 +20,7 @@ g3a_time(start_year, end_year, steps = as.array(c(12)),
   \item{end_year}{
     After this year, model run will stop.
   }
-  \item{steps}{
+  \item{step_lengths}{
     Either an MFDB time grouping, e.g. \code{mfdb::mfdb_timestep_quarterly}, or a
     vector of step lengths which should should sum to 12,
     for example, \code{c(3,3,3,3)} for quarterly steps within a year.

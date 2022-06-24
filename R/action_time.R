@@ -1,7 +1,7 @@
 # Timekeeping step, advances clock and stops when time is up
 # - start_year: Year to start counting from
 # - end_year: Stop at the end of this year (i.e. inclusive)
-# - steps: MFDB group or vector of steps in a year,
+# - step_lengths: MFDB group or vector of steps in a year,
 #       each element is a number of months, should sum to 12
 # - project_years: Number of years to project after the end of the model
 # Once added to a model, the following variables will be available:
@@ -13,10 +13,9 @@
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
 # - total_years: Total # of years before model stops
-g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
-    if ("mfdb_group" %in% class(steps)) steps <- vapply(steps, length, numeric(1))
-    if (is.numeric(steps) && sum(steps) != 12) stop("steps should sum to 12 (i.e. represent a whole year)")
-    step_lengths <- steps
+g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
+    if ("mfdb_group" %in% class(step_lengths)) step_lengths <- vapply(step_lengths, length, numeric(1))
+    if (is.numeric(step_lengths) && sum(step_lengths) != 12) stop("step_lengths should sum to 12 (i.e. represent a whole year)")
 
     # If these are literals, they should be integers
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
@@ -62,7 +61,7 @@ g3a_time <- function(start_year, end_year, steps = as.array(c(12)), project_year
         if (uneven_steps) cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
     }, list(
-        uneven_steps = if(is.numeric(steps)) any(diff(steps) > 0) else TRUE)))
+        uneven_steps = if(is.numeric(step_lengths)) any(diff(step_lengths) > 0) else TRUE)))
 
     # Make sure variables are defined, even without uneven_steps
     assign("cur_step_size", cur_step_size, envir = environment(out[[step_id(run_at)]]))

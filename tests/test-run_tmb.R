@@ -228,7 +228,7 @@ ok_group('g3_param', {
 })
 
 ok_group('g3_param_table', {
-    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, steps = c(3,3,3,3), project_years = 0), ~{
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, step_lengths = c(3,3,3,3), project_years = 0), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
             cur_step = 2:3))

@@ -92,7 +92,7 @@ report_step <- function (var_name, steps, initial_val) {
 }
 
 base_actions <- list(
-    g3a_time(1999,2000, steps = c(6, 6), project_years = 0),
+    g3a_time(1999,2000, step_lengths = c(6, 6), project_years = 0),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),

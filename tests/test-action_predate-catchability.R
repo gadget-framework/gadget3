@@ -17,7 +17,7 @@ report_effortfleet <- g3s_clone(fleet_effortfleet, 'report_effortfleet') %>% gad
 report_quotafleet <- g3s_clone(fleet_quotafleet, 'report_quotafleet') %>% gadget3:::g3s_modeltime()
 
 actions <- list(
-    g3a_time(2000, 2005, steps = c(6,6), project_years = 0),
+    g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
     g3a_initialconditions(prey_a, ~1000000 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~1000000 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_predate_fleet(

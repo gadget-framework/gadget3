@@ -14,12 +14,12 @@ ok_group("MFDB compatibility", {
         table_name = "temp_wntki",
         class = c("mfdb_group", "mfdb_aggregate"))
 
-    a <- g3a_time(1990, 1997, steps = timestep_quarterly)
+    a <- g3a_time(1990, 1997, step_lengths = timestep_quarterly)
     ok(ut_cmp_identical(
         as.vector(environment(a[[1]])$step_lengths),
         c(3L,3L,3L,3L)), "mfdb::mfdb_timestep_quarterly converted")
 
-    a <- g3a_time(1990, 1997, steps = timestep_biannually)
+    a <- g3a_time(1990, 1997, step_lengths = timestep_biannually)
     ok(ut_cmp_identical(
         as.vector(environment(a[[1]])$step_lengths),
         c(6L,6L)), "mfdb::mfdb_timestep_biannually converted")
@@ -43,7 +43,7 @@ actions <- list(
     g3a_time(
         start_year = ~as_integer(g3_param('p_start_year')),
         end_year = ~as_integer(g3_param('p_end_year')),
-        steps = ~g3_param_vector('steps')),
+        step_lengths = ~g3_param_vector('step_lengths'),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -60,7 +60,7 @@ params <- list(
     p_start_year = 1990,
     p_end_year = 1997,
     project_years = 0,
-    steps = c(3,3,6),
+    step_lengths = c(3,3,6),
     x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
@@ -110,7 +110,7 @@ ok_group('even steps', {
     params <- list(
         p_start_year = 1992,
         p_end_year = 1999,
-        steps = c(4,4,4),
+        step_lengths = c(4,4,4),
         project_years = 0,
         x=1.0)
     result <- model_fn(params)
@@ -151,7 +151,7 @@ ok_group("projection: Project_years = 4", {
     params <- list(
         p_start_year = 1992,
         p_end_year = 1999,
-        steps = c(4,4,4),
+        step_lengths = c(4,4,4),
         project_years = 4,
         x=1.0)
     result <- model_fn(params)
@@ -191,7 +191,7 @@ ok_group("projection: Project_years = -3", {
     params <- list(
         p_start_year = 1992,
         p_end_year = 1999,
-        steps = c(4,4,4),
+        step_lengths = c(4,4,4),
         project_years = -3,
         x=1.0)
     result <- model_fn(params)

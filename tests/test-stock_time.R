@@ -30,7 +30,7 @@ stock_modelyear__num <- gadget3:::stock_instance(stock_modelyear, 0)
 stock_modeltime_iterator <- 100
 
 actions <- list(
-    g3a_time(2000, 2004, steps = c(6,6), project_years = ~g3_param('projectyears')),
+    g3a_time(2000, 2004, step_lengths = c(6,6), project_years = ~g3_param('projectyears')),
     list(
         "500:stock_time" = gadget3:::g3_step(~{
             stock_iterate(stock_timeyear, stock_ss(stock_timeyear__num) <- stock_ss(stock_timeyear__num) + stock_modeltime_iterator)

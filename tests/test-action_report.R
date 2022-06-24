@@ -24,7 +24,7 @@ raw_report <- g3s_clone(prey_a, 'raw_report') %>%
     g3s_time(year = 2000:2002)
 
 actions <- list(
-    g3a_time(2000, 2002, steps = c(6, 6), project_years = 0),
+    g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_age(prey_a),
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num)),

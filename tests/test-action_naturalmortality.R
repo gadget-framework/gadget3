@@ -17,7 +17,7 @@ step3_prey_a__num <- gadget3:::stock_instance(prey_a)
 step3_prey_a__wgt <- gadget3:::stock_instance(prey_a)
 
 actions <- list(
-    g3a_time(2000, 2000, steps = c(3, 3, 5, 1), project_years = 0),
+    g3a_time(2000, 2000, step_lengths = c(3, 3, 5, 1), project_years = 0),
     g3a_initialconditions(
         prey_a,
         ~10 * age + prey_a__midlen * 0,
