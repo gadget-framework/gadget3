@@ -63,7 +63,8 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">g3a_time</span><span class="op">(</span><span class="va">start_year</span>, <span class="va">end_year</span>, steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">as.array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span>,
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">g3a_time</span><span class="op">(</span><span class="va">start_year</span>, <span class="va">end_year</span>, step_lengths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">as.array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span>,
+     final_year_steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">step_lengths</span><span class="op">)</span> <span class="op">)</span>,
      project_years <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'project_years'</span>, default <span class="op">=</span> <span class="fl">0</span>, optimize <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,
      run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></code></pre></div>
     </div>
@@ -76,10 +77,25 @@
   <dt>end_year</dt>
 <dd><p>After this year, model run will stop.</p></dd>
 
-  <dt>steps</dt>
+  <dt>step_lengths</dt>
 <dd><p>Either an MFDB time grouping, e.g. <code>mfdb::mfdb_timestep_quarterly</code>, or a
     vector of step lengths which should should sum to 12,
     for example, <code>c(3,3,3,3)</code> for quarterly steps within a year.</p></dd>
+
+  <dt>final_year_steps</dt>
+<dd><p>Number of steps of final year to include. Either as an integer or quoted
+    code, in which case it will be calcuated when the model runs.
+    For example:</p><dl><dt><code>0</code></dt>
+<dd><p>Model stops before the start of <var>end_year</var> (it is exclusive)</p></dd>
+
+      <dt><code>length(step_lengths)</code></dt>
+<dd><p>Model stops at the end of <var>end_year</var> (it is inclusive)</p></dd>
+
+      <dt><code>2</code></dt>
+<dd><p>Model stops at the second step of <var>end_year</var>, mid-year if <var>step_lengths</var> is quarterly</p></dd>
+
+    
+</dl><p></p></dd>
 
   <dt>project_years</dt>
 <dd><p>Number of years to continue running after the "end" of the model, or if negative
@@ -151,7 +167,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
