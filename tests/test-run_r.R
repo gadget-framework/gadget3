@@ -34,7 +34,7 @@ ok_group('g3_param', {
         g3_param('b', value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
-        param,
+        param[c('a', 'b')],
         list(a = 0, b = 4)), "Param list included value values")
 })
 
@@ -49,7 +49,7 @@ ok_group('g3_param_table', {
             cur_step = 1:2), value = 4, optimise = FALSE)
     })), 'parameter_template')
     ok(ut_cmp_identical(
-        param,
+        param[c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2')],
         structure(
             as.list(c(rep(0, 5), rep(0, 5), rep(4, 2))),
             names = c(
