@@ -65,11 +65,11 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">g3_stock</span><span class="op">(</span><span class="va">var_name</span>, <span class="va">lengthgroups</span>, open_ended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu">g3_fleet</span><span class="op">(</span><span class="va">var_name</span><span class="op">)</span>
-
-<span class="fu">g3s_clone</span><span class="op">(</span><span class="va">inner_stock</span>, <span class="va">var_name</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_stock</span><span class="op">(</span><span class="va">var_name</span>, <span class="va">lengthgroups</span>, open_ended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_fleet</span><span class="op">(</span><span class="va">var_name</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3s_clone</span><span class="op">(</span><span class="va">inner_stock</span>, <span class="va">var_name</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -112,36 +112,36 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Define a stock with 3 lengthgroups</span></span>
-<span class="r-in"><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Define a stock with a multi-part name. We can then dig out species name</span></span>
-<span class="r-in"><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'ling'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name</span> <span class="op">==</span> <span class="st">'ling_imm'</span> <span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name_parts</span><span class="op">[[</span><span class="st">'species'</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">'ling'</span> <span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use stock_instance to see what the array would look like</span></span>
-<span class="r-in"><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Define a stock with 3 lengthgroups</span></span></span>
+<span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Define a stock with a multi-part name. We can then dig out species name</span></span></span>
+<span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'ling'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name</span> <span class="op">==</span> <span class="st">'ling_imm'</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name_parts</span><span class="op">[[</span><span class="st">'species'</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">'ling'</span> <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
+<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1:10  10:100 100:Inf </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      NA      NA      NA </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Define a stock, not-open-ended. Now only 2 groups long</span></span>
-<span class="r-in"><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span>, open_ended <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use stock_instance to see what the array would look like</span></span>
-<span class="r-in"><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Define a stock, not-open-ended. Now only 2 groups long</span></span></span>
+<span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span>, open_ended <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
+<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:10 10:100 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     NA     NA </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fleets don't have lengthgroups</span></span>
-<span class="r-in"><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_fleet</span><span class="op">(</span><span class="st">'name'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use stock_instance to see what the array would look like</span></span>
-<span class="r-in"><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fleets don't have lengthgroups</span></span></span>
+<span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_fleet</span><span class="op">(</span><span class="st">'name'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
+<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> area</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> area1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    NA </span>

@@ -63,24 +63,24 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">g3_to_tmb</span><span class="op">(</span><span class="va">actions</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, strict <span class="op">=</span> <span class="cn">FALSE</span>, adreport_re <span class="op">=</span> <span class="st">'^$'</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp_code</span>, parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span>,
-    compile_flags <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span>
-                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-march=native"</span>, <span class="st">"-fno-asynchronous-unwind-tables"</span><span class="op">)</span>
-                    <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-flto"</span>, <span class="st">"-march=native"</span><span class="op">)</span>,
-    work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,
-    output_script <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span>
-
-<span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_to_tmb</span><span class="op">(</span><span class="va">actions</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, strict <span class="op">=</span> <span class="cn">FALSE</span>, adreport_re <span class="op">=</span> <span class="st">'^$'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp_code</span>, parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span>,</span>
+<span>    compile_flags <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span></span>
+<span>                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-march=native"</span>, <span class="st">"-fno-asynchronous-unwind-tables"</span><span class="op">)</span></span>
+<span>                    <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-flto"</span>, <span class="st">"-march=native"</span><span class="op">)</span>,</span>
+<span>    work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    output_script <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -195,89 +195,89 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="action_renewal.html">g3a_initialconditions_normalparam</a></span><span class="op">(</span></span>
-<span class="r-in">    <span class="va">ling_imm</span>,</span>
-<span class="r-in">    <span class="co"># NB: area &amp; age factor together (gadget2 just multiplied them)</span></span>
-<span class="r-in">    factor_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.init.scalar"</span><span class="op">)</span> <span class="op">*</span></span>
-<span class="r-in">        <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.M"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.init.F"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span> <span class="op">*</span></span>
-<span class="r-in">        <span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.init"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">    mean_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span></span>
-<span class="r-in">        <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span></span>
-<span class="r-in">        <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.recl"</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span>
-<span class="r-in">            <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">    stddev_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"ling.init.sd"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span><span class="op">]</span><span class="op">]</span>,</span>
-<span class="r-in">    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span>
-<span class="r-in">    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Timekeeping action</span></span>
-<span class="r-in"><span class="va">time_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span></span>
-<span class="r-in">    start_year <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span class="r-in">    end_year <span class="op">=</span> <span class="fl">2004</span>,</span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Add our own custom action that will be added to model code</span></span>
-<span class="r-in"><span class="co"># (This is mostly to avoid problems in TMB)</span></span>
-<span class="r-in"><span class="va">custom_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
-<span class="r-in">    <span class="va">nll</span> <span class="op">&lt;-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.k'</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Generate a model from the above 2 actions</span></span>
-<span class="r-in"><span class="co"># NB: Obviously in reality we'd need more actions</span></span>
-<span class="r-in"><span class="va">cpp</span> <span class="op">&lt;-</span> <span class="fu">g3_to_tmb</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">initialconditions_action</span>, <span class="va">custom_action</span>, <span class="va">time_action</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="co"># Edit the resulting code</span></span>
-<span class="r-in"><span class="va">cpp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">cpp</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Set initial conditions for parameters</span></span>
-<span class="r-in"><span class="va">tmb_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp</span>, <span class="st">'parameter_template'</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">tmb_param</span><span class="op">$</span><span class="va">value</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span class="r-in">    project_years <span class="op">=</span> <span class="fl">0</span>,</span>
-<span class="r-in">    ling.init.F <span class="op">=</span> <span class="fl">0.4</span>,</span>
-<span class="r-in">    ling.Linf <span class="op">=</span> <span class="fl">160</span>,</span>
-<span class="r-in">    ling.k <span class="op">=</span> <span class="fl">90</span>,</span>
-<span class="r-in">    ling.recl <span class="op">=</span> <span class="fl">12</span>,</span>
-<span class="r-in">    ling.init.sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">50.527220</span>, <span class="fl">21</span><span class="op">)</span>,</span>
-<span class="r-in">    lingimm.init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">15</span> <span class="op">-</span> <span class="fl">5</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">    lingimm.init.scalar <span class="op">=</span> <span class="fl">200</span>,</span>
-<span class="r-in">    lingimm.walpha <span class="op">=</span> <span class="fl">2.27567436711055e-06</span>,</span>
-<span class="r-in">    lingimm.wbeta <span class="op">=</span> <span class="fl">3.20200445996187</span>,</span>
-<span class="r-in">    lingimm.M <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># We can set lower/upper bounds for multiple properties at once with grepl()</span></span>
-<span class="r-in"><span class="va">tmb_param</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'.'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span>, <span class="st">'lower'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span class="r-in"><span class="va">tmb_param</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'.'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span>, <span class="st">'upper'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compile to a TMB ADFun</span></span>
-<span class="r-in"><span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="co"># Build the model in an isolated R session w/debugger</span></span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, compile_flags <span class="op">=</span> <span class="st">"-g"</span>, output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Perform a single run, using values in table</span></span>
-<span class="r-in"><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">fn</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># perform optimisation based on parameter table</span></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb</a></span><span class="op">(</span><span class="va">tmb</span><span class="op">$</span><span class="va">par</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">fn</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">gr</span>,</span>
-<span class="r-in">    upper <span class="op">=</span> <span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span>
-<span class="r-in">    lower <span class="op">=</span> <span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span>
-<span class="r-in">    <span class="co"># NB: We don't have to set parscale, it will be derived from upper/lower</span></span>
-<span class="r-in">    parscale <span class="op">=</span> <span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span>
-<span class="r-in">    control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>iter.max<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="action_renewal.html">g3a_initialconditions_normalparam</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
+<span class="r-in"><span>    <span class="co"># NB: area &amp; age factor together (gadget2 just multiplied them)</span></span></span>
+<span class="r-in"><span>    factor_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.init.scalar"</span><span class="op">)</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.M"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.init.F"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>        <span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.init"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>        <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>        <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.recl"</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span></span>
+<span class="r-in"><span>            <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    stddev_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"ling.init.sd"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Timekeeping action</span></span></span>
+<span class="r-in"><span><span class="va">time_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    start_year <span class="op">=</span> <span class="fl">2000</span>,</span></span>
+<span class="r-in"><span>    end_year <span class="op">=</span> <span class="fl">2004</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Add our own custom action that will be added to model code</span></span></span>
+<span class="r-in"><span><span class="co"># (This is mostly to avoid problems in TMB)</span></span></span>
+<span class="r-in"><span><span class="va">custom_action</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">nll</span> <span class="op">&lt;-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.k'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Generate a model from the above 2 actions</span></span></span>
+<span class="r-in"><span><span class="co"># NB: Obviously in reality we'd need more actions</span></span></span>
+<span class="r-in"><span><span class="va">cpp</span> <span class="op">&lt;-</span> <span class="fu">g3_to_tmb</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">initialconditions_action</span>, <span class="va">custom_action</span>, <span class="va">time_action</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="co"># Edit the resulting code</span></span></span>
+<span class="r-in"><span><span class="va">cpp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">cpp</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set initial conditions for parameters</span></span></span>
+<span class="r-in"><span><span class="va">tmb_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp</span>, <span class="st">'parameter_template'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmb_param</span><span class="op">$</span><span class="va">value</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    project_years <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>    ling.init.F <span class="op">=</span> <span class="fl">0.4</span>,</span></span>
+<span class="r-in"><span>    ling.Linf <span class="op">=</span> <span class="fl">160</span>,</span></span>
+<span class="r-in"><span>    ling.k <span class="op">=</span> <span class="fl">90</span>,</span></span>
+<span class="r-in"><span>    ling.recl <span class="op">=</span> <span class="fl">12</span>,</span></span>
+<span class="r-in"><span>    ling.init.sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">50.527220</span>, <span class="fl">21</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    lingimm.init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">15</span> <span class="op">-</span> <span class="fl">5</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    lingimm.init.scalar <span class="op">=</span> <span class="fl">200</span>,</span></span>
+<span class="r-in"><span>    lingimm.walpha <span class="op">=</span> <span class="fl">2.27567436711055e-06</span>,</span></span>
+<span class="r-in"><span>    lingimm.wbeta <span class="op">=</span> <span class="fl">3.20200445996187</span>,</span></span>
+<span class="r-in"><span>    lingimm.M <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># We can set lower/upper bounds for multiple properties at once with grepl()</span></span></span>
+<span class="r-in"><span><span class="va">tmb_param</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'.'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span>, <span class="st">'lower'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="va">tmb_param</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'.'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span>, <span class="st">'upper'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compile to a TMB ADFun</span></span></span>
+<span class="r-in"><span><span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="co"># Build the model in an isolated R session w/debugger</span></span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, compile_flags <span class="op">=</span> <span class="st">"-g"</span>, output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Perform a single run, using values in table</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">fn</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># perform optimisation based on parameter table</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb</a></span><span class="op">(</span><span class="va">tmb</span><span class="op">$</span><span class="va">par</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">fn</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">gr</span>,</span></span>
+<span class="r-in"><span>    upper <span class="op">=</span> <span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    lower <span class="op">=</span> <span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="co"># NB: We don't have to set parscale, it will be derived from upper/lower</span></span></span>
+<span class="r-in"><span>    parscale <span class="op">=</span> <span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>iter.max<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> outer mgc:  0 </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Go back to a list of parameters, suitable for the R version</span></span>
-<span class="r-in"><span class="va">param_list</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">tmb_param</span>, <span class="va">fit</span><span class="op">$</span><span class="va">par</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Rebuild, only including "Fun" (i.e. without auto-differentiation)</span></span>
-<span class="r-in"><span class="co"># Result will only work for tmb$report</span></span>
-<span class="r-in"><span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span>, type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Go back to a list of parameters, suitable for the R version</span></span></span>
+<span class="r-in"><span><span class="va">param_list</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">tmb_param</span>, <span class="va">fit</span><span class="op">$</span><span class="va">par</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Rebuild, only including "Fun" (i.e. without auto-differentiation)</span></span></span>
+<span class="r-in"><span><span class="co"># Result will only work for tmb$report</span></span></span>
+<span class="r-in"><span><span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span>, type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

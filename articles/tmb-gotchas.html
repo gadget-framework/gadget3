@@ -125,13 +125,13 @@
 <p>(documented in <a href="https://github.com/kaskr/adcomp/pull/329" class="external-link uri">https://github.com/kaskr/adcomp/pull/329</a> )</p>
 <p>The “R-like” functions TMB provides, such as <code><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma()</a></code> are defined using the <code>VECTORIZE</code> macros. These macros expect a single symbol, and will produce mysterious errors if an expression is used.</p>
 <p>Instead of <code>lgamma(alpha + beta)</code>, do something like:</p>
-<pre><code><span class="va">lgamma_arg</span> <span class="op">=</span> <span class="va">alpha</span> <span class="op">+</span> <span class="va">beta</span>; <span class="va">val_vec</span> <span class="op">=</span> <span class="va">val_vec</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">lgamma_arg</span><span class="op">)</span>;</code></pre>
+<pre><code><span><span class="va">lgamma_arg</span> <span class="op">=</span> <span class="va">alpha</span> <span class="op">+</span> <span class="va">beta</span>; <span class="va">val_vec</span> <span class="op">=</span> <span class="va">val_vec</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">lgamma_arg</span><span class="op">)</span>;</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="no-vector-to-vector-conversion">No vector<int> to vector<type> conversion</type></int><a class="anchor" aria-label="anchor" href="#no-vector-to-vector-conversion"></a>
 </h2>
 <p>Can’t do <code>stock__num.col(...) = (integer vector)</code>, since this needs an explicit cast. This is problematic for e.g:</p>
-<pre><code><span class="fu"><a href="../reference/action_renewal.html">g3a_initialconditions</a></span><span class="op">(</span><span class="va">prey_a</span>, <span class="op">~</span><span class="fl">10</span> <span class="op">*</span> <span class="va">prey_a__minlen</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="../reference/action_renewal.html">g3a_initialconditions</a></span><span class="op">(</span><span class="va">prey_a</span>, <span class="op">~</span><span class="fl">10</span> <span class="op">*</span> <span class="va">prey_a__minlen</span><span class="op">)</span></span></code></pre>
 <p>This case is a somewhat artifical construct, and not a problem for midlen (which isn’t integer), a more likely scenario.</p>
 <p>No easy solutions, since gadget3 doesn’t have enough type information and Eigen needs explicit casts.</p>
 </div>

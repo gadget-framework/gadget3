@@ -63,11 +63,11 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">g3a_predate_tagrelease</span><span class="op">(</span>
-       <span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">catchability_f</span>,
-       <span class="va">output_tag_f</span>, mortality_f <span class="op">=</span> <span class="fl">0</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span>
-
-<span class="fu">g3a_tag_shedding</span><span class="op">(</span><span class="va">stocks</span>, <span class="va">tagshed_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_predate_tagrelease</span><span class="op">(</span></span>
+<span>       <span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">catchability_f</span>,</span>
+<span>       <span class="va">output_tag_f</span>, mortality_f <span class="op">=</span> <span class="fl">0</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">3</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_tag_shedding</span><span class="op">(</span><span class="va">stocks</span>, <span class="va">tagshed_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -134,39 +134,39 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'H1-00'</span>, <span class="st">'H1-01'</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">tags</span><span class="op">)</span>, names <span class="op">=</span> <span class="va">tags</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">prey_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'prey_a'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_tag.html">g3s_tag</a></span><span class="op">(</span><span class="va">tags</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">fleet_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'fleet_a'</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span class="r-in">    <span class="fu">g3a_predate_tagrelease</span><span class="op">(</span></span>
-<span class="r-in">        <span class="co"># Setup as-per g3a_predate_fleet</span></span>
-<span class="r-in">        <span class="va">fleet_a</span>,</span>
-<span class="r-in">        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span>
-<span class="r-in">        suitabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>prey_a <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">        catchability_f <span class="op">=</span> <span class="fu"><a href="action_predate.html">g3a_predate_catchability_numberfleet</a></span><span class="op">(</span><span class="op">~</span><span class="fl">100</span><span class="op">)</span>,</span>
-<span class="r-in">        </span>
-<span class="r-in">        <span class="co"># Optional tag mortality suitability</span></span>
-<span class="r-in">        mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_alpha'</span><span class="op">)</span>, <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_beta'</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">        <span class="co"># Formula to decide which tag to output into, generate table</span></span>
-<span class="r-in">        <span class="co"># with one tag per year</span></span>
-<span class="r-in">        output_tag_f <span class="op">=</span> <span class="fu"><a href="timevariable.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">'fleet_a_tags'</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span class="r-in">            year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2001</span><span class="op">)</span>,</span>
-<span class="r-in">            tag <span class="op">=</span> <span class="va">tags</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'H1-00'</span>, <span class="st">'H1-01'</span><span class="op">)</span><span class="op">]</span>,</span>
-<span class="r-in">            stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, value_field <span class="op">=</span> <span class="st">"tag"</span><span class="op">)</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">        <span class="co"># Experiment only happens in spring</span></span>
-<span class="r-in">        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span class="r-in"></span>
-<span class="r-in">    <span class="fu">g3a_tag_shedding</span><span class="op">(</span></span>
-<span class="r-in">        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span>
-<span class="r-in">        <span class="co"># i.e. 0.125 will loose their tag each step</span></span>
-<span class="r-in">        tagshed_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'H1-00'</span>, <span class="st">'H1-01'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tags</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">tags</span><span class="op">)</span>, names <span class="op">=</span> <span class="va">tags</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">prey_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'prey_a'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_tag.html">g3s_tag</a></span><span class="op">(</span><span class="va">tags</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fleet_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'fleet_a'</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_predate_tagrelease</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="co"># Setup as-per g3a_predate_fleet</span></span></span>
+<span class="r-in"><span>        <span class="va">fleet_a</span>,</span></span>
+<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        suitabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>prey_a <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        catchability_f <span class="op">=</span> <span class="fu"><a href="action_predate.html">g3a_predate_catchability_numberfleet</a></span><span class="op">(</span><span class="op">~</span><span class="fl">100</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        </span></span>
+<span class="r-in"><span>        <span class="co"># Optional tag mortality suitability</span></span></span>
+<span class="r-in"><span>        mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_alpha'</span><span class="op">)</span>, <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_beta'</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>        <span class="co"># Formula to decide which tag to output into, generate table</span></span></span>
+<span class="r-in"><span>        <span class="co"># with one tag per year</span></span></span>
+<span class="r-in"><span>        output_tag_f <span class="op">=</span> <span class="fu"><a href="timevariable.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">'fleet_a_tags'</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2001</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            tag <span class="op">=</span> <span class="va">tags</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'H1-00'</span>, <span class="st">'H1-01'</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>            stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, value_field <span class="op">=</span> <span class="st">"tag"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>        <span class="co"># Experiment only happens in spring</span></span></span>
+<span class="r-in"><span>        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_tag_shedding</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># i.e. 0.125 will loose their tag each step</span></span></span>
+<span class="r-in"><span>        tagshed_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

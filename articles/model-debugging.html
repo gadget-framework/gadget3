@@ -93,10 +93,10 @@
 <p>In theory, the TMB and R output of gadget3 should be identically-behaving functions, so instead of trying to decipher what the TMB model is doing wrong, you can use R function instead in a more familiar environment, for example using standard tools such as <code>options(error=recover)</code>.</p>
 <p>You can also use <code><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit()</a></code> to edit the R function directly and re-run the model:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Model setup will look something like this</span>
-<span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-
-<span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">ling_model</span><span class="op">)</span> ; <span class="fu">ling_model</span><span class="op">(</span><span class="va">ling_param</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Model setup will look something like this</span></span>
+<span><span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">ling_model</span><span class="op">)</span> ; <span class="fu">ling_model</span><span class="op">(</span><span class="va">ling_param</span><span class="op">)</span></span></code></pre></div>
 <p>…this is useful if you want to add trace <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> statements around a particular part of the model that’s failing, e.g. or insert a breakpoint by adding a <code><a href="https://rdrr.io/r/utils/recover.html" class="external-link">recover()</a></code> line.</p>
 </div>
 <div class="section level2">
@@ -108,15 +108,15 @@
 </h3>
 <p>If the model crashes whilst forming the TMB ADFun object, then it takes your R session with it. To prevent this, wrap <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></code> with <code><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">TMB::gdbsource()</a></code> as follows:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Model setup will look something like this</span>
-<span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span>
-<span class="va">tmb_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">tmb_ling</span>, <span class="st">'parameter_template'</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span>
-    <span class="va">tmb_ling</span>,
-    <span class="va">tmb_param</span>,
-    compile_flags <span class="op">=</span> <span class="st">"-g"</span>,
-    output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Model setup will look something like this</span></span>
+<span><span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="va">tmb_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">tmb_ling</span>, <span class="st">'parameter_template'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span></span>
+<span>    <span class="va">tmb_ling</span>,</span>
+<span>    <span class="va">tmb_param</span>,</span>
+<span>    compile_flags <span class="op">=</span> <span class="st">"-g"</span>,</span>
+<span>    output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><code>output_script = TRUE</code> tells <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></code> to, after compilation, write a temporary R script that will build the TMB ADFun object (and presumably crash in the process). <code><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">TMB::gdbsource()</a></code> in turn runs a provided R script in a fresh R session wrapped in gdb. By default it will print a stacktrace and quit, which should show you where the crash occured.</p>
 </div>
 <div class="section level3">
@@ -124,12 +124,12 @@
 </h3>
 <p>As with the R model you can edit the raw C++ source before building:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">tmb_ling</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span>
-    <span class="va">tmb_ling</span>,
-    <span class="va">tmb_param</span>,
-    compile_flags <span class="op">=</span> <span class="st">"-g"</span>,
-    output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">tmb_ling</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span></span>
+<span>    <span class="va">tmb_ling</span>,</span>
+<span>    <span class="va">tmb_param</span>,</span>
+<span>    compile_flags <span class="op">=</span> <span class="st">"-g"</span>,</span>
+<span>    output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Through this you can…</p>
 <ul>
 <li>Print the contents of single values with <code>std::cout &lt;&lt; ling__Linf &lt;&lt; std::endl;</code>

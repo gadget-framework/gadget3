@@ -103,35 +103,35 @@
 <h2 id="global-native-functions">Global &amp; native functions<a class="anchor" aria-label="anchor" href="#global-native-functions"></a>
 </h2>
 <p>Some things aren’t easy to do with code translation. <code>g3_native</code> allows you to define a function with separate R and C++ definitions, for example <code>logspace_add_vec</code>, used in many actions to avoid div/0, has the following definition:</p>
-<pre><code><span class="co"># vector&lt;Type&gt; form of logspace_add</span>
-<span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span>
-    <span class="co"># https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {
-    vector&lt;Type&gt; res(a.size());
-    for(int i = 0; i &lt; a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-}'</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
+<span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
+<span><span class="st">    vector&lt;Type&gt; res(a.size());</span></span>
+<span><span class="st">    for(int i = 0; i &lt; a.size(); i++) {</span></span>
+<span><span class="st">        res[i] = logspace_add(a[i], b);</span></span>
+<span><span class="st">    }</span></span>
+<span><span class="st">    return res;</span></span>
+<span><span class="st">}'</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stock-steps">Stock steps<a class="anchor" aria-label="anchor" href="#stock-steps"></a>
 </h2>
 <p>Most actions interact with stocks, and fill out abstract formulae with the stocks provided to the function. To do this you need to do a series of substitutions, which are handled by <code>g3_step()</code>. This takes a formula, looks for <code>stock_*</code> named functions and mangles the formula as appropriate. For example, a snippet from <code>action_mature.R</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R">    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
-    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">g3_step</span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span>
-        <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"g3a_mature for "</span>, <span class="va">stock</span><span class="op">)</span>
-        <span class="co"># Matured stock will weigh the same</span>
-        <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">matured</span>, <span class="va">matured__wgt</span> <span class="op">&lt;-</span> <span class="va">stock__wgt</span><span class="op">)</span><span class="op">)</span>
-
-        <span class="fu"><a href="../reference/step.html">stock_iterate</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="../reference/step.html">stock_intersect</a></span><span class="op">(</span><span class="va">matured</span>, <span class="kw">if</span> <span class="op">(</span><span class="va">run_f</span><span class="op">)</span> <span class="op">{</span>
-            <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"Move matured "</span>, <span class="va">stock</span>, <span class="st">" into temporary storage"</span><span class="op">)</span>
-            <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">matured__num</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">*</span> <span class="va">maturity_f</span>
-            <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">matured__num</span><span class="op">)</span>
-        <span class="op">}</span><span class="op">)</span><span class="op">)</span>
-    <span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>run_f <span class="op">=</span> <span class="va">run_f</span>, maturity_f <span class="op">=</span> <span class="va">maturity_f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">g3_step</span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
+<span>        <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"g3a_mature for "</span>, <span class="va">stock</span><span class="op">)</span></span>
+<span>        <span class="co"># Matured stock will weigh the same</span></span>
+<span>        <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">matured</span>, <span class="va">matured__wgt</span> <span class="op">&lt;-</span> <span class="va">stock__wgt</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>        <span class="fu"><a href="../reference/step.html">stock_iterate</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="../reference/step.html">stock_intersect</a></span><span class="op">(</span><span class="va">matured</span>, <span class="kw">if</span> <span class="op">(</span><span class="va">run_f</span><span class="op">)</span> <span class="op">{</span></span>
+<span>            <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"Move matured "</span>, <span class="va">stock</span>, <span class="st">" into temporary storage"</span><span class="op">)</span></span>
+<span>            <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">matured__num</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">*</span> <span class="va">maturity_f</span></span>
+<span>            <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">matured__num</span><span class="op">)</span></span>
+<span>        <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>run_f <span class="op">=</span> <span class="va">run_f</span>, maturity_f <span class="op">=</span> <span class="va">maturity_f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Assume that <code>stock</code> has name “ling_imm” and <code>matured</code> has name “ling_imm_maturing”.</p>
 <p>The first line uses <code><a href="../reference/step.html">debug_label()</a></code> to produce a <code><a href="../reference/step.html">debug_label()</a></code> function call, <code>debug_label("g3a_mature for ling_imm")</code>. This will be used as a code comment and a label for this block if producing diagrams.</p>
 <p>Next <code><a href="../reference/step.html">stock_with()</a></code> is used to to transform <code>matured__wgt &lt;- stock__wgt</code> to use the proper stock names. We don’t care about dimensions since we’re copying over all the data.</p>
@@ -150,14 +150,14 @@
 <h2 id="sub-formulas-and-g3_global_formula">Sub-formulas and g3_global_formula<a class="anchor" aria-label="anchor" href="#sub-formulas-and-g3_global_formula"></a>
 </h2>
 <p>R forumlas all you to include extra definitions when defining a formula. This allows you to break up a definition into more readable chunks. For example:</p>
-<pre><code><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span>
-<span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
-    <span class="va">E</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">stock__minlen</span> <span class="op">*</span> <span class="va">age</span>
-    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">stock__minage</span>  <span class="co"># TODO: Does this work now?</span>
-    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span>
-<span class="op">}</span>
-<span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">E</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">stock__minlen</span> <span class="op">*</span> <span class="va">age</span></span>
+<span>    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="op">~</span><span class="va">stock__minage</span>  <span class="co"># TODO: Does this work now?</span></span>
+<span>    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre>
 <p>Note that:</p>
 <ul>
 <li>Because the definition of <code>E</code> refers to <code>age</code>, gadget3 has automatically inserted it into the loop.</li>
@@ -166,39 +166,39 @@
 <li>They are all defined in the step, not necessarily for the whole model function. In TMB this is enforced with scoping.</li>
 </ul>
 <p>If you need to have something available to ther steps, it can be defined using <code>g3_global_formula</code> and providing an <code>init_val</code>:</p>
-<pre><code><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>
-    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span>
-<span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
-    <span class="co"># Define a counter</span>
-    <span class="va">E</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span>
-        <span class="op">~</span><span class="va">E</span> <span class="op">+</span> <span class="fl">1</span>, init_val <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span>
-    <span class="co"># We can just give init_val, to define something global to the model</span>
-    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span>
-        init_val <span class="op">=</span> <span class="fl">99L</span><span class="op">)</span>
-    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span>
-<span class="op">}</span>
-<span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Define a counter</span></span>
+<span>    <span class="va">E</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span></span>
+<span>        <span class="op">~</span><span class="va">E</span> <span class="op">+</span> <span class="fl">1</span>, init_val <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span>
+<span>    <span class="co"># We can just give init_val, to define something global to the model</span></span>
+<span>    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span></span>
+<span>        init_val <span class="op">=</span> <span class="fl">99L</span><span class="op">)</span></span>
+<span>    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre>
 <p>As well as making values available to other steps, <code>g3_global_formula</code>() can also be used to ensure that the value ends up in the model report, which will happen automatically for any non-constant global in the model.</p>
 </div>
 <div class="section level2">
 <h2 id="g3_native">g3_native<a class="anchor" aria-label="anchor" href="#g3_native"></a>
 </h2>
 <p>There are limits to what the Gadget3 transpilation can manage, particularly once you need to operate on matrices. To get around this, you can define functions using <code>g3_native</code>, which annotates functions with a C++ definition. For example, it is used to define <code>logspace_add_vec</code>:</p>
-<pre><code><span class="co"># vector&lt;Type&gt; form of logspace_add</span>
-<span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {
-    vector&lt;Type&gt; res(a.size());
-
-    for(int i = 0; i &lt; a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-
-    // NB: This is a string within R code, so we have to escape slashes.
-    //     For example, "\\n"
-
-    return res;
-}'</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
+<span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
+<span><span class="st">    vector&lt;Type&gt; res(a.size());</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">    for(int i = 0; i &lt; a.size(); i++) {</span></span>
+<span><span class="st">        res[i] = logspace_add(a[i], b);</span></span>
+<span><span class="st">    }</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">    // NB: This is a string within R code, so we have to escape slashes.</span></span>
+<span><span class="st">    //     For example, "\\n"</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">    return res;</span></span>
+<span><span class="st">}'</span><span class="op">)</span></span></code></pre>
 </div>
   </div>
 
