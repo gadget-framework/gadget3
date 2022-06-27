@@ -103,7 +103,7 @@ base_actions <- list(
             prey_a = ~g3_param_vector("fleet_abc_a"),
             prey_b = ~g3_param_vector("fleet_abc_b"),
             prey_c = ~g3_param_vector("fleet_abc_c")),
-        amount_f = ~g3_param('amount_ab') * area),
+        amount_f = ~g3_param('amount_ab', value = 100) * area),
     named_list(
         # Capture data just before final step erases it
         gadget3:::step_id(10, 'g3l_distribution', 'cdist_sumofsquares_utcd', 1, 'zzzz'), report_step('cdist_sumofsquares_utcd_model__num', 4, array(
@@ -192,26 +192,18 @@ actions <- c(base_actions, list(
         stocks = list(prey_b),
         area_group = areas,
         report = TRUE,  # NB: Using built-in reporting vs. version hacked in tests
-        g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta"))),
+        g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0))),
     NULL))
-
-params <- list(
-    fleet_abc_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-    fleet_abc_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-    fleet_abc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-    amount_ab = 100,
-    si_alpha = 0,
-    si_beta = 0,
-    cdist_sumofsquares_utcd_weight = 1,
-    cdist_sumofsquares_utcd_weight_weight = 1,
-    cdist_sumofsquares_utsd_weight = 1,
-    cdist_multinomial_multinom_weight = 1,
-    adist_surveyindices_log_surveyindices_weight = 1)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_abc_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
+    params$fleet_abc_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
+    params$fleet_abc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
@@ -221,19 +213,20 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 ok_group("Likelihood per step", {
-    params <- list(
-        # Randomly catch, but get something everywhere
-        fleet_abc_a = runif(10, min=0.1, max=0.9),
-        fleet_abc_b = runif(10, min=0.1, max=0.9),
-        fleet_abc_c = runif(10, min=0.1, max=0.9),
-        amount_ab = 1000000,
-        si_alpha = 4,
-        si_beta = 2,
-        cdist_sumofsquares_utcd_weight = 1,
-        cdist_sumofsquares_utcd_weight_weight = 1,
-        cdist_sumofsquares_utsd_weight = 1,
-        cdist_multinomial_multinom_weight = 1,
-        adist_surveyindices_log_surveyindices_weight = 1)
+    params <- attr(model_fn, 'parameter_template')
+    # Randomly catch, but get something everywhere
+    params$fleet_abc_a <- runif(10, min=0.1, max=0.9)
+    params$fleet_abc_b <- runif(10, min=0.1, max=0.9)
+    params$fleet_abc_c <- runif(10, min=0.1, max=0.9)
+    params$amount_ab <- 1000000
+    params$si_alpha <- 4
+    params$si_beta <- 2
+    params$cdist_sumofsquares_utcd_weight <- 1
+    params$cdist_sumofsquares_utcd_weight_weight <- 1
+    params$cdist_sumofsquares_utsd_weight <- 1
+    params$cdist_multinomial_multinom_weight <- 1
+    params$adist_surveyindices_log_surveyindices_weight <- 1
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -586,7 +579,7 @@ ok_group("Likelihood per year", {
             stocks = list(prey_b),
             area_group = areas,
             report = TRUE,
-            g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha"), beta = ~g3_param("si_beta")))))
+            g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0)))))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)
@@ -599,18 +592,19 @@ ok_group("Likelihood per year", {
         writeLines("# skip: not compiling TMB model")
     }
 
-    params <- list(
-        fleet_abc_a = runif(10, min=0.1, max=0.9),
-        fleet_abc_b = runif(10, min=0.1, max=0.9),
-        fleet_abc_c = runif(10, min=0.1, max=0.9),
-        amount_ab = 1000000,
-        si_alpha = 1.82,
-        si_beta = 3.74,
-        cdist_sumofsquares_utcd_weight = 1,
-        cdist_sumofsquares_utcd_weight_weight = 1,
-        cdist_sumofsquares_utsd_weight = 1,
-        cdist_multinomial_multinom_weight = 1,
-        adist_surveyindices_log_surveyindices_weight = 1)
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_abc_a <- runif(10, min=0.1, max=0.9)
+    params$fleet_abc_b <- runif(10, min=0.1, max=0.9)
+    params$fleet_abc_c <- runif(10, min=0.1, max=0.9)
+    params$amount_ab <- 1000000
+    params$si_alpha <- 1.82
+    params$si_beta <- 3.74
+    params$cdist_sumofsquares_utcd_weight <- 1
+    params$cdist_sumofsquares_utcd_weight_weight <- 1
+    params$cdist_sumofsquares_utsd_weight <- 1
+    params$cdist_multinomial_multinom_weight <- 1
+    params$adist_surveyindices_log_surveyindices_weight <- 1
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)

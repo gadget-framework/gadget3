@@ -146,23 +146,24 @@ actions <- list(
             g3_report(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
 actions <- c(actions, list(g3a_report_history(actions, "prey_.*__fleet_.*")))
-params <- list(
-    fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-    fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-    fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-    amount_ab = 100,
-    fleet_bc_a = c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0),
-    fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-    fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-    amount_bc = 100,
-    understocking_power = 2,
-    years = 1,
-    x=1.0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_ab_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
+    params$fleet_ab_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
+    params$fleet_ab_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_ab <- 100
+    params$fleet_bc_a <- c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0)
+    params$fleet_bc_b <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$fleet_bc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_bc <- 100
+    params$understocking_power <- 2
+    params$years <- 1
+    params$x<-1.0
+
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
@@ -171,18 +172,19 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 ok_group("No overconsumption", {
-    params <- list(
-        fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-        fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-        fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        amount_ab = 100,
-        fleet_bc_a = c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0),
-        fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        amount_bc = 50,
-        understocking_power = 2,
-        years = 1,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_ab_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
+    params$fleet_ab_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
+    params$fleet_ab_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_ab <- 100
+    params$fleet_bc_a <- c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0)
+    params$fleet_bc_b <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$fleet_bc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_bc <- 50
+    params$understocking_power <- 2
+    params$years <- 1
+    params$x<-1.0
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)
@@ -302,18 +304,19 @@ ok_group("No overconsumption", {
 
 
 ok_group("Overconsumption", {
-    params <- list(
-        fleet_ab_a = c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0),
-        fleet_ab_b = c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0),
-        fleet_ab_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        amount_ab = 1000000,
-        fleet_bc_a = c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0),
-        fleet_bc_b = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        fleet_bc_c = c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0),
-        amount_bc = 50,
-        understocking_power = 1,
-        years = 1,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_ab_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
+    params$fleet_ab_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
+    params$fleet_ab_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_ab <- 1000000
+    params$fleet_bc_a <- c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0)
+    params$fleet_bc_b <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$fleet_bc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
+    params$amount_bc <- 50
+    params$understocking_power <- 1
+    params$years <- 1
+    params$x<-1.0
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(r, vec.len = 10000)
@@ -373,18 +376,19 @@ ok_group("Overconsumption", {
 })
 
 ok_group("run_f disabling", {
-    params <- list(
-        fleet_ab_a = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        fleet_ab_b = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        fleet_ab_c = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        amount_ab = 10,
-        fleet_bc_a = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        fleet_bc_b = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        fleet_bc_c = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-        amount_bc = 10,
-        understocking_power = 1,
-        years = 4,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$fleet_ab_a <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$fleet_ab_b <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$fleet_ab_c <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$amount_ab <- 10
+    params$fleet_bc_a <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$fleet_bc_b <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$fleet_bc_c <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    params$amount_bc <- 10
+    params$understocking_power <- 1
+    params$years <- 4
+    params$x<-1.0
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)

@@ -44,23 +44,24 @@ actions <- list(
                 g3_report(stock_wonky__plusdl)
             })
 
-            nll <- nll + g3_param('x')
+            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         })))
-params <- list(x=1.0)
+
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
-result <- model_fn(params)
-r <- attributes(result)
-
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
     model_cpp <- c()
 }
+
+params <- attr(model_fn, 'parameter_template')
+result <- model_fn(params)
+r <- attributes(result)
 
 # We populated min/mean/dl
 ok(ut_cmp_identical(

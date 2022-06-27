@@ -14,24 +14,24 @@ actions <- list(
     g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
     g3a_initialconditions_normalparam(stock_b,
-        factor_f = ~g3_param("init.factor"),
-        mean_f = ~g3_param("init.mean"),
-        stddev_f = ~g3_param("init.stddev"),
-        alpha_f = ~g3_param("init.walpha"),
-        beta_f = ~g3_param("init.wbeta")),
+        factor_f = ~g3_param("init.factor", value = 10),
+        mean_f = ~g3_param("init.mean", value = 50),
+        stddev_f = ~g3_param("init.stddev", value = 10),
+        alpha_f = ~g3_param("init.walpha", value = 3e-6),
+        beta_f = ~g3_param("init.wbeta", value = 3)),
     g3a_renewal_normalparam(stock_b,
-        factor_f = ~g3_param("renewal.factor"),
-        mean_f = ~g3_param("renewal.mean"),
-        stddev_f = ~g3_param("renewal.stddev"),
-        alpha_f = ~g3_param("renewal.walpha"),
-        beta_f = ~g3_param("renewal.wbeta"),
+        factor_f = ~g3_param("renewal.factor", value = 10),
+        mean_f = ~g3_param("renewal.mean", value = 50),
+        stddev_f = ~g3_param("renewal.stddev", value = 10),
+        alpha_f = ~g3_param("renewal.walpha", value = 3e-3),
+        beta_f = ~g3_param("renewal.wbeta", value = 3),
         run_f = ~age == 5),
     g3a_renewal_normalparam(stock_b,
-        factor_f = ~g3_param("renewal.factor") * 0.000001,
-        mean_f = ~g3_param("renewal.mean"),
-        stddev_f = ~g3_param("renewal.stddev"),
-        alpha_f = ~g3_param("renewal.walpha") * 0.000001,
-        beta_f = ~g3_param("renewal.wbeta") * 0.0001,
+        factor_f = ~g3_param("renewal.factor", value = 10) * 0.000001,
+        mean_f = ~g3_param("renewal.mean", value = 50),
+        stddev_f = ~g3_param("renewal.stddev", value = 10),
+        alpha_f = ~g3_param("renewal.walpha", value = 3e-3) * 0.000001,
+        beta_f = ~g3_param("renewal.wbeta", value = 3) * 0.0001,
         run_f = ~age == 7),
     g3a_report_stock(stock_b_report, stock_b, ~stock_ss(stock_b__num)),
     g3a_report_stock(stock_b_report, stock_b, ~stock_ss(stock_b__wgt)),
@@ -42,31 +42,21 @@ actions <- list(
             g3_report(stock_a__wgt)
             g3_report(stock_ac__wgt)
 
-            nll <- nll + g3_param('x')
+            nll <- nll + g3_param('x', value = 1.0)
         }))
-params <- list(
-    init.factor = 10,
-    init.mean = 50,
-    init.stddev = 10,
-    init.walpha = 3e-6,
-    init.wbeta = 3,
-    renewal.factor = 10,
-    renewal.mean = 50,
-    renewal.stddev = 10,
-    renewal.walpha = 3e-3,
-    renewal.wbeta = 3,
-    x=1.0)
+
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
+params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
 r <- attributes(result)
 #str(as.list(r), vec.len = 10000)

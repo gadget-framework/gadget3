@@ -52,25 +52,23 @@ actions <- list(
             g3_report(step3_prey_a__num)
             g3_report(step3_prey_a__wgt)
 
-            nll <- nll + g3_param('x')
+            nll <- nll + g3_param('x', value = 1.0)
         }))
-params <- list(
-    x=1.0)
 
 # Compile model
-model_fn <- g3_to_r(actions, trace = FALSE)
+model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
 ok_group("natural mortality", {
-    params <- list(
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)

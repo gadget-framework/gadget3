@@ -30,7 +30,7 @@ stock_modelyear__num <- gadget3:::stock_instance(stock_modelyear, 0)
 stock_modeltime_iterator <- 100
 
 actions <- list(
-    g3a_time(2000, 2004, step_lengths = c(6,6), project_years = ~g3_param('projectyears')),
+    g3a_time(2000, 2004, step_lengths = c(6,6), project_years = ~g3_param('projectyears', value = 0)),
     list(
         "500:stock_time" = gadget3:::g3_step(~{
             stock_iterate(stock_timeyear, stock_ss(stock_timeyear__num) <- stock_ss(stock_timeyear__num) + stock_modeltime_iterator)
@@ -43,11 +43,8 @@ actions <- list(
         }),
         "999" = ~{
             stock_modeltime_iterator <- stock_modeltime_iterator + 1
-            nll <- g3_param('nll')
+            nll <- g3_param('nll', value = 1)
         }))
-params <- list(
-    projectyears = 0,
-    nll = 1.0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -55,12 +52,13 @@ model_fn <- g3_to_r(actions, trace = FALSE)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
 ok_group("g3s_modeltime", {
+    params <- attr(model_fn, 'parameter_template')
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)
@@ -102,9 +100,10 @@ ok_group("g3s_modeltime", {
 })
 
 ok_group("g3s_modeltime:project", {
-    params <- list(
-        projectyears = 2,
-        nll = 1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$projectyears <- 2
+    params$nll <- 1.0
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)

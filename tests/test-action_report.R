@@ -29,10 +29,8 @@ actions <- list(
     g3a_age(prey_a),
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num)),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
-    list('999' = ~{ nll <- nll + g3_param('x') }))
+    list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
 actions <- c(actions, list(g3a_report_history(actions)))
-params <- list(
-    x=1.0)
             
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -40,14 +38,13 @@ model_fn <- g3_to_r(actions, trace = FALSE)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
 ok_group("report", {
-    params <- list(
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)

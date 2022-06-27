@@ -42,7 +42,7 @@ actions <- list(
         catchability_f = g3a_predate_catchability_quotafleet(
             data.frame(
                 biomass = c(100, Inf),
-                quota = I(list(~g3_param('quota.low'), ~g3_param('quota.high')))),
+                quota = I(list(~g3_param('quota.low', value = 1000), ~g3_param('quota.high', value = 9000)))),
             E = 10,
             recalc_f = ~cur_step == 1)),
     g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__num)),
@@ -70,10 +70,6 @@ actions <- list(
 
     g3a_report_stock(report_quotafleet, fleet_quotafleet, ~stock_ss(fleet_quotafleet__catch)),
     list())
-params <- list(
-    quota.low = 1000,
-    quota.high = 9000,
-    x=1.0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -87,6 +83,8 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 ok_group("Catchability", {
+    params <- attr(model_fn, 'parameter_template')
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)

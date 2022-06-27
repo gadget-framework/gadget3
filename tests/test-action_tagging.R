@@ -10,7 +10,7 @@ prey_a <- g3_stock('prey_a', seq(1, 10)) %>% g3s_tag(tags)
 fleet_a <- g3_fleet('fleet_a')
 
 actions <- list(
-    g3a_time(2000, ~2000 + g3_param('years') - 1, step_lengths = c(6,6), project_years = 0),
+    g3a_time(2000, ~2000 + g3_param('years', value = 1) - 1, step_lengths = c(6,6), project_years = 0),
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_predate_tagrelease(
         fleet_a,
@@ -18,27 +18,21 @@ actions <- list(
         suitabilities = list(
             prey_a = 1),
         catchability_f = g3a_predate_catchability_numberfleet(~100),
-        mortality_f = g3_suitability_straightline(~g3_param('mort_alpha'), ~g3_param('mort_beta')),
+        # NB: 1000 enough to disable mortality
+        mortality_f = g3_suitability_straightline(~g3_param('mort_alpha', value = 1000), ~g3_param('mort_beta', value = 0)),
         output_tag_f = g3_timeareadata('fleet_a_tags', data.frame(
             year = c(2000, 2001),
             tag = tags[c('H1-00', 'H1-01')],
             stringsAsFactors = FALSE), value_field = "tag"),
-        run_f = ~cur_step == 2 && cur_year < g3_param('harvest_end')),
+        run_f = ~cur_step == 2 && cur_year < g3_param('harvest_end', value = 2999)),
     g3a_tag_shedding(
         list(prey_a),
         tagshed_f = log(8),  # i.e. 0.125 will loose their tag
-        run_f = ~cur_year >= g3_param('tagshed_start')),
+        run_f = ~cur_year >= g3_param('tagshed_start', value = 2999)),
     list())
 actions <- c(actions, list(
     g3a_report_history(actions, "prey_.*__fleet_.*"),
     g3a_report_history(actions)))
-params <- list(
-    years = 1,
-    mort_alpha = 1000,  # NB: Enough to disable mortality
-    mort_beta = 0,
-    harvest_end = 2999,
-    tagshed_start = 2999,
-    x=1.0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -46,20 +40,19 @@ model_fn <- g3_to_r(actions, trace = FALSE)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"), output_script = FALSE)
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = FALSE)
     #writeLines(TMB::gdbsource(model_tmb))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
 ok_group("tagging without mortality", {
-    params <- list(
-        years = 5,
-        mort_alpha = 1000,  # NB: Enough to disable mortality
-        mort_beta = 0,
-        harvest_end = 2999,
-        tagshed_start = 2999,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$years <- 5
+    params$mort_alpha <- 1000  # NB: Enough to disable mortality
+    params$mort_beta <- 0
+    params$harvest_end <- 2999
+    params$tagshed_start <- 2999
     result <- model_fn(params)
     # str(as.list(r), vec.len = 10000)
 
@@ -106,13 +99,12 @@ ok_group("tagging without mortality", {
 })
 
 ok_group("tagging with mortality", {
-    params <- list(
-        years = 5,
-        mort_alpha = log(4),  # NB: i.e. 0.25 tagged will die
-        mort_beta = 0,
-        harvest_end = 2999,
-        tagshed_start = 2999,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$years <- 5
+    params$mort_alpha <- log(4)  # NB: i.e. 0.25 tagged will die
+    params$mort_beta <- 0
+    params$harvest_end <- 2999
+    params$tagshed_start <- 2999
     result <- model_fn(params)
     # str(as.list(r), vec.len = 10000)
 
@@ -156,13 +148,12 @@ ok_group("tagging with mortality", {
 })
 
 ok_group("tag shedding", {
-    params <- list(
-        years = 5,
-        mort_alpha = 1000,  # NB: Enough to disable mortality
-        mort_beta = 0,
-        harvest_end = 2001,
-        tagshed_start = 2003,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$years <- 5
+    params$mort_alpha <- 1000  # NB: Enough to disable mortality
+    params$mort_beta <- 0
+    params$harvest_end <- 2001
+    params$tagshed_start <- 2003
     result <- model_fn(params)
     # str(as.list(r), vec.len = 10000)
 

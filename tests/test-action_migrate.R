@@ -39,33 +39,32 @@ ok_group("g3a_migrate", {
         g3a_migrate(
             stock_acd,
             # TODO: Can we name our areas here?
-            ~if (area == 4 && dest_area == 1) g3_param("migrate_spring") else 0,
+            # 0.6324555 == sqrt(0.4)
+            ~if (area == 4 && dest_area == 1) g3_param("migrate_spring", value = 0.6324555320336759) else 0,
             run_f = ~cur_step == 2),
         g3a_migrate(
             stock_acd,
-            ~if (area == 1 && dest_area == 3) g3_param("migrate_winter")
-              else if (area == 3 && dest_area == 4) g3_param("migrate_winter")
+            ~if (area == 1 && dest_area == 3) g3_param("migrate_winter", value = 0.7745966692414834)
+              else if (area == 3 && dest_area == 4) g3_param("migrate_winter", value = 0.7745966692414834)
               else 0,
             run_f = ~cur_step == 4),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__wgt)),
         list())
-    params <- list(
-        migrate_spring = sqrt(0.4),  # NB: Defeat x^2 normalisation
-        migrate_winter = sqrt(0.6),
-        x=1.0)
-    model_fn <- g3_to_r(actions)
-    # model_fn <- edit(model_fn)
-    result <- model_fn(params)
 
     # Compile model
+    model_fn <- g3_to_r(actions)
+    # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions, trace = FALSE)
         # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
     } else {
         writeLines("# skip: not compiling TMB model")
     }
+
+    params <- attr(model_fn, 'parameter_template')
+    result <- model_fn(params)
 
     # Make sure the model produces identical output in TMB and R
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

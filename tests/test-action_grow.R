@@ -75,28 +75,20 @@ ok_group("g3a_grow_impl_bbinom:zero-growth", {
 ok_group("g3a_grow_impl_bbinom", {
     actions <- list(  # dmu, lengthgrouplen, binn, beta
         g3a_time(2000, 2001, project_years = 0),
-        g3a_initialconditions(teststock, ~g3_param_vector("initial"), ~0 * teststock__minlen),
+        g3a_initialconditions(teststock, ~g3_param_vector("initial", value = c(10, 100, 1000, 1000, 10000, 100000)), ~0 * teststock__minlen),
         g3a_growmature(teststock,
             impl_f = g3a_grow_impl_bbinom(
-                delta_len_f = g3a_grow_lengthvbsimple(~g3_param('linf'), ~g3_param('kappa')),
-                delta_wgt_f = g3a_grow_weightsimple(~g3_param('walpha'), ~g3_param('wbeta')),
-                beta = ~g3_param('beta'),
+                delta_len_f = g3a_grow_lengthvbsimple(~g3_param('linf', value = 160), ~g3_param('kappa', value = 90)),
+                delta_wgt_f = g3a_grow_weightsimple(~g3_param('walpha', value = 3), ~g3_param('wbeta', value = 2)),
+                beta = ~g3_param('beta', value = 30),
                 maxlengthgroupgrowth = 4)),
         list(
             "999" = ~{
                 g3_report("teststock__growth_l")
                 g3_report("teststock__growth_w")
-                nll <- nll + g3_param('x')
+                nll <- nll + g3_param('x', value = 1.0)
                 return(nll)
             }))
-    params <- list(
-        linf = 160,
-        kappa = 90,
-        walpha = 3,
-        wbeta = 2,
-        beta = 30,
-        initial = c(10, 100, 1000, 1000, 10000, 100000),
-        x = 1.0)
 
     # Compile model
     # NB: Growth not valid, but not testing growth at this point
@@ -105,11 +97,12 @@ ok_group("g3a_grow_impl_bbinom", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
         # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        model_tmb <- g3_tmb_adfun(model_cpp,  attr(model_fn, 'parameter_template'), compile_flags = c("-O0", "-g"))
     } else {
         writeLines("# skip: not compiling TMB model")
     }
 
+    params <- attr(model_fn, 'parameter_template')
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -135,14 +128,13 @@ ok_group("g3a_grow_impl_bbinom", {
 
     # Try comparing with a few different inputs
     for (x in 1:10) ok_group("g3a_grow_impl_bbinom random params", {
-        params <- list(
-            linf = runif(1, 100, 200),
-            kappa = runif(1, 50, 100),
-            walpha = runif(1, 0.1, 3),
-            wbeta = runif(1, 0.1, 2),
-            beta = runif(1, 10, 30),
-            initial = runif(6, 1000, 9000),
-            x = 1.0)
+        params <- attr(model_fn, 'parameter_template')
+        params$linf <- runif(1, 100, 200)
+        params$kappa <- runif(1, 50, 100)
+        params$walpha <- runif(1, 0.1, 3)
+        params$wbeta <- runif(1, 0.1, 2)
+        params$beta <- runif(1, 10, 30)
+        params$initial <- runif(6, 1000, 9000)
         if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             param_template <- attr(model_cpp, "parameter_template")
             param_template$value <- params[param_template$switch]
@@ -169,12 +161,11 @@ ok_group("g3a_growmature", {
                 nll <- nll + g3_param('x')
                 return(nll)
             }))
-    params <- list(
-        initial_num = c(10, 100, 1000, 1000, 10000, 100000),
-        initial_wgt = c(100, 200, 300, 400, 500, 600),
-        growth_matrix = array(dim = c(6, 7)),
-        weight_matrix = array(0, dim = c(6, 7)),
-        x = 1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$initial_num <- c(10, 100, 1000, 1000, 10000, 100000)
+    params$initial_wgt <- c(100, 200, 300, 400, 500, 600)
+    params$growth_matrix <- array(dim = c(6, 7))
+    params$weight_matrix <- array(0, dim = c(6, 7))
 
     # Compile model
     # NB: Our tests don't preserve counts, so we can't enable strict here
@@ -197,12 +188,11 @@ ok_group("g3a_growmature", {
         0,    0, 0,   0, 0.5, 0,  # +4
         0,    0, 0,   0,   0, 0,  # +5
         0,    0, 0, 0.5,   0, 0), dim = c(6,7))
-    params <- list(
-        initial_num = c(10, 100, 1000, 1000, 10000, 100000),
-        initial_wgt = c(100, 200, 300, 400, 500, 600),
-        growth_matrix = gm,
-        weight_matrix = array(0, dim = c(6, 7)),
-        x = 1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$initial_num <- c(10, 100, 1000, 1000, 10000, 100000)
+    params$initial_wgt <- c(100, 200, 300, 400, 500, 600)
+    params$growth_matrix <- gm
+    params$weight_matrix <- array(0, dim = c(6, 7))
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)

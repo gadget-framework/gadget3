@@ -85,22 +85,22 @@ ok_group('g3a_mature', {
                 nll <- nll + g3_param('x')
                 return(nll)
             }))
-    params <- list(
-        imm_init_num = c(101, 102, 103, 104),
-        imm_init_wgt = c(1, 2, 3, 4),
-        maturity = c(0, 0, 1, 0),
-        mat1_init_num = c(10, 20, 30, 40),
-        mat1_init_wgt = c(9, 8, 7, 6),
-        mat2_init_num = c(0, 0, 0, 0),
-        mat2_init_wgt = c(0, 0, 0, 0),
-        ratio_mat1 = 0.5,
-        ratio_mat2 = 0.5,
-        run_f = 1,  # TODO: if(param) is naughty
-        x=1.0)
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)
     # model_fn <- edit(model_fn)
+    params <- attr(model_fn, 'parameter_template')
+    params$imm_init_num <- c(101, 102, 103, 104)
+    params$imm_init_wgt <- c(1, 2, 3, 4)
+    params$maturity <- c(0, 0, 1, 0)
+    params$mat1_init_num <- c(10, 20, 30, 40)
+    params$mat1_init_wgt <- c(9, 8, 7, 6)
+    params$mat2_init_num <- c(0, 0, 0, 0)
+    params$mat2_init_wgt <- c(0, 0, 0, 0)
+    params$ratio_mat1 <- 0.5
+    params$ratio_mat2 <- 0.5
+    params$run_f <- 1  # TODO: if(param) is naughty
+
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions, trace = FALSE)
         # model_cpp <- edit(model_cpp)
@@ -110,18 +110,18 @@ ok_group('g3a_mature', {
     }
 
     ok_group("Move all of length 30 into mat1/mat2", {
-        params <- list(
-            imm_init_num = c(101, 102, 103, 104),
-            imm_init_wgt = c(1, 2, 3, 4),
-            maturity = c(0, 0, 1, 0),
-            mat1_init_num = c(10, 20, 30, 40),
-            mat1_init_wgt = c(9, 8, 7, 6),
-            mat2_init_num = c(0, 0, 0, 0),
-            mat2_init_wgt = c(0, 0, 0, 0),
-            ratio_mat1 = 0.5,
-            ratio_mat2 = 0.5,
-            run_f = 1,
-            x=1.0)
+        params <- attr(model_fn, 'parameter_template')
+        params$imm_init_num <- c(101, 102, 103, 104)
+        params$imm_init_wgt <- c(1, 2, 3, 4)
+        params$maturity <- c(0, 0, 1, 0)
+        params$mat1_init_num <- c(10, 20, 30, 40)
+        params$mat1_init_wgt <- c(9, 8, 7, 6)
+        params$mat2_init_num <- c(0, 0, 0, 0)
+        params$mat2_init_wgt <- c(0, 0, 0, 0)
+        params$ratio_mat1 <- 0.5
+        params$ratio_mat2 <- 0.5
+        params$run_f <- 1
+
         result <- model_fn(params)
         r <- attributes(result)
         ok(ut_cmp_equal(
@@ -151,18 +151,18 @@ ok_group('g3a_mature', {
     })
 
     ok_group("Move all of length 30 into 90% mat1, 10% mat2", {
-        params <- list(
-            imm_init_num = c(101, 102, 103, 104),
-            imm_init_wgt = c(1, 2, 3, 4),
-            maturity = c(0, 0, 1, 0),
-            mat1_init_num = c(10, 20, 30, 40),
-            mat1_init_wgt = c(9, 8, 7, 6),
-            mat2_init_num = c(0, 0, 0, 0),
-            mat2_init_wgt = c(0, 0, 0, 0),
-            ratio_mat1 = 0.9,
-            ratio_mat2 = 0.1,
-            run_f = 1,
-            x=1.0)
+        params <- attr(model_fn, 'parameter_template')
+        params$imm_init_num <- c(101, 102, 103, 104)
+        params$imm_init_wgt <- c(1, 2, 3, 4)
+        params$maturity <- c(0, 0, 1, 0)
+        params$mat1_init_num <- c(10, 20, 30, 40)
+        params$mat1_init_wgt <- c(9, 8, 7, 6)
+        params$mat2_init_num <- c(0, 0, 0, 0)
+        params$mat2_init_wgt <- c(0, 0, 0, 0)
+        params$ratio_mat1 <- 0.9
+        params$ratio_mat2 <- 0.1
+        params$run_f <- 1
+
         result <- model_fn(params)
         r <- attributes(result)
         ok(ut_cmp_equal(
@@ -183,18 +183,18 @@ ok_group('g3a_mature', {
     })
 
     ok_group("Move 50% of length 30, 75% of length 40", {
-        params <- list(
-            imm_init_num = c(101, 102, 103, 104),
-            imm_init_wgt = c(1, 2, 3, 4),
-            maturity = c(0, 0, 0.5, 0.75),
-            mat1_init_num = c(10, 20, 30, 40),
-            mat1_init_wgt = c(9, 8, 7, 6),
-            mat2_init_num = c(0, 0, 0, 0),
-            mat2_init_wgt = c(0, 0, 0, 0),
-            ratio_mat1 = 0.5,
-            ratio_mat2 = 0.5,
-            run_f = 1,
-            x=1.0)
+        params <- attr(model_fn, 'parameter_template')
+        params$imm_init_num <- c(101, 102, 103, 104)
+        params$imm_init_wgt <- c(1, 2, 3, 4)
+        params$maturity <- c(0, 0, 0.5, 0.75)
+        params$mat1_init_num <- c(10, 20, 30, 40)
+        params$mat1_init_wgt <- c(9, 8, 7, 6)
+        params$mat2_init_num <- c(0, 0, 0, 0)
+        params$mat2_init_wgt <- c(0, 0, 0, 0)
+        params$ratio_mat1 <- 0.5
+        params$ratio_mat2 <- 0.5
+        params$run_f <- 1
+
         result <- model_fn(params)
         r <- attributes(result)
         ok(ut_cmp_equal(
@@ -215,18 +215,18 @@ ok_group('g3a_mature', {
     })
 
     ok_group("Disable with run_f = 0", {
-        params <- list(
-            imm_init_num = c(101, 102, 103, 104),
-            imm_init_wgt = c(1, 2, 3, 4),
-            maturity = c(0, 0, 0.5, 0.75),
-            mat1_init_num = c(10, 20, 30, 40),
-            mat1_init_wgt = c(9, 8, 7, 6),
-            mat2_init_num = c(0, 0, 0, 0),
-            mat2_init_wgt = c(0, 0, 0, 0),
-            ratio_mat1 = 0.5,
-            ratio_mat2 = 0.5,
-            run_f = 0,  # NB: Turned off
-            x=1.0)
+        params <- attr(model_fn, 'parameter_template')
+        params$imm_init_num <- c(101, 102, 103, 104)
+        params$imm_init_wgt <- c(1, 2, 3, 4)
+        params$maturity <- c(0, 0, 0.5, 0.75)
+        params$mat1_init_num <- c(10, 20, 30, 40)
+        params$mat1_init_wgt <- c(9, 8, 7, 6)
+        params$mat2_init_num <- c(0, 0, 0, 0)
+        params$mat2_init_wgt <- c(0, 0, 0, 0)
+        params$ratio_mat1 <- 0.5
+        params$ratio_mat2 <- 0.5
+        params$run_f <- 0  # NB: Turned off
+
         result <- model_fn(params)
         r <- attributes(result)
         ok(ut_cmp_equal(

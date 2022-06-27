@@ -52,10 +52,10 @@ attr(all_cur_year_projection, 'dynamic_dim') <- list(quote(as_integer(total_step
 
 actions <- list(
     g3a_time(
-        start_year = ~as_integer(g3_param('p_start_year')),
-        end_year = ~as_integer(g3_param('p_end_year')),
+        start_year = ~as_integer(g3_param('p_start_year', value = 1990)),
+        end_year = ~as_integer(g3_param('p_end_year', value = 1997)),
         step_lengths = ~g3_param_vector('step_lengths'),
-        final_year_steps = ~as_integer(g3_param('final_year_steps'))),
+        final_year_steps = ~as_integer(g3_param('final_year_steps', value = 3))),
     list(
         '999' = ~{
             all_time[g3_idx(cur_time + 1)] <- cur_time
@@ -66,21 +66,15 @@ actions <- list(
             all_cur_year_projection[g3_idx(cur_time + 1)] <- cur_year_projection
             g3_report(total_years)
 
-            nll <- nll + g3_param('x')  # ...or TMB falls over
+            nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over
         }))
-params <- list(
-    p_start_year = 1990,
-    p_end_year = 1997,
-    project_years = 0,
-    step_lengths = c(3,3,6),
-    final_year_steps = 3,
-    x=1.0)
+
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
-result <- model_fn(params)
-# str(r)
-
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    params <- attr(model_fn, 'parameter_template')
+    params$step_lengths <- c(3,3,6)
+
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
@@ -88,6 +82,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     writeLines("# skip: not compiling TMB model")
     model_cpp <- c()
 }
+
+params <- attr(model_fn, 'parameter_template')
+params$step_lengths <- c(3,3,6)
+result <- model_fn(params)
 
 ok(ut_cmp_identical(
     as.vector(attr(result, 'all_time')),
@@ -120,13 +118,12 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 ok_group('even steps', {
-    params <- list(
-        p_start_year = 1992,
-        p_end_year = 1999,
-        step_lengths = c(4,4,4),
-        final_year_steps = 3,
-        project_years = 0,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$final_year_steps <- 3
+    params$project_years <- 0
     result <- model_fn(params)
     # str(r)
 
@@ -162,13 +159,12 @@ ok_group('even steps', {
 })
 
 ok_group("projection: Project_years = 4", {
-    params <- list(
-        p_start_year = 1992,
-        p_end_year = 1999,
-        step_lengths = c(4,4,4),
-        final_year_steps = 3,
-        project_years = 4,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$final_year_steps <- 3
+    params$project_years <- 4
     result <- model_fn(params)
 
     ok(ut_cmp_identical(
@@ -203,13 +199,12 @@ ok_group("projection: Project_years = 4", {
 })
 
 ok_group("projection: Project_years = -3", {
-    params <- list(
-        p_start_year = 1992,
-        p_end_year = 1999,
-        step_lengths = c(4,4,4),
-        final_year_steps = 3,
-        project_years = -3,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$final_year_steps <- 3
+    params$project_years <- -3
     result <- model_fn(params)
 
     ok(ut_cmp_identical(
@@ -244,13 +239,12 @@ ok_group("projection: Project_years = -3", {
 })
 
 ok_group("Short final year: final_year_steps = 1", {
-    params <- list(
-        p_start_year = 1992,
-        p_end_year = 1999,
-        step_lengths = c(4,4,4),
-        final_year_steps = 1,
-        project_years = 0,
-        x=1.0)
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$final_year_steps <- 1
+    params$project_years <- 0
     result <- model_fn(params)
 
     # 1992..1998 whole years, and single step for 1999

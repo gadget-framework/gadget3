@@ -98,12 +98,13 @@ actions <- list(
         }),
         '999' = ~{
             g3_report_all()
-            nll <- nll + g3_param('x')
+            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         }))
-params <- list(x=1.0)
 model_fn <- g3_to_r(actions)
 # model_fn <- edit(model_fn)
+
+params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
 r <- attributes(result)
 
@@ -169,7 +170,7 @@ ok(ut_cmp_identical(
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
     model_tmb_report <- model_tmb$report()
     for (n in names(attributes(result))) {
         ok(ut_cmp_equal(

@@ -35,77 +35,52 @@ actions <- list(
     g3a_time(2000, 2000, step_lengths = c(3, 3, 5, 1), project_years = 0),
     g3a_initialconditions_normalparam(
         input_stock,
-        factor_f = ~ 1 + age * g3_param('factor.age') + area * g3_param('factor.area'),
+        factor_f = ~ 1 + age * g3_param('p_factor.age') + area * g3_param('p_factor.area'),
         mean_f = ~(age * 10) + 30,
         stddev_f = ~25,
         alpha_f = ~0.1,
         beta_f = ~0.2),
     g3a_initialconditions_normalparam(
         pred_stock,
-        factor_f = ~ 1 + age * g3_param('factor.age') + area * g3_param('factor.area'),
+        factor_f = ~ 1 + age * g3_param('p_factor.age') + area * g3_param('p_factor.area'),
         mean_f = ~(age * 10) + 30,
         stddev_f = ~25,
         alpha_f = ~0.1,
         beta_f = ~0.2),
     suit_report_action(fleet_stock, input_stock, g3_suitability_exponentiall50(
-        ~g3_param("exponentiall50.alpha"),
-        ~g3_param("exponentiall50.l50"))),
+        ~g3_param("p_exponentiall50.alpha"),
+        ~g3_param("p_exponentiall50.l50"))),
     suit_report_action(pred_stock, input_stock, g3_suitability_andersen(
-        p0 = ~g3_param("andersen_p0"),
-        p1 = ~g3_param("andersen_p1"),
-        p2 = ~g3_param("andersen_p2"),
-        p4 = ~g3_param("andersen_p4"))),
+        p0 = ~g3_param("p_andersen_p0"),
+        p1 = ~g3_param("p_andersen_p1"),
+        p2 = ~g3_param("p_andersen_p2"),
+        p4 = ~g3_param("p_andersen_p4"))),
     suit_report_action(fleet_stock, input_stock, g3_suitability_gamma(
-        ~g3_param("gamma_alpha"),
-        ~g3_param("gamma_beta"),
-        ~g3_param("gamma_gamma"))),
+        ~g3_param("p_gamma_alpha"),
+        ~g3_param("p_gamma_beta"),
+        ~g3_param("p_gamma_gamma"))),
     suit_report_action(pred_stock, input_stock, g3_suitability_exponential(
-        ~g3_param("exponential_alpha"),
-        ~g3_param("exponential_beta"),
-        ~g3_param("exponential_gamma"),
-        ~g3_param("exponential_delta"))),
+        ~g3_param("p_exponential_alpha"),
+        ~g3_param("p_exponential_beta"),
+        ~g3_param("p_exponential_gamma"),
+        ~g3_param("p_exponential_delta"))),
     suit_report_action(fleet_stock, input_stock, g3_suitability_straightline(
-        ~g3_param("straightline_alpha"),
-        ~g3_param("straightline_beta"))),
+        ~g3_param("p_straightline_alpha"),
+        ~g3_param("p_straightline_beta"))),
     suit_report_action(fleet_stock, input_stock, g3_suitability_constant(
-        ~g3_param("constant_alpha"))),
+        ~g3_param("p_constant_alpha"))),
     suit_report_action(pred_stock, input_stock, g3_suitability_richards(
-        ~g3_param("richards_p0"),
-        ~g3_param("richards_p1"),
-        ~g3_param("richards_p2"),
-        ~g3_param("richards_p3"),
-        ~g3_param("richards_p4"))),
+        ~g3_param("p_richards_p0"),
+        ~g3_param("p_richards_p1"),
+        ~g3_param("p_richards_p2"),
+        ~g3_param("p_richards_p3"),
+        ~g3_param("p_richards_p4"))),
     list('999' = ~{
         g3_report(input_stock__num)
         g3_report(input_stock__wgt)
         g3_report(input_stock__midlen)
-        nll <- g3_param('x')
+        nll <- g3_param('x', value = 1.0)
     }))
-default_params <- list(
-    factor.age = 0,
-    factor.area = 0,
-    exponentiall50.alpha = 0,
-    exponentiall50.l50 = 0,
-    andersen_p0 = 0,
-    andersen_p1 = 0,
-    andersen_p2 = 0,
-    andersen_p4 = 0,
-    gamma_alpha = 0,
-    gamma_beta = 0,
-    gamma_gamma = 0,
-    exponential_alpha = 0,
-    exponential_beta = 0,
-    exponential_gamma = 0,
-    exponential_delta = 0,
-    straightline_alpha = 0,
-    straightline_beta = 0,
-    constant_alpha = 0,
-    richards_p0 = 0,
-    richards_p1 = 0,
-    richards_p2 = 0,
-    richards_p3 = 0,
-    richards_p4 = 0,
-    x=1.0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = TRUE)
@@ -113,18 +88,17 @@ model_fn <- g3_to_r(actions, trace = TRUE)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, default_params, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
 } else {
     writeLines("# skip: not compiling TMB model")
 }
 
 ok_group("exponentiall50", {
-    params <- c(list(
-        factor.age = 1,  # Abundance increases with age
-        exponentiall50.alpha = 0.1,
-        exponentiall50.l50 = 50,
-        x=1.0), default_params)
-    params <- params[!duplicated(names(params))]
+    params <- attr(model_fn, 'parameter_template')
+    params$p_factor.age <- 1  # Abundance increases with age
+    params$p_exponentiall50.alpha <- 0.1
+    params$p_exponentiall50.l50 <- 50
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)
@@ -142,8 +116,12 @@ ok_group("exponentiall50", {
 })
 
 ok_group("compare_all", {
-    params <- lapply(default_params, function (x) runif(1, min=0.1, max=0.9))
-    params <- params[!duplicated(names(params))]
+    params <- attr(model_fn, 'parameter_template')
+    params[startsWith('p_', names(params))] <- runif(
+        sum(startsWith('p_', names(params))),
+        min=0.1,
+        max=0.9)
+
     result <- model_fn(params)
     r <- attributes(result)
     # str(result)

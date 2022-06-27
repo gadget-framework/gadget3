@@ -141,45 +141,45 @@ ok_group('g3a_spawn', {
       recruitment_f_actions,
       time_actions)
 
-    params <- list(
-        "lingimm.init" =     0,
-        "lingimm.init.scalar" = 0,
-        "lingimm.rec.scalar" = 100,
-        "lingimm.M" = 0,
-        "lingimm.walpha" = 1e-1,
-        "lingimm.wbeta" = 2,
-        "lingmat.init" = 1,
-        "lingmat.init.scalar" = 100,
-        "lingmat.rec.scalar" = 100,
-        "lingmat.M" = 0.95,
-        "lingmat.walpha" = 1e-6,
-        "lingmat.wbeta" = 2,
-        "ling.init.F" = 0.4,
-        "ling.mat.alpha" = 0.01,
-        "ling.mat.l50" = 75,
-        "ling.mat.beta" = 0.01,
-        "ling.mat.a50" = 7,
-        "ling.Linf" = 160,
-        "ling.bbin" = 6,
-        "ling.k" = 10,
-        "ricker.mu" = 1,
-        "ricker.lambda" = 1e-6,
-        "spawn.prop.alpha" = 0.5,
-        "spawn.prop.l50" = 120,
-        "spawn.mort.alpha" = 0,
-        "spawn.mort.beta" = 0,
-        "spawn.weightloss" = 0.1)
-
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)
     # model_fn <- edit(model_fn)
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions, trace = FALSE)
         # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
     } else {
         writeLines("# skip: not compiling TMB model")
     }
+
+    params <- attr(model_fn, 'parameter_template')
+    params$lingimm.init <- 0
+    params$lingimm.init.scalar <- 0
+    params$lingimm.rec.scalar <- 100
+    params$lingimm.M <- 0
+    params$lingimm.walpha <- 1e-1
+    params$lingimm.wbeta <- 2
+    params$lingmat.init <- 1
+    params$lingmat.init.scalar <- 100
+    params$lingmat.rec.scalar <- 100
+    params$lingmat.M <- 0.95
+    params$lingmat.walpha <- 1e-6
+    params$lingmat.wbeta <- 2
+    params$ling.init.F <- 0.4
+    params$ling.mat.alpha <- 0.01
+    params$ling.mat.l50 <- 75
+    params$ling.mat.beta <- 0.01
+    params$ling.mat.a50 <- 7
+    params$ling.Linf <- 160
+    params$ling.bbin <- 6
+    params$ling.k <- 10
+    params$ricker.mu <- 1
+    params$ricker.lambda <- 1e-6
+    params$spawn.prop.alpha <- 0.5
+    params$spawn.prop.l50 <- 120
+    params$spawn.mort.alpha <- 0
+    params$spawn.mort.beta <- 0
+    params$spawn.weightloss <- 0.1
 
     # Make sure the inttest model produces identical output in TMB and R
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
