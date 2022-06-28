@@ -208,7 +208,7 @@ ok_group('g3_tmb_relist', {
 })
 
 ok_group('g3_param', {
-    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, project_years = 0), ~{
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
         g3_param('a')
         g3_param('b', value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
     })), 'parameter_template')
@@ -228,7 +228,7 @@ ok_group('g3_param', {
 })
 
 ok_group('g3_param_table', {
-    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, step_lengths = c(3,3,3,3), project_years = 0), ~{
+    param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, step_lengths = c(3,3,3,3)), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
             cur_step = 2:3))
@@ -277,7 +277,7 @@ ok_group("g3_to_tmb: Can use random parameters", local({
 
     # Make sure we can use random = TRUE in an action, specifying TMB arguments correctly
     actions <- c(
-        g3a_time(1990, 1992, project_years = 0),
+        g3a_time(1990, 1992),
         list("010:g3l_custom" = gadget3:::f_substitute(~if (cur_step_final) {
             nll <- nll + dnorm(x, stock__prevrec, sigma, 1)
             stock__prevrec <- x
@@ -290,7 +290,7 @@ ok_group("g3_to_tmb: Can use random parameters", local({
 
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     param_tbl <- attr(model_cpp, 'parameter_template')
-    param_tbl$value <- lapply(param_tbl$value, function (x) runif(1))
+    param_tbl[grepl('^rp|^sigma$', rownames(param_tbl)), 'value'] <- runif(sum(grepl('^rp|^sigma$', rownames(param_tbl))))
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_tmb <- g3_tmb_adfun(model_cpp, param_tbl, compile_flags = c("-O0", "-g"))
