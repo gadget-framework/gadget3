@@ -137,8 +137,9 @@
 <span class="r-in"><span><span class="va">fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">fn</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run the model for provided parameters</span></span></span>
-<span class="r-in"><span><span class="va">nll</span> <span class="op">&lt;-</span> <span class="fu">fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="co"># Run the model with the provided parameters</span></span></span>
+<span class="r-in"><span><span class="va">nll</span> <span class="op">&lt;-</span> <span class="fu">fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    project_years <span class="op">=</span> <span class="fl">0</span>,</span></span>
 <span class="r-in"><span>    ling.init.F <span class="op">=</span> <span class="fl">0.4</span>,</span></span>
 <span class="r-in"><span>    ling.Linf <span class="op">=</span> <span class="fl">160</span>,</span></span>
@@ -149,7 +150,9 @@
 <span class="r-in"><span>    lingimm.init.scalar <span class="op">=</span> <span class="fl">200</span>,</span></span>
 <span class="r-in"><span>    lingimm.walpha <span class="op">=</span> <span class="fl">2.27567436711055e-06</span>,</span></span>
 <span class="r-in"><span>    lingimm.wbeta <span class="op">=</span> <span class="fl">3.20200445996187</span>,</span></span>
-<span class="r-in"><span>    lingimm.M <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    lingimm.M <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>,<span class="fl">3</span>,<span class="fl">10</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> <span class="co"># Include defaults for parameters not listed above</span></span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">fn</span>, <span class="st">'parameter_template'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Get the report from the last model run</span></span></span>
 <span class="r-in"><span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="va">nll</span><span class="op">)</span></span></span>
