@@ -198,13 +198,13 @@ ok_group("projection: Project_years = 4", {
     }
 })
 
-ok_group("projection: Project_years = -3", {
+ok_group("projection: retro_years = 3", {
     params <- attr(model_fn, 'parameter_template')
     params$p_start_year <- 1992
     params$p_end_year <- 1999
     params$step_lengths <- c(4,4,4)
     params$final_year_steps <- 3
-    params$project_years <- -3
+    params$retro_years <- 3
     result <- model_fn(params)
 
     ok(ut_cmp_identical(
@@ -233,6 +233,60 @@ ok_group("projection: Project_years = -3", {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
+
+ok_group("retro_years, project_years must have correct sense", {
+    cmp_warn <- function(x, expected_regexp, ...) {
+        last_warn <- NULL
+        rv <- withCallingHandlers(x, warning = function (w) {
+            last_warn <<- w
+            invokeRestart("muffleWarning")
+        })
+        # NB: This would need moving in a generic version
+        ok(ut_cmp_identical(rv, NaN), "Function returned NaN")
+
+        if (is.null(last_warn)) return(c("No warning returned"))
+        if (grepl(expected_regexp, last_warn$message, ...)) {
+            return(TRUE)
+        }
+        return(c(last_warn$message, "Did not match:-", expected_regexp))
+    }
+
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$project_years <- -1
+    ok(cmp_warn({
+        model_fn(params)
+    }, 'project_years'), "project_years: Can't be negative")
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        ok(cmp_warn({
+            result <- model_fn(params)
+        }, 'project_years'), "project_years: Can't be negative")
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$retro_years <- -1
+    ok(cmp_warn({
+        result <- model_fn(params)
+    }, 'retro_years'), "retro_years: Can't be negative")
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        ok(cmp_warn({
+            result <- model_fn(params)
+        }, 'retro_years'), "retro_years: Can't be negative")
     } else {
         writeLines("# skip: not running TMB tests")
     }
@@ -273,6 +327,55 @@ ok_group("Short final year: final_year_steps = 1", {
     ok(ut_cmp_identical(
         attr(result, 'total_years'),
         ceiling(test_total_steps / 3)), "total_years populated (NB: Ignores final_year_steps)")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        param_template <- attr(model_cpp, "parameter_template")
+        param_template$value <- params[param_template$switch]
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    } else {
+        writeLines("# skip: not running TMB tests")
+    }
+})
+
+ok_group("1 year forecast from 2nd retro peel: retro_years = 2, project_years = 1", {
+    params <- attr(model_fn, 'parameter_template')
+    params$p_start_year <- 1992
+    params$p_end_year <- 1999
+    params$step_lengths <- c(4,4,4)
+    params$retro_years <- 2
+    params$project_years <- 1
+    result <- model_fn(params)
+
+    # 1992..1998 whole years (2 less for retro_years, +1 for project years)
+    test_year_steps <- length(params$step_lengths)
+    test_total_steps <- test_year_steps * (
+        params$p_end_year - params$p_start_year + 1 +
+        params$project_years - params$retro_years)
+
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_time')),
+        as.integer(0:(test_total_steps - 1))), "cur_time populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step')),
+        as.integer(frac_rep(c(1,2,3), test_total_steps / 3 ))), "cur_step populated")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'all_step_size')),
+        as.numeric(frac_rep(c(4/12,4/12,4/12), test_total_steps / 3 ))), "cur_step_size populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_year')),
+        as.integer(rep(1992:1998, each = 3))), "cur_year populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_step_final')),
+        frac_rep(c(FALSE, FALSE, TRUE), test_total_steps / 3)), "cur_step_final populated")
+    ok(ut_cmp_identical(
+        as.vector(attr(result, 'all_cur_year_projection')),
+        c(
+            frac_rep(FALSE, test_total_steps - params$project_years * 3 ),
+            frac_rep(TRUE, params$project_years * 3 ),
+            NULL)), "cur_year_projection populated")
+    ok(ut_cmp_identical(
+        attr(result, 'total_years'),
+        ceiling(test_total_steps / 3)), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")

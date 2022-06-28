@@ -10,6 +10,7 @@
 g3a_time(start_year, end_year, step_lengths = as.array(c(12)),
      final_year_steps = quote( length(step_lengths) ),
      project_years = ~g3_param('project_years', default = 0, optimize = FALSE),
+     retro_years = ~g3_param('retro_years', default = 0, optimize = FALSE),
      run_at = 0)
 
 }
@@ -37,10 +38,19 @@ g3a_time(start_year, end_year, step_lengths = as.array(c(12)),
     }
   }
   \item{project_years}{
-    Number of years to continue running after the "end" of the model, or if negative
-    stop early before the end of the model.
+    Number of years to continue running after the "end" of the model. Must be \code{>= 0}
 
     Defaults to an unoptimized \code{project_years} parameter, set to 0 (i.e. no projection).
+    Generally, you would change this parameter in the parameter template, rather than changing here.
+  }
+  \item{retro_years}{
+    Adjust \var{end_year} to finish model early. Must be \code{>= 0}
+    Can be used in conjunction with \var{project_years} to project instead.
+
+    The true end year of the model will be \code{end_year - retro_years + project_years}.
+
+    Defaults to an unoptimized \code{retro_years} parameter, set to 0.
+    Generally, you would change this parameter in the parameter template, rather than changing here.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.

@@ -24,6 +24,7 @@ namespace map_extras {
 
 template<class Type>
 Type objective_function<Type>::operator() () {
+    PARAMETER(retro_years);
     PARAMETER(ling__Linf);
     PARAMETER(ling__k);
     PARAMETER(ling__recl);
@@ -197,7 +198,7 @@ Type objective_function<Type>::operator() () {
     vector<int> step_lengths(4); step_lengths.setConstant(3);
     int end_year = 2018;
     int start_year = 1994;
-    auto total_steps = (step_lengths).size()*(end_year - start_year + 0) + (step_lengths).size() - 1;
+    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
     int cur_year = 0;
     auto step_count = (step_lengths).size();
     auto cur_year_projection = false;
@@ -279,6 +280,9 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_time: Start of time period;
             cur_time += 1;
+            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
+                return NAN;
+            }
             if ( true ) {
                 assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
             }
@@ -329,7 +333,7 @@ Type objective_function<Type>::operator() () {
                 return nll;
             }
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
-            cur_year_projection = cur_year > end_year;
+            cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
         }

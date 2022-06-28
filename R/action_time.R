@@ -14,7 +14,14 @@
 # - cur_step_final: TRUE iff this is the final step of the year
 # - total_steps: Total # of iterations before model stops
 # - total_years: Total # of years before model stops
-g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), final_year_steps = quote( length(step_lengths) ), project_years = ~g3_param('project_years', default = 0, optimize = FALSE), run_at = 0) {
+g3a_time <- function(
+        start_year,
+        end_year,
+        step_lengths = as.array(c(12)),
+        final_year_steps = quote( length(step_lengths) ),
+        project_years = ~g3_param('project_years', default = 0, optimize = FALSE),
+        retro_years = ~g3_param('retro_years', default = 0, optimize = FALSE),
+        run_at = 0) {
     if ("mfdb_group" %in% class(step_lengths)) step_lengths <- vapply(step_lengths, length, numeric(1))
     if (is.numeric(step_lengths) && sum(step_lengths) != 12) stop("step_lengths should sum to 12 (i.e. represent a whole year)")
     if (is.call(step_lengths) && !is.call(final_year_steps)) stop("If step_lengths is a call/formula, final_year_steps should also be a call/formula")
@@ -32,6 +39,7 @@ g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), final
     if (is.call(project_years)) project_years <- g3_global_formula(init_val = project_years)
 
     have_projection_years <- !identical(project_years, 0L)
+    have_retro_years <- !identical(retro_years, 0L)
     step_count <- g3_global_formula(init_val = ~length(step_lengths))
     cur_time <- -1L
     cur_step <- 0L
@@ -42,30 +50,39 @@ g3a_time <- function(start_year, end_year, step_lengths = as.array(c(12)), final
     cur_step_final <- FALSE
     cur_year_projection <- FALSE
     total_steps <- g3_global_formula(init_val = f_substitute(
-        ~length(step_lengths) * (end_year - start_year + project_years) + final_year_steps - 1L,
+        ~length(step_lengths) * (end_year - retro_years - start_year + project_years) + final_year_steps - 1L,
         list(
+            # i.e. hard code a 0L (so it can be optimised out), otherwise include variable
             project_years = if (have_projection_years) quote(project_years) else 0L,
+            retro_years = if (have_retro_years) quote(retro_years) else 0L,
             final_year_steps = final_year_steps )))
     total_years <- g3_global_formula(init_val = f_substitute(
-        ~end_year - start_year + project_years + 1L,
-        list(project_years = if (have_projection_years) quote(project_years) else 0L)))
+        ~end_year - retro_years - start_year + project_years + 1L,
+        list(
+            retro_years = if (have_retro_years) quote (retro_years) else 0L,
+            project_years = if (have_projection_years) quote(project_years) else 0L)))
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{
         debug_label("g3a_time: Start of time period")
         cur_time <- cur_time + 1L
+        if (have_retro_years) if (cur_time == 0 && assert_msg(retro_years >= 0, "retro_years must be >= 0")) return(NaN)
+        if (have_projection_years) if (cur_time == 0 && assert_msg(project_years >= 0, "project_years must be >= 0")) return(NaN)
         if (strict_mode) assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
         if (cur_time > total_steps) {
             g3_report_all()
             return(nll)
         }
         cur_year <- start_year + (cur_time %/% step_count)
-        cur_year_projection <- (cur_year > end_year)
+        cur_year_projection <- (cur_year > end_year - retro_years)
         cur_step <- (cur_time %% step_count) + 1L
         # Don't bother changing step size if it's always the same
         if (uneven_steps) cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
     }, list(
+        retro_years = retro_years,
+        have_projection_years = have_projection_years,
+        have_retro_years = have_retro_years,
         uneven_steps = if(is.numeric(step_lengths)) any(diff(step_lengths) > 0) else TRUE)))
 
     # Make sure variables are defined, even without uneven_steps
