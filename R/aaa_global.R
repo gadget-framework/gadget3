@@ -130,11 +130,15 @@ g3_global_env$print_array <- g3_native(r = function(ar_name, ar) {
     ar.print();
 }')
 
-# Assert w/message
+# Warn with (message) if (expr) is TRUE. NB: Don't actually stop.
+# For a fatal condition, do: if (assert_msg(...)) return(NaN)
+# Which will stop early without TMB bringing down R session
 g3_global_env$assert_msg <- g3_native(r = function(expr, message) {
-    if (isFALSE(expr)) warning(message)
-}, cpp = '[](bool expr, std::string message) -> void {
-    if (!expr) warning(message.c_str());
+    if (isFALSE(expr)) { warning(message) ; return(TRUE) }
+    return(FALSE)
+}, cpp = '[](bool expr, std::string message) -> bool {
+    if (!expr) { warning(message.c_str()); return TRUE; }
+    return FALSE;
 }')
 
 

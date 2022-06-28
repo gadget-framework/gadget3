@@ -47,8 +47,11 @@ structure(function (param)
     stopifnot("ling.rec.2018" %in% names(param))
     stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
     assert_msg <- function(expr, message) {
-        if (isFALSE(expr)) 
+        if (isFALSE(expr)) {
             warning(message)
+            return(TRUE)
+        }
+        return(FALSE)
     }
     intintlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
