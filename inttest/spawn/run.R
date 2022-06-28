@@ -85,9 +85,12 @@ actions <- c(
   time_actions)
 
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
+
 param_table <- read.table('inttest/spawn/params.in', header = TRUE, comment.char = ";")
 params <- as.list(param_table$value)
 names(params) <- param_table$switch
+params <- c(params, attr(model_fn, 'parameter_template'))
+params <- params[!duplicated(names(params))]
 
 # Run gadget3 model
 # model_fn <- edit(model_fn) ; model_fn(params)

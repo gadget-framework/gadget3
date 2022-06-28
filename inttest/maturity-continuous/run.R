@@ -88,6 +88,8 @@ model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
 param_table <- read.table('inttest/maturity-continuous/params.in', header = TRUE)
 params <- as.list(param_table$value)
 names(params) <- param_table$switch
+params <- c(params, attr(model_fn, 'parameter_template'))
+params <- params[!duplicated(names(params))]
 
 # Run gadget3 model
 # model_fn <- edit(model_fn) ; model_fn(params)
