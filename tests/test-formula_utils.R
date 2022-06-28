@@ -159,6 +159,18 @@ ok(ut_cmp_identical(
     gadget3:::f_optimize(~if (x) {woo}),
     ~if (x) woo), "f_optimize: Regular if statement passed through")
 ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 }),
+    ~{}), "f_optimize:if: Removed statement with pointless output codepaths")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { }),
+    ~{}), "f_optimize:if: Removed statement with pointless output codepaths")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { baa }),
+    ~if (x > 3) { } else baa), "f_optimize:if: Don't remove if statment if one codepath is nonempty")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~if (x > 3) { 2 } else { if (FALSE) baa }),
+    ~if (x > 3) 2), "f_optimize:if: Remove else condition if codepath is empty")
+ok(ut_cmp_identical(
     gadget3:::f_optimize(~x * 1 + y),
     ~x + y), "f_optimize: Recurse through arithmetic")
 ok(ut_cmp_identical(

@@ -183,6 +183,9 @@ f_optimize <- function (f) {
 
     call_replace(f,
         "if" = function (x) {
+            # Is (x) === quote({})?
+            is_empty_brace <- function (x) is.call(x) && length(x) == 1 && x[[1]] == quote({})[[1]]
+
             if (is.call(x) && ( isTRUE(x[[2]]) || identical(x[[2]], quote(!FALSE)) )) {
                 # if(TRUE) exp --> exp
                 return(f_optimize(x[[3]]))
@@ -194,7 +197,16 @@ f_optimize <- function (f) {
             # Regular if, descend either side of expression
             x[[2]] <- f_optimize(x[[2]])
             x[[3]] <- f_optimize(x[[3]])
-            if (length(x) > 3) x[[4]] <- f_optimize(x[[4]])
+            if (length(x) > 3) {
+                x[[4]] <- f_optimize(x[[4]])
+
+                # If else condition is empty, remove it
+                if (is_empty_brace(x[[4]])) x[[4]] <- NULL
+            }
+
+            # If codepaths out of if are empty, then if statement is pointless
+            if (length(x) == 3 && is_empty_brace(x[[3]])) return(quote({}))
+
             return(x)
         },
         "g3_with" = function (x) {
