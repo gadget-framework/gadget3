@@ -153,18 +153,17 @@ cpp <- edit(cpp)
 
 # Set initial conditions for parameters
 tmb_param <- attr(cpp, 'parameter_template')
-tmb_param$value <- I(list(
-    project_years = 0,
-    ling.init.F = 0.4,
-    ling.Linf = 160,
-    ling.k = 90,
-    ling.recl = 12,
-    ling.init.sd = rep(50.527220, 21),
-    lingimm.init = rep(1, 15 - 5 + 1),
-    lingimm.init.scalar = 200,
-    lingimm.walpha = 2.27567436711055e-06,
-    lingimm.wbeta = 3.20200445996187,
-    lingimm.M = rep(0.15,3,10))[rownames(tmb_param)])
+tmb_param$value$project_years <- 0
+tmb_param$value$ling.init.F <- 0.4
+tmb_param$value$ling.Linf <- 160
+tmb_param$value$ling.k <- 90
+tmb_param$value$ling.recl <- 12
+tmb_param$value$ling.init.sd <- rep(50.527220, 21)
+tmb_param$value$lingimm.init <- rep(1, 15 - 5 + 1)
+tmb_param$value$lingimm.init.scalar <- 200
+tmb_param$value$lingimm.walpha <- 2.27567436711055e-06
+tmb_param$value$lingimm.wbeta <- 3.20200445996187
+tmb_param$value$lingimm.M <- rep(0.15,3,10)
 
 # We can set lower/upper bounds for multiple properties at once with grepl()
 tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0

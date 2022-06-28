@@ -72,8 +72,9 @@ fn <- g3_to_r(list(initialconditions_action, time_action))
 fn <- edit(fn)
 }
 
-# Run the model for provided parameters
-nll <- fn(list(
+# Run the model with the provided parameters
+nll <- fn(c(
+  list(
     project_years = 0,
     ling.init.F = 0.4,
     ling.Linf = 160,
@@ -84,7 +85,9 @@ nll <- fn(list(
     lingimm.init.scalar = 200,
     lingimm.walpha = 2.27567436711055e-06,
     lingimm.wbeta = 3.20200445996187,
-    lingimm.M = rep(0.15,3,10)))
+    lingimm.M = rep(0.15,3,10)),
+ # Include defaults for parameters not listed above
+ attr(fn, 'parameter_template')))
 
 # Get the report from the last model run
 report <- attributes(nll)
