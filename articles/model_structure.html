@@ -107,7 +107,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x560d1284d6d0&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x561f64920648&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -139,14 +139,14 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x560d179d8d40&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x560d171affa0&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x561f696dec68&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f68eb8608&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
 <span><span class="co">## attr(,"actions")[[1]]</span></span>
 <span><span class="co">## ~cows + pigs</span></span>
-<span><span class="co">## &lt;environment: 0x560d1284d6d0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x561f64920648&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -193,7 +193,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x560d183d6eb0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x561f6a0fb2f8&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -223,6 +223,12 @@
 <span><span class="co">##     cur_year_projection &lt;- FALSE</span></span>
 <span><span class="co">##     cur_step &lt;- 0L</span></span>
 <span><span class="co">##     cur_step_final &lt;- FALSE</span></span>
+<span><span class="co">##     REPORT &lt;- function(var) {</span></span>
+<span><span class="co">##         var_name &lt;- as.character(sys.call()[[2]])</span></span>
+<span><span class="co">##         attr(nll, var_name) &lt;&lt;- if (var_name == "nll") </span></span>
+<span><span class="co">##             as.vector(var)</span></span>
+<span><span class="co">##         else var</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     while (TRUE) {</span></span>
 <span><span class="co">##         {</span></span>
 <span><span class="co">##             comment("g3a_time: Start of time period")</span></span>
@@ -237,11 +243,11 @@
 <span><span class="co">##                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")</span></span>
 <span><span class="co">##             if (cur_time &gt; total_steps) {</span></span>
 <span><span class="co">##                 {</span></span>
-<span><span class="co">##                   attr(nll, "cur_step") &lt;- cur_step</span></span>
-<span><span class="co">##                   attr(nll, "cur_step_final") &lt;- cur_step_final</span></span>
-<span><span class="co">##                   attr(nll, "cur_time") &lt;- cur_time</span></span>
-<span><span class="co">##                   attr(nll, "cur_year") &lt;- cur_year</span></span>
-<span><span class="co">##                   attr(nll, "cur_year_projection") &lt;- cur_year_projection</span></span>
+<span><span class="co">##                   REPORT(cur_step)</span></span>
+<span><span class="co">##                   REPORT(cur_step_final)</span></span>
+<span><span class="co">##                   REPORT(cur_time)</span></span>
+<span><span class="co">##                   REPORT(cur_year)</span></span>
+<span><span class="co">##                   REPORT(cur_year_projection)</span></span>
 <span><span class="co">##                 }</span></span>
 <span><span class="co">##                 return(nll)</span></span>
 <span><span class="co">##             }</span></span>
@@ -253,8 +259,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x560d178a8eb8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x560d18de0740&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x561f6977b3a8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f6ab26798&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -279,7 +285,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x560d17ee7a90&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f69bf7398&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -316,6 +322,12 @@
 <span><span class="co">##     cur_year_projection &lt;- FALSE</span></span>
 <span><span class="co">##     cur_step &lt;- 0L</span></span>
 <span><span class="co">##     cur_step_final &lt;- FALSE</span></span>
+<span><span class="co">##     REPORT &lt;- function(var) {</span></span>
+<span><span class="co">##         var_name &lt;- as.character(sys.call()[[2]])</span></span>
+<span><span class="co">##         attr(nll, var_name) &lt;&lt;- if (var_name == "nll") </span></span>
+<span><span class="co">##             as.vector(var)</span></span>
+<span><span class="co">##         else var</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     while (TRUE) {</span></span>
 <span><span class="co">##         {</span></span>
 <span><span class="co">##             comment("g3a_time: Start of time period")</span></span>
@@ -330,11 +342,11 @@
 <span><span class="co">##                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")</span></span>
 <span><span class="co">##             if (cur_time &gt; total_steps) {</span></span>
 <span><span class="co">##                 {</span></span>
-<span><span class="co">##                   attr(nll, "cur_step") &lt;- cur_step</span></span>
-<span><span class="co">##                   attr(nll, "cur_step_final") &lt;- cur_step_final</span></span>
-<span><span class="co">##                   attr(nll, "cur_time") &lt;- cur_time</span></span>
-<span><span class="co">##                   attr(nll, "cur_year") &lt;- cur_year</span></span>
-<span><span class="co">##                   attr(nll, "cur_year_projection") &lt;- cur_year_projection</span></span>
+<span><span class="co">##                   REPORT(cur_step)</span></span>
+<span><span class="co">##                   REPORT(cur_step_final)</span></span>
+<span><span class="co">##                   REPORT(cur_time)</span></span>
+<span><span class="co">##                   REPORT(cur_year)</span></span>
+<span><span class="co">##                   REPORT(cur_year_projection)</span></span>
 <span><span class="co">##                 }</span></span>
 <span><span class="co">##                 return(nll)</span></span>
 <span><span class="co">##             }</span></span>
@@ -346,8 +358,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x560d12e48048&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x560d183dda80&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x561f68a41068&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f6a26bce0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -372,7 +384,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x560d18119550&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f69fd25b8&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -566,8 +578,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x560d172c27f0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x560d17dd83e8&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x561f68ecfe88&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f6aa3e9d0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -600,7 +612,7 @@
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x560d17a294a0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f694203b0&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -758,8 +770,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x560d176409c8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x560d18da6490&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x561f69ff4fd8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f6ae1cd28&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -793,7 +805,7 @@
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## })</span></span>
-<span><span class="co">## &lt;environment: 0x560d17d93448&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f6aa4f1c0&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>

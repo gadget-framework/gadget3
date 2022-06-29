@@ -63,8 +63,9 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">report_stock</span>, <span class="va">input_stock</span>, <span class="va">report_f</span>, run_f <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>    run_at <span class="op">=</span> <span class="fl">11</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">report_stock</span>, <span class="va">input_stock</span>, <span class="va">report_f</span>,</span>
+<span>    include_adreport <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    run_f <span class="op">=</span> <span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">11</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_report_history</span><span class="op">(</span><span class="va">actions</span>, var_re <span class="op">=</span> <span class="st">"__num$|__wgt$"</span>, run_at <span class="op">=</span> <span class="fl">11</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,6 +86,9 @@
 
   <dt>var_re</dt>
 <dd><p>Regular expression specifying variables to log history for.</p></dd>
+
+  <dt>include_adreport</dt>
+<dd><p>Should the aggregated value get ADREPORT'ed?</p></dd>
 
   <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
@@ -140,9 +144,11 @@
 <span class="r-in"><span>    <span class="fu"><a href="stock_time.html">g3s_time</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2000</span><span class="op">:</span><span class="fl">2002</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">agg_report</span>, <span class="va">ling_imm</span>, <span class="op">~</span><span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">agg_report</span>, <span class="va">ling_imm</span>, <span class="op">~</span><span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        include_adreport <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">raw_report</span>, <span class="va">ling_imm</span>, <span class="op">~</span><span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># "raw_report__num" and "agg_report__num" will be available in the model report</span></span></span>
+<span class="r-in"><span><span class="co"># In addition, agg_report__num will be included in TMB::sdreport() output</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Report history of all "__num" and "__wgt" variables</span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">g3a_report_history</span><span class="op">(</span><span class="va">actions</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
