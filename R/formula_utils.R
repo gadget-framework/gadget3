@@ -281,6 +281,40 @@ f_optimize <- function (f) {
             # Preserve the bracket by default
             return(call(open_bracket, inner))
         },
+        "&&" = function (x) {
+            if (!is.call(x)) return(x)
+
+            # Optimise innards first
+            x[[2]] <- f_optimize(x[[2]])
+            x[[3]] <- f_optimize(x[[3]])
+
+            # If either half is TRUE, remove &&
+            if (identical(x[[2]], TRUE)) return(x[[3]])
+            if (identical(x[[3]], TRUE)) return(x[[2]])
+
+            # If either half is FALSE, entire expression is FALSE
+            if (identical(x[[2]], FALSE)) return(FALSE)
+            if (identical(x[[3]], FALSE)) return(FALSE)
+
+            return(x)
+        },
+        "||" = function (x) {
+            if (!is.call(x)) return(x)
+
+            # Optimise innards first
+            x[[2]] <- f_optimize(x[[2]])
+            x[[3]] <- f_optimize(x[[3]])
+
+            # If either half is FALSE, remove ||
+            if (identical(x[[2]], FALSE)) return(x[[3]])
+            if (identical(x[[3]], FALSE)) return(x[[2]])
+
+            # If either half is TRUE, entire expression is TRUE
+            if (identical(x[[2]], TRUE)) return(TRUE)
+            if (identical(x[[3]], TRUE)) return(TRUE)
+
+            return(x)
+        },
         "+" = optim_arithmetic,
         "-" = optim_arithmetic,
         "*" = optim_arithmetic,

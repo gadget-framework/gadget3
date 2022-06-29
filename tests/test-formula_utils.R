@@ -171,6 +171,12 @@ ok(ut_cmp_identical(
     gadget3:::f_optimize(~if (x > 3) { 2 } else { if (FALSE) baa }),
     ~if (x > 3) 2), "f_optimize:if: Remove else condition if codepath is empty")
 ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{TRUE && y ; FALSE && y ; x && y ; x && FALSE ; x && TRUE ; x && (TRUE || y) ; (TRUE || x) && y}),
+    ~{y ; FALSE ; x && y ; FALSE ; x ; x; y}), "f_optimize:&&")
+ok(ut_cmp_identical(
+    gadget3:::f_optimize(~{TRUE || y ; FALSE || y ; x || y ; x || FALSE ; x || TRUE ; x || (FALSE && y) ; (FALSE && x) || y}),
+    ~{TRUE ; y ; x || y ; x ; TRUE ; x ; y}), "f_optimize:||")
+ok(ut_cmp_identical(
     gadget3:::f_optimize(~x * 1 + y),
     ~x + y), "f_optimize: Recurse through arithmetic")
 ok(ut_cmp_identical(

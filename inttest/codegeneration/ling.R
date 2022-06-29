@@ -293,7 +293,7 @@ structure(function (param)
             ling_imm__area_idx <- (1)
             {
                 comment("g3a_initialconditions_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_time == 0L && TRUE) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_time == 0L) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
@@ -314,7 +314,7 @@ structure(function (param)
             ling_mat__area_idx <- (1)
             {
                 comment("g3a_initialconditions_normalparam for ling_mat")
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (cur_time == 0L && TRUE) {
+                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (cur_time == 0L) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   {
                     area <- ling_mat__area
@@ -640,7 +640,7 @@ structure(function (param)
             ling_imm__area_idx <- (1)
             {
                 comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5) && TRUE) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
@@ -664,7 +664,7 @@ structure(function (param)
             ling_imm__area_idx <- (1)
             {
                 comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3) && TRUE) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
