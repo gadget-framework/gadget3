@@ -151,6 +151,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope as side effect
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
+    # Make sure REPORT is defined for g3_report_all()
+    if ('g3_report_all' %in% all.names(all_actions_code, unique = TRUE)) {
+        var_defns(quote( REPORT(0) ), rlang::f_env(all_actions))
+    }
+
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
@@ -162,11 +167,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     g3_functions <- function (in_code) {
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
-            g3_report = function (x) substitute(attr(nll, var_name) <- var, list(
-                var_name = as.character(x[[2]]),
-                # Strip attributes from nll, so we don't make recursive structure
-                var = if (x[[2]] == 'nll') quote(nll[[1]]) else as.symbol(x[[2]]) )),
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions, g3_report = '.')),
+            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')),
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

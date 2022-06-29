@@ -27,27 +27,27 @@ actions <- list(
             stock_iterate(stock_young, stock_intersect(stock_inbetween, {
                 stock_sum_young_inbetween <- stock_sum_young_inbetween + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_inbetween__num))
             }))
-            g3_report(stock_sum_young_inbetween)
+            REPORT(stock_sum_young_inbetween)
 
             comment("stock_sum_inbetween_old")
             stock_iterate(stock_inbetween, stock_intersect(stock_old, {
                 stock_sum_inbetween_old <- stock_sum_inbetween_old + sum(stock_ss(stock_inbetween__num)) + sum(stock_ss(stock_old__num))
             }))
-            g3_report(stock_sum_inbetween_old)
+            REPORT(stock_sum_inbetween_old)
 
             comment("stock_sum_young_old")
             stock_iterate(stock_young, stock_intersect(stock_old, {
                 stock_sum_young_old <- stock_sum_young_old + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_old__num))
             }))
-            g3_report(stock_sum_young_old)
+            REPORT(stock_sum_young_old)
 
             comment("stock_interact_young_old")
             stock_iterate(stock_young, stock_interact(stock_old, {
                 stock_interact_young_old <- stock_interact_young_old + sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_old__num))
                 stock_interact_young_old_vars <- stock_interact_young_old_vars + age * 100000 + sub_age
             }, prefix = 'sub'))
-            g3_report(stock_interact_young_old)
-            g3_report(stock_interact_young_old_vars)
+            REPORT(stock_interact_young_old)
+            REPORT(stock_interact_young_old_vars)
 
             comment("stock_inbetween_old_aggregated__num")
             stock_iterate(stock_inbetween, stock_intersect(stock_inbetween_old_aggregated, {
@@ -58,13 +58,13 @@ actions <- list(
                 stock_ss(stock_inbetween_old_aggregated__num) <-
                     stock_ss(stock_inbetween_old_aggregated__num) + stock_ss(stock_old__num)
             }))
-            g3_report(stock_inbetween_old_aggregated__num)
+            REPORT(stock_inbetween_old_aggregated__num)
         }),
         '999' = ~{
-            g3_report(stock_young__num)
-            g3_report(stock_old__num)
-            g3_report(stock_inbetween__num)
-            g3_report(stock_aggregated__num)
+            REPORT(stock_young__num)
+            REPORT(stock_old__num)
+            REPORT(stock_inbetween__num)
+            REPORT(stock_aggregated__num)
             nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         }))

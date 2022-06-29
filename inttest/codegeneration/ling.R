@@ -230,6 +230,12 @@ structure(function (param)
     ling_imm_movement__minage <- 11L
     ling_imm_movement__maxage <- 11L
     ling_imm_movement__area <- 1L
+    REPORT <- function(var) {
+        var_name <- as.character(sys.call()[[2]])
+        attr(nll, var_name) <<- if (var_name == "nll") 
+            as.vector(var)
+        else var
+    }
     while (TRUE) {
         {
             comment("g3a_time: Start of time period")
@@ -240,47 +246,47 @@ structure(function (param)
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) {
                 {
-                  attr(nll, "cdist_sumofsquares_ldist_lln_model__num") <- cdist_sumofsquares_ldist_lln_model__num
-                  attr(nll, "cur_step") <- cur_step
-                  attr(nll, "cur_step_final") <- cur_step_final
-                  attr(nll, "cur_time") <- cur_time
-                  attr(nll, "cur_year") <- cur_year
-                  attr(nll, "cur_year_projection") <- cur_year_projection
-                  attr(nll, "g3l_understocking_total") <- g3l_understocking_total
-                  attr(nll, "igfs__catch") <- igfs__catch
-                  attr(nll, "ling_imm__consratio") <- ling_imm__consratio
-                  attr(nll, "ling_imm__growth_l") <- ling_imm__growth_l
-                  attr(nll, "ling_imm__growth_lastcalc") <- ling_imm__growth_lastcalc
-                  attr(nll, "ling_imm__growth_w") <- ling_imm__growth_w
-                  attr(nll, "ling_imm__igfs") <- ling_imm__igfs
-                  attr(nll, "ling_imm__num") <- ling_imm__num
-                  attr(nll, "ling_imm__overconsumption") <- ling_imm__overconsumption
-                  attr(nll, "ling_imm__prevtotal") <- ling_imm__prevtotal
-                  attr(nll, "ling_imm__renewalnum") <- ling_imm__renewalnum
-                  attr(nll, "ling_imm__renewalwgt") <- ling_imm__renewalwgt
-                  attr(nll, "ling_imm__suit_igfs") <- ling_imm__suit_igfs
-                  attr(nll, "ling_imm__totalpredate") <- ling_imm__totalpredate
-                  attr(nll, "ling_imm__transitioning_num") <- ling_imm__transitioning_num
-                  attr(nll, "ling_imm__transitioning_wgt") <- ling_imm__transitioning_wgt
-                  attr(nll, "ling_imm__wgt") <- ling_imm__wgt
-                  attr(nll, "ling_imm_movement__transitioning_num") <- ling_imm_movement__transitioning_num
-                  attr(nll, "ling_imm_movement__transitioning_wgt") <- ling_imm_movement__transitioning_wgt
-                  attr(nll, "ling_mat__consratio") <- ling_mat__consratio
-                  attr(nll, "ling_mat__growth_l") <- ling_mat__growth_l
-                  attr(nll, "ling_mat__growth_lastcalc") <- ling_mat__growth_lastcalc
-                  attr(nll, "ling_mat__growth_w") <- ling_mat__growth_w
-                  attr(nll, "ling_mat__igfs") <- ling_mat__igfs
-                  attr(nll, "ling_mat__num") <- ling_mat__num
-                  attr(nll, "ling_mat__overconsumption") <- ling_mat__overconsumption
-                  attr(nll, "ling_mat__prevtotal") <- ling_mat__prevtotal
-                  attr(nll, "ling_mat__suit_igfs") <- ling_mat__suit_igfs
-                  attr(nll, "ling_mat__totalpredate") <- ling_mat__totalpredate
-                  attr(nll, "ling_mat__wgt") <- ling_mat__wgt
-                  attr(nll, "nll") <- nll[[1]]
-                  attr(nll, "nll_cdist_sumofsquares_ldist_lln__num") <- nll_cdist_sumofsquares_ldist_lln__num
-                  attr(nll, "nll_cdist_sumofsquares_ldist_lln__weight") <- nll_cdist_sumofsquares_ldist_lln__weight
-                  attr(nll, "nll_understocking__weight") <- nll_understocking__weight
-                  attr(nll, "nll_understocking__wgt") <- nll_understocking__wgt
+                  REPORT(cdist_sumofsquares_ldist_lln_model__num)
+                  REPORT(cur_step)
+                  REPORT(cur_step_final)
+                  REPORT(cur_time)
+                  REPORT(cur_year)
+                  REPORT(cur_year_projection)
+                  REPORT(g3l_understocking_total)
+                  REPORT(igfs__catch)
+                  REPORT(ling_imm__consratio)
+                  REPORT(ling_imm__growth_l)
+                  REPORT(ling_imm__growth_lastcalc)
+                  REPORT(ling_imm__growth_w)
+                  REPORT(ling_imm__igfs)
+                  REPORT(ling_imm__num)
+                  REPORT(ling_imm__overconsumption)
+                  REPORT(ling_imm__prevtotal)
+                  REPORT(ling_imm__renewalnum)
+                  REPORT(ling_imm__renewalwgt)
+                  REPORT(ling_imm__suit_igfs)
+                  REPORT(ling_imm__totalpredate)
+                  REPORT(ling_imm__transitioning_num)
+                  REPORT(ling_imm__transitioning_wgt)
+                  REPORT(ling_imm__wgt)
+                  REPORT(ling_imm_movement__transitioning_num)
+                  REPORT(ling_imm_movement__transitioning_wgt)
+                  REPORT(ling_mat__consratio)
+                  REPORT(ling_mat__growth_l)
+                  REPORT(ling_mat__growth_lastcalc)
+                  REPORT(ling_mat__growth_w)
+                  REPORT(ling_mat__igfs)
+                  REPORT(ling_mat__num)
+                  REPORT(ling_mat__overconsumption)
+                  REPORT(ling_mat__prevtotal)
+                  REPORT(ling_mat__suit_igfs)
+                  REPORT(ling_mat__totalpredate)
+                  REPORT(ling_mat__wgt)
+                  REPORT(nll)
+                  REPORT(nll_cdist_sumofsquares_ldist_lln__num)
+                  REPORT(nll_cdist_sumofsquares_ldist_lln__weight)
+                  REPORT(nll_understocking__weight)
+                  REPORT(nll_understocking__wgt)
                 }
                 return(nll)
             }

@@ -37,10 +37,10 @@ actions <- list(
     g3a_report_stock(stock_b_report, stock_b, ~stock_ss(stock_b__wgt)),
     list(
         '999' = ~{
-            g3_report(stock_a__num)
-            g3_report(stock_ac__num)
-            g3_report(stock_a__wgt)
-            g3_report(stock_ac__wgt)
+            REPORT(stock_a__num)
+            REPORT(stock_ac__num)
+            REPORT(stock_a__wgt)
+            REPORT(stock_ac__wgt)
 
             nll <- nll + g3_param('x', value = 1.0)
         }))

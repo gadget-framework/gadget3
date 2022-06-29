@@ -50,27 +50,27 @@ ok_group("g3_step:stock_reshape", {
 
         list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
             stock_ss(dest_even__num) <- stock_reshape(dest_even, stock_ss(source__num))
-            g3_report(dest_even__num)
+            REPORT(dest_even__num)
         })))),
 
         list('900:dest_combine' = gadget3:::g3_step(~stock_iterate(dest_combine, stock_intersect(source, {
             stock_ss(dest_combine__num) <- stock_reshape(dest_combine, stock_ss(source__num))
-            g3_report(dest_combine__num)
+            REPORT(dest_combine__num)
         })))),
 
         list('900:dest_2group' = gadget3:::g3_step(~stock_iterate(dest_2group, stock_intersect(source, {
             stock_ss(dest_2group__num) <- stock_reshape(dest_2group, stock_ss(source__num))
-            g3_report(dest_2group__num)
+            REPORT(dest_2group__num)
         })))),
 
         list('900:dest_wider' = gadget3:::g3_step(~stock_iterate(dest_wider, stock_intersect(source, {
             stock_ss(dest_wider__num) <- stock_reshape(dest_wider, stock_ss(source__num))
-            g3_report(dest_wider__num)
+            REPORT(dest_wider__num)
         })))),
 
         list('900:dest_nolength' = gadget3:::g3_step(~stock_iterate(dest_nolength, stock_intersect(source, {
             stock_ss(dest_nolength__num) <- stock_reshape(dest_nolength, stock_ss(source__num))
-            g3_report(dest_nolength__num)
+            REPORT(dest_nolength__num)
         })))),
 
         list('999' = ~{

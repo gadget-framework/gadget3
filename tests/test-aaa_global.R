@@ -14,7 +14,7 @@ matrix_vec_out <- rep(0, 5)
 actions <- c(actions, ~{
     comment('matrix_vec')
     matrix_vec_out <- g3_matrix_vec(matrix_vec_tf, matrix_vec_vec)
-    g3_report(matrix_vec_out)
+    REPORT(matrix_vec_out)
 })
 expecteds$matrix_vec_out <- c(100, 10, 1000)
 
@@ -28,8 +28,8 @@ actions <- c(actions, ~{
     # NB: We have to cast "0" to a Type for the below to work, but this happens automatically
     logspace_add_1 <- logspace_add(logspace_inp_1, 0)
     logspace_add_0 <- logspace_add(logspace_inp_0, logspace_inp_0)
-    g3_report(logspace_add_1)
-    g3_report(logspace_add_0)
+    REPORT(logspace_add_1)
+    REPORT(logspace_add_0)
 })
 expecteds$logspace_add_1 <- 1.313262
 expecteds$logspace_add_0 <- 0.6931472
@@ -42,8 +42,8 @@ actions <- c(actions, ~{
     comment('logspace_add_vec')
     logspace_add_vec_0 <- logspace_add_vec(logspace_add_vec_inp, 0)
     logspace_add_vec_1 <- logspace_add_vec(logspace_add_vec_inp, 1)
-    g3_report(logspace_add_vec_0)
-    g3_report(logspace_add_vec_1)
+    REPORT(logspace_add_vec_0)
+    REPORT(logspace_add_vec_1)
 })
 expecteds$logspace_add_vec_0 <- c(0.6931472, 0.7443967, 0.7981389, 0.8543552)
 expecteds$logspace_add_vec_1 <- c(1.313262, 1.341154, 1.371101, 1.403186)
@@ -59,7 +59,7 @@ actions <- c(actions, ~{
     ratio_add_vec_output <- ratio_add_vec(
         ratio_add_vec_inp_orig_vec, ratio_add_vec_inp_orig_amount,
         ratio_add_vec_inp_new_vec, ratio_add_vec_inp_new_amount)
-    g3_report(ratio_add_vec_output)
+    REPORT(ratio_add_vec_output)
 })
 ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
 expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / gadget3:::g3_global_env$avoid_zero_vec(ratio_add_vec_total)) +

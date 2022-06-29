@@ -24,24 +24,24 @@ actions <- list(
         '999' = gadget3:::g3_step(~{
             # NB: stock_with also includes the stock environment, which is why we need it
             stock_with(stock_a, {
-                g3_report(stock_a__minlen)
-                g3_report(stock_a__midlen)
-                g3_report(stock_a__dl)
-                g3_report(stock_a__plusdl)
+                REPORT(stock_a__minlen)
+                REPORT(stock_a__midlen)
+                REPORT(stock_a__dl)
+                REPORT(stock_a__plusdl)
             })
 
             stock_with(stock_b, {
-                g3_report(stock_b__minlen)
-                g3_report(stock_b__midlen)
-                g3_report(stock_b__dl)
-                g3_report(stock_b__plusdl)
+                REPORT(stock_b__minlen)
+                REPORT(stock_b__midlen)
+                REPORT(stock_b__dl)
+                REPORT(stock_b__plusdl)
             })
 
             stock_with(stock_wonky, {
-                g3_report(stock_wonky__minlen)
-                g3_report(stock_wonky__midlen)
-                g3_report(stock_wonky__dl)
-                g3_report(stock_wonky__plusdl)
+                REPORT(stock_wonky__minlen)
+                REPORT(stock_wonky__midlen)
+                REPORT(stock_wonky__dl)
+                REPORT(stock_wonky__plusdl)
             })
 
             nll <- nll + g3_param('x', value = 1.0)

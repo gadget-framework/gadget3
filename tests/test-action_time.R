@@ -64,7 +64,7 @@ actions <- list(
             all_year[g3_idx(cur_time + 1)] <- cur_year
             all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
             all_cur_year_projection[g3_idx(cur_time + 1)] <- cur_year_projection
-            g3_report(total_years)
+            REPORT(total_years)
 
             nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over
         }))

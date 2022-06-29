@@ -31,16 +31,16 @@ actions <- c(actions, gadget3:::f_substitute(~{
     comment('tad_lookup')
     cur_year <- 1983 ; cur_step <- 1 ; area <- 1
     tad_lookup_1 <- lookup_f
-    g3_report(tad_lookup_1)
+    REPORT(tad_lookup_1)
 
     cur_year <- 1984 ; cur_step <- 2 ; area <- 1
     tad_lookup_2 <- lookup_f
-    g3_report(tad_lookup_2)
+    REPORT(tad_lookup_2)
 
     # NB: 2008 not in table
     cur_year <- 2008 ; cur_step <- 2 ; area <- 1
     tad_lookup_3 <- lookup_f
-    g3_report(tad_lookup_3)
+    REPORT(tad_lookup_3)
 
 }, list(lookup_f = tad_lookup)))
 expecteds$tad_lookup_1 <- 198311
@@ -55,8 +55,8 @@ actions <- c(actions, gadget3:::f_substitute(~{
     comment('single_lookup')
     single_lookup_rv_1 <- lookup_rv_1_f
     single_lookup_rv_2 <- lookup_rv_2_f
-    g3_report(single_lookup_rv_1)
-    g3_report(single_lookup_rv_2)
+    REPORT(single_lookup_rv_1)
+    REPORT(single_lookup_rv_2)
 }, list(
     lookup_rv_1_f = single_lookup('getdefault', ~1, 99),
     lookup_rv_2_f = single_lookup('getdefault', ~2, 99))))
@@ -77,10 +77,10 @@ actions <- c(actions, gadget3:::f_substitute(~{
     comment('single_area_lookup')
     cur_year <- 1983 ; cur_step <- 1 ; area <- 1
     single_area_1 <- lookup_f
-    g3_report(single_area_1)
+    REPORT(single_area_1)
     cur_year <- 1983 ; cur_step <- 1 ; area <- 2
     single_area_2 <- lookup_f
-    g3_report(single_area_2)
+    REPORT(single_area_2)
 }, list(lookup_f = single_area_lookup)))
 expecteds$single_area_1 <- 198311
 expecteds$single_area_2 <- 0
@@ -99,10 +99,10 @@ actions <- c(actions, gadget3:::f_substitute(~{
     comment('no_area_lookup')
     cur_year <- 1983 ; cur_step <- 1 ; area <- 1
     no_area_1 <- lookup_f
-    g3_report(no_area_1)
+    REPORT(no_area_1)
     cur_year <- 1983 ; cur_step <- 2 ; area <- 2
     no_area_2 <- lookup_f
-    g3_report(no_area_2)
+    REPORT(no_area_2)
 }, list(lookup_f = no_area_lookup)))
 expecteds$no_area_1 <- 198311
 expecteds$no_area_2 <- 198321
@@ -122,13 +122,13 @@ actions <- c(actions, gadget3:::f_substitute(~{
     comment('no_step_lookup')
     cur_year <- 1984 ; cur_step <- 1 ; area <- 3
     no_step_1 <- lookup_f
-    g3_report(no_step_1)
+    REPORT(no_step_1)
     cur_year <- 1984 ; cur_step <- 2 ; area <- 3
     no_step_2 <- lookup_f
-    g3_report(no_step_2)
+    REPORT(no_step_2)
     cur_year <- 1984 ; cur_step <- 3 ; area <- 2
     no_step_2 <- lookup_f
-    g3_report(no_step_3)
+    REPORT(no_step_3)
 }, list(lookup_f = no_step_lookup)))
 expecteds$no_step_1 <- 19843
 expecteds$no_step_2 <- 19843
@@ -145,15 +145,15 @@ actions <- c(actions, gadget3:::f_substitute(~{
 
     simple_vec_idx <- -1L # NB: Out of bounds of what a vector can do in R
     simple_vec_1 <- lookup_f
-    g3_report(simple_vec_1)
+    REPORT(simple_vec_1)
 
     simple_vec_idx <- 3L
     simple_vec_2 <- lookup_f
-    g3_report(simple_vec_2)
+    REPORT(simple_vec_2)
 
     simple_vec_idx <- 4L
     simple_vec_3 <- lookup_f
-    g3_report(simple_vec_3)
+    REPORT(simple_vec_3)
 }, list(lookup_f = simple_vec_lookup)))
 expecteds$simple_vec_1 <- -1
 expecteds$simple_vec_2 <- 4
@@ -170,15 +170,15 @@ actions <- c(actions, gadget3:::f_substitute(~{
 
     zero_key_idx <- 0L
     zero_key_1 <- lookup_f
-    g3_report(zero_key_1)
+    REPORT(zero_key_1)
 
     zero_key_idx <- -1L
     zero_key_2 <- lookup_f
-    g3_report(zero_key_2)
+    REPORT(zero_key_2)
 
     zero_key_idx <- 2L
     zero_key_3 <- lookup_f
-    g3_report(zero_key_3)
+    REPORT(zero_key_3)
 }, list(lookup_f = zero_key_lookup)))
 expecteds$zero_key_1 <- 2
 expecteds$zero_key_2 <- 3

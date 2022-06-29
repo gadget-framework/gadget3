@@ -60,11 +60,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(in_call[[2]])
     }
 
-    if (call_name %in% c("g3_report")) {
-        # A report is a shouty REPORT
-        return(paste0("REPORT(", cpp_escape_varname(in_call[[2]]), ")"))
-    }
-
     if (call_name %in% c("g3_idx")) {
         # Indices are 0-based, subtract 1
         if (is.numeric(in_call[[2]])) {

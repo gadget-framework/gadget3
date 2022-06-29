@@ -76,12 +76,12 @@ ok_group('g3a_mature', {
             run_f = ~g3_param("run_f") == 1),
         list(
             '999' = ~{
-                g3_report(stock_imm__num)
-                g3_report(stock_imm__wgt)
-                g3_report(stock_mat1__num)
-                g3_report(stock_mat1__wgt)
-                g3_report(stock_mat2__num)
-                g3_report(stock_mat2__wgt)
+                REPORT(stock_imm__num)
+                REPORT(stock_imm__wgt)
+                REPORT(stock_mat1__num)
+                REPORT(stock_mat1__wgt)
+                REPORT(stock_mat2__num)
+                REPORT(stock_mat2__wgt)
                 nll <- nll + g3_param('x')
                 return(nll)
             }))

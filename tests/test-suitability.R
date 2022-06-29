@@ -15,7 +15,7 @@ suit_report_action <- function (pred_stock, stock, suit_f, run_at = 99) {
         stock_iterate(stock, stock_intersect(pred_stock, {
             stock_ss(suit_var) <- (suit_f)
         }))
-        stock_with(stock, g3_report(suit_var))
+        stock_with(stock, REPORT(suit_var))
     }, list(
         suit_fn_name = suit_fn_name,
         suit_var = as.symbol(suit_var_name),
@@ -76,9 +76,9 @@ actions <- list(
         ~g3_param("p_richards_p3"),
         ~g3_param("p_richards_p4"))),
     list('999' = ~{
-        g3_report(input_stock__num)
-        g3_report(input_stock__wgt)
-        g3_report(input_stock__midlen)
+        REPORT(input_stock__num)
+        REPORT(input_stock__wgt)
+        REPORT(input_stock__midlen)
         nll <- g3_param('x', value = 1.0)
     }))
 

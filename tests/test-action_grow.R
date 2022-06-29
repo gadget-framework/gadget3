@@ -84,8 +84,8 @@ ok_group("g3a_grow_impl_bbinom", {
                 maxlengthgroupgrowth = 4)),
         list(
             "999" = ~{
-                g3_report("teststock__growth_l")
-                g3_report("teststock__growth_w")
+                REPORT(teststock__growth_l)
+                REPORT(teststock__growth_w)
                 nll <- nll + g3_param('x', value = 1.0)
                 return(nll)
             }))
@@ -156,8 +156,8 @@ ok_group("g3a_growmature", {
                 wgt = ~g3_param_array('weight_matrix'))),
         list(
             "999" = ~{
-                g3_report("teststock__num")
-                g3_report("teststock__wgt")
+                REPORT(teststock__num)
+                REPORT(teststock__wgt)
                 nll <- nll + g3_param('x')
                 return(nll)
             }))

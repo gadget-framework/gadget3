@@ -80,7 +80,7 @@ report_step <- function (var_name, steps, initial_val) {
         out <- gadget3:::f_substitute(~if (cur_time == i) {
             comment(report_comment)
             step_var[] <- var
-            g3_report(step_var)
+            REPORT(step_var)
         } else rest, list(
             report_comment = paste0("Reporting on ", var_name, " at step ", i),
             step_var = as.symbol(step_var_name),
@@ -138,23 +138,23 @@ base_actions <- list(
         gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, gadget3:::stock_instance(prey_c)),
         gadget3:::step_id(990, 'nll'), report_step('nll', 4, 0.0),
         gadget3:::step_id(999),  ~{
-            g3_report(cdist_sumofsquares_utcd_model__num)
-            g3_report(cdist_sumofsquares_utcd_obs__num)
-            g3_report(cdist_sumofsquares_utcd_weight_model__wgt)
-            g3_report(cdist_sumofsquares_utcd_weight_obs__wgt)
-            g3_report(cdist_sumofsquares_utsd_model__num)
-            g3_report(cdist_sumofsquares_utsd_obs__num)
-            g3_report(cdist_multinomial_multinom_model__num)
-            g3_report(cdist_multinomial_multinom_obs__num)
-            g3_report(prey_a__wgt)
-            g3_report(prey_b__wgt)
-            g3_report(prey_c__wgt)
-            g3_report(prey_a__num)
-            g3_report(prey_b__num)
-            g3_report(prey_c__num)
+            REPORT(cdist_sumofsquares_utcd_model__num)
+            REPORT(cdist_sumofsquares_utcd_obs__num)
+            REPORT(cdist_sumofsquares_utcd_weight_model__wgt)
+            REPORT(cdist_sumofsquares_utcd_weight_obs__wgt)
+            REPORT(cdist_sumofsquares_utsd_model__num)
+            REPORT(cdist_sumofsquares_utsd_obs__num)
+            REPORT(cdist_multinomial_multinom_model__num)
+            REPORT(cdist_multinomial_multinom_obs__num)
+            REPORT(prey_a__wgt)
+            REPORT(prey_b__wgt)
+            REPORT(prey_c__wgt)
+            REPORT(prey_a__num)
+            REPORT(prey_b__num)
+            REPORT(prey_c__num)
 
             # NB: In theory we could inspect the return value, but TMB doesn't give an easy public method for that
-            g3_report(nll)
+            REPORT(nll)
         }))
 actions <- c(base_actions, list(
     g3l_catchdistribution(

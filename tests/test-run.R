@@ -18,17 +18,17 @@ ok_group("action_reports", {
     ok(cmp_code(gadget3:::action_reports(list(
         ~{y <- 1},
         ~{y <- 1 ; x <- 2}
-        ~{}), g3_report = '.'), quote({
-        g3_report(x)
-        g3_report(y)
+        ~{}), REPORT = '.'), quote({
+        REPORT(x)
+        REPORT(y)
     })), "Don't return duplicates, results are sorted")
 
     ok(cmp_code(gadget3:::action_reports(list(
         ~g3_with(x := 1, z := 2, {y <- 1 ; x <- 2}),
         ~{rr <- 1},
-        ~{}), g3_report = '.'), quote({
-        g3_report(rr)
-        g3_report(y)
+        ~{}), REPORT = '.'), quote({
+        REPORT(rr)
+        REPORT(y)
     })), "g3_with vars are ignored")
 
     ok(cmp_code(gadget3:::action_reports(list(

@@ -280,7 +280,7 @@ g3l_distribution <- function (
                 stock_ss(nllstock__x) <- stock_ss(nllstock__x) + cur_cdist_nll
                 stock_ss(nllstock__weight) <- weight
                 # NB: Have to report obsstock__x explicitly because it's just data.
-                if (report) g3_report(obsstock__x)
+                if (report) REPORT(obsstock__x)
             }))))
             if (!report) {
                 debug_trace("Zero counters for next reporting period")

@@ -311,8 +311,8 @@ constants_integer <- 999
 constants_nan <- 999
 actions <- c(actions, ~{
     comment('constants')
-    constants_integer <- 5L ; g3_report(constants_integer)
-    constants_nan <- NaN ; g3_report(constants_nan)
+    constants_integer <- 5L ; REPORT(constants_integer)
+    constants_nan <- NaN ; REPORT(constants_nan)
 })
 expecteds$constants_integer <- 5L
 expecteds$constants_nan <- NaN
@@ -322,7 +322,7 @@ assign_to_1_1 <- array(dim = c(1,1))
 actions <- c(actions, ~{
     comment('assign_to_1_1')
     assign_to_1_1[g3_idx(1)] <- 100.1
-    g3_report(assign_to_1_1)
+    REPORT(assign_to_1_1)
 })
 expecteds$assign_to_1_1 <- array(c(100.1), dim = c(1,1))
 
@@ -331,7 +331,7 @@ data_to_2_1 <- c(100.1, 200.2)
 actions <- c(actions, ~{
     comment('assign_to_2_1')
     assign_to_2_1[,g3_idx(1)] <- data_to_2_1
-    g3_report(assign_to_2_1)
+    REPORT(assign_to_2_1)
 })
 expecteds$assign_to_2_1 <- array(c(100.1, 200.2), dim = c(2,1))
     
@@ -341,7 +341,7 @@ actions <- c(actions, ~{
     comment('assign_to_2_2')
     assign_to_2_2[,g3_idx(1)] <- data_to_2_1
     assign_to_2_2[,g3_idx(2)] <- data_to_2_2
-    g3_report(assign_to_2_2)
+    REPORT(assign_to_2_2)
 })
 expecteds$assign_to_2_2 <- array(c(100.1, 200.2, 110.1, 220.2), dim = c(2,2))
 
@@ -353,7 +353,7 @@ actions <- c(actions, ~{
     assign_to_2_2a[g3_idx(2),g3_idx(1)] <- 88
     assign_to_2_2a[g3_idx(2),g3_idx(2)] <- 0
     assign_to_2_2a[g3_idx(1),g3_idx(1)] <- 0
-    g3_report(assign_to_2_2a)
+    REPORT(assign_to_2_2a)
 })
 expecteds$assign_to_2_2a <- array(c(0, 88, 99, 0), dim = c(2,2))
 
@@ -368,7 +368,7 @@ actions <- c(actions, ~{
     assign_scalar[,g3_idx(2)] <- 88
     assign_scalar[g3_idx(2),g3_idx(3)] <- 27
     assign_scalar[,g3_idx(4)] <- g3_param("assign_scalar_const")
-    g3_report(assign_scalar)
+    REPORT(assign_scalar)
 })
 expecteds$assign_scalar <- array(c(
     0, 0,
@@ -388,8 +388,8 @@ actions <- c(actions, ~{
     comment('assign_scalar')
     # NB: Under TMB this won't be NA, so set it to hide differences.
     dynamic_dim_array_na[] <- 5
-    g3_report(dynamic_dim_array)
-    g3_report(dynamic_dim_array_na)
+    REPORT(dynamic_dim_array)
+    REPORT(dynamic_dim_array_na)
 })
 expecteds$dynamic_dim_array <- array(0, dim = c(2, 4))
 expecteds$dynamic_dim_array_na <- array(5, dim = c(2, 4))
@@ -401,7 +401,7 @@ escaped_data_output <- 0.0
 actions <- c(actions, ~{
     comment('escaped.data.array')
     escaped_data_output <- escaped.data.scalar + sum(escaped.data.array)
-    g3_report(escaped_data_output)
+    REPORT(escaped_data_output)
 })
 # NB: In theory we could also report the escaped name, but we can't rename
 # items in the produced report, so reports will differ TMB/R
@@ -420,12 +420,12 @@ actions <- c(actions, ~{
     is_nan_output <- is_nan_output + (if (is.nan(is_nan_finite_scalar_input)) 2 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_finite_array_input))) 4 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_array_input))) 8 else 0)
-    g3_report(is_nan_output)
+    REPORT(is_nan_output)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_nan_scalar_input)) 1 else 0)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_finite_scalar_input)) 2 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_finite_array_input))) 4 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_array_input))) 8 else 0)
-    g3_report(is_finite_output)
+    REPORT(is_finite_output)
 })
 expecteds$is_nan_output <- 1 + 8
 expecteds$is_finite_output <- 2 + 4
@@ -436,7 +436,7 @@ mean_vector_result <- 0
 actions <- c(actions, ~{
     comment('mean_vector')
     mean_vector_result <- mean(mean_vector)
-    g3_report(mean_vector_result)
+    REPORT(mean_vector_result)
 })
 expecteds$mean_vector_result <- mean(mean_vector)
 
@@ -446,7 +446,7 @@ colsums_result <- c(0, 0)
 actions <- c(actions, ~{
     comment('colsums')
     colsums_result <- colSums(colsums_in)
-    g3_report(colsums_result)
+    REPORT(colsums_result)
 })
 expecteds$colsums_result <- colSums(colsums_in)
 
@@ -456,7 +456,7 @@ rowsums_result <- c(0, 0, 0)
 actions <- c(actions, ~{
     comment('rowsums')
     rowsums_result <- rowSums(rowsums_in)
-    g3_report(rowsums_result)
+    REPORT(rowsums_result)
 })
 expecteds$rowsums_result <- rowSums(rowsums_in)
 
@@ -465,7 +465,7 @@ if_no_brace_result <- 0.0
 actions <- c(actions, ~{
     comment('if_without_braces')
     if (FALSE) if_no_brace_result <- 1 else if_no_brace_result <- 0.2
-    g3_report(if_no_brace_result)
+    REPORT(if_no_brace_result)
 })
 expecteds$if_no_brace_result <- 0.2
 
@@ -479,8 +479,8 @@ actions <- c(actions, ~{
     comment('tertiary')
     tertiary_result_0 <- if (tertiary_result_0 == 3) 9 else 4
     tertiary_result_1 <- if (tertiary_result_1 == 3) 9 else 4
-    g3_report(tertiary_result_0)
-    g3_report(tertiary_result_1)
+    REPORT(tertiary_result_0)
+    REPORT(tertiary_result_1)
 })
 expecteds$tertiary_result_0 <- 9
 expecteds$tertiary_result_1 <- 4
@@ -495,8 +495,8 @@ actions <- c(actions, ~{
         g3_with_other_exp := 1L + 2L + 3L,
         {
             g3_with_result <- g3_with_iterator - g3_idx(1)  # NB: Reverse g3_idx from definition
-            g3_report(g3_with_result)
-            g3_report(g3_with_other_exp)
+            REPORT(g3_with_result)
+            REPORT(g3_with_other_exp)
         })
 })
 expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
@@ -509,8 +509,8 @@ actions <- c(actions, ~{
     comment('min/max')
     min_result <- min(4, 9)
     max_result <- max(sum(mean_vector), 2)  # NB: sum gets cast to Type
-    g3_report(min_result)
-    g3_report(max_result)
+    REPORT(min_result)
+    REPORT(max_result)
 })
 expecteds$min_result <- 4
 expecteds$max_result <- sum(mean_vector)
@@ -520,7 +520,7 @@ negate_x <- 10
 actions <- c(actions, ~{
     comment('negate')
     negate_x <- -negate_x
-    g3_report(negate_x)
+    REPORT(negate_x)
 })
 expecteds$negate_x <- -10
 
@@ -531,8 +531,8 @@ actions <- c(actions, ~{
     comment('modulo')
     modulo_x <- as_integer(modulo_x) %% 2
     modulo_y <- as_integer(modulo_y) %% 2
-    g3_report(modulo_x)
-    g3_report(modulo_y)
+    REPORT(modulo_x)
+    REPORT(modulo_y)
 })
 expecteds$modulo_x <- 0
 expecteds$modulo_y <- 1
@@ -545,8 +545,8 @@ actions <- c(actions, ~{
     comment('sum/prod')
     sumprod_sum <- sum(sumprod_input)
     sumprod_prod <- prod(sumprod_input)
-    g3_report(sumprod_sum)
-    g3_report(sumprod_prod)
+    REPORT(sumprod_sum)
+    REPORT(sumprod_prod)
 })
 expecteds$sumprod_sum <- sum(sumprod_input)
 expecteds$sumprod_prod <- prod(sumprod_input)
@@ -557,7 +557,7 @@ param_table_out <- 0
 actions <- c(actions, ~{
     pt_a ; pt_b
     param_table_out <- g3_param_table('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7)))
-    g3_report(param_table_out)
+    REPORT(param_table_out)
 })
 params[['param_table.1.8']] <- 18
 params[['param_table.1.7']] <- 17
@@ -573,7 +573,7 @@ actions <- c(actions, ~{
             'param_table_ifmissing',
             expand.grid(ifmissing = 2:4), ifmissing = -1)
     }
-    g3_report(param_table_ifmissing_out)
+    REPORT(param_table_ifmissing_out)
 })
 params[['param_table_ifmissing.2']] <- 27
 params[['param_table_ifmissing.3']] <- 47

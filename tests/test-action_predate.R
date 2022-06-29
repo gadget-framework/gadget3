@@ -118,32 +118,32 @@ actions <- list(
         weight = 2),
     list(
         '999' = ~{
-            g3_report(prey_a__num)
-            g3_report(prey_a__wgt)
-            g3_report(prey_a__totalpredate)
-            g3_report(prey_a__consratio)
+            REPORT(prey_a__num)
+            REPORT(prey_a__wgt)
+            REPORT(prey_a__totalpredate)
+            REPORT(prey_a__consratio)
 
-            g3_report(prey_b__num)
-            g3_report(prey_b__wgt)
-            g3_report(prey_b__totalpredate)
-            g3_report(prey_b__consratio)
+            REPORT(prey_b__num)
+            REPORT(prey_b__wgt)
+            REPORT(prey_b__totalpredate)
+            REPORT(prey_b__consratio)
 
-            g3_report(prey_c__num)
-            g3_report(prey_c__wgt)
-            g3_report(prey_c__totalpredate)
-            g3_report(prey_c__consratio)
+            REPORT(prey_c__num)
+            REPORT(prey_c__wgt)
+            REPORT(prey_c__totalpredate)
+            REPORT(prey_c__consratio)
 
-            g3_report(prey_a__fleet_ab)
-            g3_report(prey_b__fleet_ab)
-            g3_report(prey_c__fleet_ab)
-            g3_report(fleet_ab__catch)
+            REPORT(prey_a__fleet_ab)
+            REPORT(prey_b__fleet_ab)
+            REPORT(prey_c__fleet_ab)
+            REPORT(fleet_ab__catch)
 
-            g3_report(prey_a__fleet_bc)
-            g3_report(prey_b__fleet_bc)
-            g3_report(prey_c__fleet_bc)
-            g3_report(fleet_bc__catch)
+            REPORT(prey_a__fleet_bc)
+            REPORT(prey_b__fleet_bc)
+            REPORT(prey_c__fleet_bc)
+            REPORT(fleet_bc__catch)
 
-            g3_report(nll)  # NB: This report triggers tmb_r_compare to compare nll
+            REPORT(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
 actions <- c(actions, list(g3a_report_history(actions, "prey_.*__fleet_.*")))
 

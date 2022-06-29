@@ -31,7 +31,7 @@ g3_collate <- function(action_list) {
 }
 
 # Find all vars from collated actions that get assigned to, we'll report those.
-# ... is list of functions to regex filter, e.g. g3_report = '.'
+# ... is list of functions to regex filter, e.g. REPORT = '.'
 action_reports <- function (actions, ...) {
     terms <- new.env(parent = emptyenv())
     find_assignments <- function (f, ignore_vars) call_replace(f,

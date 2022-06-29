@@ -16,8 +16,8 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
     report_action[[paste0("999:step", step, ':', s$name)]] <- gadget3:::f_substitute(~if (cur_time == step) {
         stepnum[] <- curnum
         stepwgt[] <- curwgt
-        g3_report(stepnum)
-        g3_report(stepwgt)
+        REPORT(stepnum)
+        REPORT(stepwgt)
     }, list(
         stepnum = as.symbol(paste0("step", step, '_', s$name, '__num')),
         stepwgt = as.symbol(paste0("step", step, '_', s$name, '__wgt')),

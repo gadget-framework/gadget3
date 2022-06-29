@@ -31,26 +31,26 @@ actions <- list(
             if (cur_time == 0) {
                 step0_prey_a__num[] <- prey_a__num
                 step0_prey_a__wgt[] <- prey_a__wgt
-                g3_report(step0_prey_a__num)
-                g3_report(step0_prey_a__wgt)
+                REPORT(step0_prey_a__num)
+                REPORT(step0_prey_a__wgt)
             } else if (cur_time == 1) {
                 step1_prey_a__num[] <- prey_a__num
                 step1_prey_a__wgt[] <- prey_a__wgt
-                g3_report(step1_prey_a__num)
-                g3_report(step1_prey_a__wgt)
+                REPORT(step1_prey_a__num)
+                REPORT(step1_prey_a__wgt)
             } else if (cur_time == 2) {
                 step2_prey_a__num[] <- prey_a__num
                 step2_prey_a__wgt[] <- prey_a__wgt
-                g3_report(step2_prey_a__num)
-                g3_report(step2_prey_a__wgt)
+                REPORT(step2_prey_a__num)
+                REPORT(step2_prey_a__wgt)
             } else if (cur_time == 3) {
                 step3_prey_a__num[] <- prey_a__num
                 step3_prey_a__wgt[] <- prey_a__wgt
-                g3_report(step3_prey_a__num)
-                g3_report(step3_prey_a__wgt)
+                REPORT(step3_prey_a__num)
+                REPORT(step3_prey_a__wgt)
             }
-            g3_report(step3_prey_a__num)
-            g3_report(step3_prey_a__wgt)
+            REPORT(step3_prey_a__num)
+            REPORT(step3_prey_a__wgt)
 
             nll <- nll + g3_param('x', value = 1.0)
         }))

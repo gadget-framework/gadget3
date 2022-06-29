@@ -111,6 +111,13 @@ g3_global_env$nvl <- g3_native(r = function(...) {
     return(NULL)
 }, cpp = "not-implemented")
 
+# REPORT in R attaches attributes to nll
+g3_global_env$REPORT <- g3_native(r = function(var) {
+    var_name <- as.character(sys.call()[[2]])
+    # Strip attributes from nll, so we don't make recursive structure
+    attr(nll, var_name) <<- if (var_name == 'nll') as.vector(var) else var
+}, cpp = NULL)
+
 # Rprintf equivalent for R
 g3_global_env$Rprintf <- g3_native(r = function(...) {
     cat(sprintf(...))
