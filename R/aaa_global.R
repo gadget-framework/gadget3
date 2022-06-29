@@ -118,6 +118,11 @@ g3_global_env$REPORT <- g3_native(r = function(var) {
     attr(nll, var_name) <<- if (var_name == 'nll') as.vector(var) else var
 }, cpp = NULL)
 
+# Placeholder definition for ADREPORT in R
+g3_global_env$ADREPORT <- g3_native(r = function(...) {
+    warning("No ADREPORT functionality available in R")
+}, cpp = NULL)
+
 # Rprintf equivalent for R
 g3_global_env$Rprintf <- g3_native(r = function(...) {
     cat(sprintf(...))

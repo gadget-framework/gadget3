@@ -1,4 +1,4 @@
-g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE, run_at = 11) {
+g3a_report_stock <- function (report_stock, input_stock, report_f, include_adreport = FALSE, run_f = TRUE, run_at = 11) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
 
@@ -23,10 +23,14 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, run_f = TRUE,
             stock_iterate(input_stock, stock_intersect(report_stock, {
                 stock_ss(report_instance) <- stock_ss(report_instance) + (report_f)
             }))
+            if (include_adreport && cur_time == total_steps) {
+                ADREPORT(report_instance)
+            }
         }
     }, list(
         report_instance = as.symbol(report_stock_instance_name),
         report_f = report_f,
+        include_adreport = as.logical(include_adreport),
         run_f = run_f)))
 
     return(as.list(out))

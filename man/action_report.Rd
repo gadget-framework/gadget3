@@ -8,8 +8,9 @@
 }
 
 \usage{
-g3a_report_stock(report_stock, input_stock, report_f, run_f = TRUE, 
-    run_at = 11)
+g3a_report_stock(report_stock, input_stock, report_f,
+    include_adreport = FALSE,
+    run_f = TRUE, run_at = 11)
 
 g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
 }
@@ -29,6 +30,9 @@ g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
   }
   \item{var_re}{
     Regular expression specifying variables to log history for.
+  }
+  \item{include_adreport}{
+    Should the aggregated value get ADREPORT'ed?
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
@@ -80,9 +84,11 @@ raw_report <- g3s_clone(ling_imm, 'raw_report') \%>\%
     g3s_time(year = 2000:2002)
 
 actions <- list(
-    g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num)),
+    g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num),
+        include_adreport = TRUE),
     g3a_report_stock(raw_report, ling_imm, ~stock_ss(ling_imm__num)))
 # "raw_report__num" and "agg_report__num" will be available in the model report
+# In addition, agg_report__num will be included in TMB::sdreport() output
 
 # Report history of all "__num" and "__wgt" variables
 actions <- c(actions, list(g3a_report_history(actions)))

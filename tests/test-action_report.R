@@ -13,6 +13,16 @@ cmp_array <- function (ar, table_text) {
     ut_cmp_identical(as.data.frame.table(ar, stringsAsFactors = FALSE), tbl)
 }
 
+capture_warnings <- function(x, full_object = FALSE) {
+    all_warnings <- list()
+    rv <- withCallingHandlers(x, warning = function (w) {
+        all_warnings <<- c(all_warnings, list(w))
+        invokeRestart("muffleWarning")
+    })
+    if (!full_object) all_warnings <- vapply(all_warnings, function (w) w$message, character(1))
+    return(list(rv = rv, warnings = all_warnings))
+}
+
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
 
 # Report that aggregates ages together
@@ -27,7 +37,7 @@ actions <- list(
     g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_age(prey_a),
-    g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num)),
+    g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num), include_adreport = TRUE),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
     list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
 actions <- c(actions, list(g3a_report_history(actions)))
@@ -45,7 +55,9 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 
 ok_group("report", {
     params <- attr(model_fn, 'parameter_template')
-    result <- model_fn(params)
+    result <- capture_warnings(model_fn(params))
+    ok(ut_cmp_identical(result$warnings, "No ADREPORT functionality available in R"), "Tried to ADREPORT, moved on")
+    result <- result$rv
     r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
@@ -119,6 +131,28 @@ ok_group("report", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        capture_warnings(gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template))
+    }
+})
+
+ok_group("adreport", {
+    params <- attr(model_fn, 'parameter_template')
+    result <- capture_warnings(model_fn(params))
+    ok(ut_cmp_identical(result$warnings, "No ADREPORT functionality available in R"), "Tried to ADREPORT, moved on")
+    result <- result$rv
+    r <- attributes(result)
+    # str(result)
+    # str(as.list(r), vec.len = 10000)
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        sdrep <- TMB::sdreport(model_tmb)
+        ok(ut_cmp_equal(
+            summary(sdrep, 'report'),
+            array(
+              c(rep(0, 15), rep(NaN, 15)),
+              dim = c(15, 2),
+              dimnames = list(
+                  rep("report_stock__num", 15),
+                  c("Estimate", "Std. Error")))), "TMB included report_stock__num in adreport")
     }
 })
