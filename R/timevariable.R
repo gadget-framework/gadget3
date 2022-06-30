@@ -63,31 +63,42 @@ g3_intlookup <- function (lookup_name, keys, values) {
         for (n in ls(environment())) {
             if (startsWith(n, "inttypelookup")) {
                 fn <- get(n)
+                # Strip closure, as otherwise we can't compare instances for equality
+                environment(fn) <- emptyenv()
+                assign(n, fn)
                 attr(fn, 'g3_native_cpp') <- gsub('Type', 'int', attr(fn, 'g3_native_cpp'), fixed = TRUE)
                 assign(gsub("inttypelookup", "intintlookup", n, fixed = TRUE), fn)
             }
         }
 
         # TODO: Make a 1-item optimisation, then the as.array() stops being necessary
-        assign(paste0(lookup_name, '__keys'), as.array(as.integer(keys)))
-        assign(paste0(lookup_name, '__values'), as.array(values))
-        assign(paste0(lookup_name, '__lookup'), g3_global_formula(init_val = f_substitute(~intlookup_zip(l__keys, l__values), list(
+        lookup <- f_substitute(g3_formula(quote( intlookup_zip(l__keys, l__values) )), list(
             intlookup_zip = inttype_fn('zip'),
             l__keys = as.symbol(paste0(lookup_name, '__keys')),
-            l__values = as.symbol(paste0(lookup_name, '__values'))))))
+            l__values = as.symbol(paste0(lookup_name, '__values'))))
+        assign(as.character(inttype_fn('zip')), get(inttype_fn('zip')), envir = environment(lookup))
+        assign(paste0(lookup_name, '__keys'), as.array(as.integer(keys)), envir = environment(lookup))
+        assign(paste0(lookup_name, '__values'), as.array(values), envir = environment(lookup))
+
+        # Lookup should be defined outside the main model loop
+        lookup <- g3_global_formula(init_val = lookup)
 
         if (!is.null(extra_arg)) {
-            f_substitute(~fn(l, inner_f, extra_arg), list(
+            rv <- f_substitute(g3_formula(quote( fn(l, inner_f, extra_arg) )), list(
                 fn = inttype_fn(req_type),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f,
                 extra_arg = extra_arg))
         } else {
-            f_substitute(~fn(l, inner_f), list(
+            rv <- f_substitute(g3_formula(quote( fn(l, inner_f) )), list(
                 fn = inttype_fn(req_type),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f))
         }
+        assign(as.character(inttype_fn(req_type)), get(inttype_fn(req_type)), envir = environment(rv))
+        assign(paste0(lookup_name, '__lookup'), lookup, envir = environment(rv))
+
+        return(rv)
     })
 }
 
@@ -124,7 +135,7 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
 
     # Return formula that does the lookup
     out_f <- lookup('getdefault', remove_multzero(f_substitute(
-        ~area * area_mult + cur_year * year_mult + cur_step * step_mult,
+        g3_formula(quote( area * area_mult + cur_year * year_mult + cur_step * step_mult )),
         list(
             area_mult = area_mult,
             # Mult is zero ==> There is no step.
@@ -134,7 +145,7 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     if (area_count == 1) {
         # Wrap lookup with check that we're in the correct area
         out_f <- f_substitute(
-            ~if (area != our_area) 0 else out_f,
+            g3_formula(quote( if (area != our_area) 0 else out_f )),
             list(our_area = df$area[[1]], out_f = out_f))
     }
 
