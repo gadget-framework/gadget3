@@ -163,7 +163,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         out_f <- stock_rename(out_f, stock_var, stock$name)
 
         # Add environment to formulae's environment, return inner call
-        environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+        environment_merge(rlang::f_env(step_f), rlang::f_env(out_f), ignore_overlap = TRUE)
         return(rlang::f_rhs(out_f))
     }
 

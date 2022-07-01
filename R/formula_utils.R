@@ -8,10 +8,19 @@ call_to_formula <- function (c, env = parent.frame()) {
 }
 
 # Merge (additions) into (env)
-environment_merge <- function (env, additions, var_names = ls(envir = additions)) {
+environment_merge <- function (env, additions, var_names = ls(envir = additions), ignore_overlap = FALSE) {
     for (n in var_names) {
-        if (!exists(n, envir = env) && exists(n, envir = additions, inherits = FALSE)) {
-            assign(n, get(n, envir = additions, inherits = FALSE), envir = env)
+        if (exists(n, envir = additions, inherits = FALSE)) {
+            if (!exists(n, envir = env)) {
+                assign(n, get(n, envir = additions, inherits = FALSE), envir = env)
+            } else if (!ignore_overlap) {
+                old <- get(n, envir = env, inherits = FALSE)
+                new <- get(n, envir = additions, inherits = FALSE)
+                if (!isTRUE(all.equal(old, new))) {
+                    # writeLines(unittest::ut_cmp_equal(old, new))
+                    warning("Replacing a conflicting definition of ", n)
+                }
+            }
         }
     }
     return(NULL)
@@ -62,7 +71,7 @@ f_substitute <- function (f, env, copy_all_env = FALSE) {
 
         # Combine it's environment with ours
         if (copy_all_env) {
-            environment_merge(combined_env, rlang::f_env(o))
+            environment_merge(combined_env, rlang::f_env(o), ignore_overlap = TRUE)
         } else {
             # Only copy things the formulae mentions
             vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
