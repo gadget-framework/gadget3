@@ -39,6 +39,12 @@ stopifnot(all.equal(
     local({ z = 44; ~x + 1 })
     ))
 
+# If the code is destined for CRAN, you need to quote() to avoid check errors:
+stopifnot(all.equal(
+    g3_formula(quote( x + 1 ), z = 44),
+    local({ z = 44; ~x + 1 })
+    ))
+
 # ... we can use these in g3a_grow_lengthvbsimple(), e.g.
 g3a_grow_lengthvbsimple(
     linf_f = g3_formula( g3_param("ling.Linf") ),

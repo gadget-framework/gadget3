@@ -53,6 +53,9 @@ ok(cmp_code(
     g3_formula(x + y),
     ~x + y), "g3_formula: Turned raw code into formula")
 ok(cmp_code(
+    g3_formula(quote( x + y )),
+    ~x + y), "g3_formula: Turned quoted code into formula")
+ok(cmp_code(
     g3_formula(x),
     ~x), "g3_formula: Turned symbol into formula")
 ok(cmp_code(

@@ -21,8 +21,13 @@ environment_merge <- function (env, additions, var_names = ls(envir = additions)
 g3_formula <- function (code, ...) {
     f <- sys.call()[[2]]  # Get unevaluated argument
 
-    # Ensure it's a call, starting with tilde
-    if (!is.call(f) || f[[1]] != as.symbol('~')) f <- call("~", f)
+    if (is.call(f) && as.character(f[[1]]) == 'quote') {
+        # An already-quoted call, change the quote() to a formula tilde
+        f[[1]] <- as.symbol("~")
+    } else if (!is.call(f) || f[[1]] != as.symbol('~')) {
+        # Not a call or hasn't got the formula tilde, add it
+        f <- call("~", f)
+    }
 
     formula(f, env = as.environment(list(...)))
 }
