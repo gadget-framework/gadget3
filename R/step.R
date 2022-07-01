@@ -8,7 +8,7 @@
 #       (prefix) is a string to distinguish between variables, e.g. if prefix = "prey", there will be age and prey_age variables.
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
-g3_step <- function(step_f, recursing = FALSE) {
+g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)
@@ -131,13 +131,13 @@ g3_step <- function(step_f, recursing = FALSE) {
 
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
-        stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+        stock <- get(as.character(stock_var), envir = orig_env)
         prefix <- x[['prefix']]
         if (is.null(prefix)) prefix <- ""  # NB: Remove any interactvar prefix by default
 
         # Recurse first, filling out any inner functions
         inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-        inner_f <- g3_step(inner_f, recursing = TRUE)
+        inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
         # Wrap with stock's code
         out_f <- stock_interactvar_prefix(stock[[to_replace]], prefix)
@@ -154,11 +154,11 @@ g3_step <- function(step_f, recursing = FALSE) {
             }
             # Fill out any stock functions, rename stocks
             f <- stock_rename(f, stock_var, stock$name)
-            f <- g3_step(f, recursing = TRUE)
+            f <- g3_step(f, recursing = TRUE, orig_env = orig_env)
             return(f)
         })
         # Run g3_step again to fix up dependents that got added
-        inner_f <- g3_step(inner_f, recursing = TRUE)
+        inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
         out_f <- f_substitute(out_f, list(extension_point = inner_f))
         out_f <- stock_rename(out_f, stock_var, stock$name)
 
@@ -205,15 +205,15 @@ g3_step <- function(step_f, recursing = FALSE) {
                 return(as.character(a))
             }, character(1)), collapse = "")
 
-            return(call('assert_msg', g3_step(as.formula(call("~", x[[2]]), env = environment(step_f)), recursing = TRUE), comment_str))
+            return(call('assert_msg', g3_step(as.formula(call("~", x[[2]]), env = environment(step_f)), recursing = TRUE, orig_env = orig_env), comment_str))
         },
         stock_reshape = function (x) {  # Arguments: dest_stock, source expression, will use the first variable we come across
             stock_var <- x[[2]]
-            stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+            stock <- get(as.character(stock_var), envir = orig_env)
 
             # Recurse first, letting renames happen
             inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
-            inner_f <- g3_step(inner_f, recursing = TRUE)
+            inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
             if (!("length" %in% names(stock$dim))) {
                 # No length dimension, so sum everything
@@ -224,7 +224,7 @@ g3_step <- function(step_f, recursing = FALSE) {
 
             # Assume source stock is the first in inner_f, probably true(?)
             source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])
-            source_stock <- get(source_stock_var, envir = rlang::f_env(step_f))
+            source_stock <- get(source_stock_var, envir = orig_env)
             if (!("length" %in% names(source_stock$dim))) stop("Source stock ", source_stock$name, " has no length, can't resize")
             source_lg <- stock_definition(source_stock, 'stock__minlen')
 
@@ -269,7 +269,7 @@ g3_step <- function(step_f, recursing = FALSE) {
         stock_ss = function (x) { # Arguments: stock data variable (i.e. stock__num), [dim_name = override expr, ...]
             stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
             stock_var <- gsub('__.*$', '', stock_instance)
-            stock <- get(stock_var, envir = rlang::f_env(step_f))
+            stock <- get(stock_var, envir = orig_env)
             ss_overrides <- as.list(tail(x, -2))
 
             # Get subset arguments
@@ -286,7 +286,7 @@ g3_step <- function(step_f, recursing = FALSE) {
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
             stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
             stock_var <- gsub('__.*$', '', stock_instance)
-            stock <- get(stock_var, envir = rlang::f_env(step_f))
+            stock <- get(stock_var, envir = orig_env)
             wanted_dims <- as.character(tail(x, -2))
 
             # Get subset arguments
@@ -301,7 +301,7 @@ g3_step <- function(step_f, recursing = FALSE) {
         },
         stock_switch = function (x) {  # Arguments: stock variable, stock_name = answer, ... default
             stock_var <- x[[2]]
-            stock <- get(as.character(stock_var), envir = rlang::f_env(step_f))
+            stock <- get(as.character(stock_var), envir = orig_env)
 
             # Find param with name matching stock, return it
             if (!is.null(x[[stock$name]])) return(x[[stock$name]])
