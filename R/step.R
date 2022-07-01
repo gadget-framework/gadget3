@@ -180,6 +180,16 @@ g3_step <- function(step_f, recursing = FALSE) {
 
         return(call(as.character(x[[1]]), comment_str))
     }
+    if (!recursing) {
+        # Add post-renamed versions of stocks to environment, so e.g.
+        # g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num))
+        # ...can still find prey_a (when "stock__num" might have been more accurate)
+        for (n in ls(orig_env)) {
+            if (g3_is_stock(orig_env[[n]]) && !exists(orig_env[[n]]$name, envir = orig_env)) {
+                assign(orig_env[[n]]$name, orig_env[[n]], envir = orig_env)
+            }
+        }
+    }
 
     rv <- f_optimize(call_replace(step_f,
         debug_label = debug_label_fn,  # Arguments: stock variable, comment, stock variable, ...
@@ -207,7 +217,7 @@ g3_step <- function(step_f, recursing = FALSE) {
 
             if (!("length" %in% names(stock$dim))) {
                 # No length dimension, so sum everything
-                out_f <- f_substitute(~sum(inner_f), list(inner_f = inner_f))
+                out_f <- f_substitute(g3_formula(quote( sum(inner_f) )), list(inner_f = inner_f))
                 environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
                 return(rlang::f_rhs(out_f))
             }
@@ -215,6 +225,7 @@ g3_step <- function(step_f, recursing = FALSE) {
             # Assume source stock is the first in inner_f, probably true(?)
             source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])
             source_stock <- get(source_stock_var, envir = rlang::f_env(step_f))
+            if (!("length" %in% names(source_stock$dim))) stop("Source stock ", source_stock$name, " has no length, can't resize")
             source_lg <- stock_definition(source_stock, 'stock__minlen')
 
             dest_lg <- stock_definition(stock, 'stock__minlen')
@@ -230,8 +241,14 @@ g3_step <- function(step_f, recursing = FALSE) {
                 # Source == dest, so no point doing a transform
                 out_f <- inner_f
             } else {
-                # Generate a matrix to transform one to the other
                 matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
+
+                # Formulae to apply matrix
+                out_f <- f_substitute(g3_formula(quote( g3_matrix_vec(lg_matrix, inner_f) )), list(
+                    lg_matrix = as.symbol(matrix_name),
+                    inner_f = inner_f))
+
+                # Generate a matrix to transform one to the other
                 assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
                     lower_s <- source_lg[[source_idx]]
                     upper_s <- if (source_idx >= length(source_lg)) source_upperlen else source_lg[[source_idx + 1]]
@@ -241,12 +258,7 @@ g3_step <- function(step_f, recursing = FALSE) {
 
                     intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
                     return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
-                }, numeric(1)))))
-
-                # Formulae to apply matrix
-                out_f <- f_substitute(~g3_matrix_vec(lg_matrix, inner_f), list(
-                    lg_matrix = as.symbol(matrix_name),
-                    inner_f = inner_f))
+                }, numeric(1)))), envir = environment(out_f))
             }
 
             # Add environment to formulae's environment, return inner call
