@@ -22,6 +22,19 @@ namespace map_extras {
     }
 }
 
+template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
+            return lookup.count(key) > 0 ? lookup[key] : (T)def;
+        }
+template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
+            std::map<int, T> lookup = {};
+
+            assert(keys.size() == values.size());
+            for (size_t i = 0; i < keys.size(); ++i) {
+                lookup[keys[i]] = values[i];
+            }
+            return lookup;
+        }
+
 template<class Type>
 Type objective_function<Type>::operator() () {
     PARAMETER(retro_years);
@@ -76,9 +89,6 @@ Type objective_function<Type>::operator() () {
     if (!expr) { warning(message.c_str()); return TRUE; }
     return FALSE;
 };
-    auto intintlookup_getdefault = [](std::map<int, int> lookup, int key, int def) -> int {
-            return lookup.count(key) > 0 ? lookup[key] : def;
-        };
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
@@ -226,18 +236,9 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
     array<Type> ling_mat__igfs(35,1,11);
     array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
-    auto intintlookup_zip = [](vector<int> keys, vector<int> values) -> std::map<int, int> {
-            std::map<int, int> lookup = {};
-
-            assert(keys.size() == values.size());
-            for (size_t i = 0; i < keys.size(); ++i) {
-                lookup[keys[i]] = values[i];
-            }
-            return lookup;
-        };
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_IVECTOR(igfs_totaldata__values)
-    auto igfs_totaldata__lookup = intintlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_imm__consratio(35,1,8);
     Type ling_imm__overconsumption = (double)(0);
     array<Type> ling_mat__consratio(35,1,11);
@@ -260,7 +261,7 @@ Type objective_function<Type>::operator() () {
     vector<Type> cdist_sumofsquares_ldist_lln_model__num(35); cdist_sumofsquares_ldist_lln_model__num.setZero();
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
-    auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
+    auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
@@ -467,7 +468,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : intintlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
                     }
@@ -490,7 +491,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : intintlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
                     }
@@ -837,7 +838,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
             {
-                auto cdist_sumofsquares_ldist_lln_obs__time_idx = intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
+                auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
                     auto cur_cdist_nll = (pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();

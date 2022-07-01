@@ -1,14 +1,7 @@
 g3_intlookup <- function (lookup_name, keys, values) {
-    inttype_fn <- function(postfix) {
-        as.symbol(paste0(
-            if (is.integer(values)) 'intintlookup' else 'inttypelookup',
-            '_',
-            postfix))
-    }
-
     # TODO: Implement "If not there, previous item that is"? Use map ordering, iterate through until find bigger one?
     return(function (req_type, inner_f, extra_arg = NULL) {
-        inttypelookup_zip <- g3_native(r = function (keys, values) {
+        intlookup_zip <- g3_native(r = function (keys, values) {
             if (min(keys) > 0 && max(keys) < 1e+05) {
                 out <- list()
                 out[as.integer(keys)] <- as.list(values)
@@ -20,8 +13,8 @@ g3_intlookup <- function (lookup_name, keys, values) {
             attr(out, 'key_var') <- deparse(sys.call()[[2]])
             attr(out, 'value_var') <- deparse(sys.call()[[3]])
             return(out)
-        }, cpp = '[](vector<int> keys, vector<Type> values) -> std::map<int, Type> {
-            std::map<int, Type> lookup = {};
+        }, cpp = 'template<typename T> std::map<int, T> __fn__(vector<int> keys, vector<T> values) {
+            std::map<int, T> lookup = {};
 
             assert(keys.size() == values.size());
             for (size_t i = 0; i < keys.size(); ++i) {
@@ -29,8 +22,9 @@ g3_intlookup <- function (lookup_name, keys, values) {
             }
             return lookup;
         }')
+        environment(intlookup_zip) <- emptyenv()
 
-        inttypelookup_get <- g3_native(r = function (lookup, key) {
+        intlookup_get <- g3_native(r = function (lookup, key) {
             if (is.environment(lookup)) {
                 out <- lookup[[as.character(key)]]
             } else {
@@ -42,12 +36,13 @@ g3_intlookup <- function (lookup_name, keys, values) {
                 stop(key, " not in ", our_args[[2]])
             }
             return(out)
-        }, cpp = '[](std::map<int, Type> lookup, int key) -> Type {
+        }, cpp = 'template<typename T> T __fn__(std::map<int, T> lookup, int key) {
             assert(lookup.count(key) > 0);
             return lookup[key];
         }')
+        environment(intlookup_get) <- emptyenv()
 
-        inttypelookup_getdefault <- g3_native(r = function (lookup, key, def) {
+        intlookup_getdefault <- g3_native(r = function (lookup, key, def) {
             if (is.environment(lookup)) {
                 out <- lookup[[as.character(key)]]
             } else {
@@ -55,28 +50,15 @@ g3_intlookup <- function (lookup_name, keys, values) {
                 out <- if (key < 1) NULL else lookup[key][[1]]
             }
             return(if (is.null(out)) def else out)
-        }, cpp = '[](std::map<int, Type> lookup, int key, Type def) -> Type {
-            return lookup.count(key) > 0 ? lookup[key] : def;
+        }, cpp = 'template<typename T, typename DefT> T __fn__(std::map<int, T> lookup, int key, DefT def) {
+            return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }')
-
-        # Make intint versions of all lookup functions
-        for (n in ls(environment())) {
-            if (startsWith(n, "inttypelookup")) {
-                fn <- get(n)
-                # Strip closure, as otherwise we can't compare instances for equality
-                environment(fn) <- emptyenv()
-                assign(n, fn)
-                attr(fn, 'g3_native_cpp') <- gsub('Type', 'int', attr(fn, 'g3_native_cpp'), fixed = TRUE)
-                assign(gsub("inttypelookup", "intintlookup", n, fixed = TRUE), fn)
-            }
-        }
+        environment(intlookup_getdefault) <- emptyenv()
 
         # TODO: Make a 1-item optimisation, then the as.array() stops being necessary
-        lookup <- f_substitute(g3_formula(quote( intlookup_zip(l__keys, l__values) )), list(
-            intlookup_zip = inttype_fn('zip'),
+        lookup <- f_substitute(g3_formula(quote( intlookup_zip(l__keys, l__values) ), intlookup_zip = intlookup_zip), list(
             l__keys = as.symbol(paste0(lookup_name, '__keys')),
             l__values = as.symbol(paste0(lookup_name, '__values'))))
-        assign(as.character(inttype_fn('zip')), get(inttype_fn('zip')), envir = environment(lookup))
         assign(paste0(lookup_name, '__keys'), as.array(as.integer(keys)), envir = environment(lookup))
         assign(paste0(lookup_name, '__values'), as.array(values), envir = environment(lookup))
 
@@ -85,17 +67,17 @@ g3_intlookup <- function (lookup_name, keys, values) {
 
         if (!is.null(extra_arg)) {
             rv <- f_substitute(g3_formula(quote( fn(l, inner_f, extra_arg) )), list(
-                fn = inttype_fn(req_type),
+                fn = as.symbol(paste0('intlookup_', req_type)),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f,
                 extra_arg = extra_arg))
         } else {
             rv <- f_substitute(g3_formula(quote( fn(l, inner_f) )), list(
-                fn = inttype_fn(req_type),
+                fn = as.symbol(paste0('intlookup_', req_type)),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f))
         }
-        assign(as.character(inttype_fn(req_type)), get(inttype_fn(req_type)), envir = environment(rv))
+        assign(paste0('intlookup_', req_type), get(paste0('intlookup_', req_type)), envir = environment(rv))
         assign(paste0(lookup_name, '__lookup'), lookup, envir = environment(rv))
 
         return(rv)

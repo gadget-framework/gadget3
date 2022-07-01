@@ -54,7 +54,7 @@ structure(function (param)
         }
         return(FALSE)
     }
-    intintlookup_getdefault <- function(lookup, key, def) {
+    intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
         }
@@ -172,7 +172,7 @@ structure(function (param)
         "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_mat__suit_igfs <- array(0, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
         "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
-    intintlookup_zip <- function(keys, values) {
+    intlookup_zip <- function(keys, values) {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
             out[as.integer(keys)] <- as.list(values)
@@ -186,7 +186,7 @@ structure(function (param)
         attr(out, "value_var") <- deparse(sys.call()[[3]])
         return(out)
     }
-    igfs_totaldata__lookup <- intintlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
+    igfs_totaldata__lookup <- intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
     ling_imm__consratio <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
         "age6", "age7", "age8", "age9", "age10")))
     ling_imm__overconsumption <- structure(0, desc = "Total overconsumption of ling_imm")
@@ -217,7 +217,7 @@ structure(function (param)
     ling_imm__renewalwgt <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", 
         "age6", "age7", "age8", "age9", "age10")))
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
-    times_cdist_sumofsquares_ldist_lln_obs__lookup <- intintlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
+    times_cdist_sumofsquares_ldist_lln_obs__lookup <- intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
     as_integer <- as.integer
     total_years <- end_year - retro_years - start_year + 0L + 1L
     nll_cdist_sumofsquares_ldist_lln__num <- array(0, dim = c(time = as_integer(total_steps + 1)), dimnames = list(time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
@@ -406,7 +406,7 @@ structure(function (param)
                     {
                       ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
                         0
-                      else intintlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__igfs[, ling_imm__area_idx, ling_imm__age_idx]
                     }
                   }
@@ -426,7 +426,7 @@ structure(function (param)
                     {
                       ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
                         0
-                      else intintlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                      else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
                       ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__igfs[, ling_mat__area_idx, ling_mat__age_idx]
                     }
                   }
@@ -721,7 +721,7 @@ structure(function (param)
         {
             comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
             {
-                cdist_sumofsquares_ldist_lln_obs__time_idx <- intintlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
+                cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
                 if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                   cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
                   {
