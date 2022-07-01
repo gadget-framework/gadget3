@@ -587,11 +587,31 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
     cpp_definition <- function (cpp_type, cpp_name, cpp_expr, dims = NULL) {
         dim_string <- if (is.null(dims)) "" else paste0("(", paste0(dims, collapse = ","), ")")
 
+        if (cpp_type == 'function') {
+            if (!startsWith(cpp_expr, '[')) {
+               # Full function, add with prefix so we can move it in scope_extract()
+               return(paste0('__function:', gsub('__fn__', cpp_name, cpp_expr)))
+            }
+            # Lambda function, include as usual with auto
+            cpp_type <- 'auto'
+        }
+
         if (missing(cpp_expr)) {
             sprintf("%s %s%s;", cpp_type, cpp_escape_varname(cpp_name), dim_string)
         } else {
             sprintf("%s %s%s = %s;", cpp_type, cpp_escape_varname(cpp_name), dim_string, cpp_expr)
         }
+    }
+
+    scope_split <- function (s) {
+        s <- unlist(s)
+        if (is.null(s)) return(list(definition = c(), "function" = c()))
+
+        # Split by whether they start with __function
+        s <- split(s, startsWith(s, '__function:'))
+        list(
+            definition = s[['FALSE']],
+            "function" = gsub('^__function:', '', s[['TRUE']]))
     }
 
     var_defns <- function (code, env) {
@@ -697,7 +717,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     && !(var_name %in% names(scope))) {
                 var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 scope[[var_name]] <<- cpp_definition(
-                    'auto',
+                    'function',
                     var_name,
                     trimws(attr(all_defns[[var_name]], 'g3_native_cpp')))
             }
@@ -818,14 +838,18 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
             g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.', ADREPORT = adreport_re)))
     }
     all_actions_code <- g3_functions(all_actions_code)
+    ss <- scope_split(scope)
 
-    out <- sprintf("template<class Type>
+
+    out <- sprintf("%s
+
+template<class Type>
 Type objective_function<Type>::operator() () {
     %s
 
     %s
     abort();  // Should have returned somewhere in the loop
-}\n", paste(unlist(scope), collapse = "\n    "),
+}\n", paste(ss[['function']], collapse = "\n"), paste(ss$definition, collapse = "\n    "),
       cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
     out <- strsplit(out, "\n")[[1]]
 
