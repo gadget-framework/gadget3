@@ -19,8 +19,8 @@ g3a_time <- function(
         end_year,
         step_lengths = as.array(c(12)),
         final_year_steps = quote( length(step_lengths) ),
-        project_years = ~g3_param('project_years', default = 0, optimize = FALSE),
-        retro_years = ~g3_param('retro_years', default = 0, optimize = FALSE),
+        project_years = ~g3_param('project_years', default = 0, optimise = FALSE),
+        retro_years = ~g3_param('retro_years', default = 0, optimise = FALSE),
         run_at = 0) {
     if ("mfdb_group" %in% class(step_lengths)) step_lengths <- vapply(step_lengths, length, numeric(1))
     if (is.numeric(step_lengths) && sum(step_lengths) != 12) stop("step_lengths should sum to 12 (i.e. represent a whole year)")
