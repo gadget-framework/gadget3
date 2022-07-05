@@ -150,6 +150,7 @@ ok_group('even steps', {
         1999 - 1992 + 1), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
@@ -190,6 +191,7 @@ ok_group("projection: Project_years = 4", {
         1999 - 1992 + 1 + 4), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
@@ -230,6 +232,7 @@ ok_group("projection: retro_years = 3", {
         1999 - 1992 + 1 - 3), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
@@ -282,6 +285,7 @@ ok_group("retro_years, project_years must have correct sense", {
         result <- model_fn(params)
     }, 'retro_years'), "retro_years: Can't be negative")
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         ok(cmp_warn({
@@ -329,6 +333,7 @@ ok_group("Short final year: final_year_steps = 1", {
         ceiling(test_total_steps / 3)), "total_years populated (NB: Ignores final_year_steps)")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
@@ -378,6 +383,7 @@ ok_group("1 year forecast from 2nd retro peel: retro_years = 2, project_years = 
         ceiling(test_total_steps / 3)), "total_years populated")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
