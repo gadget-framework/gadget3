@@ -1,5 +1,5 @@
                                                                  switch   type value optimise random lower upper parscale
-retro_years                                                 retro_years            0     TRUE  FALSE    NA    NA       NA
+retro_years                                                 retro_years            0    FALSE  FALSE    NA    NA       NA
 ling.Linf                                                     ling.Linf            0     TRUE  FALSE    NA    NA       NA
 ling.k                                                           ling.k            0     TRUE  FALSE    NA    NA       NA
 ling.recl                                                     ling.recl            0     TRUE  FALSE    NA    NA       NA
