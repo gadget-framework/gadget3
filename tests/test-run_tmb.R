@@ -38,6 +38,10 @@ ok(ut_cmp_error({
     g3_tmb_adfun(g3_to_tmb(list(~{ g3_param_table('randomandoptimise', expand.grid(cur_step = 2:3), random = TRUE, optimise = TRUE) })))
 }, "randomandoptimise"), "Specifying random and optimise isn't allowed")
 
+ok(ut_cmp_error({
+    g3_to_tmb(list(~g3_param("camel", optimize = FALSE)))
+}, "optimise"), "Optimise is spelt with an s in g3_param()")
+
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
@@ -283,7 +287,7 @@ ok_group("g3_to_tmb: Can use random parameters", local({
             stock__prevrec <- x
         }, list(
             x = ~g3_param_table('rp', expand.grid(cur_year = seq(start_year, end_year)), random = TRUE),
-            sigma = ~g3_param('sigma', default = 0.2, optimize = TRUE)
+            sigma = ~g3_param('sigma', default = 0.2, optimise = TRUE)
         ))),
         list()
     )

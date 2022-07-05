@@ -619,6 +619,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
         repl_fn <- function(x) {
             # NB: eval() because -1 won't be a symbol
             find_arg <- function (arg_name, def) if (arg_name %in% names(x)) eval(x[[arg_name]]) else def
+            if ('optimize' %in% names(x)) stop("g3_param() optimise parameter should be spelt with an s")
 
             df_template <- function (name, dims = c(1)) {
                 # Extract named args from g3_param() call
