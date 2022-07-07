@@ -37,7 +37,6 @@
       \item{random}{Initial random setting in parameter_template. Default FALSE}
       \item{lower}{Initial lower setting in parameter_template. Default NA}
       \item{upper}{Initial upper setting in parameter_template. Default NA}
-      \item{ifmissing}{Value to return when outside of table bounds. Default error on missing values}
   }
 
   For example, \code{g3_param("ling.Linf")} will register a scalar parameter
@@ -73,6 +72,7 @@
       \item{random}{Initial random setting in parameter_template. Default FALSE}
       \item{lower}{Initial lower setting in parameter_template. Default NA}
       \item{upper}{Initial upper setting in parameter_template. Default NA}
+      \item{ifmissing}{Value to return when outside of table bounds. Default error on missing values}
   }
 
   This is similar to providing a vector, but can use values in the model to
