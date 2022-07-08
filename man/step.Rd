@@ -9,6 +9,8 @@
 \alias{stock_iterate}
 \alias{stock_intersect}
 \alias{stock_interact}
+\alias{stock_param}
+\alias{stock_param_table}
 
 \title{G3 stock_* transformation functions}
 \description{
@@ -224,5 +226,44 @@
       }
   }))}
 
+  }
+}
+
+\section{stock_param}{
+  \code{stock_param(stock, name, name_part = NULL, ...)}
+
+  Convert to a call to \link{g3_param}, prefixing the \var{name} with the stock name.
+  If \var{name_part} given, only use that part of the stock name.
+
+  All other args passed through to \link{g3_param}.
+
+  \subsection{Examples}{
+
+\preformatted{> stock <- g3_stock(c(species = 'halibut', 'imm'), 1:10) |> g3s_age(1,10)
+> gadget3:::g3_step(~stock_param(stock, 'K'))
+~g3_param("halibut_imm.K")
+> gadget3:::g3_step(~stock_param(stock, 'K', name_part = 'species'))
+~g3_param("halibut.K")}
+  }
+}
+
+\section{stock_param_table}{
+  \code{stock_param_table(stock, name, name_part = NULL, table_defn, ...)}
+
+  Convert to a call to \link{g3_param_table}, prefixing the \var{name} with the stock name.
+  If \var{name_part} given, only use that part of the stock name.
+
+  The \var{table_defn} will have any instances of \var{stock} replaced using \link{stock_with}().
+
+  All other args passed through to \link{g3_param_table}.
+
+  \subsection{Examples}{
+
+\preformatted{> stock <- g3_stock(c(species = 'halibut', 'imm'), 1:10) |> g3s_age(1,10)
+> gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(year = 2000:2004)))
+~g3_param_table("halibut_imm.K", expand.grid(year = 2000:2004))
+> gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(age = seq(stock__minage, stock__maxage))))
+~g3_param_table("halibut_imm.K", expand.grid(age = seq(halibut_imm__minage,
+    halibut_imm__maxage)))}
   }
 }

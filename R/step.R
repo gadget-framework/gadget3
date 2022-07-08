@@ -309,6 +309,54 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             if (!nzchar(names(x)[[length(x)]])) return(x[[length(x)]])
             stop("stock_switch has no result for ", stock$name, ": ", deparse(x))
         },
+        stock_param = function (x) { # Arguments: stock variable, name_part = NULL, name, ....
+            stock_var <- x[[2]]
+            stock <- get(as.character(stock_var), envir = orig_env)
+            rest <- tail(as.list(x), -2)
+
+            # Use name_part if part of the call
+            if (!is.null(rest$name_part)) {
+                param_name <- stock$name_part[[rest$name_part]]
+            } else {
+                param_name <- stock$name
+            }
+            rest$name_part <- NULL
+
+            # Append first argument to complete name
+            param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
+            rest <- tail(rest, -1)
+
+            # Make a g3_param call with the newly-named param
+            as.call(c(list(quote(g3_param), param_name), rest))
+        },
+        stock_param_table = function (x) { # Arguments: stock variable, name_part = NULL, name, ....
+            stock_var <- x[[2]]
+            stock <- get(as.character(stock_var), envir = orig_env)
+            rest <- tail(as.list(x), -2)
+
+            # Use name_part if part of the call
+            if (!is.null(rest$name_part)) {
+                param_name <- stock$name_part[[rest$name_part]]
+            } else {
+                param_name <- stock$name
+            }
+            rest$name_part <- NULL
+
+            # Append first argument to complete name
+            param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
+            rest <- tail(rest, -1)
+
+            # Apply stock rename to table_defn
+            table_defn <- rest[[1]]
+            table_defn <- call("stock_with", stock_var, table_defn)  # stock_with(stock, ...) is implicit
+            table_defn <- rlang::f_rhs(g3_step(
+                call_to_formula(table_defn, env = as.environment(list())),
+                recursing = TRUE, orig_env = orig_env))
+            rest <- tail(rest, -1)
+
+            # Make a g3_param call with the newly-named param
+            as.call(c(list(quote(g3_param_table), param_name, table_defn), rest))
+        },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'rename'))
         },

@@ -230,3 +230,67 @@ ok_group("g3_step:dependent_formulas", (function () {
         (ling_imm__num[, ling_imm__age_idx] + global_init_f))), "global_ind_f: global_ind_f not mentioned anywhere in formula")
     ok(any(grepl("global_init_f <- 2 * 2", deparse(g3_to_r(list(f))), fixed = TRUE)), "global_init_f: init_val in header when fully compiled")
 })())
+
+ok_group("g3_step:stock_param", {
+    stock_a <- g3_stock(c(t = 'stock', 'aaa'), seq(10, 35, 5))
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param(stock_a, 'parr', optmise = FALSE)
+            stock_param(stock_a, 'parr', optmise = FALSE, upper = 5)
+        }), ~{
+            g3_param("stock_aaa.parr", optmise = FALSE)
+            g3_param("stock_aaa.parr", optmise = FALSE, upper = 5)
+        }), "Passed through options")
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param(stock_a, name_part = 't', 'parr')
+            stock_param(stock_a, 'parr', name_part = 't')
+            stock_param(stock_a, 'parr', name_part = 't', lower = 4, upper = 5)
+        }), ~{
+            g3_param("stock.parr")
+            g3_param("stock.parr")
+            g3_param("stock.parr", lower = 4, upper = 5)
+        }), "name_part can be either beffore or after name, not passed through to g3_param call")
+})
+
+ok_group("g3_step:stock_param_table", {
+    stock_a <- g3_stock(c(t = 'stock', 'aaa'), seq(10, 35, 5))
+    stock_b <- g3_stock(c(t = 'stock', 'bbb'), seq(10, 35, 5))
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param_table(stock_a, 'par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), year = 2:3))
+            stock_param_table(stock_a, 'par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), len = stock_a__minlen))
+        }), ~{
+            g3_param_table("stock_aaa.par1", data.frame(age = seq(stock_aaa__minage, stock_aaa__maxage), year = 2:3))
+            g3_param_table("stock_aaa.par1", data.frame(age = seq(stock_aaa__minage, stock_aaa__maxage), len = stock_aaa__minlen))
+        }), "renamed parts in table_defn")
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param_table(stock_a, 'par1', data.frame(year = 2:3), upper = 5)
+            stock_param_table(stock_a, 'par1', data.frame(year = 2:3), upper = 5, lower = 2)
+        }), ~{
+            g3_param_table('stock_aaa.par1', data.frame(year = 2:3), upper = 5)
+            g3_param_table('stock_aaa.par1', data.frame(year = 2:3), upper = 5, lower = 2)
+        }), "passed through remaining params")
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param_table(stock_a, name_part = 't', 'par1', data.frame(year = 2:3), upper = 5)
+            stock_param_table(stock_a, 'par1', name_part = 't', data.frame(year = 2:3), upper = 5, lower = 2)
+        }), ~{
+            g3_param_table('stock.par1', data.frame(year = 2:3), upper = 5)
+            g3_param_table('stock.par1', data.frame(year = 2:3), upper = 5, lower = 2)
+        }), "Can use name_part before or after actual name")
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param_table(stock_a, name_part = 't', 'par1', stock_with(stock_b, data.frame(age = seq(stock_a__minage, stock_b__maxage))))
+            stock_param_table(stock_b, name_part = 't', 'par1', stock_with(stock_a, data.frame(age = seq(stock_a__minage, stock_b__maxage))))
+        }), ~{
+            g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
+            g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
+        }), "Can stock_with other stocks into table_defn")
+})
