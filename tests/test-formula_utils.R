@@ -83,6 +83,14 @@ ok(cmp_environment(
 
 ### f_substitute
 
+out <- gadget3:::f_substitute(quote( x^2 ), list(x = g3_formula(~parrot, parrot = 4)))
+ok(cmp_code(out, ~parrot^2), "f_substitute: Substituted formula into call")
+ok(cmp_environment(environment(out), list(parrot = 4)), "f_substitute: Resultant formula has parts from replacement")
+
+ok(cmp_code(
+    gadget3:::f_substitute(~x / y, list(y = ~1 + 2)),
+    ~x / (1 + 2)), "f_substitute: Auto-bracketed an inline replacement")
+
 ok(cmp_code(
     gadget3:::f_substitute(~x / y, list(y = ~1 + 2)),
     ~x / (1 + 2)), "f_substitute: Auto-bracketed an inline replacement")

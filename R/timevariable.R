@@ -56,9 +56,10 @@ g3_intlookup <- function (lookup_name, keys, values) {
         environment(intlookup_getdefault) <- emptyenv()
 
         # TODO: Make a 1-item optimisation, then the as.array() stops being necessary
-        lookup <- f_substitute(g3_formula(quote( intlookup_zip(l__keys, l__values) ), intlookup_zip = intlookup_zip), list(
+        lookup <- f_substitute(quote( intlookup_zip(l__keys, l__values) ), list(
             l__keys = as.symbol(paste0(lookup_name, '__keys')),
             l__values = as.symbol(paste0(lookup_name, '__values'))))
+        assign('intlookup_zip', intlookup_zip, , envir = environment(lookup))
         assign(paste0(lookup_name, '__keys'), as.array(as.integer(keys)), envir = environment(lookup))
         assign(paste0(lookup_name, '__values'), as.array(values), envir = environment(lookup))
 
@@ -66,13 +67,13 @@ g3_intlookup <- function (lookup_name, keys, values) {
         lookup <- g3_global_formula(init_val = lookup)
 
         if (!is.null(extra_arg)) {
-            rv <- f_substitute(g3_formula(quote( fn(l, inner_f, extra_arg) )), list(
+            rv <- f_substitute(quote( fn(l, inner_f, extra_arg) ), list(
                 fn = as.symbol(paste0('intlookup_', req_type)),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f,
                 extra_arg = extra_arg))
         } else {
-            rv <- f_substitute(g3_formula(quote( fn(l, inner_f) )), list(
+            rv <- f_substitute(quote( fn(l, inner_f) ), list(
                 fn = as.symbol(paste0('intlookup_', req_type)),
                 l = as.symbol(paste0(lookup_name, '__lookup')),
                 inner_f = inner_f))
@@ -117,7 +118,7 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
 
     # Return formula that does the lookup
     out_f <- lookup('getdefault', remove_multzero(f_substitute(
-        g3_formula(quote( area * area_mult + cur_year * year_mult + cur_step * step_mult )),
+        quote( area * area_mult + cur_year * year_mult + cur_step * step_mult ),
         list(
             area_mult = area_mult,
             # Mult is zero ==> There is no step.
@@ -127,7 +128,7 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     if (area_count == 1) {
         # Wrap lookup with check that we're in the correct area
         out_f <- f_substitute(
-            g3_formula(quote( if (area != our_area) 0 else out_f )),
+            quote( if (area != our_area) 0 else out_f ),
             list(our_area = df$area[[1]], out_f = out_f))
     }
 

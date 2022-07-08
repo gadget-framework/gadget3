@@ -43,6 +43,8 @@ g3_formula <- function (code, ...) {
 
 # Substitute within formulae, merging all environments together
 f_substitute <- function (f, env, copy_all_env = FALSE) {
+    # If not a formula, convert to one with empty environment
+    if (!rlang::is_formula(f)) f <- call_to_formula(f, env = emptyenv())
     env <- as.environment(env)
     # Copy f's environment to a new environment, ignore it's parent
     combined_env <- new.env(parent = emptyenv())

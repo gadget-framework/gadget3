@@ -217,7 +217,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             if (!("length" %in% names(stock$dim))) {
                 # No length dimension, so sum everything
-                out_f <- f_substitute(g3_formula(quote( sum(inner_f) )), list(inner_f = inner_f))
+                out_f <- f_substitute(quote( sum(inner_f) ), list(inner_f = inner_f))
                 environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
                 return(rlang::f_rhs(out_f))
             }
@@ -244,7 +244,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
 
                 # Formulae to apply matrix
-                out_f <- f_substitute(g3_formula(quote( g3_matrix_vec(lg_matrix, inner_f) )), list(
+                out_f <- f_substitute(quote( g3_matrix_vec(lg_matrix, inner_f) ), list(
                     lg_matrix = as.symbol(matrix_name),
                     inner_f = inner_f))
 
