@@ -83,6 +83,9 @@ export(g3l_tagging_ckmr)
 # R/likelihood_understocking.R
 export(g3l_understocking)
 
+# R/params.R
+export(g3_parameterized)
+
 # R/run_desc.R
 export(g3_to_desc)
 
