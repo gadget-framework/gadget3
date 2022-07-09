@@ -290,6 +290,44 @@
 </div>
 
     </div>
+    <div id="stock-param">
+    <h2>stock_param</h2>
+    <p><code>stock_param(stock, name, name_part = NULL, ...)</code></p>
+<p>Convert to a call to <a href="language.html">g3_param</a>, prefixing the <var>name</var> with the stock name.
+  If <var>name_part</var> given, only use that part of the stock name.</p>
+<p>All other args passed through to <a href="language.html">g3_param</a>.</p>
+<p></p><div class="section">
+<h3 id="examples-10">Examples<a class="anchor" aria-label="anchor" href="#examples-10"></a></h3>
+
+
+<div class="sourceCode"><pre><code>&gt; stock &lt;- g3_stock(c(species = 'halibut', 'imm'), 1:10) |&gt; g3s_age(1,10)
+&gt; gadget3:::g3_step(~stock_param(stock, 'K'))
+~g3_param("halibut_imm.K")
+&gt; gadget3:::g3_step(~stock_param(stock, 'K', name_part = 'species'))
+~g3_param("halibut.K")</code></pre></div><p></p>
+</div>
+
+    </div>
+    <div id="stock-param-table">
+    <h2>stock_param_table</h2>
+    <p><code>stock_param_table(stock, name, name_part = NULL, table_defn, ...)</code></p>
+<p>Convert to a call to <a href="language.html">g3_param_table</a>, prefixing the <var>name</var> with the stock name.
+  If <var>name_part</var> given, only use that part of the stock name.</p>
+<p>The <var>table_defn</var> will have any instances of <var>stock</var> replaced using stock_with().</p>
+<p>All other args passed through to <a href="language.html">g3_param_table</a>.</p>
+<p></p><div class="section">
+<h3 id="examples-11">Examples<a class="anchor" aria-label="anchor" href="#examples-11"></a></h3>
+
+
+<div class="sourceCode"><pre><code>&gt; stock &lt;- g3_stock(c(species = 'halibut', 'imm'), 1:10) |&gt; g3s_age(1,10)
+&gt; gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(year = 2000:2004)))
+~g3_param_table("halibut_imm.K", expand.grid(year = 2000:2004))
+&gt; gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(age = seq(stock__minage, stock__maxage))))
+~g3_param_table("halibut_imm.K", expand.grid(age = seq(halibut_imm__minage,
+    halibut_imm__maxage)))</code></pre></div><p></p>
+</div>
+
+    </div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
