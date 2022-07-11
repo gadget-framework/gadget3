@@ -752,7 +752,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 3) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {
@@ -779,7 +779,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal_normalparam for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( (cur_step == 1 && age == 5) ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     {

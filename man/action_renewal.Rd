@@ -1,4 +1,5 @@
 \name{action_renewal}
+\alias{g3a_renewal_vonb}
 \alias{g3a_initialconditions}
 \alias{g3a_initialconditions_normalparam}
 \alias{g3a_renewal}
@@ -10,6 +11,12 @@
 }
 
 \usage{
+g3a_renewal_vonb(
+        Linf = g3_parameterized('Linf', by_stock = by_stock),
+        K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        recl = g3_parameterized('recl', by_stock = by_stock),
+        by_stock = TRUE)
+
 g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
 
 g3a_initialconditions_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, 
@@ -54,6 +61,10 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
     \link{formula} specifying a condition for running this action,
     default always runs for renewal, first timestep for initialcondtions.
   }
+  \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{K}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
 \details{
@@ -69,6 +80,10 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
 }
 
 \value{
+  \subsection{g3a_renewal_vonb}{A \link{formula} object representing
+    \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (1 + \frac{\log(1 - r/L_{\infty})}{\kappa}  ))}} }
+
+  }
   \subsection{g3a_initialconditions / g3a_renewal}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
   area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using

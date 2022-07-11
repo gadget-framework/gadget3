@@ -646,13 +646,13 @@ structure(function (param)
             ling_imm__area_idx <- (1)
             {
                 comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 5) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
                     {
                       comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
+                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3L + 1L]])))^2) * 0.5)
                       comment("scale results")
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
@@ -670,13 +670,13 @@ structure(function (param)
             ling_imm__area_idx <- (1)
             {
                 comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 3) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
                     {
                       comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3L + 1L]])))^2) * 0.5)
+                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
                       comment("scale results")
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))

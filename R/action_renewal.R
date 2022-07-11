@@ -4,6 +4,20 @@ renewal_into <- function (stock) {
     return(TRUE)
 }
 
+# Parameterised vonb formula, for use as mean_f
+g3a_renewal_vonb <- function(
+        Linf = g3_parameterized('Linf', by_stock = by_stock),
+        K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        recl = g3_parameterized('recl', by_stock = by_stock),
+        by_stock = TRUE) {
+    f_substitute(
+        quote( Linf * (1 - exp(-1 * K * (age - (1 + log(1 - recl/Linf)/K) ))) ),
+        list(
+            Linf = Linf,
+            K = K,
+            recl = recl))
+}
+
 # Assign number / mean weight based on formulae
 g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
     stock__num <- stock_instance(stock, 0)
