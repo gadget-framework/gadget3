@@ -218,6 +218,11 @@ f_optimize <- function (f) {
                 # if(FALSE) exp else exp_2 --> exp_2
                 return (if (length(x) > 3) f_optimize(x[[4]]) else quote({}))
             }
+            if (is.call(x) && ( is.call(x[[2]]) && x[[2]][[1]] == as.symbol(open_bracket) )) {
+                # if (()) ..., can remove one set of brackets.
+                x[[2]] <- x[[2]][[2]]
+                return(f_optimize(x))
+            }
             # Regular if, descend either side of expression
             x[[2]] <- f_optimize(x[[2]])
             x[[3]] <- f_optimize(x[[3]])
