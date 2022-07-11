@@ -6,6 +6,7 @@ library(gadget3)
 ## e.g. Sys.setenv(demo_ling_read_data = TRUE)
 setdefault <- function (n, def) as.logical(Sys.getenv(n, as.character(def)))
 demo_ling_read_data <- setdefault("demo_ling_read_data", FALSE)
+demo_ling_dump_model <- setdefault("demo_ling_dump_model", FALSE)
 demo_ling_run_r <- setdefault("demo_ling_run_r", TRUE)
 demo_ling_compile_tmb <- setdefault("demo_ling_compile_tmb", TRUE)
 demo_ling_run_tmb <- setdefault("demo_ling_run_tmb", TRUE)
@@ -130,6 +131,10 @@ ling_param['adist_surveyindices_log_si_igfs_si3d_weight'] <- 14.5
 # You can edit the model code with:
 #ling_model <- edit(ling_model)
 
+if (demo_ling_dump_model) {
+  writeLines(deparse(ling_model, width.cutoff = 500L), con = 'demo-ling.compiled.R')
+}
+
 if (demo_ling_run_r) {
     # Run model with params above
     result <- ling_model(ling_param)
@@ -180,6 +185,11 @@ tmb_param[grepl('^ling_imm\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_mat\\.M\\.', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_imm\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
 tmb_param[grepl('^ling_mat\\.init\\.sd', rownames(tmb_param)),]$optimise <- FALSE
+
+if (demo_ling_dump_model) {
+    writeLines(tmb_ling, con = 'demo-ling.cpp')
+    capture.output(print(tmb_param), file = 'demo-ling.tmbparam')
+}
 
 if (demo_ling_compile_tmb) {
     # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
