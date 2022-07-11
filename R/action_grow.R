@@ -269,7 +269,7 @@ g3a_growmature <- function(stock,
     # Filter out known constants (hacky but conservative, will fail by being slow)
     growth_dependent_vars <- sort(setdiff(
         all.vars(calcgrowth_f),
-        c('stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen')))
+        c('stock', 'stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen')))
     if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
         calcgrowth_f <- f_substitute(~{
