@@ -63,7 +63,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_initialconditions</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>, run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_renewal_vonb</span><span class="op">(</span></span>
+<span>        Linf <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'Linf'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        K <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, scale <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span>,</span>
+<span>        recl <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'recl'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_initialconditions</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>, run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span><span class="va">stock</span>, <span class="va">factor_f</span>, <span class="va">mean_f</span>, <span class="va">stddev_f</span>, <span class="va">alpha_f</span>, <span class="va">beta_f</span>, </span>
 <span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>, run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -107,6 +113,18 @@
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action,
     default always runs for renewal, first timestep for initialcondtions.</p></dd>
 
+  <dt>Linf</dt>
+<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into vonb calcuations, see below.</p></dd>
+
+  <dt>K</dt>
+<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into vonb calcuations, see below.</p></dd>
+
+  <dt>recl</dt>
+<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into vonb calcuations, see below.</p></dd>
+
+  <dt>by_stock</dt>
+<dd><p>Controls how parameters are grouped, see <code><a href="params.html">g3_parameterized</a></code></p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -124,6 +142,13 @@
     <div id="value">
     <h2>Value</h2>
     <p></p>
+<div class="section">
+<h3 id="g-a-renewal-vonb">g3a_renewal_vonb<a class="anchor" aria-label="anchor" href="#g-a-renewal-vonb"></a></h3>
+<p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
+    $$ L_{\infty} * {1 - e^{-1 * \kappa * (a - (1 + \frac{\log(1 - r/L_{\infty})}{\kappa}  ))}} $$</p>
+<p></p>
+</div>
+<p></p>
 <div class="section">
 <h3 id="g-a-initialconditions-g-a-renewal">g3a_initialconditions / g3a_renewal<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-g-a-renewal"></a></h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>, iterate over each

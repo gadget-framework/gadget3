@@ -69,6 +69,8 @@
 <span>        by_year <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        exponentiate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        scale <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        offset <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -115,6 +117,12 @@
 
   <dt>exponentiate</dt>
 <dd><p>Use <code>exp(value)</code> instead of the raw parameter value</p></dd>
+
+  <dt>scale</dt>
+<dd><p>Use <code>scale * value</code> instead of the raw parameter value</p></dd>
+
+  <dt>offset</dt>
+<dd><p>Use <code>value + offset</code> instead of the raw parameter value</p></dd>
 
   <dt>...</dt>
 <dd><p>Additional parameters passed through to <code><a href="language.html">g3_param</a></code>, e.g. <var>optimise</var>, <var>random</var>, ...</p></dd>
