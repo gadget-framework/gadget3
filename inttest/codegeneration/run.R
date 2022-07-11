@@ -41,13 +41,13 @@ ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init")[[age - 3 + 1]],
-        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.K")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.K")))))),
         stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
         factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
-        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.K")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.K")))))),
         stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
@@ -55,7 +55,7 @@ ling_imm_actions <- list(
     # Additional renewal for age 5
     g3a_renewal_normalparam(ling_imm,
         factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
-        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.K")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.K")))))),
         stddev_f = ~ling_imm_stddev[[age - 3L + 1L]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
@@ -64,7 +64,7 @@ ling_imm_actions <- list(
         impl_f = g3a_grow_impl_bbinom(
             g3a_grow_lengthvbsimple(
                 linf_f = ~g3_param("ling.Linf"),
-                kappa_f = ~g3_param("ling.k") * 0.001),
+                kappa_f = ~g3_param("ling.K") * 0.001),
             g3a_grow_weightsimple(
                 alpha_f = ~g3_param("lingimm.walpha"),
                 beta_f = ~g3_param("lingimm.wbeta")),
@@ -96,7 +96,7 @@ ling_mat_actions <- list(
     g3a_initialconditions_normalparam(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init")[[age - 5 + 1]],
-        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.k")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.k")))))),
+        mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 * (0.001 * g3_param("ling.K")) * (age - (1 + log(1 - g3_param("ling.recl")/g3_param("ling.Linf"))/(0.001 * g3_param("ling.K")))))),
         stddev_f = ~ling_mat_stddev[[age - 5 + 1]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
@@ -104,7 +104,7 @@ ling_mat_actions <- list(
         impl_f = g3a_grow_impl_bbinom(
             g3a_grow_lengthvbsimple(
                 linf_f = ~g3_param("ling.Linf"),
-                kappa_f = ~g3_param("ling.k") * 0.001),
+                kappa_f = ~g3_param("ling.K") * 0.001),
             g3a_grow_weightsimple(
                 alpha_f = ~g3_param("lingmat.walpha"),
                 beta_f = ~g3_param("lingmat.wbeta")),
@@ -156,7 +156,7 @@ writeLines(deparse(model_fn, width.cutoff = 500L), con = 'inttest/codegeneration
 
 params <- attr(model_fn, 'parameter_template')
 params[["ling.Linf"]] <- 160
-params[["ling.k"]] <- 90
+params[["ling.K"]] <- 90
 params[["lingimm.walpha"]] <- 2.27567436711055e-06
 params[["lingimm.wbeta"]] <- 3.20200445996187
 params[["ling.bbin"]] <- 6
