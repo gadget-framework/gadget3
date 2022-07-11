@@ -4,6 +4,8 @@ g3_parameterized <- function(
         by_year = FALSE,
         by_age = FALSE,
         exponentiate = FALSE,
+        scale = 1,
+        offset = 0,
         ...) {
     stopifnot(is.character(name))
     stopifnot(is.logical(by_age))
@@ -73,6 +75,10 @@ g3_parameterized <- function(
 
     # Pass through standard g3_param arguments
     out <- as.call(c(as.list(out), list(...)))
+
+    # Modify value if asked
     if (exponentiate) out <- substitute(exp(x), list(x = out))
+    if (scale != 1) out <- substitute(scale * x, list(x = out, scale = scale))
+    if (offset != 0) out <- substitute(x + offset, list(x = out, offset = offset))
     return(out)
 }

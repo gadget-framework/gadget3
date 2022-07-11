@@ -25,6 +25,15 @@ ok(cmp_code(
 
 ok(cmp_code(
     call("{",  # }
+        g3_parameterized('parp', by_stock = FALSE, exponentiate = TRUE, offset = 5),
+        g3_parameterized('parp', by_stock = FALSE, scale = 0.001, offset = 2),
+    NULL), quote({
+        exp(g3_param("parp")) + 5
+        0.001 * g3_param("parp") + 2
+    NULL})), "Can wrap with exp(), scale, offset")
+
+ok(cmp_code(
+    call("{",  # }
         g3_parameterized('parp', by_stock = FALSE, value = 4, lower = 2, upper = 9),
         g3_parameterized('parp', by_stock = FALSE, optimise = FALSE),
         g3_parameterized('parp', by_stock = FALSE, random = TRUE),

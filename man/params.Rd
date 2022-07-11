@@ -13,6 +13,8 @@ g3_parameterized(
         by_year = FALSE,
         by_age = FALSE,
         exponentiate = FALSE,
+        scale = 1,
+        offset = 0,
         ...)
 }
 
@@ -44,6 +46,8 @@ g3_parameterized(
     }
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value}
+  \item{scale}{Use \code{scale * value} instead of the raw parameter value}
+  \item{offset}{Use \code{value + offset} instead of the raw parameter value}
   \item{...}{Additional parameters passed through to \code{\link{g3_param}}, e.g. \var{optimise}, \var{random}, ...}
 }
 
