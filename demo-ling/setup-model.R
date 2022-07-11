@@ -94,14 +94,6 @@ prop_m_age <-
                          list('a50' = bounded_param(ling_imm, "mat.a50", model_params, id = 'species'),
                               'mat.a' = bounded_param(ling_imm, "mat.a", model_params, id = 'species')))
 
-## mean length is estimated based on a Von B relationship used for immature and mature
-mean_l <-
-  gadget3:::f_substitute(~Linf * (1 - exp(-1 * K * (age - (1 + log(1 - recl/Linf)/K)))),
-                         list('recl' = bounded_param(ling_imm, "recl", model_params, id = 'species'), 
-                              'Linf' = bounded_param(ling_imm, "Linf", model_params, id = 'species'), 
-                              'K' = gadget3:::f_substitute(~0.001 * K, 
-                                                           list(K = bounded_param(ling_imm, "K", model_params, id = 'species')))))
-
 ling_imm_actions <- list(
   
   g3a_initialconditions_normalparam(ling_imm,
@@ -115,7 +107,7 @@ ling_imm_actions <- list(
                                           prop_m_age = prop_m_age,
                                           init.F = bounded_param(ling_imm, "init.F", model_params, id = 'species'),
                                           M = bounded_table(ling_imm, "M", model_params))),
-                                    mean_f = mean_l,
+                                    mean_f = g3a_renewal_vonb(by_stock = 'species'),
                                     stddev_f = bounded_table(ling_imm, "init.sd", model_params),
                                     alpha_f = bounded_param(ling_imm, "walpha", model_params),
                                     beta_f = bounded_param(ling_imm, "wbeta", model_params)),
@@ -125,7 +117,7 @@ ling_imm_actions <- list(
                           # gadget3:::f_substitute(~rec*exp(-g3_param_table("lingimm.M",
                           #                                                 data.frame(age = seq(ling_imm__minage, ling_imm__maxage)))),
                           #                        list(rec=ling_init_abund)),
-                          mean_f = mean_l,
+                          mean_f = g3a_renewal_vonb(by_stock = 'species'),
                           stddev_f = bounded_param(ling_imm, "rec.sd", model_params, id = 'species'),
                           alpha_f = bounded_param(ling_imm, "walpha", model_params),
                           beta_f = bounded_param(ling_imm, "wbeta", model_params),
@@ -133,9 +125,9 @@ ling_imm_actions <- list(
                                                     
   g3a_growmature(ling_imm,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(bounded_param(ling_imm, "Linf", model_params, id = 'species'),
-                                           gadget3:::f_substitute(~0.001 * K, 
-                                                                  list(K = bounded_param(ling_imm, "K", model_params, id = 'species')))),      
+                   g3a_grow_lengthvbsimple(
+                       g3_parameterized('Linf', by_stock = 'species'),
+                       g3_parameterized('K', by_stock = 'species', scale = 0.001)),
                    g3a_grow_weightsimple(bounded_param(ling_imm, "walpha", model_params),  
                                          bounded_param(ling_imm, "wbeta", model_params)),   
                    beta_f = bounded_param(ling_imm, "bbin", model_params, id = 'species'),
@@ -166,16 +158,16 @@ ling_mat_actions <- list(
                                                                prop_m_age = prop_m_age,
                                                                init.F = bounded_param(ling_mat, "init.F", model_params, id = 'species'),
                                                                M = paste(ling_mat$name, "M", sep="."))),
-                                    mean_f = mean_l,
+                                    mean_f = g3a_renewal_vonb(by_stock = 'species'),
                                     stddev_f = bounded_table(ling_mat, "init.sd", model_params),
                                     alpha_f = bounded_param(ling_mat, "walpha", model_params),
                                     beta_f = bounded_param(ling_mat, "wbeta", model_params)),
   
   g3a_growmature(ling_mat,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(bounded_param(ling_mat, "Linf", model_params, id = 'species'),
-                                           gadget3:::f_substitute(~0.001 * K, 
-                                                                  list(K = bounded_param(ling_mat, "K", model_params, id = 'species')))),  
+                   g3a_grow_lengthvbsimple(
+                       g3_parameterized('Linf', by_stock = 'species'),
+                       g3_parameterized('K', by_stock = 'species', scale = 0.001)),
                    g3a_grow_weightsimple(bounded_param(ling_mat, "walpha", model_params),  
                                          bounded_param(ling_mat, "wbeta", model_params)),   
                    beta_f = bounded_param(ling_mat, "bbin", model_params, id = 'species'),
