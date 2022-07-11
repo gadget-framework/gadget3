@@ -30,7 +30,7 @@ parse_tree <- function (o, prefix = "") {
     } else {
         # Recurse over language object as list
         for (inner in as.list(o)) {
-            parse_tree(inner, prefix = paste0(prefix, "| "))
+            parse_tree(inner, prefix = paste0(prefix, if (is.call(o) && mode(o) == "(") "( " else "| "))  # ))
         }
     }
 }
