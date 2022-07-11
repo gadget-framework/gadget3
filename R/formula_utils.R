@@ -43,6 +43,18 @@ g3_formula <- function (code, ...) {
 
 # Substitute within formulae, merging all environments together
 f_substitute <- function (f, env, copy_all_env = FALSE) {
+    explicit_bracket <- function (in_code) {
+        # NB: Bracket to avoid operator precedence issues:
+        #     substitute(1 - recl / 3, list(recl = quote(4 + 16 / 1)))
+        #     has bracketed implicitly and not part of the parse_tree.
+        #     The C++ transliterator relies on these bracket nodes to avoid
+        #     reinventing operator precedence.
+        if (is_infix_call(in_code) && !(as.character(in_code[[1]]) %in% c("<-", "==", "!=", ">", "<", "<=", ">="))) {
+            in_code <- call(open_bracket, in_code)
+        }
+        return(in_code)
+    }
+
     # If not a formula, convert to one with empty environment
     if (!rlang::is_formula(f)) f <- call_to_formula(f, env = emptyenv())
     env <- as.environment(env)
@@ -50,34 +62,32 @@ f_substitute <- function (f, env, copy_all_env = FALSE) {
     combined_env <- new.env(parent = emptyenv())
     environment_merge(combined_env, rlang::f_env(f))
 
-    # For all formula substitutions...
+    # Inspect all substitutions...
     for (n in all.vars(f)) {
         o <- mget(n, envir = env, ifnotfound = list(NULL))[[1]]
-        if (!rlang::is_formula(o)) next
 
-        # NB: Bracket to avoid operator precedence issues:
-        #     substitute(1 - recl / 3, list(recl = quote(4 + 16 / 1)))
-        #     has bracketed implicitly and not part of the parse_tree.
-        #     The C++ transliterator relies on these bracket nodes to avoid
-        #     reinventing operator precedence.
-        if (is_infix_call(rlang::f_rhs(o)) && !(as.character(rlang::f_rhs(o)[[1]]) %in% c("<-", "==", "!=", ">", "<", "<=", ">="))) {
-            rlang::f_rhs(o) <- call(open_bracket, rlang::f_rhs(o))
-        }
+        if (is.call(o) && !rlang::is_formula(o)) {  # Bare code (no environment)
+            # Add brackets if appropriate
+            assign(n, explicit_bracket(o), envir = env)
+        } else if (rlang::is_formula(o)) {  # Formula
+            # Add brackets if appropriate
+            rlang::f_rhs(o) <- explicit_bracket(rlang::f_rhs(o))
 
-        # Replace formulae with the inner expression
-        if (length(o) == 3) {
-            assign(n, call('<-', o[[2]], o[[3]]), envir = env)
-        } else {
-            assign(n, o[[2]], envir = env)
-        }
+            # Replace formulae with the inner expression
+            if (length(o) == 3) {
+                assign(n, call('<-', o[[2]], o[[3]]), envir = env)
+            } else {
+                assign(n, o[[2]], envir = env)
+            }
 
-        # Combine it's environment with ours
-        if (copy_all_env) {
-            environment_merge(combined_env, rlang::f_env(o), ignore_overlap = TRUE)
-        } else {
-            # Only copy things the formulae mentions
-            vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
-            environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
+            # Combine it's environment with ours
+            if (copy_all_env) {
+                environment_merge(combined_env, rlang::f_env(o), ignore_overlap = TRUE)
+            } else {
+                # Only copy things the formulae mentions
+                vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
+                environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
+            }
         }
     }
 

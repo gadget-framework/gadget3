@@ -96,6 +96,10 @@ ok(cmp_code(
     ~x / (1 + 2)), "f_substitute: Auto-bracketed an inline replacement")
 
 ok(cmp_code(
+    gadget3:::f_substitute(~x / y, list(y = quote( 1 + 2 ))),
+    ~x / (1 + 2)), "f_substitute: Auto-bracketed an inline replacement")
+
+ok(cmp_code(
     gadget3:::f_substitute(~x / y, list(y = ~fn(2))),
     ~x / fn(2)), "f_substitute: No extra brackets for a function call")
 
