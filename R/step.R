@@ -9,6 +9,8 @@
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
 # References to the stock will also be renamed to their final name
 g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
+    stopifnot(rlang::is_formula(step_f))
+
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
         old_name <- as.character(old_name)
