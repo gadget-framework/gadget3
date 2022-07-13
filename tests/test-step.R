@@ -294,3 +294,36 @@ ok_group("g3_step:stock_param_table", {
             g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
         }), "Can stock_with other stocks into table_defn")
 })
+
+ok_group("list_to_stock_switch", {
+    # NB: Differing names, ordinarily stock_imm would be "prey_stock", e.g.
+    stock_imm <- g3_stock('ling_imm', c(1))
+    stock_mat <- g3_stock('ling_mat', c(1))
+    stock_zat <- g3_stock('ling_zat', c(1))
+    do_ss <- function (stock, l) {
+        f <- gadget3:::list_to_stock_switch(l)
+        assign('stock', stock, envir = environment(f))
+        gadget3:::g3_step(f)
+    }
+
+    ok(ut_cmp_error(
+        gadget3:::list_to_stock_switch(list(1,2)),
+        "one default"), "Only one default option allowed")
+    ok(ut_cmp_error(
+        gadget3:::list_to_stock_switch(list(a = 1, 2, 3)),
+        "one default"), "Only one default option allowed")
+
+    out <- do_ss(stock_zat, list(99))
+    ok(cmp_code(out, ~99), "Single default item")
+    out <- do_ss(stock_zat, list(ling_imm = quote(2 + 2), ling_zat = 343, 99))
+    ok(cmp_code(out, ~343), "Mixed value types")
+
+    out <- do_ss(stock_zat, list(ling_imm = quote(2 + 2), ling_zat = g3_formula(stock__midlen^x, x = 2), 99))
+    ok(cmp_code(out, ~(ling_zat__midlen^x)), "Formula as output value, stock substitutions happened")
+    ok(ut_cmp_equal(environment(out)$x, 2), "Formula innards got copied")
+
+    out <- do_ss(stock_imm, g3_formula(stock__midlen^x, x = 2))
+    ok(cmp_code(out, ~(ling_imm__midlen^x)), "Bare formula is treated as default")
+    out <- do_ss(stock_mat, g3_formula(stock__midlen^x, x = 2))
+    ok(cmp_code(out, ~(ling_mat__midlen^x)), "Bare formula is treated as default")
+})

@@ -17,18 +17,11 @@ g3a_predate_catchability_linearfleet <- function (E) {
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {
-    stopifnot(is.list(catchability_fs))
-
-    # Turn catchability into stock_switch(stock, ...) call
-    catchability <- as.call(c(
-        list(
-            as.symbol("stock_switch"),
-            as.symbol("stock")),
-        catchability_fs))
-
     f_substitute(
-        ~catchability * E * cur_step_size * stock_ss(stock__fleet_stock),
-        list(catchability = catchability, E = E))
+        ~catchability_fs * E * cur_step_size * stock_ss(stock__fleet_stock),
+        list(
+            catchability_fs = list_to_stock_switch(catchability_fs),
+            E = E))
 }
 
 g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = list(), recalc_f = NULL) {
@@ -104,8 +97,6 @@ g3a_predate_fleet <- function (fleet_stock,
 
     # For each prey stock...
     for (stock in prey_stocks) {
-        if (is.null(suitabilities[[stock$name]])) stop("No suitability function found for ", stock$name)
-
         # Create variable to store biomass of stock caught
         fleet_stock_var <- as.symbol(paste0('stock__', fleet_stock$name))
         suit_var <- as.symbol(paste0('stock__suit_', fleet_stock$name))
@@ -152,7 +143,7 @@ g3a_predate_fleet <- function (fleet_stock,
             }, prefix = 'fleet'))
         }, list(
             catchnum_required = "fleet_stock__catchnum" %in% all.vars(catchability_f),
-            suit_f = suitabilities[[stock$name]],
+            suit_f = list_to_stock_switch(suitabilities),
             run_f = run_f,
             stock__suit_fleet_stock = suit_var,
             stock__fleet_stock = fleet_stock_var)))

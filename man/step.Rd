@@ -135,13 +135,19 @@
   Switch based on name of \var{stock}, returning the relevant \var{expr} or
   \var{default}. If no default supplied, then an unknown stock is an error.
 
+  \var{expr} is implicitly wrapped with \code{\link{stock_with}(stock, ...)},
+  so any references to the stock variable will work. If only default is provided,
+  then this is identical to calling \code{\link{stock_with}}.
+
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) ; fleet_stock <- g3_fleet('igfs')
 > gadget3:::g3_step(~stock_switch(stock, halibut = 2, herring = 3, -1))
 ~2
 > gadget3:::g3_step(~stock_switch(fleet_stock, halibut = 2, herring = 3, -1))
-~-1}
+~-1
+> gadget3:::g3_step(~stock_switch(stock, halibut = stock__midlen, -1))
+~halibut__midlen}
 
   }
 }

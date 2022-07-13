@@ -305,11 +305,27 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = orig_env)
 
-            # Find param with name matching stock, return it
-            if (!is.null(x[[stock$name]])) return(x[[stock$name]])
-            # Final one isn't named, return that
-            if (!nzchar(names(x)[[length(x)]])) return(x[[length(x)]])
-            stop("stock_switch has no result for ", stock$name, ": ", deparse(x))
+            if (is.null(names(x))) {
+                # Nothing is named, so return final (presumably only) answer
+                out <- x[[length(x)]]
+            } else if (!is.null(x[[stock$name]])) {
+                # Find param with name matching stock, return it
+                out <- x[[stock$name]]
+            } else if (!nzchar(names(x)[[length(x)]])) {
+                # Final one isn't named, return that
+                out <- x[[length(x)]]
+            } else {
+                stop("stock_switch has no result for ", stock$name, ": ", deparse(x))
+            }
+
+            # Wrap with implicit stock_with(stock_var, ...)
+            # NB: Not strictly necessary, but given other stock_* will rename, it seems ugly not to.
+            out <- call("stock_with", stock_var, out)
+
+            # Recurse, filling out any inner functions
+            # NB: The formula uses the same env as the outer, so we don't need to merge afterwards
+            out <- g3_step(call_to_formula(out, environment(step_f)), recursing = TRUE, orig_env = orig_env)
+            return(rlang::f_rhs(out))
         },
         stock_param = function (x) { # Arguments: stock variable, name_part = NULL, name, ....
             stock_var <- x[[2]]
@@ -420,4 +436,32 @@ step_find_desc <- function (s, minor_steps = FALSE) {
     if (length(labels) > 0) return(labels[[1]])
     if (minor_steps && length(traces) > 0) return(traces[[1]])
     return(as.character(NA))
+}
+
+# Convert a list into a stock_switch call
+list_to_stock_switch <- function(l, stock_var = "stock") {
+    if (is.list(l) && is.null(names(l))) {
+        # No stocks to choose from, so should be a single-item list
+        if (length(l) > 1) stop("Only one default option allowed")
+        l <- l[[1]]
+    }
+    if (!is.list(l)) {
+        # Choosing one item is just stock_with()
+        return(f_substitute(quote(
+            stock_with(stock_var, l)
+        ), list(stock_var = stock_var, l = l)))
+    }
+
+    # NB: Substituting "" doesn't work, so we turn the non-named
+    #     parameter to _def internally
+    if (sum(!nzchar(names(l))) > 1) stop("Only one default option allowed")
+    names(l)[!nzchar(names(l))] <- "_def"
+
+    # Build stock_switch call mapping element_name = element_name
+    out_call <- lapply(names(l), as.symbol)
+    names(out_call) <- ifelse(names(l) == '_def', "", names(l))
+    out_call <- as.call(c(as.symbol("stock_switch"), as.symbol(stock_var), out_call))
+
+    # Use input list as our substitutions
+    f_substitute(out_call, l)
 }
