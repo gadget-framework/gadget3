@@ -11,7 +11,7 @@ call_to_formula <- function (c, env = parent.frame()) {
 environment_merge <- function (env, additions, var_names = ls(envir = additions), ignore_overlap = FALSE) {
     for (n in var_names) {
         if (exists(n, envir = additions, inherits = FALSE)) {
-            if (!exists(n, envir = env)) {
+            if (!exists(n, envir = env, inherits = FALSE)) {
                 assign(n, get(n, envir = additions, inherits = FALSE), envir = env)
             } else if (!ignore_overlap) {
                 old <- get(n, envir = env, inherits = FALSE)
