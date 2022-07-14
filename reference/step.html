@@ -187,6 +187,9 @@
     <p><code>stock_ss(stock, stock_name1 = expr, stock_name2 = expr, ... [ default ])</code></p>
 <p>Switch based on name of <var>stock</var>, returning the relevant <var>expr</var> or
   <var>default</var>. If no default supplied, then an unknown stock is an error.</p>
+<p><var>expr</var> is implicitly wrapped with <code>stock_with(stock, ...)</code>,
+  so any references to the stock variable will work. If only default is provided,
+  then this is identical to calling <code>stock_with</code>.</p>
 <p></p><div class="section">
 <h3 id="examples-5">Examples<a class="anchor" aria-label="anchor" href="#examples-5"></a></h3>
 
@@ -195,7 +198,9 @@
 &gt; gadget3:::g3_step(~stock_switch(stock, halibut = 2, herring = 3, -1))
 ~2
 &gt; gadget3:::g3_step(~stock_switch(fleet_stock, halibut = 2, herring = 3, -1))
-~-1</code></pre></div>
+~-1
+&gt; gadget3:::g3_step(~stock_switch(stock, halibut = stock__midlen, -1))
+~halibut__midlen</code></pre></div>
 
 <p></p>
 </div>
