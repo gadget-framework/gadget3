@@ -43,6 +43,10 @@ fleet_bounds <- list(
   
 )
 
+hcr_stock_proportions <- list(0.5)
+hcr_fleet_proportions <- quote( stock_param(fleet_stock, 'hcr.prop', value = 1/2) )
+
+
 ## create fleet actions
 lln_landings_data <- lln_landings[[1]] %>% mutate(area = as.numeric(area), step = as.numeric(step), year = as.numeric(year))
 bmt_landings_data <- bmt_landings[[1]] %>% mutate(area = as.numeric(area), step = as.numeric(step), year = as.numeric(year))
@@ -51,6 +55,14 @@ foreign_landings_data <- foreign_landings[[1]] %>% mutate(area = as.numeric(area
 igfs_landings_data <- igfs_landings %>% mutate(area = as.numeric(area), step = as.numeric(step), year = as.numeric(year))
 fleet_actions <-
   list(
+    g3a_hcr_assess(
+        list(ling_imm, ling_mat),
+        fishable_fs = g3a_hcr_biomass_weighted(-100,~g3_param('ref.cm'),1),
+        trigger_fs = list(
+            ling_imm = g3a_hcr_biomass_weighted(0,0,0),
+            ling_mat = g3a_hcr_biomass_weighted(0,0,1)),
+        tac_f = g3a_hcr_tac_singletrigger(),
+        assess_run_f = ~cur_step == 2),
     lln %>%
       g3a_predate_fleet(list(ling_imm, ling_mat),
                         suitabilities = list(
@@ -58,7 +70,10 @@ fleet_actions <-
                                                                    bounded_param(ling_imm, "lln.l50", fleet_bounds, id = 'species')),
                           ling_mat = g3_suitability_exponentiall50(bounded_param(ling_mat, "lln.alpha", fleet_bounds, id = 'species'),
                                                                    bounded_param(ling_mat, "lln.l50", fleet_bounds, id = 'species'))),
-                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('lln_landings', lln_landings_data))),
+                        catchability_f = g3a_predate_catchability_hcr(
+                            g3a_predate_catchability_totalfleet(g3_timeareadata('lln_landings', lln_landings_data)),
+                            hcr_stock_proportions,
+                            hcr_fleet_proportions)),
     bmt %>%
       g3a_predate_fleet(list(ling_imm, ling_mat),
                         suitabilities = list(
@@ -66,7 +81,10 @@ fleet_actions <-
                                                                    bounded_param(ling_imm, "bmt.l50", fleet_bounds, id = 'species')),
                           ling_mat = g3_suitability_exponentiall50(bounded_param(ling_mat, "bmt.alpha", fleet_bounds, id = 'species'),
                                                                    bounded_param(ling_mat, "bmt.l50", fleet_bounds, id = 'species'))),
-                        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('bmt_landings', bmt_landings_data))),
+                        catchability_f = g3a_predate_catchability_hcr(
+                            g3a_predate_catchability_totalfleet(g3_timeareadata('bmt_landings', bmt_landings_data)),
+                            hcr_stock_proportions,
+                            hcr_fleet_proportions)),
     gil %>%
       g3a_predate_fleet(list(ling_imm, ling_mat),
                         suitabilities = list(

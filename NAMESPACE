@@ -14,6 +14,12 @@ export(g3a_grow_weightsimple)
 export(g3a_grow_impl_bbinom)
 export(g3a_growmature)
 
+# R/action_hcr.R
+export(g3a_hcr_tac_singletrigger)
+export(g3a_hcr_biomass_weighted)
+export(g3a_hcr_assess)
+export(g3a_predate_catchability_hcr)
+
 # R/action_mature.R
 export(g3a_mature_constant)
 export(g3a_mature_continuous)
