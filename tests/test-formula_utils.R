@@ -242,3 +242,18 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::f_optimize(~if (x + 0) y / 1),
     ~if (x) y), "f_optimize: Optimize through if condition")
+
+### all_undefined_vars
+
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(quote( `pa-rp` * x )),
+    c("pa-rp", "x")), "all_undefined_vars: Symbols necessary to escape in R still recognised")
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(quote( g3_with(`pa-rp` := 1, x) )),
+    c("x")), "all_undefined_vars: Symbols necessary to escape in R still recognised")
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(quote( for(`pa-rp`in 1) x )),
+    c("x")), "all_undefined_vars: Symbols necessary to escape in R still recognised")
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(quote( g3_with(`pa-rp` := 1, `pa-rp`) )),
+    as.character(c())), "all_undefined_vars: Symbols necessary to escape in R still recognised")
