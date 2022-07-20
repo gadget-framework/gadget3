@@ -78,6 +78,15 @@ scope_to_parameter_template <- function (scope, return_type) {
     if (return_type == 'data.frame') do.call(rbind, parts) else do.call(c, c(list(), parts))
 }
 
+# Return map of all names in scope that would get escaped
+scope_to_cppnamemap <- function (scope) {
+    out <- names(scope)
+    out <- out[!is.null(out)]
+    if (length(out) == 0) return(c())
+    names(out) <- cpp_escape_varname(out)
+    out[names(out) != out]
+}
+
 # Given a g3_with(x := 2, y := 4, exp) call, extract calls to set terms
 g3_with_extract_terms <- function(x) {
     do.call(c, lapply(as.list(x), function (arg) {

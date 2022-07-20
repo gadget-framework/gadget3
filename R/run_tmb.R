@@ -81,7 +81,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                     stop("Malformed g3_with: ", deparse(c))
                 }
                 rv <- paste0(
-                    next_indent, "auto ", c[[2]], " = ",
+                    next_indent, "auto ", cpp_escape_varname(c[[2]]), " = ",
                     cpp_code(c[[3]], in_envir, next_indent), ";\n")
             }, character(1)),
             next_indent, inner,
@@ -192,9 +192,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         iterate_operator <- if (seq_call$by == 1) "++" else if (seq_call$by == -1) "--" else sprintf(" += %d", cpp_code(seq_call$by, in_envir, next_indent, expecting_int = TRUE))
         return(paste0(
             "for (",
-            "auto ", call_args[[1]], " = ", cpp_code(seq_call[[2]], in_envir, next_indent, expecting_int = TRUE), "; ",
-            call_args[[1]], check_operator, cpp_code(seq_call[[3]], in_envir, next_indent, expecting_int = TRUE), "; ",
-            call_args[[1]], iterate_operator, ") ",
+            "auto ", cpp_escape_varname(call_args[[1]]), " = ", cpp_code(seq_call[[2]], in_envir, next_indent, expecting_int = TRUE), "; ",
+            cpp_escape_varname(call_args[[1]]), check_operator, cpp_code(seq_call[[3]], in_envir, next_indent, expecting_int = TRUE), "; ",
+            cpp_escape_varname(call_args[[1]]), iterate_operator, ") ",
             cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
@@ -202,9 +202,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # for(x in seq_along(..)) loop, can expressed as a 3-part for loop
         return(paste0(
             "for (",
-            "auto ", call_args[[1]], " = 0; ",
-            call_args[[1]], " < ", cpp_code(call("length", call_args[[2]][[2]]), in_envir, next_indent), "; ",
-            call_args[[1]], "++) ",
+            "auto ", cpp_escape_varname(call_args[[1]]), " = 0; ",
+            cpp_escape_varname(call_args[[1]]), " < ", cpp_code(call("length", call_args[[2]][[2]]), in_envir, next_indent), "; ",
+            cpp_escape_varname(call_args[[1]]), "++) ",
             cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
@@ -218,7 +218,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             iterator <- paste0("{", iterator, "}")
         }
         return(paste(
-            "for (auto", in_call[[2]], ":", iterator, ")",
+            "for (auto", cpp_escape_varname(in_call[[2]]), ":", iterator, ")",
             cpp_code(in_call[[4]], in_envir, indent, statement = TRUE)))
     }
 
@@ -238,7 +238,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Array subsetting
 
         # Thing to array subset, either a symbol or an expression, which we should probably bracket
-        subject <- if (is.symbol(in_call[[2]])) in_call[[2]] else paste0(
+        subject <- if (is.symbol(in_call[[2]])) cpp_escape_varname(in_call[[2]]) else paste0(
             "(", cpp_code(in_call[[2]], in_envir, next_indent), ")")
 
         # Which bits of the subset aren't empty values?
@@ -751,7 +751,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     # so don't change anything
                     defn <- scope[[var_name]]
                 } else {
-                    defn <- cpp_definition('auto', var_name, cpp_code(var_val_code, env))
+                    defn <- cpp_definition('auto', cpp_escape_varname(var_name), cpp_code(var_val_code, env))
                 }
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
@@ -792,9 +792,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 if (length(var_val) < 1 || is.na(var_val[[1]])) {
                     # Value is NA, so leave uninitialized
                 } else if (var_val[[1]] == 0) {
-                    defn <- paste0(defn, " ", var_name, ".setZero();")
+                    defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")
                 } else {
-                    defn <- paste0(defn, " ", var_name, ".setConstant(", cpp_code(var_val[[1]], env),");")
+                    defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setConstant(", cpp_code(var_val[[1]], env),");")
                 }
             } else if (is.array(var_val) && length(dim(var_val)) > 1) {
                 # Store array in model_data
@@ -887,6 +887,7 @@ Type objective_function<Type>::operator() () {
     attr(out, 'actions') <- actions
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
+    attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
     return(out)
 }
@@ -1021,10 +1022,19 @@ g3_tmb_adfun <- function(cpp_code,
         ...)
 
     report_dimnames <- attr(cpp_code, 'report_dimnames')
+    report_renames <- attr(cpp_code, 'report_renames')
     fn$orig_report <- fn$report
     fn$report <- function (...) {
         out <- fn$orig_report(...)
         # Patch report names back again
+        for (dimname in names(report_renames)) {
+            if (!(dimname %in% names(out))) next
+
+            out[[report_renames[[dimname]]]] <- out[[dimname]]
+            out[[dimname]] <- NULL
+        }
+
+        # Patch report dimensions back again
         for (dimname in names(report_dimnames)) {
             if (!(dimname %in% names(out))) next
 

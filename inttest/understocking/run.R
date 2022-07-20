@@ -7,11 +7,11 @@ library(unittest)
 
 year_range <- 1982:1990
 
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>% 
+lingimm <- g3_stock('lingimm', seq(20, 156, 4)) %>% 
     g3s_livesonareas(c(1)) %>%
     g3s_age(3, 5)
 
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>%
+lingmat <- g3_stock('lingmat', seq(20, 156, 4)) %>%
     g3s_livesonareas(c(1)) %>%
     g3s_age(5, 15)
 
@@ -30,34 +30,34 @@ nll_report <- rep(0, length(year_range) * 4)
 prev_nll <- 0.0
 remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
 
-ling_imm_actions <- list(
-    g3a_initialconditions_normalparam(ling_imm,
+lingimm_actions <- list(
+    g3a_initialconditions_normalparam(lingimm,
         factor_f = ~age * g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10, 
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
-    g3a_naturalmortality(ling_imm, g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
-    g3a_age(ling_imm),
+    g3a_naturalmortality(lingimm, g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
+    g3a_age(lingimm),
     list())
 
-ling_mat_actions <- list(
-    g3a_initialconditions_normalparam(ling_mat,
+lingmat_actions <- list(
+    g3a_initialconditions_normalparam(lingmat,
         factor_f = ~age * 0.2 * g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10,
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
-    g3a_naturalmortality(ling_mat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
-    g3a_age(ling_mat),
+    g3a_naturalmortality(lingmat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
+    g3a_age(lingmat),
     list())
 
 fleet_actions <- list(
-    g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
+    g3a_predate_fleet(igfs, list(lingimm, lingmat),
         suitabilities = list(
-            ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
-            ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
-        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number')),
+            lingimm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
+            lingmat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
+        catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('Data.fleet.igfs.data', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number')),
         overconsumption_f = quote(pmin(stock__consratio, 0.95))),
     list())
 
@@ -65,55 +65,55 @@ ling_likelihood_actions <- list(
     g3l_understocking(
         weight = 10,
         nll_breakdown = TRUE,
-        list(ling_imm, ling_mat)),
+        list(lingimm, lingmat)),
     g3l_catchdistribution(
-        'ldist_igfs_ss',
+        'ldist.igfs.ss',
         weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
             age = list(all3 = 3:5),
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
-        stocks = list(ling_imm, ling_mat),
+        stocks = list(lingimm, lingmat),
         g3l_distribution_sumofsquares(),
         report = TRUE,
         nll_breakdown = TRUE),
     g3l_catchdistribution(
-        'ldist_igfs_mn',
+        'ldist.igfs.mn',
         weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
             age = list(all3 = 3:5),
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
-        stocks = list(ling_imm, ling_mat),
+        stocks = list(lingimm, lingmat),
         g3l_distribution_multinomial(),
         report = TRUE,
         nll_breakdown = TRUE),
     g3l_abundancedistribution(
-        'si_igfs_si1',
+        'si.100-120',
         weight = 40,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/surveyindices.si.100-120.lengths')[[1]],
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/surveyindices.si.100-120.len.agg')[[1]]),
         fleets = list(),
-        stocks = list(ling_imm, ling_mat),
+        stocks = list(lingimm, lingmat),
         g3l_distribution_surveyindices_log(),
         report = TRUE,
         nll_breakdown = TRUE),
     list())
 
 report_actions <- list(
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__consratio)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__totalpredate)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__igfs)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__consratio)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__totalpredate)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__igfs)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__num)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__wgt)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__consratio)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__totalpredate)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__igfs)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__num)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__wgt)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__consratio)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__totalpredate)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__igfs)),
        g3a_report_stock(igfs_report,igfs, ~stock_ss(igfs__catch)),
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
@@ -125,8 +125,8 @@ time_actions <- list(
     list())
 
 actions <- c(
-  ling_imm_actions,
-  ling_mat_actions,
+  lingimm_actions,
+  lingmat_actions,
   fleet_actions,
   ling_likelihood_actions,
   report_actions,
@@ -296,17 +296,17 @@ ok(all.equal(
 ok(all.equal(
     sum(g3_r$nll_report),
     sum(
-        1 * sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
-        10 * sum(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
-        10 * sum(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
+        1 * sum(g3_r[['nll_adist_surveyindices_log_si.100-120__num']]),
+        10 * sum(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
+        10 * sum(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
         10 * sum(g3_r$nll_understocking__wgt)),
-    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num/g3_r$nll_understocking__wgt consistent with each other")
+    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num/g3_r$nll_understocking__wgt consistent with each other")
 ok(ut_cmp_identical(
-    dim(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
-    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num: Broken up into individual timesteps")
+    dim(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num: Broken up into individual timesteps")
 ok(ut_cmp_identical(
-    dim(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
-    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_multinomial_ldist_igfs_mn__num: Broken up into individual timesteps")
+    dim(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
+    c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_multinomial_ldist.igfs.mn__num: Broken up into individual timesteps")
 ok(ut_cmp_identical(
     dim(g3_r$nll_understocking__wgt),
     c(time = as.integer(length(year_range) * 4))), "g3_r$nll_understocking__wgt: Broken up into individual timesteps")
@@ -329,12 +329,12 @@ g2_nll_si_weight <- g2_nll[g2_nll$component == 'si.100-120', 'weight']
 
 ok(all.equal(
     g2_nll_ldist_ss.igfs$likelihood_value,
-    as.vector(g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num),
-    tolerance = 1e-4), "g3_r$nll_cdist_sumofsquares_ldist_igfs_ss__num - ldist.igfs matches")
+    as.vector(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num - ldist.igfs matches")
 ok(all.equal(
     g2_nll_ldist_mn.igfs$likelihood_value,
-    as.vector(g3_r$nll_cdist_multinomial_ldist_igfs_mn__num),
-    tolerance = 1e-4), "g3_r$nll_cdist_multinomial_ldist_igfs_mn__num - ldist.igfs matches")
+    as.vector(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
+    tolerance = 1e-4), "g3_r$nll_cdist_multinomial_ldist.igfs.mn__num - ldist.igfs matches")
 ok(all.equal(
     as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
         g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
@@ -354,5 +354,5 @@ ok(all.equal(
 #     to only years with reasonable amounts of stock.
 ok(all.equal(
     g2_nll_si_likelihood_value,
-    sum(g3_r$nll_adist_surveyindices_log_si_igfs_si1__num),
-    tolerance = 1e-6), "g3_r$nll_adist_surveyindices_log_si_igfs_si1__num: Total matches reported likelihood value")
+    sum(g3_r[['nll_adist_surveyindices_log_si.100-120__num']]),
+    tolerance = 1e-6), "g3_r$nll_adist_surveyindices_log_si.100-120__num: Total matches reported likelihood value")
