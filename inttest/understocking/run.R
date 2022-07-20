@@ -5,13 +5,6 @@ library(Rgadget)
 library(magrittr)
 library(unittest)
 
-remove_avoid_zero <- function (action) lapply(action, function (a) {
-    # replace with a pmax() call
-    gadget3:::call_replace(a,
-        avoid_zero = function (x) call("max", x[[2]], 1e-7),
-        avoid_zero_vec = function (x) call("pmax", x[[2]], 1e-7))
-})
-
 year_range <- 1982:1990
 
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>% 
@@ -48,7 +41,7 @@ ling_imm_actions <- list(
     g3a_age(ling_imm),
     list())
 
-ling_mat_actions <- lapply(list(
+ling_mat_actions <- list(
     g3a_initialconditions_normalparam(ling_mat,
         factor_f = ~age * 0.2 * g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
@@ -57,15 +50,15 @@ ling_mat_actions <- lapply(list(
         beta_f = ~g3_param("lingmat.wbeta")),
     g3a_naturalmortality(ling_mat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
     g3a_age(ling_mat),
-    list()), remove_avoid_zero)
+    list())
 
 fleet_actions <- list(
-    remove_avoid_zero(g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
+    g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
             ling_imm = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
             ling_mat = g3_suitability_exponentiall50(~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
         catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata('igfs_landings', Rgadget::read.gadget.file('inttest/understocking/', 'Data/fleet.igfs.data')[[1]], 'number')),
-        overconsumption_f = quote(pmin(stock__consratio, 0.95)))),
+        overconsumption_f = quote(pmin(stock__consratio, 0.95))),
     list())
 
 ling_likelihood_actions <- list(
@@ -73,7 +66,7 @@ ling_likelihood_actions <- list(
         weight = 10,
         nll_breakdown = TRUE,
         list(ling_imm, ling_mat)),
-    remove_avoid_zero(g3l_catchdistribution(
+    g3l_catchdistribution(
         'ldist_igfs_ss',
         weight = 10,
         obs_data = structure(
@@ -84,8 +77,8 @@ ling_likelihood_actions <- list(
         stocks = list(ling_imm, ling_mat),
         g3l_distribution_sumofsquares(),
         report = TRUE,
-        nll_breakdown = TRUE)),
-    remove_avoid_zero(g3l_catchdistribution(
+        nll_breakdown = TRUE),
+    g3l_catchdistribution(
         'ldist_igfs_mn',
         weight = 10,
         obs_data = structure(
@@ -96,8 +89,8 @@ ling_likelihood_actions <- list(
         stocks = list(ling_imm, ling_mat),
         g3l_distribution_multinomial(),
         report = TRUE,
-        nll_breakdown = TRUE)),
-    remove_avoid_zero(g3l_abundancedistribution(
+        nll_breakdown = TRUE),
+    g3l_abundancedistribution(
         'si_igfs_si1',
         weight = 40,
         obs_data = structure(
@@ -107,7 +100,7 @@ ling_likelihood_actions <- list(
         stocks = list(ling_imm, ling_mat),
         g3l_distribution_surveyindices_log(),
         report = TRUE,
-        nll_breakdown = TRUE)),
+        nll_breakdown = TRUE),
     list())
 
 report_actions <- list(
@@ -138,6 +131,9 @@ actions <- c(
   ling_likelihood_actions,
   report_actions,
   time_actions)
+# Patch in our own avoid_zero which doesn't use logspace_add
+environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
 
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
