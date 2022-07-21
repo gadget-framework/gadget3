@@ -4,13 +4,6 @@ library(Rgadget)
 library(magrittr)
 library(unittest)
 
-remove_avoid_zero <- function (action) lapply(action, function (a) {
-    # replace with a pmax() call
-    gadget3:::call_replace(a,
-        avoid_zero = function (x) call("max", x[[2]], 1e-7),
-        avoid_zero_vec = function (x) call("pmax", x[[2]], 1e-7))
-})
-
 year_range <- 1982:1990
 
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>% 
@@ -30,7 +23,7 @@ mat_report <- g3_stock('mat_report', seq(20, 160, 4), open_ended = FALSE) %>%
     g3s_livesonareas(c(1)) %>%
     g3s_age(5, 15) %>% g3s_time(year = local(year_range), step = 1:4)
 
-ling_imm_actions <- lapply(list(
+ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
         factor_f = ~age * g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
@@ -39,9 +32,9 @@ ling_imm_actions <- lapply(list(
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_naturalmortality(ling_imm, g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
     g3a_age(ling_imm),
-    list()), remove_avoid_zero)
+    list())
 
-ling_mat_actions <- lapply(list(
+ling_mat_actions <- list(
     g3a_initialconditions_normalparam(ling_mat,
         factor_f = ~age * g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
@@ -65,7 +58,7 @@ ling_mat_actions <- lapply(list(
         alpha_f = 1,
         beta_f = 1,
         run_f = ~cur_step==1),
-    list()), remove_avoid_zero)
+    list())
 
 report_actions <- list(
        g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
@@ -83,6 +76,9 @@ actions <- c(
   ling_mat_actions,
   report_actions,
   time_actions)
+# Patch in our own avoid_zero which doesn't use logspace_add
+environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
 
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 
