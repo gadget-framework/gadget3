@@ -32,7 +32,7 @@ remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](
 
 lingimm_actions <- list(
     g3a_initialconditions_normalparam(lingimm,
-        factor_f = ~age * g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
+        factor_f = ~(age * g3_param("lingimm.init")) * g3_param("lingimm.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10, 
         alpha_f = ~g3_param("lingimm.walpha"),
@@ -43,7 +43,7 @@ lingimm_actions <- list(
 
 lingmat_actions <- list(
     g3a_initialconditions_normalparam(lingmat,
-        factor_f = ~age * 0.2 * g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
+        factor_f = ~(0.2 * (age * g3_param("lingmat.init"))) * g3_param("lingmat.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10,
         alpha_f = ~g3_param("lingmat.walpha"),
@@ -71,7 +71,7 @@ ling_likelihood_actions <- list(
         weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
-            age = list(all3 = 3:5),
+            age = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.age.agg')[[1]],
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(lingimm, lingmat),
@@ -83,7 +83,7 @@ ling_likelihood_actions <- list(
         weight = 10,
         obs_data = structure(
             Rgadget::read.gadget.file('inttest/understocking/', 'Data/catchdistribution.ldist.igfs.sumofsquares')[[1]],
-            age = list(all3 = 3:5),
+            age = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.age.agg')[[1]],
             length = Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]),
         fleets = list(igfs),
         stocks = list(lingimm, lingmat),
@@ -121,7 +121,7 @@ report_actions <- list(
        }))
 
 time_actions <- list(
-    g3a_time(min(year_range), max(year_range), c(3,3,3,3), project_years = 0),
+    g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
     list())
 
 actions <- c(

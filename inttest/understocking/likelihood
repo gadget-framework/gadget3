@@ -37,7 +37,7 @@ stocknames	lingimm lingmat
 
 [component]
 name    si.100-120
-weight  1
+weight  40
 type    surveyindices
 datafile        Data/surveyindices.si.100-120.lengths
 sitype  lengths
