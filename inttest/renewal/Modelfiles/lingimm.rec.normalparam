@@ -1,5 +1,5 @@
 ; -- data --
-; year  step    area    age     number  		mean    	stddev  		alpha beta
+; year	step	area	age	number	mean	stddev	alpha beta
 1982    1       1       3	#lingimm.rec.scalar	#ling.Linf	10	#lingimm.walpha	#lingimm.wbeta
 1983    1       1       3	#lingimm.rec.scalar	#ling.Linf	10	#lingimm.walpha	#lingimm.wbeta
 1984    1       1       3	#lingimm.rec.scalar	#ling.Linf	10	#lingimm.walpha	#lingimm.wbeta
