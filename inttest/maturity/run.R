@@ -13,11 +13,11 @@ remove_avoid_zero <- function (action) lapply(action, function (a) {
 
 year_range <- 1982:1990
 
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) %>% 
+lingimm <- g3_stock('lingimm', seq(20, 156, 4)) %>% 
     g3s_livesonareas(c(1)) %>%
     g3s_age(3, 10)
 
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) %>% 
+lingmat <- g3_stock('lingmat', seq(20, 156, 4)) %>% 
     g3s_livesonareas(c(1)) %>%
     g3s_age(5, 15)
 
@@ -30,52 +30,53 @@ mat_report <- g3_stock('mat_report', seq(20, 160, 4), open_ended = FALSE) %>%
     g3s_livesonareas(c(1)) %>%
     g3s_age(5, 15) %>% g3s_time(year = local(year_range), step = 1:4)
 
-ling_imm_actions <- lapply(list(
-    g3a_initialconditions_normalparam(ling_imm,
-        factor_f = ~age * g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
+lingimm_actions <- lapply(list(
+    g3a_initialconditions_normalparam(lingimm,
+        factor_f = ~(age * g3_param("lingimm.init")) * g3_param("lingimm.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10, 
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
-    g3a_naturalmortality(ling_imm, g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
-    g3a_growmature(ling_imm,
+    g3a_naturalmortality(lingimm, g3a_naturalmortality_exp(~g3_param("lingimm.M"))),
+    g3a_growmature(lingimm,
         impl_f = g3a_grow_impl_bbinom(
-            g3a_grow_lengthvbsimple(~g3_param("ling.Linf"), ~g3_param("ling.k") * 0.001),
+            g3a_grow_lengthvbsimple(~g3_param("ling.Linf"), ~0.001 * g3_param("ling.k")),
             g3a_grow_weightsimple(~g3_param("lingimm.walpha"), ~g3_param("lingimm.wbeta")),
-            beta_f = ~g3_param("ling.bbin") * 10,
+            beta_f = ~10 * g3_param("ling.bbin"),
             maxlengthgroupgrowth = 15),
         maturity_f = g3a_mature_constant(
             alpha = ~g3_param("ling.mat.alpha"),
             l50 = ~g3_param("ling.mat.l50")),
-        output_stocks = list(ling_mat)),
-    g3a_age(ling_imm),
+        transition_f = quote( cur_step == 4L ),
+        output_stocks = list(lingmat)),
+    g3a_age(lingimm),
     list()), remove_avoid_zero)
 
-ling_mat_actions <- lapply(list(
-    g3a_initialconditions_normalparam(ling_mat,
-        factor_f = ~g3_param("lingmat.init") * g3_param("lingmat.init.scalar"),
+lingmat_actions <- lapply(list(
+    g3a_initialconditions_normalparam(lingmat,
+        factor_f = ~(age * g3_param("lingmat.init")) * g3_param("lingmat.init.scalar"),
         mean_f = ~g3_param("ling.Linf"),
         stddev_f = ~10, 
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
-    g3a_naturalmortality(ling_mat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
-    g3a_age(ling_mat),
+    g3a_naturalmortality(lingmat, g3a_naturalmortality_exp(~g3_param("lingmat.M"))),
+    g3a_age(lingmat),
     list()), remove_avoid_zero)
 
 report_actions <- list(
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__num)),
-       g3a_report_stock(imm_report,ling_imm, ~stock_ss(ling_imm__wgt)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__num)),
-       g3a_report_stock(mat_report,ling_mat, ~stock_ss(ling_mat__wgt)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__num)),
+       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__wgt)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__num)),
+       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__wgt)),
        list())
 
 time_actions <- list(
-    g3a_time(min(year_range), max(year_range), c(3,3,3,3), project_years = 0),
+    g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
     list())
 
 actions <- c(
-  ling_imm_actions,
-  ling_mat_actions,
+  lingimm_actions,
+  lingmat_actions,
   report_actions,
   time_actions)
 
