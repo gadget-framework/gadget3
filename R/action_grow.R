@@ -49,6 +49,7 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
 
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
+    maxlengthgroupgrowth <- as.integer(maxlengthgroupgrowth)
     ##' @param delt_l Vector, for each lengthgroup, mean # of length groups to grow by
     ##' @param binn Maximum possible number of length groups to grow by
     ##' @return length(delt_l) x (length(delt_l) + 1) 2-dimensional array, initial_len -> growth jump
