@@ -33,7 +33,7 @@ g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, 
     # https://github.com/Hafro/gadget2/blob/master/src/maturity.cc#L530
     inner_code <- quote(0)
 
-    if (!is.null(alpha)) {
+    if (!is.null(alpha) && alpha != 0) {
         if (identical(l50, NA)) stop("l50 must be supplied if alpha is supplied")
         inner_code <- f_substitute(~inner_code - (alpha)*(stock__midlen - (l50)), list(
             alpha = alpha,
@@ -41,7 +41,7 @@ g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, 
             inner_code = inner_code))
     }
 
-    if (!is.null(beta)) {
+    if (!is.null(beta) && beta != 0) {
         if (identical(a50, NA)) stop("a50 must be supplied if beta is supplied")
         inner_code <- f_substitute(~inner_code - (beta)*(age - (a50)), list(
             beta = beta,
@@ -49,7 +49,7 @@ g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, 
             inner_code = inner_code))
     }
 
-    if (!is.null(gamma)) {
+    if (!is.null(gamma) && gamma != 0) {
         if (identical(k50, NA)) stop("k50 must be supplied if gamma is supplied")
         inner_code <- f_substitute(~inner_code - (gamma)*(stock_ss(stock__wgt) - (k50)), list(
             gamma = gamma,
