@@ -107,7 +107,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x563c78eebee0&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x5651cb0c6520&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -139,14 +139,14 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563c7a9e8898&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563c7a1bbc98&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5651ccb3b408&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cc310708&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
 <span><span class="co">## attr(,"actions")[[1]]</span></span>
 <span><span class="co">## ~cows + pigs</span></span>
-<span><span class="co">## &lt;environment: 0x563c78eebee0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5651cb0c6520&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -195,7 +195,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x563c7b459840&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5651cd5aa490&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s environment, and if we compile it we see our years ending up in the code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -261,8 +261,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563c7a3325f8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563c7be85ae0&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5651cc486218&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cdfde3a0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -287,7 +287,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x563c7af120c8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cd064c38&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -360,8 +360,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563c790b4318&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563c7b60fae8&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5651cb1f7b00&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cd764098&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -386,7 +386,7 @@
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x563c7b37aa80&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cd4d0f50&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -551,7 +551,7 @@
 <span><span class="co">##                   {</span></span>
 <span><span class="co">##                     comment("Calculate length/weight delta matrices for current lengthgroups")</span></span>
 <span><span class="co">##                     ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
-<span><span class="co">##                       10)/ling_imm__plusdl), 4, avoid_zero(param[["ling.bbin"]]))</span></span>
+<span><span class="co">##                       10)/ling_imm__plusdl), 4L, avoid_zero(param[["ling.bbin"]]))</span></span>
 <span><span class="co">##                     ling_imm__growth_w[] &lt;- area * 20</span></span>
 <span><span class="co">##                     if (FALSE) </span></span>
 <span><span class="co">##                       ling_imm__prevtotal &lt;- sum(ling_imm__num[, </span></span>
@@ -580,8 +580,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563c7aa4bad8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563c7becc180&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5651ccb935e8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651ce01e0d8&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -593,7 +593,7 @@
 <span><span class="co">##         ling_imm__areas[[ling_imm__area_idx]]), {</span></span>
 <span><span class="co">##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")</span></span>
 <span><span class="co">##         ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
-<span><span class="co">##             10)/ling_imm__plusdl), 4, avoid_zero(g3_param("ling.bbin")))</span></span>
+<span><span class="co">##             10)/ling_imm__plusdl), 4L, avoid_zero(g3_param("ling.bbin")))</span></span>
 <span><span class="co">##         ling_imm__growth_w[] &lt;- area * 20</span></span>
 <span><span class="co">##         if (strict_mode) </span></span>
 <span><span class="co">##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, </span></span>
@@ -614,7 +614,7 @@
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x563c7b0b26e8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cd204398&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -738,7 +738,7 @@
 <span><span class="co">##                       comment("Calculate length/weight delta matrices for current lengthgroups")</span></span>
 <span><span class="co">##                       ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
 <span><span class="co">##                         custom_delta_l * 10)/ling_imm__plusdl), </span></span>
-<span><span class="co">##                         4, avoid_zero(param[["ling.bbin"]]))</span></span>
+<span><span class="co">##                         4L, avoid_zero(param[["ling.bbin"]]))</span></span>
 <span><span class="co">##                       ling_imm__growth_w[] &lt;- area * custom_delta_w * </span></span>
 <span><span class="co">##                         20</span></span>
 <span><span class="co">##                       if (FALSE) </span></span>
@@ -772,8 +772,8 @@
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563c7b5dbbb8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563c77dae438&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5651cd72b020&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651c9f06248&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -786,7 +786,7 @@
 <span><span class="co">##         (area * 99)), {</span></span>
 <span><span class="co">##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")</span></span>
 <span><span class="co">##         ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
-<span><span class="co">##             custom_delta_l * 10)/ling_imm__plusdl), 4, avoid_zero(g3_param("ling.bbin")))</span></span>
+<span><span class="co">##             custom_delta_l * 10)/ling_imm__plusdl), 4L, avoid_zero(g3_param("ling.bbin")))</span></span>
 <span><span class="co">##         ling_imm__growth_w[] &lt;- area * custom_delta_w * 20</span></span>
 <span><span class="co">##         if (strict_mode) </span></span>
 <span><span class="co">##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, </span></span>
@@ -807,7 +807,7 @@
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## })</span></span>
-<span><span class="co">## &lt;environment: 0x563c795b6b38&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5651cbdaaeb8&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
