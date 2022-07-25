@@ -509,7 +509,7 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_imm overconsumption coefficient;
             ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
-            ling_imm__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_imm__consratio)*(double)(100), (double)(0.96)) / (double)(100);
+            ling_imm__consratio = logspace_add_vec(ling_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             if ( true ) {
                 assert_msg((ling_imm__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_imm__consratio <= 1, can't consume more fish than currently exist");
             }
@@ -522,7 +522,7 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_mat overconsumption coefficient;
             ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
-            ling_mat__consratio = (double)(0.96) - logspace_add_vec(((double)(0.96) - ling_mat__consratio)*(double)(100), (double)(0.96)) / (double)(100);
+            ling_mat__consratio = logspace_add_vec(ling_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             if ( true ) {
                 assert_msg((ling_mat__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_mat__consratio <= 1, can't consume more fish than currently exist");
             }

@@ -444,7 +444,7 @@ structure(function (param)
         {
             comment("Calculate ling_imm overconsumption coefficient")
             ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
-            ling_imm__consratio <- 0.96 - logspace_add_vec((0.96 - ling_imm__consratio) * 100, 0.96)/100
+            ling_imm__consratio <- logspace_add_vec(ling_imm__consratio * -1000, 0.95 * -1000)/-1000
             if (TRUE) 
                 assert_msg(~all(ling_imm__consratio <= 1), "g3a_predate_fleet: ling_imm__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")
@@ -456,7 +456,7 @@ structure(function (param)
         {
             comment("Calculate ling_mat overconsumption coefficient")
             ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
-            ling_mat__consratio <- 0.96 - logspace_add_vec((0.96 - ling_mat__consratio) * 100, 0.96)/100
+            ling_mat__consratio <- logspace_add_vec(ling_mat__consratio * -1000, 0.95 * -1000)/-1000
             if (TRUE) 
                 assert_msg(~all(ling_mat__consratio <= 1), "g3a_predate_fleet: ling_mat__consratio <= 1, can't consume more fish than currently exist")
             comment("Apply overconsumption to prey")

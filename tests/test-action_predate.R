@@ -258,7 +258,7 @@ ok_group("No overconsumption", {
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__consratio) >= 0.95,
+        as.vector(r$prey_a__consratio) > 0.9499,
         c(F, F, F, F, F, F, F, F, F, F)), "prey_a__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
@@ -271,7 +271,7 @@ ok_group("No overconsumption", {
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__consratio) >= 0.95,
+        as.vector(r$prey_b__consratio) > 0.9499,
         c(F, F, F, F, F, F, F, F, F, F)), "prey_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
@@ -284,7 +284,7 @@ ok_group("No overconsumption", {
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__consratio) >= 0.95,
+        as.vector(r$prey_c__consratio) > 0.9499,
         c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
@@ -329,7 +329,7 @@ ok_group("Overconsumption", {
 
     # prey_a
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__consratio) >= 0.95,
+        as.vector(r$prey_a__consratio) > 0.9499,
         c(F, F, F, T, T, T, F, F, F, F)), "prey_a__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
@@ -343,7 +343,7 @@ ok_group("Overconsumption", {
 
     # prey_b
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__consratio) >= 0.95,
+        as.vector(r$prey_b__consratio) > 0.9499,
         c(F, F, F, F, F, T, T, T, F, F)), "prey_b__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
@@ -357,7 +357,7 @@ ok_group("Overconsumption", {
 
     # prey_c
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__consratio) >= 0.95,
+        as.vector(r$prey_c__consratio) > 0.9499,
         c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),

@@ -90,8 +90,8 @@ ok_group("Catchability", {
     # str(as.list(r), vec.len = 10000)
 
     # Make sure everything is internally consistent
-    ok(all(r$report_a__consratio >= 0.95), "report_a__consratio: No overconsumption")
-    ok(all(r$report_b__consratio >= 0.95), "report_b__consratio: No overconsumption")
+    ok(all(r$report_a__consratio > 0.9499), "report_a__consratio: No overconsumption")
+    ok(all(r$report_b__consratio > 0.9499), "report_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
         r$report_a__fleet_numberfleet + r$report_a__fleet_linearfleet +  r$report_a__fleet_effortfleet +  r$report_a__fleet_quotafleet,
         r$report_a__totalpredate), "report_a__totalpredate: Equal to sum of fleet consumption")

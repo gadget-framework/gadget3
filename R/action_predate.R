@@ -81,7 +81,7 @@ g3a_predate_fleet <- function (fleet_stock,
                                     prey_stocks,
                                     suitabilities,
                                     catchability_f,
-                                    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - stock__consratio) * 100, 0.96) / 100,
+                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
                                     run_f = ~TRUE,
                                     run_at = 3) {
     out <- new.env(parent = emptyenv())
@@ -235,7 +235,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
                                     prey_stocks,
                                     suitabilities,
                                     amount_f,
-                                    overconsumption_f = ~0.96 - logspace_add_vec((0.96 - stock__consratio) * 100, 0.96) / 100,
+                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
                                     run_f = ~TRUE,
                                     run_at = 3) {
     g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, overconsumption_f = overconsumption_f, run_f = run_f, run_at = run_at,
