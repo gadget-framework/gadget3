@@ -86,7 +86,9 @@ g3_intlookup <- function (lookup_name, keys, values) {
 }
 
 # Turn a year/step/[area]/value data.frame into a formula
-g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
+g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight', areas = NULL) {
+    stopifnot(is.null(areas) || !anyNA(as.integer(areas)))
+
     # What's the next power of 10?
     next_mult <- function (x) as.integer(10 ** ceiling(log10(x)))
 
@@ -99,7 +101,6 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
             remove_multzero(x[[3]]))))
     })
 
-    # TODO: Should accept area_group
     for (n in c('year', value_field)) {
         if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
     }
@@ -107,6 +108,12 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight') {
     # All lengths the same, no point adding to the lookup
     times <- g3s_time_convert(df$year, df$step)  # NB: if step column missing, this will be NULL
     year_mult <- as.integer(g3s_time_multiplier(times))
+
+    # If have a non-identity area map, apply it to data first
+    if (!(is.null(areas) || identical(names(areas), as.character(areas)))) {
+        storage.mode(areas) <- "integer"  # Integer-ize without losing names
+        df$area <- as.integer(areas[df$area])
+    }
 
     # Count potential areas, 0, 1, many
     area_count <- if (is.null(df$area)) 0 else if (length(df$area) > 1 && any(df$area[[1]] != df$area)) 2 else 1

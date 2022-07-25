@@ -7,7 +7,7 @@
 }
 
 \usage{
-g3_timeareadata(lookup_name, df, value_field = "total_weight")
+g3_timeareadata(lookup_name, df, value_field = "total_weight", areas = NULL)
 
 }
 
@@ -20,6 +20,9 @@ g3_timeareadata(lookup_name, df, value_field = "total_weight")
   }
   \item{value_field}{
     Column name that contains output value.
+  }
+  \item{areas}{
+    Named integer vector of area names to integer values. See \code{\link{g3s_livesonareas}}.
   }
 }
 
