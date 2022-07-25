@@ -123,6 +123,9 @@ g3l_distribution <- function (
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
+    if (!report && "modelstock__time_idx" %in% all.vars(function_f)) {
+        stop("report must be TRUE when using this comparison function (probably g3l_distribution_surveyindices)")
+    }
 
     # Replace any __x vars in (f) with (repl_postfix), e.g. "num"
     generic_var_replace <- function (f, repl_postfix) {
