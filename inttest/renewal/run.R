@@ -12,11 +12,6 @@ lingimm <- g3_stock('lingimm', seq(20, 156, 4)) %>%
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
-imm_report <- g3_stock('imm_report', seq(20, 160, 4), open_ended = FALSE) %>%
-  # NB: No area
-  g3s_age(3, 5) %>%
-  g3s_time(year = local(year_range), step = 1:4)
-
 lingimm_actions <- list(
     g3a_initialconditions_normalparam(lingimm,
         factor_f = ~g3_param("lingimm.init") * g3_param("lingimm.init.scalar"),
@@ -64,12 +59,6 @@ ling_likelihood_actions <- list(
         g3l_distribution_sumofsquares()),
     list())
 
-report_actions <- list(
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__num)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__wgt)),
-#       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__igfs)),
-       list())
-
 time_actions <- list(
     g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
     list())
@@ -78,8 +67,8 @@ actions <- c(
   lingimm_actions,
 #  fleet_actions,
 #  ling_likelihood_actions,
-  report_actions,
   time_actions)
+actions <- c(actions, list(g3a_report_history(actions)))
 
 # NB: Strict = FALSE so we don't try to compare __prevtotal
 model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
@@ -117,15 +106,15 @@ g2_lingimm <- Rgadget::read.gadget.file('inttest/renewal', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
 
-for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
+for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     ok(all.equal(
         unname(g2_lingimm$number[,,t,1]),
-        unname(g3_r$imm_report__num[,,t]),
-        tolerance = 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t]),
+        tolerance = 1e-5), paste0("g3_r$hist_lingimm__num: ", t, " - ", dimnames(g3_r$hist_lingimm__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
-        unname(g3_r$imm_report__num[,,t] * g3_r$imm_report__wgt[,,t]),
-        tolerance = 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t] * g3_r$hist_lingimm__wgt[,1,,t]),
+        tolerance = 1e-5), paste0("g3_r$hist_lingimm__wgt: ", t, " - ", dimnames(g3_r$hist_lingimm__wgt)$time[[t]]))
 }

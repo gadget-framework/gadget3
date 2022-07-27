@@ -17,15 +17,6 @@ lingmat <- g3_stock('lingmat', seq(20, 156, 4)) %>%
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
-imm_report <- g3_stock('imm_report', seq(20, 160, 4), open_ended = FALSE) %>% 
-    g3s_livesonareas(c(1)) %>%
-    g3s_age(3, 5) %>% g3s_time(year = local(year_range), step = 1:4)
-mat_report <- g3_stock('mat_report', seq(20, 160, 4), open_ended = FALSE) %>%
-    g3s_livesonareas(c(1)) %>%
-    g3s_age(5, 15) %>% g3s_time(year = local(year_range), step = 1:4)
-
-igfs_report <- igfs %>% g3s_clone('igfs_report') %>%
-  g3s_time(year = local(year_range), step = 1:4)
 nll_report <- rep(0, length(year_range) * 4)
 prev_nll <- 0.0
 remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
@@ -103,17 +94,6 @@ ling_likelihood_actions <- list(
     list())
 
 report_actions <- list(
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__num)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__wgt)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__consratio)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__totalpredate)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__igfs)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__num)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__wgt)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__consratio)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__totalpredate)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__igfs)),
-       g3a_report_stock(igfs_report,igfs, ~stock_ss(igfs__catch)),
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
            prev_nll <- remove_nll_attributes(nll)
@@ -130,6 +110,7 @@ actions <- c(
   ling_likelihood_actions,
   report_actions,
   time_actions)
+actions <- c(actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__igfs$|__catch$")))
 # Patch in our own avoid_zero which doesn't use logspace_add
 environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
 environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
@@ -177,39 +158,41 @@ names(g2_igfs_imm) <- c("year", "step", "area", "age", "length", "number", "weig
 attr(g2_igfs_imm, 'age') <- list(all3 = 3:5)
 attr(g2_igfs_imm, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs_imm <- gadget3:::g3l_likelihood_data('x', g2_igfs_imm)
+dimnames(g2_igfs_imm$weight)$length[dim(g2_igfs_imm$weight)['length']] <- '156:Inf'
 
 g2_igfs_mat <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingmat.predprey.out')[[1]][,1:7]
 names(g2_igfs_mat) <- c("year", "step", "area", "age", "length", "number", "weight")
 attr(g2_igfs_mat, 'age') <- list(all3 = 3:5)
 attr(g2_igfs_mat, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs_mat <- gadget3:::g3l_likelihood_data('x', g2_igfs_mat)
+dimnames(g2_igfs_mat$weight)$length[dim(g2_igfs_mat$weight)['length']] <- '156:Inf'
 
-g3_imm_biomass <- g3_r$imm_report__num[,,,] * g3_r$imm_report__wgt[,,,]
-g3_mat_biomass <- g3_r$mat_report__num[,,,] * g3_r$mat_report__wgt[,,,]
+g3_imm_biomass <- g3_r$hist_lingimm__num[,,,] * g3_r$hist_lingimm__wgt[,,,]
+g3_mat_biomass <- g3_r$hist_lingmat__num[,,,] * g3_r$hist_lingmat__wgt[,,,]
 
-for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
+for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     # NB: Losing accuracy at timesteps 17:19 (i.e 1984, which only has age5 left)
     #     Think we're noticing gadget2's "if (< verysmall) 0"
     ok(all.equal(
         unname(g2_lingimm$number[,,t,1]),
-        unname(g3_r$imm_report__num[,1,,t]),
-        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t]),
+        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$hist_lingimm__num: ", t, " - ", dimnames(g3_r$hist_lingimm__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
-        unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
-        tolerance = if (t %in% 17:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t] * g3_r$hist_lingimm__wgt[,1,,t]),
+        tolerance = if (t %in% 17:18) 1e-3 else 1e-5), paste0("g3_r$hist_lingimm__wgt: ", t, " - ", dimnames(g3_r$hist_lingimm__wgt)$time[[t]]))
 
     if (t %in% 27:31) {
         # Gadget2 catches nonexistant fish in 1988. Check g3 is consistent at least
-        ok(sum(g3_r$imm_report__num[,1,,t]) < 0.0001, paste0("g3_r$imm_report__num: ", t, " - "," No fish to be caught"))
-        ok(sum(g3_r$imm_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$imm_report__totalpredate: ", t, " - "," No fish caught"))
+        ok(sum(g3_r$hist_lingimm__num[,1,,t]) < 0.0001, paste0("g3_r$hist_lingimm__num: ", t, " - "," No fish to be caught"))
+        ok(sum(g3_r$hist_lingimm__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$hist_lingimm__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
             g2_igfs_imm$weight[,,t,1],
-            rowSums(g3_r$imm_report__totalpredate[,1,,t]),
-            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$imm_report__totalpredate: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+            rowSums(g3_r$hist_lingimm__totalpredate[,1,,t]),
+            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$hist_lingimm__totalpredate: ", t, " - ", dimnames(g3_r$hist_lingimm__wgt)$time[[t]]))
     }
 
     if (t == 1) {
@@ -217,39 +200,39 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     } else if ((t - 1) %% 4 == 0) {
         # Beginning of year, ages will have jumped between timesteps
         ok(all.equal(
-            rowSums(g3_imm_biomass[,,t - 1]) - rowSums(g3_r$imm_report__totalpredate[,,,t]),
+            rowSums(g3_imm_biomass[,,t - 1]) - rowSums(g3_r$hist_lingimm__totalpredate[,,,t]),
             rowSums(g3_imm_biomass[,,t]),
-            tolerance = if (t %in% 17) 1e-3 else 1e-6), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
+            tolerance = if (t %in% 17) 1e-3 else 1e-6), paste0("g3_r$hist_lingimm__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
     } else {
         # In-year timestep, so can compare age breakdown
         ok(all.equal(
-            g3_imm_biomass[,,t - 1] - g3_r$imm_report__totalpredate[,,,t],
+            g3_imm_biomass[,,t - 1] - g3_r$hist_lingimm__totalpredate[,,,t],
             g3_imm_biomass[,,t],
-            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$imm_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$hist_lingimm__totalpredate: ", t, " - Consistent with fall in stock biomass"))
     }
 
     ####
 
     ok(all.equal(
         unname(g2_lingmat$number[,,t,1]),
-        unname(g3_r$mat_report__num[,1,,t]),
-        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
+        unname(g3_r$hist_lingmat__num[,1,,t]),
+        tolerance = if (t %in% 17:19) 1e-3 else 1e-5), paste0("g3_r$hist_lingmat__num: ", t, " - ", dimnames(g3_r$hist_lingmat__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingmat$number[,,t,1] * g2_lingmat$weight[,,t,1]),
-        unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
-        tolerance = if (t %in% 17) 1e-3 else 1e-5), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
+        unname(g3_r$hist_lingmat__num[,1,,t] * g3_r$hist_lingmat__wgt[,1,,t]),
+        tolerance = if (t %in% 17) 1e-3 else 1e-5), paste0("g3_r$hist_lingmat__wgt: ", t, " - ", dimnames(g3_r$hist_lingmat__wgt)$time[[t]]))
 
     if (t %in% 27:31) {
         # Gadget2 catches nonexistant fish in 1987. Check g3 is consistent at least
-        ok(sum(g3_r$mat_report__num[,1,,t]) < 0.0001, paste0("g3_r$mat_report__num: ", t, " - "," No fish to be caught"))
-        ok(sum(g3_r$mat_report__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$mat_report__totalpredate: ", t, " - "," No fish caught"))
+        ok(sum(g3_r$hist_lingmat__num[,1,,t]) < 0.0001, paste0("g3_r$hist_lingmat__num: ", t, " - "," No fish to be caught"))
+        ok(sum(g3_r$hist_lingmat__totalpredate[,1,,t]) < 0.0001, paste0("g3_r$hist_lingmat__totalpredate: ", t, " - "," No fish caught"))
     } else {
         ok(all.equal(
             g2_igfs_mat$weight[,,t,1],
-            rowSums(g3_r$mat_report__totalpredate[,1,,t]),
-            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$mat_report__totalpredate: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
+            rowSums(g3_r$hist_lingmat__totalpredate[,1,,t]),
+            tolerance = if (t %in% 18) 1e-3 else 1e-4), paste0("g3_r$hist_lingmat__totalpredate: ", t, " - ", dimnames(g3_r$hist_lingmat__wgt)$time[[t]]))
     }
 
     if (t == 1) {
@@ -257,40 +240,40 @@ for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
     } else if ((t - 1) %% 4 == 0) {
         # Beginning of year, ages will have jumped between timesteps
         ok(all.equal(
-            rowSums(g3_mat_biomass[,,t - 1]) - rowSums(g3_r$mat_report__totalpredate[,,,t]),
+            rowSums(g3_mat_biomass[,,t - 1]) - rowSums(g3_r$hist_lingmat__totalpredate[,,,t]),
             rowSums(g3_mat_biomass[,,t]),
-            tolerance = if (t %in% 17) 1e-2 else 1e-6), paste0("g3_r$mat_report__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
+            tolerance = if (t %in% 17) 1e-2 else 1e-6), paste0("g3_r$hist_lingmat__totalpredate: ", t, " - Consistent with fall in stock biomass, with age jump"))
     } else {
         # In-year timestep, so can compare age breakdown
         ok(all.equal(
-            g3_mat_biomass[,,t - 1] - g3_r$mat_report__totalpredate[,,,t],
+            g3_mat_biomass[,,t - 1] - g3_r$hist_lingmat__totalpredate[,,,t],
             g3_mat_biomass[,,t],
-            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$mat_report__totalpredate: ", t, " - Consistent with fall in stock biomass"))
+            tolerance = if (t %in% 16:18) 1e-3 else 1e-5), paste0("g3_r$hist_lingmat__totalpredate: ", t, " - Consistent with fall in stock biomass"))
     }
 
     ####
 
     if (t %in% 25:31) {
         ok(all.equal(
-            sum(g3_r$imm_report__totalpredate[,1,,t]) + sum(g3_r$mat_report__totalpredate[,1,,t]),
-            g3_r$igfs_report__catch[1,t],
-            tolerance = 1e-7), paste0("g3_r$igfs_report__catch: ", t, " - Total catch internally consistent"))
+            sum(g3_r$hist_lingimm__totalpredate[,1,,t]) + sum(g3_r$hist_lingmat__totalpredate[,1,,t]),
+            g3_r$hist_igfs__catch[1,t],
+            tolerance = 1e-7), paste0("g3_r$hist_igfs__catch: ", t, " - Total catch internally consistent"))
     } else {
         ok(all.equal(
             sum(g2_igfs_imm$weight[,,t,1] + g2_igfs_mat$weight[,,t,1]),
-            g3_r$igfs_report__catch[1,t],
-            tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$igfs_report__catch: ", t, " - Total catch matches g2"))
+            g3_r$hist_igfs__catch[1,t],
+            tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$hist_igfs__catch: ", t, " - Total catch matches g2"))
     }
 }
 ok(all.equal(
-    colSums(g3_r$igfs_report__catch[]),
-    colSums(colSums(g3_r$imm_report__igfs[,,,])) + colSums(colSums(g3_r$mat_report__igfs[,,,])),
-    tolerance = 1e-7), "igfs_report__catch: Consistent with imm_report__igfs")
+    colSums(g3_r$hist_igfs__catch[]),
+    colSums(colSums(g3_r$hist_lingimm__igfs[,,,])) + colSums(colSums(g3_r$hist_lingmat__igfs[,,,])),
+    tolerance = 1e-7), "hist_igfs__catch: Consistent with hist_lingimm__igfs")
 
 ok(all.equal(
-    g3_r$imm_report__igfs,
-    g3_r$imm_report__totalpredate,
-    tolerance = 1e-7), "imm_report__totalpredate: Matches imm_report__igfs")
+    g3_r$hist_lingimm__igfs,
+    g3_r$hist_lingimm__totalpredate,
+    tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm__igfs")
 
 ok(all.equal(
     sum(g3_r$nll_report),

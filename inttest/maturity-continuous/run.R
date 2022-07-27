@@ -16,13 +16,6 @@ lingmat <- g3_stock('lingmat', seq(20, 156, 4)) %>%
 
 igfs <- g3_fleet('igfs') %>% g3s_livesonareas(c(1))
 
-imm_report <- g3_stock('imm_report', seq(20, 160, 4), open_ended = FALSE) %>% 
-    g3s_livesonareas(c(1)) %>%
-    g3s_age(3, 10) %>% g3s_time(year = local(year_range), step = 1:4)
-mat_report <- g3_stock('mat_report', seq(20, 160, 4), open_ended = FALSE) %>%
-    g3s_livesonareas(c(1)) %>%
-    g3s_age(5, 15) %>% g3s_time(year = local(year_range), step = 1:4)
-
 lingimm_actions <- list(
     g3a_initialconditions_normalparam(lingimm,
         factor_f = ~(age * g3_param("lingimm.init")) * g3_param("lingimm.init.scalar"),
@@ -58,13 +51,6 @@ lingmat_actions <- list(
     g3a_age(lingmat),
     list())
 
-report_actions <- list(
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__num)),
-       g3a_report_stock(imm_report,lingimm, ~stock_ss(lingimm__wgt)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__num)),
-       g3a_report_stock(mat_report,lingmat, ~stock_ss(lingmat__wgt)),
-       list())
-
 time_actions <- list(
     g3a_time(min(year_range), max(year_range), c(3,3,3,3)),
     list())
@@ -72,8 +58,9 @@ time_actions <- list(
 actions <- c(
   lingimm_actions,
   lingmat_actions,
-  report_actions,
   time_actions)
+actions <- c(actions, list(g3a_report_history(actions)))
+
 # Patch in our own avoid_zero which doesn't use logspace_add
 environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
 environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
@@ -118,7 +105,7 @@ names(g2_lingmat) <- c("year", "step", "area", "age", "length", "number", "weigh
 g2_lingmat <- gadget3:::g3l_likelihood_data('x', g2_lingmat)
 
 ok_group("Total numbers preserved", {
-    g3_num_total <- colSums(colSums(g3_r$imm_report__num[,1,,])) + colSums(colSums(g3_r$mat_report__num[,1,,]))
+    g3_num_total <- colSums(colSums(g3_r$hist_lingimm__num[,1,,])) + colSums(colSums(g3_r$hist_lingmat__num[,1,,]))
     ok(all.equal(
         unname(g3_num_total / c(g3_num_total[[1]] / 0.9631944, head(g3_num_total, -1))),
         rep(0.963, length(year_range) * 4),
@@ -130,26 +117,26 @@ ok_group("Total numbers preserved", {
         tolerance = 1e-3), "g2_num_total: Consistently losing 0.963")
 })
 
-for (t in seq_len(dim(g3_r$imm_report__num)['time'])) {
+for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     ok(all.equal(
         unname(g2_lingimm$number[,,t,1]),
-        unname(g3_r$imm_report__num[,1,,t]),
-        tolerance = 1e-4), paste0("g3_r$imm_report__num: ", t, " - ", dimnames(g3_r$imm_report__num)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t]),
+        tolerance = 1e-4), paste0("g3_r$hist_lingimm__num: ", t, " - ", dimnames(g3_r$hist_lingimm__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingimm$number[,,t,1] * g2_lingimm$weight[,,t,1]),
-        unname(g3_r$imm_report__num[,1,,t] * g3_r$imm_report__wgt[,1,,t]),
-        tolerance = 1e-4), paste0("g3_r$imm_report__wgt: ", t, " - ", dimnames(g3_r$imm_report__wgt)$time[[t]]))
+        unname(g3_r$hist_lingimm__num[,1,,t] * g3_r$hist_lingimm__wgt[,1,,t]),
+        tolerance = 1e-4), paste0("g3_r$hist_lingimm__wgt: ", t, " - ", dimnames(g3_r$hist_lingimm__wgt)$time[[t]]))
 
     ok(all.equal(
         unname(g2_lingmat$number[,,t,1]),
-        unname(g3_r$mat_report__num[,1,,t]),
-        tolerance = 1e-3), paste0("g3_r$mat_report__num: ", t, " - ", dimnames(g3_r$mat_report__num)$time[[t]]))
+        unname(g3_r$hist_lingmat__num[,1,,t]),
+        tolerance = 1e-3), paste0("g3_r$hist_lingmat__num: ", t, " - ", dimnames(g3_r$hist_lingmat__num)$time[[t]]))
 
     ok(all.equal(
         # NB: Use total weight, since mean weight will do different things with no fish
         unname(g2_lingmat$number[,,t,1] * g2_lingmat$weight[,,t,1]),
-        unname(g3_r$mat_report__num[,1,,t] * g3_r$mat_report__wgt[,1,,t]),
-        tolerance = 1e-3), paste0("g3_r$mat_report__wgt: ", t, " - ", dimnames(g3_r$mat_report__wgt)$time[[t]]))
+        unname(g3_r$hist_lingmat__num[,1,,t] * g3_r$hist_lingmat__wgt[,1,,t]),
+        tolerance = 1e-3), paste0("g3_r$hist_lingmat__wgt: ", t, " - ", dimnames(g3_r$hist_lingmat__wgt)$time[[t]]))
 }
