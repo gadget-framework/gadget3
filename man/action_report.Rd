@@ -84,6 +84,7 @@ raw_report <- g3s_clone(ling_imm, 'raw_report') \%>\%
     g3s_time(year = 2000:2002)
 
 actions <- list(
+    g3a_age(ling_imm),
     g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num),
         include_adreport = TRUE),
     g3a_report_stock(raw_report, ling_imm, ~stock_ss(ling_imm__num)))

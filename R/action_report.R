@@ -45,8 +45,8 @@ g3a_report_history <- function (actions, var_re = "__num$|__wgt$", run_at = 11) 
     all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
     code <- rlang::f_rhs(all_actions)
     env <- environment(all_actions)
-    all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NA))
-    all_defns <- all_defns[!is.na(all_defns)]
+    all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NULL))
+    all_defns <- all_defns[!is.null(all_defns)]
 
     # Resolve list of variables we'd like history for
     hist_vars <- grep(var_re, names(all_defns), value = TRUE)
