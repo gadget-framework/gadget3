@@ -58,7 +58,7 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
     stopifnot(length(lengthgroups) > 0)
 
     if (!is.null(plus_dl)) {
-        stock__plusdl <- as.integer(plus_dl)
+        stock__plusdl <- as.numeric(plus_dl)
     } else if (length(lengthgroups) == 1) {
         # Only one lengthgroup, no sensible value to use
         stock__plusdl <- 1
@@ -69,7 +69,7 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             r <- rle(vec)
             r$values[[which.max(r$lengths)]]
         }
-        stock__plusdl <- stat_mode(diff(lengthgroups))
+        stock__plusdl <- as.numeric(stat_mode(diff(lengthgroups)))
     }
 
     # stock__dl is size of each lengthgroup
