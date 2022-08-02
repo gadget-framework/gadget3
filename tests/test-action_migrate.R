@@ -38,14 +38,13 @@ ok_group("g3a_migrate", {
             ~area * 10 + stock_acd__minlen),
         g3a_migrate(
             stock_acd,
-            # TODO: Can we name our areas here?
             # 0.6324555 == sqrt(0.4)
-            ~if (area == 4 && dest_area == 1) g3_param("migrate_spring", value = 0.6324555320336759) else 0,
+            ~if (area == area_d && dest_area == area_a) g3_param("migrate_spring", value = 0.6324555320336759) else 0,
             run_f = ~cur_step == 2),
         g3a_migrate(
             stock_acd,
-            ~if (area == 1 && dest_area == 3) g3_param("migrate_winter", value = 0.7745966692414834)
-              else if (area == 3 && dest_area == 4) g3_param("migrate_winter", value = 0.7745966692414834)
+            ~if (area == area_a && dest_area == area_c) g3_param("migrate_winter", value = 0.7745966692414834)
+              else if (area == area_c && dest_area == area_d) g3_param("migrate_winter", value = 0.7745966692414834)
               else 0,
             run_f = ~cur_step == 4),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),

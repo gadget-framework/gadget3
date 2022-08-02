@@ -8,6 +8,11 @@ g3s_livesonareas <- function(inner_stock, areas) {
         names = names(areas)))  # NB: Force stock__areas to be an array
     stock__totalareas <- length(stock__areas)
 
+    # Add each area to our formulas, so they can be referenced elsewhere
+    for (n in names(areas)) {
+        assign(paste0('area_', n), as.integer(areas[[n]]))
+    }
+
     if (stock__totalareas == 1) {
         # Stock only in one area, so simplify
         stock__area <- as.integer(areas[[1]])

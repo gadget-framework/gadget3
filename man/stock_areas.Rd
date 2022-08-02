@@ -26,6 +26,11 @@ g3s_areagroup(inner_stock, areagroups)
   }
 }
 
+\details{
+  Each area will be defined as a variable in your model as \code{area_x},
+  allowing you to use names in formulas, e.g. \code{run_f = quote( area == area_x )}.
+}
+
 \value{
   \subsection{g3s_livesonareas}{
       A \code{\link{g3_stock}} with an additional 'area' dimension.
@@ -56,6 +61,10 @@ areas <- c(a=1, b=2, c=3, d=4, e=5)
 # Define a stock with 3 lengthgroups and 3 areas
 stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_livesonareas(areas[c('a', 'b', 'c')])
+
+# Area variables will be defined, so you can refer to them in formulas:
+g3a_migrate(stock, ~g3_param("migrate_spring"),
+    run_f = ~area == area_b && cur_step == 2)
 
 # Use stock_instance to see what the array would look like
 gadget3:::stock_instance(stock)
