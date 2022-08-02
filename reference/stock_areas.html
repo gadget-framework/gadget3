@@ -80,6 +80,11 @@
 <dd><p>A list mapping names to vectors of numeric areas the stock is part of</p></dd>
 
 </dl></div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>Each area will be defined as a variable in your model as <code>area_x</code>,
+  allowing you to use names in formulas, e.g. <code>run_f = quote( area == area_x )</code>.</p>
+    </div>
     <div id="value">
     <h2>Value</h2>
     <p></p>
@@ -114,6 +119,60 @@
 <span class="r-in"><span><span class="co"># Define a stock with 3 lengthgroups and 3 areas</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span></span>
 <span class="r-in"><span>    <span class="fu">g3s_livesonareas</span><span class="op">(</span><span class="va">areas</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>, <span class="st">'b'</span>, <span class="st">'c'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Area variables will be defined, so you can refer to them in formulas:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="action_migrate.html">g3a_migrate</a></span><span class="op">(</span><span class="va">stock</span>, <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"migrate_spring"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">area</span> <span class="op">==</span> <span class="va">area_b</span> <span class="op">&amp;&amp;</span> <span class="va">cur_step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :001`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     debug_trace("Clear name migration matrix")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     name__migratematrix[] &lt;- NaN</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55e343b65b20&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :002:cfe33e24799ee60b2ffd`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     debug_label("g3a_migrate: Migration of name")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     name__postmigratenum[] &lt;- 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     name__postmigratewgt[] &lt;- 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     for (name__area_idx in seq_along(name__areas)) g3_with(`:=`(area, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         name__areas[[name__area_idx]]), if (area == area_b &amp;&amp; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         cur_step == 2) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         debug_trace("Fill in any gaps in the migration matrix")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         if (any(is.nan(name__migratematrix[, name__area_idx]))) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             for (name__destarea_idx in seq_along(name__areas)) g3_with(`:=`(dest_area, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__areas[[name__destarea_idx]]), name__migratematrix[name__destarea_idx, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__area_idx] &lt;- g3_param("migrate_spring"))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[, name__area_idx] &lt;- g3a_migrate_normalize(name__migratematrix[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__area_idx], name__area_idx, 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         debug_trace("Apply migration matrix to current stock")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         for (name__destarea_idx in seq_along(name__areas)) g3_with(`:=`(dest_area, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__areas[[name__destarea_idx]]), `:=`(migrate_prop, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[name__destarea_idx, name__area_idx]), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratewgt[, name__destarea_idx] &lt;- ratio_add_vec(name__postmigratewgt[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx], name__postmigratenum[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx], name__wgt[, name__area_idx], </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   migrate_prop * name__num[, name__area_idx])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratenum[, name__destarea_idx] &lt;- name__postmigratenum[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx] + migrate_prop * name__num[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__area_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             })</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     else {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         debug_trace("Copy not-migrating stocks")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         name__postmigratewgt[, name__area_idx] &lt;- name__postmigratewgt[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__area_idx] + name__wgt[, name__area_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         name__postmigratenum[, name__area_idx] &lt;- name__postmigratenum[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__area_idx] + name__num[, name__area_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     })</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     debug_trace("Switch around __postmigratenum and __num")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     name__num &lt;- name__postmigratenum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     name__wgt &lt;- name__postmigratewgt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55e343d458b8&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
 <span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
