@@ -303,7 +303,7 @@ f_optimize <- function (f) {
             inner <- f_optimize(x[[2]])
 
             # Remove brackets from symbols, double-bracked expressions and infix operators
-            if (!is.call(inner) || inner[[1]] == open_bracket || !is_infix_call(inner)) {
+            if (!is.call(inner) || inner[[1]] == open_bracket || (!is_infix_call(inner) && inner[[1]] != as.symbol("if"))) {
                 return(inner)
             }
 
