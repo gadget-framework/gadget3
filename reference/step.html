@@ -299,17 +299,19 @@
     <h2>stock_param</h2>
     <p><code>stock_param(stock, name, name_part = NULL, ...)</code></p>
 <p>Convert to a call to <a href="language.html">g3_param</a>, prefixing the <var>name</var> with the stock name.
-  If <var>name_part</var> given, only use that part of the stock name.</p>
+  If <var>name_part</var> given, only use given part(s) of the stock name.</p>
 <p>All other args passed through to <a href="language.html">g3_param</a>.</p>
 <p></p><div class="section">
 <h3 id="examples-10">Examples<a class="anchor" aria-label="anchor" href="#examples-10"></a></h3>
 
 
-<div class="sourceCode"><pre><code>&gt; stock &lt;- g3_stock(c(species = 'halibut', 'imm'), 1:10) |&gt; g3s_age(1,10)
+<div class="sourceCode"><pre><code>&gt; stock &lt;- g3_stock(c(species = 'halibut', sex = 'm', 'imm'), 1:10) |&gt; g3s_age(1,10)
 &gt; gadget3:::g3_step(~stock_param(stock, 'K'))
-~g3_param("halibut_imm.K")
+~g3_param("halibut_m_imm.K")
 &gt; gadget3:::g3_step(~stock_param(stock, 'K', name_part = 'species'))
-~g3_param("halibut.K")</code></pre></div><p></p>
+~g3_param("halibut.K")
+&gt; gadget3:::g3_step(~stock_param(stock, 'K', name_part = c('species', 'sex')))
+~g3_param("halibut_m.K")</code></pre></div><p></p>
 </div>
 
     </div>
