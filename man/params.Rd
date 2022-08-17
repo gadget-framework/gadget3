@@ -27,7 +27,7 @@ g3_parameterized(
     \describe{
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"stock_name.name"} parameter}
-      \item{string}{Select the stock name_part to use, e.g. to produce \code{"stock_species.name"} parameter with "species"}
+      \item{character vector}{Select the stock name_part(s) to use, e.g. to produce \code{"stock_species.name"} parameter with "species"}
       \item{List of \code{\link{g3_stock}} objects}{Produce a parameter that applies to all given stocks}
     }
   }
