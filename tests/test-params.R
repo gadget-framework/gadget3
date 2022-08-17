@@ -13,7 +13,7 @@ stock_fmat <- g3_stock(c(species = 'st', sex = 'f', maturity = 'mat'), seq(10, 3
 pretend_stock_action <- function (x) {
     rlang::f_rhs(gadget3:::g3_step(gadget3:::call_to_formula(
         x,
-        env = as.environment(list(stock = stock_mimm)))))
+        env = list2env(list(stock = stock_mimm), parent = baseenv()))))
 }
 
 ok(cmp_code(
@@ -66,9 +66,11 @@ ok(cmp_code(
 ok(cmp_code(
     pretend_stock_action(call("{",  # }
         g3_parameterized('parp', by_stock = 'species', lower = 3),
+        g3_parameterized('parp', by_stock = c('species', 'sex'), lower = 3),
         g3_parameterized('parp', by_stock = 'sex', by_year = TRUE),
     NULL)), quote({
         g3_param("st.parp", lower = 3)
+        g3_param("st_m.parp", lower = 3)
         g3_param_table("m.parp", expand.grid(cur_year = seq(start_year, end_year)))
     NULL})), "Can specify which name_part should be used in the name")
 

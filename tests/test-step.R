@@ -232,15 +232,15 @@ ok_group("g3_step:dependent_formulas", (function () {
 })())
 
 ok_group("g3_step:stock_param", {
-    stock_a <- g3_stock(c(t = 'stock', 'aaa'), seq(10, 35, 5))
+    stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
 
     ok(cmp_code(
         gadget3:::g3_step(~{
             stock_param(stock_a, 'parr', optmise = FALSE)
             stock_param(stock_a, 'parr', optmise = FALSE, upper = 5)
         }), ~{
-            g3_param("stock_aaa.parr", optmise = FALSE)
-            g3_param("stock_aaa.parr", optmise = FALSE, upper = 5)
+            g3_param("stock_stick_aaa.parr", optmise = FALSE)
+            g3_param("stock_stick_aaa.parr", optmise = FALSE, upper = 5)
         }), "Passed through options")
     ok(cmp_code(
         gadget3:::g3_step(~{
@@ -252,6 +252,16 @@ ok_group("g3_step:stock_param", {
             g3_param("stock.parr")
             g3_param("stock.parr", lower = 4, upper = 5)
         }), "name_part can be either beffore or after name, not passed through to g3_param call")
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param(stock_a, name_part = c('t', 'q'), 'par1')
+            stock_param(stock_a, name_part = c('q', 't'), 'par1')
+            stock_param(stock_a, name_part = c('t'), 'par1')
+        }), ~{
+            g3_param("stock_stick.par1")
+            g3_param("stick_stock.par1")
+            g3_param("stock.par1")
+        }), "name_part can contain multiple name_parts, get used in order")
 })
 
 ok_group("g3_step:stock_param_table", {

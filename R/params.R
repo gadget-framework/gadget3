@@ -30,8 +30,17 @@ g3_parameterized <- function(
             table_defn <- c(table_defn, list(age = quote(seq(stock__minage, stock__maxage))))
         }
 
+        # Define name_part based on input by_stock
+        if (isTRUE(by_stock)) {
+            name_part <- NULL
+        } else if (length(by_stock) > 1) {
+            # Turn a vector into it's c(x, y, ...) language expression
+            name_part <- as.call(c(as.symbol("c"), by_stock))
+        } else {
+            name_part <- by_stock
+        }
+
         # Use stock_param() to do the substitutions later
-        name_part <- if (isTRUE(by_stock)) NULL else by_stock
         if (length(table_defn) > 0) {
             table_defn <- as.call(c(as.symbol('expand.grid'), table_defn))
             out <- substitute(stock_param_table(stock, x, name_part = name_part, table_defn), list(x = name, name_part = name_part, table_defn = table_defn))
