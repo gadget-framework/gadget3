@@ -334,7 +334,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             # Use name_part if part of the call
             if (!is.null(rest$name_part)) {
-                param_name <- paste(stock$name_part[rest$name_part], collapse = '_')
+                param_name <- paste(stock$name_part[eval(rest$name_part, envir = baseenv())], collapse = '_')
             } else {
                 param_name <- stock$name
             }

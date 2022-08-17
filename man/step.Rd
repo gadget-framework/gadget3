@@ -239,17 +239,19 @@
   \code{stock_param(stock, name, name_part = NULL, ...)}
 
   Convert to a call to \link{g3_param}, prefixing the \var{name} with the stock name.
-  If \var{name_part} given, only use that part of the stock name.
+  If \var{name_part} given, only use given part(s) of the stock name.
 
   All other args passed through to \link{g3_param}.
 
   \subsection{Examples}{
 
-\preformatted{> stock <- g3_stock(c(species = 'halibut', 'imm'), 1:10) |> g3s_age(1,10)
+\preformatted{> stock <- g3_stock(c(species = 'halibut', sex = 'm', 'imm'), 1:10) |> g3s_age(1,10)
 > gadget3:::g3_step(~stock_param(stock, 'K'))
-~g3_param("halibut_imm.K")
+~g3_param("halibut_m_imm.K")
 > gadget3:::g3_step(~stock_param(stock, 'K', name_part = 'species'))
-~g3_param("halibut.K")}
+~g3_param("halibut.K")
+> gadget3:::g3_step(~stock_param(stock, 'K', name_part = c('species', 'sex')))
+~g3_param("halibut_m.K")}
   }
 }
 
