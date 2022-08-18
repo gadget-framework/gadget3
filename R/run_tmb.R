@@ -825,6 +825,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
             }
 
             attr(defn, 'report_dimnames') <- dimnames(var_val)
+            attr(defn, 'report_dynamic_dimnames') <- attr(var_val, 'dynamic_dimnames')
             scope[[var_name]] <<- defn
         }
         return(code)
@@ -889,6 +890,7 @@ Type objective_function<Type>::operator() () {
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
     attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
+    attr(out, 'report_dynamic_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dynamic_dimnames')))
     return(out)
 }
 
@@ -1023,6 +1025,7 @@ g3_tmb_adfun <- function(cpp_code,
 
     report_dimnames <- attr(cpp_code, 'report_dimnames')
     report_renames <- attr(cpp_code, 'report_renames')
+    report_dynamic_dimnames <- attr(cpp_code, 'report_dynamic_dimnames')
     fn$orig_report <- fn$report
     fn$report <- function (...) {
         out <- fn$orig_report(...)
@@ -1045,7 +1048,7 @@ g3_tmb_adfun <- function(cpp_code,
 
             # Find and bodge any dynamic dims into having something that fits
             for (di in seq_along(report_dimnames[[dimname]])) {
-                if (is.null(report_dimnames[[dimname]][[di]])) {
+                if (is.null(report_dimnames[[dimname]][[di]]) && !is.null(report_dynamic_dimnames[[dimname]][[di]])) {
                     report_dimnames[[dimname]][[di]] <- seq_len(dim(out[[dimname]])[[di]])
                 }
             }

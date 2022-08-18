@@ -137,3 +137,6 @@ export(g3s_time_convert)
 
 # R/timedata.R
 export(g3_timeareadata)
+
+# R/timevariable.R
+export(g3_timevariable)
