@@ -118,7 +118,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 var_val_code <- var_defns(rlang::f_rhs(var_val), rlang::env_clone(rlang::f_env(var_val), parent = env))
                 defn <- call("<-", as.symbol(var_name), var_val_code)
             } else if (is.call(var_val)) {
-                defn <- call("<-", as.symbol(var_name), var_val)
+                # Recurse, to resolve any g3_param() calls.
+                var_val_code <- var_defns(var_val, env)
+                defn <- call("<-", as.symbol(var_name), var_val_code)
             } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
                 # Define empty sparseMatrix
                 defn <- call(

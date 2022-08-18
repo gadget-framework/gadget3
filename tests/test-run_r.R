@@ -36,6 +36,12 @@ ok_group('g3_param', {
     ok(ut_cmp_identical(
         param[c('a', 'b')],
         list(a = 0, b = 4)), "Param list included value values")
+
+    # Definitions-as-code should still parse g3_param()s (it's a different path to formulas)
+    model_fn <- g3_to_r(list(g3_formula(
+        return(y),
+        y = quote( 2 + g3_param("peep") ))))
+    ok(ut_cmp_identical(model_fn(list(peep = 4)), 6), "Unevaluated code had g3_param() resolved")
 })
 
 ok_group('g3_param_table', {
