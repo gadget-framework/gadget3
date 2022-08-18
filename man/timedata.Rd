@@ -1,4 +1,4 @@
-\name{timevariable}
+\name{timedata}
 \alias{g3_timeareadata}
 
 \title{Gadget3 time-based data}

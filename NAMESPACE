@@ -135,5 +135,5 @@ export(g3s_tag)
 export(g3s_time)
 export(g3s_time_convert)
 
-# R/timevariable.R
+# R/timedata.R
 export(g3_timeareadata)
