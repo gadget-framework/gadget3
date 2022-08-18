@@ -109,6 +109,20 @@ ok(cmp_code(
         a = as.formula(call("~", call("<-", quote(q), 2))))),
     ~{z <- 1 ; q <- 2}), "f_substitute: No extra brackets for assignment")
 
+### f_chain_conditional
+
+out <- gadget3:::f_chain_conditional(list(g3_formula(x*2, x = 4), ~b), age = c(1,2), area = c(4,5))
+ok(cmp_code(out, g3_formula(
+    if (area == 4 && age == 1) (x * 2) else if (area == 5 && age == 2) b else NaN
+)), "f_chain_conditional: Chained in order")
+ok(cmp_environment(environment(out), list(x = 4)), "f_chain_conditional: Definitions from inner formulas in outer env")
+
+out <- gadget3:::f_chain_conditional(list(quote(x), quote(y)), parrot = c(100,200), default = g3_formula(x*2, x = 99))
+ok(cmp_code(out, g3_formula(
+    if (parrot == 100) x else if (parrot == 200) y else (x * 2)
+)), "f_chain_conditional: Can set default value")
+ok(cmp_environment(environment(out), list(x = 99)), "f_chain_conditional: Definitions from default in outer env")
+
 ### f_concatenate
 
 out_f <- gadget3:::f_concatenate(list(

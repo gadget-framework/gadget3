@@ -180,6 +180,39 @@ f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
     formula(call("~", out_call), env = e)
 }
 
+# Combine list of formulas with any number of var = value conditions
+# e.g. f_chain_conditional(list(~a, ~b), age = c(1,2), area = c(4,5))
+f_chain_conditional <- function (fs, default_f = NaN, ...) {
+    stopifnot(is.list(fs))
+    for (i in seq_len(...length())) stopifnot(length(...elt(i)) == length(fs))
+    vals <- list(...)
+
+    # Generate (count) random identifiers
+    random_identifier <- function (count) {
+        paste0(floor(stats::runif(count, 1e9, 1e10)), "_", seq_len(count))
+    }
+
+    # Build if call for each value, using temporary symbols for formulas
+    names(fs) <- random_identifier(length(fs))
+    default_var_name <- random_identifier(1)
+    out <- Reduce(
+        function (i, rest) {
+            # Compare current value for all values given
+            out <- lapply(names(vals), function(n) call("==", as.symbol(n), vals[[n]][[i]]))
+            # Combine with && calls
+            out <- f_optimize(Reduce(function (f, rest) call("&&", rest, f), out, TRUE))
+            # Add to an if statement
+            call("if", out, as.symbol(names(fs)[[i]]), rest)
+        },
+        seq_along(fs),
+        as.symbol(default_var_name),
+        right = TRUE)
+
+    # Replace temporary symbols with actual formulas
+    fs[[default_var_name]] <- default_f
+    f_substitute(out, fs)
+}
+
 # Perform optimizations on code within formulae, mostly for readability
 f_optimize <- function (f) {
     # Simplify Basic arithmetic
