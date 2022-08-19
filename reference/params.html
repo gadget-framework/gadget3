@@ -119,10 +119,14 @@
 <dd><p>Use <code>exp(value)</code> instead of the raw parameter value</p></dd>
 
   <dt>scale</dt>
-<dd><p>Use <code>scale * value</code> instead of the raw parameter value</p></dd>
+<dd><p>Use <code>scale * value</code> instead of the raw parameter value.
+    Either a numeric constant or character.
+    If character, add another parameter for scale, using the same <var>by_stock</var> value.</p></dd>
 
   <dt>offset</dt>
-<dd><p>Use <code>value + offset</code> instead of the raw parameter value</p></dd>
+<dd><p>Use <code>value + offset</code> instead of the raw parameter value
+    Either a numeric constant or character.
+    If character, add another parameter for offset, using the same <var>by_stock</var> value.</p></dd>
 
   <dt>...</dt>
 <dd><p>Additional parameters passed through to <code><a href="language.html">g3_param</a></code>, e.g. <var>optimise</var>, <var>random</var>, ...</p></dd>

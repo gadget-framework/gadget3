@@ -71,13 +71,33 @@
 <span></span>
 <span><span class="fu">g3a_initialconditions</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>, run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span><span class="va">stock</span>, <span class="va">factor_f</span>, <span class="va">mean_f</span>, <span class="va">stddev_f</span>, <span class="va">alpha_f</span>, <span class="va">beta_f</span>, </span>
-<span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>, run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span></span>
+<span>        <span class="va">stock</span>,</span>
+<span>        <span class="va">factor_f</span>,</span>
+<span>        <span class="va">mean_f</span>,</span>
+<span>        stddev_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'init.sd'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_age <span class="op">=</span> <span class="va">by_age</span><span class="op">)</span>,</span>
+<span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        wgt_by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_renewal</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_renewal_normalparam</span><span class="op">(</span><span class="va">stock</span>, <span class="va">factor_f</span>, <span class="va">mean_f</span>, <span class="va">stddev_f</span>, <span class="va">alpha_f</span>, <span class="va">beta_f</span>, </span>
-<span>    run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span>
+<span>        <span class="va">stock</span>,</span>
+<span>        <span class="va">factor_f</span>,</span>
+<span>        <span class="va">mean_f</span>,</span>
+<span>        stddev_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'rec.sd'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_age <span class="op">=</span> <span class="va">by_age</span><span class="op">)</span>,</span>
+<span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        wgt_by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -123,6 +143,12 @@
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into vonb calcuations, see below.</p></dd>
 
   <dt>by_stock</dt>
+<dd><p>Controls how parameters are grouped, see <code><a href="params.html">g3_parameterized</a></code></p></dd>
+
+  <dt>wgt_by_stock</dt>
+<dd><p>Controls how parameters are grouped, see <code><a href="params.html">g3_parameterized</a></code></p></dd>
+
+  <dt>by_age</dt>
 <dd><p>Controls how parameters are grouped, see <code><a href="params.html">g3_parameterized</a></code></p></dd>
 
 </dl></div>
@@ -204,22 +230,16 @@
 <span class="r-in"><span>    factor_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.init.scalar"</span><span class="op">)</span> <span class="op">*</span></span></span>
 <span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.M"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.init.F"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">age</span><span class="op">)</span> <span class="op">*</span></span></span>
 <span class="r-in"><span>        <span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"lingimm.init"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span></span></span>
-<span class="r-in"><span>        <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span></span></span>
-<span class="r-in"><span>        <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.recl"</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span></span>
-<span class="r-in"><span>            <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    stddev_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"ling.init.sd"</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># per-age init.sd parameters</span></span></span>
 <span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
 <span class="r-in"><span>    factor_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.rec.scalar"</span><span class="op">)</span> <span class="op">*</span></span></span>
 <span class="r-in"><span>        <span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"ling.rec"</span><span class="op">)</span><span class="op">[[</span><span class="va">cur_year</span> <span class="op">-</span> <span class="va">start_year</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span></span></span>
-<span class="r-in"><span>        <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span></span></span>
-<span class="r-in"><span>        <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.recl"</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span></span>
-<span class="r-in"><span>            <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    stddev_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">'ling.init.sd'</span><span class="op">)</span><span class="op">[[</span><span class="va">age</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># per-age init.sd parameters</span></span></span>
 <span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;&amp;</span> <span class="va">age</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span></span></span>

@@ -63,11 +63,21 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_grow_lengthvbsimple</span><span class="op">(</span><span class="va">linf_f</span>, <span class="va">kappa_f</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_grow_lengthvbsimple</span><span class="op">(</span></span>
+<span>        linf_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'Linf'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        kappa_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, scale <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_grow_weightsimple</span><span class="op">(</span><span class="va">alpha_f</span>, <span class="va">beta_f</span><span class="op">)</span></span>
+<span><span class="fu">g3a_grow_weightsimple</span><span class="op">(</span></span>
+<span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_grow_impl_bbinom</span><span class="op">(</span><span class="va">delta_len_f</span>, <span class="va">delta_wgt_f</span>, <span class="va">beta_f</span>, <span class="va">maxlengthgroupgrowth</span><span class="op">)</span></span>
+<span><span class="fu">g3a_grow_impl_bbinom</span><span class="op">(</span></span>
+<span>        <span class="va">delta_len_f</span>, <span class="va">delta_wgt_f</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'bbin'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        <span class="va">maxlengthgroupgrowth</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_growmature</span><span class="op">(</span><span class="va">stock</span>, <span class="va">impl_f</span>, maturity_f <span class="op">=</span> <span class="op">~</span><span class="fl">0</span>, output_stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>, </span>
 <span>    output_ratios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">output_stocks</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">output_stocks</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -102,6 +112,9 @@
   <dt>delta_wgt_f</dt>
 <dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> defining the corresponding weight increase as a matrix of
     lengthgroup to lengthgroup delta for <code>stock</code>, as defined by <code>g3a_grow_weightsimple</code>.</p></dd>
+
+  <dt>by_stock</dt>
+<dd><p>Change the default parameterisation (e.g. to be by 'species'), see <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
 
   <dt>impl_f</dt>
 <dd><p>A pair of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects, as defined by <code>g3a_grow_impl_bbinom</code>.
@@ -182,19 +195,16 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ling_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_mat'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'ling'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ling_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'ling'</span>, <span class="st">'mat'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Growth / maturity for immature ling</span></span></span>
 <span class="r-in"><span><span class="va">growth_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_growmature</span><span class="op">(</span><span class="va">ling_imm</span>,</span></span>
 <span class="r-in"><span>    impl_f <span class="op">=</span> <span class="fu">g3a_grow_impl_bbinom</span><span class="op">(</span></span></span>
-<span class="r-in"><span>        <span class="fu">g3a_grow_lengthvbsimple</span><span class="op">(</span></span></span>
-<span class="r-in"><span>            linf_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.Linf"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>            kappa_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.k"</span><span class="op">)</span> <span class="op">*</span> <span class="fl">0.001</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        <span class="fu">g3a_grow_weightsimple</span><span class="op">(</span></span></span>
-<span class="r-in"><span>            alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>            beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.bbin"</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Parameters will be ling.Linf, ling.K</span></span></span>
+<span class="r-in"><span>        <span class="fu">g3a_grow_lengthvbsimple</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="st">'species'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Parameters will be ling_imm.walpha, ling_imm.wbeta</span></span></span>
+<span class="r-in"><span>        <span class="fu">g3a_grow_weightsimple</span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        maxlengthgroupgrowth <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    maturity_f <span class="op">=</span> <span class="fu"><a href="action_mature.html">g3a_mature_constant</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>        alpha <span class="op">=</span> <span class="op">~</span><span class="fl">0.001</span> <span class="op">*</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.mat1"</span><span class="op">)</span>,</span></span>

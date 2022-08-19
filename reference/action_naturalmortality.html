@@ -63,7 +63,11 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_naturalmortality_exp</span><span class="op">(</span><span class="va">param_f</span>, action_step_size_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step_size</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_naturalmortality_exp</span><span class="op">(</span></span>
+<span>        param_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'M'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_age <span class="op">=</span> <span class="va">by_age</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        action_step_size_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step_size</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_naturalmortality</span><span class="op">(</span><span class="va">stock</span>, <span class="va">mortality_f</span>, run_f <span class="op">=</span> <span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -76,6 +80,12 @@
   <dt>action_step_size_f</dt>
 <dd><p>How much model time passes in between runs of action? defaults to <code>~cur_step_size</code>, i.e. every step.
     Use <code>action_step_size_f = 1</code> if action only runs yearly.</p></dd>
+
+  <dt>by_stock</dt>
+<dd><p>Change the default parameterisation (e.g. to be by 'species'), see <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
+
+  <dt>by_age</dt>
+<dd><p>Change the default parameterisation to be per stock age, see <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
 
   <dt>stock</dt>
 <dd><p><code><a href="stock.html">g3_stock</a></code> mortality applies to.</p></dd>
