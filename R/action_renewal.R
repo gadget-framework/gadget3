@@ -40,7 +40,18 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 }
 
 # Steps to set up renewal of stocks on first step
-g3a_initialconditions_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~cur_time == 0L, run_at = 0) {
+g3a_initialconditions_normalparam <- function (
+        stock,
+        factor_f,
+        mean_f,
+        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~cur_time == 0L,
+        run_at = 0) {
     # See InitialCond::Initialise
     stock__num <- stock_instance(stock, 0)
     stock__wgt <- stock_instance(stock, 1)
@@ -98,7 +109,18 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
 }
 
 # Steps to set up renewal of stocks on any stock
-g3a_renewal_normalparam <- function (stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE, run_at = 8) {
+g3a_renewal_normalparam <- function (
+        stock,
+        factor_f,
+        mean_f,
+        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~TRUE,
+        run_at = 8) {
     # See InitialCond::Initialise
     stock__num <- stock_instance(stock, 0)
     stock__wgt <- stock_instance(stock, 1)

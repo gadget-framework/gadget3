@@ -19,13 +19,33 @@ g3a_renewal_vonb(
 
 g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
 
-g3a_initialconditions_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, 
-    run_f = ~cur_time == 0L, run_at = 0)
+g3a_initialconditions_normalparam(
+        stock,
+        factor_f,
+        mean_f,
+        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~cur_time == 0L,
+        run_at = 0)
 
 g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8)
 
-g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f, 
-    run_f = ~TRUE, run_at = 8)
+g3a_renewal_normalparam(
+        stock,
+        factor_f,
+        mean_f,
+        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~TRUE,
+        run_at = 8)
 
 }
 
@@ -65,6 +85,8 @@ g3a_renewal_normalparam(stock, factor_f, mean_f, stddev_f, alpha_f, beta_f,
   \item{K}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
   \item{by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
+  \item{wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
+  \item{by_age}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
 \details{
@@ -124,22 +146,16 @@ initialconditions_action <- g3a_initialconditions_normalparam(
     factor_f = ~g3_param("lingimm.init.scalar") *
         exp(-1 * (g3_param_vector("lingimm.M")[[age - 3 + 1]] + g3_param("ling.init.F")) * age) *
         g3_param_vector("lingimm.init")[[age - 3 + 1]],
-    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 *
-        (0.001 * g3_param("ling.k")) *
-        (age - (1 + log(1 - g3_param("ling.recl") / g3_param("ling.Linf")) /
-            (0.001 * g3_param("ling.k")))))),
-    stddev_f = ~g3_param_vector("ling.init.sd")[[age]],
+    mean_f = g3a_renewal_vonb(),
+    by_age = TRUE,  # per-age init.sd parameters
     alpha_f = ~g3_param("lingimm.walpha"),
     beta_f = ~g3_param("lingimm.wbeta"))
 renewal_action <- g3a_renewal_normalparam(
     ling_imm,
     factor_f = ~g3_param("ling.rec.scalar") *
         g3_param_vector("ling.rec")[[cur_year - start_year + 1]],
-    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 *
-        (0.001 * g3_param("ling.k")) *
-        (age - (1 + log(1 - g3_param("ling.recl") / g3_param("ling.Linf")) /
-            (0.001 * g3_param("ling.k")))))),
-    stddev_f = ~g3_param_vector('ling.init.sd')[[age]],
+    mean_f = g3a_renewal_vonb(),
+    by_age = TRUE,  # per-age init.sd parameters
     alpha_f = ~g3_param("lingimm.walpha"),
     beta_f = ~g3_param("lingimm.wbeta"),
     run_f = ~cur_step == 1 && age == 3)

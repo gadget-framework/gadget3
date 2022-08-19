@@ -90,9 +90,7 @@ ling_imm_actions <- list(
                                           init.F = bounded_param(ling_imm, "init.F", model_params, id = 'species'),
                                           M = bounded_table(ling_imm, "M", model_params))),
                                     mean_f = g3a_renewal_vonb(by_stock = 'species'),
-                                    stddev_f = bounded_table(ling_imm, "init.sd", model_params),
-                                    alpha_f = bounded_param(ling_imm, "walpha", model_params),
-                                    beta_f = bounded_param(ling_imm, "wbeta", model_params)),
+                                    by_age = TRUE),
   
   g3a_renewal_normalparam(ling_imm,
                           factor_f = g3_parameterized('renew', by_stock = list(ling_imm, ling_mat), by_year = TRUE, scale = 'scalar'),
@@ -100,9 +98,7 @@ ling_imm_actions <- list(
                           #                                                 data.frame(age = seq(ling_imm__minage, ling_imm__maxage)))),
                           #                        list(rec=ling_init_abund)),
                           mean_f = g3a_renewal_vonb(by_stock = 'species'),
-                          stddev_f = bounded_param(ling_imm, "rec.sd", model_params, id = 'species'),
-                          alpha_f = bounded_param(ling_imm, "walpha", model_params),
-                          beta_f = bounded_param(ling_imm, "wbeta", model_params),
+                          by_stock = 'species',
                           run_f = gadget3:::f_substitute(~cur_step == 1 && age == imm_minage && cur_time > 0, model_params)),
                                                     
   g3a_growmature(ling_imm,
@@ -138,9 +134,7 @@ ling_mat_actions <- list(
                                                                init.F = bounded_param(ling_mat, "init.F", model_params, id = 'species'),
                                                                M = paste(ling_mat$name, "M", sep="."))),
                                     mean_f = g3a_renewal_vonb(by_stock = 'species'),
-                                    stddev_f = bounded_table(ling_mat, "init.sd", model_params),
-                                    alpha_f = bounded_param(ling_mat, "walpha", model_params),
-                                    beta_f = bounded_param(ling_mat, "wbeta", model_params)),
+                                    by_age = TRUE),
   
   g3a_growmature(ling_mat,
                  impl_f = g3a_grow_impl_bbinom(
