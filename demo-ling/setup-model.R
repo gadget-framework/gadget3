@@ -69,24 +69,6 @@ model_params <- list(
   
 )
 
-## OTHER
-# INITIAL ABUNDANCE
-init_abund <- gadget3:::f_substitute(~scalar * bounded(
-  g3_param_table(init, expand.grid(age = seq(min(imm_minage, mat_minage),
-                                          max(imm_maxage, mat_maxage)))), lower, upper),
-  c(model_params,
-    model_params$init,
-    scalar = bounded_param(ling_imm, "scalar", model_params, id = 'species'),
-    init = paste(stock_species(ling_imm), "init", sep=".")))
-
-# RENEWAL
-renewal <- gadget3:::f_substitute(~scalar * bounded(
-  g3_param_table(renew, expand.grid(cur_year = seq(start_year, end_year))), lower, upper),
-  c(model_params,
-    model_params$renew,
-    scalar = bounded_param(ling_imm, "scalar", model_params, id = 'species'),
-    renew = paste(stock_species(ling_imm), "renew", sep=".")))
-
 ## Ensure that old fish are not immature
 # a50 is bounded
 prop_m_age <- 
@@ -103,7 +85,7 @@ ling_imm_actions <- list(
                                       gadget3:::f_substitute(
                                         ~init_abund * exp(-1 * (M + init.F) * (age - imm_minage)) * (1 - prop_m_age),
                                         c(model_params,
-                                          init_abund = init_abund,
+                                          init_abund = g3_parameterized('init', by_stock = list(ling_imm, ling_mat), by_age = TRUE, scale = 'scalar'),
                                           prop_m_age = prop_m_age,
                                           init.F = bounded_param(ling_imm, "init.F", model_params, id = 'species'),
                                           M = bounded_table(ling_imm, "M", model_params))),
@@ -113,7 +95,7 @@ ling_imm_actions <- list(
                                     beta_f = bounded_param(ling_imm, "wbeta", model_params)),
   
   g3a_renewal_normalparam(ling_imm,
-                          factor_f = renewal,
+                          factor_f = g3_parameterized('renew', by_stock = list(ling_imm, ling_mat), by_year = TRUE, scale = 'scalar'),
                           # gadget3:::f_substitute(~rec*exp(-g3_param_table("lingimm.M",
                           #                                                 data.frame(age = seq(ling_imm__minage, ling_imm__maxage)))),
                           #                        list(rec=ling_init_abund)),
@@ -154,7 +136,7 @@ ling_mat_actions <- list(
                                                                exp(-1 * (g3_param_table(M, data.frame(age = seq(imm_minage, mat_maxage))) +
                                                                            init.F) * (age - imm_minage)) * prop_m_age,
                                                              c(model_params,
-                                                               init_abund = init_abund,
+                                                               init_abund = g3_parameterized('init', by_stock = list(ling_imm, ling_mat), by_age = TRUE, scale = 'scalar'),
                                                                prop_m_age = prop_m_age,
                                                                init.F = bounded_param(ling_mat, "init.F", model_params, id = 'species'),
                                                                M = paste(ling_mat$name, "M", sep="."))),

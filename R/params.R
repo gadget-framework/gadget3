@@ -85,6 +85,10 @@ g3_parameterized <- function(
     # Pass through standard g3_param arguments
     out <- as.call(c(as.list(out), list(...)))
 
+    # Turn character scale/offset into parameter code
+    if (is.character(scale)) scale <- g3_parameterized(scale, by_stock = by_stock)
+    if (is.character(offset)) offset <- g3_parameterized(offset, by_stock = by_stock)
+
     # Modify value if asked
     if (exponentiate) out <- substitute(exp(x), list(x = out))
     if (scale != 1) out <- substitute(scale * x, list(x = out, scale = scale))

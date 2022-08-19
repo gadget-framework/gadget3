@@ -85,3 +85,17 @@ ok(cmp_code(
         g3_param_table("st.f.parp", expand.grid(
             age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
+
+ok(cmp_code(
+    call("{",  # }
+        g3_parameterized('rec', by_stock = 'species', scale = 'rec.scalar'),
+        g3_parameterized('rec', by_stock = 'species', scale = 'rec.scalar', offset = 'rec.offset'),
+        g3_parameterized('rec', by_stock = 'species', by_age = TRUE, scale = 'rec.scalar'),
+    NULL), quote({
+        stock_param(stock, "rec.scalar", name_part = "species") * stock_param(stock,
+            "rec", name_part = "species")
+        stock_param(stock, "rec.scalar", name_part = "species") * stock_param(stock,
+            "rec", name_part = "species") + stock_param(stock, "rec.offset", name_part = "species")
+        stock_param(stock, "rec.scalar", name_part = "species") * stock_param_table(stock,
+            "rec", name_part = "species", expand.grid(age = seq(stock__minage, stock__maxage)))
+    NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
