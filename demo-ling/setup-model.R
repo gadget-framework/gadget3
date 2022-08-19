@@ -107,10 +107,7 @@ ling_imm_actions <- list(
                    g3a_grow_weightsimple(),
                    maxlengthgroupgrowth = mlgg,
                    by_stock = 'species'),
-                 maturity_f = g3a_mature_continuous(
-                   alpha = gadget3:::f_substitute(~(0.001 * exp(mat1)), 
-                                                  list(mat1 = bounded_param(ling_imm, "mat1", model_params, id = 'species'))),
-                   l50 = bounded_param(ling_imm, "mat2", model_params, id = 'species')),
+                 maturity_f = g3a_mature_continuous(by_stock = 'species'),
                  output_stocks = list(ling_mat)),
   
   g3a_naturalmortality(ling_imm, g3a_naturalmortality_exp(by_age = TRUE)),

@@ -9,7 +9,13 @@
 }
 
 \usage{
-g3a_mature_continuous(alpha, l50, beta = 0, a50 = 0)
+g3a_mature_continuous(
+        alpha = g3_parameterized('mat1', by_stock = by_stock,
+                                 exponentiate = TRUE, scale = 0.001),
+        l50 = g3_parameterized('mat2', by_stock = by_stock),
+        beta = 0,
+        a50 = 0,
+        by_stock = TRUE)
 
 g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, 
     k50 = NA)
@@ -38,6 +44,9 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
   }
   \item{k50}{
     A \link{formula} to substitute for \eqn{k_{50}}. Must be defined if \var{gamma} is defined.
+  }
+  \item{by_stock}{
+    Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.
   }
   \item{stock}{
     \code{\link{g3_stock}} to mature.

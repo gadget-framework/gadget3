@@ -1,4 +1,10 @@
-g3a_mature_continuous <- function (alpha, l50, beta = 0, a50 = 0) {
+g3a_mature_continuous <- function (
+        alpha = g3_parameterized('mat1', by_stock = by_stock,
+                                 exponentiate = TRUE, scale = 0.001),
+        l50 = g3_parameterized('mat2', by_stock = by_stock),
+        beta = 0,
+        a50 = 0,
+        by_stock = TRUE) {
     # https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#continuous-maturity-function
     # https://github.com/Hafro/gadget2/blob/master/src/maturity.cc#L301-L304
 
