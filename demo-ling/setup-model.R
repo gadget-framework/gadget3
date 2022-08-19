@@ -107,13 +107,10 @@ ling_imm_actions <- list(
                                                     
   g3a_growmature(ling_imm,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(
-                       g3_parameterized('Linf', by_stock = 'species'),
-                       g3_parameterized('K', by_stock = 'species', scale = 0.001)),
-                   g3a_grow_weightsimple(bounded_param(ling_imm, "walpha", model_params),  
-                                         bounded_param(ling_imm, "wbeta", model_params)),   
-                   beta_f = bounded_param(ling_imm, "bbin", model_params, id = 'species'),
-                   maxlengthgroupgrowth = mlgg),
+                   g3a_grow_lengthvbsimple(by_stock = 'species'),
+                   g3a_grow_weightsimple(),
+                   maxlengthgroupgrowth = mlgg,
+                   by_stock = 'species'),
                  maturity_f = g3a_mature_continuous(
                    alpha = gadget3:::f_substitute(~(0.001 * exp(mat1)), 
                                                   list(mat1 = bounded_param(ling_imm, "mat1", model_params, id = 'species'))),
@@ -147,13 +144,10 @@ ling_mat_actions <- list(
   
   g3a_growmature(ling_mat,
                  impl_f = g3a_grow_impl_bbinom(
-                   g3a_grow_lengthvbsimple(
-                       g3_parameterized('Linf', by_stock = 'species'),
-                       g3_parameterized('K', by_stock = 'species', scale = 0.001)),
-                   g3a_grow_weightsimple(bounded_param(ling_mat, "walpha", model_params),  
-                                         bounded_param(ling_mat, "wbeta", model_params)),   
-                   beta_f = bounded_param(ling_mat, "bbin", model_params, id = 'species'),
-                   maxlengthgroupgrowth = mlgg)),
+                   g3a_grow_lengthvbsimple(by_stock = 'species'),
+                   g3a_grow_weightsimple(),
+                   maxlengthgroupgrowth = mlgg,
+                   by_stock = 'species')),
   
   g3a_naturalmortality(ling_mat,
                        g3a_naturalmortality_exp(bounded_table(ling_mat, "M", model_params))),

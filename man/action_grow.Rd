@@ -10,11 +10,21 @@
 }
 
 \usage{
-g3a_grow_lengthvbsimple(linf_f, kappa_f)
+g3a_grow_lengthvbsimple(
+        linf_f = g3_parameterized('Linf', by_stock = by_stock),
+        kappa_f = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        by_stock = TRUE)
 
-g3a_grow_weightsimple(alpha_f, beta_f)
+g3a_grow_weightsimple(
+        alpha_f = g3_parameterized('walpha', by_stock = by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = by_stock),
+        by_stock = TRUE)
 
-g3a_grow_impl_bbinom(delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth)
+g3a_grow_impl_bbinom(
+        delta_len_f, delta_wgt_f,
+        beta_f = g3_parameterized('bbin', by_stock = by_stock),
+        maxlengthgroupgrowth,
+        by_stock = TRUE)
 
 g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(), 
     output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
@@ -49,6 +59,9 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   \item{delta_wgt_f}{
     A \link{formula} defining the corresponding weight increase as a matrix of
     lengthgroup to lengthgroup delta for \code{stock}, as defined by \code{\link{g3a_grow_weightsimple}}.
+  }
+  \item{by_stock}{
+    Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.
   }
   \item{impl_f}{
     A pair of \link{formula} objects, as defined by \code{\link{g3a_grow_impl_bbinom}}.
@@ -118,19 +131,16 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
 }
 
 \examples{
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4))
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4))
+ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4))
+ling_mat <- g3_stock(c(species = 'ling', 'mat'), seq(20, 156, 4))
 
 # Growth / maturity for immature ling
 growth_action <- g3a_growmature(ling_imm,
     impl_f = g3a_grow_impl_bbinom(
-        g3a_grow_lengthvbsimple(
-            linf_f = ~g3_param("ling.Linf"),
-            kappa_f = ~g3_param("ling.k") * 0.001),
-        g3a_grow_weightsimple(
-            alpha_f = ~g3_param("lingimm.walpha"),
-            beta_f = ~g3_param("lingimm.wbeta")),
-        beta_f = ~g3_param("ling.bbin") * 10,
+        # Parameters will be ling.Linf, ling.K
+        g3a_grow_lengthvbsimple(by_stock = 'species'),
+        # Parameters will be ling_imm.walpha, ling_imm.wbeta
+        g3a_grow_weightsimple(),
         maxlengthgroupgrowth = 15),
     maturity_f = g3a_mature_constant(
         alpha = ~0.001 * g3_param("ling.mat1"),

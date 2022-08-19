@@ -1,5 +1,8 @@
 # Returns formula for lengthvbsimple growth function
-g3a_grow_lengthvbsimple <- function (linf_f, kappa_f) {
+g3a_grow_lengthvbsimple <- function (
+        linf_f = g3_parameterized('Linf', by_stock = by_stock),
+        kappa_f = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        by_stock = TRUE) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     # NB: avoid_zero_vec() converts negative growth into zero-growth, due to
     #     https://github.com/gadget-framework/gadget3/issues/18
@@ -10,7 +13,10 @@ g3a_grow_lengthvbsimple <- function (linf_f, kappa_f) {
 }
 
 # Growth half of lengthvbsimple
-g3a_grow_weightsimple <- function (alpha_f, beta_f) {
+g3a_grow_weightsimple <- function (
+        alpha_f = g3_parameterized('walpha', by_stock = by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = by_stock),
+        by_stock = TRUE) {
     g3a_grow_weightsimple_vec_rotate <- g3_native(r = function (vec, a) {
         out <- vapply(
             seq_len(a),  # 0..maxlengthgrouplen increases
@@ -48,7 +54,11 @@ g3a_grow_weightsimple <- function (alpha_f, beta_f) {
 }
 
 # Returns bbinom growth implementation formulae
-g3a_grow_impl_bbinom <- function (delta_len_f, delta_wgt_f, beta_f, maxlengthgroupgrowth) {
+g3a_grow_impl_bbinom <- function (
+        delta_len_f, delta_wgt_f,
+        beta_f = g3_parameterized('bbin', by_stock = by_stock),
+        maxlengthgroupgrowth,
+        by_stock = TRUE) {
     maxlengthgroupgrowth <- as.integer(maxlengthgroupgrowth)
     ##' @param delt_l Vector, for each lengthgroup, mean # of length groups to grow by
     ##' @param binn Maximum possible number of length groups to grow by
