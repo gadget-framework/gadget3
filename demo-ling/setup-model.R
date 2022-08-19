@@ -113,8 +113,7 @@ ling_imm_actions <- list(
                    l50 = bounded_param(ling_imm, "mat2", model_params, id = 'species')),
                  output_stocks = list(ling_mat)),
   
-  g3a_naturalmortality(ling_imm,
-                       g3a_naturalmortality_exp(bounded_table(ling_imm, "M", model_params))), 
+  g3a_naturalmortality(ling_imm, g3a_naturalmortality_exp(by_age = TRUE)),
   
   g3a_age(ling_imm,
           output_stocks = list(ling_mat)),
@@ -143,8 +142,7 @@ ling_mat_actions <- list(
                    maxlengthgroupgrowth = mlgg,
                    by_stock = 'species')),
   
-  g3a_naturalmortality(ling_mat,
-                       g3a_naturalmortality_exp(bounded_table(ling_mat, "M", model_params))),
+  g3a_naturalmortality(ling_mat, g3a_naturalmortality_exp(by_age = TRUE)),
   
   g3a_age(ling_mat),
   list())
