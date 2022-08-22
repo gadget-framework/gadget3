@@ -303,6 +303,18 @@ ok_group("g3_step:stock_param_table", {
             g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
             g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
         }), "Can stock_with other stocks into table_defn")
+
+    stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_param_table(stock_a, name_part = c('t', 'q'), 'par1', data.frame(year = 2:3))
+            stock_param_table(stock_a, name_part = c('q', 't'), 'par1', data.frame(year = 2:3))
+            stock_param_table(stock_a, name_part = c('t'), 'par1', data.frame(year = 2:3))
+        }), ~{
+            g3_param_table("stock_stick.par1", data.frame(year = 2:3))
+            g3_param_table("stick_stock.par1", data.frame(year = 2:3))
+            g3_param_table("stock.par1", data.frame(year = 2:3))
+        }), "name_part can contain multiple name_parts, get used in order")
 })
 
 ok_group("list_to_stock_switch", {

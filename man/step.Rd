@@ -259,7 +259,7 @@
   \code{stock_param_table(stock, name, name_part = NULL, table_defn, ...)}
 
   Convert to a call to \link{g3_param_table}, prefixing the \var{name} with the stock name.
-  If \var{name_part} given, only use that part of the stock name.
+  If \var{name_part} given, only use given part(s) of the stock name.
 
   The \var{table_defn} will have any instances of \var{stock} replaced using \link{stock_with}().
 
