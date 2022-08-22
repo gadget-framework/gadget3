@@ -16,7 +16,7 @@ build:
 	R CMD build .
 
 examples: install
-	Rscript -e 'devtools::run_examples(run_donttest = FALSE, run_dontrun = FALSE, document = FALSE)'
+	Rscript -e 'devtools::run_examples(run_donttest = TRUE, run_dontrun = FALSE, document = FALSE)'
 
 vignettes: install
 	Rscript -e 'tools::buildVignettes(dir=".")'

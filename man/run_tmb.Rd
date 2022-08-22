@@ -170,12 +170,12 @@ tmb_param$value$lingimm.M <- rep(0.15,3,10)
 tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0
 tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 
+\donttest{\dontshow{# NB: Making / optimising a TMB function is slow}
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
 
-\dontrun{# Build the model in an isolated R session w/debugger
- writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
-}
+# Build the model in an isolated R session w/debugger
+writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
 
 # Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))
@@ -195,5 +195,6 @@ param_list <- g3_tmb_relist(tmb_param, fit$par)
 # Result will only work for tmb$report
 tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
 result <- tmb$report(g3_tmb_par(tmb_param))
+}
 
 }
