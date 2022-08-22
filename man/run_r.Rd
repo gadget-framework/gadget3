@@ -68,8 +68,9 @@ time_action <- g3a_time(
 # NB: Obviously in reality we'd need more actions
 fn <- g3_to_r(list(initialconditions_action, time_action))
 
-\dontrun{# Edit the resulting function
-fn <- edit(fn)
+if (interactive()) {
+  # Edit the resulting function
+  fn <- edit(fn)
 }
 
 # Run the model with the provided parameters

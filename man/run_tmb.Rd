@@ -147,8 +147,9 @@ custom_action <- list(~{
 # NB: Obviously in reality we'd need more actions
 cpp <- g3_to_tmb(list(initialconditions_action, custom_action, time_action))
 
-\dontrun{# Edit the resulting code
-cpp <- edit(cpp)
+if (interactive()) {
+  # Edit the resulting code
+  cpp <- edit(cpp)
 }
 
 # Set initial conditions for parameters
