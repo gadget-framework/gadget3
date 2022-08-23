@@ -8,7 +8,13 @@ library(gadget3)
 generate_ld <- function (tbl, all_stocks = list(), ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
-    gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks)
+    out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks)
+
+    # NB: A failed merge would result in repeated instances
+    ok(ut_cmp_equal(
+        sort(as.numeric(out$number[out$number != 0])),
+        sort(as.numeric(tbl$number))), "number array has all of source data")
+    return(out)
 }
 
 # Dig minlen out of modelstock
@@ -235,9 +241,9 @@ ok_group('g3l_likelihood_data:length', {
         2001      c      2001.3
         ",
         length = list(
-            "10:20" = structure(quote(seq(10, 20)), min = 10, max = 20, min_open_ended = TRUE),
-            "20:40" = structure(quote(seq(20, 40)), min = 20, max = 40),
-            "40:Inf" = structure(quote(seq(40, 80)), min = 40, max = 80)))
+            "a" = structure(quote(seq(10, 20)), min = 10, max = 20, min_open_ended = TRUE),
+            "b" = structure(quote(seq(20, 40)), min = 20, max = 40),
+            "c" = structure(quote(seq(40, 80)), min = 40, max = 80)))
     ok(ut_cmp_identical(ld_upperlen(ld), 80), "upperlen set by attribute")
     ok(ut_cmp_identical(
         ld_minlen(ld),
@@ -433,7 +439,7 @@ ok_group('g3l_likelihood_data:stock', {
           4 2001    b  2001.4
           6 2001    b  2001.6
         ")
-    ok(ut_cmp_identical(dimnames(ld$number)$stock, c("a", "b")), "Array has stocks a & b")
+    ok(ut_cmp_identical(dimnames(ld$number)[['stock']], c("a", "b")), "Array has stocks a & b")
     ok(ut_cmp_identical(ld$stock_map, list(a = 1L, b = 2L)), "stock_map is 1:1 mapping")
 
     # Generate a list of stocks "stock_(imm,mat)_(f,m)"
@@ -453,7 +459,7 @@ ok_group('g3l_likelihood_data:stock', {
           6 2001    ^stock_mat  2001.6
         ", all_stocks = stocks)
     ok(ut_cmp_identical(
-        dimnames(ld$number)$stock,
+        dimnames(ld$number)[['stock_re']],
         c("_f$", "^stock_mat", "^stock_imm")), "Array names are regexes")
     ok(ut_cmp_identical(
         ld$stock_map,
@@ -480,7 +486,7 @@ ok_group('g3l_likelihood_data:stock', {
           6 2001    _mat_f$  2001.6
         ", all_stocks = stocks)
     ok(ut_cmp_identical(
-        dimnames(ld$number)$stock,
+        dimnames(ld$number)[['stock_re']],
         c("_mat_f$", "_imm_f$")), "Array names are regexes")
     ok(ut_cmp_identical(
         ld$stock_map,

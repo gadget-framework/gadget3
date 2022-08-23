@@ -117,7 +117,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         }
 
         # NB: We have to replace stockidx_f later whenever we intersect over these
-        modelstock <- g3s_manual(modelstock, 'stock', stock_regexes, ~stockidx_f)
+        modelstock <- g3s_manual(modelstock, 'stock_re', stock_regexes, ~stockidx_f)
         handled_columns$stock_re <- NULL
     } else {
         stock_map <- NULL
