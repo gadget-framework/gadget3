@@ -920,7 +920,8 @@ g3_tmb_adfun <- function(cpp_code,
                          compile_flags =
                              # No -flto since it won't(?) work out of the box
                              # https://stackoverflow.com/questions/43152633/invalid-register-for-seh-savexmm-in-cygwin
-                             if (.Platform$OS.type == "windows") c("-O3", "-march=native", "-fno-asynchronous-unwind-tables")
+                             # -O1, since -O3 is causing unscruitable problems linking as C++
+                             if (.Platform$OS.type == "windows") c("-O1", "-march=native")
                              else c("-O3", "-flto", "-march=native"),
                          work_dir = tempdir(),
                          output_script = FALSE, ...) {
