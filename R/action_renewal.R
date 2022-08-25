@@ -18,6 +18,32 @@ g3a_renewal_vonb <- function(
             recl = recl))
 }
 
+g3a_renewal_len_dnorm <- function(
+        mean_f,
+        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        factor_f,
+        by_stock = TRUE,
+        by_age = FALSE) {
+    dnorm <- f_substitute(
+        quote( (stock__midlen - mean_f)/stddev_f ),
+        list(mean_f = mean_f, stddev_f = stddev_f))
+    g3_formula(
+        quote( normalize_vec(exp( -(dnorm**2) * 0.5)) * 10000 * factor ),
+        dnorm = dnorm,
+        factor = factor_f)
+}
+
+g3a_renewal_wgt_wl <- function(
+        alpha_f = g3_parameterized('walpha', by_stock = by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = by_stock),
+        by_stock = TRUE) {
+    f_substitute(quote(
+        alpha_f * stock__midlen**beta_f
+    ), list(
+        alpha_f = alpha_f,
+        beta_f = beta_f))
+}
+
 # Assign number / mean weight based on formulae
 g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
     stock__num <- stock_instance(stock, 0)
@@ -52,36 +78,22 @@ g3a_initialconditions_normalparam <- function (
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
         run_at = 0) {
-    # See InitialCond::Initialise
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
 
+    # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
-        debug_label("g3a_initialconditions_normalparam for ", stock)
-        stock_iterate(stock, if (run_f && renew_into_f) {
-            debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
-            stock_ss(stock__num) <- exp(-(((stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
-            debug_trace("scale results")
-            stock_ss(stock__num) <- stock_ss(stock__num) * (10000 / sum(stock_ss(stock__num)))
-            stock_ss(stock__num) <- stock_ss(stock__num) * (factor_f)
-            debug_trace("Generate corresponding mean weight")
-            stock_ss(stock__wgt) <- (alpha_f) * stock__midlen ** (beta_f)
-        })
-    }, list(
+    out[[step_id(run_at, stock, action_name)]] <- g3a_initialconditions(
+        stock,
+        num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
+        wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
         run_f = run_f,
-        renew_into_f = renewal_into(stock),
-        factor_f = factor_f,
-        mean_f = mean_f,
-        stddev_f = stddev_f,
-        alpha_f = alpha_f,
-        beta_f = beta_f)))
+        run_at = run_at)[[1]]
     return(out)
 }
 
 # Assign number / mean weight based on formulae
 g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
+    # See InitialCond::Initialise
     stock__num <- stock_instance(stock, 0)
     stock__wgt <- stock_instance(stock, 1)
     stock__renewalnum <- stock_instance(stock, 0)
@@ -121,38 +133,15 @@ g3a_renewal_normalparam <- function (
         wgt_by_stock = TRUE,
         run_f = ~TRUE,
         run_at = 8) {
-    # See InitialCond::Initialise
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
-    stock__renewalnum <- stock_instance(stock, 0)
-    stock__renewalwgt <- stock_instance(stock, 0)
 
+    # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
-        debug_label("g3a_renewal_normalparam for ", stock)
-        stock_iterate(stock, if (run_f && renew_into_f) {
-            debug_trace("Calculate exp(-(dnorm**2) * 0.5)")
-            stock_ss(stock__renewalnum) <- exp(-(((stock__midlen - (mean_f)) * (1.0 / (stddev_f))) ** 2) * 0.5)
-            debug_trace("scale results")
-            stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (10000.0 / sum(stock_ss(stock__renewalnum)))
-            stock_ss(stock__renewalnum) <- stock_ss(stock__renewalnum) * (factor_f)
-            debug_trace("Generate corresponding mean weight")
-            stock_ss(stock__renewalwgt) <- (alpha_f) * stock__midlen ** (beta_f)
-
-            debug_trace("Add result to ", stock)
-            stock_ss(stock__wgt) <- ratio_add_vec(
-                stock_ss(stock__wgt), stock_ss(stock__num),
-                stock_ss(stock__renewalwgt), stock_ss(stock__renewalnum))
-            stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
-        })
-    }, list(
+    out[[step_id(run_at, stock, action_name)]] <- g3a_renewal(
+        stock,
+        num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
+        wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
         run_f = run_f,
-        renew_into_f = renewal_into(stock),
-        factor_f = factor_f,
-        mean_f = mean_f,
-        stddev_f = stddev_f,
-        alpha_f = alpha_f,
-        beta_f = beta_f)))
+        run_at = run_at)[[1]]
     return(out)
 }

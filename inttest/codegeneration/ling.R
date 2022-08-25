@@ -1,13 +1,13 @@
 structure(function (param) 
 {
     stopifnot("retro_years" %in% names(param))
-    stopifnot("ling.Linf" %in% names(param))
-    stopifnot("ling.K" %in% names(param))
-    stopifnot("ling.recl" %in% names(param))
     stopifnot("lingimm.init.scalar" %in% names(param))
     stopifnot("lingimm.M" %in% names(param))
     stopifnot("ling.init.F" %in% names(param))
     stopifnot("lingimm.init" %in% names(param))
+    stopifnot("ling.Linf" %in% names(param))
+    stopifnot("ling.K" %in% names(param))
+    stopifnot("ling.recl" %in% names(param))
     stopifnot("lingimm.walpha" %in% names(param))
     stopifnot("lingimm.wbeta" %in% names(param))
     stopifnot("lingmat.init.scalar" %in% names(param))
@@ -53,6 +53,9 @@ structure(function (param)
             return(TRUE)
         }
         return(FALSE)
+    }
+    normalize_vec <- function(a) {
+        a/sum(a)
     }
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
@@ -298,18 +301,15 @@ structure(function (param)
         {
             ling_imm__area_idx <- (1)
             {
-                comment("g3a_initialconditions_normalparam for ling_imm")
+                comment("g3a_initialconditions for ling_imm")
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_time == 0L) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
+                  area <- ling_imm__area
                   {
-                    area <- ling_imm__area
+                    factor <- (param[["lingimm.init.scalar"]] * exp(-1 * (param[["lingimm.M"]] + param[["ling.init.F"]]) * age) * param[["lingimm.init"]][[age - 3 + 1]])
+                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3 + 1]])
                     {
-                      comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
-                      comment("scale results")
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx]))
-                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] * (param[["lingimm.init.scalar"]] * exp(-1 * (param[["lingimm.M"]] + param[["ling.init.F"]]) * age) * param[["lingimm.init"]][[age - 3 + 1]])
-                      comment("Generate corresponding mean weight")
+                      ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                     }
                   }
@@ -319,18 +319,15 @@ structure(function (param)
         {
             ling_mat__area_idx <- (1)
             {
-                comment("g3a_initialconditions_normalparam for ling_mat")
+                comment("g3a_initialconditions for ling_mat")
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (cur_time == 0L) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
+                  area <- ling_mat__area
                   {
-                    area <- ling_mat__area
+                    factor <- (param[["lingmat.init.scalar"]] * exp(-1 * (param[["lingmat.M"]] + param[["ling.init.F"]]) * age) * param[["lingmat.init"]][[age - 5 + 1]])
+                    dnorm <- ((ling_mat__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_mat_stddev[[age - 5 + 1]])
                     {
-                      comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- exp(-(((ling_mat__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_mat_stddev[[age - 5 + 1]])))^2) * 0.5)
-                      comment("scale results")
-                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * (10000/sum(ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx]))
-                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] * (param[["lingmat.init.scalar"]] * exp(-1 * (param[["lingmat.M"]] + param[["ling.init.F"]]) * age) * param[["lingmat.init"]][[age - 5 + 1]])
-                      comment("Generate corresponding mean weight")
+                      ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- param[["lingmat.walpha"]] * ling_mat__midlen^param[["lingmat.wbeta"]]
                     }
                   }
@@ -643,20 +640,17 @@ structure(function (param)
             }
         }
         {
+            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
             ling_imm__area_idx <- (1)
             {
-                comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 5) {
+                comment("g3a_renewal for ling_imm")
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
+                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3L + 1L]])
                     {
-                      comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3L + 1L]])))^2) * 0.5)
-                      comment("scale results")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
-                      comment("Generate corresponding mean weight")
+                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                       comment("Add result to ling_imm")
                       ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ratio_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx])
@@ -667,20 +661,17 @@ structure(function (param)
             }
         }
         {
+            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
             ling_imm__area_idx <- (1)
             {
-                comment("g3a_renewal_normalparam for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 3) {
+                comment("g3a_renewal for ling_imm")
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
+                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3 + 1]])
                     {
-                      comment("Calculate exp(-(dnorm**2) * 0.5)")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- exp(-(((ling_imm__midlen - ((param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (1 + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))) * (1/(ling_imm_stddev[[age - 3 + 1]])))^2) * 0.5)
-                      comment("scale results")
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (10000/sum(ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx]))
-                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] * (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
-                      comment("Generate corresponding mean weight")
+                      ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                       comment("Add result to ling_imm")
                       ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- ratio_add_vec(ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx], ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx])
@@ -836,5 +827,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, ling.Linf = 0, ling.K = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, 
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, ling.Linf = 0, ling.K = 0, ling.recl = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, ling.rec.1997 = 0, 
     ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))

@@ -88,6 +88,13 @@ g3_global_env$avoid_zero_vec <- g3_native(r = function (a) {
     return res;
 }')
 
+# Divide a vector by it's sum, i.e. so it now sums to 1
+g3_global_env$normalize_vec <- g3_native(r = function (a) {
+    a / sum(a)
+}, cpp = '[](vector<Type> a) -> vector<Type> {
+    return a / a.sum();
+}')
+
 # Return scalar (x) bounded between (a) and (b)
 g3_global_env$bounded <- g3_native(r = function (x, a, b) {
   a + (b-a)/(1+exp(x))
