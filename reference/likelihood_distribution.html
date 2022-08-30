@@ -83,7 +83,9 @@
 <span>    area_group <span class="op">=</span> <span class="cn">NULL</span>, report <span class="op">=</span> <span class="cn">FALSE</span>, nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    run_at <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<span>    run_at <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3l_distribution_sumofsquaredlogratios</span><span class="op">(</span>epsilon <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -401,6 +403,25 @@
 <p>An action (i.e. list of formula objects) that will...</p><ol><li><p>For all <var>fleets</var> and <var>stocks</var> combinations, collect catch data into <var>modelstock</var>__num or <var>modelstock</var>__wgt, depending on the columns provided in <var>obs_data</var></p></li>
 <li><p>Compare <var>modelstock</var>__num/wgt with <var>obsstock</var>__num/wgt, using <var>function_f</var></p></li>
 </ol><p>The output of <var>function_f</var> is summed over all stock dimensions (age/area) and time and added to <code>nll</code>.</p>
+</div>
+<p></p>
+<div class="section">
+<h3 id="g-l-distribution-sumofsquaredlogratios">g3l_distribution_sumofsquaredlogratios<a class="anchor" aria-label="anchor" href="#g-l-distribution-sumofsquaredlogratios"></a></h3>
+<p>The equivalent of gadget2's <code>catchinkilos</code>.</p>
+<p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>function_f</var>:</p>
+<p>$$
+      \sum_{\it lengths} (log(N_{tral} + \epsilon) - log(\nu_{tral} + \epsilon))^2
+    $$</p><dl><dt>\(N_{tral}\)</dt>
+<dd><p>Observation sample size for current time/area/age/length combination</p></dd>
+
+      <dt>\(\nu_{tral}\)</dt>
+<dd><p>Model sample size for current time/area/age/length combination</p></dd>
+
+      <dt>\(\epsilon\)</dt>
+<dd><p><var>epsilon</var> parameter</p></dd>
+
+    
+</dl><p></p>
 </div>
 
 
