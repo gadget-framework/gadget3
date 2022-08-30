@@ -93,6 +93,17 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
 g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('log', alpha, beta)
 g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('linear', alpha, beta)
 
+# i.e. catchinkilo's sumofsquares
+g3l_distribution_sumofsquaredlogratios <- function (epsilon = 10) {
+    f_substitute(quote(
+        sum((
+            log(stock_ss(obsstock__x) + epsilon) -
+            log(stock_ss(modelstock__x) + epsilon)
+        ) ** 2)
+    ), list(
+        epsilon = epsilon))
+}
+
 # Compare model state to observation data
 # - obs_data: Real-world observations. data.frame containing colums:
 #    - year

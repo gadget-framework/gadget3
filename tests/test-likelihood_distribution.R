@@ -26,6 +26,12 @@ ok(grepl(
     paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
     perl = TRUE), "Added custom totals to sumofsquares obsstock__x")
 
+# g3l_distribution_sumofsquaredlogratios
+ok(ut_cmp_identical(
+    deparse1(g3l_distribution_sumofsquaredlogratios()),
+    "~sum((log(stock_ss(obsstock__x) + 10) - log(stock_ss(modelstock__x) + 10))^2)"), "g3l_distribution_sumofsquaredlogratios: Formula code as expected")
+ok(ut_cmp_identical(
+    length(environment(g3l_distribution_sumofsquaredlogratios())), 0L), "g3l_distribution_sumofsquaredlogratios: Environment empty")
 
 # NB: Also added some aggregate areas for fleet data
 areas <- list(a = 1, b = 2, c = 3, x = 1:2, y = 3)

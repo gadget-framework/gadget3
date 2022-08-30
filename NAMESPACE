@@ -71,6 +71,7 @@ export(g3l_distribution_multinomial)
 export(g3l_distribution_multivariate)
 export(g3l_distribution_surveyindices_linear)
 export(g3l_distribution_surveyindices_log)
+export(g3l_distribution_sumofsquaredlogratios)
 export(g3l_catchdistribution)
 export(g3l_abundancedistribution)
 

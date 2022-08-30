@@ -4,6 +4,7 @@
 \alias{g3l_distribution_multivariate}
 \alias{g3l_distribution_surveyindices_log}
 \alias{g3l_distribution_surveyindices_linear}
+\alias{g3l_distribution_sumofsquaredlogratios}
 \alias{g3l_abundancedistribution}
 \alias{g3l_catchdistribution}
 
@@ -34,6 +35,8 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     weight = substitute(g3_param(n, optimise = FALSE, value = 1),
         list(n = paste0(nll_name, "_weight"))),
     run_at = 10)
+
+g3l_distribution_sumofsquaredlogratios(epsilon = 10)
 
 }
 
@@ -332,6 +335,20 @@ g3l_catchdistribution(nll_name, obs_data, fleets, stocks, function_f, missing_va
     \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
   }
   The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
+  }
+  \subsection{g3l_distribution_sumofsquaredlogratios}{
+    The equivalent of gadget2's \code{catchinkilos}.
+
+    Returns a \link{formula} for use as \var{function_f}:
+
+    \deqn{
+      \sum_{\it lengths} (log(N_{tral} + \epsilon) - log(\nu_{tral} + \epsilon))^2
+    }
+    \describe{
+      \item{\eqn{N_{tral}}}{Observation sample size for current time/area/age/length combination}
+      \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
+      \item{\eqn{\epsilon}}{\var{epsilon} parameter}
+    }
   }
 }
 
