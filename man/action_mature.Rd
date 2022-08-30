@@ -10,8 +10,8 @@
 
 \usage{
 g3a_mature_continuous(
-        alpha = g3_parameterized('mat1', by_stock = by_stock, scale = 0.001),
-        l50 = g3_parameterized('mat2', by_stock = by_stock),
+        alpha = g3_parameterized('mat.alpha', by_stock = by_stock, scale = 0.001),
+        l50 = g3_parameterized('mat.l50', by_stock = by_stock),
         beta = 0,
         a50 = 0,
         by_stock = TRUE)
@@ -120,8 +120,6 @@ ling_mat <- g3_stock('ling_mat', seq(20, 156, 4))
 
 # Maturity for immature ling
 maturity_action <- g3a_mature(ling_imm,
-    maturity_f = g3a_mature_constant(
-        alpha = ~0.001 * g3_param("ling.mat1"),
-        l50 = ~g3_param("ling.mat2")),
-        output_stocks = list(ling_mat))
+    maturity_f = g3a_mature_continuous(),
+    output_stocks = list(ling_mat))
 }
