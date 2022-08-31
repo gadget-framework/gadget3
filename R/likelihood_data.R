@@ -1,4 +1,4 @@
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE, all_stocks = list()) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE, all_stocks = list(), all_fleets = list()) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
@@ -123,6 +123,33 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_map <- NULL
     }
 
+    if ('fleet' %in% names(data)) {
+        if ('fleet_re' %in% names(data)) stop("Don't support both fleet and fleet_re")
+        fleet_groups <- levels(as.factor(data$fleet))
+        fleet_map <- structure(as.list(seq_along(fleet_groups)), names = fleet_groups)
+
+        # NB: We have to replace fleetidx_f later whenever we intersect over these
+        modelstock <- g3s_manual(modelstock, 'fleet', fleet_groups, ~fleetidx_f)
+        handled_columns$fleet <- NULL
+    } else if ('fleet_re' %in% names(data)) {
+        # Start off with everything mapping to NULL
+        fleet_map <- structure(
+            rep(list(NULL), length(all_fleets)),
+            names = vapply(all_fleets, function (s) s$name, character(1)))
+
+        # For each regex, find all matches and map to that index
+        fleet_regexes <- as.character(data$fleet_re[!duplicated(data$fleet_re)])
+        for (i in rev(seq_along(fleet_regexes))) {  # NB: Reverse so first ones have precedence
+            fleet_map[grep(fleet_regexes[[i]], names(fleet_map))] <- i
+        }
+
+        # NB: We have to replace fleetidx_f later whenever we intersect over these
+        modelstock <- g3s_manual(modelstock, 'fleet_re', fleet_regexes, ~fleetidx_f)
+        handled_columns$fleet_re <- NULL
+    } else {
+        fleet_map <- NULL
+    }
+
     # Work out time dimension, create an obsstock using it
     if (!('year' %in% names(data))) {
         stop("Data must contain a year column")
@@ -214,6 +241,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         stock_map = stock_map,
+        fleet_map = fleet_map,
         number = number_array,
         weight = weight_array,
         nll_name = nll_name))

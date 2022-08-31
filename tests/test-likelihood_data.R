@@ -5,10 +5,10 @@ library(gadget3)
 
 
 # Helper to generate ld from table string and attributes
-generate_ld <- function (tbl, all_stocks = list(), ...) {
+generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
-    out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks)
+    out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets)
 
     # NB: A failed merge would result in repeated instances
     ok(ut_cmp_equal(
@@ -495,4 +495,90 @@ ok_group('g3l_likelihood_data:stock', {
             stock_imm_m = NULL,
             stock_mat_f = 1L,
             stock_mat_m = NULL)), "Stock map ignored unused stocks")
+})
+
+ok_group('g3l_likelihood_data:fleet', {
+    ld <- generate_ld("
+        age year number
+          3 1999      1999.3
+          4 1999      1999.4
+          6 1999      1999.6
+          3 2000      2000.3
+          6 2000      2000.6
+          4 2001      2001.4
+          6 2001      2001.6
+        ")
+    ok(is.null(ld$fleet_map), "No fleet column, so no fleet map")
+
+    ok(ut_cmp_error(generate_ld("
+        age year fleet fleet_re number
+          3 1999    a  a$       1999.3
+        "), "fleet.*fleet_re"), "Can't have both fleet & fleet_re")
+
+    ld <- generate_ld("
+        age year fleet number
+          3 1999    a  1999.3
+          4 1999    b  1999.4
+          6 1999    a  1999.6
+          3 2000    a  2000.3
+          6 2000    b  2000.6
+          4 2001    b  2001.4
+          6 2001    b  2001.6
+        ")
+    ok(ut_cmp_identical(dimnames(ld$number)[['fleet']], c("a", "b")), "Array has fleets a & b")
+    ok(ut_cmp_identical(ld$fleet_map, list(a = 1L, b = 2L)), "fleet_map is 1:1 mapping")
+
+    # Generate a list of fleets "fleet_(trawl|gil)_(f|m)"
+    fleets <- lapply(paste(
+        'fleet',
+        rep(c('trawl', 'gil'), each = 2),
+        c('is', 'no'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year fleet_re number
+          3 1999    _is$  1999.3
+          4 1999    ^fleet_trawl  1999.4
+          6 1999    ^fleet_gil  1999.6
+          3 2000    ^fleet_trawl  2000.3
+          6 2000    ^fleet_gil  2000.6
+          4 2001    ^fleet_gil  2001.4
+          6 2001    ^fleet_trawl  2001.6
+        ", all_fleets = fleets)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)[['fleet_re']],
+        c("_is$", "^fleet_trawl", "^fleet_gil")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$fleet_map,
+        list(
+            fleet_trawl_is = 1L,
+            fleet_trawl_no = 2L,
+            fleet_gil_is = 1L,
+            fleet_gil_no = 3L)), "fleet map used first regexes first")
+
+    # Generate a list of fleets "fleet_(trawl|gil)_(f|m)"
+    fleets <- lapply(paste(
+        'fleet',
+        rep(c('trawl', 'gil'), each = 2),
+        c('is', 'no'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year fleet_re number
+          3 1999    _gil_is$  1999.3
+          4 1999    _gil_is$  1999.4
+          6 1999    _trawl_is$  1999.6
+          3 2000    _gil_is$  2000.3
+          6 2000    _trawl_is$  2000.6
+          4 2001    _trawl_is$  2001.4
+          6 2001    _gil_is$  2001.6
+        ", all_fleets = fleets)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)[['fleet_re']],
+        c("_gil_is$", "_trawl_is$")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$fleet_map,
+        list(
+            fleet_trawl_is = 2L,
+            fleet_trawl_no = NULL,
+            fleet_gil_is = 1L,
+            fleet_gil_no = NULL)), "fleet map ignored unused fleets")
 })

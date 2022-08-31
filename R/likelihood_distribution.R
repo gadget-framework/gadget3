@@ -189,7 +189,7 @@ g3l_distribution <- function (
         sep = "_")
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report, all_stocks = stocks)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report, all_stocks = stocks, all_fleets = fleets)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {
@@ -251,6 +251,17 @@ g3l_distribution <- function (
             stockidx_f <- ~-1
         }
 
+        # Work out fleet index for obs/model variables
+        if (!is.null(ld$fleet_map)) {
+            # Skip over fleets not part of the observation data, map to an index
+            # NB: This is what stock_iterate() would do for us
+            if (is.null(ld$fleet_map[[fleet_stock$name]])) next
+            fleetidx_f <- f_substitute(~g3_idx(x), list(x = ld$fleet_map[[fleet_stock$name]]))
+        } else {
+            # Not using fleet grouping, __fleet_idx variable not needed
+            fleetidx_f <- ~-1
+        }
+
         # Collect all of fleet's sampling of prey and dump it in modelstock
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(f_substitute(~{
             debug_label(prefix, "Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
@@ -274,6 +285,7 @@ g3l_distribution <- function (
 
         # Fix-up stock intersection, add in stockidx_f
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]], list(
+            fleetidx_f = fleetidx_f,
             stockidx_f = stockidx_f))
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]])
     }

@@ -197,6 +197,31 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
         Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.
       }
+      \item{fleet}{
+        Optional.
+        If this and fleet_re are missing all fleets in \var{fleets} will be
+        summed to compare to the data.
+
+        The values in the fleets column should match the names of the fleets
+        given in the \var{fleets} parameter. This column can be factor or
+        character.
+
+        Any missing fleets (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
+      \item{fleet_re}{
+        Optional.
+        If this and fleet are missing all fleets in \var{fleets} will be summed
+        to compare to the data.
+
+        The values in the fleets column will be used as regular expressions to
+        match the names of the fleets given in the \var{fleets} parameter. For
+        example, '_trawl_' will match both 'fleet_trawl_is' and 'fleet_trawl_no' and will
+        be compared against the sum of the 2 fleets.
+
+        Any missing fleets (when there is otherwise data for that
+        year/step) will be compared to zero.
+      }
       \item{area}{
         Optional.
         If missing all areas in the model will be summed to compare to
