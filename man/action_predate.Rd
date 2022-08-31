@@ -180,20 +180,13 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_livesonareas(areas[c
 ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) \%>\% g3s_livesonareas(areas[c('b')])
 lln <- g3_fleet('lln') \%>\% g3s_livesonareas(areas[c('a', 'b')])
 
-\dontrun{# Fetch landings data via. MFDB
-lln_landings <- mfdb_sample_totalweight(mdb, NULL, c(list(
-  gear=c('HLN','LLN'),
-  sampling_type = 'LND',
-  species = defaults$species),
-  defaults))
-}
-\dontshow{# Invent a lln_landings table
+# Invent a lln_landings table
+# NB: Generally use mfdb::mfdb_sample_totalweight() to do this for you
 lln_landings <- list(expand.grid(
     year = 1999:2000,
     step = c(1, 2),
     area = areas[c('a', 'b')]))
 lln_landings[[1]]$total_weight <- floor(runif(nrow(lln_landings[[1]]), min=100, max=999))
-}
 
 predate_action <- g3a_predate_fleet(
     lln,

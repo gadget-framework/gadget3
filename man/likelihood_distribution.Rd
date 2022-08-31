@@ -383,25 +383,13 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) \%>\% g3s_age(5, 15)
 lln <- g3_fleet('lln')
 
-\dontrun{# Fetch length distribution via. MFDB
-ldist.lln <- mfdb_sample_count(mdb, c('age', 'length'), c(list(
-    sampling_type = 'SEA',
-    data_source = 'iceland-ldist',
-    gear = c('LLN','HLN'),
-    age = mfdb_interval("all",
-        c(minage, maxage),
-        open_ended = c("upper","lower")),
-    length = mfdb_interval("len",
-        seq(minlength, maxlength, by = dl),
-        open_ended = c("upper","lower"))), defaults))
-}
-\dontshow{# Invent a ldist.lln table for our tests
+# Invent a ldist.lln table for our tests
+# NB: Generally one woudl use mfdb::mfdb_sample_count() to do this for you
 ldist.lln <- list(expand.grid(
     year = 1999:2000,
     step = c(1, 2),
     age = c(5,6,7,8)))
 ldist.lln[[1]]$number <- floor(runif(nrow(ldist.lln[[1]]), min=100, max=999))
-}
 
 likelihood_actions <- list(
   g3l_catchdistribution(
