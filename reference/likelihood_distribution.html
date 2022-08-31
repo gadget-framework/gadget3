@@ -232,6 +232,27 @@
 <p>Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.</p></dd>
 
+      <dt>fleet</dt>
+<dd><p>Optional.
+        If this and fleet_re are missing all fleets in <var>fleets</var> will be
+        summed to compare to the data.</p>
+<p>The values in the fleets column should match the names of the fleets
+        given in the <var>fleets</var> parameter. This column can be factor or
+        character.</p>
+<p>Any missing fleets (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+
+      <dt>fleet_re</dt>
+<dd><p>Optional.
+        If this and fleet are missing all fleets in <var>fleets</var> will be summed
+        to compare to the data.</p>
+<p>The values in the fleets column will be used as regular expressions to
+        match the names of the fleets given in the <var>fleets</var> parameter. For
+        example, '_trawl_' will match both 'fleet_trawl_is' and 'fleet_trawl_no' and will
+        be compared against the sum of the 2 fleets.</p>
+<p>Any missing fleets (when there is otherwise data for that
+        year/step) will be compared to zero.</p></dd>
+
       <dt>area</dt>
 <dd><p>Optional.
         If missing all areas in the model will be summed to compare to
@@ -434,25 +455,13 @@
 <span class="r-in"><span><span class="va">ling_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_mat'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lln</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'lln'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="co"># Fetch length distribution via. MFDB</span></span></span>
-<span class="r-in"><span><span class="va">ldist.lln</span> <span class="op">&lt;-</span> <span class="fu">mfdb_sample_count</span><span class="op">(</span><span class="va">mdb</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    sampling_type <span class="op">=</span> <span class="st">'SEA'</span>,</span></span>
-<span class="r-in"><span>    data_source <span class="op">=</span> <span class="st">'iceland-ldist'</span>,</span></span>
-<span class="r-in"><span>    gear <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'LLN'</span>,<span class="st">'HLN'</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    age <span class="op">=</span> <span class="fu">mfdb_interval</span><span class="op">(</span><span class="st">"all"</span>,</span></span>
-<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">minage</span>, <span class="va">maxage</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        open_ended <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"upper"</span>,<span class="st">"lower"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    length <span class="op">=</span> <span class="fu">mfdb_interval</span><span class="op">(</span><span class="st">"len"</span>,</span></span>
-<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">minlength</span>, <span class="va">maxlength</span>, by <span class="op">=</span> <span class="va">dl</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        open_ended <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"upper"</span>,<span class="st">"lower"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="va">defaults</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Invent a ldist.lln table for our tests</span></span></span>
+<span class="r-in"><span><span class="co"># NB: Generally one woudl use mfdb::mfdb_sample_count() to do this for you</span></span></span>
 <span class="r-in"><span><span class="va">ldist.lln</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    year <span class="op">=</span> <span class="fl">1999</span><span class="op">:</span><span class="fl">2000</span>,</span></span>
 <span class="r-in"><span>    step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">6</span>,<span class="fl">7</span>,<span class="fl">8</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ldist.lln</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">number</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ldist.lln</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, min<span class="op">=</span><span class="fl">100</span>, max<span class="op">=</span><span class="fl">999</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">likelihood_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">g3l_catchdistribution</span><span class="op">(</span></span></span>
