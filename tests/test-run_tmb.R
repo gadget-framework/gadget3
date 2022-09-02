@@ -476,6 +476,7 @@ expecteds$if_no_brace_result <- 0.2
 # if expression (not statement) turns into tertiary
 tertiary_result_0 <- 3
 tertiary_result_1 <- 6
+tertiary_result_2 <- 6
 ok(ut_cmp_error({
     g3_to_tmb(list(~{ tertiary_result_0 <- if (tertiary_result_0 == 3) 9  }))
 }, "tertiary_result_0"), "Complained about missing else for tertiary")
@@ -483,11 +484,14 @@ actions <- c(actions, ~{
     comment('tertiary')
     tertiary_result_0 <- if (tertiary_result_0 == 3) 9 else 4
     tertiary_result_1 <- if (tertiary_result_1 == 3) 9 else 4
+    tertiary_result_2 <- 100 - if (tertiary_result_0 == -30) 20 else 40
     REPORT(tertiary_result_0)
     REPORT(tertiary_result_1)
+    REPORT(tertiary_result_2)
 })
 expecteds$tertiary_result_0 <- 9
 expecteds$tertiary_result_1 <- 4
+expecteds$tertiary_result_2 <- 100 - 40  # NB: Operator precedence preserved
 
 # g3_with()
 g3_with_result <- 0L

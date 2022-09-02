@@ -156,11 +156,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # if statment outside a statement definition, use a tertiary operator
         if (length(in_call) != 4) stop("if expression (not statement) must have an else clause: ", deparse(in_call))
         return(paste0(
+            "(",
             cpp_code(in_call[[2]], in_envir, indent),
             " ? ",
             cpp_code(in_call[[3]], in_envir, indent),
             " : ",
-            cpp_code(in_call[[4]], in_envir, indent)))
+            cpp_code(in_call[[4]], in_envir, indent),
+            ")"))
     }
 
     if (call_name == 'if' && length(in_call) == 4) {

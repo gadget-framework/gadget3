@@ -469,7 +469,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) *= ((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0))) / igfs__catch(igfs__area_idx));
                             ling_imm__totalpredate.col(ling_imm__age_idx).col(ling_imm__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx);
                         }
                     }
@@ -492,7 +492,7 @@ Type objective_function<Type>::operator() () {
                         auto fleet_area = area;
 
                         {
-                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0)) / igfs__catch(igfs__area_idx));
+                            ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) *= ((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*10 + cur_step), (double)(0))) / igfs__catch(igfs__area_idx));
                             ling_mat__totalpredate.col(ling_mat__age_idx).col(ling_mat__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx);
                         }
                     }
