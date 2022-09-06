@@ -81,7 +81,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                     stop("Malformed g3_with: ", deparse(c))
                 }
                 rv <- paste0(
-                    next_indent, "auto ", cpp_escape_varname(c[[2]]), " = ",
+                    next_indent,
+                    # i.e. so "s <- 0" defaults to Type, not double for g3a_spawn()
+                    if (is.numeric(c[[3]]) && !is.integer(c[[3]])) "Type " else "auto ",
+                    cpp_escape_varname(c[[2]]), " = ",
                     cpp_code(c[[3]], in_envir, next_indent), ";\n")
             }, character(1)),
             next_indent, inner,
