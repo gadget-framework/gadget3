@@ -113,8 +113,8 @@
   }
 }
 
-\section{stock_inv}{
-  \code{stock_ss(stock_var, [ dimname, dimname, ... ])}
+\section{stock_ssinv}{
+  \code{stock_ssinv(stock_var, [ dimname, dimname, ... ])}
 
   like \link{stock_ss}(), but subset only the mentioned \var{dimname}s.
 
