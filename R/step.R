@@ -274,6 +274,12 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             stock <- get(stock_var, envir = orig_env)
             ss_overrides <- as.list(tail(x, -2))
 
+            # By default length is "missing"
+            if (!('length' %in% names(ss_overrides)) && 'length' %in% names(stock$iter_ss)) ss_overrides$length <- quote(.[])[[3]]
+
+            # Remove "length = default" overrides, so we have a means to win over the above
+            ss_overrides <- Filter(function (x) !identical(x, as.symbol('default')), ss_overrides)
+
             # Get subset arguments
             ss <- stock$iter_ss
 

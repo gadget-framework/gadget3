@@ -101,8 +101,7 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             length = names(lengthgroups))),
         iterate = f_substitute(~extension_point, list(
             extension_point = inner_stock$iterate), copy_all_env = TRUE),
-        # NB: Length iterator is always "missing", so we get a lengthgroup vector
-        iter_ss = c(inner_stock$iter_ss, length = list(quote(.[])[[3]])),
+        iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
         intersect = f_substitute(~extension_point, list(
             extension_point = inner_stock$intersect), copy_all_env = TRUE),
         interact = f_substitute(~extension_point, list(

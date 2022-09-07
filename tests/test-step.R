@@ -140,6 +140,13 @@ ok_group("g3_step:stock_ss", {
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, area = , age = j)),
          ~stock__num[, j, ]), "Missing values are honoured too")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, length = 0L)),
+         ~stock__num[0L, stock__age_idx, stock__area_idx]), "Length can be overriden with a constant")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, length = default)),
+         ~stock__num[stock__length_idx, stock__age_idx, stock__area_idx]), "Length can be turned back on again")
 })
 
 ok_group("g3_step:stock_switch", {

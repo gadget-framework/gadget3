@@ -91,6 +91,9 @@
   dimensions overwritten with the suppled override, which could be a missing
   value, to preserve a dimension. See final example.
 
+  Length is a missing value by default, i.e. we return length groups. To avoid
+  this happening, set \code{length = default} to iterate over length too.
+
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
