@@ -11,20 +11,75 @@ named_list <- function(...) {
         names = as.character(x[seq_along(x) %% 2 == 1]))
 }
 
+cmp_grep <- function (a, ...) {
+    re <- paste0('\\Q', c(...), '\\E', collapse = ".*")
+    if (grepl(re, a, perl = TRUE)) return(TRUE)
+    c(re, "Not found in:", a)
+}
+
 # NB: Name has to be different, or it gets sucked into the model
 g3_avoid_zero <- gadget3:::g3_global_env$avoid_zero
 g3_logspace_add <- gadget3:::g3_global_env$logspace_add
 g3_logspace_add_vec <- gadget3:::g3_global_env$logspace_add_vec
 g3_lgamma_vec <- lgamma
 
-ok(grepl(
-    'stock_ssinv\\(modelstock__x,\\s+"time",\\s+"area",\\s+"age"\\)',
-    paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
-    perl = TRUE), "Added custom totals to sumofsquares modelstock__x")
-ok(grepl(
-    'stock_ssinv\\(obsstock__x,\\s+"time",\\s+"area",\\s+"age"\\)',
-    paste(deparse(g3l_distribution_sumofsquares(c('area', 'age'))), collapse = ""),
-    perl = TRUE), "Added custom totals to sumofsquares obsstock__x")
+ok_group("g3l_distribution_sumofsquares", {
+    ok(cmp_grep(
+        deparse1(g3l_distribution_sumofsquares(c('area', 'age'))),
+        'sum(stock_ssinv(modelstock__x, "time", "area", "age"))',
+        'sum(stock_ssinv(obsstock__x, "time", "area", "age"))',
+        NULL), "Added custom totals to sumofsquares modelstock__x")
+    ok(cmp_grep(
+        deparse1(g3l_distribution_sumofsquares(c('area', 'length'))),
+        'stock_ss(modelstock__x, length = default)',
+        'sum(stock_ssinv(modelstock__x, "time", "area", "length"))',
+        'stock_ss(obsstock__x, length = default)',
+        'sum(stock_ssinv(obsstock__x, "time", "area", "length"))',
+        NULL), "Adding length also adds to the stock_ss()")
+
+    # Stratified sumofsquares
+    prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) |> g3s_age(1,5)
+    prey_a__init <- gadget3:::stock_instance(prey_a)
+    prey_a__init[] <- runif(length(prey_a__init))
+    obsdata <- expand.grid(
+        year = 2000,
+        length = seq(1, 5, by = 1),
+        age = 3:4)  # NB: Only report age 3,4
+    obsdata$number <- runif(nrow(obsdata))
+    model_fn <- g3_to_r(list(
+        # Keep TMB happy
+        g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
+        g3a_time(2000, 2001),
+        g3a_initialconditions(prey_a,
+            num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
+            wgt_f = 10),
+        g3l_abundancedistribution("adist",
+            obsdata,
+            function_f = g3l_distribution_sumofsquares(over = c("area", "length")),
+            stocks = list(prey_a),
+            report = TRUE)))
+    r <- model_fn(attr(model_fn, 'parameter_template'))
+    modeldata <- attr(r, 'prey_a__num')
+    expected_nll <- 0
+    for (age in 3:4) for (length in 1:5) {
+        # Proportion compared to others in age group, for that length
+        expected_nll <- expected_nll + (
+            # Proportion compared to others in this length group
+            modeldata[length, age] / sum(modeldata[length, c(3,4)]) -
+            obsdata[obsdata$age == age & obsdata$length == length, 'number'] / sum(obsdata[obsdata$length == length, 'number'])
+        ) ** 2
+    }
+    ok(ut_cmp_equal(as.numeric(r), expected_nll), "g3l_distribution_sumofsquares statified over length")
+
+    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
+    params <- attr(model_cpp, 'parameter_template')
+    params$value <- lapply(params$value, as.vector)  # NB: without, each value is a 1-dimensional array: https://github.com/gadget-framework/gadget3/issues/73
+
+    if (Sys.getenv('G3_TEST_TMB') == "2") {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params)
+    }
+})
 
 # g3l_distribution_sumofsquaredlogratios
 ok(ut_cmp_identical(

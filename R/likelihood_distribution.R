@@ -1,11 +1,24 @@
 call_append <- function (call, extra) as.call(c(as.list(call), extra))
 
+dist_prop <- function (var_name, over) {
+    var_sym <- as.symbol(var_name)
+    length_idx_sym <- as.symbol("default")
+
+    substitute(x / avoid_zero(sum(total)), list(
+        x = if ('length' %in% over) call("stock_ss", var_sym, length = length_idx_sym) else call("stock_ss", var_sym),
+        total = call_append(call("stock_ssinv", var_sym), over)))
+}
+
 g3l_distribution_sumofsquares <- function (over = c('area')) {
-    f_substitute(~sum((
-        stock_ss(modelstock__x) / avoid_zero(sum(modelstock_total_f)) -
-        stock_ss(obsstock__x) / avoid_zero(sum(obsstock_total_f))) ** 2), list(
-            modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x, 'time')), over),
-            obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over)))
+    out <- substitute( (modelstock_prop - obsstock_prop) ** 2, list(
+        modelstock_prop = dist_prop("modelstock__x", c('time', over)),
+        obsstock_prop = dist_prop("obsstock__x", c('time', over))))
+    # NB: Avoid the final sum() for stratified sum of squares, as we'll (probably)
+    #     produce a scalar, which TMB can't sum. Ideally I think we remove the
+    #     auto-drop-to-scalar from convert_subset(), but that's going to require a
+    #     lot of debugging
+    if (!('length' %in% over)) out <- call('sum', out)
+    return(call_to_formula(out, emptyenv()))
 }
 
 g3l_distribution_multinomial <- function (epsilon = 10) {
@@ -39,12 +52,11 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
     }')
 
     f_substitute(~multivariate_fn(
-            stock_ss(modelstock__x) / sum(modelstock_total_f) -
-                stock_ss(obsstock__x) / sum(obsstock_total_f),
+            modelstock_prop - obsstock_prop,
             rho_f,
             sigma_f), list(
-                modelstock_total_f = call_append(quote(stock_ssinv(modelstock__x, 'time')), over),
-                obsstock_total_f = call_append(quote(stock_ssinv(obsstock__x, 'time')), over),
+                modelstock_prop = dist_prop("modelstock__x", c('time', over)),
+                obsstock_prop = dist_prop("obsstock__x", c('time', over)),
                 rho_f = rho_f,
                 sigma_f = sigma_f))
 }
