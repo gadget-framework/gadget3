@@ -102,7 +102,7 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             length = names(lengthgroups))),
         iterate = c(inner_stock$iterate, length = quote(
                 for (stock__length_idx in seq_along(stock__midlen)) g3_with(
-                    length := stock__midlen[stock__length_idx], extension_point)
+                    length := stock__midlen[[stock__length_idx]], extension_point)
             )),
         iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
         intersect = f_substitute(~extension_point, list(

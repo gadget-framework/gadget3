@@ -356,3 +356,40 @@ ok_group("list_to_stock_switch", {
     out <- do_ss(stock_mat, g3_formula(stock__midlen^x, x = 2))
     ok(cmp_code(out, ~(ling_mat__midlen^x)), "Bare formula is treated as default")
 })
+
+ok_group("g3_step:stock_iterate", {
+    stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(c(x1 = 1, x2 = 2))
+    stock__num <- gadget3:::stock_instance(stock)
+
+    ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ss(stock) ))), quote(
+        for (halibut__area_idx in seq_along(halibut__areas)) g3_with(
+            area := halibut__areas[[halibut__area_idx]],
+            for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
+                halibut__age_idx := g3_idx(age - halibut__minage + 1L),
+                stock[, halibut__age_idx, halibut__area_idx]))
+    )), "By default iterate over area/age")
+
+    ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ss(stock, area = ) ))), quote(
+        for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
+            halibut__age_idx := g3_idx(age - halibut__minage + 1L),
+            stock[, halibut__age_idx, ])
+    )), "Can turn area off")
+
+    ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ssinv(stock, 'area', 'length' ) ))), quote(
+        for (halibut__area_idx in seq_along(halibut__areas)) g3_with(
+            area := halibut__areas[[halibut__area_idx]],
+            for (halibut__length_idx in seq_along(halibut__midlen)) g3_with(
+                length := halibut__midlen[[halibut__length_idx]],
+                    stock[halibut__length_idx, , halibut__area_idx]))
+    )), "Or use stock_ssinv to say what we do want")
+
+    ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ss(stock, length = default) ))), quote(
+        for (halibut__area_idx in seq_along(halibut__areas)) g3_with(
+            area := halibut__areas[[halibut__area_idx]],
+            for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
+                halibut__age_idx := g3_idx(age - halibut__minage + 1L),
+                    for (halibut__length_idx in seq_along(halibut__midlen)) g3_with(
+                        length := halibut__midlen[[halibut__length_idx]],
+                            stock[halibut__length_idx, halibut__age_idx, halibut__area_idx])))
+    )), "Can turn length back on & iterate over all dimensions")
+})

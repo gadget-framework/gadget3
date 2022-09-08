@@ -145,10 +145,16 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         if (is.list(stock[[to_replace]])) {
             repl_list <- stock[[to_replace]]
             out_f <- quote(extension_point)
+            inner_vars <- all.vars(inner_f)
             # List of formulas, select the relevant ones and combine
             for (i in seq_along(repl_list)) {
-                if (names(repl_list)[[i]] != 'length') {
-                    # Wrap with this iterator
+                if (!is.symbol(stock$iter_ss[[i]])) next
+                if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock_var)) %in% inner_vars) {
+                    # We use the subset-iterator in inner code, so wrap with this iterator
+                    # (e.g. stock__area_idx in code ==> iterate over area)
+                    out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
+                } else if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock$name)) %in% inner_vars) {
+                    # We have to check the final name too in case it's used in e.g. g3a_report_stock
                     out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
                 }
             }

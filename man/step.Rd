@@ -174,8 +174,15 @@
 \section{stock_iterate}{
   \code{stock_iterate(stock, expr)}
 
-  Wrap \var{expr} with the code to iterate over each length vector in
-  \var{stock}, accessed using \code{stock_ss(stock)}
+  Wrap \var{expr} with the code to iterate over vector dimensions in
+  \var{stock}, accessed using \code{stock_ss(stock)}.
+
+  Which dimensions are iterated over is decided based on the call to
+  \code{stock_ss(stock)}. By default, stock_ss leaves length blank so will
+  iterate over a length vector for each dimension.
+
+  You can iterate over each value individually with the following:
+  \code{stock_iterate(stock, stock_ss(stock, length = default) )}
 
   Current values for each dimension will be available as variables,
   e.g. \code{area}, \code{age}, and can be used in formulae.
