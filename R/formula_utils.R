@@ -38,7 +38,12 @@ g3_formula <- function (code, ...) {
         f <- call("~", f)
     }
 
-    formula(f, env = as.environment(list(...)))
+    if (identical(...names(), as.character(NA))) {
+        # Single unnamed argument, assume it's formula (or convertable to one
+        formula(f, env = as.environment(..1))
+    } else {
+        formula(f, env = as.environment(list(...)))
+    }
 }
 
 # Substitute within formulae, merging all environments together

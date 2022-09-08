@@ -16,7 +16,8 @@ g3_formula(code, ...)
     Unevaluated code to be turned into a formula
   }
   \item{...}{
-    Items to add to the formula's environment
+    Named items to add to the formula's environment,
+    or a single list / environment to use.
   }
 }
 

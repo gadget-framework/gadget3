@@ -69,6 +69,13 @@ ok(cmp_environment(
 ok(cmp_environment(
     environment(g3_formula( x + y, x = 2 + 2, y = paste0('a', 'b') )),
     list(x = 4, y = 'ab' )), "g3_formula: Environment based on supplied arguments, evaluated versions added")
+ok(cmp_environment(
+    environment(g3_formula( x + y, list(x = 2 + 2, y = paste0('a', 'b')) )),
+    list(x = 4, y = 'ab' )), "g3_formula: Environment can be based on single list")
+env <- as.environment(list(x = 2 + 2, y = paste0('a', 'b')))
+ok(ut_cmp_identical(
+    environment(g3_formula( x + y, env )),
+    env), "g3_formula: Environment can be environment, in which case it's referenced")
 
 
 ok(cmp_code(
