@@ -30,12 +30,14 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
             )),
         iter_ss = c(inner_stock$iter_ss,
             tag = as.symbol("stock__tag_idx")),
-        intersect = f_substitute(~for (stock__tag_idx in seq_along(stock__tag_ids)) {
-            if (stock__tag_ids[[stock__tag_idx]] == tag) {
-                extension_point
-                break
+        intersect = c(inner_stock$intersect, tag = quote(
+            for (stock__tag_idx in seq_along(stock__tag_ids)) {
+                if (stock__tag_ids[[stock__tag_idx]] == tag) {
+                    extension_point
+                    break
+                }
             }
-        }, list(extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        )),
         interact = f_substitute(~for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
             interactvar_tag := stock__tag_ids[[stock__tag_idx]],
             extension_point), list(

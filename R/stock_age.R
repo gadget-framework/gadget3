@@ -14,10 +14,9 @@ g3s_age <- function(inner_stock, minage, maxage) {
         s$env$stock__maxage <- stock__maxage
 
         # NB: Redundant once intersect/rename have been de-formula'ed
-        newenv <- rlang::env_clone(environment(s$intersect))
+        newenv <- rlang::env_clone(environment(s$rename))
         newenv$stock__minage <- stock__minage
         newenv$stock__maxage <- stock__maxage
-        environment(s$intersect) <- newenv
         environment(s$rename) <- newenv
         return(s)
     }
@@ -32,9 +31,10 @@ g3s_age <- function(inner_stock, minage, maxage) {
                     stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
             )),
         iter_ss = c(inner_stock$iter_ss, age = as.symbol("stock__age_idx")),
-        intersect = f_substitute(~if (age >= stock__minage && age <= stock__maxage) g3_with(
-            stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point), list(
-                extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        intersect = c(inner_stock$intersect, age = quote(
+            if (age >= stock__minage && age <= stock__maxage) g3_with(
+                stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
+            )),
         interact = f_substitute(~for (interactvar_age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
             stock__age_idx := g3_idx(interactvar_age - stock__minage + 1L), extension_point), list(
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
@@ -65,6 +65,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         values = unlist(lapply(seq_along(agegroups),
         function (i) rep(i, times = length(agegroups[[i]])))))
     stock__minages <- as.array(vapply(agegroups, function (x) as.integer(x[[1]]), integer(1)))
+    lookup_f <- stock__agegroup_lookup('getdefault', ~age, -1L)
 
     structure(list(
         dim = c(inner_stock$dim,
@@ -76,17 +77,16 @@ g3s_agegroup <- function(inner_stock, agegroups) {
                 age := stock__minages[[stock__agegroup_idx]], extension_point)
         )),
         iter_ss = c(inner_stock$iter_ss, age = as.symbol("stock__agegroup_idx")),
-        intersect = f_substitute(~g3_with(
-            stock__agegroup_idx := g3_idx(lookup),
-            if (stock__agegroup_idx > g3_idx(-1L)) extension_point), list(
-                lookup = stock__agegroup_lookup('getdefault', ~age, -1L),
-                extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        intersect = c(inner_stock$intersect, age = substitute(
+            g3_with(
+                stock__agegroup_idx := g3_idx(lookup_code),
+                if (stock__agegroup_idx > g3_idx(-1L)) extension_point),
+            list(lookup_code = rlang::f_rhs(lookup_f)))),
         interact = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
             interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point), list(
             extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
-        env = as.environment(c(as.list(inner_stock$env), list(
-            stock__agegroup_lookup = stock__agegroup_lookup,
+        env = as.environment(c(as.list(inner_stock$env), as.list(environment(lookup_f)), list(
             stock__minages = stock__minages))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))

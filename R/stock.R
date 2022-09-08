@@ -37,7 +37,7 @@ g3_storage <- function(var_name) {
         dimnames = list(),
         iterate = list(),
         iter_ss = list(),  # NB: No dimensions yet
-        intersect = ~extension_point,
+        intersect = list(),
         interact = ~extension_point,
         rename = ~extension_point,
         env = as.environment(list()),
@@ -94,6 +94,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
     # Force array so type is stable in TMB
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
+    stock__maxlen <- as.array(c(tail(lengthgroups, -1), stock__upperlen))
+    names(stock__maxlen) <- names(stock__midlen)
 
     structure(list(
         dim = c(inner_stock$dim,
@@ -105,8 +107,15 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
                     length := stock__midlen[[stock__length_idx]], extension_point)
             )),
         iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
-        intersect = f_substitute(~extension_point, list(
-            extension_point = inner_stock$intersect), copy_all_env = TRUE),
+        intersect = c(inner_stock$intersect, length = quote(
+                for (stock__length_idx in seq_along(stock__minlen)) {
+                    if (stock__minlen[[stock__length_idx]] <= length &&
+                            length < stock__maxlen[[stock__length_idx]]) {
+                        extension_point
+                        break
+                    }
+                }
+            )),
         interact = f_substitute(~extension_point, list(
             extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
@@ -116,7 +125,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             stock__dl = stock__dl,
             stock__upperlen = stock__upperlen,
             stock__minlen = stock__minlen,
-            stock__midlen = stock__midlen))),
+            stock__midlen = stock__midlen,
+            stock__maxlen = stock__maxlen))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
