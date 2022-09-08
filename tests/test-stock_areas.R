@@ -3,12 +3,55 @@ library(unittest)
 
 library(gadget3)
 
+cmp_environment <- function (a, b) {
+    ordered_list <- function (x) {
+        x <- as.list(x)
+        # NB: Can't order an empty list
+        if (length(x) > 0) x[order(names(x))] else x
+    }
+
+    ut_cmp_identical(ordered_list(a), ordered_list(b))
+}
+
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(unname(areas[c('a', 'c')]))  # NB: Remove names so we generate defaults
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])
 stock_aggregated <- g3_stock('stock_aggregated', c(10)) %>% g3s_areagroup(list(areas[c('b', 'c')], areas[c('d')]))
 stock_1agg <- g3_stock('stock_1agg', c(10)) %>% g3s_areagroup(list(areas[c('b')], areas[c('c')]))
+
+ok(cmp_environment(stock_a$env, list(
+    stock__area = 1L,
+    stock__area_idx = stock_a$env$stock__area_idx,
+    stock__totalareas = 1L,
+    stock__areas = as.array(c(a = 1L)),
+    area_a = 1L,
+    stock__upperlen = Inf,
+    stock__minlen = as.array(c("10:Inf" = 10)),
+    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__plusdl = 1,
+    stock__dl = 1)), "stock_a: Environment populated with relevant areas")
+ok(cmp_environment(stock_ac$env, list(
+    stock__totalareas = 2L,
+    stock__areas = as.array(c(area1 = 1L, area3 = 3L)),
+    area_area1 = 1L,
+    area_area3 = 3L,
+    stock__upperlen = Inf,
+    stock__minlen = as.array(c("10:Inf" = 10)),
+    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__plusdl = 1,
+    stock__dl = 1)), "stock_c: Environment populated with default areas")
+ok(cmp_environment(stock_bcd$env, list(
+    stock__totalareas = 3L,
+    stock__areas = as.array(c(b = 2L, c = 3L, d = 4L)),
+    area_b = 2L,
+    area_c = 3L,
+    area_d = 4L,
+    stock__upperlen = Inf,
+    stock__minlen = as.array(c("10:Inf" = 10)),
+    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__plusdl = 1,
+    stock__dl = 1)), "stock_a: Environment populated with relevant areas")
     
 cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_a_ac <- 0.0

@@ -142,7 +142,24 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
         # Wrap with stock's code
-        out_f <- stock_interactvar_prefix(stock[[to_replace]], prefix)
+        if (is.list(stock[[to_replace]])) {
+            repl_list <- stock[[to_replace]]
+            out_f <- quote(extension_point)
+            # List of formulas, select the relevant ones and combine
+            for (i in seq_along(repl_list)) {
+                if (names(repl_list)[[i]] != 'length') {
+                    # Wrap with this iterator
+                    out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
+                }
+            }
+            # Add in stock environment
+            out_f <- call_to_formula(out_f, stock$env)
+        } else if (rlang::is_formula(stock[[to_replace]])) {
+            out_f <- stock[[to_replace]]
+        } else {
+            stop("Unknown stock_fn type: ", out_f)
+        }
+        out_f <- stock_interactvar_prefix(out_f, prefix)
         out_f <- stock_rename(out_f, "stock", stock_var)
         # Make sure formulas are defined if they need anything the stock code defines
         inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {

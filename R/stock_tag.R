@@ -18,15 +18,16 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
     stock__tag_ids <- as.array(structure(
         as.integer(tag_ids),
         names = names(tag_ids)))  # NB: Force stock__tag_ids to be an array
+
     structure(list(
         dim = c(inner_stock$dim,
             tag = length(stock__tag_ids)),
         dimnames = c(inner_stock$dimnames, list(
             tag = names(stock__tag_ids))),
-        iterate = f_substitute(~for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
-            tag := stock__tag_ids[[stock__tag_idx]],
-            extension_point), list(
-                extension_point = inner_stock$iterate), copy_all_env = TRUE),
+        iterate = c(inner_stock$iterate, tag = quote(
+            for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
+                tag := stock__tag_ids[[stock__tag_idx]], extension_point)
+            )),
         iter_ss = c(inner_stock$iter_ss,
             tag = as.symbol("stock__tag_idx")),
         intersect = f_substitute(~for (stock__tag_idx in seq_along(stock__tag_ids)) {
@@ -40,6 +41,9 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
             extension_point), list(
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        env = as.environment(c(as.list(inner_stock$env), list(
+            stock__untagged_idx = stock__untagged_idx,
+            stock__tag_ids = stock__tag_ids))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

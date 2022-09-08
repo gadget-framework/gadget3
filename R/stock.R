@@ -1,6 +1,6 @@
 # Pull the definition of the stock variable out of the stock object
 stock_definition <- function(stock, var_name) {
-    get(var_name, envir = rlang::f_env(stock$iterate))
+    get(var_name, envir = stock$env)
 }
 
 # Define an array that matches stock
@@ -35,11 +35,12 @@ g3_storage <- function(var_name) {
     structure(list(
         dim = list(),
         dimnames = list(),
-        iterate = ~extension_point,
+        iterate = list(),
         iter_ss = list(),  # NB: No dimensions yet
         intersect = ~extension_point,
         interact = ~extension_point,
         rename = ~extension_point,
+        env = as.environment(list()),
         name_parts = var_name,
         name = paste(var_name, collapse = "_")), class = c("g3_stock", "list"))
 }
@@ -99,8 +100,10 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             length = length(lengthgroups)),
         dimnames = c(inner_stock$dimnames, list(
             length = names(lengthgroups))),
-        iterate = f_substitute(~extension_point, list(
-            extension_point = inner_stock$iterate), copy_all_env = TRUE),
+        iterate = c(inner_stock$iterate, length = quote(
+                for (stock__length_idx in seq_along(stock__midlen)) g3_with(
+                    length := stock__midlen[stock__length_idx], extension_point)
+            )),
         iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
         intersect = f_substitute(~extension_point, list(
             extension_point = inner_stock$intersect), copy_all_env = TRUE),
@@ -108,6 +111,12 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(
             extension_point = inner_stock$rename), copy_all_env = TRUE),
+        env = as.environment(c(as.list(inner_stock$env), list(
+            stock__plusdl = stock__plusdl,
+            stock__dl = stock__dl,
+            stock__upperlen = stock__upperlen,
+            stock__minlen = stock__minlen,
+            stock__midlen = stock__midlen))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }

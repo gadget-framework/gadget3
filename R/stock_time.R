@@ -66,9 +66,9 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         dimnames = c(inner_stock$dimnames, list(
             time = g3s_time_labels(times))),
         # NB: iterate same as intersect, iterating over all time won't make sense in ~all cases
-        iterate = f_substitute(~g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
-                idx_f = idx_f,
-                extension_point = inner_stock$iterate), copy_all_env = TRUE),
+        iterate = c(inner_stock$iterate, time = substitute(
+                g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point)
+            , list(idx_f = rlang::f_rhs(idx_f)))),
         iter_ss = c(inner_stock$iter_ss, time = as.symbol("stock__time_idx")),
         intersect = f_substitute(~g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point), list(
                 idx_f = idx_f,
@@ -77,6 +77,8 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
                 idx_f = idx_f,
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        env = as.environment(c(as.list(inner_stock$env), as.list(environment(idx_f)), list(
+            stock__max_time_idx = stock__max_time_idx))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
@@ -98,14 +100,14 @@ g3s_modeltime <- function (inner_stock, by_year = FALSE) {
     structure(list(
         dim = c(inner_stock$dim, new_dims),
         dimnames = c(inner_stock$dimnames, new_dimnames),
-        iterate = f_substitute(~extension_point, list(
-                extension_point = inner_stock$iterate), copy_all_env = TRUE),
+        iterate = c(inner_stock$iterate, time = quote(extension_point)),
         iter_ss = c(inner_stock$iter_ss, lookup),
         intersect = f_substitute(~extension_point, list(
                 extension_point = inner_stock$intersect), copy_all_env = TRUE),
         interact = f_substitute(~extension_point, list(
                 extension_point = inner_stock$interact), copy_all_env = TRUE),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        env = as.environment(c(as.list(inner_stock$env))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
