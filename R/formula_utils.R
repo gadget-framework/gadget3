@@ -47,7 +47,7 @@ g3_formula <- function (code, ...) {
 }
 
 # Substitute within formulae, merging all environments together
-f_substitute <- function (f, env, copy_all_env = FALSE) {
+f_substitute <- function (f, env) {
     explicit_bracket <- function (in_code) {
         # NB: Bracket to avoid operator precedence issues:
         #     substitute(1 - recl / 3, list(recl = quote(4 + 16 / 1)))
@@ -85,14 +85,9 @@ f_substitute <- function (f, env, copy_all_env = FALSE) {
                 assign(n, o[[2]], envir = env)
             }
 
-            # Combine it's environment with ours
-            if (copy_all_env) {
-                environment_merge(combined_env, rlang::f_env(o), ignore_overlap = TRUE)
-            } else {
-                # Only copy things the formulae mentions
-                vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
-                environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
-            }
+            # Only copy things the formulae mentions
+            vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
+            environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
         }
     }
 
