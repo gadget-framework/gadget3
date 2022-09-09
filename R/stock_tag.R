@@ -42,7 +42,7 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
             for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
                 interactvar_tag := stock__tag_ids[[stock__tag_idx]], extension_point)
             )),
-        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        with = c(inner_stock$with, tag = quote(extension_point)),
         env = as.environment(c(as.list(inner_stock$env), list(
             stock__untagged_idx = stock__untagged_idx,
             stock__tag_ids = stock__tag_ids))),

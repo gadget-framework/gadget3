@@ -160,8 +160,6 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             }
             # Add in stock environment
             out_f <- call_to_formula(out_f, stock$env)
-        } else if (rlang::is_formula(stock[[to_replace]])) {
-            out_f <- stock[[to_replace]]
         } else {
             stop("Unknown stock_fn type: ", out_f)
         }
@@ -405,7 +403,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             as.call(c(list(quote(g3_param_table), param_name, table_defn), rest))
         },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
-            return(repl_stock_fn(x, 'rename'))
+            return(repl_stock_fn(x, 'with'))
         },
         stock_iterate = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'iterate'))

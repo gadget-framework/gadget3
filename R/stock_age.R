@@ -12,12 +12,6 @@ g3s_age <- function(inner_stock, minage, maxage) {
         s$env <- rlang::env_clone(s$env)
         s$env$stock__minage <- stock__minage
         s$env$stock__maxage <- stock__maxage
-
-        # NB: Redundant once intersect/rename have been de-formula'ed
-        newenv <- rlang::env_clone(environment(s$rename))
-        newenv$stock__minage <- stock__minage
-        newenv$stock__maxage <- stock__maxage
-        environment(s$rename) <- newenv
         return(s)
     }
 
@@ -39,7 +33,7 @@ g3s_age <- function(inner_stock, minage, maxage) {
                 for (interactvar_age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
                     stock__age_idx := g3_idx(interactvar_age - stock__minage + 1L), extension_point)
             )),
-        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        with = c(inner_stock$with, age = quote(extension_point)),
         env = as.environment(c(as.list(inner_stock$env), list(
             stock__minage = stock__minage,
             stock__maxage = stock__maxage))),
@@ -87,7 +81,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
             for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
                 interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point)
         )),
-        rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
+        with = c(inner_stock$with, age = quote(extension_point)),
         env = as.environment(c(as.list(inner_stock$env), as.list(environment(lookup_f)), list(
             stock__minages = stock__minages))),
         name_parts = inner_stock$name_parts,
