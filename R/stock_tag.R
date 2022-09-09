@@ -38,10 +38,10 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
                 }
             }
         )),
-        interact = f_substitute(~for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
-            interactvar_tag := stock__tag_ids[[stock__tag_idx]],
-            extension_point), list(
-                extension_point = inner_stock$interact), copy_all_env = TRUE),
+        interact = c(inner_stock$interact, tag = quote(
+            for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
+                interactvar_tag := stock__tag_ids[[stock__tag_idx]], extension_point)
+            )),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         env = as.environment(c(as.list(inner_stock$env), list(
             stock__untagged_idx = stock__untagged_idx,

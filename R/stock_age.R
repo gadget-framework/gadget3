@@ -35,9 +35,10 @@ g3s_age <- function(inner_stock, minage, maxage) {
             if (age >= stock__minage && age <= stock__maxage) g3_with(
                 stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
             )),
-        interact = f_substitute(~for (interactvar_age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
-            stock__age_idx := g3_idx(interactvar_age - stock__minage + 1L), extension_point), list(
-                extension_point = inner_stock$interact), copy_all_env = TRUE),
+        interact = c(inner_stock$interact, age = quote(
+                for (interactvar_age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
+                    stock__age_idx := g3_idx(interactvar_age - stock__minage + 1L), extension_point)
+            )),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         env = as.environment(c(as.list(inner_stock$env), list(
             stock__minage = stock__minage,
@@ -82,9 +83,10 @@ g3s_agegroup <- function(inner_stock, agegroups) {
                 stock__agegroup_idx := g3_idx(lookup_code),
                 if (stock__agegroup_idx > g3_idx(-1L)) extension_point),
             list(lookup_code = rlang::f_rhs(lookup_f)))),
-        interact = f_substitute(~for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
-            interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point), list(
-            extension_point = inner_stock$interact), copy_all_env = TRUE),
+        interact = c(inner_stock$interact, age = quote(
+            for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
+                interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point)
+        )),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         env = as.environment(c(as.list(inner_stock$env), as.list(environment(lookup_f)), list(
             stock__minages = stock__minages))),

@@ -33,9 +33,9 @@ g3s_livesonareas <- function(inner_stock, areas) {
             intersect = c(inner_stock$intersect, area = quote(
                  if (area == stock__area) extension_point
             )),
-            interact = f_substitute(~if (area == stock__area) g3_with(interactvar_area := area, {
-                extension_point
-            }), list(extension_point = inner_stock$interact), copy_all_env = TRUE),
+            interact = c(inner_stock$interact, area = quote(
+                if (area == stock__area) g3_with(interactvar_area := area, extension_point)
+            )),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
             env = as.environment(c(as.list(inner_stock$env), area_vars, list(
                 stock__areas = stock__areas,
@@ -64,12 +64,14 @@ g3s_livesonareas <- function(inner_stock, areas) {
                     }
                 }
             )),
-            interact = f_substitute(~for (stock__area_idx in seq_along(stock__areas)) {
-                if (stock__areas[[stock__area_idx]] == area) g3_with(interactvar_area := area, {
-                    extension_point
-                    break
-                })
-            }, list(extension_point = inner_stock$interact), copy_all_env = TRUE),
+            interact = c(inner_stock$interact, area = quote(
+                for (stock__area_idx in seq_along(stock__areas)) {
+                    if (stock__areas[[stock__area_idx]] == area) g3_with(interactvar_area := area, {
+                        extension_point
+                        break
+                    })
+                }
+            )),
             rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
             env = as.environment(c(as.list(inner_stock$env), area_vars, list(
                 stock__areas = stock__areas,
@@ -114,11 +116,11 @@ g3s_areagroup <- function(inner_stock, areagroups) {
                 stock__areagroup_idx := g3_idx(lookup_code),
                 if (stock__areagroup_idx > g3_idx(-1L)) extension_point),
             list(lookup_code = rlang::f_rhs(lookup_f)))),
-        interact = f_substitute(~g3_with(
-            stock__areagroup_idx := g3_idx(lookup),
-            if (stock__areagroup_idx > g3_idx(-1L)) g3_with(interactvar_area := area, extension_point)), list(
-                lookup = stock__areagroup_lookup('getdefault', ~area, -1L),
-                extension_point = inner_stock$interact), copy_all_env = TRUE),
+        interact = c(inner_stock$interact, area = substitute(
+            g3_with(
+                stock__areagroup_idx := g3_idx(lookup_code),
+                if (stock__areagroup_idx > g3_idx(-1L)) g3_with(interactvar_area := area, extension_point)),
+            list(lookup_code = rlang::f_rhs(lookup_f)))),
         rename = f_substitute(~extension_point, list(extension_point = inner_stock$rename), copy_all_env = TRUE),
         env = as.environment(c(as.list(inner_stock$env), as.list(environment(lookup_f)), list(
             stock__areagroup_lookup = stock__areagroup_lookup,
