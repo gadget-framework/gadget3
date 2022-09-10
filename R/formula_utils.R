@@ -38,7 +38,9 @@ g3_formula <- function (code, ...) {
         f <- call("~", f)
     }
 
-    if (identical(...names(), as.character(NA))) {
+    # NB: Pre 4.2.1 it was as.character(NA), post 4.2.1 it's NULL.
+    # https://bugs.r-project.org/show_bug.cgi?id=18247
+    if (identical(...names(), as.character(NA)) || (...length() == 1 && identical(...names(), NULL))) {
         # Single unnamed argument, assume it's formula (or convertable to one
         formula(f, env = as.environment(..1))
     } else {
