@@ -4,9 +4,13 @@ library(unittest)
 library(gadget3)
 
 ok(ut_cmp_error({
-    invalid_subset <- array(dim = c(2,2))
-    g3_to_tmb(list(~{invalid_subset[g3_idx(1),] <- 0}))
-}, "invalid_subset"), "Complained when trying to subset by row")
+    invalid_subset <- array(dim = c(2,2,2))
+    g3_to_tmb(list(~{invalid_subset[,g3_idx(1),]}))
+}, "invalid_subset"), "Complained when trying to subset in middle")
+ok(ut_cmp_error({
+    invalid_subset <- array(dim = c(2,2,2))
+    g3_to_tmb(list(~{invalid_subset[g3_idx(1),,] <- 0}))
+}, "invalid_subset"), "Complained when trying to subset by row in an lvalue")
 
 ok(ut_cmp_error({
     g3_to_tmb(list(~{ 2 + NA }))
@@ -380,6 +384,24 @@ expecteds$assign_scalar <- array(c(
     0, 27,
     params$assign_scalar_const, params$assign_scalar_const,
     NULL), dim = c(2,4))
+
+# Can subset from left and right, using transpose
+assign_subset <- array(
+    rep(seq(100, 200, 100), each = 3 * 5) +
+    rep(seq(10, 30, 10), each = 5, times = 2) +
+    rep(seq(1, 5, 1), each = 1, times = 2),
+    dim = c(5, 3, 2))
+assign_right <- assign_subset[,2,2] ; assign_right[] <- 0
+assign_leftright <- assign_subset[4,,2] ; assign_leftright[] <- 0
+actions <- c(actions, ~{
+    comment('assign_subset')
+    assign_right <- assign_subset[,g3_idx(2),g3_idx(2)]
+    REPORT(assign_right)
+    assign_leftright <- assign_subset[g3_idx(4),,g3_idx(2)]
+    REPORT(assign_leftright)
+})
+expecteds$assign_right <- assign_subset[,2,2]
+expecteds$assign_leftright <- assign_subset[4,,2]
 
 # Arrays with dynamic dimensions
 dynamic_dim_array <- array(0, dim = c(2,1))

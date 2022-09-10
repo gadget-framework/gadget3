@@ -112,6 +112,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
+            if (grepl('.transpose()', cpp_code(assign_lhs, in_envir, next_indent))) {
+                stop("Can't assign to this subset under TMB (.transpose() isn't by reference): ", deparse1(assign_lhs))
+            }
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
             # and turn it into a scalar
             # TODO: Ideally we share something with "Array subsetting" below, instead of working it out again
@@ -242,38 +245,49 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     if (call_name == '[') {
         # Array subsetting
 
+        # Recurse through list of subset, converting to method calls as we go.
+        convert_subset <- function (cols) {
+            cols_defined <- vapply(cols, function (d) !identical(as.character(d), ""), logical(1))
+
+            if (length(cols) == 0) return("")
+            if (all(!cols_defined)) return("")
+
+            if (all(cols_defined)) {
+                # Nothing missing, i.e. a value lookup
+                return(paste0(
+                    '(',
+                    paste(vapply(
+                        cols,
+                        function (d) cpp_code(d, in_envir, next_indent, expecting_int = TRUE),
+                        character(1)), collapse = ", "),
+                    ')'))
+            }
+
+            if (tail(cols_defined, 1)) {
+                # Final value defined, we can use .col()
+                return(paste0(
+                    ".col(", cpp_code(tail(cols, 1)[[1]], in_envir, next_indent, expecting_int = TRUE), ")",
+                    convert_subset(head(cols, -1))))
+            }
+
+            if (cols_defined[[1]]) {
+                # Final missing, but first is defined. Turn array around and carry on
+                return(paste0(
+                    ".transpose()",
+                    convert_subset(rev(cols))))
+            }
+
+            # Either side missing, nothing we can do.
+            stop("Missing values must be at start of subset, can't restructure array: ", deparse(in_call))
+        }
+
         # Thing to array subset, either a symbol or an expression, which we should probably bracket
         subject <- if (is.symbol(in_call[[2]])) cpp_escape_varname(in_call[[2]]) else paste0(
             "(", cpp_code(in_call[[2]], in_envir, next_indent), ")")
 
-        # Which bits of the subset aren't empty values?
-        not_missing <- vapply(tail(in_call, -2), function (d) !identical(as.character(d), ""), logical(1))
-
-        if (all(not_missing)) {
-            # Nothing missing i.e a value lookup from vector/array
-            return(paste0(
-                subject, '(',
-                paste(vapply(
-                    tail(in_call, -2),
-                    function (d) cpp_code(d, in_envir, next_indent),
-                    character(1)), collapse = ", "),
-                ')'))
-        }
-
-        if (!identical(not_missing, sort(not_missing))) {
-            # We only have the .col() operator to work with, there isn't a .row()
-            stop("Missing values must be at start of subset, can't restructure array: ", deparse(in_call))
-        }
-        
-        # Strip off all required dimensions from array
-        out <- paste0(c(subject, vapply(rev(tail(in_call, -2)), function (d) {
-            if (identical(as.character(d), "")) {
-                # Missing symbol
-                return("")
-            }
-            return(paste0(".col(", cpp_code(d, in_envir, next_indent), ")"))
-        }, character(1))), collapse = "")
-        return(out)
+        return(paste0(
+            subject,
+            convert_subset(tail(in_call, -2))))
     }
 
     if (call_name == '[[') {
