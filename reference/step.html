@@ -139,6 +139,8 @@
   of stock_iterate(). If <var>dimname</var>s are supplied, then these
   dimensions overwritten with the suppled override, which could be a missing
   value, to preserve a dimension. See final example.</p>
+<p>Length is a missing value by default, i.e. we return length groups. To avoid
+  this happening, set <code>length = default</code> to iterate over length too.</p>
 <p></p><div class="section">
 <h3 id="examples-3">Examples<a class="anchor" aria-label="anchor" href="#examples-3"></a></h3>
 
@@ -164,9 +166,9 @@
 </div>
 
     </div>
-    <div id="stock-inv">
-    <h2>stock_inv</h2>
-    <p><code>stock_ss(stock_var, [ dimname, dimname, ... ])</code></p>
+    <div id="stock-ssinv">
+    <h2>stock_ssinv</h2>
+    <p><code>stock_ssinv(stock_var, [ dimname, dimname, ... ])</code></p>
 <p>like stock_ss(), but subset only the mentioned <var>dimname</var>s.</p>
 <p></p><div class="section">
 <h3 id="examples-4">Examples<a class="anchor" aria-label="anchor" href="#examples-4"></a></h3>
@@ -227,8 +229,13 @@
     <div id="stock-iterate">
     <h2>stock_iterate</h2>
     <p><code>stock_iterate(stock, expr)</code></p>
-<p>Wrap <var>expr</var> with the code to iterate over each length vector in
-  <var>stock</var>, accessed using <code>stock_ss(stock)</code></p>
+<p>Wrap <var>expr</var> with the code to iterate over vector dimensions in
+  <var>stock</var>, accessed using <code>stock_ss(stock)</code>.</p>
+<p>Which dimensions are iterated over is decided based on the call to
+  <code>stock_ss(stock)</code>. By default, stock_ss leaves length blank so will
+  iterate over a length vector for each dimension.</p>
+<p>You can iterate over each value individually with the following:
+  <code>stock_iterate(stock, stock_ss(stock, length = default) )</code></p>
 <p>Current values for each dimension will be available as variables,
   e.g. <code>area</code>, <code>age</code>, and can be used in formulae.</p>
 <p></p><div class="section">
