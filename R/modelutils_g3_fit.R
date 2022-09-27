@@ -96,7 +96,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                   origin = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\5', .data$comp),
                   name = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\3.\\4', .data$comp),
                   #length = gsub('len', '', .data$length) %>% as.numeric(),
-                  area = as.numeric(.data$area)) %>%
+                  area = as.numeric(as.factor(.data$area))) %>%
     split_length() %>%
     dplyr::group_by(.data$name) %>% 
     dplyr::group_modify(~replace_inf(.x)) %>% 
