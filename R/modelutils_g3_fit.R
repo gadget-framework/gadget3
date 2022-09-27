@@ -90,11 +90,11 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     tmp[grep('^cdist_.+__num$', names(tmp))] %>%
     purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>%
     dplyr::bind_rows(.id = 'comp') %>%
-    dplyr::mutate(data_function = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\2', .data$comp),
-                  type = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\3', .data$comp),
-                  fleetnames = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\4', .data$comp),
-                  origin = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\5', .data$comp),
-                  name = gsub('(cdist)_([A-Za-z]+)_(.+)_([A-Za-z]+)_(model|obs)__num', '\\3.\\4', .data$comp),
+    dplyr::mutate(data_function = gsub('(cdist)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\2', .data$comp),
+                  #type = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\3', .data$comp),
+                  #fleetnames = gsub('(cdist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\4', .data$comp),
+                  origin = gsub('(cdist)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\4', .data$comp),
+                  name = gsub('(cdist)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\3', .data$comp),
                   #length = gsub('len', '', .data$length) %>% as.numeric(),
                   area = as.numeric(as.factor(.data$area))) %>%
     split_length() %>%
@@ -110,11 +110,11 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
   ## Maturity
   ## TO-DO ADD LOWER AND UPPER
-  if (any('matp' %in% dat$type)){
+  if (any(grepl('mat', dat$name))){
     
     stockdist <- 
       dat %>% 
-      dplyr::filter(.data$type == 'matp') %>%
+      dplyr::filter(grepl('mat', .data$name)) %>%
       dplyr::group_by(.data$year, .data$step, .data$area, .data$length, .data$age, .data$name) %>%
       dplyr::mutate(pred.ratio = .data$predicted / sum(.data$predicted, na.rm = TRUE),
                     obs.ratio = .data$observed / sum(.data$observed, na.rm = TRUE),
@@ -122,18 +122,18 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
       dplyr::ungroup() %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$age, 
-                    .data$fleetnames, .data$observed, .data$obs.ratio, .data$predicted, .data$pred.ratio)
+                    .data$observed, .data$obs.ratio, .data$predicted, .data$pred.ratio)
     
   }else{
     stockdist <- NULL
   }
   
   ## Age and Length distributions
-  if (any(c('ldist','aldist') %in% dat$type)){
+  if (any(grepl(c('ldist'), dat$name))){
     
     catchdist.fleets <- 
       dat %>% 
-      dplyr::filter(.data$type %in% c('ldist', 'aldist')) %>% 
+      dplyr::filter(grepl('ldist', .data$name)) %>% 
       dplyr::group_by(.data$year, .data$step, .data$area, .data$name) %>%
       dplyr::mutate(total.catch = sum(.data$observed, na.rm = TRUE),
                     total.pred = sum(.data$predicted, na.rm = TRUE),
@@ -144,12 +144,12 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
                     residuals = ifelse(.data$observed == 0, NA, .data$observed - .data$predicted)) %>% 
       dplyr::ungroup() %>%
       split_age() %>% 
-      dplyr::mutate(age = ifelse(.data$type == 'aldist', 
+      dplyr::mutate(age = ifelse(grepl('aldist', .data$name), 
                                  paste0('age', .data$lower_age), 
                                  paste0('all', .data$lower_age))) %>% 
       dplyr::select(.data$name, .data$year, .data$step, .data$area, 
                     .data$stock, .data$length, .data$lower, .data$upper, .data$avg.length, .data$age,  
-                    .data$fleetnames, .data$obs, .data$total.catch, .data$observed,
+                    .data$obs, .data$total.catch, .data$observed,
                     .data$pred, .data$total.pred, .data$predicted, .data$residuals)
     
   }else{
@@ -161,7 +161,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   
   ## Survey indices
   ## TODO add parameters
-  if (any(grepl('^adist_.+__num$', names(tmp)))){
+  if (any(grepl('^adist_.+__num$|^adist_.+__wgt$', names(tmp)))){
     
     sidat_params <- 
       tmp[grepl('^adist_.+__params$', names(tmp))] %>% 
@@ -170,16 +170,16 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
       dplyr::mutate(id = gsub('^adist_|_model__params$', '', .data$id))
     
     sidat <- 
-      tmp[grep('^adist_.+__num$',names(tmp))] %>%
+      tmp[grep('^adist_.+__num$|^adist_.+__wgt$',names(tmp))] %>%
       purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>%
       dplyr::bind_rows(.id = 'comp') %>%
-      dplyr::mutate(index = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\2', .data$comp),
-                    type = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\3', .data$comp),
-                    fleet = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\4', .data$comp),
-                    origin = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\5', .data$comp),
-                    name = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__num', '\\2.\\4', .data$comp),
+      dplyr::mutate(index = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__(num|wgt)', '\\2', .data$comp),
+                    type = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__(num|wgt)', '\\3', .data$comp),
+                    fleet = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__(num|wgt)', '\\4', .data$comp),
+                    origin = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__(num|wgt)', '\\5', .data$comp),
+                    name = gsub('(adist)_([A-Za-z]+)_([A-Za-z]+)_(.+)_(model|obs)__(num|wgt)', '\\2.\\4', .data$comp),
                     #length = gsub('len', '', .data$length) %>% as.numeric(),
-                    area = as.numeric(.data$area)) %>%
+                    area = as.numeric(as.factor(.data$area))) %>%
       split_length() %>% 
       extract_year_step() %>%
       dplyr::select(-.data$comp) %>%
