@@ -11,6 +11,8 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_age))
     stopifnot(is.logical(by_year))
 
+    if (exponentiate) name <- paste0(name, '_exp')
+
     table_defn <- list()
     if (by_year) {
         table_defn <- c(table_defn, list( cur_year = quote( seq(start_year, end_year) ) ))

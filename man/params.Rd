@@ -45,7 +45,7 @@ g3_parameterized(
       \item{TRUE}{Produce a \code{"name.4"} parameter for each age of the stock(s) in \var{by_stock}}
     }
   }
-  \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value}
+  \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
   \item{scale}{
     Use \code{scale * value} instead of the raw parameter value.
     Either a numeric constant or character.

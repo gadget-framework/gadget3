@@ -28,7 +28,7 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = FALSE, exponentiate = TRUE, offset = 5),
         g3_parameterized('parp', by_stock = FALSE, scale = 0.001, offset = 2),
     NULL), quote({
-        exp(g3_param("parp")) + 5
+        exp(g3_param("parp_exp")) + 5
         0.001 * g3_param("parp") + 2
     NULL})), "Can wrap with exp(), scale, offset")
 
