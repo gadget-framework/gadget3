@@ -1,5 +1,6 @@
 # Pull the definition of the stock variable out of the stock object
 stock_definition <- function(stock, var_name) {
+    if (!startsWith(var_name, 'stock__')) var_name <- paste0('stock__', var_name)
     get(var_name, envir = stock$env)
 }
 
