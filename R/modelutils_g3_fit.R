@@ -242,7 +242,7 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
       extract_year_step()  
     
   }else{
-    liklihood <- NULL
+    likelihood <- NULL
   }
   
   ## ---------------------------------------------------------------------------
