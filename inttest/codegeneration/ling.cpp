@@ -261,7 +261,9 @@ Type objective_function<Type>::operator() () {
     Type ling_mat__prevtotal = (double)(0);
     array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
     array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
-    vector<Type> cdist_sumofsquares_ldist_lln_model__num(35); cdist_sumofsquares_ldist_lln_model__num.setZero();
+    int cdist_sumofsquares_ldist_lln_model__area = 1;
+    array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
+    int cdist_sumofsquares_ldist_lln_obs__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
@@ -785,9 +787,13 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_imm__area_idx = 0;
 
-                {
-                    // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
-                    cdist_sumofsquares_ldist_lln_model__num += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                    {
+                        // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm__igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
+                    }
                 }
             }
         }
@@ -800,24 +806,34 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_mat__area_idx = 0;
 
-                {
-                    // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
-                    cdist_sumofsquares_ldist_lln_model__num += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                    {
+                        // Take prey_stock__fleet_stock weight, convert to individuals, add to our count;
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat__igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
+                    }
                 }
             }
         }
         {
-            auto cdist_sumofsquares_ldist_lln_model__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum());
-
+            // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
             {
-                // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
-                {
+                auto area = cdist_sumofsquares_ldist_lln_model__area;
+
+                auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                if ( area == cdist_sumofsquares_ldist_lln_obs__area ) {
+                    auto cdist_sumofsquares_ldist_lln_model__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx)).sum());
+
+                    auto cdist_sumofsquares_ldist_lln_obs__area_idx = 0;
+
                     auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
 
                     if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
-                        auto cdist_sumofsquares_ldist_lln_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum());
+                        auto cdist_sumofsquares_ldist_lln_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum());
 
-                        auto cur_cdist_nll = ((pow(((cdist_sumofsquares_ldist_lln_model__num / cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / cdist_sumofsquares_ldist_lln_obs__sstotal)), (Type)(double)(2)))).sum();
+                        auto cur_cdist_nll = ((pow(((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) / cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx) / cdist_sumofsquares_ldist_lln_obs__sstotal)), (Type)(double)(2)))).sum();
 
                         {
                             nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;
@@ -826,9 +842,9 @@ Type objective_function<Type>::operator() () {
                         }
                     }
                 }
-                // Zero counters for next reporting period;
-                cdist_sumofsquares_ldist_lln_model__num.setZero();
             }
+            // Zero counters for next reporting period;
+            cdist_sumofsquares_ldist_lln_model__num.setZero();
         }
         {
             // Reset understocking total;

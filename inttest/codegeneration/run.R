@@ -122,6 +122,7 @@ igfs_totaldata <- data.frame(
     area = areas[['area1']],
     total_weight = 1:4)
 igfs_obs_data <- read.table('inttest/codegeneration/catchdistribution_ldist_lln.txt', header = TRUE)
+igfs_obs_data$area <- 1L
 igfs_actions <- list(
     g3a_predate_fleet(igfs, list(ling_imm, ling_mat),
         suitabilities = list(
