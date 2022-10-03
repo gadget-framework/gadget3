@@ -20,7 +20,6 @@ g3s_livesonareas <- function(inner_stock, areas) {
     if (stock__totalareas == 1) {
         # Stock only in one area, so simplify
         stock__area <- as.integer(areas[[1]])
-        stock__area_idx <- g3_formula(quote( g3_idx(1) ))
         structure(list(
             dim = c(inner_stock$dim,
                 area = stock__totalareas),
@@ -28,13 +27,21 @@ g3s_livesonareas <- function(inner_stock, areas) {
                 area = names(stock__areas))),
             iter_ss = c(inner_stock$iter_ss, area = as.symbol("stock__area_idx")),
             iterate = c(inner_stock$iterate, area = quote(
-                g3_with(area := stock__area, extension_point)
+                g3_with(
+                    area := stock__area,
+                    stock__area_idx := g3_idx(1L),
+                    extension_point)
             )),
             intersect = c(inner_stock$intersect, area = quote(
-                 if (area == stock__area) extension_point
+                 if (area == stock__area) g3_with(
+                     stock__area_idx := g3_idx(1L),
+                     extension_point)
             )),
             interact = c(inner_stock$interact, area = quote(
-                if (area == stock__area) g3_with(interactvar_area := area, extension_point)
+                if (area == stock__area) g3_with(
+                    stock__area_idx := g3_idx(1L),
+                    interactvar_area := area,
+                    extension_point)
             )),
             with = c(inner_stock$with, area = quote(extension_point)),
             env = as.environment(c(as.list(inner_stock$env), area_vars, list(
