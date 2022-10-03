@@ -711,20 +711,24 @@ structure(function (param)
             }
         }
         {
-            comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
+            cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[]))
             {
-                cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
-                if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
-                  cur_cdist_nll <- sum((cdist_sumofsquares_ldist_lln_model__num[]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[])) - cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx])))^2)
-                  {
-                    nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
-                    nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                    nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
+                comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
+                {
+                  cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
+                  if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
+                    cdist_sumofsquares_ldist_lln_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]))
+                    cur_cdist_nll <- sum((((cdist_sumofsquares_ldist_lln_model__num[]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2))
+                    {
+                      nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
+                      nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
+                      nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
+                    }
                   }
                 }
+                comment("Zero counters for next reporting period")
+                cdist_sumofsquares_ldist_lln_model__num[] <- 0
             }
-            comment("Zero counters for next reporting period")
-            cdist_sumofsquares_ldist_lln_model__num[] <- 0
         }
         {
             comment("Reset understocking total")

@@ -3,22 +3,38 @@ call_append <- function (call, extra) as.call(c(as.list(call), extra))
 dist_prop <- function (var_name, over) {
     var_sym <- as.symbol(var_name)
     length_idx_sym <- as.symbol("default")
+    total_var_name <- gsub('__x$', '__sstotal', var_name)
 
-    substitute(x / avoid_zero(sum(total)), list(
-        x = if ('length' %in% over) call("stock_ss", var_sym, length = length_idx_sym) else call("stock_ss", var_sym),
-        total = call_append(call("stock_ssinv", var_sym), over)))
+    if ('length' %in% over) {
+        # Stratified sums of squares
+        out <- substitute(x / total[[idx]], list(
+            x = call("stock_ss", var_sym, length = length_idx_sym),
+            total = as.symbol(total_var_name),
+            idx = as.symbol(gsub('__x$', '__length_idx', var_name))))
+        total_call <- substitute(avoid_zero_vec(rowSums(x)), list(
+            x = call_append(call("stock_ssinv", var_sym), over[over != 'length'])))
+    } else {
+        out <- substitute(x / total, list(
+            x = call("stock_ss", var_sym),
+            total = as.symbol(total_var_name)))
+        total_call <- substitute(avoid_zero(sum(x)), list(
+            x = call_append(call("stock_ssinv", var_sym), over)))
+    }
+    out <- call_to_formula(out, as.environment(list()))
+    assign(total_var_name, total_call, envir = environment(out))
+    return(out)
 }
 
 g3l_distribution_sumofsquares <- function (over = c('area')) {
-    out <- substitute( (modelstock_prop - obsstock_prop) ** 2, list(
+    out <- f_substitute( quote((modelstock_prop - obsstock_prop) ** 2), list(
         modelstock_prop = dist_prop("modelstock__x", c('time', over)),
         obsstock_prop = dist_prop("obsstock__x", c('time', over))))
     # NB: Avoid the final sum() for stratified sum of squares, as we'll (probably)
     #     produce a scalar, which TMB can't sum. Ideally I think we remove the
     #     auto-drop-to-scalar from convert_subset(), but that's going to require a
     #     lot of debugging
-    if (!('length' %in% over)) out <- call('sum', out)
-    return(call_to_formula(out, emptyenv()))
+    if (!('length' %in% over)) out <- f_substitute(quote(sum(out)), list(out = out))
+    return(out)
 }
 
 g3l_distribution_multinomial <- function (epsilon = 10) {

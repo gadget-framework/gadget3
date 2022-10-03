@@ -837,22 +837,28 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
+            auto cdist_sumofsquares_ldist_lln_model__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum());
+
             {
-                auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
+                // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs;
+                {
+                    auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*10 + cur_step), -1) - 1;
 
-                if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
-                    auto cur_cdist_nll = (pow((cdist_sumofsquares_ldist_lln_model__num / avoid_zero((cdist_sumofsquares_ldist_lln_model__num).sum()) - cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum())), (Type)(double)(2))).sum();
+                    if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
+                        auto cdist_sumofsquares_ldist_lln_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum());
 
-                    {
-                        nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;
-                        nll_cdist_sumofsquares_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
-                        nll_cdist_sumofsquares_ldist_lln__weight(cur_time + 1 - 1) = cdist_sumofsquares_ldist_lln_weight;
+                        auto cur_cdist_nll = ((pow(((cdist_sumofsquares_ldist_lln_model__num / cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__time_idx) / cdist_sumofsquares_ldist_lln_obs__sstotal)), (Type)(double)(2)))).sum();
+
+                        {
+                            nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;
+                            nll_cdist_sumofsquares_ldist_lln__num(cur_time + 1 - 1) += cur_cdist_nll;
+                            nll_cdist_sumofsquares_ldist_lln__weight(cur_time + 1 - 1) = cdist_sumofsquares_ldist_lln_weight;
+                        }
                     }
                 }
+                // Zero counters for next reporting period;
+                cdist_sumofsquares_ldist_lln_model__num.setZero();
             }
-            // Zero counters for next reporting period;
-            cdist_sumofsquares_ldist_lln_model__num.setZero();
         }
         {
             // Reset understocking total;

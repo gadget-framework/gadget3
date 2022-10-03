@@ -25,16 +25,19 @@ g3_lgamma_vec <- lgamma
 
 ok_group("g3l_distribution_sumofsquares", {
     ok(cmp_grep(
-        deparse1(g3l_distribution_sumofsquares(c('area', 'age'))),
+        deparse1(environment(g3l_distribution_sumofsquares(c('area', 'age')))$modelstock__sstotal),
         'sum(stock_ssinv(modelstock__x, "time", "area", "age"))',
+        NULL), "Added custom totals to sumofsquares modelstock__x")
+    ok(cmp_grep(
+        deparse1(environment(g3l_distribution_sumofsquares(c('area', 'age')))$obsstock__sstotal),
         'sum(stock_ssinv(obsstock__x, "time", "area", "age"))',
         NULL), "Added custom totals to sumofsquares modelstock__x")
     ok(cmp_grep(
         deparse1(g3l_distribution_sumofsquares(c('area', 'length'))),
         'stock_ss(modelstock__x, length = default)',
-        'sum(stock_ssinv(modelstock__x, "time", "area", "length"))',
+        'modelstock__sstotal[[modelstock__length_idx]]',
         'stock_ss(obsstock__x, length = default)',
-        'sum(stock_ssinv(obsstock__x, "time", "area", "length"))',
+        'obsstock__sstotal[[obsstock__length_idx]]',
         NULL), "Adding length also adds to the stock_ss()")
 
     # Stratified sumofsquares
