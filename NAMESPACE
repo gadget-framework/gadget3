@@ -38,6 +38,7 @@ export(g3a_predate_totalfleet)
 
 # R/action_renewal.R
 export(g3a_renewal_vonb)
+export(g3a_renewal_initabund)
 export(g3a_renewal)
 export(g3a_renewal_normalparam)
 export(g3a_initialconditions)

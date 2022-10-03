@@ -1,5 +1,6 @@
 \name{action_renewal}
 \alias{g3a_renewal_vonb}
+\alias{g3a_renewal_initabund}
 \alias{g3a_initialconditions}
 \alias{g3a_initialconditions_normalparam}
 \alias{g3a_renewal}
@@ -17,12 +18,20 @@ g3a_renewal_vonb(
         recl = g3_parameterized('recl', by_stock = by_stock),
         by_stock = TRUE)
 
+g3a_renewal_initabund(
+    scalar = g3_parameterized('init', by_stock = by_stock),
+    init = g3_parameterized('init.scalar', by_stock = by_stock, by_age = TRUE),
+    M = g3_parameterized('M', by_stock = by_stock),
+    init_F = g3_parameterized('init.F', by_stock = by_stock_f),
+    by_stock = TRUE,
+    by_stock_f = FALSE)
+
 g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
 
 g3a_initialconditions_normalparam(
         stock,
-        factor_f,
-        mean_f,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
@@ -84,8 +93,13 @@ g3a_renewal_normalparam(
   \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
   \item{K}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{scalar}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{init}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{M}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{init_F}{\link{formula} substituted into vonb calcuations, see below.}
   \item{by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
   \item{wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
+  \item{by_stock_f}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
   \item{by_age}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
@@ -105,6 +119,9 @@ g3a_renewal_normalparam(
   \subsection{g3a_renewal_vonb}{A \link{formula} object representing
     \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (1 + \frac{\log(1 - r/L_{\infty})}{\kappa}  ))}} }
 
+  }
+  \subsection{g3a_renewal_initabund}{A \link{formula} object representing
+    \deqn{ scalar * init * e{-1 * (M + init_F) * age } }
   }
   \subsection{g3a_initialconditions / g3a_renewal}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
@@ -142,11 +159,6 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 initialconditions_action <- g3a_initialconditions_normalparam(
     ling_imm,
-    # NB: area & age factor together (gadget2 just multiplied them)
-    factor_f = ~g3_param("lingimm.init.scalar") *
-        exp(-1 * (g3_param_vector("lingimm.M")[[age - 3 + 1]] + g3_param("ling.init.F")) * age) *
-        g3_param_vector("lingimm.init")[[age - 3 + 1]],
-    mean_f = g3a_renewal_vonb(),
     by_age = TRUE,  # per-age init.sd parameters
     alpha_f = ~g3_param("lingimm.walpha"),
     beta_f = ~g3_param("lingimm.wbeta"))

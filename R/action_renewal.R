@@ -18,10 +18,26 @@ g3a_renewal_vonb <- function(
             recl = recl))
 }
 
+g3a_renewal_initabund <- function(
+    scalar = g3_parameterized('init', by_stock = by_stock),
+    init = g3_parameterized('init.scalar', by_stock = by_stock, by_age = TRUE),
+    M = g3_parameterized('M', by_stock = by_stock),
+    init_F = g3_parameterized('init.F', by_stock = by_stock_f),
+    by_stock = TRUE,
+    by_stock_f = FALSE){
+  f_substitute(
+    ~scalar * init * exp(-1 * (M + init_F) * age),
+    list(scalar = scalar,
+         init = init,
+         M = M,
+         init_F = init_F)
+  )
+}
+
 g3a_renewal_len_dnorm <- function(
         mean_f,
         stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
-        factor_f,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
         by_stock = TRUE,
         by_age = FALSE) {
     dnorm <- f_substitute(
@@ -68,8 +84,8 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 # Steps to set up renewal of stocks on first step
 g3a_initialconditions_normalparam <- function (
         stock,
-        factor_f,
-        mean_f,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
