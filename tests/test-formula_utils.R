@@ -32,6 +32,12 @@ deep_ls <- function (env) {
     }
 }
 
+ok_group("call_to_formula", {
+    out <- gadget3:::call_to_formula(quote( x + 2 ), list(x = 9))
+    ok(cmp_code(out, ~x + 2), "Turned into formula")
+    ok(cmp_environment(environment(out), list(x = 9)), "Used list as environment")
+})
+
 ok_group("call_replace", {
     call_replace <- gadget3:::call_replace
     ok(ut_cmp_equal(

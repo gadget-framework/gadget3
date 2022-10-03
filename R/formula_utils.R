@@ -4,7 +4,7 @@ open_bracket <- "("  # )
 
 # Turn a call into a formula, with environment env
 call_to_formula <- function (c, env = parent.frame()) {
-    formula(call("~", c), env = env)
+    formula(call("~", c), env = as.environment(env))
 }
 
 # Merge (additions) into (env)
