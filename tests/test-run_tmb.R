@@ -287,10 +287,10 @@ ok_group("g3_to_tmb: Can use random parameters", local({
     actions <- c(
         g3a_time(1990, 1992),
         list("010:g3l_custom" = gadget3:::f_substitute(~if (cur_step_final) {
-            nll <- nll + dnorm(x, stock__prevrec, sigma, 1)
-            stock__prevrec <- x
+            nll <- nll + 1 / dnorm(x, mean, sigma, 1)
         }, list(
             x = ~g3_param_table('rp', expand.grid(cur_year = seq(start_year, end_year)), random = TRUE),
+            mean = ~g3_param('mean', default = 5, optimise = TRUE),
             sigma = ~g3_param('sigma', default = 0.2, optimise = TRUE)
         ))),
         list()
@@ -304,6 +304,11 @@ ok_group("g3_to_tmb: Can use random parameters", local({
         model_tmb <- g3_tmb_adfun(model_cpp, param_tbl, compile_flags = c("-O0", "-g"))
         res <- optim(g3_tmb_par(param_tbl), model_tmb$fn, model_tmb$gr, method = 'BFGS')
         ok(res$convergence == 0, "Model ran successfully and converged")
+        ok(ut_cmp_identical(names(model_tmb$env$last.par)[model_tmb$env$random], c(
+            "rp__1990",
+            "rp__1991",
+            "rp__1992",
+            NULL)), "env$random: TMB got the random parameters we expected")
     } else {
         writeLines("# skip: not compiling TMB model")
     }

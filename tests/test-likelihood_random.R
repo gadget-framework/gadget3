@@ -20,13 +20,13 @@ actions <- list(
         log_f = FALSE,
         weight = ~g3_param('dnorm_lin_enabled', value = 0, optimise = FALSE)),
     g3l_random_walk('walk_year',
-        ~g3_param_table('walk_year', expand.grid(cur_year = seq(start_year,  end_year)), value = 0),
+        ~g3_param_table('walk_year', expand.grid(cur_year = seq(start_year,  end_year)), value = 0, random = TRUE),
         sigma_f = ~g3_param('walk_year_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_year_enabled', value = 0, optimise = FALSE)),
     g3l_random_walk('walk_step',
         ~g3_param_table('walk_step', expand.grid(
             cur_year = seq(start_year,  end_year),
-            cur_step = 1:4), value = 0),
+            cur_step = 1:4), value = 0, random = TRUE),
         period = 'step',
         sigma_f = ~g3_param('walk_step_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_step_enabled', value = 0, optimise = FALSE)),
@@ -76,6 +76,35 @@ ok_group('g3l_random_dnorm', {
         param_template$value <- params[param_template$switch]
         # Reproduce model to include any unoptimised parameters
         model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
+        ok(ut_cmp_identical(names(model_tmb$env$last.par)[model_tmb$env$random], c(
+            'dnorm_lin',
+            'dnorm_log',
+            'walk_step__1990__1',
+            'walk_step__1991__1',
+            'walk_step__1992__1',
+            'walk_step__1993__1',
+            'walk_step__1994__1',
+            'walk_step__1990__2',
+            'walk_step__1991__2',
+            'walk_step__1992__2',
+            'walk_step__1993__2',
+            'walk_step__1994__2',
+            'walk_step__1990__3',
+            'walk_step__1991__3',
+            'walk_step__1992__3',
+            'walk_step__1993__3',
+            'walk_step__1994__3',
+            'walk_step__1990__4',
+            'walk_step__1991__4',
+            'walk_step__1992__4',
+            'walk_step__1993__4',
+            'walk_step__1994__4',
+            'walk_year__1990',
+            'walk_year__1991',
+            'walk_year__1992',
+            'walk_year__1993',
+            'walk_year__1994',
+            NULL)), "env$random: TMB got expected random variables")
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     } else {
         writeLines("# skip: not running TMB tests")

@@ -977,9 +977,10 @@ g3_tmb_adfun <- function(cpp_code,
         names = cpp_escape_varname(parameters$switch))
 
     tmb_map <- new.env(parent = emptyenv())
-    for (n in parameters[parameters$optimise == FALSE, 'switch']) {
+    for (n in parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch']) {
         tmb_map[[cpp_escape_varname(n)]] <- factor(rep(NA, length(parameters[n, 'value'][[1]])))
     }
+    tmb_map <- as.list(tmb_map)
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
     if (any(parameters$random & parameters$optimise)) {
@@ -1029,7 +1030,7 @@ g3_tmb_adfun <- function(cpp_code,
             deparse(call("MakeADFun",
                 data = as.list(tmb_data),
                 parameters = quote(tmb_parameters),
-                map = quote(as.list(tmb_map)),
+                map = quote(tmb_map),
                 random = quote(tmb_random),
                 DLL = base_name)),
             ""), con = tmp_script_path)
@@ -1038,7 +1039,7 @@ g3_tmb_adfun <- function(cpp_code,
     fn <- TMB::MakeADFun(
         data = as.list(attr(cpp_code, 'model_data')),
         parameters = tmb_parameters,
-        map = as.list(tmb_map),
+        map = tmb_map,
         random = tmb_random,
         DLL = base_name,
         ...)
