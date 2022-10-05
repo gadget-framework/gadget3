@@ -69,6 +69,7 @@
 <span>        by_year <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        exponentiate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        avoid_zero <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        scale <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        offset <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -117,6 +118,9 @@
 
   <dt>exponentiate</dt>
 <dd><p>Use <code>exp(value)</code> instead of the raw parameter value. Will add "_exp" to the parameter name.</p></dd>
+
+  <dt>avoid_zero</dt>
+<dd><p>If TRUE, wrap parameter with <code>avoid_zero</code></p></dd>
 
   <dt>scale</dt>
 <dd><p>Use <code>scale * value</code> instead of the raw parameter value.
