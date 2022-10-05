@@ -13,6 +13,7 @@ g3_parameterized(
         by_year = FALSE,
         by_age = FALSE,
         exponentiate = FALSE,
+        avoid_zero = FALSE,
         scale = 1,
         offset = 0,
         ...)
@@ -46,6 +47,7 @@ g3_parameterized(
     }
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
+  \item{avoid_zero}{If TRUE, wrap parameter with \code{avoid_zero}}
   \item{scale}{
     Use \code{scale * value} instead of the raw parameter value.
     Either a numeric constant or character.
