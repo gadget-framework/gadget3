@@ -1,6 +1,7 @@
 \name{action_report}
 \alias{g3a_report_stock}
 \alias{g3a_report_history}
+\alias{g3a_report_detail}
 
 \title{Gadget3 report actions}
 \description{
@@ -12,7 +13,17 @@ g3a_report_stock(report_stock, input_stock, report_f,
     include_adreport = FALSE,
     run_f = TRUE, run_at = 11)
 
-g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
+g3a_report_history(
+        actions,
+        var_re = "__num$|__wgt$",
+        out_prefix = "hist_",
+        run_f = TRUE,
+        run_at = 11)
+
+g3a_report_detail(actions,
+    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 0L) == 1 ),
+    abundance_run_at = 1,
+    run_at = 11)
 }
 
 \arguments{
@@ -31,8 +42,14 @@ g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
   \item{var_re}{
     Regular expression specifying variables to log history for.
   }
+  \item{out_prefix}{
+    Prefix to add to history report output, e.g. \code{hist_ling_imm__num}.
+  }
   \item{include_adreport}{
     Should the aggregated value get ADREPORT'ed?
+  }
+  \item{abundance_run_at}{
+    Integer order that abundance will be collected within the model. Note that by default it's collected at the start, not the end
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
@@ -65,6 +82,9 @@ g3a_report_history(actions, var_re = "__num$|__wgt$", run_at = 11)
   \subsection{g3a_report_history}{
     An action (i.e. list of formula objects) that will store the current state of each variable found matching \var{var_re}.
   }
+  \subsection{g3a_report_detailed}{
+    Uses \link{g3a_report_history} to generate detailed reports suitable for use in \code{g3_fit}.
+  }
 }
 
 \seealso{
@@ -96,4 +116,7 @@ actions <- c(actions, list(g3a_report_history(actions)))
 
 # Report history of just "ling_imm__num"
 actions <- c(actions, list(g3a_report_history(actions, "^ling_imm__num$")))
+
+# Add a detail report suitable for g3_fit
+actions <- c(actions, list(g3a_report_detail(actions)))
 }

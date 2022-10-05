@@ -36,9 +36,15 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, include_adrep
     return(as.list(out))
 }
 
-g3a_report_history <- function (actions, var_re = "__num$|__wgt$", run_at = 11) {
+g3a_report_history <- function (
+        actions,
+        var_re = "__num$|__wgt$",
+        out_prefix = "hist_",
+        run_f = TRUE,
+        run_at = 11) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
+    var_re <- paste(var_re, collapse = "|")
 
     # Form list of definitions as we would do when compiling
     collated_actions <- g3_collate(actions)
@@ -82,10 +88,10 @@ g3a_report_history <- function (actions, var_re = "__num$|__wgt$", run_at = 11) 
         }
 
         # Generate code/env to define history report
-        hist_var_name <- paste0('hist_', var_name)
-        out_env <- new.env(parent = emptyenv())
-        out_env[[hist_var_name]] <- defn
-        out_code <- substitute(hist_var_ss <- var, list(
+        hist_var_name <- paste0(out_prefix, var_name)
+        x <- f_substitute(quote(
+            if (run_f) hist_var_ss <- var
+        ), list(
             hist_var_ss = as.call(c(
                 # "hist_var["
                 list(as.symbol("["), as.symbol(hist_var_name)),
@@ -93,11 +99,41 @@ g3a_report_history <- function (actions, var_re = "__num$|__wgt$", run_at = 11) 
                 rep(list(quote(x[])[[3]]), length(dim(defn)) - 1),
                 # "cur_time", which is zero-based, needs converting into an index
                 list(quote( g3_idx(cur_time + 1) )))),
+            run_f = run_f,
             var = as.symbol(var_name)))
+        environment(x)[[hist_var_name]] <- defn
 
         # Turn back into formula, add to out
-        out[[step_id(run_at, 'g3a_report_history', var_name)]] <- call_to_formula(out_code, env = out_env)
+        out[[step_id(run_at, 'g3a_report_history', var_name)]] <- x
     }
 
     return(as.list(out))
+}
+
+g3a_report_detail <- function (actions,
+    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 0L) == 1 ),
+    abundance_run_at = 1,
+    run_at = 11) {
+    ## Extract fleet names from model
+    all_actions <- f_concatenate(g3_collate(actions),
+                               parent = g3_global_env,
+                               wrap_call = call("while", TRUE))
+    var_names <- all.names(rlang::f_rhs(all_actions), unique = TRUE)
+    fleet_names <- var_names[grepl('__suit_', var_names)]
+    fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
+
+    c(
+        g3a_report_history(
+            actions = actions,
+            var_re = c('__num$', '__wgt$'),
+            out_prefix = "detail_",
+            run_f = run_f,
+            run_at = abundance_run_at),
+        g3a_report_history(
+            actions = actions,
+            var_re = c('__renewalnum$', '__suit', paste0('__', fleet_names, "$")),
+            out_prefix = "detail_",
+            run_f = run_f,
+            run_at = run_at),
+        NULL)
 }

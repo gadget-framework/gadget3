@@ -47,6 +47,7 @@ export(g3a_initialconditions_normalparam)
 # R/action_report.R
 export(g3a_report_stock)
 export(g3a_report_history)
+export(g3a_report_detail)
 
 # R/action_spawn.R
 export(g3a_spawn_recruitment_fecundity)
