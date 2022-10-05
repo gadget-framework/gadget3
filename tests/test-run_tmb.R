@@ -226,7 +226,7 @@ ok_group('g3_param', {
             row.names = c('a', 'b'),
             switch = c('a', 'b'),
             type = c("", ""),
-            value = I(list(a = array(0), b = array(4))),
+            value = I(list(a = 0, b = 4)),
             optimise = c(TRUE, FALSE),
             random = c(FALSE, TRUE),
             lower = c(NA, 5),
@@ -251,18 +251,18 @@ ok_group('g3_param_table', {
             switch = c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2'),
             type = c("", "", "", "", "", "", "", "", "", "", "", ""),
             value = I(list(
-                "pt.2000.2" = array(0),
-                "pt.2001.2" = array(0),
-                "pt.2002.2" = array(0),
-                "pt.2003.2" = array(0),
-                "pt.2004.2" = array(0),
-                "pt.2000.3" = array(0),
-                "pt.2001.3" = array(0),
-                "pt.2002.3" = array(0),
-                "pt.2003.3" = array(0),
-                "pt.2004.3" = array(0),
-                "pg.2000.1" = array(4),
-                "pg.2000.2" = array(4))),
+                "pt.2000.2" = 0,
+                "pt.2001.2" = 0,
+                "pt.2002.2" = 0,
+                "pt.2003.2" = 0,
+                "pt.2004.2" = 0,
+                "pt.2000.3" = 0,
+                "pt.2001.3" = 0,
+                "pt.2002.3" = 0,
+                "pt.2003.3" = 0,
+                "pt.2004.3" = 0,
+                "pg.2000.1" = 4,
+                "pg.2000.2" = 4)),
             optimise = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
             random = c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE),
             lower = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, 5),
@@ -290,8 +290,8 @@ ok_group("g3_to_tmb: Can use random parameters", local({
             nll <- nll + 1 / dnorm(x, mean, sigma, 1)
         }, list(
             x = ~g3_param_table('rp', expand.grid(cur_year = seq(start_year, end_year)), random = TRUE),
-            mean = ~g3_param('mean', default = 5, optimise = TRUE),
-            sigma = ~g3_param('sigma', default = 0.2, optimise = TRUE)
+            mean = ~g3_param('mean', value = 5, optimise = TRUE),
+            sigma = ~g3_param('sigma', value = 0.2, optimise = TRUE)
         ))),
         list()
     )

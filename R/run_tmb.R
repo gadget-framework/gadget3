@@ -654,7 +654,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     type = if (x[[1]] == "g3_param_array") "ARRAY" else if (x[[1]] == "g3_param_vector") "VECTOR" else "",
                     value = I(structure(
                         # NB: Has to be a list column because values might be vectors
-                        list(array(value, dim = dims)),
+                        list(if (identical(dims, c(1))) value else array(value, dim = dims)),
                         names = name)),
                     optimise = if (dims[[1]] > 0) optimise else logical(0),
                     random = if (dims[[1]] > 0) random else logical(0),
