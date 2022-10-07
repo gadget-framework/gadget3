@@ -180,7 +180,7 @@
 <p></p>
 <div class="section">
 <h3 id="g-tmb-parscale">g3_tmb_parscale<a class="anchor" aria-label="anchor" href="#g-tmb-parscale"></a></h3>
-<p>Parscale extracted from <var>parameters</var> table, or mean of lower/upper if NA, converted into a vector of values for <code>nlminb</code></p>
+<p>Parscale extracted from <var>parameters</var> table, converted into a vector of values for <code>nlminb</code></p>
 </div>
 <p></p>
 <div class="section">
@@ -266,7 +266,6 @@
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb</a></span><span class="op">(</span><span class="va">tmb</span><span class="op">$</span><span class="va">par</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">fn</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">gr</span>,</span></span>
 <span class="r-in"><span>    upper <span class="op">=</span> <span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    lower <span class="op">=</span> <span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># NB: We don't have to set parscale, it will be derived from upper/lower</span></span></span>
 <span class="r-in"><span>    parscale <span class="op">=</span> <span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>iter.max<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> outer mgc:  0 </span>
