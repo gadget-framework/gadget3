@@ -164,9 +164,9 @@ ok_group('g3_tmb_parscale', {
         g3_param('param.lups', lower = 4, upper = 8, parscale = 44)
     })), 'parameter_template')
     ok(ut_cmp_identical(g3_tmb_parscale(param), c(
-        param__lu = 6,
+        param__lu = NA,
         param__ps = 22,
-        param__lups = 44)), "We use mean(lower, upper) when parscale not available")
+        param__lups = 44)), "We populate parscale")
 })
 
 ok_group('g3_tmb_relist', {

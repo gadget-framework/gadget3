@@ -105,7 +105,7 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
-  \subsection{g3_tmb_parscale}{Parscale extracted from \var{parameters} table, or mean of lower/upper if NA, converted into a vector of values for \code{nlminb}}
+  \subsection{g3_tmb_parscale}{Parscale extracted from \var{parameters} table, converted into a vector of values for \code{nlminb}}
   \subsection{g3_tmb_relist}{
     The \var{parameters} table value column, but with optimised
     values replaced with contents of \var{par} vector.
@@ -184,7 +184,6 @@ result <- tmb$fn(g3_tmb_par(tmb_param))
 fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param),
-    # NB: We don't have to set parscale, it will be derived from upper/lower
     parscale = g3_tmb_parscale(tmb_param),
     control = list(iter.max=1))
 

@@ -1106,19 +1106,7 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
 g3_tmb_par <- function (parameters, include_random = FALSE) g3_tmb_bound(parameters, 'value', include_random)
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
-g3_tmb_parscale <- function (parameters) {
-    out <- g3_tmb_bound(parameters, 'parscale')
-
-    # Fill in any gaps with mean of lower/upper
-    lower <- g3_tmb_lower(parameters)
-    upper <- g3_tmb_upper(parameters)
-    out[is.na(out)] <- vapply(
-        which(is.na(out)),
-        function (i) mean(c(lower[i], upper[i])),
-        numeric(1))
-
-    return(out)
-}
+g3_tmb_parscale <- function (parameters) g3_tmb_bound(parameters, 'parscale')
 
 g3_tmb_relist <- function (parameters, par, include_random = FALSE) {
     if (!identical(
