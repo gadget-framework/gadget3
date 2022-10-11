@@ -49,7 +49,7 @@ g3_suitability_straightline <- function(alpha, beta){
 
 
 g3_suitability_constant <- function(alpha){
-  alpha
+  g3_suitability_straightline(alpha, 0)
 }
 
 
