@@ -24,16 +24,6 @@ g3a_predate_tagrelease <- function (
         ...)
 
     for (stock in prey_stocks) {
-        stock__taggednum <- stock_instance(stock, 0, desc = "Numbers tagged")
-        stock__taggedwgt <- stock_instance(stock, 0, desc = "Mean weight of numbers tagged")
-
-        # NB: This is broken up into separate steps so multiple fleets can do
-        #     their own tagging and we sum them all together
-        out[[step_id(run_at, 10, stock)]] <- g3_step(~{
-            debug_trace("Zero taggednum counter for ", stock)
-            stock_with(stock, stock__taggednum[] <- 0)
-        })
-        
         # Move captured stock back into tagged dimension
         out[[step_id(run_at, 11, stock, fleet_stock)]] <- g3_step(f_substitute(~{
             debug_label("Release ", stock, " caught by ", fleet_stock, " with tags")
