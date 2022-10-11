@@ -66,6 +66,8 @@ prey_a <- g3_stock('prey_a', seq(1, 10)) \%>\% g3s_tag(tags)
 fleet_a <- g3_fleet('fleet_a')
 
 actions <- list(
+    # NB: If g3_tag() is used in the stock, initialconditions/renewal
+    # will only renew into tag == 0 (i.e. untagged)
     g3a_predate_tagrelease(
         # Setup as-per g3a_predate_fleet
         fleet_a,
@@ -79,7 +81,7 @@ actions <- list(
         # Formula to decide which tag to output into, generate table
         # with one tag per year
         output_tag_f = g3_timeareadata('fleet_a_tags', data.frame(
-            year = c(2000, 2001),
+            year = 2000:2001,
             tag = tags[c('H1-00', 'H1-01')],
             stringsAsFactors = FALSE), value_field = "tag"),
 
