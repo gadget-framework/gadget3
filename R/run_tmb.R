@@ -976,11 +976,13 @@ g3_tmb_adfun <- function(cpp_code,
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
 
-    tmb_map <- new.env(parent = emptyenv())
-    for (n in parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch']) {
-        tmb_map[[cpp_escape_varname(n)]] <- factor(rep(NA, length(parameters[n, 'value'][[1]])))
-    }
-    tmb_map <- as.list(tmb_map)
+    # optimise=F & random=F parameters should be added to fixed map.
+    tmb_map <- lapply(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'], function (n) {
+        factor(rep(NA, length(parameters[n, 'value'][[1]])))
+    })
+    names(tmb_map) <- cpp_escape_varname(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'])
+
+    # optimise=F & random=T are added to list of random effects
     tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
 
     if (any(parameters$random & parameters$optimise)) {
