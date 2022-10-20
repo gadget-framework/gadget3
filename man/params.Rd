@@ -75,8 +75,9 @@ g3_parameterized(
 }
 
 \examples{
-stock_a <- g3_stock(c(species = 'stock', 'aaa'), seq(10, 35, 5)) |> g3s_age(1, 10)
-stock_b <- g3_stock(c(species = 'stock', 'bbb'), seq(10, 35, 5)) |> g3s_age(1, 10)
+\dontshow{library(magrittr)}
+stock_a <- g3_stock(c(species = 'stock', 'aaa'), seq(10, 35, 5)) \%>\% g3s_age(1, 10)
+stock_b <- g3_stock(c(species = 'stock', 'bbb'), seq(10, 35, 5)) \%>\% g3s_age(1, 10)
 
 # Not by anything, so just a regular parameter
 g3_parameterized('K')

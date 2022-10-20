@@ -81,7 +81,7 @@ areas <- list(a=1, b=2, c=3, d=4)
 
 # NB: stock doesn't live in b, so won't figure in stock_acd__migratematrix
 stock_acd <- (g3_stock('stock_acd', seq(10, 40, 10))
-    |> g3s_livesonareas(areas[c('a', 'c', 'd')]))
+    \%>\% g3s_livesonareas(areas[c('a', 'c', 'd')]))
 
 movement_action <- list(
     g3a_migrate(
