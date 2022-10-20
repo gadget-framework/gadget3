@@ -14,7 +14,7 @@ Description: A framework to assist creation of ecosystem models, generating TMB
              utilise TMB enhancements such as AD. For more details see
              <https://gadget-framework.github.io/gadget2/>.
 Encoding: UTF-8
-Depends: R (>= 3.6.3)
+Depends: R (>= 3.6.0)
 Imports:
     digest,
     Matrix (>= 1.2-0),
