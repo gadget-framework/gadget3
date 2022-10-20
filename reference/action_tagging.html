@@ -143,6 +143,8 @@
 <span class="r-in"><span><span class="va">fleet_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'fleet_a'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="co"># NB: If g3_tag() is used in the stock, initialconditions/renewal</span></span></span>
+<span class="r-in"><span>    <span class="co"># will only renew into tag == 0 (i.e. untagged)</span></span></span>
 <span class="r-in"><span>    <span class="fu">g3a_predate_tagrelease</span><span class="op">(</span></span></span>
 <span class="r-in"><span>        <span class="co"># Setup as-per g3a_predate_fleet</span></span></span>
 <span class="r-in"><span>        <span class="va">fleet_a</span>,</span></span>
@@ -156,7 +158,7 @@
 <span class="r-in"><span>        <span class="co"># Formula to decide which tag to output into, generate table</span></span></span>
 <span class="r-in"><span>        <span class="co"># with one tag per year</span></span></span>
 <span class="r-in"><span>        output_tag_f <span class="op">=</span> <span class="fu"><a href="timedata.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">'fleet_a_tags'</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>            year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2001</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            year <span class="op">=</span> <span class="fl">2000</span><span class="op">:</span><span class="fl">2001</span>,</span></span>
 <span class="r-in"><span>            tag <span class="op">=</span> <span class="va">tags</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'H1-00'</span>, <span class="st">'H1-01'</span><span class="op">)</span><span class="op">]</span>,</span></span>
 <span class="r-in"><span>            stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, value_field <span class="op">=</span> <span class="st">"tag"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span></span></span>

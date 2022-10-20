@@ -72,7 +72,7 @@
 <span>    work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    output_script <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
 <span></span>
@@ -80,7 +80,7 @@
 <span></span>
 <span><span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span>, include_random <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">par</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -109,10 +109,15 @@
     modified to provide initial conditions, etc.</p></dd>
 
   <dt>par</dt>
-<dd><p>Parameter vector, as produced by <code>g3_tmb_par()</code> or <code>nlminb(...)$par</code>.</p></dd>
+<dd><p>Parameter vector, as produced by one of</p><ol><li><p><code>nlminb(...)$par</code></p></li>
+<li><p><code>obj.fun$env$last.par</code></p></li>
+<li><p><code>g3_tmb_par()</code></p></li>
+</ol><p>The first will not include random parameters by default, the others will.</p></dd>
 
   <dt>include_random</dt>
-<dd><p>Should random parameters assumed to be part of par (hint: Generally they shouldn't, unless you're using $report()).</p></dd>
+<dd><p>Should random parameters assumed to be part of par? Should be <code>TRUE</code>
+    if using <code>obj.fun$fn</code>, <code>obj.fun$report</code> directly, e.g.
+    <code>obj.fun$fn(g3_tmb_par(param_tbl))</code>. In other cases, <code>FALSE</code>.</p></dd>
 
   <dt>compile_flags</dt>
 <dd><p>List of extra flags to compile with, use e.g. "-g" to enable debugging output.</p></dd>
@@ -170,24 +175,25 @@
 <p></p>
 <div class="section">
 <h3 id="g-tmb-lower">g3_tmb_lower<a class="anchor" aria-label="anchor" href="#g-tmb-lower"></a></h3>
-<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
+<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code>. Random parameters are always excluded</p>
 </div>
 <p></p>
 <div class="section">
 <h3 id="g-tmb-upper">g3_tmb_upper<a class="anchor" aria-label="anchor" href="#g-tmb-upper"></a></h3>
-<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code></p>
+<p>Lower bounds extracted from <var>parameters</var> table converted into a vector of values for <code>nlminb</code>. Random parameters are always excluded</p>
 </div>
 <p></p>
 <div class="section">
 <h3 id="g-tmb-parscale">g3_tmb_parscale<a class="anchor" aria-label="anchor" href="#g-tmb-parscale"></a></h3>
-<p>Parscale extracted from <var>parameters</var> table, converted into a vector of values for <code>nlminb</code></p>
+<p>Parscale extracted from <var>parameters</var> table, converted into a vector of values for <code>nlminb</code>. Random parameters are always excluded</p>
 </div>
 <p></p>
 <div class="section">
 <h3 id="g-tmb-relist">g3_tmb_relist<a class="anchor" aria-label="anchor" href="#g-tmb-relist"></a></h3>
 <p>The <var>parameters</var> table value column, but with optimised
     values replaced with contents of <var>par</var> vector.
-    i.e. the inverse operation to g3_tmb_par.</p>
+    i.e. the inverse operation to g3_tmb_par.
+    <var>par</var> can either include or discount random variables.</p>
 </div>
 
 
@@ -266,12 +272,16 @@
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb</a></span><span class="op">(</span><span class="va">tmb</span><span class="op">$</span><span class="va">par</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">fn</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">gr</span>,</span></span>
 <span class="r-in"><span>    upper <span class="op">=</span> <span class="fu">g3_tmb_upper</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    lower <span class="op">=</span> <span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    parscale <span class="op">=</span> <span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>iter.max<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>iter.max<span class="op">=</span><span class="fl">1</span>, parscale<span class="op">=</span><span class="fu">g3_tmb_parscale</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>unrecognized control elements named ‘parscale’ ignored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> outer mgc:  0 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Go back to a list of parameters, suitable for the R version</span></span></span>
+<span class="r-in"><span><span class="co"># NB: This will not set the values for random parameters</span></span></span>
 <span class="r-in"><span><span class="va">param_list</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">tmb_param</span>, <span class="va">fit</span><span class="op">$</span><span class="va">par</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Update parameters with values from last run, *including* random parameters.</span></span></span>
+<span class="r-in"><span><span class="va">param_list</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_relist</span><span class="op">(</span><span class="va">tmb_param</span>, <span class="va">tmb</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">last.par</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Rebuild, only including "Fun" (i.e. without auto-differentiation)</span></span></span>
 <span class="r-in"><span><span class="co"># Result will only work for tmb$report</span></span></span>
