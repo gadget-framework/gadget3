@@ -77,6 +77,8 @@ g3l_tagging_ckmr <- function (
     }
     out[[step_id(run_at, 'g3l_tagging', nll_name, 1)]] <- step_f
 
+    nll <- 0.0
+
     out[[step_id(run_at, 'g3l_tagging', nll_name, 2)]] <- g3_step(f_substitute(~{
         debug_label("g3l_tagging_ckmr: Work out expected pairs and compare to existing data")
 

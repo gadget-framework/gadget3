@@ -323,6 +323,7 @@ g3l_distribution <- function (
     nllstock__num <- stock_instance(nllstock, 0)
     nllstock__wgt <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
+    nll <- 0.0
 
     # Generic comparison step with __x instead of __num or __wgt
     compare_f <- g3_step(f_substitute(~{

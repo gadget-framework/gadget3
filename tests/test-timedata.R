@@ -208,6 +208,7 @@ expecteds$zero_key_3 <- -1
 
 ###############################################################################
 
+nll <- 0.0
 actions <- c(actions, ~{
     comment('done')
     nll <- nll + g3_param('rv')

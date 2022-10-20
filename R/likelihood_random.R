@@ -11,6 +11,7 @@ g3l_random_dnorm <- function (
     nllstock <- g3_storage(paste0('nll_random_dnorm_', nll_name))
     nllstock__dnorm <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
+    nll <- 0.0
 
     out[[step_id(run_at, 'g3l_random_dnorm', nll_name)]] <- g3_step(f_substitute(~ if (run_f) {
         debug_label("g3l_random_dnorm: ", nll_name)
@@ -49,6 +50,7 @@ g3l_random_walk <- function (
     nllstock__dnorm <- stock_instance(nllstock, 0)
     nllstock__weight <- stock_instance(nllstock, 0)
     nllstock__prevrec <- g3_global_formula(init_val = NaN)
+    nll <- 0.0
 
     out[[step_id(run_at, 'g3l_random_walk', nll_name)]] <- g3_step(f_substitute(~ if (run_f) {
         debug_label("g3l_random_walk: ", nll_name)

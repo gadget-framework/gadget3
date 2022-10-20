@@ -33,6 +33,7 @@ ok(ut_cmp_identical(
 stock_a <- g3_stock('stock_a', seq(10, 10, 5))
 stock_b <- g3_stock('stock_b', seq(50, 54, 1))
 stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 200, 1000))
+nll <- 0.0
 
 actions <- list(
     list(

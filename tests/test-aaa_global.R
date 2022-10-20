@@ -67,6 +67,7 @@ expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_in
 
 ###############################################################################
 
+nll <- 0.0
 actions <- c(actions, ~{
     comment('done')
     nll <- nll + g3_param('rv')

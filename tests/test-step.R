@@ -46,6 +46,7 @@ ok_group("g3_step:stock_reshape", {
     dest_nolength__num <- gadget3:::stock_instance(dest_nolength)
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
+    nll <- 0.0
     actions <- list(
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 

@@ -61,6 +61,7 @@ g3a_time <- function(
         list(
             retro_years = if (have_retro_years) quote (retro_years) else 0L,
             project_years = if (have_projection_years) quote(project_years) else 0L)))
+    nll <- 0.0
 
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{

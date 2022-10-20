@@ -57,6 +57,7 @@ ok(cmp_environment(stock_bcd$env, list(
     stock__dl = 1)), "stock_a: Environment populated with relevant areas")
     
 cur_time <- 0L  # Initialconditions needs to know what the time is
+nll <- 0.0
 stock_sum_a_ac <- 0.0
 stock_sum_ac_a <- 0.0
 stock_sum_ac_bcd <- 0.0

@@ -673,6 +673,7 @@ expecteds$param_table_ifmissing_out <- array(c(-1, 27, 47, 22, -1, -1))
 
 ###############################################################################
 
+nll <- 0.0
 actions <- c(actions, ~{
     comment('done')
     nll <- nll + g3_param('rv')
