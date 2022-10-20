@@ -37,3 +37,10 @@ To run against the TMB backend, set the ``G3_TEST_TMB`` environment variable, wi
 
 1. ``Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')``
 2. ``make test``, which turns it on by default
+
+Releases are made with:
+
+    make release NEW_VERSION=0.9.0
+    git push --tags && git push
+
+On success, upload the tarball to https://cran.r-project.org/submit.html
