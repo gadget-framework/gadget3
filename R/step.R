@@ -249,15 +249,15 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])
             source_stock <- get(source_stock_var, envir = orig_env)
             if (!("length" %in% names(source_stock$dim))) stop("Source stock ", source_stock$name, " has no length, can't resize")
-            source_lg <- stock_definition(source_stock, 'stock__minlen')
+            source_lg <- g3_stock_def(source_stock, 'minlen')
 
-            dest_lg <- stock_definition(stock, 'stock__minlen')
+            dest_lg <- g3_stock_def(stock, 'minlen')
 
             # Get upper bound for length groups, if infinite guess something that should work
             # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
-            source_upperlen <- stock_definition(source_stock, 'stock__upperlen')
+            source_upperlen <- g3_stock_def(source_stock, 'upperlen')
             if (is.infinite(source_upperlen)) source_upperlen <- tail(source_lg, 1) + 1
-            dest_upperlen <- stock_definition(stock, 'stock__upperlen')
+            dest_upperlen <- g3_stock_def(stock, 'upperlen')
             if (is.infinite(dest_upperlen)) dest_upperlen <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
 
             if (isTRUE(all.equal(source_lg, dest_lg))) {

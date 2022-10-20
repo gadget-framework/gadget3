@@ -52,7 +52,7 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
 
 # Return a forumula to do tag number --> stock__tag_idx
 g3s_tag_reverse_lookup <- function (stock, tag_f) {
-    stock__tag_ids <- stock_definition(stock, 'stock__tag_ids')
+    stock__tag_ids <- g3_stock_def(stock, 'tag_ids')
 
     lookup <- g3_intlookup(
         paste0(stock$name, '__tag_lookup'),

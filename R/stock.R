@@ -1,7 +1,12 @@
 # Pull the definition of the stock variable out of the stock object
-stock_definition <- function(stock, var_name) {
-    if (!startsWith(var_name, 'stock__')) var_name <- paste0('stock__', var_name)
-    get(var_name, envir = stock$env)
+g3_stock_def <- function(stock, name) {
+    if (!startsWith(name, 'stock__')) name <- paste0('stock__', name)
+    get(name, envir = stock$env)
+}
+# Deprecated internal alias
+stock_definition <- function(...) {
+    warning("Use g3_stock_def() instead of gadget3:::stock_definition()")
+    g3_stock_def(...)
 }
 
 # Define an array that matches stock

@@ -53,10 +53,10 @@ model_params <- list(
   'mat1' = list(lower = NULL, upper = NULL),
   'mat2' = list(lower = 20, upper = 120),                 
   'mat.a' = list(lower = 0.5, upper = 2), 
-  'mat.a50' = list(lower = min(gadget3:::stock_definition(ling_imm, 'minage'),
-                                gadget3:::stock_definition(ling_mat, 'minage')),
-                    upper = max(gadget3:::stock_definition(ling_imm, 'maxage'),
-                                gadget3:::stock_definition(ling_mat, 'maxage'))),
+  'mat.a50' = list(lower = min(g3_stock_def(ling_imm, 'minage'),
+                                g3_stock_def(ling_mat, 'minage')),
+                    upper = max(g3_stock_def(ling_imm, 'maxage'),
+                                g3_stock_def(ling_mat, 'maxage'))),
   
   ## Mortality
   'M' = list(lower = NULL, upper = NULL),

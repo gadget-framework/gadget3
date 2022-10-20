@@ -118,6 +118,7 @@ export(g3_suitability_constant)
 export(g3_suitability_richards)
 
 # R/stock.R
+export(g3_stock_def)
 export(g3_stock)
 export(g3_fleet)
 export(g3s_clone)

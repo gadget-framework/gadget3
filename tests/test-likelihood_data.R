@@ -19,16 +19,16 @@ generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), ...) {
 
 # Dig minlen out of modelstock
 ld_minlen <- function (ld) {
-    x <- gadget3:::stock_definition(ld$modelstock, 'stock__minlen')
+    x <- g3_stock_def(ld$modelstock, 'minlen')
     # Bodge array back to (named) vector
     as.matrix(x)[,1]
 }
 
 # Dig definitions out of modelstock
-ld_upperlen <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__upperlen')
-ld_dl <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__dl')
-ld_plusdl <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__plusdl')
-ld_minages <- function (ld) gadget3:::stock_definition(ld$modelstock, 'stock__minages')
+ld_upperlen <- function (ld) g3_stock_def(ld$modelstock, 'upperlen')
+ld_dl <- function (ld) g3_stock_def(ld$modelstock, 'dl')
+ld_plusdl <- function (ld) g3_stock_def(ld$modelstock, 'plusdl')
+ld_minages <- function (ld) g3_stock_def(ld$modelstock, 'minages')
 
 # Compare array by turning it back into a table first
 cmp_array <- function (ar, table_text) {
@@ -313,8 +313,8 @@ ok_group('g3l_likelihood_data:area', {
     # Pull the area lookup definition back out
     area_lookup <- function (ld) {
         list(
-            keys = environment(gadget3:::stock_definition(ld$modelstock, 'stock__areagroup_lookup'))$keys,
-            values = environment(gadget3:::stock_definition(ld$modelstock, 'stock__areagroup_lookup'))$values)
+            keys = environment(g3_stock_def(ld$modelstock, 'areagroup_lookup'))$keys,
+            values = environment(g3_stock_def(ld$modelstock, 'areagroup_lookup'))$values)
     }
 
     ok(ut_cmp_error({
@@ -407,7 +407,7 @@ ok_group('g3l_likelihood_data:tag', {
         0:Inf        c 2001    0.0
         "), "Worked out tag dimensions from data")
     ok(ut_cmp_identical(
-        gadget3:::stock_definition(ld$modelstock, 'stock__tag_ids'),
+        g3_stock_def(ld$modelstock, 'tag_ids'),
         as.array(c(a = 1L, b = 2L, c = 3L))), "stock__tag_ids: Worked out from factor")
 })
 

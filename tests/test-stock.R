@@ -3,15 +3,19 @@ library(unittest)
 
 library(gadget3)
 
-ok_group("stock_definition", {
+ok_group("g3_stock_def", {
     stock_a <- g3_stock('stock_a', seq(10, 10, 5))
     stock_a <- g3s_age(stock_a, 10, 20)
 
-    # Make sure both minage & stock__minage forms work (not sure why we have both, but we do)
-    ok(ut_cmp_identical(gadget3:::stock_definition(stock_a, 'minage'), 10L), "Fetched minage")
-    ok(ut_cmp_identical(gadget3:::stock_definition(stock_a, 'maxage'), 20L), "Fetched maxage")
-    ok(ut_cmp_identical(gadget3:::stock_definition(stock_a, 'stock__minage'), 10L), "Fetched minage")
-    ok(ut_cmp_identical(gadget3:::stock_definition(stock_a, 'stock__maxage'), 20L), "Fetched maxage")
+    # Make sure both minage & stock__minage forms work (the latter should be deprecated though)
+    ok(ut_cmp_identical(g3_stock_def(stock_a, 'minage'), 10L), "Fetched minage")
+    ok(ut_cmp_identical(g3_stock_def(stock_a, 'maxage'), 20L), "Fetched maxage")
+    ok(ut_cmp_identical(g3_stock_def(stock_a, 'stock__minage'), 10L), "Fetched minage")
+    ok(ut_cmp_identical(g3_stock_def(stock_a, 'stock__maxage'), 20L), "Fetched maxage")
+
+    # Make sure old internal method call works
+    ok(ut_cmp_identical(suppressWarnings(gadget3:::stock_definition(stock_a, 'minage')), 10L), "Fetched minage with old gadget3:::stock_definition")
+    ok(ut_cmp_identical(suppressWarnings(gadget3:::stock_definition(stock_a, 'maxage')), 20L), "Fetched maxage with old gadget3:::stock_definition")
 })
 
 ok(ut_cmp_error(

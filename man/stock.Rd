@@ -1,4 +1,5 @@
 \name{stock}
+\alias{g3_stock_def}
 \alias{g3_stock}
 \alias{g3_fleet}
 \alias{g3s_clone}
@@ -13,6 +14,8 @@
 g3_stock(var_name, lengthgroups, open_ended = TRUE)
 
 g3_fleet(var_name)
+
+g3_stock_def(stock, name)
 
 g3s_clone(inner_stock, var_name)
 
@@ -31,7 +34,13 @@ g3s_clone(inner_stock, var_name)
     If FALSE, final \var{lengthgroups} value is the upper bound for the previous group.
   }
   \item{inner_stock}{
-    A \code{\link{g3_stock}} object to clone.
+    A \code{\link{g3_stock}} or \code{\link{g3_fleet}} object to clone.
+  }
+  \item{stock}{
+    A \code{\link{g3_stock}} or \code{\link{g3_fleet}}.
+  }
+  \item{name}{
+    Name of definition to extract, e.g. \code{"minlen"}.
   }
 }
 
@@ -60,6 +69,9 @@ stopifnot( stock$name_parts[['species']] == 'ling' )
 
 # Use stock_instance to see what the array would look like
 gadget3:::stock_instance(stock)
+
+# Retrieve the upperlen for the stock
+g3_stock_def(stock, 'upperlen')
 
 # Define a stock, not-open-ended. Now only 2 groups long
 stock <- g3_stock('name', c(1, 10, 100), open_ended = FALSE)

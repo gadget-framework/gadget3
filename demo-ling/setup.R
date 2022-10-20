@@ -100,13 +100,13 @@ ling_param[grepl('\\.rec\\.sd$', names(ling_param))] <- 1
 
 ling_param[grepl('mat\\.init\\.sd', names(ling_param))] <-
   init.sigma %>% filter(age %in% 
-                          gadget3:::stock_definition(ling_mat, 'minage'): 
-                          gadget3:::stock_definition(ling_mat, 'maxage')) %>% .$ms
+                          g3_stock_def(ling_mat, 'minage'): 
+                          g3_stock_def(ling_mat, 'maxage')) %>% .$ms
 
 ling_param[grepl('imm\\.init\\.sd', names(ling_param))] <-
   init.sigma %>% filter(age %in% 
-                          gadget3:::stock_definition(ling_imm, 'minage'): 
-                          gadget3:::stock_definition(ling_imm, 'maxage')) %>% .$ms
+                          g3_stock_def(ling_imm, 'minage'): 
+                          g3_stock_def(ling_imm, 'maxage')) %>% .$ms
 
 ## SI's
 ling_param[grepl('si_beta1', names(ling_param))] <- 1

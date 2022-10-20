@@ -23,7 +23,7 @@ g3l_tagging_ckmr <- function (
     stock_definitions <- function (var_name, stocks) {
         vapply(
             stocks,
-            function (s) stock_definition(s, var_name),
+            function (s) g3_stock_def(s, var_name),
             numeric(1))
     }
 
@@ -33,8 +33,8 @@ g3l_tagging_ckmr <- function (
     #     ...but can't do this until we know how migration works.
     modelhist <- g3_storage(paste0(nll_name, 'model'))
     modelhist <- g3s_age(modelhist,
-        min(stock_definitions('stock__minage', c(parent_stocks, offspring_stocks))),
-        max(stock_definitions('stock__maxage', c(parent_stocks, offspring_stocks))))
+        min(stock_definitions('minage', c(parent_stocks, offspring_stocks))),
+        max(stock_definitions('maxage', c(parent_stocks, offspring_stocks))))
     modelhist <- g3s_modeltime(modelhist, by_year = TRUE)
     modelhist__spawning <- stock_instance(modelhist, 0, desc = "Total number of spawning parents by year, parent age")
     modelhist__spawned <- stock_instance(modelhist, 0, desc = "Total number of offspring by year, parent age")

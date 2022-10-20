@@ -3,8 +3,8 @@ library(unittest)
 
 library(gadget3)
 
-tag_ids <- function (s) gadget3:::stock_definition(s, 'stock__tag_ids')
-untagged_idx <- function (s) gadget3:::stock_definition(s, 'stock__untagged_idx')
+tag_ids <- function (s) g3_stock_def(s, 'tag_ids')
+untagged_idx <- function (s) g3_stock_def(s, 'untagged_idx')
 
 s <- g3_stock('gelda', c(1)) %>% g3s_tag(c(x = 1L, y = 2L))
 ok(ut_cmp_identical(tag_ids(s), structure(
