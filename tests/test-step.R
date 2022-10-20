@@ -1,3 +1,4 @@
+library(magrittr)
 library(unittest)
 
 library(gadget3)
@@ -129,7 +130,7 @@ ok_group("g3_step:stock_reshape", {
 })
 
 ok_group("g3_step:stock_ss", {
-     stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
+     stock <- g3_stock('halibut', 1:10) %>% g3s_age(1,10) %>% g3s_livesonareas(1)
      stock__num <- gadget3:::stock_instance(stock)
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
@@ -358,7 +359,7 @@ ok_group("list_to_stock_switch", {
 })
 
 ok_group("g3_step:stock_iterate", {
-    stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(c(x1 = 1, x2 = 2))
+    stock <- g3_stock('halibut', 1:10) %>% g3s_age(1,10) %>% g3s_livesonareas(c(x1 = 1, x2 = 2))
     stock__num <- gadget3:::stock_instance(stock)
 
     ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ss(stock) ))), quote(

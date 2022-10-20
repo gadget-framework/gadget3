@@ -41,7 +41,7 @@ ok_group("g3l_distribution_sumofsquares", {
         NULL), "Adding length also adds to the stock_ss()")
 
     # Stratified sumofsquares
-    prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) |> g3s_age(1,5)
+    prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) %>% g3s_age(1,5)
     prey_a__init <- gadget3:::stock_instance(prey_a)
     prey_a__init[] <- runif(length(prey_a__init))
     obsdata <- expand.grid(

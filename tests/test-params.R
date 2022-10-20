@@ -1,3 +1,4 @@
+library(magrittr)
 library(unittest)
 if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 
@@ -5,10 +6,10 @@ library(gadget3)
 
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
-stock_mimm <- g3_stock(c(species = 'st', sex = 'm', maturity = 'imm'), seq(10, 35, 5)) |> g3s_age(1, 5)
-stock_mmat <- g3_stock(c(species = 'st', sex = 'm', maturity = 'mat'), seq(10, 35, 5)) |> g3s_age(3, 7)
-stock_fimm <- g3_stock(c(species = 'st', sex = 'f', maturity = 'imm'), seq(10, 35, 5)) |> g3s_age(1, 5)
-stock_fmat <- g3_stock(c(species = 'st', sex = 'f', maturity = 'mat'), seq(10, 35, 5)) |> g3s_age(3, 7)
+stock_mimm <- g3_stock(c(species = 'st', sex = 'm', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
+stock_mmat <- g3_stock(c(species = 'st', sex = 'm', maturity = 'mat'), seq(10, 35, 5)) %>% g3s_age(3, 7)
+stock_fimm <- g3_stock(c(species = 'st', sex = 'f', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
+stock_fmat <- g3_stock(c(species = 'st', sex = 'f', maturity = 'mat'), seq(10, 35, 5)) %>% g3s_age(3, 7)
 # Put x through g3_step() as a g3 action would, the "stock" being stock_mimm
 pretend_stock_action <- function (x) {
     rlang::f_rhs(gadget3:::g3_step(gadget3:::call_to_formula(

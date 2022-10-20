@@ -1,3 +1,4 @@
+library(magrittr)
 library(unittest)
 
 library(gadget3)
@@ -5,8 +6,8 @@ library(gadget3)
 areas <- list(a=1, b=2, c=3, d=4)
 # NB: stock doesn't live in b, shouldn't try to migrate there
 stock_acd <- (g3_stock('stock_acd', seq(10, 40, 10))
-    |> g3s_age(3, 7)
-    |> g3s_livesonareas(areas[c('a', 'c', 'd')]))
+    %>% g3s_age(3, 7)
+    %>% g3s_livesonareas(areas[c('a', 'c', 'd')]))
 
 ok_group("g3a_migrate_normalize", {
     mn <- function (migratematrix, area_idx, row_total = 1) {
@@ -47,8 +48,8 @@ ok_group("g3a_migrate", {
               else if (area == area_c && dest_area == area_d) g3_param("migrate_winter", value = 0.7745966692414834)
               else 0,
             run_f = ~cur_step == 4),
-        g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
-        g3a_report_stock(g3s_clone(stock_acd, 'report_acd') |> gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__wgt)),
+        g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
+        g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__wgt)),
         list())
 
     # Compile model
