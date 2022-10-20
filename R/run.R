@@ -60,10 +60,11 @@ action_reports <- function (actions, ...) {
 
     # For each action_reports() argument, filter terms by the regex value
     # and treat the name as the name of the report function.
+    args <- list(...)
     concatenate_calls <- function (x) as.call(c(as.symbol("{"), x))
-    f_optimize(concatenate_calls(lapply(seq_len(...length()), function (arg_i) {
-        fn_name <- ...names()[arg_i]  # i.e. the argument name
-        fn_regex <- ...elt(arg_i)  # i.e. the argument value
+    f_optimize(concatenate_calls(lapply(seq_along(args), function (arg_i) {
+        fn_name <- names(args)[[arg_i]]  # i.e. the argument name
+        fn_regex <- args[[arg_i]]  # i.e. the argument value
         report_var_names <- sort(grep(fn_regex, names(terms), value = TRUE))
 
         concatenate_calls(lapply(

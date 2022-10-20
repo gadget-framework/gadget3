@@ -38,14 +38,11 @@ g3_formula <- function (code, ...) {
         f <- call("~", f)
     }
 
-    # NB: Pre 4.2.1 it was as.character(NA), post 4.2.1 it's NULL.
-    # https://bugs.r-project.org/show_bug.cgi?id=18247
-    if (identical(...names(), as.character(NA)) || (...length() == 1 && identical(...names(), NULL))) {
-        # Single unnamed argument, assume it's formula (or convertable to one
-        formula(f, env = as.environment(..1))
-    } else {
-        formula(f, env = as.environment(list(...)))
-    }
+    # Create environment from remaining args
+    args <- list(...)
+    # Single unnamed argument, assume it's an environment (or convertable to one)
+    if (length(args) == 1 && is.null(names(args))) args <- args[[1]]
+    formula(f, env = as.environment(args))
 }
 
 # Substitute within formulae, merging all environments together
