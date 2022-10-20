@@ -211,7 +211,7 @@ if (demo_ling_run_tmb) {
 
 if (demo_ling_optimize_tmb) {
     # Run model through R optimiser, using bounds set in tmb_param
-    fit.opt <- optim(g3_tmb_par(tmb_param),
+    fit.opt <- optim(ling_model_tmb$par,
                      ling_model_tmb$fn,
                      ling_model_tmb$gr,
                      method = 'BFGS',

@@ -59,13 +59,13 @@ ok_group('g3_tmb_par', {
         randomparam = 2,
         param_vec = 6:10)[rownames(param)])
 
-    ok(ut_cmp_identical(g3_tmb_par(param), c(
+    ok(ut_cmp_identical(g3_tmb_par(param, include_random = FALSE), c(
         param__b = 66,
         param_vec1 = 6, param_vec2 = 7, param_vec3 = 8, param_vec4 = 9, param_vec5 = 10,
         aaparam = 55)), "g3_tmb_par: Flattened parameters in right order")
 
     param['param_vec', 'optimise'] <- FALSE
-    ok(ut_cmp_identical(g3_tmb_par(param), c(
+    ok(ut_cmp_identical(g3_tmb_par(param, include_random = FALSE), c(
         param__b = 66,
         aaparam = 55)), "g3_tmb_par: Turning off optimise removed values")
 
@@ -104,7 +104,7 @@ ok_group('g3_tmb_lower', {
         param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_lower: Set all lower values of param_vec in one go")
     ok(ut_cmp_identical(
-        names(g3_tmb_par(param)),
+        names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param_vec")
 
     param['param.b', 'optimise'] <- FALSE
@@ -112,7 +112,7 @@ ok_group('g3_tmb_lower', {
         param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_lower: Cleared param.b by setting optimise = F")
     ok(ut_cmp_identical(
-        names(g3_tmb_par(param)),
+        names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
@@ -145,7 +145,7 @@ ok_group('g3_tmb_upper', {
         param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_upper: Set all lower values of param_vec in one go")
     ok(ut_cmp_identical(
-        names(g3_tmb_par(param)),
+        names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_upper: Structure matches par after setting param_vec")
 
     param['param.b', 'optimise'] <- FALSE
@@ -153,7 +153,7 @@ ok_group('g3_tmb_upper', {
         param_vec1 = 3, param_vec2 = 3, param_vec3 = 3, param_vec4 = 3, param_vec5 = 3,
         aaparam = 500)), "g3_tmb_upper: Cleared param.b by setting optimise = F")
     ok(ut_cmp_identical(
-        names(g3_tmb_par(param)),
+        names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
 })
 
@@ -195,12 +195,25 @@ ok_group('g3_tmb_relist', {
             "unopt_param" = 95,
             "randomparam" = 2,
             "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots, used old unopt_param value")
+    ok(ut_cmp_identical(
+        g3_tmb_relist(param, c(
+            param__b = 660,
+            param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
+            randomparam = 5,  # NB: randomparam included, so we update it
+            aaparam = 550)),
+        list(
+            "param.b" = 660,
+            "param_vec" = c(60, 70, 80, 90, 100),
+            "unopt_param" = 95,
+            "randomparam" = 5,
+            "aaparam" = 550)), "g3_tmb_relist: Put parameters back in right slots, including random")
 
     param['param.b', 'optimise'] <- FALSE
     ok(ut_cmp_error(
         g3_tmb_relist(param, c(
             param__b = 660,
             param_vec1 = 60, param_vec2 = 70, param_vec3 = 80, param_vec4 = 90, param_vec5 = 100,
+            randomparam = 6,  # NB: randomparam included, so we update it
             aaparam = 550)),
         "par"), "g3_tmb_relist: Still included param__b in par, now an error")
     ok(ut_cmp_identical(
@@ -280,35 +293,78 @@ ok_group("g3_to_tmb: attr.actions", {
     ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
 })
 
-ok_group("g3_to_tmb: Can use random parameters", local({
-    stock__prevrec <- gadget3:::g3_global_formula(init_val = 0.0)
+ok_group("g3_to_tmb: Can use random parameters without resorting to include_random", local({
+    # ./TMB/inst/examples/randomregression.R converted into gadget3
+    actions <- local({
+        set.seed(123)
+        n <- 1
+        ng <- 1
+        f <- gl(ng, n/ng)
+        t <- rnorm(n, mean=2, sd=5)
+        a <- rnorm(ng, mean=3, sd=4)
+        b <- rnorm(ng, mean=8, sd=7)
+        x <- a[f] * t + b[f] + rnorm(n, mean=0, sd=1)
+        set.seed(NULL)
 
-    # Make sure we can use random = TRUE in an action, specifying TMB arguments correctly
-    actions <- c(
-        g3a_time(1990, 1992),
-        list("010:g3l_custom" = gadget3:::f_substitute(~if (cur_step_final) {
-            nll <- nll + 1 / dnorm(x, mean, sigma, 1)
-        }, list(
-            x = ~g3_param_table('rp', expand.grid(cur_year = seq(start_year, end_year)), random = TRUE),
-            mean = ~g3_param('mean', value = 5, optimise = TRUE),
-            sigma = ~g3_param('sigma', value = 0.2, optimise = TRUE)
-        ))),
-        list()
-    )
-
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    param_tbl <- attr(model_cpp, 'parameter_template')
-    param_tbl[grepl('^rp|^sigma$', rownames(param_tbl)), 'value'] <- runif(sum(grepl('^rp|^sigma$', rownames(param_tbl))))
+        list(
+            g3a_time(1990, 1991),
+            g3l_random_dnorm("a",
+                ~g3_param('a', value=1, random=TRUE),
+                ~g3_param('mu.a', value=1),
+                ~g3_param('sigma.a', value=1),
+                weight = -1.0),
+            g3l_random_dnorm("b",
+                ~g3_param('b', value=1, random=TRUE),
+                ~g3_param('mu.b', value=1),
+                ~g3_param('sigma.b', value=1),
+                weight = -1.0),
+            g3l_random_dnorm("x",
+                ~x,
+                ~g3_param('a', value=1, random=TRUE) * t + g3_param('b', value=1, random=TRUE),
+                ~g3_param('sigma0', value=1),
+                weight = -1.0))
+    })
+    model_fn <- g3_to_r(actions)
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, param_tbl, compile_flags = c("-O0", "-g"))
-        res <- optim(g3_tmb_par(param_tbl), model_tmb$fn, model_tmb$gr, method = 'BFGS')
-        ok(res$convergence == 0, "Model ran successfully and converged")
+        model_cpp <- g3_to_tmb(actions)
+        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), inner.control = list(fnscale = -1))
+        param_tbl <- attr(model_cpp, 'parameter_template')
+        param_tbl[,'lower'] <- -2
+        param_tbl[,'upper'] <- 3
+        param_tbl[,'parscale'] <- 1
+
         ok(ut_cmp_identical(names(model_tmb$env$last.par)[model_tmb$env$random], c(
-            "rp__1990",
-            "rp__1991",
-            "rp__1992",
+            "a",
+            "b",
             NULL)), "env$random: TMB got the random parameters we expected")
+
+        res <- suppressWarnings({
+            nlminb(model_tmb$par, model_tmb$fn, model_tmb$gr,
+                upper = g3_tmb_upper(param_tbl),
+                lower = g3_tmb_lower(param_tbl),
+                control = list(
+                    fnscale = -1,
+                    parscale = g3_tmb_parscale(param_tbl)))
+        })
+        ok(res$convergence == 0, "Model ran successfully and converged")
+
+        # The first won't have random parameters, the latter will. Both should work
+        value_no_random <- g3_tmb_relist(param_tbl, res$par)
+        value_inc_random <- g3_tmb_relist(param_tbl, model_tmb$env$last.par)
+        ok(ut_cmp_equal(
+            value_no_random[param_tbl[!param_tbl$random, 'switch']],
+            value_inc_random[param_tbl[!param_tbl$random, 'switch']]), "Non-random parameters match")
+        ok(ut_cmp_equal(
+            I(value_no_random[param_tbl[param_tbl$random, 'switch']]),
+            param_tbl$value[param_tbl[param_tbl$random, 'switch']]), "value_no_random: Random parameters as default")
+        ok(!isTRUE(all.equal(
+            I(value_inc_random[param_tbl[param_tbl$random, 'switch']]),
+            param_tbl$value[param_tbl[param_tbl$random, 'switch']])), "value_random: Random parameters have been updated")
+        param_tbl$value <- value_inc_random
+
+        # NB: ut_tmb_r_compare will be using g3_tmb_par()
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_tbl)
     } else {
         writeLines("# skip: not compiling TMB model")
     }

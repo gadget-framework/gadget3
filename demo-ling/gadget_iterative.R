@@ -81,7 +81,7 @@ tmp_func <- function(sel_comp = NULL){
   # Compile and generate TMB ADFun (see ?TMB::MakeADFun)
   ling_model_tmb <- g3_tmb_adfun(tmb_ling,tmb_param)
 
-  fit.opt <- optim(g3_tmb_par(tmb_param),
+  fit.opt <- optim(ling_model_tmb$par,
                    ling_model_tmb$fn,
                    ling_model_tmb$gr,
                    method = 'BFGS',
@@ -193,7 +193,7 @@ fit.list <-
                          reltol = .Machine$double.eps^2)),
                      mc.cores = 12)
 
-fit.opt <- optim(g3_tmb_par(tmb_param),
+fit.opt <- optim(ling_model_tmb$par,
                  ling_model_tmb$fn,
                  ling_model_tmb$gr,
                  method = 'BFGS',

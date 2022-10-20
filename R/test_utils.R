@@ -15,7 +15,7 @@ ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimnam
     }
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb_report <- model_tmb$report(g3_tmb_par(param_template, include_random = TRUE))
+        model_tmb_report <- model_tmb$report(g3_tmb_par(param_template))
         r_result <- model_fn(param_template$value)
         for (n in names(attributes(r_result))) {
             unittest::ok(unittest::ut_cmp_equal(

@@ -1105,16 +1105,23 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Unlist the result to condense list back to vector
     unlist(out)
 }
-g3_tmb_par <- function (parameters, include_random = FALSE) g3_tmb_bound(parameters, 'value', include_random)
+# NB: include_random = TRUE so you can do things like obj.fn$report(g3_tmb_par())
+g3_tmb_par <- function (parameters, include_random = TRUE) g3_tmb_bound(parameters, 'value', include_random)
+# NB: include_random = FALSE as optim()/nlminb() won't expect them
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')
 g3_tmb_parscale <- function (parameters) g3_tmb_bound(parameters, 'parscale')
 
-g3_tmb_relist <- function (parameters, par, include_random = FALSE) {
-    if (!identical(
-        # NB: A fit$par won't have numeric identifiers at the end to keep them unique
-            gsub("\\d+$", "", names(par)),
-            gsub("\\d+$", "", names(g3_tmb_par(parameters))))) {
+g3_tmb_relist <- function (parameters, par) {
+    # NB: A fit$par won't have numeric identifiers at the end to keep them unique
+    cmp_names <- function (a, b) identical(gsub("\\d+$", "", names(a)), gsub("\\d+$", "", names(b)))
+
+    # Compare names both including and discounting random variables
+    if (cmp_names(par, g3_tmb_par(parameters, include_random = TRUE))) {
+        include_random <- TRUE
+    } else if (cmp_names(par, g3_tmb_par(parameters, include_random = FALSE))) {
+        include_random <- FALSE
+    } else {
         stop("Names of values in par don't match names of parameters$value")
     }
 

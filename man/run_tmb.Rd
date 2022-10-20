@@ -22,7 +22,7 @@ g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
     work_dir = tempdir(),
     output_script = FALSE, ...)
 
-g3_tmb_par(parameters, include_random = FALSE)
+g3_tmb_par(parameters, include_random = TRUE)
 
 g3_tmb_lower(parameters)
 
@@ -30,7 +30,7 @@ g3_tmb_upper(parameters)
 
 g3_tmb_parscale(parameters)
 
-g3_tmb_relist(parameters, par, include_random = FALSE)
+g3_tmb_relist(parameters, par)
 
 }
 
@@ -60,10 +60,17 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
     modified to provide initial conditions, etc.
   }
   \item{par}{
-    Parameter vector, as produced by \code{g3_tmb_par()} or \code{nlminb(...)$par}.
+    Parameter vector, as produced by one of \enumerate{
+      \item{\code{nlminb(...)$par}}
+      \item{\code{obj.fun$env$last.par}}
+      \item{\code{g3_tmb_par()}}
+    }
+    The first will not include random parameters by default, the others will.
   }
   \item{include_random}{
-    Should random parameters assumed to be part of par (hint: Generally they shouldn't, unless you're using $report()).
+    Should random parameters assumed to be part of par? Should be \code{TRUE}
+    if using \code{obj.fun$fn}, \code{obj.fun$report} directly, e.g.
+    \code{obj.fun$fn(g3_tmb_par(param_tbl))}. In other cases, \code{FALSE}.
   }
   \item{compile_flags}{
     List of extra flags to compile with, use e.g. "-g" to enable debugging output.
@@ -103,13 +110,14 @@ g3_tmb_relist(parameters, par, include_random = FALSE)
   }
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
-  \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
-  \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}}
-  \subsection{g3_tmb_parscale}{Parscale extracted from \var{parameters} table, converted into a vector of values for \code{nlminb}}
+  \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
+  \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
+  \subsection{g3_tmb_parscale}{Parscale extracted from \var{parameters} table, converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
   \subsection{g3_tmb_relist}{
     The \var{parameters} table value column, but with optimised
     values replaced with contents of \var{par} vector.
     i.e. the inverse operation to \link{g3_tmb_par}.
+    \var{par} can either include or discount random variables.
   }
 }
 
@@ -188,7 +196,11 @@ fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
     control = list(iter.max=1))
 
 # Go back to a list of parameters, suitable for the R version
+# NB: This will not set the values for random parameters
 param_list <- g3_tmb_relist(tmb_param, fit$par)
+
+# Update parameters with values from last run, *including* random parameters.
+param_list <- g3_tmb_relist(tmb_param, tmb$env$last.par)
 
 # Rebuild, only including "Fun" (i.e. without auto-differentiation)
 # Result will only work for tmb$report
