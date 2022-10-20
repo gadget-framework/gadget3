@@ -72,7 +72,7 @@
 <span>        mean_f <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        sigma_f <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        log_f <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>        weight <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">log_f</span><span class="op">)</span> <span class="op">-</span><span class="fl">1.0</span> <span class="kw">else</span> <span class="fl">1.0</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3l_random_walk</span><span class="op">(</span></span>
@@ -82,7 +82,7 @@
 <span>        log_f <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        period <span class="op">=</span> <span class="st">'year'</span>,</span>
 <span>        nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>        weight <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">log_f</span><span class="op">)</span> <span class="op">-</span><span class="fl">1.0</span> <span class="kw">else</span> <span class="fl">1.0</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
     </div>
 
