@@ -14,7 +14,7 @@ g3l_random_dnorm(
         mean_f = 0,
         sigma_f = 1,
         log_f = TRUE,
-        weight = 1.0,
+        weight = if (log_f) -1.0 else 1.0,
         run_at = 10)
 
 g3l_random_walk(
@@ -24,7 +24,7 @@ g3l_random_walk(
         log_f = TRUE,
         period = 'year',
         nll_breakdown = FALSE,
-        weight = 1.0,
+        weight = if (log_f) -1.0 else 1.0,
         run_at = 10)
 }
 

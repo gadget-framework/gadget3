@@ -4,7 +4,7 @@ g3l_random_dnorm <- function (
         mean_f = 0,
         sigma_f = 1,
         log_f = TRUE,
-        weight = 1.0,
+        weight = if (log_f) -1.0 else 1.0,
         run_at = 10) {
     out <- new.env(parent = emptyenv())
     
@@ -40,7 +40,7 @@ g3l_random_walk <- function (
         log_f = TRUE,
         period = 'year',
         nll_breakdown = FALSE,
-        weight = 1.0,
+        weight = if (log_f) -1.0 else 1.0,
         run_at = 10) {
     stopifnot(period %in% c('year', 'step'))
     out <- new.env(parent = emptyenv())
