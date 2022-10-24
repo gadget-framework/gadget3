@@ -84,6 +84,76 @@ ok_group("g3l_distribution_sumofsquares", {
     if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
 })
 
+ok_group("g3l_distribution:transform_fs", {
+    prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) %>% g3s_age(1,5) %>% g3s_livesonareas(1:2)
+    prey_a__init <- gadget3:::stock_instance(prey_a)
+    prey_a__init[] <- runif(length(prey_a__init))
+    obsdata <- expand.grid(
+        year = 2000,
+        length = seq(1, 5, by = 1),
+        age = 1:5)
+    obsdata$number <- runif(nrow(obsdata))
+    model_fn <- g3_to_r(list(
+        g3a_time(2000, 2001),
+        g3a_initialconditions(prey_a,
+            num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
+            wgt_f = 10),
+        g3l_abundancedistribution("wt",
+            obsdata,
+            function_f = g3l_distribution_sumofsquares(),
+            stocks = list(prey_a),
+            transform_fs = list(
+                age = g3_formula( g3_param_array('reader1matrix', value = diag(5))[modelstock__preage_idx, modelstock__age_idx] )),
+            report = TRUE),
+        g3l_abundancedistribution("nt",
+            obsdata,
+            function_f = g3l_distribution_sumofsquares(),
+            stocks = list(prey_a),
+            report = TRUE),
+        # Keep TMB happy
+        g3_formula( nll <- nll + g3_param("dummy", value = 0) )))
+    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
+    if (Sys.getenv('G3_TEST_TMB') == "2") {
+        #model_cpp <- edit(model_cpp)
+        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
+        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
+    }
+
+    # Given results / params, apply matrix manually and make sure the results match
+    do_test <- function (r, params, msg) {
+        nt <- attr(r, 'adist_sumofsquares_nt_model__num')
+        wt <- attr(r, 'adist_sumofsquares_wt_model__num')
+        m <- params$reader1matrix
+        apply_matrix <- function (destage) {
+            nt[,1,] * m[1,destage] +
+            nt[,2,] * m[2,destage] +
+            nt[,3,] * m[3,destage] +
+            nt[,4,] * m[4,destage] +
+            nt[,5,] * m[5,destage] +
+            0
+        }
+        ok(ut_cmp_equal(apply_matrix(1), wt[,1,]), paste0("age1: ", msg))
+        ok(ut_cmp_equal(apply_matrix(2), wt[,2,]), paste0("age2: ", msg))
+        ok(ut_cmp_equal(apply_matrix(3), wt[,3,]), paste0("age3: ", msg))
+        ok(ut_cmp_equal(apply_matrix(4), wt[,4,]), paste0("age4: ", msg))
+        ok(ut_cmp_equal(apply_matrix(5), wt[,5,]), paste0("age5: ", msg))
+    }
+
+    params <- attr(model_fn, 'parameter_template')
+    r <- model_fn(params)
+    do_test(r, params, "Identity matrix")
+    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+
+    params <- attr(model_fn, 'parameter_template')
+    # Age 1 smeared over bottom 3 groups
+    params$reader1matrix[1,] <- c(0.5, 0.25, 0.25, 0, 0)
+    # Age 2 smeared over 2 groups
+    params$reader1matrix[2,] <- c(0, 0.75, 0.25, 0, 0)
+    r <- model_fn(params)
+    do_test(r, params, "age1, age2 smeared")
+    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+})
+
 # g3l_distribution_sumofsquaredlogratios
 ok(ut_cmp_identical(
     deparse1(g3l_distribution_sumofsquaredlogratios()),

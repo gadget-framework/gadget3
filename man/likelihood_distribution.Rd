@@ -30,6 +30,7 @@ g3l_abundancedistribution(
         fleets = list(),
         stocks,
         function_f,
+        transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
         report = FALSE,
@@ -45,6 +46,7 @@ g3l_catchdistribution(
         fleets = list(),
         stocks,
         function_f,
+        transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
         report = FALSE,
@@ -105,6 +107,9 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
 
     This will be adapted to compare either number (\var{modelstock__num}) or weight (\var{modelstock__wgt})
     depending on what columns \var{obs_data} has.
+  }
+  \item{transform_fs}{
+    A list of dimension name to formula to apply to model data after collating. See examples.
   }
   \item{missing_val}{
     Where there are missing values in the incoming data, value to replace them with.
@@ -415,5 +420,17 @@ likelihood_actions <- list(
     ldist.lln[[1]],
     fleets = list(lln),
     stocks = list(ling_imm, ling_mat),
+    g3l_distribution_sumofsquares()))
+
+# Apply age-reading error matrix to model data
+more_likelihood_actions <- list(
+  g3l_catchdistribution(
+    'ldist_lln_readerror',
+    ldist.lln[[1]],
+    fleets = list(lln),
+    stocks = list(ling_imm, ling_mat),
+    transform_fs = list(age = g3_formula(
+      g3_param_array('reader1matrix', value = diag(5))[modelstock__preage_idx, modelstock__age_idx]
+      )),
     g3l_distribution_sumofsquares()))
 }
