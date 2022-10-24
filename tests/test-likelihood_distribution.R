@@ -61,7 +61,15 @@ ok_group("g3l_distribution_sumofsquares", {
             function_f = g3l_distribution_sumofsquares(over = c("area", "length")),
             stocks = list(prey_a),
             report = TRUE)))
-    r <- model_fn(attr(model_fn, 'parameter_template'))
+    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
+    if (Sys.getenv('G3_TEST_TMB') == "2") {
+        #model_cpp <- edit(model_cpp)
+        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
+        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
+    }
+
+    params <- attr(model_fn, 'parameter_template')
+    r <- model_fn(params)
     modeldata <- attr(r, 'prey_a__num')
     expected_nll <- 0
     for (age in 3:4) for (length in 1:5) {
@@ -73,15 +81,7 @@ ok_group("g3l_distribution_sumofsquares", {
         ) ** 2
     }
     ok(ut_cmp_equal(as.numeric(r), expected_nll), "g3l_distribution_sumofsquares statified over length")
-
-    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
-    params <- attr(model_cpp, 'parameter_template')
-    params$value <- lapply(params$value, as.vector)  # NB: without, each value is a 1-dimensional array: https://github.com/gadget-framework/gadget3/issues/73
-
-    if (Sys.getenv('G3_TEST_TMB') == "2") {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params)
-    }
+    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
 })
 
 # g3l_distribution_sumofsquaredlogratios

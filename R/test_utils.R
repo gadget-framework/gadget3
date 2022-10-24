@@ -1,7 +1,7 @@
 # Helpers for unit testing, not for general use
 
 # Compare output of TMB & R model runs
-ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimname = 'time') {
+ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimname = 'time', model_cpp = NULL) {
     dearray <- function (x) {
         # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
         if (is.array(x) && length(dim(x)) == 1) x <- as.vector(x)
@@ -12,6 +12,13 @@ ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimnam
             dimnames(x)[[ignore_dimname]] <- seq_along(dimnames(x)[[ignore_dimname]])
         }
         return(x)
+    }
+
+    if (!is.data.frame(param_template)) {
+        if (is.null(model_cpp)) stop("Provide model_cpp if param_template is a list")
+        pt <- attr(model_cpp, 'parameter_template')
+        pt$value <- param_template
+        param_template <- pt
     }
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
