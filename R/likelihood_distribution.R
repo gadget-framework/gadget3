@@ -155,7 +155,9 @@ g3l_distribution <- function (
         area_group = NULL,
         report = FALSE,
         nll_breakdown = FALSE,
-        weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
+        weight = substitute(
+            g3_param(n, optimise = FALSE, value = 1),
+            list(n = paste0(nll_name, "_weight"))),
         run_at = 10) {
     stopifnot(is.character(nll_name) && length(nll_name) == 1)
     stopifnot(is.data.frame(obs_data))
