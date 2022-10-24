@@ -292,7 +292,7 @@ g3l_distribution <- function (
             if (is.null(ld$fleet_map[[fleet_stock$name]])) next
             fleetidx_f <- f_substitute(~g3_idx(x), list(x = ld$fleet_map[[fleet_stock$name]]))
         } else {
-            # Not using fleet grouping, __fleet_idx variable not needed
+            # Not using fleet grouping, __predby_fleet__idx variable not needed
             fleetidx_f <- ~-1
         }
 
@@ -301,21 +301,21 @@ g3l_distribution <- function (
             debug_label(prefix, "Collect catch from ", fleet_stock, "/", prey_stock, " for ", nll_name)
             stock_iterate(prey_stock, stock_intersect(modelstock, {
                 if (compare_num) {
-                    debug_trace("Take prey_stock__fleet_stock weight, convert to individuals, add to our count")
+                    debug_trace("Take prey_stock__predby_fleet_stock weight, convert to individuals, add to our count")
                     stock_ss(modelstock__num) <- stock_ss(modelstock__num) +
-                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
+                        stock_reshape(modelstock, stock_ss(prey_stock__predby_fleet_stock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
                 }
                 if (compare_wgt) {
-                    debug_trace("Take prey_stock__fleet_stock weight, add to our count")
+                    debug_trace("Take prey_stock__predby_fleet_stock weight, add to our count")
                     stock_ss(modelstock__wgt) <- stock_ss(modelstock__wgt) +
-                        stock_reshape(modelstock, stock_ss(prey_stock__fleet_stock))
+                        stock_reshape(modelstock, stock_ss(prey_stock__predby_fleet_stock))
                 }
             }))
         }, list(
             compare_num = !is.null(ld$number),
             compare_wgt = !is.null(ld$weight),
             # Find catch from predation step
-            prey_stock__fleet_stock = as.symbol(paste0('prey_stock__', fleet_stock$name)))), recursing = TRUE)
+            prey_stock__predby_fleet_stock = as.symbol(paste0('prey_stock__predby_', fleet_stock$name)))), recursing = TRUE)
 
         # Fix-up stock intersection, add in stockidx_f
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, fleet_stock, prey_stock)]], list(

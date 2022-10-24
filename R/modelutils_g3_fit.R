@@ -6,18 +6,9 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## Setup new report actions 
   ## ---------------------------------------------------------------------------
   
-  ## Extract fleet names from '__suit_' variables in collated actions
-  model_actions <- attr(model, 'actions')
-  all_actions <- f_concatenate(g3_collate(model_actions), 
-                               parent = g3_global_env, 
-                               wrap_call = call("while", TRUE))
-  var_names <- all.names(rlang::f_rhs(all_actions), unique = TRUE)
-  fleet_names <- var_names[grepl('__suit_', var_names)]
-  fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
-  
   ## Variables to report
   report_vars_start <- c('__num$', '__wgt$')
-  report_vars_end <- c('__renewalnum$', '__suit', paste0('__', fleet_names, "$"))
+  report_vars_end <- c('__renewalnum$', '__suit', '__predby_')
   
   ## Update actions
   report_actions_start <- g3a_report_history(actions = model_actions,
@@ -249,24 +240,23 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
   ## Stock-recruitment
   ## ---------------------------------------------------------------------------
   
-  ## Recruitment summed over all steps if argument rec.steps is NULL
-  if (is.null(rec.steps)) rec.steps <- 1:length(get('step_lengths', envir = attr(all_actions, '.Env'))) 
-  
   if (any(grepl('hist_(.+)__renewalnum$', names(tmp)))){
     
     stock.recruitment <-
-      tmp[grepl('hist_(.+)__renewalnum$', names(tmp))] %>% 
-      purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>% 
-      dplyr::bind_rows(.id = 'comp') %>% 
+      tmp[grepl('hist_(.+)__renewalnum$', names(tmp))] %>%
+      purrr::map(as.data.frame.table, stringsAsFactors = FALSE) %>%
+      dplyr::bind_rows(.id = 'comp') %>%
       dplyr::mutate(stock = gsub('hist_(.+)__renewalnum$', '\\1', .data$comp),
-                    age = gsub('age', '', .data$age) %>% as.numeric()) %>% 
+                    age = gsub('age', '', .data$age) %>% as.numeric()) %>%
       extract_year_step() %>%
-      dplyr::group_by(.data$stock) %>% 
-      dplyr::filter(.data$age == min(.data$age),
-                    .data$step %in% rec.steps) %>% ## ADD Recruit-at-age & and min(age) should be taken from stock attributes
-      dplyr::group_by(.data$stock, .data$year, .data$step, .data$area, .data$age) %>% 
-      dplyr::summarise(recruitment = sum(.data$Freq)) %>% 
-      dplyr::ungroup() 
+      dplyr::group_by(.data$stock) %>%
+      dplyr::filter(.data$age == min(.data$age))
+    ## ADD Recruit-at-age & and min(age) should be taken from stock attributes
+    if (!is.null(rec.steps)) stock.recruitment <- stock.recruitment %>% dplyr::filter(.data$step %in% rec.steps)
+    stock.recruitment <- stock.recruitment %>%
+      dplyr::group_by(.data$stock, .data$year, .data$step, .data$area, .data$age) %>%
+      dplyr::summarise(recruitment = sum(.data$Freq)) %>%
+      dplyr::ungroup()
     
   }else{
     stock.recruitment <- NULL
@@ -287,8 +277,8 @@ g3_fit <- function(model, params, rec.steps = 1, steps = 1){
     tmp[grepl('hist_', names(tmp)) & !grepl('wgt$|num$|suit', names(tmp))] %>% 
     purrr::map(as.data.frame.table, stringsAsFactors = FALSE, responseName = 'biomass_consumed') %>% 
     dplyr::bind_rows(.id='comp') %>% 
-    dplyr::mutate(stock = gsub('hist_(.+)__(.+)', '\\1', .data$comp),
-                  fleet = gsub('hist_(.+)__(.+)', '\\2', .data$comp)) %>% 
+    dplyr::mutate(stock = gsub('hist_(.+)__predby_(.+)', '\\1', .data$comp),
+                  fleet = gsub('hist_(.+)__predby_(.+)', '\\2', .data$comp)) %>% 
     dplyr::select(-.data$comp) %>% 
     dplyr::left_join(weight_reports, by = c("time", "area", "stock", "age", "length")) %>% 
     split_length() %>% 

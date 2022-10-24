@@ -1,24 +1,24 @@
 g3a_predate_catchability_totalfleet <- function (E) {
     f_substitute(
-        ~stock_ss(stock__fleet_stock) * (E / stock_ss(fleet_stock__catch)),
+        ~stock_ss(stock__predby_fleet_stock) * (E / stock_ss(fleet_stock__catch)),
         list(E = E))
 }
 
 g3a_predate_catchability_numberfleet <- function (E) {
     f_substitute(
-        ~(stock_ss(stock__fleet_stock) / stock_ss(stock__wgt)) * (E / stock_ss(fleet_stock__catchnum)),
+        ~(stock_ss(stock__predby_fleet_stock) / stock_ss(stock__wgt)) * (E / stock_ss(fleet_stock__catchnum)),
         list(E = E))
 }
 
 g3a_predate_catchability_linearfleet <- function (E) {
     f_substitute(
-        ~E * cur_step_size * stock_ss(stock__fleet_stock),
+        ~E * cur_step_size * stock_ss(stock__predby_fleet_stock),
         list(E = E))
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {
     f_substitute(
-        ~catchability_fs * E * cur_step_size * stock_ss(stock__fleet_stock),
+        ~catchability_fs * E * cur_step_size * stock_ss(stock__predby_fleet_stock),
         list(
             catchability_fs = list_to_stock_switch(catchability_fs),
             E = E))
@@ -72,7 +72,7 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
     }
 
     f_substitute(
-        ~quota_f * E * cur_step_size * stock_ss(stock__fleet_stock), list(
+        ~quota_f * E * cur_step_size * stock_ss(stock__predby_fleet_stock), list(
         quota_f = quota_f,
         E = E))
 }
@@ -88,7 +88,7 @@ g3a_predate_fleet <- function (fleet_stock,
     action_name <- unique_action_name()
 
     # Variables used:
-    # stock__fleet_stock: Biomass of (prey_stock) caught by (fleet_stock) (prey matrix)
+    # stock__predby_fleet_stock: Biomass of (prey_stock) caught by (fleet_stock) (prey matrix)
     # fleet_stock__catch: Biomass caught by that fleet (fleet matrix, i.e. area)
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Ratio of prey_stock__totalpredate / (current biomass), capped by overconsumption rule
@@ -98,7 +98,7 @@ g3a_predate_fleet <- function (fleet_stock,
     # For each prey stock...
     for (stock in prey_stocks) {
         # Create variable to store biomass of stock caught
-        fleet_stock_var <- as.symbol(paste0('stock__', fleet_stock$name))
+        fleet_stock_var <- as.symbol(paste0('stock__predby_', fleet_stock$name))
         suit_var <- as.symbol(paste0('stock__suit_', fleet_stock$name))
         stock__num <- stock_instance(stock, 0)
         stock__wgt <- stock_instance(stock, 1)
@@ -128,16 +128,16 @@ g3a_predate_fleet <- function (fleet_stock,
         out[[step_id(run_at, 1, fleet_stock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate_fleet for ", stock)
             debug_trace("Zero ", fleet_stock, "-", stock, " biomass-consuming counter")
-            stock_with(stock, stock__fleet_stock[] <- 0)
+            stock_with(stock, stock__predby_fleet_stock[] <- 0)
 
             stock_iterate(stock, stock_interact(fleet_stock, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", fleet_stock)
                 stock_ss(stock__suit_fleet_stock) <- suit_f
-                stock_ss(stock__fleet_stock) <- (stock_ss(stock__suit_fleet_stock)
+                stock_ss(stock__predby_fleet_stock) <- (stock_ss(stock__suit_fleet_stock)
                     * stock_ss(stock__num)
                     * stock_ss(stock__wgt))
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
-                    + sum(stock_ss(stock__fleet_stock)))
+                    + sum(stock_ss(stock__predby_fleet_stock)))
                 if (catchnum_required) stock_ss(fleet_stock__catchnum) <- (stock_ss(fleet_stock__catchnum)
                     + sum(stock_ss(stock__suit_fleet_stock) * stock_ss(stock__num)))
             }, prefix = 'fleet'))
@@ -146,30 +146,30 @@ g3a_predate_fleet <- function (fleet_stock,
             suit_f = list_to_stock_switch(suitabilities),
             run_f = run_f,
             stock__suit_fleet_stock = suit_var,
-            stock__fleet_stock = fleet_stock_var)))
+            stock__predby_fleet_stock = fleet_stock_var)))
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
         out[[step_id(run_at, 2, fleet_stock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", fleet_stock, " catch of ", stock, " by total expected catch")
             stock_iterate(stock, stock_interact(fleet_stock, if (run_f) {
                 # NB: In gadget2, E == wanttoeat, stock_ss(fleet__catch) == totalcons[inarea][predl]
-                stock_ss(stock__fleet_stock) <- catchability_f
-                stock_ss(stock__totalpredate) <- stock_ss(stock__totalpredate) + stock_ss(stock__fleet_stock)
-                # NB: In gadget2, stock__fleet_stock == (*cons[inarea][prey])[predl], totalpredator.cc#68
+                stock_ss(stock__predby_fleet_stock) <- catchability_f
+                stock_ss(stock__totalpredate) <- stock_ss(stock__totalpredate) + stock_ss(stock__predby_fleet_stock)
+                # NB: In gadget2, stock__predby_fleet_stock == (*cons[inarea][prey])[predl], totalpredator.cc#68
             }, prefix = 'fleet'))
         }, list(
-            catchability_f = f_substitute(catchability_f, list(stock__fleet_stock = fleet_stock_var)),
+            catchability_f = f_substitute(catchability_f, list(stock__predby_fleet_stock = fleet_stock_var)),
             run_f = run_f,
-            stock__fleet_stock = fleet_stock_var)))
+            stock__predby_fleet_stock = fleet_stock_var)))
 
-        # Scale stock__fleet_stock to be out of stock__totalpredate (so we can apply post-overstocking amount)
+        # Scale stock__predby_fleet_stock to be out of stock__totalpredate (so we can apply post-overstocking amount)
         out[[step_id(run_at, 3, fleet_stock, stock)]] <- g3_step(f_substitute(~{
             debug_trace("Temporarily convert to being proportion of totalpredate")
             stock_with(stock, {
-                stock__fleet_stock <- stock__fleet_stock / avoid_zero_vec(stock__totalpredate)
+                stock__predby_fleet_stock <- stock__predby_fleet_stock / avoid_zero_vec(stock__totalpredate)
             })
         }, list(
-            stock__fleet_stock = fleet_stock_var)))
+            stock__predby_fleet_stock = fleet_stock_var)))
 
         # Overconsumption: Prey adjustments
         out[[step_id(run_at, 4, stock)]] <- g3_step(f_substitute(~{
@@ -209,20 +209,20 @@ g3a_predate_fleet <- function (fleet_stock,
             stock_with(stock, if (run_f) {
                 debug_trace("Revert to being total biomass (applying overconsumption in process)")
                 # Rough equivalent fleetpreyaggregator.cc:109
-                stock__fleet_stock <- stock__fleet_stock * stock__totalpredate
+                stock__predby_fleet_stock <- stock__predby_fleet_stock * stock__totalpredate
             })
 
             debug_trace("Update total catch")
             stock_iterate(stock, stock_interact(fleet_stock, {
                 stock_ss(fleet_stock__catch) <- (stock_ss(fleet_stock__catch)
-                    + sum(stock_ss(stock__fleet_stock)))
+                    + sum(stock_ss(stock__predby_fleet_stock)))
                 if (catchnum_required) stock_ss(fleet_stock__catchnum) <- (stock_ss(fleet_stock__catchnum)
-                    + sum(stock_ss(stock__fleet_stock) / stock_ss(stock__wgt)))
+                    + sum(stock_ss(stock__predby_fleet_stock) / stock_ss(stock__wgt)))
             }, prefix = 'fleet'))
         }, list(
             catchnum_required = "fleet_stock__catchnum" %in% all.vars(catchability_f),
             run_f = run_f,
-            stock__fleet_stock = fleet_stock_var)))
+            stock__predby_fleet_stock = fleet_stock_var)))
     }
 
     return(as.list(out))

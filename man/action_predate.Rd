@@ -96,7 +96,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
   \describe{
     \item{\var{prey_stock__suit_fleet_stock}}{Suitability of (prey_stock) for (fleet_stock), in a prey array.
         i.e. the result of calculating the formula in \var{suitabilities} for the current state of the prey}
-    \item{\var{prey_stock__fleet_stock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
+    \item{\var{prey_stock__predby_fleet_stock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
     \item{\var{fleet_stock__catch}}{Biomass of all prey caught by (fleet stock), in a fleet array}
     \item{\var{prey_stock__totalpredate}}{Biomass of total consumed (prey_stock), in a prey array}
     \item{\var{prey_stock__consratio}}{Ratio of prey_stock__totalpredate / (current biomass), capped by \var{overconsumption_f}}
@@ -160,11 +160,11 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 
   \subsection{g3a_predate_fleet}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{Zero fleet and prey catch counters}
-    \item{For each prey, collect maximum desired by fleet for all prey, into a \var{prey_stock__fleet_stock} variable}
+    \item{For each prey, collect maximum desired by fleet for all prey, into a \var{prey_stock__predby_fleet_stock} variable}
     \item{After all fleet consumption is done, scale consumption using \var{catchability_f}, sum into \var{prey_stock__totalpredate}}
-    \item{After all consumption is done, temporarily convert \var{prey_stock__fleet_stock} to a proprotion of \var{prey_stock__totalpredate}}
+    \item{After all consumption is done, temporarily convert \var{prey_stock__predby_fleet_stock} to a proprotion of \var{prey_stock__totalpredate}}
     \item{Calculate \var{prey_stock__consratio} (ratio of consumed to available), capping using \var{overconsumption_f}. Update \var{prey_stock__num}}
-    \item{Recalculate \var{prey_stock__fleet_stock}, \var{fleet_stock__catch}, post-overconsumption}
+    \item{Recalculate \var{prey_stock__predby_fleet_stock}, \var{fleet_stock__catch}, post-overconsumption}
   }}
 }
 

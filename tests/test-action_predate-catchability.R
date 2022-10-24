@@ -49,19 +49,19 @@ actions <- list(
     g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__wgt)),
     g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__totalpredate)),
     g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__consratio)),
-    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__fleet_numberfleet)),
-    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__fleet_linearfleet)),
-    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__fleet_effortfleet)),
-    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__fleet_quotafleet)),
+    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__predby_fleet_numberfleet)),
+    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__predby_fleet_linearfleet)),
+    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__predby_fleet_effortfleet)),
+    g3a_report_stock(report_a, prey_a, ~stock_ss(prey_a__predby_fleet_quotafleet)),
 
     g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__num)),
     g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__wgt)),
     g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__totalpredate)),
     g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__consratio)),
-    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__fleet_numberfleet)),
-    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__fleet_linearfleet)),
-    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__fleet_effortfleet)),
-    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__fleet_quotafleet)),
+    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__predby_fleet_numberfleet)),
+    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__predby_fleet_linearfleet)),
+    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__predby_fleet_effortfleet)),
+    g3a_report_stock(report_b, prey_b, ~stock_ss(prey_b__predby_fleet_quotafleet)),
 
     g3a_report_stock(report_numberfleet, fleet_numberfleet, ~stock_ss(fleet_numberfleet__catch)),
     g3a_report_stock(report_numberfleet, fleet_numberfleet, ~stock_ss(fleet_numberfleet__catchnum)),
@@ -93,25 +93,25 @@ ok_group("Catchability", {
     ok(all(r$report_a__consratio > 0.9499), "report_a__consratio: No overconsumption")
     ok(all(r$report_b__consratio > 0.9499), "report_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
-        r$report_a__fleet_numberfleet + r$report_a__fleet_linearfleet +  r$report_a__fleet_effortfleet +  r$report_a__fleet_quotafleet,
+        r$report_a__predby_fleet_numberfleet + r$report_a__predby_fleet_linearfleet +  r$report_a__predby_fleet_effortfleet +  r$report_a__predby_fleet_quotafleet,
         r$report_a__totalpredate), "report_a__totalpredate: Equal to sum of fleet consumption")
     ok(ut_cmp_equal(
-        r$report_b__fleet_numberfleet + r$report_b__fleet_linearfleet +  r$report_b__fleet_effortfleet +  r$report_b__fleet_quotafleet,
+        r$report_b__predby_fleet_numberfleet + r$report_b__predby_fleet_linearfleet +  r$report_b__predby_fleet_effortfleet +  r$report_b__predby_fleet_quotafleet,
         r$report_b__totalpredate), "report_b__totalpredate: Equal to sum of fleets")
     ok(ut_cmp_equal(
-        as.numeric(colSums(r$report_a__fleet_numberfleet + r$report_b__fleet_numberfleet)),
+        as.numeric(colSums(r$report_a__predby_fleet_numberfleet + r$report_b__predby_fleet_numberfleet)),
         as.numeric(r$report_numberfleet__catch)), "report_numberfleet__catch: Equal to sum of preys")
     ok(ut_cmp_equal(
-        as.numeric(colSums((r$report_a__fleet_numberfleet/r$report_a__wgt) + (r$report_b__fleet_numberfleet/r$report_b__wgt))),
-        as.numeric(r$report_numberfleet__catchnum)), "report_numberfleet__catchnum: Consistent with __fleet_numberfleet")
+        as.numeric(colSums((r$report_a__predby_fleet_numberfleet/r$report_a__wgt) + (r$report_b__predby_fleet_numberfleet/r$report_b__wgt))),
+        as.numeric(r$report_numberfleet__catchnum)), "report_numberfleet__catchnum: Consistent with __predby_fleet_numberfleet")
     ok(ut_cmp_equal(
-        as.numeric(colSums(r$report_a__fleet_linearfleet + r$report_b__fleet_linearfleet)),
+        as.numeric(colSums(r$report_a__predby_fleet_linearfleet + r$report_b__predby_fleet_linearfleet)),
         as.numeric(r$report_linearfleet__catch)), "report_linearfleet__catch: Equal to sum of preys")
     ok(ut_cmp_equal(
-        as.numeric(colSums(r$report_a__fleet_effortfleet + r$report_b__fleet_effortfleet)),
+        as.numeric(colSums(r$report_a__predby_fleet_effortfleet + r$report_b__predby_fleet_effortfleet)),
         as.numeric(r$report_effortfleet__catch)), "report_effortfleet__catch: Equal to sum of preys")
     ok(ut_cmp_equal(
-        as.numeric(colSums(r$report_a__fleet_quotafleet + r$report_b__fleet_quotafleet)),
+        as.numeric(colSums(r$report_a__predby_fleet_quotafleet + r$report_b__predby_fleet_quotafleet)),
         as.numeric(r$report_quotafleet__catch)), "report_quotafleet__catch: Equal to sum of preys")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

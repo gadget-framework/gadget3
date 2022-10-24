@@ -282,9 +282,9 @@ base_actions <- list(
             dim = c(2L),
             dimnames = list(
                 c("1:6", "6:10")))),
-        gadget3:::step_id(990, 'prey_a__fleet_abc'), report_step('prey_a__fleet_abc', 4, gadget3:::stock_instance(prey_a)),
-        gadget3:::step_id(990, 'prey_b__fleet_abc'), report_step('prey_b__fleet_abc', 4, gadget3:::stock_instance(prey_b)),
-        gadget3:::step_id(990, 'prey_c__fleet_abc'), report_step('prey_c__fleet_abc', 4, gadget3:::stock_instance(prey_c)),
+        gadget3:::step_id(990, 'prey_a__predby_fleet_abc'), report_step('prey_a__predby_fleet_abc', 4, gadget3:::stock_instance(prey_a)),
+        gadget3:::step_id(990, 'prey_b__predby_fleet_abc'), report_step('prey_b__predby_fleet_abc', 4, gadget3:::stock_instance(prey_b)),
+        gadget3:::step_id(990, 'prey_c__predby_fleet_abc'), report_step('prey_c__predby_fleet_abc', 4, gadget3:::stock_instance(prey_c)),
         gadget3:::step_id(990, 'prey_a__num'), report_step('prey_a__num', 4, gadget3:::stock_instance(prey_a)),
         gadget3:::step_id(990, 'prey_b__num'), report_step('prey_b__num', 4, gadget3:::stock_instance(prey_b)),
         gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, gadget3:::stock_instance(prey_c)),
@@ -394,8 +394,8 @@ ok_group("Likelihood per step", {
 
     ######## cdist_sumofsquares_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
-        sum(r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+        sum(r$step0_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step0_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
         0)), "step0_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
@@ -403,12 +403,12 @@ ok_group("Likelihood per step", {
         0,
         0)), "step0_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
-        sum(r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step0_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step0_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step0_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
-        sum(r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+        sum(r$step1_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step1_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
         0)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
@@ -416,12 +416,12 @@ ok_group("Likelihood per step", {
         0,
         0)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
-        sum(r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step1_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step1_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
     ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
-        sum(r$step2_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step2_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+        sum(r$step2_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step2_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
     ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
         0)), "step2_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
@@ -429,12 +429,12 @@ ok_group("Likelihood per step", {
         0,
         0)), "step2_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
     ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
-        sum(r$step2_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step2_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step2_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step2_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step2_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
 
     ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
-        sum(r$step3_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-        sum(r$step3_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
+        sum(r$step3_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+        sum(r$step3_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a in area 1")
     ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
         0)), "step3_cdist_sumofsquares_utsd_model__num[,'prey_c',1]: No prey_c in area 1")
@@ -442,69 +442,69 @@ ok_group("Likelihood per step", {
         0,
         0)), "step3_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in area 2")
     ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
-        sum(r$step3_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-        sum(r$step3_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
+        sum(r$step3_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+        sum(r$step3_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,]))), "step3_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c in area 2")
     ########
 
     ######## cdist_sumofsquares_utcd_model__num
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
-             sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
-             sum(r$step0_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
          NULL)), "step0_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
     ok(ut_cmp_equal(as.vector(r$step0_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
-             sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
-             sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step0_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
-             sum(r$step1_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step1_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+             sum(r$step1_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
-             sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+             sum(r$step1_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
-             sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+             sum(r$step1_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
-             sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+             sum(r$step1_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
     ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
-             sum(r$step2_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step2_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+             sum(r$step2_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step2_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
-             sum(r$step2_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step2_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+             sum(r$step2_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step2_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
          NULL)), "step2_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
     ok(ut_cmp_equal(as.vector(r$step2_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
-             sum(r$step2_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+             sum(r$step2_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
-             sum(r$step2_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+             sum(r$step2_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step2_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
 
     ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
-             sum(r$step3_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step3_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+             sum(r$step3_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step3_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
-             sum(r$step3_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step3_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+             sum(r$step3_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step3_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
          NULL)), "step3_cdist_sumofsquares_utsd_model__num[,1]: all prey in area a/b")
     ok(ut_cmp_equal(as.vector(r$step3_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
-             sum(r$step3_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+             sum(r$step3_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
-             sum(r$step3_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+             sum(r$step3_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step3_cdist_sumofsquares_utsd_model__num[,2]: all prey in area c")
     ########
 
@@ -774,11 +774,11 @@ ok_group("Likelihood per year", {
     ######## cdist_sumofsquares_utsd_model__num
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_a', 1]), c(
         sum(
-            (r$step0_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
-            (r$step1_prey_a__fleet_abc[1:5,] / r$prey_a__wgt[1:5,])),
+            (r$step0_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,]),
+            (r$step1_prey_a__predby_fleet_abc[1:5,] / r$prey_a__wgt[1:5,])),
         sum(
-            sum(r$step0_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,]),
-            sum(r$step1_prey_a__fleet_abc[6:10,] / r$prey_a__wgt[6:10,])),
+            sum(r$step0_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,]),
+            sum(r$step1_prey_a__predby_fleet_abc[6:10,] / r$prey_a__wgt[6:10,])),
         NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',1]: prey_a summed over year")
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 1]), c(
         0,
@@ -790,59 +790,59 @@ ok_group("Likelihood per year", {
         NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_a',2]: No prey_a in second area")
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utsd_model__num[,'prey_c', 2]), c(
         sum(
-            (r$step0_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
-            (r$step1_prey_c__fleet_abc[1:5,] / r$prey_c__wgt[1:5,])),
+            (r$step0_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,]),
+            (r$step1_prey_c__predby_fleet_abc[1:5,] / r$prey_c__wgt[1:5,])),
         sum(
-            sum(r$step0_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,]),
-            sum(r$step1_prey_c__fleet_abc[6:10,] / r$prey_c__wgt[6:10,])),
+            sum(r$step0_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,]),
+            sum(r$step1_prey_c__predby_fleet_abc[6:10,] / r$prey_c__wgt[6:10,])),
         NULL)), "step1_cdist_sumofsquares_utsd_model__num[,'prey_c',2]: prey_c summed over year")
     ########
 
     ######## cdist_sumofsquares_utcd_model__num
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,1]), c(
          sum(
-             sum(r$step0_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step0_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1]),
-             sum(r$step1_prey_a__fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
-             sum(r$step1_prey_b__fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1]),
+             sum(r$step1_prey_a__predby_fleet_abc[1:5,1] / r$prey_a__wgt[1:5,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[1:5,1] / r$prey_b__wgt[1:5,1])),
          sum(
-             sum(r$step0_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step0_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1]),
-             sum(r$step1_prey_a__fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
-             sum(r$step1_prey_b__fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1]),
+             sum(r$step1_prey_a__predby_fleet_abc[6:10,1] / r$prey_a__wgt[6:10,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[6:10,1] / r$prey_b__wgt[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utcd_model__num[,1]: all prey from a/b and steps 0 & 1")
 
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_model__num[,2]), c(
          sum(
-             sum(r$step0_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1]),
-             sum(r$step1_prey_c__fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1]),
+             sum(r$step1_prey_c__predby_fleet_abc[1:5,1] / r$prey_c__wgt[1:5,1])),
          sum(
-             sum(r$step0_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1]),
-             sum(r$step1_prey_c__fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1]),
+             sum(r$step1_prey_c__predby_fleet_abc[6:10,1] / r$prey_c__wgt[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utcd_model__num[,2]: all prey from c and steps 0/1")
     ########
 
     ######## cdist_sumofsquares_utcd_weight_model__wgt
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,1]), c(
          sum(
-             sum(r$step0_prey_a__fleet_abc[1:5,1]),
-             sum(r$step0_prey_b__fleet_abc[1:5,1]),
-             sum(r$step1_prey_a__fleet_abc[1:5,1]),
-             sum(r$step1_prey_b__fleet_abc[1:5,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[1:5,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[1:5,1]),
+             sum(r$step1_prey_a__predby_fleet_abc[1:5,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[1:5,1])),
          sum(
-             sum(r$step0_prey_a__fleet_abc[6:10,1]),
-             sum(r$step0_prey_b__fleet_abc[6:10,1]),
-             sum(r$step1_prey_a__fleet_abc[6:10,1]),
-             sum(r$step1_prey_b__fleet_abc[6:10,1])),
+             sum(r$step0_prey_a__predby_fleet_abc[6:10,1]),
+             sum(r$step0_prey_b__predby_fleet_abc[6:10,1]),
+             sum(r$step1_prey_a__predby_fleet_abc[6:10,1]),
+             sum(r$step1_prey_b__predby_fleet_abc[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utcd_weight_model__wgt[,1]: total biomass of prey from a/b and steps 0 & 1")
 
     ok(ut_cmp_equal(as.vector(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]), c(
          sum(
-             sum(r$step0_prey_c__fleet_abc[1:5,1]),
-             sum(r$step1_prey_c__fleet_abc[1:5,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[1:5,1]),
+             sum(r$step1_prey_c__predby_fleet_abc[1:5,1])),
          sum(
-             sum(r$step0_prey_c__fleet_abc[6:10,1]),
-             sum(r$step1_prey_c__fleet_abc[6:10,1])),
+             sum(r$step0_prey_c__predby_fleet_abc[6:10,1]),
+             sum(r$step1_prey_c__predby_fleet_abc[6:10,1])),
          NULL)), "step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]: total biomass of prey from c and steps 0/1")
     ########
 

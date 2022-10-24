@@ -114,14 +114,6 @@ g3a_report_detail <- function (actions,
     run_f = quote( g3_param('report_detail', optimise = FALSE, value = 0L) == 1 ),
     abundance_run_at = 1,
     run_at = 11) {
-    ## Extract fleet names from model
-    all_actions <- f_concatenate(g3_collate(actions),
-                               parent = g3_global_env,
-                               wrap_call = call("while", TRUE))
-    var_names <- all.names(rlang::f_rhs(all_actions), unique = TRUE)
-    fleet_names <- var_names[grepl('__suit_', var_names)]
-    fleet_names <- unique(gsub('(.+)__suit_(.+)', '\\2', fleet_names))
-
     c(
         g3a_report_history(
             actions = actions,
@@ -131,7 +123,7 @@ g3a_report_detail <- function (actions,
             run_at = abundance_run_at),
         g3a_report_history(
             actions = actions,
-            var_re = c('__renewalnum$', '__suit', paste0('__', fleet_names, "$")),
+            var_re = c('__renewalnum$', '__suit_', '__predby_'),
             out_prefix = "detail_",
             run_f = run_f,
             run_at = run_at),
