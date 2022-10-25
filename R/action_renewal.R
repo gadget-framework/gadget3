@@ -19,8 +19,8 @@ g3a_renewal_vonb <- function(
 }
 
 g3a_renewal_initabund <- function(
-    scalar = g3_parameterized('init', by_stock = by_stock),
-    init = g3_parameterized('init.scalar', by_stock = by_stock, by_age = TRUE),
+    scalar = g3_parameterized('init.scalar', by_stock = by_stock),
+    init = g3_parameterized('init', by_stock = by_stock, by_age = TRUE),
     M = g3_parameterized('M', by_stock = by_stock),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
     by_stock = TRUE,
