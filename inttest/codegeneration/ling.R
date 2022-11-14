@@ -753,7 +753,6 @@ structure(function (param)
                   else if (age == ling_imm__minage) {
                     comment("Empty youngest ling_imm age-group")
                     ling_imm__num[, , ling_imm__age_idx] <- 0
-                    ling_imm__wgt[, , ling_imm__age_idx] <- 0
                   }
                   else {
                     comment("Move ling_imm age-group to next one up")
@@ -781,7 +780,6 @@ structure(function (param)
                   else if (age == ling_mat__minage) {
                     comment("Empty youngest ling_mat age-group")
                     ling_mat__num[, , ling_mat__age_idx] <- 0
-                    ling_mat__wgt[, , ling_mat__age_idx] <- 0
                   }
                   else {
                     comment("Move ling_mat age-group to next one up")

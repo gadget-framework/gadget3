@@ -890,7 +890,6 @@ Type objective_function<Type>::operator() () {
                         if (age == ling_imm__minage) {
                             // Empty youngest ling_imm age-group;
                             ling_imm__num.col(ling_imm__age_idx).setZero();
-                            ling_imm__wgt.col(ling_imm__age_idx).setZero();
                         } else {
                             // Move ling_imm age-group to next one up;
                             ling_imm__num.col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__age_idx - 1);
@@ -921,7 +920,6 @@ Type objective_function<Type>::operator() () {
                         if (age == ling_mat__minage) {
                             // Empty youngest ling_mat age-group;
                             ling_mat__num.col(ling_mat__age_idx).setZero();
-                            ling_mat__wgt.col(ling_mat__age_idx).setZero();
                         } else {
                             // Move ling_mat age-group to next one up;
                             ling_mat__num.col(ling_mat__age_idx) = ling_mat__num.col(ling_mat__age_idx - 1);

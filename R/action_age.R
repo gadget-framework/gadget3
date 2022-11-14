@@ -94,7 +94,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
             } else if (age == stock__minage) {
                 debug_trace("Empty youngest ", stock, " age-group")
                 stock__num[age_iter_ss] <- 0
-                stock__wgt[age_iter_ss] <- 0
+                # NB: Leave stock__wgt[age_iter_ss] as-is, it's value is irrelevant with zero stock, and will result in NaN if we zero it.
             } else {
                 debug_trace("Move ", stock, " age-group to next one up")
                 stock__num[age_iter_ss] <- stock__num[age_younger_iter_ss]
