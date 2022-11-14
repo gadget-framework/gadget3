@@ -333,7 +333,7 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
       \item{\eqn{N_{tr}}}{Total observation sample size for current time/area (or dimensions set in \var{over})}
       \item{\eqn{\nu_{tr}}}{Total model sample size for current time/area (or dimensions set in \var{over})}
     }
-    For more information, see \href{Autoregressive processes}{http://kaskr.github.io/adcomp/_book/Densities.html#autoregressive-processes}
+    For more information, see \href{http://kaskr.github.io/adcomp/_book/Densities.html#autoregressive-processes}{Autoregressive processes}
     in the TMB book.
   }
   \subsection{g3l_distribution_surveyindices_log}{
