@@ -227,6 +227,6 @@ if (demo_ling_run_tmb) {
 }
 
 if (demo_ling_fit) {
-    fit <- gadget3:::g3_fit(ling_model, g3_tmb_relist(tmb_param, fit.opt$par))
+    fit <- gadgetutils::g3_fit(ling_model, g3_tmb_relist(tmb_param, fit.opt$par))
     fit
 }

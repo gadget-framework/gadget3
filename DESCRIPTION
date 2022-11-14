@@ -23,10 +23,6 @@ Imports:
     stats,
     TMB (>= 1.7.0),
     utils,
-    dplyr,
-    tidyr,
-    purrr,
-    tibble,
     magrittr (>= 1.5),
 Suggests:
     knitr,
