@@ -50,7 +50,7 @@ jobs:
       - name: Install TMB
         run: install.packages('TMB', type = 'source')
         shell: Rscript {0}
-        if: ${{ runner.os != 'macOS' }}
+        if: ${{ runner.os == 'macOS' }}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
