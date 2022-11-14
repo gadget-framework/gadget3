@@ -2,7 +2,11 @@ PACKAGE=$(shell awk '/^Package: / { print $$2 }' DESCRIPTION)
 VERSION=$(shell awk '/^Version: / { print $$2 }' DESCRIPTION)
 TARBALL=$(PACKAGE)_$(VERSION).tar.gz
 
-all: check
+all:
+	make test
+	make test G3_TEST_TMB=1
+	make inttest G3_TEST_TMB=1
+	make check-as-cran
 
 install:
 	R CMD INSTALL --install-tests --html --example .
@@ -22,11 +26,10 @@ vignettes: install
 	Rscript -e 'tools::buildVignettes(dir=".")'
 
 test: install
-	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="" Rscript $$f || exit 1; done
+	for f in tests/test-*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
 
 inttest: install
-	for f in tests/test-*.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
-	for f in inttest/*/run.R; do echo "=== $$f ============="; G3_TEST_TMB="y" Rscript $$f || exit 1; done
+	for f in inttest/*/run.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
 
 check: build
 	R CMD check "$(TARBALL)"
