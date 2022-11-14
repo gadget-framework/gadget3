@@ -77,7 +77,7 @@
 
       
 
-      </header><script src="writing_actions_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Writing G3 Actions</h1>
@@ -93,19 +93,27 @@
 <div class="section level2">
 <h2 id="g3-functions">G3 Functions<a class="anchor" aria-label="anchor" href="#g3-functions"></a>
 </h2>
-<p>There are also special g3 functions that can be used in formula that affect the resulting code, rather than just being called when run.</p>
+<p>There are also special g3 functions that can be used in formula that
+affect the resulting code, rather than just being called when run.</p>
 <p>See <code><a href="../reference/language.html">?g3_param</a></code> for more information.</p>
 </div>
 <div class="section level2">
 <h2 id="g3-global-environment">G3 global environment<a class="anchor" aria-label="anchor" href="#g3-global-environment"></a>
 </h2>
-<p>All G3 models have the G3 global environment included, which contains the definition of generally useful functions. For example <code>avoid_zero()</code>, used to avoid div/0 conditions by adding a small amount of error close to zero.</p>
-<p>See <code>R/aaa_global.R</code> for more information, and other existing helpers.</p>
+<p>All G3 models have the G3 global environment included, which contains
+the definition of generally useful functions. For example
+<code>avoid_zero()</code>, used to avoid div/0 conditions by adding a
+small amount of error close to zero.</p>
+<p>See <code>R/aaa_global.R</code> for more information, and other
+existing helpers.</p>
 </div>
 <div class="section level2">
 <h2 id="global-native-functions">Global &amp; native functions<a class="anchor" aria-label="anchor" href="#global-native-functions"></a>
 </h2>
-<p>Some things aren’t easy to do with code translation. <code>g3_native</code> allows you to define a function with separate R and C++ definitions, for example <code>logspace_add_vec</code>, used in many actions to avoid div/0, has the following definition:</p>
+<p>Some things aren’t easy to do with code translation.
+<code>g3_native</code> allows you to define a function with separate R
+and C++ definitions, for example <code>logspace_add_vec</code>, used in
+many actions to avoid div/0, has the following definition:</p>
 <pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
 <span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660</span></span>
@@ -121,7 +129,12 @@
 <div class="section level2">
 <h2 id="stock-steps">Stock steps<a class="anchor" aria-label="anchor" href="#stock-steps"></a>
 </h2>
-<p>Most actions interact with stocks, and fill out abstract formulae with the stocks provided to the function. To do this you need to do a series of substitutions, which are handled by <code>g3_step()</code>. This takes a formula, looks for <code>stock_*</code> named functions and mangles the formula as appropriate. For example, a snippet from <code>action_mature.R</code>.</p>
+<p>Most actions interact with stocks, and fill out abstract formulae
+with the stocks provided to the function. To do this you need to do a
+series of substitutions, which are handled by <code>g3_step()</code>.
+This takes a formula, looks for <code>stock_*</code> named functions and
+mangles the formula as appropriate. For example, a snippet from
+<code>action_mature.R</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">g3_step</span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
@@ -135,24 +148,50 @@
 <span>            <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="../reference/step.html">stock_ss</a></span><span class="op">(</span><span class="va">matured__num</span><span class="op">)</span></span>
 <span>        <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="op">}</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>run_f <span class="op">=</span> <span class="va">run_f</span>, maturity_f <span class="op">=</span> <span class="va">maturity_f</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Assume that <code>stock</code> has name “ling_imm” and <code>matured</code> has name “ling_imm_maturing”.</p>
-<p>The first line uses <code><a href="../reference/step.html">debug_label()</a></code> to produce a <code><a href="../reference/step.html">debug_label()</a></code> function call, <code>debug_label("g3a_mature for ling_imm")</code>. This will be used as a code comment and a label for this block if producing diagrams.</p>
-<p>Next <code><a href="../reference/step.html">stock_with()</a></code> is used to to transform <code>matured__wgt &lt;- stock__wgt</code> to use the proper stock names. We don’t care about dimensions since we’re copying over all the data.</p>
-<p>Finally, we use a combination of <code><a href="../reference/step.html">stock_iterate()</a></code> and <code><a href="../reference/step.html">stock_intersect()</a></code>. <code><a href="../reference/step.html">stock_iterate()</a></code> will create a loop that loops over all of the stock’s dimensions, and <code><a href="../reference/step.html">stock_ss()</a></code> will subset <code>stock__num</code>, prividing 1-dimension lengthgroup vector. <code><a href="../reference/step.html">stock_intersect()</a></code>.</p>
-<p>These iterators will then be available to the <code>maturity_f</code> that the users provide, as demonstrated in the [Stocks] section.</p>
-<p>For more information on the <code>stock_*</code> functions, see <code><a href="../reference/step.html">?stock_ss</a></code>.</p>
+<p>Assume that <code>stock</code> has name “ling_imm” and
+<code>matured</code> has name “ling_imm_maturing”.</p>
+<p>The first line uses <code><a href="../reference/step.html">debug_label()</a></code> to produce a
+<code><a href="../reference/step.html">debug_label()</a></code> function call,
+<code>debug_label("g3a_mature for ling_imm")</code>. This will be used
+as a code comment and a label for this block if producing diagrams.</p>
+<p>Next <code><a href="../reference/step.html">stock_with()</a></code> is used to to transform
+<code>matured__wgt &lt;- stock__wgt</code> to use the proper stock
+names. We don’t care about dimensions since we’re copying over all the
+data.</p>
+<p>Finally, we use a combination of <code><a href="../reference/step.html">stock_iterate()</a></code> and
+<code><a href="../reference/step.html">stock_intersect()</a></code>. <code><a href="../reference/step.html">stock_iterate()</a></code> will create
+a loop that loops over all of the stock’s dimensions, and
+<code><a href="../reference/step.html">stock_ss()</a></code> will subset <code>stock__num</code>, prividing
+1-dimension lengthgroup vector. <code><a href="../reference/step.html">stock_intersect()</a></code>.</p>
+<p>These iterators will then be available to the <code>maturity_f</code>
+that the users provide, as demonstrated in the [Stocks] section.</p>
+<p>For more information on the <code>stock_*</code> functions, see
+<code><a href="../reference/step.html">?stock_ss</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="writing-r-code-destined-for-c">Writing R code destined for C++<a class="anchor" aria-label="anchor" href="#writing-r-code-destined-for-c"></a>
 </h2>
-<p>Obviously R and C++’s type systems are quite different, and gadget3 attempts to bridge the gap.</p>
-<p>In R, there is no difference between a scalar and a 1-element vector. If you expect to treat the variable as a vector or array, then state this explicitly with <code>array</code>, even if the result may be a 1-element vector. This means that methods that work on TMB array or vector classes will be available.</p>
-<p>One needs to be more careful with the type of constants in C++ than R. In particular, <code>x / 2</code> means integer division. As a result, G3 will cast any numeric constant as a double outside of certain situations, e.g. array indices, which will be integer values. However, if you do want an integer it’s best to express this explictly, i.e. <code>3L</code>. Note that there is no difference in R code between <code>3</code> and <code>3.0</code>.</p>
+<p>Obviously R and C++’s type systems are quite different, and gadget3
+attempts to bridge the gap.</p>
+<p>In R, there is no difference between a scalar and a 1-element vector.
+If you expect to treat the variable as a vector or array, then state
+this explicitly with <code>array</code>, even if the result may be a
+1-element vector. This means that methods that work on TMB array or
+vector classes will be available.</p>
+<p>One needs to be more careful with the type of constants in C++ than
+R. In particular, <code>x / 2</code> means integer division. As a
+result, G3 will cast any numeric constant as a double outside of certain
+situations, e.g. array indices, which will be integer values. However,
+if you do want an integer it’s best to express this explictly,
+i.e. <code>3L</code>. Note that there is no difference in R code between
+<code>3</code> and <code>3.0</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="sub-formulas-and-g3_global_formula">Sub-formulas and g3_global_formula<a class="anchor" aria-label="anchor" href="#sub-formulas-and-g3_global_formula"></a>
 </h2>
-<p>R forumlas all you to include extra definitions when defining a formula. This allows you to break up a definition into more readable chunks. For example:</p>
+<p>R forumlas all you to include extra definitions when defining a
+formula. This allows you to break up a definition into more readable
+chunks. For example:</p>
 <pre><code><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -163,12 +202,16 @@
 <span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre>
 <p>Note that:</p>
 <ul>
-<li>Because the definition of <code>E</code> refers to <code>age</code>, gadget3 has automatically inserted it into the loop.</li>
+<li>Because the definition of <code>E</code> refers to <code>age</code>,
+gadget3 has automatically inserted it into the loop.</li>
 <li>
 <code>F</code> however can be defined outside the loop, so is.</li>
-<li>They are all defined in the step, not necessarily for the whole model function. In TMB this is enforced with scoping.</li>
+<li>They are all defined in the step, not necessarily for the whole
+model function. In TMB this is enforced with scoping.</li>
 </ul>
-<p>If you need to have something available to ther steps, it can be defined using <code>g3_global_formula</code> and providing an <code>init_val</code>:</p>
+<p>If you need to have something available to ther steps, it can be
+defined using <code>g3_global_formula</code> and providing an
+<code>init_val</code>:</p>
 <pre><code><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -181,12 +224,19 @@
 <span>    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="fu">nmort</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre>
-<p>As well as making values available to other steps, <code>g3_global_formula</code>() can also be used to ensure that the value ends up in the model report, which will happen automatically for any non-constant global in the model.</p>
+<p>As well as making values available to other steps,
+<code>g3_global_formula</code>() can also be used to ensure that the
+value ends up in the model report, which will happen automatically for
+any non-constant global in the model.</p>
 </div>
 <div class="section level2">
 <h2 id="g3_native">g3_native<a class="anchor" aria-label="anchor" href="#g3_native"></a>
 </h2>
-<p>There are limits to what the Gadget3 transpilation can manage, particularly once you need to operate on matrices. To get around this, you can define functions using <code>g3_native</code>, which annotates functions with a C++ definition. For example, it is used to define <code>logspace_add_vec</code>:</p>
+<p>There are limits to what the Gadget3 transpilation can manage,
+particularly once you need to operate on matrices. To get around this,
+you can define functions using <code>g3_native</code>, which annotates
+functions with a C++ definition. For example, it is used to define
+<code>logspace_add_vec</code>:</p>
 <pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
 <span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>

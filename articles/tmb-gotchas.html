@@ -77,7 +77,7 @@
 
       
 
-      </header><script src="tmb-gotchas_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Gotchas and quirks of TMB</h1>
@@ -90,72 +90,95 @@
 
     
     
-<p>A grab-bag of things to be aware of when writing code that will get used in TMB.</p>
+<p>A grab-bag of things to be aware of when writing code that will get
+used in TMB.</p>
 <div class="section level2">
 <h2 id="links-that-are-useful-when-getting-to-grips-with-tmb">Links that are useful when getting to grips with TMB:<a class="anchor" aria-label="anchor" href="#links-that-are-useful-when-getting-to-grips-with-tmb"></a>
 </h2>
 <ul>
 <li><a href="http://kaskr.github.io/adcomp/matrix_arrays_8cpp-example.html" class="external-link uri">http://kaskr.github.io/adcomp/matrix_arrays_8cpp-example.html</a></li>
 <li>
-<a href="https://kaskr.github.io/adcomp/structtmbutils_1_1array.html" class="external-link uri">https://kaskr.github.io/adcomp/structtmbutils_1_1array.html</a> - TMB defines it’s own array and vector classes. A vector isn’t just a 1 dimensional array, it’s got lots of extra methods.</li>
+<a href="https://kaskr.github.io/adcomp/structtmbutils_1_1array.html" class="external-link uri">https://kaskr.github.io/adcomp/structtmbutils_1_1array.html</a>
+- TMB defines it’s own array and vector classes. A vector isn’t just a 1
+dimensional array, it’s got lots of extra methods.</li>
 <li><a href="https://github.com/kaskr/adcomp/wiki/Code--snippets" class="external-link uri">https://github.com/kaskr/adcomp/wiki/Code--snippets</a></li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="arrays-are-one-dimensional-under-the-hood">Arrays are one dimensional under the hood<a class="anchor" aria-label="anchor" href="#arrays-are-one-dimensional-under-the-hood"></a>
 </h2>
-<p>A <code>tmbutils::Array</code>, whilst based on an Eigen array, manages dimensions itself. As a result if you call any inherited Eigen methods, dimensions can disappear.</p>
+<p>A <code>tmbutils::Array</code>, whilst based on an Eigen array,
+manages dimensions itself. As a result if you call any inherited Eigen
+methods, dimensions can disappear.</p>
 <p>From <a href="https://kaskr.github.io/adcomp/structtmbutils_1_1array.html" class="external-link uri">https://kaskr.github.io/adcomp/structtmbutils_1_1array.html</a>:</p>
 <blockquote>
-<p>Methods that are not documented here are inherited from the Eigen library and applied on the underlying n-by-1 array. In general this will yield surprising results for 2D specific array methods.</p>
+<p>Methods that are not documented here are inherited from the Eigen
+library and applied on the underlying n-by-1 array. In general this will
+yield surprising results for 2D specific array methods.</p>
 </blockquote>
 </div>
 <div class="section level2">
 <h2 id="has-to-be-some-kind-of-return-value">Has to be some kind of return value<a class="anchor" aria-label="anchor" href="#has-to-be-some-kind-of-return-value"></a>
 </h2>
-<p>The return value in a g3 model, ``nll’’, can’t just be a hard coded value, has to be e.g. a parameter There has to be at least 1 parameter, otherwise there will be an Eigen error on return.</p>
-<p>Obviously not a huge practical problem, but easily crops up in unit tests.</p>
+<p>The return value in a g3 model, ``nll’’, can’t just be a hard coded
+value, has to be e.g. a parameter There has to be at least 1 parameter,
+otherwise there will be an Eigen error on return.</p>
+<p>Obviously not a huge practical problem, but easily crops up in unit
+tests.</p>
 </div>
 <div class="section level2">
 <h2 id="autofilling-vectors">Autofilling vectors<a class="anchor" aria-label="anchor" href="#autofilling-vectors"></a>
 </h2>
-<p>Can’t do <code>vector = single_value</code>, have to use <code>vector.setConstant(single_value)</code>.</p>
-<p>g3 will mostly handle this automatically, but seems like something that could be fixed in TMB.</p>
+<p>Can’t do <code>vector = single_value</code>, have to use
+<code>vector.setConstant(single_value)</code>.</p>
+<p>g3 will mostly handle this automatically, but seems like something
+that could be fixed in TMB.</p>
 </div>
 <div class="section level2">
 <h2 id="vectorize1_t-macros">VECTORIZE1_t macros<a class="anchor" aria-label="anchor" href="#vectorize1_t-macros"></a>
 </h2>
 <p>(documented in <a href="https://github.com/kaskr/adcomp/pull/329" class="external-link uri">https://github.com/kaskr/adcomp/pull/329</a> )</p>
-<p>The “R-like” functions TMB provides, such as <code><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma()</a></code> are defined using the <code>VECTORIZE</code> macros. These macros expect a single symbol, and will produce mysterious errors if an expression is used.</p>
+<p>The “R-like” functions TMB provides, such as <code><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma()</a></code>
+are defined using the <code>VECTORIZE</code> macros. These macros expect
+a single symbol, and will produce mysterious errors if an expression is
+used.</p>
 <p>Instead of <code>lgamma(alpha + beta)</code>, do something like:</p>
 <pre><code><span><span class="va">lgamma_arg</span> <span class="op">=</span> <span class="va">alpha</span> <span class="op">+</span> <span class="va">beta</span>; <span class="va">val_vec</span> <span class="op">=</span> <span class="va">val_vec</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">lgamma_arg</span><span class="op">)</span>;</span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="no-vector-to-vector-conversion">No vector<int> to vector<type> conversion</type></int><a class="anchor" aria-label="anchor" href="#no-vector-to-vector-conversion"></a>
 </h2>
-<p>Can’t do <code>stock__num.col(...) = (integer vector)</code>, since this needs an explicit cast. This is problematic for e.g:</p>
+<p>Can’t do <code>stock__num.col(...) = (integer vector)</code>, since
+this needs an explicit cast. This is problematic for e.g:</p>
 <pre><code><span><span class="fu"><a href="../reference/action_renewal.html">g3a_initialconditions</a></span><span class="op">(</span><span class="va">prey_a</span>, <span class="op">~</span><span class="fl">10</span> <span class="op">*</span> <span class="va">prey_a__minlen</span><span class="op">)</span></span></code></pre>
-<p>This case is a somewhat artifical construct, and not a problem for midlen (which isn’t integer), a more likely scenario.</p>
-<p>No easy solutions, since gadget3 doesn’t have enough type information and Eigen needs explicit casts.</p>
+<p>This case is a somewhat artifical construct, and not a problem for
+midlen (which isn’t integer), a more likely scenario.</p>
+<p>No easy solutions, since gadget3 doesn’t have enough type information
+and Eigen needs explicit casts.</p>
 </div>
 <div class="section level2">
 <h2 id="tmbgdbsourceinteractive-true-eats-stderr">TMB::gdbsource(interactive = TRUE) eats stderr<a class="anchor" aria-label="anchor" href="#tmbgdbsourceinteractive-true-eats-stderr"></a>
 </h2>
 <p>(documented in <a href="https://github.com/kaskr/adcomp/issues/341" class="external-link uri">https://github.com/kaskr/adcomp/issues/341</a>)</p>
-<p>Any error messages in gdb are lost, which makes for a frustrating console experience. Instead run the new R session yourself, with:</p>
+<p>Any error messages in gdb are lost, which makes for a frustrating
+console experience. Instead run the new R session yourself, with:</p>
 <pre><code>R -d gdb
 (gdb) run --vanilla &lt; /tmp/RtmpysTVvW/file3da4a6f13a80c.R</code></pre>
 </div>
 <div class="section level2">
 <h2 id="subsetting-is-by-reference">Subsetting is by-reference<a class="anchor" aria-label="anchor" href="#subsetting-is-by-reference"></a>
 </h2>
-<p>Subsetting will be by reference, unlike R. i.e the following will report 0:</p>
+<p>Subsetting will be by reference, unlike R. i.e the following will
+report 0:</p>
 <pre><code>DATA_ARRAY(x);
 auto y = x.col(0);
 x.col(0).setZero();
 REPORT(y)</code></pre>
-<p>This is particuarly problematic with <code>g3_with</code>, that currently uses <code>auto</code> to save deriving types properly.</p>
-<p>A workaround is to force a copy to a vector, either by filling a <code>vector&lt;Type&gt;</code> variable or adding <code>.vec()</code>. See stock__premigrate in R/action_migrate.R.</p>
+<p>This is particuarly problematic with <code>g3_with</code>, that
+currently uses <code>auto</code> to save deriving types properly.</p>
+<p>A workaround is to force a copy to a vector, either by filling a
+<code>vector&lt;Type&gt;</code> variable or adding <code>.vec()</code>.
+See stock__premigrate in R/action_migrate.R.</p>
 </div>
   </div>
 
