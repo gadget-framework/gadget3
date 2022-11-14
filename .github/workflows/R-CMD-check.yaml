@@ -45,6 +45,13 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      # TMB binary package is complaining about Matrix inconsistency & failing to compile with
+      # /Users/runner/work/_temp/Library/TMB/include/TMB.hpp:78:10: fatal error: 'Eigen/Dense' file not found
+      - name: Install TMB
+        run: install.packages('TMB', type = 'source')
+        shell: Rscript {0}
+        if: ${{ runner.os != 'macOS' }}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
