@@ -32,15 +32,16 @@ vignette.
 
 ## Development of gadget3
 
+Tests can be run with ``R CMD check``.
 By default, tests are only run against the R backend for speed.
 To run against the TMB backend, set the ``G3_TEST_TMB`` environment variable, with:
 
 1. ``Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')``
-2. ``make test``, which turns it on by default
+2. ``make``, which runs both test & integration tests with G3_TEST_TMB
 
 Releases are made with:
 
-    make release NEW_VERSION=0.9.0
+    make release NEW_VERSION=0.9-0
     git push --tags && git push
 
 On success, upload the tarball to https://cran.r-project.org/submit.html
