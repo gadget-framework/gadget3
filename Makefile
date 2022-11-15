@@ -51,7 +51,7 @@ serve-docs:
 	cd docs && python2 -m SimpleHTTPServer
 
 release: release-description release-news
-	git commit -m "Release version $(NEW_VERSION)" DESCRIPTION ChangeLog NEWS.md
+	git commit -m "Release version $(NEW_VERSION)" DESCRIPTION NEWS.md
 	git tag -am "Release version $(NEW_VERSION)" v$(NEW_VERSION)
 	#
 	R CMD build .
