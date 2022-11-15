@@ -1,7 +1,7 @@
 Package: gadget3
 Type: Package
 Title: Globally-Applicable Area Disaggregated General Ecosystem Toolbox V3
-Version: 0.8-0
+Version: 0.8-0-999
 Date: 2022-11-15
 Authors@R: c(person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut", "cre")),
             person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut")),
