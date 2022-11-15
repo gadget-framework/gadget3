@@ -1,0 +1,8 @@
+# https://cran.r-project.org/submit.html
+
+==== (unreleased)
+
+> Possibly misspelled words in DESCRIPTION:
+>   TMB (3:8, 11:77, 14:22)
+
+Refers to the TMB package, i.e. https://cran.r-project.org/package=TMB
