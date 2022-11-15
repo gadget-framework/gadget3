@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.8-0-999</span>
       </span>
     </div>
 
@@ -114,14 +114,14 @@
 <div class="section level2">
 <h2 id="development-of-gadget3">Development of gadget3<a class="anchor" aria-label="anchor" href="#development-of-gadget3"></a>
 </h2>
-<p>By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
+<p>Tests can be run with <code>R CMD check</code>. By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
 <ol style="list-style-type: decimal">
 <li><code>Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</code></li>
 <li>
-<code>make test</code>, which turns it on by default</li>
+<code>make</code>, which runs both test &amp; integration tests with G3_TEST_TMB</li>
 </ol>
 <p>Releases are made with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="dv">0</span>.<span class="fl">9.0</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
 <p>On success, upload the tarball to <a href="https://cran.r-project.org/submit.html" class="external-link uri">https://cran.r-project.org/submit.html</a></p>
 </div>
