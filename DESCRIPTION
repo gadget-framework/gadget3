@@ -23,9 +23,9 @@ Imports:
     stats,
     TMB (>= 1.7.0),
     utils,
-    magrittr (>= 1.5),
 Suggests:
     knitr,
+    magrittr (>= 1.5),
     rmarkdown,
     unittest (>= 1.4)
 VignetteBuilder: knitr
