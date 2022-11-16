@@ -19,11 +19,25 @@ full-install: build
 build:
 	R CMD build .
 
+check: build
+	R CMD check "$(TARBALL)"
+
+check-as-cran: build
+	R CMD check --as-cran "$(TARBALL)"
+
+wincheck: build
+	# See https://win-builder.r-project.org/ for more information
+	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
+
 examples: install
 	Rscript -e 'devtools::run_examples(run_donttest = TRUE, run_dontrun = FALSE, document = FALSE)'
 
 vignettes: install
 	Rscript -e 'tools::buildVignettes(dir=".")'
+
+serve-docs:
+	[ -d docs ] && rm -r docs || true
+	Rscript -e "pkgdown::build_site() ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
 
 test: install
 	for f in tests/test-*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
@@ -31,24 +45,9 @@ test: install
 inttest: install
 	for f in inttest/*/run.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
 
-check: build
-	R CMD check "$(TARBALL)"
-
-check-as-cran: build
-	G3_TEST_TMB="" R CMD check --as-cran "$(TARBALL)"
-
 coverage:
 	# NB: TMB transpiling and covr clash badly
 	G3_TEST_TMB="" R --vanilla -e 'covr::package_coverage(type = "all", line_exclusions = list("R/run_tmb.R"))'
-
-wincheck: build
-	# See https://win-builder.r-project.org/ for more information
-	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
-
-serve-docs:
-	[ -d docs ] && rm -r docs || true
-	echo 'pkgdown::build_site()' | R --vanilla
-	cd docs && python2 -m SimpleHTTPServer
 
 release: release-description release-news
 	git commit -m "Release version $(NEW_VERSION)" DESCRIPTION NEWS.md
@@ -72,4 +71,4 @@ release-news:
 	cat NEWS.md.o >> NEWS.md
 	rm NEWS.md.o
 
-.PHONY: all install build test examples vignettes inttest check check-as-cran coverage wincheck serve-docs release release-description release-news
+.PHONY: all install full-install build check check-as-cran wincheck examples vignettes serve-docs test inttest coverage release release-description release-news
