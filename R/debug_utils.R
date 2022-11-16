@@ -9,7 +9,7 @@ parse_tree <- function (o, prefix = "") {
     if (missing(o)) {
         # Missing placeholder
         writeLines(paste0(prefix, " (missing)"))
-    } else if ("formula" %in% class(o)) {
+    } else if (inherits(o, "formula")) {
         writeLines(paste0(prefix, "Formula: ", if (length(o) > 2) o[[2]] else ""))
         parse_tree(o[[length(o)]], prefix = prefix)
 

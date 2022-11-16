@@ -75,7 +75,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
         # Find any g3_native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]])
+            if (inherits(all_defns[[var_name]], 'g3_native')
                     && !(var_name %in% names(scope))) {
                 var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
                 if (is.function(all_defns[[var_name]])) {
@@ -121,7 +121,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 # Recurse, to resolve any g3_param() calls.
                 var_val_code <- var_defns(var_val, env)
                 defn <- call("<-", as.symbol(var_name), var_val_code)
-            } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
+            } else if (inherits(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
                 # Define empty sparseMatrix
                 defn <- call(
                     "<-",

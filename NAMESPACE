@@ -1,4 +1,3 @@
-importFrom("methods", "is")
 importFrom("stats", "as.formula", "formula", "dnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 

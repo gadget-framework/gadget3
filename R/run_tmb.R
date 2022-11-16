@@ -349,7 +349,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             if (is.symbol(x)) {
                 # If we're multiplying a symbol already defined as a sparse matrix, no need for .matrix()
                 env_defn <- mget(as.character(x), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-                if (is(env_defn, 'sparseMatrix')) {
+                if (inherits(env_defn, 'sparseMatrix')) {
                     return(inner)
                 }
                 return(paste0(inner, '.matrix()'))
@@ -363,7 +363,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Element-wise multiplication
         if (is.symbol(in_call[[2]])) {
             env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (is(env_defn, 'sparseMatrix')) {
+            if (inherits(env_defn, 'sparseMatrix')) {
                 stop("Don't know how to do cwiseProduct for sparse matrix ", in_call[[2]])
             }
             # NB: Would use .cwiseProduct() for dense matrices
@@ -544,7 +544,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     env_defn <- mget(call_name, envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-    if ('g3_native' %in% class(env_defn)) {
+    if (inherits(env_defn, 'g3_native')) {
         if (is.list(attr(env_defn, 'g3_native_cpp'))) {
             # cpp is a list, so cast all arguments
             if (length(call_args) != length(attr(env_defn, 'g3_native_cpp')) - 1) {
@@ -732,7 +732,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
 
         # Find any g3_native functions used, and add them
         for (var_name in names(all_defns)) {
-            if ('g3_native' %in% class(all_defns[[var_name]])
+            if (inherits(all_defns[[var_name]], 'g3_native')
                     && is.character(attr(all_defns[[var_name]], 'g3_native_cpp'))  # i.e. it's not a native function here
                     && !(var_name %in% names(scope))) {
                 var_defns(attr(all_defns[[var_name]], 'g3_native_depends'), env)
@@ -774,7 +774,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 }
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
-            } else if (is(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
+            } else if (inherits(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
                 # Define empty sparseMatrix
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
