@@ -5,7 +5,7 @@ Version: 0.8-1-999
 Date: 2022-11-17
 Authors@R: c(person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut", "cre"), comment = c(ORCID = "0000-0001-5727-2996")),
             person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut"), comment = c(ORCID = "0000-0001-5855-1188")),
-            person("Will", "Butler", email="will.butler@hafogvatn.is",role = c("aut")),
+            person("William", "Butler", email="will.butler@hafogvatn.is",role = c("aut"), comment = c(ORCID = "0000-0002-3286-0748")),
             person("Marine and Freshwater Research Institute (Iceland)", role = c("cph")))
 Maintainer: Jamie Lentin <lentinj@shuttlethread.com>
 Description: A framework to assist creation of marine ecosystem models,
