@@ -1,8 +1,17 @@
 # https://cran.r-project.org/submit.html
 
-==== (unreleased)
+==== 0.8-2
 
-> Possibly misspelled words in DESCRIPTION:
->   TMB (3:8, 11:77, 14:22)
+New submission for the Gadget3 model framework.
 
-Refers to the TMB package, i.e. https://cran.r-project.org/package=TMB
+The source to build the package can be found here, along with the README:
+
+  https://github.com/gadget-framework/gadget3/tree/v0.8-2
+
+Built documentation can be found here:
+
+  http://gadget-framework.github.io/gadget3/
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/3487382666
