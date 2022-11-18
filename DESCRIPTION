@@ -9,8 +9,8 @@ Authors@R: c(person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = 
             person("Marine and Freshwater Research Institute (Iceland)", role = c("cph")))
 Maintainer: Jamie Lentin <lentinj@shuttlethread.com>
 Description: A framework to assist creation of marine ecosystem models,
-             generating either R or C++ code which can then be optimised using
-             the 'TMB' package and standard R tools. Principally designed to
+             generating either 'R' or 'C++' code which can then be optimised using
+             the 'TMB' package and standard 'R' tools. Principally designed to
              reproduce gadget2 models in 'TMB', but can be extended beyond
              gadget2's capabilities.
 URL: https://gadget-framework.github.io/gadget3/, https://github.com/gadget-framework/gadget3/

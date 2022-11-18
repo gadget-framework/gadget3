@@ -1,5 +1,11 @@
 # https://cran.r-project.org/submit.html
 
+Resubmission after comments from CRAN team:
+
+> Please always write package names, software names and API (application programming interface) names in single quotes in title and description. e.g: --> 'R','C++'
+
+Done.
+
 ==== 0.8-2
 
 New submission for the Gadget3 model framework.
