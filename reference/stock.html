@@ -76,6 +76,8 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_stock</span><span class="op">(</span><span class="va">var_name</span>, <span class="va">lengthgroups</span>, open_ended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3_stock_instance</span><span class="op">(</span><span class="va">stock</span>, init_value <span class="op">=</span> <span class="cn">NA</span>, desc <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">g3_fleet</span><span class="op">(</span><span class="va">var_name</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_stock_def</span><span class="op">(</span><span class="va">stock</span>, <span class="va">name</span><span class="op">)</span></span>
@@ -102,6 +104,12 @@
   <dt>stock</dt>
 <dd><p>A <code>g3_stock</code> or <code>g3_fleet</code>.</p></dd>
 
+  <dt>init_value</dt>
+<dd><p>Intially the array will be filled with this constant, e.g. <code>1</code>, <code>0</code> or <code>NaN</code></p></dd>
+
+  <dt>desc</dt>
+<dd><p>Description of the array that will be included in models</p></dd>
+
   <dt>name</dt>
 <dd><p>Name of definition to extract, e.g. <code>"minlen"</code>.</p></dd>
 
@@ -112,6 +120,11 @@
 <div class="section">
 <h3 id="g-stock">g3_stock<a class="anchor" aria-label="anchor" href="#g-stock"></a></h3>
 <p>A <code>g3_stock</code> with length groups</p>
+</div>
+<p></p>
+<div class="section">
+<h3 id="g-stock-instance">g3_stock_instance<a class="anchor" aria-label="anchor" href="#g-stock-instance"></a></h3>
+<p>An array with dimensions matching the stock.</p>
 </div>
 <p></p>
 <div class="section">
@@ -139,11 +152,14 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name</span> <span class="op">==</span> <span class="st">'ling_imm'</span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span> <span class="va">stock</span><span class="op">$</span><span class="va">name_parts</span><span class="op">[[</span><span class="st">'species'</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">'ling'</span> <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
-<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Use stock_instance define storage for mean weight of stock,</span></span></span>
+<span class="r-in"><span><span class="co"># has dimensions matching what was defined above.</span></span></span>
+<span class="r-in"><span><span class="fu">g3_stock_instance</span><span class="op">(</span><span class="va">stock</span>, <span class="fl">1</span>, <span class="st">"Mean weight"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1:10  10:100 100:Inf </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NA      NA      NA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1       1       1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"desc")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Mean weight"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Retrieve the upperlen for the stock</span></span></span>
 <span class="r-in"><span><span class="fu">g3_stock_def</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'upperlen'</span><span class="op">)</span></span></span>
@@ -153,7 +169,7 @@
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_stock</span><span class="op">(</span><span class="st">'name'</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span><span class="op">)</span>, open_ended <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
-<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">g3_stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1:10 10:100 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     NA     NA </span>
@@ -162,7 +178,7 @@
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu">g3_fleet</span><span class="op">(</span><span class="st">'name'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
-<span class="r-in"><span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">g3_stock_instance</span><span class="op">(</span><span class="va">stock</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> area</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> area1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    NA </span>

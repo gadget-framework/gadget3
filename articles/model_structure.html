@@ -125,7 +125,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55fef3d94b80&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x5579b704f220&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -163,14 +163,14 @@ an R function:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55fef534bcf8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55fef4b33900&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5579b860fbc8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b7df32f0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
 <span><span class="co">## attr(,"actions")[[1]]</span></span>
 <span><span class="co">## ~cows + pigs</span></span>
-<span><span class="co">## &lt;environment: 0x55fef3d94b80&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5579b704f220&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -233,7 +233,7 @@ reached. For example:</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55fef5dd1db0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5579b90a1fb0&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -301,8 +301,8 @@ code.</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55fef4d61968&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55feefe770c0&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5579b80261c0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b32a1f38&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -327,7 +327,7 @@ code.</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55fef187a988&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b4ac78e8&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -402,8 +402,8 @@ model. For example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55fef3a35c30&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55fef6019d68&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5579b6cfa340&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b92e2bb8&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -428,7 +428,7 @@ model. For example:</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55fef5d78200&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b9046db0&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -465,7 +465,7 @@ sort of arrays a stock will make by using
 <code>gadget3:::stock_instance</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/stock.html">g3_stock_instance</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## length</span></span>
 <span><span class="co">##   0:10  10:20  20:30  30:40  40:50 50:Inf </span></span>
 <span><span class="co">##     NA     NA     NA     NA     NA     NA</span></span></code></pre>
@@ -476,7 +476,7 @@ stock:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/stock.html">g3_stock_instance</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##         age</span></span>
 <span><span class="co">## length   age3 age4 age5 age6 age7 age8 age9 age10</span></span>
 <span><span class="co">##   0:10     NA   NA   NA   NA   NA   NA   NA    NA</span></span>
@@ -489,7 +489,7 @@ stock:</p>
 <code class="sourceCode R"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">stock_instance</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span><span class="op">[</span>,,<span class="st">'age3'</span><span class="op">]</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/stock.html">g3_stock_instance</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span><span class="op">[</span>,,<span class="st">'age3'</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">##         area</span></span>
 <span><span class="co">## length   area1 area2</span></span>
 <span><span class="co">##   0:10      NA    NA</span></span>
@@ -647,8 +647,8 @@ example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55fef535c8f0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55fef169ad50&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5579b85b8af0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b4960870&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -681,7 +681,7 @@ example:</p>
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55fef4f5b7b0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b821c478&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -843,8 +843,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55fef605bca8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55fef2eb8200&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5579b92b2080&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b6131620&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -878,7 +878,7 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## })</span></span>
-<span><span class="co">## &lt;environment: 0x55feefbb6780&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5579b2ac3678&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -951,8 +951,7 @@ each fleet has finished harvesting.</p>
 for example:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lln</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'lln'</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
+<span><span class="va">action</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>        <span class="va">lln</span>,</span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span>
 <span>        suitabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -962,32 +961,16 @@ for example:</p>
 <span>            ling_mat <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span></span>
 <span>                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.alpha'</span><span class="op">)</span>,</span>
 <span>                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.l50'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    <span class="co"># NB: step_find_desc finds a label within the formula</span></span>
-<span>    <span class="kw">function</span> <span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">step_find_desc</span><span class="op">(</span><span class="va">s</span>, minor_steps <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## $`003:000:lln                 `</span></span>
-<span><span class="co">## [1] "Zero biomass-caught counter for lln"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:000:ling_imm            `</span></span>
-<span><span class="co">## [1] "Zero total predation counter for ling_imm"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:004:ling_imm            `</span></span>
-<span><span class="co">## [1] "Calculate ling_imm overconsumption coefficient"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:002:lln                 :ling_imm            :3e19f1f5997cd960b5a2`</span></span>
-<span><span class="co">## [1] "Scale lln catch of ling_imm by total expected catch"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:001:lln                 :ling_imm            :3e19f1f5997cd960b5a2`</span></span>
-<span><span class="co">## [1] "g3a_predate_fleet for ling_imm"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:005:lln                 :ling_imm            `</span></span>
-<span><span class="co">## [1] "Revert to being total biomass (applying overconsumption in process)"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:005:lln                 `</span></span>
-<span><span class="co">## [1] "Zero lln catch before working out post-adjustment value"</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## $`003:003:lln                 :ling_imm            `</span></span>
-<span><span class="co">## [1] "Temporarily convert to being proportion of totalpredate"</span></span></code></pre>
+<span>        catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">action</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "003:000:lln                 "                                          </span></span>
+<span><span class="co">## [2] "003:000:ling_imm            "                                          </span></span>
+<span><span class="co">## [3] "003:004:ling_imm            "                                          </span></span>
+<span><span class="co">## [4] "003:002:lln                 :ling_imm            :3e19f1f5997cd960b5a2"</span></span>
+<span><span class="co">## [5] "003:001:lln                 :ling_imm            :3e19f1f5997cd960b5a2"</span></span>
+<span><span class="co">## [6] "003:005:lln                 :ling_imm            "                     </span></span>
+<span><span class="co">## [7] "003:005:lln                 "                                          </span></span>
+<span><span class="co">## [8] "003:003:lln                 :ling_imm            "</span></span></code></pre>
 <p>We see each step has a colon-separated name, including the following
 parts:</p>
 <ul>
