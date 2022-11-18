@@ -28,22 +28,22 @@ ok_group("step_id", {
 
 ok_group("g3_step:stock_reshape", {
     source <- g3_stock('source', seq(10, 40, 10))
-    source__num <- gadget3:::stock_instance(source)
-    source__wgt <- gadget3:::stock_instance(source)
+    source__num <- g3_stock_instance(source)
+    source__wgt <- g3_stock_instance(source)
     dest_even <- g3_stock('dest_even', seq(10, 40, 10))  # Input == output
-    dest_even__num <- gadget3:::stock_instance(dest_even)
-    dest_even__wgt <- gadget3:::stock_instance(dest_even)
+    dest_even__num <- g3_stock_instance(dest_even)
+    dest_even__wgt <- g3_stock_instance(dest_even)
     dest_combine <- g3_stock('dest_combine', seq(10, 40, 40))  # All input combined
-    dest_combine__num <- gadget3:::stock_instance(dest_combine)
-    dest_combine__wgt <- gadget3:::stock_instance(dest_combine)
+    dest_combine__num <- g3_stock_instance(dest_combine)
+    dest_combine__wgt <- g3_stock_instance(dest_combine)
     dest_2group <- g3_stock('dest_2group', seq(10, 40, 20))  # 2 groups
-    dest_2group__num <- gadget3:::stock_instance(dest_2group)
-    dest_2group__wgt <- gadget3:::stock_instance(dest_2group)
+    dest_2group__num <- g3_stock_instance(dest_2group)
+    dest_2group__wgt <- g3_stock_instance(dest_2group)
     dest_wider <- g3_stock('dest_wider', seq(0, 90, 10))  # Wider top and bottom
-    dest_wider__num <- gadget3:::stock_instance(dest_wider)
-    dest_wider__wgt <- gadget3:::stock_instance(dest_wider)
+    dest_wider__num <- g3_stock_instance(dest_wider)
+    dest_wider__wgt <- g3_stock_instance(dest_wider)
     dest_nolength <- gadget3:::g3_storage('dest_nolength')  # No length at all
-    dest_nolength__num <- gadget3:::stock_instance(dest_nolength)
+    dest_nolength__num <- g3_stock_instance(dest_nolength)
 
     cur_time <- 0L  # Initialconditions needs to know what the time is
     nll <- 0.0
@@ -132,7 +132,7 @@ ok_group("g3_step:stock_reshape", {
 
 ok_group("g3_step:stock_ss", {
      stock <- g3_stock('halibut', 1:10) %>% g3s_age(1,10) %>% g3s_livesonareas(1)
-     stock__num <- gadget3:::stock_instance(stock)
+     stock__num <- g3_stock_instance(stock)
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
          ~stock__num[, stock__age_idx, 5]), "Can replace individual dimension subsets with something else (area)")
@@ -173,9 +173,9 @@ ok_group("g3_step:stock_switch", {
 
 ok_group("g3_step:dependent_formulas", (function () {
     stock_imm <- g3s_age(g3_stock('ling_imm', 1), 1, 3)
-    stock_imm__num <- gadget3:::stock_instance(stock_imm, 0)
+    stock_imm__num <- g3_stock_instance(stock_imm, 0)
     stock_area <- g3s_livesonareas(g3s_age(g3_stock('area_imm', 1), 1, 3), 1:2)
-    stock_area__num <- gadget3:::stock_instance(stock_area, 0)
+    stock_area__num <- g3_stock_instance(stock_area, 0)
 
     by_age_f <- ~ 2 * age
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + by_age_f))
@@ -361,7 +361,7 @@ ok_group("list_to_stock_switch", {
 
 ok_group("g3_step:stock_iterate", {
     stock <- g3_stock('halibut', 1:10) %>% g3s_age(1,10) %>% g3s_livesonareas(c(x1 = 1, x2 = 2))
-    stock__num <- gadget3:::stock_instance(stock)
+    stock__num <- g3_stock_instance(stock)
 
     ok(cmp_code(rlang::f_rhs(gadget3:::g3_step(~stock_iterate(stock, stock_ss(stock) ))), quote(
         for (halibut__area_idx in seq_along(halibut__areas)) g3_with(

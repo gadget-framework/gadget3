@@ -1,5 +1,6 @@
 \name{stock}
 \alias{g3_stock_def}
+\alias{g3_stock_instance}
 \alias{g3_stock}
 \alias{g3_fleet}
 \alias{g3s_clone}
@@ -12,6 +13,8 @@
 
 \usage{
 g3_stock(var_name, lengthgroups, open_ended = TRUE)
+
+g3_stock_instance(stock, init_value = NA, desc = "")
 
 g3_fleet(var_name)
 
@@ -39,6 +42,12 @@ g3s_clone(inner_stock, var_name)
   \item{stock}{
     A \code{\link{g3_stock}} or \code{\link{g3_fleet}}.
   }
+  \item{init_value}{
+    Intially the array will be filled with this constant, e.g. \code{1}, \code{0} or \code{NaN}
+  }
+  \item{desc}{
+    Description of the array that will be included in models
+  }
   \item{name}{
     Name of definition to extract, e.g. \code{"minlen"}.
   }
@@ -47,6 +56,9 @@ g3s_clone(inner_stock, var_name)
 \value{
   \subsection{g3_stock}{
     A \code{\link{g3_stock}} with length groups
+  }
+  \subsection{g3_stock_instance}{
+    An array with dimensions matching the stock.
   }
   \subsection{g3_fleet}{
     A \code{\link{g3_stock}} without length groups
@@ -67,8 +79,9 @@ stock <- g3_stock(c(species = 'ling', 'imm'), c(1, 10, 100))
 stopifnot( stock$name == 'ling_imm' )
 stopifnot( stock$name_parts[['species']] == 'ling' )
 
-# Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+# Use stock_instance define storage for mean weight of stock,
+# has dimensions matching what was defined above.
+g3_stock_instance(stock, 1, "Mean weight")
 
 # Retrieve the upperlen for the stock
 g3_stock_def(stock, 'upperlen')
@@ -77,11 +90,11 @@ g3_stock_def(stock, 'upperlen')
 stock <- g3_stock('name', c(1, 10, 100), open_ended = FALSE)
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 
 # Fleets don't have lengthgroups
 stock <- g3_fleet('name') \%>\% g3s_livesonareas(1)
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 }

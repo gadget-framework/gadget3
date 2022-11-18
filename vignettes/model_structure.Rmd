@@ -136,11 +136,11 @@ the former will store lengthgroups, which fleets do not have.
 
 Actions will store data about the stocks, for instance the current number of
 individuals, in arrays called stock instances. We can see what sort of arrays a
-stock will make by using ``gadget3:::stock_instance``:
+stock will make by using ``g3_stock_instance``:
 
 ```{r}
 ling_imm <- g3_stock('ling_imm', seq(0, 50, 10))
-gadget3:::stock_instance(ling_imm)
+g3_stock_instance(ling_imm)
 ```
 
 To add complexity to our model, we can use other ``g3s_`` functions, such as
@@ -150,14 +150,14 @@ stock:
 ```{r}
 ling_imm <- g3_stock('ling_imm', seq(0, 50, 10)) %>%
     g3s_age(3, 10)
-gadget3:::stock_instance(ling_imm)
+g3_stock_instance(ling_imm)
 ```
 
 ```{r}
 ling_imm <- g3_stock('ling_imm', seq(0, 50, 10)) %>%
     g3s_livesonareas(c(1,2)) %>%
     g3s_age(3, 10)
-gadget3:::stock_instance(ling_imm)[,,'age3']
+g3_stock_instance(ling_imm)[,,'age3']
 ```
 
 When you use an action such as ``g3a_growmature()``, you provide g3_stock(s) to

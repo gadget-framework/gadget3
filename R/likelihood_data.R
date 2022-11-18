@@ -192,7 +192,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     # Generate full table based on stock
     full_table <- as.data.frame.table(
-        stock_instance(obsstock, 0),
+        g3_stock_instance(obsstock, 0),
         stringsAsFactors = TRUE)
     # Use freq column to preserve ordering of output
     full_table$Freq <- seq_len(nrow(full_table))

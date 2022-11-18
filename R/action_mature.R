@@ -73,7 +73,7 @@ g3a_step_transition <- function(input_stock,
                            output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
                            move_remainder = TRUE,
                            run_f = TRUE) {
-    input_stock__transitioning_remainder <- stock_instance(input_stock)
+    input_stock__transitioning_remainder <- g3_stock_instance(input_stock)
 
     if (length(output_stocks) == 1) {
         # Simplified case for single output stock, no need to manage remainder
@@ -163,10 +163,10 @@ g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 /
     list_of_formulae <- function (x) all(vapply(x, rlang::is_formula, logical(1)))
     stopifnot(list_of_formulae(output_ratios) || sum(output_ratios) == 1)
 
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
-    stock__transitioning_num <- stock_instance(stock)
-    stock__transitioning_wgt <- stock_instance(stock)
+    stock__num <- g3_stock_instance(stock, 0)
+    stock__wgt <- g3_stock_instance(stock, 1)
+    stock__transitioning_num <- g3_stock_instance(stock)
+    stock__transitioning_wgt <- g3_stock_instance(stock)
 
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()

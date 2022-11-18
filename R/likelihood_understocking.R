@@ -3,8 +3,8 @@ g3l_understocking <- function (prey_stocks, power_f = ~2, nll_breakdown = FALSE,
 
     nllstock <- g3_storage("nll_understocking")
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
-    nllstock__wgt <- stock_instance(nllstock, 0)
-    nllstock__weight <- stock_instance(nllstock, 0)
+    nllstock__wgt <- g3_stock_instance(nllstock, 0)
+    nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
 
     g3l_understocking_total <- 0.0

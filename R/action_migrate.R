@@ -27,10 +27,10 @@ g3a_migrate <- function(
     stopifnot(g3_is_stock(stock))
     stopifnot(rlang::is_formula(migrate_f))
 
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
-    stock__postmigratenum <- stock_instance(stock)
-    stock__postmigratewgt <- stock_instance(stock)
+    stock__num <- g3_stock_instance(stock, 0)
+    stock__wgt <- g3_stock_instance(stock, 1)
+    stock__postmigratenum <- g3_stock_instance(stock)
+    stock__postmigratewgt <- g3_stock_instance(stock)
     stock__migratematrix <- structure(
         array(
             dim = list(dest_area = stock$dim$area, area = stock$dim$area),

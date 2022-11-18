@@ -12,7 +12,7 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, include_adrep
     }
 
     report_stock_instance_name <- paste0('report_stock__', instance_name)
-    assign(report_stock_instance_name, stock_instance(report_stock))
+    assign(report_stock_instance_name, g3_stock_instance(report_stock))
 
     out[[step_id(run_at, report_stock, instance_name, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_report_stock for ", report_stock, " from ", input_stock)

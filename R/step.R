@@ -290,8 +290,8 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         },
         # stock_ss subsets stock data var, overriding any set expressions
         stock_ss = function (x) { # Arguments: stock data variable (i.e. stock__num), [dim_name = override expr, ...]
-            stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
-            stock_var <- gsub('__.*$', '', stock_instance)
+            stock_inst <- x[[2]]  # NB: A "stock__num", not "stock"
+            stock_var <- gsub('__.*$', '', stock_inst)
             stock <- get(stock_var, envir = orig_env)
             ss_overrides <- as.list(tail(x, -2))
 
@@ -304,29 +304,29 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             # Get subset arguments
             ss <- stock$iter_ss
 
-            # No dimensions mean a 1-entry array (see stock_instance)
+            # No dimensions mean a 1-entry array (see g3_stock_instance)
             if (length(ss) == 0) ss <- list(quote(g3_idx(1)))
 
             # Swap in overrides
             ss[names(ss_overrides)] <- ss_overrides
-            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), unname(ss))), "stock", stock_var))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_inst), unname(ss))), "stock", stock_var))
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)
         stock_ssinv = function (x) { # Arguments: stock data variable (i.e. stock__num), dimension names.
-            stock_instance <- x[[2]]  # NB: A "stock__num", not "stock"
-            stock_var <- gsub('__.*$', '', stock_instance)
+            stock_inst <- x[[2]]  # NB: A "stock__num", not "stock"
+            stock_var <- gsub('__.*$', '', stock_inst)
             stock <- get(stock_var, envir = orig_env)
             wanted_dims <- as.character(tail(x, -2))
 
             # Get subset arguments
             ss <- stock$iter_ss
 
-            # No dimensions mean a 1-entry array (see stock_instance)
+            # No dimensions mean a 1-entry array (see g3_stock_instance)
             if (length(ss) == 0) ss <- list(quote(g3_idx(1)))
 
             # Replace unwanted dimensions with missing symbol
             ss[!(names(stock$dimnames) %in% wanted_dims)] <- list(quote(x[])[[3]])
-            return(stock_rename(as.call(c(list(as.symbol("["), stock_instance), unname(ss))), "stock", stock_var))
+            return(stock_rename(as.call(c(list(as.symbol("["), stock_inst), unname(ss))), "stock", stock_var))
         },
         stock_switch = function (x) {  # Arguments: stock variable, stock_name = answer, ... default
             stock_var <- x[[2]]

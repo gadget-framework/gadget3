@@ -66,11 +66,11 @@ g3a_spawn <- function(
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
     stopifnot(abs(sum(output_ratios) - 1) < 0.0001)
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
-    stock__spawnprop <- stock_instance(stock, desc = "Proportion of parents that are spawning")
-    stock__spawningnum <- stock_instance(stock, desc = "Total number of spawning parents")
-    stock__offspringnum <- stock_instance(stock, desc = "Total number of offspring these parents produce")
+    stock__num <- g3_stock_instance(stock, 0)
+    stock__wgt <- g3_stock_instance(stock, 1)
+    stock__spawnprop <- g3_stock_instance(stock, desc = "Proportion of parents that are spawning")
+    stock__spawningnum <- g3_stock_instance(stock, desc = "Total number of spawning parents")
+    stock__offspringnum <- g3_stock_instance(stock, desc = "Total number of offspring these parents produce")
     out <- list()
     action_name <- unique_action_name()
 
@@ -134,7 +134,7 @@ g3a_spawn <- function(
     for (i in seq_along(output_stocks)) {
         output_stock <- output_stocks[[i]]
         output_ratio <- output_ratios[[i]]
-        output_stock__spawnednum <- stock_instance(output_stock, desc = "Individuals spawned")
+        output_stock__spawnednum <- g3_stock_instance(output_stock, desc = "Individuals spawned")
 
         # Make a formula to sum all our outputs
         sum_all_outputs_f <- g3_step(f_substitute(~stock_with(output_stock, sum(output_stock__spawnednum)) + sum_all_outputs_f, list(

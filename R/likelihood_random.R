@@ -9,8 +9,8 @@ g3l_random_dnorm <- function (
     out <- new.env(parent = emptyenv())
     
     nllstock <- g3_storage(paste0('nll_random_dnorm_', nll_name))
-    nllstock__dnorm <- stock_instance(nllstock, 0)
-    nllstock__weight <- stock_instance(nllstock, 0)
+    nllstock__dnorm <- g3_stock_instance(nllstock, 0)
+    nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
 
     out[[step_id(run_at, 'g3l_random_dnorm', nll_name)]] <- g3_step(f_substitute(~ if (run_f) {
@@ -47,8 +47,8 @@ g3l_random_walk <- function (
     
     nllstock <- g3_storage(paste0('nll_random_walk_', nll_name))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock, by_year = period == 'year')
-    nllstock__dnorm <- stock_instance(nllstock, 0)
-    nllstock__weight <- stock_instance(nllstock, 0)
+    nllstock__dnorm <- g3_stock_instance(nllstock, 0)
+    nllstock__weight <- g3_stock_instance(nllstock, 0)
     nllstock__prevrec <- g3_global_formula(init_val = NaN)
     nll <- 0.0
 

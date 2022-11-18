@@ -57,7 +57,7 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_time(year = c(2000, 2001, 2003))
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 
 # Define a stock with 3 lengthgroups and 3 years, 2 steps
 # The dimension will have 6 entries, 2000.1, 2000.2, 2001.1, 2001.2, 2002.1, 2002.2
@@ -65,7 +65,7 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_time(year = c(2000, 2001, 2002), step = 1:2)
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 
 # g3s_time_convert is best used with a data.frame
 data <- read.table(header = TRUE, text = '
@@ -79,5 +79,5 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_time(times = g3s_time_convert(data$year, data$step))
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 }

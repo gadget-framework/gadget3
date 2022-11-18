@@ -9,6 +9,7 @@ Done.
 > You have examples for unexported functions.
 
 * Removed gadget3:::step_find_desc() from vignettes
+* gadget3:::stock_instance Now public, as g3_stock_instance
 
 ==== 0.8-2
 

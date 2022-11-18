@@ -11,8 +11,8 @@ prey_c <- g3_stock('prey_c', c(1)) %>% g3s_age(11, 17)
 # Store stock state in temporary variables labelled stock 0..n
 report_action <- list()
 for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
-    assign(paste0("step", step, '_', s$name, '__num'), gadget3:::stock_instance(s))
-    assign(paste0("step", step, '_', s$name, '__wgt'), gadget3:::stock_instance(s))
+    assign(paste0("step", step, '_', s$name, '__num'), g3_stock_instance(s))
+    assign(paste0("step", step, '_', s$name, '__wgt'), g3_stock_instance(s))
     report_action[[paste0("999:step", step, ':', s$name)]] <- gadget3:::f_substitute(~if (cur_time == step) {
         stepnum[] <- curnum
         stepwgt[] <- curwgt

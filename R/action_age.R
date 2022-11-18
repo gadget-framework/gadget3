@@ -38,14 +38,14 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
+    stock__num <- g3_stock_instance(stock, 0)
+    stock__wgt <- g3_stock_instance(stock, 1)
     stock_movement <- g3s_age(
         g3s_clone(stock, paste0(stock$name, '_movement')),
         g3_stock_def(stock, 'maxage') + 1,
         g3_stock_def(stock, 'maxage') + 1)
-    stock_movement__transitioning_num <- stock_instance(stock_movement)
-    stock_movement__transitioning_wgt <- stock_instance(stock_movement)
+    stock_movement__transitioning_num <- g3_stock_instance(stock_movement)
+    stock_movement__transitioning_wgt <- g3_stock_instance(stock_movement)
 
     movement_age_iter_ss <- to_subset_call(lapply(stock_movement$iter_ss, function (x) {
         if (as.character(x) %in% c("stock__age_idx")) quote(g3_idx(1))  # stock_movement only has one age bracket

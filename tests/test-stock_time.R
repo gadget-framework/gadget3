@@ -16,17 +16,17 @@ ok_group("g3s_time: Times produced in order", {
 })
 
 stock_timeyear <- g3_stock('stock_timeyear', 1) %>% g3s_time(year = c(2002, 2004))
-stock_timeyear__num <- gadget3:::stock_instance(stock_timeyear, 0)
+stock_timeyear__num <- g3_stock_instance(stock_timeyear, 0)
 stock_timestep <- g3_stock('stock_timestep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2000, 2003),c(1,2)) ))
-stock_timestep__num <- gadget3:::stock_instance(stock_timestep, 0)
+stock_timestep__num <- g3_stock_instance(stock_timestep, 0)
 # NB: There isn't 12 steps to use, but still changes mode
 stock_timebigstep <- g3_stock('stock_timebigstep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2001, 2003),c(1,12)) ))
-stock_timebigstep__num <- gadget3:::stock_instance(stock_timebigstep, 0)
+stock_timebigstep__num <- g3_stock_instance(stock_timebigstep, 0)
 
 stock_modeltime <- g3_stock('stock_modeltime', 1) %>% gadget3:::g3s_modeltime()
-stock_modeltime__num <- gadget3:::stock_instance(stock_modeltime, 0)
+stock_modeltime__num <- g3_stock_instance(stock_modeltime, 0)
 stock_modelyear <- g3_stock('stock_modelyear', 1) %>% gadget3:::g3s_modeltime(by_year = TRUE)
-stock_modelyear__num <- gadget3:::stock_instance(stock_modelyear, 0)
+stock_modelyear__num <- g3_stock_instance(stock_modelyear, 0)
 stock_modeltime_iterator <- 100
 
 actions <- list(

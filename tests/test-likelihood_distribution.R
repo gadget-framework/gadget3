@@ -42,7 +42,7 @@ ok_group("g3l_distribution_sumofsquares", {
 
     # Stratified sumofsquares
     prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) %>% g3s_age(1,5)
-    prey_a__init <- gadget3:::stock_instance(prey_a)
+    prey_a__init <- g3_stock_instance(prey_a)
     prey_a__init[] <- runif(length(prey_a__init))
     obsdata <- expand.grid(
         year = 2000,
@@ -86,7 +86,7 @@ ok_group("g3l_distribution_sumofsquares", {
 
 ok_group("g3l_distribution:transform_fs", {
     prey_a <- g3_stock('prey_a', seq(1, 5, by = 1)) %>% g3s_age(1,5) %>% g3s_livesonareas(1:2)
-    prey_a__init <- gadget3:::stock_instance(prey_a)
+    prey_a__init <- g3_stock_instance(prey_a)
     prey_a__init[] <- runif(length(prey_a__init))
     obsdata <- expand.grid(
         year = 2000,
@@ -282,12 +282,12 @@ base_actions <- list(
             dim = c(2L),
             dimnames = list(
                 c("1:6", "6:10")))),
-        gadget3:::step_id(990, 'prey_a__predby_fleet_abc'), report_step('prey_a__predby_fleet_abc', 4, gadget3:::stock_instance(prey_a)),
-        gadget3:::step_id(990, 'prey_b__predby_fleet_abc'), report_step('prey_b__predby_fleet_abc', 4, gadget3:::stock_instance(prey_b)),
-        gadget3:::step_id(990, 'prey_c__predby_fleet_abc'), report_step('prey_c__predby_fleet_abc', 4, gadget3:::stock_instance(prey_c)),
-        gadget3:::step_id(990, 'prey_a__num'), report_step('prey_a__num', 4, gadget3:::stock_instance(prey_a)),
-        gadget3:::step_id(990, 'prey_b__num'), report_step('prey_b__num', 4, gadget3:::stock_instance(prey_b)),
-        gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, gadget3:::stock_instance(prey_c)),
+        gadget3:::step_id(990, 'prey_a__predby_fleet_abc'), report_step('prey_a__predby_fleet_abc', 4, g3_stock_instance(prey_a)),
+        gadget3:::step_id(990, 'prey_b__predby_fleet_abc'), report_step('prey_b__predby_fleet_abc', 4, g3_stock_instance(prey_b)),
+        gadget3:::step_id(990, 'prey_c__predby_fleet_abc'), report_step('prey_c__predby_fleet_abc', 4, g3_stock_instance(prey_c)),
+        gadget3:::step_id(990, 'prey_a__num'), report_step('prey_a__num', 4, g3_stock_instance(prey_a)),
+        gadget3:::step_id(990, 'prey_b__num'), report_step('prey_b__num', 4, g3_stock_instance(prey_b)),
+        gadget3:::step_id(990, 'prey_c__num'), report_step('prey_c__num', 4, g3_stock_instance(prey_c)),
         gadget3:::step_id(990, 'nll'), report_step('nll', 4, 0.0),
         gadget3:::step_id(999),  ~{
             REPORT(cdist_sumofsquares_utcd_model__num)

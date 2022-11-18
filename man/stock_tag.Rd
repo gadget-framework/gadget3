@@ -47,5 +47,5 @@ tags <- structure(seq_along(tags), names = tags)
 prey_a <- g3_stock('prey_a', seq(1, 10)) \%>\% g3s_tag(tags)
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(prey_a)
+g3_stock_instance(prey_a)
 }

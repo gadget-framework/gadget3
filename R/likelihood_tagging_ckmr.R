@@ -36,10 +36,10 @@ g3l_tagging_ckmr <- function (
         min(stock_definitions('minage', c(parent_stocks, offspring_stocks))),
         max(stock_definitions('maxage', c(parent_stocks, offspring_stocks))))
     modelhist <- g3s_modeltime(modelhist, by_year = TRUE)
-    modelhist__spawning <- stock_instance(modelhist, 0, desc = "Total number of spawning parents by year, parent age")
-    modelhist__spawned <- stock_instance(modelhist, 0, desc = "Total number of offspring by year, parent age")
-    modelhist__total <- stock_instance(modelhist, 0, desc = "Total adults (spawning and not), by year, parent age")
-    modelhist__catch <- stock_instance(modelhist, 0, desc = "Individuals caught by fleet, by age")
+    modelhist__spawning <- g3_stock_instance(modelhist, 0, desc = "Total number of spawning parents by year, parent age")
+    modelhist__spawned <- g3_stock_instance(modelhist, 0, desc = "Total number of offspring by year, parent age")
+    modelhist__total <- g3_stock_instance(modelhist, 0, desc = "Total adults (spawning and not), by year, parent age")
+    modelhist__catch <- g3_stock_instance(modelhist, 0, desc = "Individuals caught by fleet, by age")
 
     out <- new.env(parent = emptyenv())
     step_f <- g3_step(~{

@@ -8,7 +8,7 @@ suit_report_action <- function (pred_stock, stock, suit_f, run_at = 99) {
     out <- new.env(parent = emptyenv())
     suit_fn_name <- as.character(sys.call()[[4]][[1]])
     suit_var_name <- paste0('stock__', suit_fn_name)
-    assign(suit_var_name, gadget3:::stock_instance(stock))
+    assign(suit_var_name, g3_stock_instance(stock))
     
     out[[gadget3:::step_id(run_at, suit_fn_name)]] <- gadget3:::g3_step(gadget3:::f_substitute(~{
         debug_label("Testing ", suit_fn_name)

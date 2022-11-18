@@ -227,12 +227,12 @@ g3l_distribution <- function (
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {
-        modelstock__num <- stock_instance(modelstock, 0)
-        obsstock__num <- stock_instance(obsstock, ld$number)
+        modelstock__num <- g3_stock_instance(modelstock, 0)
+        obsstock__num <- g3_stock_instance(obsstock, ld$number)
     }
     if (!is.null(ld$weight)) {
-        modelstock__wgt <- stock_instance(modelstock, 0)
-        obsstock__wgt <- stock_instance(obsstock, ld$weight)
+        modelstock__wgt <- g3_stock_instance(modelstock, 0)
+        obsstock__wgt <- g3_stock_instance(obsstock, ld$weight)
     }
 
     # If there are no fleets, do abundance comparison
@@ -356,13 +356,13 @@ g3l_distribution <- function (
             tf_name = tf_name)))
 
         if (!is.null(ld$number)) {
-            modelstock__num_pretransform <- stock_instance(modelstock, 0)
+            modelstock__num_pretransform <- g3_stock_instance(modelstock, 0)
             out[[step_id(run_at, 'g3l_distribution', nll_name, 2, tf_index, 'num')]] <-
                 generic_var_replace(transform_f, 'num')
         }
 
         if (!is.null(ld$weight)) {
-            modelstock__wgt_pretransform <- stock_instance(modelstock, 0)
+            modelstock__wgt_pretransform <- g3_stock_instance(modelstock, 0)
             out[[step_id(run_at, 'g3l_distribution', nll_name, 2, tf_index, 'wgt')]] <-
                 generic_var_replace(transform_f, 'wgt')
         }
@@ -370,9 +370,9 @@ g3l_distribution <- function (
 
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
-    nllstock__num <- stock_instance(nllstock, 0)
-    nllstock__wgt <- stock_instance(nllstock, 0)
-    nllstock__weight <- stock_instance(nllstock, 0)
+    nllstock__num <- g3_stock_instance(nllstock, 0)
+    nllstock__wgt <- g3_stock_instance(nllstock, 0)
+    nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
 
     # Generic comparison step with __x instead of __num or __wgt

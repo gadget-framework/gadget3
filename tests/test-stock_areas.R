@@ -61,7 +61,7 @@ nll <- 0.0
 stock_sum_a_ac <- 0.0
 stock_sum_ac_a <- 0.0
 stock_sum_ac_bcd <- 0.0
-stock_bcd__interacttotals <- gadget3:::stock_instance(stock_bcd, 0)
+stock_bcd__interacttotals <- g3_stock_instance(stock_bcd, 0)
 stock_bcd_a_interactions <- 0L
 stock_bcd_ac_interactions <- 0L
 actions <- list(

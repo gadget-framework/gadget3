@@ -92,21 +92,21 @@ g3a_predate_fleet <- function (fleet_stock,
     # fleet_stock__catch: Biomass caught by that fleet (fleet matrix, i.e. area)
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Ratio of prey_stock__totalpredate / (current biomass), capped by overconsumption rule
-    fleet_stock__catch <- stock_instance(fleet_stock, desc = "Biomass caught by fleet (fleet matrix, i.e. area)")
-    fleet_stock__catchnum <- stock_instance(fleet_stock, desc = "Individuals caught by fleet (fleet matrix, i.e. area)")
+    fleet_stock__catch <- g3_stock_instance(fleet_stock, desc = "Biomass caught by fleet (fleet matrix, i.e. area)")
+    fleet_stock__catchnum <- g3_stock_instance(fleet_stock, desc = "Individuals caught by fleet (fleet matrix, i.e. area)")
 
     # For each prey stock...
     for (stock in prey_stocks) {
         # Create variable to store biomass of stock caught
         fleet_stock_var <- as.symbol(paste0('stock__predby_', fleet_stock$name))
         suit_var <- as.symbol(paste0('stock__suit_', fleet_stock$name))
-        stock__num <- stock_instance(stock, 0)
-        stock__wgt <- stock_instance(stock, 1)
-        assign(as.character(fleet_stock_var), stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", fleet_stock$name)))
-        assign(as.character(suit_var), stock_instance(stock, 0, desc = paste("Suitability of ", stock$name, " for ", fleet_stock$name)))
-        stock__totalpredate <- stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
+        stock__num <- g3_stock_instance(stock, 0)
+        stock__wgt <- g3_stock_instance(stock, 1)
+        assign(as.character(fleet_stock_var), g3_stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", fleet_stock$name)))
+        assign(as.character(suit_var), g3_stock_instance(stock, 0, desc = paste("Suitability of ", stock$name, " for ", fleet_stock$name)))
+        stock__totalpredate <- g3_stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
         stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", stock$name))
-        stock__consratio <- stock_instance(stock, desc = paste0("Ratio of ", stock$name, "__totalpredate / (current biomass), capped by overconsumption rule"))
+        stock__consratio <- g3_stock_instance(stock, desc = paste0("Ratio of ", stock$name, "__totalpredate / (current biomass), capped by overconsumption rule"))
 
         # Make sure counter for this fleet is zeroed
         # NB: We only have one of these per-fleet (we replace it a few times though)

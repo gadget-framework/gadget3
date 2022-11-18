@@ -102,7 +102,7 @@ ok_group('g3a_spawn', {
         # Re-implement enough of spawning to test recruitment
         stock <- ling_mat
         out_var_name <- paste0('stock__rf_', sys.call()[[2]][[1]])
-        assign(out_var_name, gadget3:::stock_instance(stock))
+        assign(out_var_name, g3_stock_instance(stock))
         out <- list()
         out[[gadget3:::step_id(999, action_name)]] <- gadget3:::g3_step(gadget3:::f_substitute(
             ~g3_with(s := 0 * nll, {  # TODO: Ugly mess to get type right

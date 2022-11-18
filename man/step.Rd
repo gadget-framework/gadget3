@@ -97,7 +97,7 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
-> stock__num <- gadget3:::stock_instance(stock)
+> stock__num <- g3_stock_instance(stock)
 > gadget3:::g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock__num) }))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
   halibut__age_idx := g3_idx(age - halibut__minage + 1L), {
@@ -105,7 +105,7 @@
   })}
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
-> stock__num <- gadget3:::stock_instance(stock)
+> stock__num <- g3_stock_instance(stock)
 > gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
 ~stock__num[, stock__age_idx, 5]
 > gadget3:::g3_step(~stock_ss(stock__num, age = i + 1))

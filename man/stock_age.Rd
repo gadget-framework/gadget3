@@ -61,7 +61,7 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_age(5, 10)
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 
 # Define a stock that groups age into "young" and "old"
 stock <- g3_stock('name', c(1, 10, 100)) \%>\%
@@ -70,5 +70,5 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
         old = 8:10))
 
 # Use stock_instance to see what the array would look like
-gadget3:::stock_instance(stock)
+g3_stock_instance(stock)
 }

@@ -242,17 +242,17 @@ g3a_growmature <- function(stock,
 
     # See AgeBandMatrix::Grow
     stock__prevtotal <- 0
-    stock__num <- stock_instance(stock, 0)
-    stock__wgt <- stock_instance(stock, 1)
-    stock__growth_num <- stock_instance(stock)
+    stock__num <- g3_stock_instance(stock, 0)
+    stock__wgt <- g3_stock_instance(stock, 1)
+    stock__growth_num <- g3_stock_instance(stock)
     stock__growth_l <- array(
         dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
         dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
     stock__growth_w <- array(
         dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
         dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
-    stock__transitioning_num <- stock_instance(stock, 0)
-    stock__transitioning_wgt <- stock_instance(stock)
+    stock__transitioning_num <- g3_stock_instance(stock, 0)
+    stock__transitioning_wgt <- g3_stock_instance(stock)
 
     # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
     # TODO: (gadgetsim) if growth is negative assume no growth
