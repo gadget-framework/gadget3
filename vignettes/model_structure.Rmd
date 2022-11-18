@@ -271,8 +271,7 @@ example:
 
 ```{r}
 lln <- g3_fleet('lln') %>% g3s_livesonareas(1)
-lapply(
-    g3a_predate_fleet(
+action <- g3a_predate_fleet(
         lln,
         list(ling_imm),
         suitabilities = list(
@@ -282,9 +281,8 @@ lapply(
             ling_mat = g3_suitability_exponentiall50(
                 ~g3_param('ling.lln.alpha'),
                 ~g3_param('ling.lln.l50'))),
-        catchability_f = g3a_predate_catchability_totalfleet(1)),
-    # NB: step_find_desc finds a label within the formula
-    function (s) gadget3:::step_find_desc(s, minor_steps = TRUE))
+        catchability_f = g3a_predate_catchability_totalfleet(1))
+names(action)
 ```
 
 We see each step has a colon-separated name, including the following parts:

@@ -6,6 +6,10 @@ Resubmission after comments from CRAN team:
 
 Done.
 
+> You have examples for unexported functions.
+
+* Removed gadget3:::step_find_desc() from vignettes
+
 ==== 0.8-2
 
 New submission for the Gadget3 model framework.
