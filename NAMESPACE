@@ -120,6 +120,9 @@ export(g3_suitability_straightline)
 export(g3_suitability_constant)
 export(g3_suitability_richards)
 
+# R/step.R
+export(g3_step)
+
 # R/stock.R
 export(g3_stock_def)
 export(g3_stock_instance)

@@ -1,4 +1,5 @@
 \name{step}
+\alias{g3_step}
 \alias{debug_label}
 \alias{debug_trace}
 \alias{stock_assert}
@@ -17,13 +18,24 @@
   Additional meta-functions to help manage writing stock-handling actions.
 }
 
-\details{
-  Whilst used as functions, these functions alter the code output of the model,
-  rather than appearing directly. They make it easier to write code that can
-  handle stocks generically without having to worry about renaming and stock
-  dimensions.
+\usage{
+g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
+}
 
-  The transformation itself is managed by \code{g3_step}(), which all actions use.
+\arguments{
+  \item{step_f}{Input \link{formula} containing references to functions below}
+  \item{recursing}{Only use default value}
+  \item{orig_env}{Only use default value}
+}
+
+\details{
+  All action producing functions will run their output through \code{g3_step}.
+  This means that the functions described here will be available in any gadget3
+  code.
+
+  They handle translation of stock instance naming, so code can refer to e.g.
+  \code{stock__num} without having to translate naming to the final stock name,
+  and iterating over stock dimensions.
 }
 
 \section{debug_label}{
@@ -42,7 +54,7 @@
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
 > prey_stock <- g3_stock('herring', 1:3) |> g3s_age(1,3)
->  gadget3:::g3_step(~debug_trace("Zero ", stock, "-", prey_stock, " biomass-consuming counter"))
+>  g3_step(~debug_trace("Zero ", stock, "-", prey_stock, " biomass-consuming counter"))
 ~debug_trace("Zero halibut-herring biomass-consuming counter")}
 
   }
@@ -61,7 +73,7 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
-> gadget3:::g3_step(~stock_assert(stock_with(stock, all(is.finite(stock__num))), stock, "__num became NaN/Inf"))
+> g3_step(~stock_assert(stock_with(stock, all(is.finite(stock__num))), stock, "__num became NaN/Inf"))
 ~assert_msg(~all(is.finite(halibut__num)), "halibut__num became NaN/Inf")}
 
   }
@@ -98,7 +110,7 @@
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
 > stock__num <- g3_stock_instance(stock)
-> gadget3:::g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock__num) }))
+> g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock__num) }))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
   halibut__age_idx := g3_idx(age - halibut__minage + 1L), {
     x <- x + stock__num[, halibut__age_idx]
@@ -106,11 +118,11 @@
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
 > stock__num <- g3_stock_instance(stock)
-> gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
+> g3_step(~stock_ss(stock__num, area = 5)),
 ~stock__num[, stock__age_idx, 5]
-> gadget3:::g3_step(~stock_ss(stock__num, age = i + 1))
+> g3_step(~stock_ss(stock__num, age = i + 1))
 ~stock__num[, i + 1, stock__area_idx]
-> gadget3:::g3_step(~stock_ss(stock__num, area = , age = j))
+> g3_step(~stock_ss(stock__num, area = , age = j))
 ~stock__num[, j, ]}
 
   }
@@ -124,10 +136,10 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
-> gadget3:::g3_step(~gadget3:::g3_step(~stock_ssinv(stock, 'age')))
-~gadget3:::g3_step(~stock[, stock__age_idx, ])
-> gadget3:::g3_step(~gadget3:::g3_step(~stock_ssinv(stock, 'area')))
-~gadget3:::g3_step(~stock[, , stock__area_idx])}
+> g3_step(~g3_step(~stock_ssinv(stock, 'age')))
+~g3_step(~stock[, stock__age_idx, ])
+> g3_step(~g3_step(~stock_ssinv(stock, 'area')))
+~g3_step(~stock[, , stock__area_idx])}
 
   }
 }
@@ -145,11 +157,11 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) ; fleet_stock <- g3_fleet('igfs')
-> gadget3:::g3_step(~stock_switch(stock, halibut = 2, herring = 3, -1))
+> g3_step(~stock_switch(stock, halibut = 2, herring = 3, -1))
 ~2
-> gadget3:::g3_step(~stock_switch(fleet_stock, halibut = 2, herring = 3, -1))
+> g3_step(~stock_switch(fleet_stock, halibut = 2, herring = 3, -1))
 ~-1
-> gadget3:::g3_step(~stock_switch(stock, halibut = stock__midlen, -1))
+> g3_step(~stock_switch(stock, halibut = stock__midlen, -1))
 ~halibut__midlen}
 
   }
@@ -165,7 +177,7 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10)
-> gadget3:::g3_step(~stock_with(stock, sum(stock__num)))
+> g3_step(~stock_with(stock, sum(stock__num)))
 ~sum(halibut__num)}
 
   }
@@ -190,7 +202,7 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
-> gadget3:::g3_step(~stock_iterate(stock, x <- x + stock_ss(stock__num)))
+> g3_step(~stock_iterate(stock, x <- x + stock_ss(stock__num)))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(`:=`(halibut__age_idx,
     g3_idx(age - halibut__minage + 1L)), x <- x + halibut__num[, halibut__age_idx])}
 
@@ -207,7 +219,7 @@
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
 > prey_stock <- g3_stock('herring', 1:3) |> g3s_age(1,3)
-> gadget3:::g3_step(~stock_iterate(stock, stock_intersect(prey_stock, x <- x + stock_ss(stock__num) + stock_ss(prey_stock__num) )))
+> g3_step(~stock_iterate(stock, stock_intersect(prey_stock, x <- x + stock_ss(stock__num) + stock_ss(prey_stock__num) )))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) if (age >=
     herring__minage && age <= herring__maxage) g3_with(
       halibut__age_idx := g3_idx(age - halibut__minage + 1L),
@@ -232,7 +244,7 @@
 
 \preformatted{> stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10)
 > prey_stock <- g3_stock('herring', 1:3) |> g3s_age(1,3)
-> gadget3:::g3_step(~stock_iterate(stock, stock_interact(prey_stock, {
+> g3_step(~stock_iterate(stock, stock_interact(prey_stock, {
     x <- x + stock_ss(stock__num) + stock_ss(prey_stock__num)}, prefix = "prey" )))
 ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(
   halibut__age_idx := g3_idx(age - halibut__minage + 1L), {
@@ -256,11 +268,11 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock(c(species = 'halibut', sex = 'm', 'imm'), 1:10) |> g3s_age(1,10)
-> gadget3:::g3_step(~stock_param(stock, 'K'))
+> g3_step(~stock_param(stock, 'K'))
 ~g3_param("halibut_m_imm.K")
-> gadget3:::g3_step(~stock_param(stock, 'K', name_part = 'species'))
+> g3_step(~stock_param(stock, 'K', name_part = 'species'))
 ~g3_param("halibut.K")
-> gadget3:::g3_step(~stock_param(stock, 'K', name_part = c('species', 'sex')))
+> g3_step(~stock_param(stock, 'K', name_part = c('species', 'sex')))
 ~g3_param("halibut_m.K")}
   }
 }
@@ -278,9 +290,9 @@
   \subsection{Examples}{
 
 \preformatted{> stock <- g3_stock(c(species = 'halibut', 'imm'), 1:10) |> g3s_age(1,10)
-> gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(year = 2000:2004)))
+> g3_step(~stock_param_table(stock, 'K', expand.grid(year = 2000:2004)))
 ~g3_param_table("halibut_imm.K", expand.grid(year = 2000:2004))
-> gadget3:::g3_step(~stock_param_table(stock, 'K', expand.grid(age = seq(stock__minage, stock__maxage))))
+> g3_step(~stock_param_table(stock, 'K', expand.grid(age = seq(stock__minage, stock__maxage))))
 ~g3_param_table("halibut_imm.K", expand.grid(age = seq(halibut_imm__minage,
     halibut_imm__maxage)))}
   }
