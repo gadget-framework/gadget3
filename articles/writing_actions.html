@@ -109,10 +109,10 @@ affect the resulting code, rather than just being called when run.</p>
 </h2>
 <p>All G3 models have the G3 global environment included, which contains
 the definition of generally useful functions. For example
-<code>avoid_zero()</code>, used to avoid div/0 conditions by adding a
+<code><a href="../reference/aab_env.html">avoid_zero()</a></code>, used to avoid div/0 conditions by adding a
 small amount of error close to zero.</p>
-<p>See <code>R/aaa_global.R</code> for more information, and other
-existing helpers.</p>
+<p>See <code>R/aab_env.R</code> for more information, and other existing
+helpers.</p>
 </div>
 <div class="section level2">
 <h2 id="global-native-functions">Global &amp; native functions<a class="anchor" aria-label="anchor" href="#global-native-functions"></a>
@@ -122,7 +122,7 @@ existing helpers.</p>
 and C++ definitions, for example <code>logspace_add_vec</code>, used in
 many actions to avoid div/0, has the following definition:</p>
 <pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
-<span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">g3_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_native</a></span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
@@ -138,13 +138,13 @@ many actions to avoid div/0, has the following definition:</p>
 </h2>
 <p>Most actions interact with stocks, and fill out abstract formulae
 with the stocks provided to the function. To do this you need to do a
-series of substitutions, which are handled by <code>g3_step()</code>.
+series of substitutions, which are handled by <code><a href="../reference/step.html">g3_step()</a></code>.
 This takes a formula, looks for <code>stock_*</code> named functions and
 mangles the formula as appropriate. For example, a snippet from
 <code>action_mature.R</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">g3_step</span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
+<span>    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">g3_step</a></span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
 <span>        <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"g3a_mature for "</span>, <span class="va">stock</span><span class="op">)</span></span>
 <span>        <span class="co"># Matured stock will weigh the same</span></span>
 <span>        <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="../reference/step.html">stock_with</a></span><span class="op">(</span><span class="va">matured</span>, <span class="va">matured__wgt</span> <span class="op">&lt;-</span> <span class="va">stock__wgt</span><span class="op">)</span><span class="op">)</span></span>
@@ -223,10 +223,10 @@ defined using <code>g3_global_formula</code> and providing an
 <span>    <span class="fu"><a href="../reference/stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">nmort</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># Define a counter</span></span>
-<span>    <span class="va">E</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span></span>
+<span>    <span class="va">E</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_global_formula</a></span><span class="op">(</span></span>
 <span>        <span class="op">~</span><span class="va">E</span> <span class="op">+</span> <span class="fl">1</span>, init_val <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span>
 <span>    <span class="co"># We can just give init_val, to define something global to the model</span></span>
-<span>    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu">gadget3</span><span class="fu">:::</span><span class="fu">g3_global_formula</span><span class="op">(</span></span>
+<span>    <span class="cn">F</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_global_formula</a></span><span class="op">(</span></span>
 <span>        init_val <span class="op">=</span> <span class="fl">99L</span><span class="op">)</span></span>
 <span>    <span class="op">~</span><span class="va">E</span> <span class="op">*</span> <span class="cn">F</span> <span class="op">*</span> <span class="fl">4</span></span>
 <span><span class="op">}</span></span>
@@ -245,7 +245,7 @@ you can define functions using <code>g3_native</code>, which annotates
 functions with a C++ definition. For example, it is used to define
 <code>logspace_add_vec</code>:</p>
 <pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
-<span><span class="va">g3_global_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu">g3_native</span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">g3_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_native</a></span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
 <span><span class="st">    vector&lt;Type&gt; res(a.size());</span></span>
