@@ -48,7 +48,7 @@ g3_global_formula(f = ~noop, init_val = NULL)
 }
 
 \examples{
-# The definition of g3_global_env$ratio_add_vec looks like:
+# The definition of g3_env$ratio_add_vec looks like:
 eg_ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount,
                                         new_vec, new_amount) {
     ((orig_vec * orig_amount + new_vec * new_amount)

@@ -37,7 +37,7 @@ used in many actions to avoid div/0, has the following definition:
 
 ```
 # vector<Type> form of logspace_add
-g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
+g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
     # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
     pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
 }, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
@@ -162,7 +162,7 @@ For example, it is used to define ``logspace_add_vec``:
 
 ```
 # vector<Type> form of logspace_add
-g3_global_env$logspace_add_vec <- g3_native(r = function(a,b) {
+g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
     pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
 }, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
     vector<Type> res(a.size());

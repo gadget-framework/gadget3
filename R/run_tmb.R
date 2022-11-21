@@ -588,7 +588,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$') {
     collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
+    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
 

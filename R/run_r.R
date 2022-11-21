@@ -4,7 +4,7 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # The attached environment contains model_data, i.e. fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
+    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
     # NB: Needs to be globalenv() to evaluate core R
     model_env <- new.env(parent = globalenv())
     scope <- list()

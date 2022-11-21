@@ -48,7 +48,7 @@ g3a_report_history <- function (
 
     # Form list of definitions as we would do when compiling
     collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_global_env, wrap_call = call("while", TRUE))
+    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
     code <- rlang::f_rhs(all_actions)
     env <- environment(all_actions)
     all_defns <- mget(all.names(code, unique = TRUE), envir = env, inherits = TRUE, ifnotfound = list(NULL))

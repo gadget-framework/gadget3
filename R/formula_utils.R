@@ -409,14 +409,14 @@ is_infix_call <- function (x) {
 }
 
 # Evaluate rhs of (f), using it's environment and (env_extras), using (env_parent) if one supplied
-f_eval <- function (f, env_extras = list(), env_parent = g3_global_env) {
+f_eval <- function (f, env_extras = list(), env_parent = g3_env) {
     # NB: Don't alter extras if it is an environment
     env <- as.environment(as.list(env_extras))
     parent.env(env) <- rlang::env_clone(rlang::f_env(f))
 
     # If supplied, replace the formula's parent env
     # NB: g3 formula objects generally don't have a sensible parent until g3_to_*, so
-    #     we use g3_global_env by default for semi-sane behaviour
+    #     we use g3_env by default for semi-sane behaviour
     if (is.environment(env_parent)) {
         parent.env(parent.env(env)) <- env_parent
     }
