@@ -1,6 +1,10 @@
 importFrom("stats", "as.formula", "formula", "dnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
+# R/aaa_lang.R
+export(g3_native)
+export(g3_global_formula)
+
 # R/action_age.R
 export(g3a_age)
 

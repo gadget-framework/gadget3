@@ -10,6 +10,8 @@ Done.
 
 * Removed gadget3:::step_find_desc() from vignettes
 * gadget3:::stock_instance Now public, as g3_stock_instance
+* gadget3:::g3_native now public
+* gadget3:::g3_global_formula now public
 
 ==== 0.8-2
 

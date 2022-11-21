@@ -9,7 +9,7 @@ year_range <- 1982:1990
 
 nll_report <- rep(0, length(year_range) * 4)
 prev_nll <- 0.0
-remove_nll_attributes <- gadget3:::g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
+remove_nll_attributes <- g3_native(r = function (x) x[[1]], cpp = "[](Type x) -> Type { return x; }")
 
 report_actions <- list(
        list('999' = ~{
@@ -21,8 +21,8 @@ actions <- local({
     eval(g2to3_mainfile('inttest/understocking'))
     c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__predby_igfs$|__catch$")))
 })
-environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
-environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
 model_fn <- g3_to_r(actions, strict = TRUE, trace = FALSE)
 params <- local({eval(g2to3_params_r('inttest/understocking', 'params.in')) ; params.in})
 

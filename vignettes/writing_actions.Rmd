@@ -27,7 +27,7 @@ All G3 models have the G3 global environment included, which contains the
 definition of generally useful functions. For example ``avoid_zero()``, used to
 avoid div/0 conditions by adding a small amount of error close to zero.
 
-See ``R/aaa_global.R`` for more information, and other existing helpers.
+See ``R/aab_env.R`` for more information, and other existing helpers.
 
 ## Global & native functions
 
@@ -139,10 +139,10 @@ ling_imm <- g3_stock('ling_imm', seq(0, 50, 10)) %>%
     g3s_age(3, 10)
 nmort <- function() {
     # Define a counter
-    E <- gadget3:::g3_global_formula(
+    E <- g3_global_formula(
         ~E + 1, init_val = 0L)
     # We can just give init_val, to define something global to the model
-    F <- gadget3:::g3_global_formula(
+    F <- g3_global_formula(
         init_val = 99L)
     ~E * F * 4
 }

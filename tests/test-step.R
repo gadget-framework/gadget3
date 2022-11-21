@@ -212,7 +212,7 @@ ok_group("g3_step:dependent_formulas", (function () {
             area_imm__age_idx := g3_idx(age - area_imm__minage + 1L),
             (area_imm__num[, area_imm__age_idx, area_imm__area_idx] + independent_f))))), "independent_f: 2 gets inserted outside double loop, still renamed though")
 
-    global_f <- gadget3:::g3_global_formula(~4 * age, init_val = ~4 + 4)
+    global_f <- g3_global_formula(~4 * age, init_val = ~4 + 4)
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + global_f))
     ok(cmp_code(f, ~for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
         ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
@@ -222,7 +222,7 @@ ok_group("g3_step:dependent_formulas", (function () {
         })), "global_f: iterative case gets inserted inside loop")
     ok(any(grepl("global_f <- 4 + 4", deparse(g3_to_r(list(f))), fixed = TRUE)), "global_f: init_val in header when fully compiled")
 
-    global_ind_f <- gadget3:::g3_global_formula(~4 * 99, init_val = ~4 + 6)
+    global_ind_f <- g3_global_formula(~4 * 99, init_val = ~4 + 6)
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + global_ind_f))
     ok(cmp_code(f, ~{
         global_ind_f <- 4 * 99
@@ -232,7 +232,7 @@ ok_group("g3_step:dependent_formulas", (function () {
     }), "global_ind_f: iterative case gets inserted outside loop")
     ok(any(grepl("global_ind_f <- 4 + 6", deparse(g3_to_r(list(f))), fixed = TRUE)), "global_ind_f: init_val in header when fully compiled")
 
-    global_init_f <- gadget3:::g3_global_formula(init_val = ~2 * 2)
+    global_init_f <- g3_global_formula(init_val = ~2 * 2)
     f <- gadget3:::g3_step(~stock_iterate(stock_imm, stock_ss(stock_imm__num) + global_init_f))
     ok(cmp_code(f, ~for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
         ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),

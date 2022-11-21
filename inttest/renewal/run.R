@@ -10,8 +10,8 @@ actions <- local({
     eval(g2to3_mainfile('inttest/renewal'))
     c(actions, list(g3a_report_history(actions)))
 })
-environment(actions[[1]][[1]])$avoid_zero <- gadget3:::g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
-environment(actions[[1]][[1]])$avoid_zero_vec <- gadget3:::g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
+environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
 model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
 params <- local({eval(g2to3_params_r('inttest/renewal', 'params.in')) ; params.in})
 
