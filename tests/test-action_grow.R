@@ -204,7 +204,7 @@ ok_group("g3a_growmature", {
         as.vector(r$teststock__num),
         c(0, 25, 1010, 575, 5000, 105500)), "Stock individuals have been scaled by matrix, can't escape plus-group")
     ok(ut_cmp_equal(as.vector(r$teststock__wgt), c(
-        0 / gadget3:::g3_env$logspace_add(0, 0),
+        0 / g3_env$logspace_add(0, 0),
         (200 * 100*0.25) / 25,
         (300 * 1000 + 100 * 10) / 1010,
         (400 * 1000*0.5 + 200 * 100*0.75) / 575,

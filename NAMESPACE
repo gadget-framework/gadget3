@@ -5,6 +5,9 @@ importFrom("utils", "capture.output", "head", "str", "tail")
 export(g3_native)
 export(g3_global_formula)
 
+# R/aab_env.R
+export(g3_env)
+
 # R/action_age.R
 export(g3a_age)
 

@@ -62,8 +62,8 @@ actions <- c(actions, ~{
     REPORT(ratio_add_vec_output)
 })
 ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
-expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / gadget3:::g3_env$avoid_zero_vec(ratio_add_vec_total)) +
-    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / gadget3:::g3_env$avoid_zero_vec(ratio_add_vec_total))
+expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / g3_env$avoid_zero_vec(ratio_add_vec_total)) +
+    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / g3_env$avoid_zero_vec(ratio_add_vec_total))
 
 ###############################################################################
 

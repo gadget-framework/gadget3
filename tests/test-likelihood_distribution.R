@@ -18,9 +18,9 @@ cmp_grep <- function (a, ...) {
 }
 
 # NB: Name has to be different, or it gets sucked into the model
-g3_avoid_zero <- gadget3:::g3_env$avoid_zero
-g3_logspace_add <- gadget3:::g3_env$logspace_add
-g3_logspace_add_vec <- gadget3:::g3_env$logspace_add_vec
+g3_avoid_zero <- g3_env$avoid_zero
+g3_logspace_add <- g3_env$logspace_add
+g3_logspace_add_vec <- g3_env$logspace_add_vec
 g3_lgamma_vec <- lgamma
 
 ok_group("g3l_distribution_sumofsquares", {
