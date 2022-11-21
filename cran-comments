@@ -6,6 +6,10 @@ Resubmission after comments from CRAN team:
 
 Done.
 
+> Please add the references to your description (i.e. in DESCRIPTION) text
+
+Added references to the 'Description' field
+
 > You have examples for unexported functions.
 
 * Removed gadget3:::step_find_desc() from vignettes
