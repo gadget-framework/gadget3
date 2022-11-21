@@ -178,6 +178,9 @@ tmb_param$value$lingimm.M <- rep(0.15,3,10)
 tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0
 tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 
+# parscale gives optim() a relative scale of parameters
+tmb_param['parscale'] <- tmb_param[,'upper'] + tmb_param[,'lower']
+
 \donttest{\dontshow{# NB: Making / optimising a TMB function is slow}
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
@@ -189,10 +192,11 @@ writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script 
 result <- tmb$fn(g3_tmb_par(tmb_param))
 
 # perform optimisation based on parameter table
-fit <- nlminb(tmb$par, tmb$fn, tmb$gr,
+fit <- optim(tmb$par, tmb$fn, tmb$gr,
+    method = "L-BFGS-B",
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param),
-    control = list(iter.max=1, parscale=g3_tmb_parscale(tmb_param)))
+    control = list(maxit=1, parscale=g3_tmb_parscale(tmb_param)))
 
 # Go back to a list of parameters, suitable for the R version
 # NB: This will not set the values for random parameters
