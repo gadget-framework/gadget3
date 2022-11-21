@@ -18,6 +18,10 @@ Added references to the 'Description' field
 * gadget3:::g3_global_formula now public
 * gadget3:::g3_step now public
 
+> Please ensure that your functions do not write by default or in your examples/vignettes/tests in the user's home filespace (including the package directory and getwd())
+
+No such instances found
+
 ==== 0.8-2
 
 New submission for the Gadget3 model framework.
