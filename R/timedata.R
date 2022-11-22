@@ -22,7 +22,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
             }
             return lookup;
         }')
-        environment(intlookup_zip) <- emptyenv()
+        environment(intlookup_zip) <- baseenv()
 
         intlookup_get <- g3_native(r = function (lookup, key) {
             if (is.environment(lookup)) {
@@ -40,7 +40,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
             assert(lookup.count(key) > 0);
             return lookup[key];
         }')
-        environment(intlookup_get) <- emptyenv()
+        environment(intlookup_get) <- baseenv()
 
         intlookup_getdefault <- g3_native(r = function (lookup, key, def) {
             if (is.environment(lookup)) {
@@ -53,7 +53,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
         }, cpp = 'template<typename T, typename DefT> T __fn__(std::map<int, T> lookup, int key, DefT def) {
             return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }')
-        environment(intlookup_getdefault) <- emptyenv()
+        environment(intlookup_getdefault) <- baseenv()
 
         # TODO: Make a 1-item optimisation, then the as.array() stops being necessary
         lookup <- f_substitute(quote( intlookup_zip(l__keys, l__values) ), list(
@@ -92,22 +92,9 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight', areas
     # What's the next power of 10?
     next_mult <- function (x) as.integer(10 ** ceiling(log10(x)))
 
-    remove_multzero <- function (f) call_replace(f, "*" = function (x) {
-        if (isTRUE(all.equal(x[[2]], 0))) return(0)
-        if (isTRUE(all.equal(x[[3]], 0))) return(0)
-        return(as.call(list(
-            x[[1]],
-            remove_multzero(x[[2]]),
-            remove_multzero(x[[3]]))))
-    })
-
-    for (n in c('year', value_field)) {
+    for (n in c(value_field)) {
         if (is.null(df[[n]])) stop("No ", n, " field in g3_timeareadata data.frame")
     }
-
-    # All lengths the same, no point adding to the lookup
-    times <- g3s_time_convert(df$year, df$step)  # NB: if step column missing, this will be NULL
-    year_mult <- as.integer(g3s_time_multiplier(times))
 
     # If have a non-identity area map, apply it to data first
     if (!(is.null(areas) || identical(names(areas), as.character(areas)))) {
@@ -115,28 +102,55 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight', areas
         df$area <- as.integer(areas[df$area])
     }
 
-    # Count potential areas, 0, 1, many
-    area_count <- if (is.null(df$area)) 0 else if (length(df$area) > 1 && any(df$area[[1]] != df$area)) 2 else 1
-    area_mult <- if (area_count > 1) next_mult(max(times)) else 0L
+    # Single area --> move condition outside table
+    if (length(df$area) > 0 && length(unique(df$area)) == 1) {
+        our_area <- df$area[[1]]
+        df$area <- NULL
+    } else {
+        our_area <- NULL
+    }
+
+    # Generate list of keys & corresponding code for all available columns
+    mult <- 1L
+    combined_keys <- rep(0L, nrow(df))
+    combined_code <- 0L
+    for (col_name in c('step', 'year', 'area', 'age')) {
+        if (!(col_name %in% names(df))) next
+
+        if (col_name == 'year') {
+            col_sym <- as.symbol('cur_year')
+            col_max <- 1999
+        } else if (col_name == 'step') {
+            col_sym <- as.symbol('cur_step')
+            col_max <- 12
+        } else {
+            col_sym <- as.symbol(col_name)
+            # Assume maximum value is within a power of 10 of the maximum value.
+            # NB: This is a bit of a shaky assumption e.g. if age column contains 1..5 but "age" can go up to 15.
+            # The chance of this being a practical concern are small, especially as age is considered last.
+            col_max <- max(df[[col_name]])
+        }
+
+        combined_keys <- combined_keys + df[[col_name]] * mult
+        combined_code <- substitute(var * mult + combined_code, list(
+            var = col_sym,
+            mult = mult,
+            combined_code = combined_code))
+        mult <- next_mult(col_max)
+    }
 
     lookup <- g3_intlookup(lookup_name,
-        keys = as.integer(times + (if (area_count > 1) area_mult * df$area else 0)),
+        keys = as.integer(combined_keys),
         values = df[[value_field]])
 
     # Return formula that does the lookup
-    out_f <- lookup('getdefault', remove_multzero(f_substitute(
-        quote( area * area_mult + cur_year * year_mult + cur_step * step_mult ),
-        list(
-            area_mult = area_mult,
-            # Mult is zero ==> There is no step.
-            step_mult = if (year_mult > 1L) 1L else 0L,
-            year_mult = year_mult))), 0)
+    out_f <- lookup('getdefault', f_optimize(combined_code), 0)
 
-    if (area_count == 1) {
+    if (!is.null(our_area)) {
         # Wrap lookup with check that we're in the correct area
         out_f <- f_substitute(
             quote( if (area != our_area) 0 else out_f ),
-            list(our_area = df$area[[1]], out_f = out_f))
+            list(our_area = our_area, out_f = out_f))
     }
 
     return(out_f)

@@ -396,7 +396,7 @@ structure(function (param)
                   {
                     ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
                       0
-                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/igfs__catch[igfs__area_idx])
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
@@ -414,7 +414,7 @@ structure(function (param)
                   {
                     ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
                       0
-                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 10L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/igfs__catch[igfs__area_idx])
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }

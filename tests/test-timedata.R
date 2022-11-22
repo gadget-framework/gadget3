@@ -6,6 +6,26 @@ library(gadget3)
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
 
+# Do some tests directly first
+do_lookup <- function(df, cur_vals) {
+    # Add a derived total_weight field, with values pasted together
+    df$total_weight <- do.call(paste, df)
+    lookup_f <- g3_timeareadata('l', df)
+    # Bodge g3_global first
+    environment(lookup_f)$l__lookup <- gadget3:::f_eval(attr(environment(lookup_f)$l__lookup, 'g3_global_init_val'))
+    gadget3:::f_eval(lookup_f, cur_vals)
+}
+
+ok(ut_cmp_identical(
+    do_lookup(expand.grid(age=1:3, area=4), list(age=3, area=3)),
+    0), "age/area: Outside area, no match")
+ok(ut_cmp_identical(
+    do_lookup(expand.grid(age=1:3, area=4), list(age=3, area=4)),
+    "3 4"), "age/area: Inside area")
+ok(ut_cmp_identical(
+    do_lookup(expand.grid(age=1:3, year=2000:2004, step=1:2), list(age=3, cur_year=2000, cur_step=2)),
+    "3 2000 2"), "age/year/step matches")
+
 ###############################################################################
 
 area <- 1L
