@@ -90,12 +90,14 @@ scope_to_cppnamemap <- function (scope) {
 
 # Given a g3_with(x := 2, y := 4, exp) call, extract calls to set terms
 g3_with_extract_terms <- function(x) {
-    do.call(c, lapply(as.list(x), function (arg) {
-        if (is.call(arg) && arg[[1]] == ":=") {
-            list(call("<-", arg[[2]], arg[[3]]))
-        } else {
-            list()
-        }
-    }))
+    # Strip off g3_with symbol, exp
+    x <- head(tail(as.list(x), -1), -1)
+    lapply(x, function (arg) {
+      if (is.call(arg) && arg[[1]] == ":=") {
+          call("<-", arg[[2]], arg[[3]])
+      } else {
+          stop("Unknown g3_with assignment format ", arg)
+      }
+    })
 }
 # g3_with_extract_terms(quote(g3_with(x := 2, parp.x := 4 + 4, moo)))
