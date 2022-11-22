@@ -107,9 +107,9 @@
 }
 
 \section{g3_with}{
-  As R \link{with}(), but supports \code{var := val} syntax, e.g.
-  \code{g3_with(var1 := val1, var2 := val2, { . . . })}.
+  \code{g3_with(var1 := val1, var2 := val2, { x <- val1 * val2 })}
+  is equivalent to
+  \code{local({var1 <- val1, var2 <- val2, { x <<- val1 * val2 } })}
 
-  The main reason for existing is so that \code{var1} can be replaced by
-  substitute, which won't substitute a name in a list.
+  However, we don't make a new environment for the code block in R, only in C++.
 }
