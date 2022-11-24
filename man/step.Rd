@@ -168,6 +168,12 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
 
 }
 
+\value{
+  \subsection{g3_step}{
+    A \link{formula} object with references to above functions replaced.
+  }
+}
+
 \examples{
 \dontshow{library(magrittr)}
 ### debug_label

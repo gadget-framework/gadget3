@@ -1,5 +1,10 @@
 # https://cran.r-project.org/submit.html
 
+> Missing Rd-tags:
+>      step.Rd: \value
+
+Section added.
+
 ==== 0.8-3
 
 Resubmission of new package after comments from CRAN team:
