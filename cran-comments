@@ -1,6 +1,8 @@
 # https://cran.r-project.org/submit.html
 
-Resubmission after comments from CRAN team:
+==== 0.8-3
+
+Resubmission of new package after comments from CRAN team:
 
 > Please always write package names, software names and API (application programming interface) names in single quotes in title and description. e.g: --> 'R','C++'
 
@@ -20,7 +22,15 @@ Added references to the 'Description' field
 
 > Please ensure that your functions do not write by default or in your examples/vignettes/tests in the user's home filespace (including the package directory and getwd())
 
-No such instances found
+g3_tmb_adfun() defaults to 'work_dir = tempdir()', so agreed that explicit 'work_dir = tempdir()' in examples shouldn't be necessary.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/compare/v0.8-2...v0.8-3
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/3539714763
 
 ==== 0.8-2
 
