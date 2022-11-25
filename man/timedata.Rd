@@ -34,8 +34,8 @@ g3_timeareadata(lookup_name, df, value_field = "total_weight", areas = NULL)
 
 \examples{
 \dontshow{library(magrittr)}
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) \%>\% g3s_age(5, 15)
+ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+ling_mat <- g3_stock(c(species = 'ling', 'mat'), seq(20, 156, 4)) \%>\% g3s_age(5, 15)
 igfs <- g3_fleet('igfs')
 
 igfs_landings <-
@@ -50,9 +50,11 @@ predate_action <- g3a_predate_fleet(
     list(ling_imm, ling_mat),
     suitabilities = list(
         ling_imm = g3_suitability_exponentiall50(
-            ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50')),
+            g3_parameterized('lln.alpha', by_stock = 'species'),
+            g3_parameterized('lln.l50', by_stock = 'species')),
         ling_mat = g3_suitability_exponentiall50(
-            ~g3_param('ling.igfs.alpha'), ~g3_param('ling.igfs.l50'))),
+            g3_parameterized('lln.alpha', by_stock = 'species'),
+            g3_parameterized('lln.l50', by_stock = 'species'))),
     catchability = g3a_predate_catchability_totalfleet(
         g3_timeareadata('igfs_landings', igfs_landings)))
 }

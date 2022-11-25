@@ -176,8 +176,8 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 \examples{
 \dontshow{library(magrittr)}
 areas <- c(a = 1, b = 2)
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_livesonareas(areas[c('a')])
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) \%>\% g3s_livesonareas(areas[c('b')])
+ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+ling_mat <- g3_stock(c(species = 'ling', 'mat'), seq(20, 156, 4)) \%>\% g3s_age(5, 15)
 lln <- g3_fleet('lln') \%>\% g3s_livesonareas(areas[c('a', 'b')])
 
 # Invent a lln_landings table
@@ -193,11 +193,11 @@ predate_action <- g3a_predate_fleet(
     list(ling_imm, ling_mat),
     suitabilities = list(
         ling_imm = g3_suitability_exponentiall50(
-            ~g3_param('ling.lln.alpha'),
-            ~g3_param('ling.lln.l50')),
+            g3_parameterized('lln.alpha', by_stock = 'species'),
+            g3_parameterized('lln.l50', by_stock = 'species')),
         ling_mat = g3_suitability_exponentiall50(
-            ~g3_param('ling.lln.alpha'),
-            ~g3_param('ling.lln.l50'))),
+            g3_parameterized('lln.alpha', by_stock = 'species'),
+            g3_parameterized('lln.l50', by_stock = 'species'))),
     catchability_f = g3a_predate_catchability_totalfleet(
         g3_timeareadata('lln_landings', lln_landings[[1]])))
 }

@@ -123,21 +123,13 @@ g3_tmb_relist(parameters, par)
 
 \examples{
 \dontshow{library(magrittr)}
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 initialconditions_action <- g3a_initialconditions_normalparam(
     ling_imm,
-    # NB: area & age factor together (gadget2 just multiplied them)
-    factor_f = ~g3_param("lingimm.init.scalar") *
-        exp(-1 * (g3_param_vector("lingimm.M")[[age - 3 + 1]] + g3_param("ling.init.F")) * age) *
-        g3_param_vector("lingimm.init")[[age - 3 + 1]],
-    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 *
-        (0.001 * g3_param("ling.k")) *
-        (age - (1 + log(1 - g3_param("ling.recl") / g3_param("ling.Linf")) /
-            (0.001 * g3_param("ling.k")))))),
-    stddev_f = ~g3_param_vector("ling.init.sd")[[age]],
-    alpha_f = ~g3_param("lingimm.walpha"),
-    beta_f = ~g3_param("lingimm.wbeta"))
+    factor_f = g3a_renewal_initabund(by_stock_f = 'species'),
+    by_stock = 'species',
+    by_age = TRUE)
 
 # Timekeeping action
 time_action <- g3a_time(
@@ -165,14 +157,14 @@ tmb_param <- attr(cpp, 'parameter_template')
 tmb_param$value$project_years <- 0
 tmb_param$value$ling.init.F <- 0.4
 tmb_param$value$ling.Linf <- 160
-tmb_param$value$ling.k <- 90
+tmb_param$value$ling.K <- 90
 tmb_param$value$ling.recl <- 12
-tmb_param$value$ling.init.sd <- rep(50.527220, 21)
-tmb_param$value$lingimm.init <- rep(1, 15 - 5 + 1)
-tmb_param$value$lingimm.init.scalar <- 200
-tmb_param$value$lingimm.walpha <- 2.27567436711055e-06
-tmb_param$value$lingimm.wbeta <- 3.20200445996187
-tmb_param$value$lingimm.M <- rep(0.15,3,10)
+tmb_param[grepl('^ling.init.sd.', rownames(tmb_param)), 'value'] <- 50.527220
+tmb_param[grepl('^ling_imm.init.\\\\d+', rownames(tmb_param)), 'value'] <- 1
+tmb_param$value$ling_imm.init.scalar <- 200
+tmb_param$value$ling_imm.walpha <- 2.27567436711055e-06
+tmb_param$value$ling_imm.wbeta <- 3.20200445996187
+tmb_param$value$ling_imm.M <- 0.15
 
 # We can set lower/upper bounds for multiple properties at once with grepl()
 tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0

@@ -25,7 +25,7 @@ g3a_migrate <- function(
         run_f = TRUE,
         run_at = 2) {
     stopifnot(g3_is_stock(stock))
-    stopifnot(rlang::is_formula(migrate_f))
+    stopifnot(rlang::is_formula(migrate_f) || is.call(migrate_f))
 
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)

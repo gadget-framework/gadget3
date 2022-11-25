@@ -76,7 +76,9 @@ actions <- list(
         catchability_f = g3a_predate_catchability_numberfleet(~100),
         
         # Optional tag mortality suitability
-        mortality_f = g3_suitability_straightline(~g3_param('mort_alpha'), ~g3_param('mort_beta')),
+        mortality_f = g3_suitability_straightline(
+            g3_parameterized('mort_alpha'),
+            g3_parameterized('mort_beta')),
 
         # Formula to decide which tag to output into, generate table
         # with one tag per year

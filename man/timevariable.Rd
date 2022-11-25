@@ -39,9 +39,9 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 naturalmortality_action <- g3a_naturalmortality(ling_imm,
     g3a_naturalmortality_exp( g3_timevariable("lingimm.M", list(
         # Start off using lingimm.M.early
-        "init" = ~g3_param("lingimm.M.early"),
+        "init" = g3_parameterized("lingimm.M.early"),
         # At 2005 step 2, switch to lingimm.M.mid
-        "2005-02" = ~g3_param("lingimm.M.mid"),
+        "2005-02" = g3_parameterized("lingimm.M.mid"),
         # At 2010 step 1, switch to lingimm.M.late
-        "2010" = ~g3_param("lingimm.M.late")))))
+        "2010" = g3_parameterized("lingimm.M.late")))))
 }

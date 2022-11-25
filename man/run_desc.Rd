@@ -32,17 +32,7 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 initialconditions_action <- g3a_initialconditions_normalparam(
     ling_imm,
-    # NB: area & age factor together (gadget2 just multiplied them)
-    factor_f = ~g3_param("lingimm.init.scalar") *
-        exp(-1 * (g3_param_vector("lingimm.M")[[age - 3 + 1]] + g3_param("ling.init.F")) * age) *
-        g3_param_vector("lingimm.init")[[age - 3 + 1]],
-    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 *
-        (0.001 * g3_param("ling.k")) *
-        (age - (1 + log(1 - g3_param("ling.recl") / g3_param("ling.Linf")) /
-            (0.001 * g3_param("ling.k")))))),
-    stddev_f = ~g3_param_vector("ling.init.sd")[[age]],
-    alpha_f = ~g3_param("lingimm.walpha"),
-    beta_f = ~g3_param("lingimm.wbeta"))
+    by_age = TRUE)
 
 # Timekeeping action
 time_action <- g3a_time(

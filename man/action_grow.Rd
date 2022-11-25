@@ -143,7 +143,7 @@ growth_action <- g3a_growmature(ling_imm,
         g3a_grow_weightsimple(),
         maxlengthgroupgrowth = 15),
     maturity_f = g3a_mature_constant(
-        alpha = ~0.001 * g3_param("ling.mat1"),
-        l50 = ~g3_param("ling.mat2")),
+        alpha = g3_parameterized('ling.mat1', scale = 0.001),
+        l50 = g3_parameterized('ling.mat2')),
         output_stocks = list(ling_mat))
 }

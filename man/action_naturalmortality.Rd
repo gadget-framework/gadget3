@@ -78,5 +78,5 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 # Natural mortality for immature ling
 naturalmortality_action <- g3a_naturalmortality(ling_imm,
-    g3a_naturalmortality_exp(~g3_param_vector("lingimm.M")[[age - 3 + 1]]))
+    g3a_naturalmortality_exp())
 }

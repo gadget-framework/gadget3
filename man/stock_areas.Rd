@@ -63,7 +63,7 @@ stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_livesonareas(areas[c('a', 'b', 'c')])
 
 # Area variables will be defined, so you can refer to them in formulas:
-g3a_migrate(stock, ~g3_param("migrate_spring"),
+g3a_migrate(stock, g3_parameterized("migrate_spring"),
     run_f = ~area == area_b && cur_step == 2)
 
 # Use stock_instance to see what the array would look like

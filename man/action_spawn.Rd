@@ -189,16 +189,18 @@ spawn_action <- g3a_spawn(
     ling_mat,
     # Use Ricker Recruitment Function to calculate # of recruits from total biomass
     recruitment_f = g3a_spawn_recruitment_ricker(
-        ~g3_param("ricker.mu"),
-        ~g3_param("ricker.lambda")),
+        g3_parameterized("ricker.mu"),
+        g3_parameterized("ricker.lambda")),
     # Proportion of ling_mat spawning exponential relationship based on length
     proportion_f = g3_suitability_exponentiall50(
-        alpha = ~-g3_param("spawn.prop.alpha"), l50 = ~g3_param("spawn.prop.l50")),
+        alpha = g3_parameterized("spawn.prop.alpha", scale = -1),
+        l50 = g3_parameterized("spawn.prop.l50")),
     # Proportion of ling_mat dying during spawning linear relationship to length
     mortality_f = g3_suitability_straightline(
-        alpha = ~g3_param("spawn.mort.alpha"), beta = ~g3_param("spawn.mort.beta")),
+        alpha = g3_parameterized("spawn.mort.alpha"),
+        beta = g3_parameterized("spawn.mort.beta")),
     # Weightloss of ling_mat during spawning a constant
-    weightloss_f = ~g3_param("spawn.weightloss"),
+    weightloss_f = g3_parameterized("spawn.weightloss"),
     # Spawn into ling_imm
     output_stocks = list(ling_imm),
     # Spawned stock structure, as-per g3a_renewal_normalparam()

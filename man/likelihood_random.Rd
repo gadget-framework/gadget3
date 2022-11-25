@@ -81,13 +81,10 @@ g3l_random_walk(
 likelihood_actions <- list(
     # Calculate dnorm() for the dnorm_log parameter
     g3l_random_dnorm('dnorm_log',
-        ~g3_param('dnorm_log', value = 0, random = TRUE),
+        g3_parameterized('dnorm_log', value = 0, random = TRUE),
         mean_f = 0),
 
     # Treat the walk_year.xxxx parameters as a random walk
     g3l_random_walk('walk_year',
-        ~g3_param_table('walk_year',
-            expand.grid(cur_year = seq(start_year,  end_year)),
-            random = TRUE,
-            value = 0))
+        g3_parameterized('walk_year', by_year = TRUE, value = 0, random = TRUE))
 )}

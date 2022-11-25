@@ -159,16 +159,14 @@ ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 initialconditions_action <- g3a_initialconditions_normalparam(
     ling_imm,
-    by_age = TRUE,  # per-age init.sd parameters
-    alpha_f = ~g3_param("lingimm.walpha"),
-    beta_f = ~g3_param("lingimm.wbeta"))
+    by_age = TRUE)  # per-age init.sd parameters
 renewal_action <- g3a_renewal_normalparam(
     ling_imm,
-    factor_f = ~g3_param("ling.rec.scalar") *
-        g3_param_vector("ling.rec")[[cur_year - start_year + 1]],
+    factor_f = g3_parameterized(
+        'rec',
+        by_stock = ling_imm,
+        by_year = TRUE,
+        ifmissing = NaN),
     mean_f = g3a_renewal_vonb(),
-    by_age = TRUE,  # per-age init.sd parameters
-    alpha_f = ~g3_param("lingimm.walpha"),
-    beta_f = ~g3_param("lingimm.wbeta"),
-    run_f = ~cur_step == 1 && age == 3)
+    run_f = ~cur_step == 1 && age == stock__minage && !cur_year_projection)
 }

@@ -42,21 +42,13 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
 
 \examples{
 \dontshow{library(magrittr)}
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 initialconditions_action <- g3a_initialconditions_normalparam(
     ling_imm,
-    # NB: area & age factor together (gadget2 just multiplied them)
-    factor_f = ~g3_param("lingimm.init.scalar") *
-        exp(-1 * (g3_param_vector("lingimm.M")[[age - 3 + 1]] + g3_param("ling.init.F")) * age) *
-        g3_param_vector("lingimm.init")[[age - 3 + 1]],
-    mean_f = ~g3_param("ling.Linf") * (1 - exp(-1 *
-        (0.001 * g3_param("ling.k")) *
-        (age - (1 + log(1 - g3_param("ling.recl") / g3_param("ling.Linf")) /
-            (0.001 * g3_param("ling.k")))))),
-    stddev_f = ~g3_param_vector("ling.init.sd")[[age]],
-    alpha_f = ~g3_param("lingimm.walpha"),
-    beta_f = ~g3_param("lingimm.wbeta"))
+    factor_f = g3a_renewal_initabund(by_stock_f = 'species'),
+    by_stock = 'species',
+    by_age = TRUE)
 
 # Timekeeping action
 time_action <- g3a_time(
@@ -73,22 +65,21 @@ if (interactive()) {
   fn <- edit(fn)
 }
 
+param <- attr(fn, 'parameter_template')
+param$project_years <- 0
+param$ling.init.F <- 0.4
+param$ling.Linf <- 160
+param$ling.K <- 90
+param$ling.recl <- 12
+param[grepl('^ling.init.sd.', names(param))] <- 50.527220
+param[grepl('^ling_imm.init.\\\\d+', names(param))] <- 1
+param$ling_imm.init.scalar <- 200
+param$ling_imm.walpha <- 2.27567436711055e-06
+param$ling_imm.wbeta <- 3.20200445996187
+param$ling_imm.M <- 0.15
+
 # Run the model with the provided parameters
-nll <- fn(c(
-  list(
-    project_years = 0,
-    ling.init.F = 0.4,
-    ling.Linf = 160,
-    ling.k = 90,
-    ling.recl = 12,
-    ling.init.sd = rep(50.527220, 21),
-    lingimm.init = rep(1, 15 - 5 + 1),
-    lingimm.init.scalar = 200,
-    lingimm.walpha = 2.27567436711055e-06,
-    lingimm.wbeta = 3.20200445996187,
-    lingimm.M = rep(0.15,3,10)),
- # Include defaults for parameters not listed above
- attr(fn, 'parameter_template')))
+nll <- fn(param)
 
 # Get the report from the last model run
 report <- attributes(nll)
