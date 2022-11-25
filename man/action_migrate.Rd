@@ -87,12 +87,12 @@ movement_action <- list(
     g3a_migrate(
         stock_acd,
         # In spring, individuals in area 'a' will migrate to 'd'.
-        ~if (area == area_a && dest_area == area_d) g3_param("migrate_spring") else 0,
+        ~if (area == area_a && dest_area == area_d) 0.8 else 0,
         run_f = ~cur_step == 2),
     g3a_migrate(
         stock_acd,
         # In autumn, individuals in all areas will migrate to 'a'
-        ~if (dest_area == area_a) g3_param("migrate_winter") else 0,
+        ~if (dest_area == area_a) 0.8 else 0,
         run_f = ~cur_step == 4),
     list())
 }
