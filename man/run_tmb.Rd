@@ -131,21 +131,21 @@ initialconditions_action <- g3a_initialconditions_normalparam(
     by_stock = 'species',
     by_age = TRUE)
 
+abundance_action <- g3l_abundancedistribution(
+    'abundance',
+    data.frame(year = 2000:2004, number = 100),
+    stocks = list(ling_imm),
+    function_f = g3l_distribution_sumofsquares())
+
 # Timekeeping action
 time_action <- g3a_time(
     start_year = 2000,
     end_year = 2004,
     c(3, 3, 3, 3))
 
-# Add our own custom action that will be added to model code
-# (This is mostly to avoid problems in TMB)
-custom_action <- list(~{
-    nll <- g3_param('ling.k')
-})
-
 # Generate a model from the above 2 actions
 # NB: Obviously in reality we'd need more actions
-cpp <- g3_to_tmb(list(initialconditions_action, custom_action, time_action))
+cpp <- g3_to_tmb(list(initialconditions_action, abundance_action, time_action))
 
 if (interactive()) {
   # Edit the resulting code
@@ -167,11 +167,11 @@ tmb_param$value$ling_imm.wbeta <- 3.20200445996187
 tmb_param$value$ling_imm.M <- 0.15
 
 # We can set lower/upper bounds for multiple properties at once with grepl()
-tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- 0
+tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- -1000
 tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 
 # parscale gives optim() a relative scale of parameters
-tmb_param['parscale'] <- tmb_param[,'upper'] + tmb_param[,'lower']
+tmb_param['parscale'] <- 1
 
 \donttest{\dontshow{# NB: Making / optimising a TMB function is slow}
 # Compile to a TMB ADFun
@@ -183,12 +183,15 @@ writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script 
 # Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))
 
-# perform optimisation based on parameter table
+# perform optimisation using upper/lower/parscale from table
 fit <- optim(tmb$par, tmb$fn, tmb$gr,
     method = "L-BFGS-B",
     upper = g3_tmb_upper(tmb_param),
     lower = g3_tmb_lower(tmb_param),
-    control = list(maxit=1, parscale=g3_tmb_parscale(tmb_param)))
+    control = list(maxit=10, parscale=g3_tmb_parscale(tmb_param)))
+
+# perform optimisation without bounds
+fit <- optim(tmb$par, tmb$fn, tmb$gr)
 
 # Go back to a list of parameters, suitable for the R version
 # NB: This will not set the values for random parameters
