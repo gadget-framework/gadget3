@@ -162,7 +162,9 @@
 <span class="r-in"><span>        catchability_f <span class="op">=</span> <span class="fu"><a href="action_predate.html">g3a_predate_catchability_numberfleet</a></span><span class="op">(</span><span class="op">~</span><span class="fl">100</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        </span></span>
 <span class="r-in"><span>        <span class="co"># Optional tag mortality suitability</span></span></span>
-<span class="r-in"><span>        mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_alpha'</span><span class="op">)</span>, <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'mort_beta'</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'mort_alpha'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'mort_beta'</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>        <span class="co"># Formula to decide which tag to output into, generate table</span></span></span>
 <span class="r-in"><span>        <span class="co"># with one tag per year</span></span></span>

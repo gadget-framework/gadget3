@@ -264,18 +264,16 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># per-age init.sd parameters</span></span></span>
-<span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># per-age init.sd parameters</span></span></span>
 <span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    factor_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"ling.rec.scalar"</span><span class="op">)</span> <span class="op">*</span></span></span>
-<span class="r-in"><span>        <span class="fu"><a href="language.html">g3_param_vector</a></span><span class="op">(</span><span class="st">"ling.rec"</span><span class="op">)</span><span class="op">[[</span><span class="va">cur_year</span> <span class="op">-</span> <span class="va">start_year</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    factor_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="st">'rec'</span>,</span></span>
+<span class="r-in"><span>        by_stock <span class="op">=</span> <span class="va">ling_imm</span>,</span></span>
+<span class="r-in"><span>        by_year <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>        ifmissing <span class="op">=</span> <span class="cn">NaN</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb</span><span class="op">(</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># per-age init.sd parameters</span></span></span>
-<span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.walpha"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    beta_f <span class="op">=</span> <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"lingimm.wbeta"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;&amp;</span> <span class="va">age</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;&amp;</span> <span class="va">age</span> <span class="op">==</span> <span class="va">stock__minage</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="va">cur_year_projection</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

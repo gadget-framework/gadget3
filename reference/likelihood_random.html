@@ -153,15 +153,12 @@
 <span class="r-in"><span><span class="va">likelihood_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="co"># Calculate dnorm() for the dnorm_log parameter</span></span></span>
 <span class="r-in"><span>    <span class="fu">g3l_random_dnorm</span><span class="op">(</span><span class="st">'dnorm_log'</span>,</span></span>
-<span class="r-in"><span>        <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'dnorm_log'</span>, value <span class="op">=</span> <span class="fl">0</span>, random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'dnorm_log'</span>, value <span class="op">=</span> <span class="fl">0</span>, random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        mean_f <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>    <span class="co"># Treat the walk_year.xxxx parameters as a random walk</span></span></span>
 <span class="r-in"><span>    <span class="fu">g3l_random_walk</span><span class="op">(</span><span class="st">'walk_year'</span>,</span></span>
-<span class="r-in"><span>        <span class="op">~</span><span class="fu"><a href="language.html">g3_param_table</a></span><span class="op">(</span><span class="st">'walk_year'</span>,</span></span>
-<span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>cur_year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">start_year</span>,  <span class="va">end_year</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>            random <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>            value <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>        <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walk_year'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, value <span class="op">=</span> <span class="fl">0</span>, random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

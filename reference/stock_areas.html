@@ -130,16 +130,16 @@
 <span class="r-in"><span>    <span class="fu">g3s_livesonareas</span><span class="op">(</span><span class="va">areas</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'a'</span>, <span class="st">'b'</span>, <span class="st">'c'</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Area variables will be defined, so you can refer to them in formulas:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="action_migrate.html">g3a_migrate</a></span><span class="op">(</span><span class="va">stock</span>, <span class="op">~</span><span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">"migrate_spring"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="fu"><a href="action_migrate.html">g3a_migrate</a></span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"migrate_spring"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">area</span> <span class="op">==</span> <span class="va">area_b</span> <span class="op">&amp;&amp;</span> <span class="va">cur_step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :001`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     debug_trace("Clear name migration matrix")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__migratematrix[] &lt;- NaN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5576ce2ea818&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563517d5ad80&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :002:cfe33e24799ee60b2ffd`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :002:f43e386b07dca64199ee`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     debug_label("g3a_migrate: Migration of name")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__postmigratenum[] &lt;- 0</span>
@@ -180,7 +180,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__num &lt;- name__postmigratenum</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__wgt &lt;- name__postmigratewgt</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x5576cefe8578&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563517bac6b0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
