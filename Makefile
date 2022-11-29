@@ -27,7 +27,7 @@ check-as-cran: build
 
 wincheck: build
 	# See https://win-builder.r-project.org/ for more information
-	curl --no-epsv -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
+	curl -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
 
 examples: install
 	Rscript -e 'devtools::run_examples(run_donttest = TRUE, run_dontrun = FALSE, document = FALSE)'
