@@ -98,7 +98,7 @@
 <dd><p>The <code><a href="stock.html">g3_stock</a></code> that will be aggregated</p></dd>
 
   <dt>report_f</dt>
-<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying what to collect, for instance <code>~stock_ss(input_stock__num)</code> or <code>~stock_ss(input_stock__wgt)</code>.</p></dd>
+<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying what to collect, for instance <code>g3_formula( stock_ss(input_stock__num) )</code> or <code>g3_formula( stock_ss(input_stock__wgt) )</code>.</p></dd>
 
   <dt>actions</dt>
 <dd><p>List of actions that model will consist of.</p></dd>
@@ -175,9 +175,9 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">agg_report</span>, <span class="va">ling_imm</span>, <span class="op">~</span><span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">agg_report</span>, <span class="va">ling_imm</span>, <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span> <span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span> <span class="op">)</span>,</span></span>
 <span class="r-in"><span>        include_adreport <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">raw_report</span>, <span class="va">ling_imm</span>, <span class="op">~</span><span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_report_stock</span><span class="op">(</span><span class="va">raw_report</span>, <span class="va">ling_imm</span>, <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span> <span class="fu"><a href="step.html">stock_ss</a></span><span class="op">(</span><span class="va">ling_imm__num</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># "raw_report__num" and "agg_report__num" will be available in the model report</span></span></span>
 <span class="r-in"><span><span class="co"># In addition, agg_report__num will be included in TMB::sdreport() output</span></span></span>
 <span class="r-in"><span></span></span>
