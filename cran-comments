@@ -5,6 +5,16 @@
 
 Section added.
 
+> Examples for unexported function
+> lgamma_vec() in:
+>     action_grow.Rd
+>     action_migrate.Rd
+>     action_naturalmortality.Rd
+>        . . .
+
+lgamma_vec() does not appear in any of the listed examples. However, based on the listed examples the test is objecting to occurences of '~g3_param(...)'.
+These examples have been reworked to remove this.
+
 ==== 0.8-3
 
 Resubmission of new package after comments from CRAN team:
