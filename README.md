@@ -11,7 +11,12 @@ Gadget3 is primarily designed to produce models matching the behaviour of
 [gadget2](https://gadget-framework.github.io/gadget2/), although implementing new modelling
 systems would be possible
 
-*NB:* Currently under active development.
+This package is part of suite of tools, including:
+
+* [gadgetutils](https://github.com/gadget-framework/gadgetutils): Simplify common steps when setting up a gadget3 model
+* [gadgetplots](https://github.com/gadget-framework/gadgetplots): Plot output from a gadget3 model
+* [gadget2to3](https://github.com/gadget-framework/gadget2to3): Convert gadget2 model configuration to gadget3
+* [mfdb](https://github.com/gadget-framework/mfdb): Marine ecosystem data management tool
 
 ## Installation
 
