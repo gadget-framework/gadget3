@@ -5,6 +5,11 @@
 
 Section added.
 
+> Missing Rd-tags:
+>     aab_env.Rd:  \value
+
+aab_env documents an environment, not a function. \usage removed instead of adding \value.
+
 > Examples for unexported function
 > lgamma_vec() in:
 >     action_grow.Rd

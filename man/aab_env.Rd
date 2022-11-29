@@ -26,12 +26,8 @@
   Functions available to any gadget3 model
 }
 
-\usage{
-g3_env
-}
-
 \details{
-  This is the top-level \link{environment} that any gadget3 model uses,
+  \code{g3_env} is the top-level \link{environment} that any gadget3 model uses,
   populated with utility functions.
 
   NB: Several functions have \code{_vec} variants.
