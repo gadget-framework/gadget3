@@ -1,5 +1,9 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.8-4
+
+Resubmission of new package after comments from CRAN team:
+
 > Missing Rd-tags:
 >      step.Rd: \value
 
@@ -19,6 +23,14 @@ aab_env documents an environment, not a function. \usage removed instead of addi
 
 lgamma_vec() does not appear in any of the listed examples. However, based on the listed examples the test is objecting to occurences of '~g3_param(...)'.
 These examples have been reworked to remove this.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/compare/v0.8-3...v0.8-4
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/3572975479
 
 ==== 0.8-3
 
