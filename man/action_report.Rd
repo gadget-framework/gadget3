@@ -34,7 +34,7 @@ g3a_report_detail(actions,
     The \code{\link{g3_stock}} that will be aggregated
   }
   \item{report_f}{
-    \link{formula} specifying what to collect, for instance \code{~stock_ss(input_stock__num)} or \code{~stock_ss(input_stock__wgt)}.
+    \link{formula} specifying what to collect, for instance \code{g3_formula( stock_ss(input_stock__num) )} or \code{g3_formula( stock_ss(input_stock__wgt) )}.
   }
   \item{actions}{
     List of actions that model will consist of.
@@ -105,9 +105,9 @@ raw_report <- g3s_clone(ling_imm, 'raw_report') \%>\%
 
 actions <- list(
     g3a_age(ling_imm),
-    g3a_report_stock(agg_report, ling_imm, ~stock_ss(ling_imm__num),
+    g3a_report_stock(agg_report, ling_imm, g3_formula( stock_ss(ling_imm__num) ),
         include_adreport = TRUE),
-    g3a_report_stock(raw_report, ling_imm, ~stock_ss(ling_imm__num)))
+    g3a_report_stock(raw_report, ling_imm, g3_formula( stock_ss(ling_imm__num) )))
 # "raw_report__num" and "agg_report__num" will be available in the model report
 # In addition, agg_report__num will be included in TMB::sdreport() output
 
