@@ -430,6 +430,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 # Turn number/stock/string params into a single string indentifying that step
 step_id <- function (...) {
     parts <- vapply(list(...), function (part) {
+        if (is.null(part)) {
+            return("")
+        }
         if (is.numeric(part)) {
             # Number, format with leading zeros
             return(sprintf("%03d", part))
