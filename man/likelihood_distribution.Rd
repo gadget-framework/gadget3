@@ -433,4 +433,21 @@ more_likelihood_actions <- list(
       g3_param_array('reader1matrix', value = diag(5))[g3_idx(preage), g3_idx(age)]
       )),
     g3l_distribution_sumofsquares()))
+
+# Apply per-stock age-reading error matrix to model data
+more_likelihood_actions <- list(
+  g3l_catchdistribution(
+    'ldist_lln_readerror',
+    ldist.lln[[1]],
+    fleets = list(lln),
+    stocks = list(ling_imm, ling_mat),
+    transform_fs = list(age = g3_formula(stock_switch(stock,
+      ling_imm = g3_param_array('imm_readermatrix',
+          value = diag(ling_imm__maxage - ling_imm__minage + 1)
+          )[ling_imm__preage_idx, ling_imm__age_idx],
+      ling_mat = g3_param_array('mat_readermatrix',
+          value = diag(ling_mat__maxage - ling_mat__minage + 1)
+          )[ling_mat__preage_idx, ling_mat__age_idx],
+      unused = 0))),
+    g3l_distribution_sumofsquares()))
 }

@@ -105,6 +105,14 @@ ok_group("g3l_distribution:transform_fs", {
             transform_fs = list(
                 age = g3_formula( g3_param_array('reader1matrix', value = diag(5))[g3_idx(preage), g3_idx(age)] )),
             report = TRUE),
+        g3l_abundancedistribution("wtperstock",
+            obsdata,
+            function_f = g3l_distribution_sumofsquares(),
+            stocks = list(prey_a),
+            transform_fs = list(age = g3_formula( stock_switch(stock,
+                prey_a = g3_param_array('reader1matrix', value = diag(prey_a__maxage - prey_a__minage + 1)),
+                x = 0)[prey_a__preage_idx, prey_a__age_idx] )),
+            report = TRUE),
         g3l_abundancedistribution("nt",
             obsdata,
             function_f = g3l_distribution_sumofsquares(),
@@ -123,6 +131,7 @@ ok_group("g3l_distribution:transform_fs", {
     do_test <- function (r, params, msg) {
         nt <- attr(r, 'adist_sumofsquares_nt_model__num')
         wt <- attr(r, 'adist_sumofsquares_wt_model__num')
+        wtperstock <- attr(r, 'adist_sumofsquares_wtperstock_model__num')
         m <- params$reader1matrix
         apply_matrix <- function (destage) {
             nt[,1,] * m[1,destage] +
@@ -132,6 +141,7 @@ ok_group("g3l_distribution:transform_fs", {
             nt[,5,] * m[5,destage] +
             0
         }
+        ok(ut_cmp_equal(wt, wtperstock), paste0("wt / wtperstock: ", msg))
         ok(ut_cmp_equal(apply_matrix(1), wt[,1,]), paste0("age1: ", msg))
         ok(ut_cmp_equal(apply_matrix(2), wt[,2,]), paste0("age2: ", msg))
         ok(ut_cmp_equal(apply_matrix(3), wt[,3,]), paste0("age3: ", msg))
