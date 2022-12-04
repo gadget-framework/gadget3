@@ -245,8 +245,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 return(rlang::f_rhs(out_f))
             }
 
-            # Assume source stock is the first in inner_f, probably true(?)
-            source_stock_var <- sub('__.*$', '', all.vars(inner_f)[[1]])
+            # Find first (stock)__(instance)-named var in inner_f, assume that's source stock.
+            source_stock_var <- grep("__", all.vars(inner_f), value = TRUE)
+            source_stock_var <- sub('__.*$', '', source_stock_var[[1]])
             source_stock <- get(source_stock_var, envir = orig_env)
             if (!("length" %in% names(source_stock$dim))) stop("Source stock ", source_stock$name, " has no length, can't resize")
             source_lg <- g3_stock_def(source_stock, 'minlen')

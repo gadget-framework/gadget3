@@ -36,6 +36,8 @@ ok_group("g3_step:stock_reshape", {
     dest_combine <- g3_stock('dest_combine', seq(10, 40, 40))  # All input combined
     dest_combine__num <- g3_stock_instance(dest_combine)
     dest_combine__wgt <- g3_stock_instance(dest_combine)
+    aaextra <- 100
+    dest_combine__aaextra <- g3_stock_instance(dest_combine)
     dest_2group <- g3_stock('dest_2group', seq(10, 40, 20))  # 2 groups
     dest_2group__num <- g3_stock_instance(dest_2group)
     dest_2group__wgt <- g3_stock_instance(dest_2group)
@@ -58,6 +60,12 @@ ok_group("g3_step:stock_reshape", {
         list('900:dest_combine' = gadget3:::g3_step(~stock_iterate(dest_combine, stock_intersect(source, {
             stock_ss(dest_combine__num) <- stock_reshape(dest_combine, stock_ss(source__num))
             REPORT(dest_combine__num)
+        })))),
+
+        # The "aaextra" var gets ignored
+        list('900:dest_combine_aaextra' = gadget3:::g3_step(~stock_iterate(dest_combine, stock_intersect(source, {
+            stock_ss(dest_combine__aaextra) <- stock_reshape(dest_combine, aaextra * stock_ss(source__num))
+            REPORT(dest_combine__aaextra)
         })))),
 
         list('900:dest_2group' = gadget3:::g3_step(~stock_iterate(dest_2group, stock_intersect(source, {
@@ -111,6 +119,9 @@ ok_group("g3_step:stock_reshape", {
     ok(ut_cmp_equal(
         as.vector(attr(result, 'dest_combine__num')),
         c(11 + 22 + 33 + 44)), "dest_combine__num")
+    ok(ut_cmp_equal(
+        as.vector(attr(result, 'dest_combine__aaextra')),
+        aaextra * c(11 + 22 + 33 + 44)), "dest_combine__aaextra")
     ok(ut_cmp_equal(
         as.vector(attr(result, 'dest_2group__num')),
         c(11 + 22, 33 + 44)), "dest_2group__num")
