@@ -118,10 +118,11 @@
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>For a quick start, look at the [demo-ling] example in this repository.</p>
-<p>To run, do:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">source</span>(<span class="st">'demo-ling/setup.R'</span>, <span class="at">echo =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>For more information, read the <a href="https://gadget-framework.github.io/gadget3/articles/model_structure.html" class="external-link">structure of a gadget3 model</a> vignette.</p>
+<p>For some worked examples, look at the following models in <a href="https://github.com/gadget-framework/gadget-models/" class="external-link">gadget-models</a>:</p>
+<ul>
+<li><a href="https://github.com/gadget-framework/gadget-models/tree/master/06-ling/gadget3/00-setup" class="external-link">ling</a></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="development-of-gadget3">Development of gadget3<a class="anchor" aria-label="anchor" href="#development-of-gadget3"></a>
@@ -133,8 +134,8 @@
 <code>make</code>, which runs both test &amp; integration tests with G3_TEST_TMB</li>
 </ol>
 <p>Releases are made with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
 <p>On success, upload the tarball to <a href="https://cran.r-project.org/submit.html" class="external-link uri">https://cran.r-project.org/submit.html</a></p>
 </div>
 </div>
