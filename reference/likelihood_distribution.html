@@ -146,7 +146,7 @@
 
   <dt>obs_data</dt>
 <dd><p>Data.frame of observation data, for example the results of
-    <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    mfdb_sample_count.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
@@ -165,13 +165,13 @@
     depending on what columns <var>obs_data</var> has.</p></dd>
 
   <dt>transform_fs</dt>
-<dd><p>A list of dimension name to formula to apply to model data after collating. See examples.</p></dd>
+<dd><p>A list of dimension name to formula to apply to model data before collating. See examples.</p></dd>
 
   <dt>missing_val</dt>
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
 
   <dt>area_group</dt>
-<dd><p><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb_group</a> or list mapping area names used in
+<dd><p>mfdb_group or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
 
@@ -211,7 +211,7 @@
 <p>The <var>obs_data</var> data.frame, as well as providing the observation data to
     compare the model data against, controls the grouping of model data to
     compare to the observation data, by inspecting the MFDB column attributes
-    produced by e.g. <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    produced by e.g. mfdb_sample_count.</p>
 <p>Metadata columns describe the observation datapoint in that row. The
     columns should be from this list:</p><dl><dt>year</dt>
 <dd><p>Required.
@@ -511,8 +511,25 @@
 <span class="r-in"><span>    fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lln</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="va">ling_mat</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'reader1matrix'</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="va">modelstock__preage_idx</span>, <span class="va">modelstock__age_idx</span><span class="op">]</span></span></span>
+<span class="r-in"><span>      <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'reader1matrix'</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="language.html">g3_idx</a></span><span class="op">(</span><span class="va">preage</span><span class="op">)</span>, <span class="fu"><a href="language.html">g3_idx</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span>      <span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Apply per-stock age-reading error matrix to model data</span></span></span>
+<span class="r-in"><span><span class="va">more_likelihood_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu">g3l_catchdistribution</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">'ldist_lln_readerror'</span>,</span></span>
+<span class="r-in"><span>    <span class="va">ldist.lln</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lln</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="va">ling_mat</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span><span class="fu"><a href="step.html">stock_switch</a></span><span class="op">(</span><span class="va">stock</span>,</span></span>
+<span class="r-in"><span>      ling_imm <span class="op">=</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'imm_readermatrix'</span>,</span></span>
+<span class="r-in"><span>          value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">ling_imm__maxage</span> <span class="op">-</span> <span class="va">ling_imm__minage</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_imm__preage_idx</span>, <span class="va">ling_imm__age_idx</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>      ling_mat <span class="op">=</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'mat_readermatrix'</span>,</span></span>
+<span class="r-in"><span>          value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">ling_mat__maxage</span> <span class="op">-</span> <span class="va">ling_mat__minage</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_mat__preage_idx</span>, <span class="va">ling_mat__age_idx</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>      unused <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
