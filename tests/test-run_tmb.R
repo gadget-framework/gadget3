@@ -514,6 +514,22 @@ actions <- c(actions, ~{
 expecteds$is_nan_output <- 1 + 8
 expecteds$is_finite_output <- 2 + 4
 
+# as.vector() --> .vec()
+as_vector_array <- array(runif(20), dim=c(10, 2))
+as_vector_result1 <- rep(NaN, 10)
+as_vector_result2 <- rep(NaN, 10)
+as_vector_mean <- 0.5
+as_vector_sigma <- 1
+actions <- c(actions, ~{
+    comment('as_vector')
+    as_vector_result1 <- pnorm(as.vector(as_vector_array[,g3_idx(1)]), as_vector_mean, as_vector_sigma)
+    as_vector_result2 <- pnorm(as.vector(as_vector_array[,g3_idx(2)]), as_vector_mean, as_vector_sigma)
+    REPORT(as_vector_result1)
+    REPORT(as_vector_result2)
+})
+expecteds$as_vector_result1 <- pnorm(as_vector_array[,1], as_vector_mean, as_vector_sigma)
+expecteds$as_vector_result2 <- pnorm(as_vector_array[,2], as_vector_mean, as_vector_sigma)
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0

@@ -498,6 +498,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ").", call_name, "()"))
     }
 
+    if (call_name == "as.vector") {
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").vec()"))
+    }
+
     if (call_name == "length") {
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
     }
