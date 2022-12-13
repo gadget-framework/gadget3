@@ -26,14 +26,12 @@ Install latest version from github:
 
 ## Documentation
 
-For a quick start, look at the [demo-ling] example in this repository.
-
-To run, do:
-
-    > source('demo-ling/setup.R', echo = TRUE)
-
 For more information, read the [structure of a gadget3 model](https://gadget-framework.github.io/gadget3/articles/model_structure.html)
 vignette.
+
+For some worked examples, look at the following models in [gadget-models](https://github.com/gadget-framework/gadget-models/):
+
+* [ling](https://github.com/gadget-framework/gadget-models/tree/master/06-ling/gadget3/00-setup)
 
 ## Development of gadget3
 
