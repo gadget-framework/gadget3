@@ -1,3 +1,5 @@
+# gadget3 0.8-4-999:
+
 ## Breaking changes
 
 * ``g3l_distribution_*(transform_fs = ...)`` now happens before aggregation, not after.

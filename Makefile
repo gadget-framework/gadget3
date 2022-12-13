@@ -56,6 +56,10 @@ release: release-description release-news
 	R CMD build .
 	#
 	sed -i 's/^Version: .*/Version: '"$(NEW_VERSION)-999"'/' DESCRIPTION
+	mv NEWS.md NEWS.md.o
+	/bin/echo -e "# $(PACKAGE) $(NEW_VERSION)-999:\n" > NEWS.md
+	cat NEWS.md.o >> NEWS.md
+	rm NEWS.md.o
 	git commit -m "Development version $(NEW_VERSION)-999" DESCRIPTION
 
 release-description:
@@ -66,8 +70,14 @@ release-description:
 
 release-news:
 	[ -n "$(NEW_VERSION)" ]  # NEW_VERSION variable should be set
+	# Remove any -999 header
 	mv NEWS.md NEWS.md.o
-	head -1 NEWS.md.o | grep -E '^\# $(PACKAGE) ' || /bin/echo -e "# $(PACKAGE) $(NEW_VERSION):\n" > NEWS.md
+	head -1 NEWS.md.o | grep -qE '^\# $(PACKAGE).*-999:' || head -2 NEWS.md.o > NEWS.md
+	tail -n +3 NEWS.md.o >> NEWS.md
+	rm NEWS.md.o
+	# Any news? Add new header if so
+	mv NEWS.md NEWS.md.o
+	head -1 NEWS.md.o | grep -qE '^\# $(PACKAGE) ' || /bin/echo -e "# $(PACKAGE) $(NEW_VERSION):\n" > NEWS.md
 	cat NEWS.md.o >> NEWS.md
 	rm NEWS.md.o
 
