@@ -125,7 +125,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55eedcf33ec8&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x5621a3c2e080&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -163,14 +163,14 @@ an R function:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55eeddf7fa08&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55eeddda6d20&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5621a4cabf98&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a4ad32b0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
 <span><span class="co">## attr(,"actions")[[1]]</span></span>
 <span><span class="co">## ~cows + pigs</span></span>
-<span><span class="co">## &lt;environment: 0x55eedcf33ec8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5621a3c2e080&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -233,7 +233,7 @@ reached. For example:</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55eedeb98278&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5621a58badc0&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -301,8 +301,8 @@ code.</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55eede767198&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55eedfbc6a90&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5621a54f4b70&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a68f0008&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -327,7 +327,7 @@ code.</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55eedf8e1000&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a660a468&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -402,8 +402,8 @@ model. For example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55eeddd09518&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55eedf4925a0&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5621a4a42f80&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a61c5dc8&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -428,7 +428,7 @@ model. For example:</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55eedee8f210&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a5bc3820&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
@@ -647,8 +647,8 @@ example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55eedf140240&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55eee005bbb8&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5621a5f5a2d0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a6d92bd0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -681,7 +681,7 @@ example:</p>
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55eedeb50a90&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a5884a30&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -843,8 +843,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55eedcfabb40&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55eeddc509c0&gt;</span></span>
+<span><span class="co">## &lt;bytecode: 0x5621a3c51fe8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a49a53c0&gt;</span></span>
 <span><span class="co">## attr(,"class")</span></span>
 <span><span class="co">## [1] "g3_r"     "function"</span></span>
 <span><span class="co">## attr(,"actions")</span></span>
@@ -878,7 +878,7 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
 <span><span class="co">##     }))</span></span>
 <span><span class="co">## })</span></span>
-<span><span class="co">## &lt;environment: 0x55eedade76d0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5621a150b9e8&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## attr(,"parameter_template")</span></span>
 <span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
@@ -1020,7 +1020,7 @@ same stock.</li>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
