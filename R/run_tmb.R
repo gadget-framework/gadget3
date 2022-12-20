@@ -680,7 +680,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     sub_param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
                     sub_param_tuple <- paste0(df[i,], collapse = ",")
 
-                    scope[[paste0("..param:", sub_param_name)]] <<- structure(
+                    scope[[cpp_escape_varname(sub_param_name)]] <<- structure(
                         sprintf('PARAMETER(%s);', cpp_escape_varname(sub_param_name)),
                         param_template = df_template(sub_param_name))
                     paste0("{std::make_tuple(", sub_param_tuple ,"), &", cpp_escape_varname(sub_param_name), "}")

@@ -283,6 +283,13 @@ ok_group('g3_param_table', {
             # NB: Not derived yet, only when calling g3_tmb_parscale()
             parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
             stringsAsFactors = FALSE)), "Param table included custom values")
+    ok(ut_cmp_identical(
+        attr(g3_to_tmb(list(~{
+            g3_param_table('moo', expand.grid(cur_year=1990:1994))
+            g3_param('moo.1990')
+            g3_param('oink.2')
+        })), 'parameter_template')$switch,
+        c("moo.1990", "moo.1991", "moo.1992", "moo.1993", "moo.1994", "oink.2")), "Refering to individual parameters doesn't generate duplicate table entries")
 })
 
 ok_group("g3_to_tmb: attr.actions", {
