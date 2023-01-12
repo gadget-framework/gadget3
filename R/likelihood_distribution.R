@@ -348,8 +348,8 @@ g3l_distribution <- function (
 
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
-    nllstock__num <- g3_stock_instance(nllstock, 0)
-    nllstock__wgt <- g3_stock_instance(nllstock, 0)
+    if (!is.null(ld$number)) nllstock__num <- g3_stock_instance(nllstock, 0)
+    if (!is.null(ld$weight)) nllstock__wgt <- g3_stock_instance(nllstock, 0)
     nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
 
