@@ -58,12 +58,12 @@ actions <- list(
         final_year_steps = ~as_integer(g3_param('final_year_steps', value = 3))),
     list(
         '999' = ~{
-            all_time[g3_idx(cur_time + 1)] <- cur_time
-            all_step[g3_idx(cur_time + 1)] <- cur_step
-            all_step_size[g3_idx(cur_time + 1)] <- cur_step_size
-            all_year[g3_idx(cur_time + 1)] <- cur_year
-            all_step_final[g3_idx(cur_time + 1)] <- cur_step_final
-            all_cur_year_projection[g3_idx(cur_time + 1)] <- cur_year_projection
+            all_time[[cur_time + 1]] <- cur_time
+            all_step[[cur_time + 1]] <- cur_step
+            all_step_size[[cur_time + 1]] <- cur_step_size
+            all_year[[cur_time + 1]] <- cur_year
+            all_step_final[[cur_time + 1]] <- cur_step_final
+            all_cur_year_projection[[cur_time + 1]] <- cur_year_projection
             REPORT(total_years)
 
             nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over

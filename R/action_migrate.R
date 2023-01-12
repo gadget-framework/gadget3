@@ -55,13 +55,13 @@ g3a_migrate <- function(
             debug_trace("Fill in any gaps in the migration matrix")
             if (any(is.nan(stock__migratematrix[,stock__area_idx]))) {
                 for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], {
-                    stock__migratematrix[stock__destarea_idx, stock__area_idx] <- migrate_f
+                    stock__migratematrix[[stock__destarea_idx, stock__area_idx]] <- migrate_f
                 })
                 stock__migratematrix[,stock__area_idx] <- normalize_f
             }
 
             debug_trace("Apply migration matrix to current stock")
-            for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], migrate_prop := stock__migratematrix[stock__destarea_idx, stock__area_idx], {
+            for (stock__destarea_idx in seq_along(stock__areas)) g3_with(dest_area := stock__areas[[stock__destarea_idx]], migrate_prop := stock__migratematrix[[stock__destarea_idx, stock__area_idx]], {
                 stock_ss(stock__postmigratewgt, area = stock__destarea_idx) <- ratio_add_vec(
                     stock_ss(stock__postmigratewgt, area = stock__destarea_idx), stock_ss(stock__postmigratenum, area = stock__destarea_idx),
                     stock_ss(stock__wgt), migrate_prop * stock_ss(stock__num))

@@ -254,6 +254,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
             if (all(cols_defined)) {
                 # Nothing missing, i.e. a value lookup
+                # NB: As a byproduct this masks the fact that vec.col(x) == vec,
+                #     as col() falls back to the useless Eigen definition for vector<Type>.
+                #     To get rid of it, we'd also have to use array<Type> even in 1-dim cases
                 return(paste0(
                     '(',
                     paste(vapply(
@@ -291,21 +294,26 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name == '[[') {
-        if (is.symbol(in_call[[3]]) && endsWith(as.character(in_call[[3]]), "_idx")) {
-            # Already 0-based, nothing to do
-            ind <- in_call[[3]]
-        } else if (is.numeric(in_call[[3]])) {
-            # Indices are 0-based, subtract from value
-            ind <- in_call[[3]] - 1
-        } else {
-            # Add a subtract-1 operator
-            ind <- call("-", in_call[[3]], 1L)
-        }
+        # Convert indices into corresponding C code
+        inds <- lapply(tail(in_call, -2), function(x) {
+            if (is.symbol(x) && endsWith(as.character(x), "_idx")) {
+                # Already 0-based, nothing to do
+                ind <- x
+            } else if (is.call(x) && identical(x[[1]], quote(g3_idx))) {
+                # Don't need to do anything to g3_idx calls
+                ind <- x
+            } else if (is.numeric(x)) {
+                # Indices are 0-based, subtract from value
+                ind <- x - 1
+            } else {
+                # Add a subtract-1 operator
+                ind <- call("-", x, 1L)
+            }
+            return(cpp_code(ind, in_envir, next_indent, expecting_int = TRUE))
+        })
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
-            "(",
-            cpp_code(ind, in_envir, next_indent, expecting_int = TRUE),
-            ")"))
+            "(", paste(inds, collapse=","), ")"))
     }
 
     if (call_name %in% c('break', 'next')) {

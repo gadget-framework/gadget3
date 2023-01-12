@@ -441,10 +441,10 @@ expecteds$assign_to_2_2 <- array(c(100.1, 200.2, 110.1, 220.2), dim = c(2,2))
 assign_to_2_2a <- array(dim = c(2,2))
 actions <- c(actions, ~{
     comment('assign_to_2_2a')
-    assign_to_2_2a[g3_idx(1),g3_idx(2)] <- 99
-    assign_to_2_2a[g3_idx(2),g3_idx(1)] <- 88
-    assign_to_2_2a[g3_idx(2),g3_idx(2)] <- 0
-    assign_to_2_2a[g3_idx(1),g3_idx(1)] <- 0
+    assign_to_2_2a[[g3_idx(1),g3_idx(2)]] <- 99
+    assign_to_2_2a[[g3_idx(2),g3_idx(1)]] <- 88
+    assign_to_2_2a[[g3_idx(2),g3_idx(2)]] <- 0
+    assign_to_2_2a[[g3_idx(1),g3_idx(1)]] <- 0
     REPORT(assign_to_2_2a)
 })
 expecteds$assign_to_2_2a <- array(c(0, 88, 99, 0), dim = c(2,2))
