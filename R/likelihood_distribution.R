@@ -103,7 +103,7 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
 
     modelstock__params <- g3_global_formula(f_substitute(
         # NB: If we're not going to compare, don't bother recalculating linear regression
-        ~if (modelstock__time_idx != modelstock__max_time_idx) modelstock__params else surveyindices_linreg(N, I, intercept_f, slope_f),
+        ~if ( cur_year != (end_year - retro_years) && modelstock__time_idx != modelstock__max_time_idx) modelstock__params else surveyindices_linreg(N, I, intercept_f, slope_f),
         list(
             N = N, I = I,
             # NB: Can't use NULL in C++, Use NaN instead
@@ -114,7 +114,7 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
     #     checking max_time_idx means we only do this once all data is collected.
     # NB: Outer sum sums the vector of timepoints, this formula is called for each area separately.
     out <- f_substitute(
-        ~if (modelstock__time_idx != modelstock__max_time_idx) 0 else sum((modelstock__params[[1]] + modelstock__params[[2]] * N - I)**2),
+        ~if ( cur_year != (end_year - retro_years) && modelstock__time_idx != modelstock__max_time_idx) 0 else sum((modelstock__params[[1]] + modelstock__params[[2]] * N - I)**2),
         list(N = N, I = I))
     return(out)
 }
