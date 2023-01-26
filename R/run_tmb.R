@@ -641,7 +641,11 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
         # Rework all g3_param calls
         repl_fn <- function(x) {
             # NB: eval() because -1 won't be a symbol
-            find_arg <- function (arg_name, def) if (arg_name %in% names(x)) eval(x[[arg_name]], envir = env) else def
+            find_arg <- function (arg_name, def, do_eval = TRUE) {
+                if (!(arg_name %in% names(x))) return(def)
+                if (do_eval) return(eval(x[[arg_name]], envir = env))
+                return(x[[arg_name]])
+            }
             if ('optimize' %in% names(x)) stop("g3_param() optimise parameter should be spelt with an s")
 
             df_template <- function (name, dims = c(1)) {
@@ -671,7 +675,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             param_name <- cpp_escape_varname(x[[2]])
             if (x[[1]] == 'g3_param_table') {
-                ifmissing <- as.numeric(find_arg('ifmissing', NULL))
+                ifmissing <- find_arg('ifmissing', NULL, do_eval = FALSE)
+                if (rlang::is_formula(ifmissing)) stop("Formula ifmissing not supported")  # Should f_substitute for this to work
+                ifmissing <- call_replace(ifmissing, g3_param = repl_fn)
+
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
@@ -692,7 +699,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     param_name,
                     paste0("{", paste0(init_data, collapse=", "), "}"))
 
-                if (length(ifmissing) == 1) {
+                if (!is.null(ifmissing)) {
                     ifmissing_param_name <- paste0(c(as.character(x[[2]]), 'ifmissing'), collapse = ".")
                     scope[[ifmissing_param_name]] <<- cpp_definition("Type", ifmissing_param_name, cpp_code(ifmissing, env))
 

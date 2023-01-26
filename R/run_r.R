@@ -26,16 +26,24 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         # Replace any in-line g3 calls that may have been in formulae
         repl_fn <- function(x) {
             # NB: eval() because -1 won't be a symbol
-            find_arg <- function (arg_name, def) if (arg_name %in% names(x)) eval(x[[arg_name]], envir = env) else def
+            find_arg <- function (arg_name, def, do_eval = TRUE) {
+                if (!(arg_name %in% names(x))) return(def)
+                if (do_eval) return(eval(x[[arg_name]], envir = env))
+                return(x[[arg_name]])
+            }
             df_template <- function (name, dims = c(1)) {
                 # Extract named args from g3_param() call
-                value <- find_arg('value', 0)
+                value <- eval(find_arg('value', 0), envir = env)
 
                 structure(list(value), names = name)
             }
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
-                ifmissing <- as.numeric(find_arg('ifmissing', NULL))
+                ifmissing <- find_arg('ifmissing', NULL, do_eval = FALSE)
+                if (is.null(ifmissing)) ifmissing <- call('stop', 'Out of range: ', as.character(x[[2]]))
+                if (rlang::is_formula(ifmissing)) stop("Formula ifmissing not supported")  # Should f_substitute for this to work
+                ifmissing <- call_replace(ifmissing, g3_param = repl_fn)
+
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
@@ -53,7 +61,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                         list(as.symbol("paste"), as.character(x[[2]])),
                         lapply(names(df), as.symbol),
                         list(sep = ".")))),
-                    if (length(ifmissing) == 1) ifmissing else call('stop', 'Out of range: ', as.character(x[[2]]))))
+                    ifmissing))
             }
 
             # Default for g3_param / g3_param_vector

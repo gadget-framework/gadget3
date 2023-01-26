@@ -691,6 +691,28 @@ params[['param_table_ifmissing.3']] <- 47
 params[['param_table_ifmissing.4']] <- 22
 expecteds$param_table_ifmissing_out <- array(c(-1, 27, 47, 22, -1, -1))
 
+# g3_param_table(ifmissing_param)
+param_table_ifmparam_out <- array(c(1,2,3,4,5,6))
+actions <- c(actions, ~{
+    for (ifmparam in seq(1, 6, by = 1)) {
+        param_table_ifmparam_out[[ifmparam]] <- g3_param_table(
+            'param_table_ifmparam',
+            expand.grid(ifmparam = 2:4), ifmissing = g3_param("param_table_ifmparam.missing"))
+    }
+    REPORT(param_table_ifmparam_out)
+})
+params[['param_table_ifmparam.2']] <- floor(runif(1, 100, 200))
+params[['param_table_ifmparam.3']] <- floor(runif(1, 100, 200))
+params[['param_table_ifmparam.4']] <- floor(runif(1, 100, 200))
+params[['param_table_ifmparam.missing']] <- floor(runif(1, 100, 200))
+expecteds$param_table_ifmparam_out <- array(c(
+    params[['param_table_ifmparam.missing']],
+    params[['param_table_ifmparam.2']],
+    params[['param_table_ifmparam.3']],
+    params[['param_table_ifmparam.4']],
+    params[['param_table_ifmparam.missing']],
+    params[['param_table_ifmparam.missing']]))
+
 ###############################################################################
 
 nll <- 0.0
