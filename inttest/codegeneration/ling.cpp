@@ -3,9 +3,9 @@
 namespace map_extras {
     // at(), but throw (err) if item isn't available
     template<class Type, class KeyType>
-    Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
+    Type at_throw(std::map<KeyType, Type*> map_in, KeyType key_in, std::string err) {
             try {
-                return map_in.at(key_in);
+                return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
                 throw std::runtime_error("Out of range: " + err);
             }
@@ -13,9 +13,9 @@ namespace map_extras {
 
     // at(), but return def if item isn't available
     template<class Type, class KeyType>
-    Type at_def(std::map<KeyType, Type> map_in, KeyType key_in, Type def) {
+    Type at_def(std::map<KeyType, Type*> map_in, KeyType key_in, Type def) {
             try {
-                return map_in.at(key_in);
+                return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
                 return def;
             }
@@ -727,7 +727,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
+            auto factor = (ling__rec__scalar*map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
 
             {
                 // g3a_renewal for ling_imm;
@@ -753,7 +753,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (ling__rec__scalar* *map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
+            auto factor = (ling__rec__scalar*map_extras::at_throw(ling__rec, std::make_tuple(cur_year), "ling.rec"));
 
             {
                 // g3a_renewal for ling_imm;

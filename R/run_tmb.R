@@ -702,20 +702,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                     paste0("{", paste0(init_data, collapse=", "), "}"))
 
                 if (!is.null(ifmissing)) {
-                    ifmissing_param_name <- paste0(c(as.character(x[[2]]), 'ifmissing'), collapse = ".")
-                    scope[[ifmissing_param_name]] <<- cpp_definition("Type", ifmissing_param_name, cpp_code(ifmissing, env))
-
                     return(call("g3_cpp_asis", paste0(
-                        " *",  # NB: Our lookup is tuples to pointers to Type, dereference
                         "map_extras::at_def(",
                         cpp_escape_varname(x[[2]]), ", ",
                         "std::make_tuple(", paste(names(df), collapse = ","), "), ",
-                        '&', cpp_escape_varname(ifmissing_param_name),
+                        "(Type)(", cpp_code(ifmissing, env), ")",
                         ")")))
                 } else {
                     # Replace function call to dereference list
                     return(call("g3_cpp_asis", paste0(
-                        " *",  # NB: Our lookup is tuples to pointers to Type, dereference
                         "map_extras::at_throw(",
                         cpp_escape_varname(x[[2]]), ", ",
                         "std::make_tuple(", paste(names(df), collapse = ","), "), ",
@@ -892,9 +887,9 @@ Type objective_function<Type>::operator() () {
         out <- c(strsplit("namespace map_extras {
     // at(), but throw (err) if item isn't available
     template<class Type, class KeyType>
-    Type at_throw(std::map<KeyType, Type> map_in, KeyType key_in, std::string err) {
+    Type at_throw(std::map<KeyType, Type*> map_in, KeyType key_in, std::string err) {
             try {
-                return map_in.at(key_in);
+                return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
                 throw std::runtime_error(\"Out of range: \" + err);
             }
@@ -902,9 +897,9 @@ Type objective_function<Type>::operator() () {
 
     // at(), but return def if item isn't available
     template<class Type, class KeyType>
-    Type at_def(std::map<KeyType, Type> map_in, KeyType key_in, Type def) {
+    Type at_def(std::map<KeyType, Type*> map_in, KeyType key_in, Type def) {
             try {
-                return map_in.at(key_in);
+                return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
                 return def;
             }
