@@ -368,10 +368,6 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             }
             rest$name_part <- NULL
 
-            if (!is.null(rest$ifmissing) && rlang::is_formula(rest$ifmissing)) {
-                rest$ifmissing <- g3_step(rest$ifmissing, recursing = TRUE, orig_env = orig_env)
-            }
-
             # Append first argument to complete name
             param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
             rest <- tail(rest, -1)
@@ -403,6 +399,14 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 call_to_formula(table_defn, env = as.environment(list())),
                 recursing = TRUE, orig_env = orig_env))
             rest <- tail(rest, -1)
+
+            # TODO: Still not sure if this is truly required, I don't seem to need it with
+            # g3_to_tmb(list( g3_step( g3_formula( stock_with(stock, stock_param_table(stock, "peep", expand.grid(cur_year = 100), ifmissing = stock_param_table(stock, 'parp', expand.grid(cur_year = 100)))), stock = g3_stock('imm', 1:10))) ))
+            if (!is.null(rest$ifmissing) && is.language(rest$ifmissing)) {
+                rest$ifmissing <- rlang::f_rhs(g3_step(
+                    call_to_formula(rest$ifmissing, env = as.environment(list())),
+                    recursing = TRUE, orig_env = orig_env))
+            }
 
             # Make a g3_param call with the newly-named param
             as.call(c(list(quote(g3_param_table), param_name, table_defn), rest))
