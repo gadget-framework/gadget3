@@ -79,6 +79,8 @@ g3a_step_transition <- function(input_stock,
         # Simplified case for single output stock, no need to manage remainder
         n <- 1
         output_stock <- output_stocks[[n]]
+        output_stock__num <- g3_stock_instance(output_stock, 0)
+        output_stock__wgt <- g3_stock_instance(output_stock, 1)
 
         return(g3_step(f_substitute(~{
             debug_trace("Move ", input_stock ," to ", output_stock)
@@ -116,6 +118,8 @@ g3a_step_transition <- function(input_stock,
             # NB: Pull these from parent env so g3_step can find them
             input_stock <- input_stock
             output_stock <- output_stocks[[n]]
+            output_stock__num <- g3_stock_instance(output_stock, 0)
+            output_stock__wgt <- g3_stock_instance(output_stock, 1)
 
             g3_step(f_substitute(~{
                 debug_trace("Move ", input_stock ," to ", output_stock)
