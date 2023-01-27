@@ -618,7 +618,10 @@ structure(function (param)
                 ling_imm__num <- ling_imm__num + ling_imm__transitioning_num
         }
         {
-            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
+            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], {
+                warning("No value found in g3_param_table ling.rec, ifmissing not specified")
+                NaN
+            }))
             {
                 comment("g3a_renewal for ling_imm")
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
@@ -639,7 +642,10 @@ structure(function (param)
             }
         }
         {
-            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], stop("Out of range: ", "ling.rec")))
+            factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], {
+                warning("No value found in g3_param_table ling.rec, ifmissing not specified")
+                NaN
+            }))
             {
                 comment("g3a_renewal for ling_imm")
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {

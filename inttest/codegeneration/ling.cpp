@@ -7,7 +7,8 @@ namespace map_extras {
             try {
                 return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
-                throw std::runtime_error("Out of range: " + err);
+                warning("No value found in g3_param_table %s, ifmissing not specified", err.c_str());
+                return NAN;
             }
     }
 

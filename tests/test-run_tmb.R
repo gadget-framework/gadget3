@@ -3,6 +3,16 @@ library(unittest)
 
 library(gadget3)
 
+capture_warnings <- function(x, full_object = FALSE) {
+    all_warnings <- list()
+    rv <- withCallingHandlers(x, warning = function (w) {
+        all_warnings <<- c(all_warnings, list(w))
+        invokeRestart("muffleWarning")
+    })
+    if (!full_object) all_warnings <- vapply(all_warnings, function (w) w$message, character(1))
+    return(list(rv = rv, warnings = all_warnings))
+}
+
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2,2))
     g3_to_tmb(list(~{invalid_subset[,g3_idx(1),]}))
@@ -377,6 +387,8 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
 ###############################################################################
 actions <- list()
 expecteds <- new.env(parent = emptyenv())
+expected_warnings_r <- c()
+expected_warnings_tmb <- c()
 params <- list(rv=0)
 
 # Check constants can pass through cleanly
@@ -663,18 +675,33 @@ expecteds$sumprod_sum <- sum(sumprod_input)
 expecteds$sumprod_prod <- prod(sumprod_input)
 
 # g3_param_table()
-pt_a <- 2L ; pt_b <- 7L
-param_table_out <- 0
+param_table_out <- array(rep(0, 6))
 actions <- c(actions, ~{
-    pt_a ; pt_b
-    param_table_out <- g3_param_table('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7)))
+    for (pt_a in seq(1, 3, by = 1)) for (pt_b in seq(7, 8, by = 1)) {
+        param_table_out[[((pt_a - 1L) * 2L) + (pt_b - 7L) + 1L]] <- g3_param_table('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7)))
+    }
     REPORT(param_table_out)
 })
 params[['param_table.1.8']] <- 18
 params[['param_table.1.7']] <- 17
 params[['param_table.2.8']] <- 28
 params[['param_table.2.7']] <- 27
-expecteds$param_table_out <- 27
+expecteds$param_table_out <- array(c(
+    17,
+    18,
+    27,
+    28,
+    NaN,
+    NaN,
+    NULL))
+expected_warnings_r <- c(expected_warnings_r,
+    "No value found in g3_param_table param_table, ifmissing not specified",
+    "No value found in g3_param_table param_table, ifmissing not specified",
+    NULL)
+expected_warnings_tmb <- c(expected_warnings_tmb,
+    "No value found in g3_param_table param_table, ifmissing not specified",
+    "No value found in g3_param_table param_table, ifmissing not specified",
+    NULL)
 
 # g3_param_table(ifmissing)
 param_table_ifmissing_out <- array(c(1,2,3,4,5,6))
@@ -765,15 +792,17 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 # Compare everything we've been told to compare
-result <- model_fn(params)
+result <- capture_warnings(model_fn(params))
 # str(attributes(result), vec.len = 10000)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(
-        attr(result, n),
+        attr(result$rv, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
+ok(ut_cmp_identical(result$warnings, expected_warnings_r), "Warnings from R as expected")
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     param_template <- attr(model_cpp, "parameter_template")
     param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+    generated_warnings <- capture_warnings(gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template))$warnings
+    ok(ut_cmp_identical(generated_warnings, c(expected_warnings_r, expected_warnings_tmb)), "Warnings from R+TMB as expected")
 }

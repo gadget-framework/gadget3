@@ -40,7 +40,8 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
                 ifmissing <- find_arg('ifmissing', NULL, do_eval = FALSE)
-                if (is.null(ifmissing)) ifmissing <- call('stop', 'Out of range: ', as.character(x[[2]]))
+                if (is.null(ifmissing)) ifmissing <- substitute({warning(err_string) ; NaN}, list(
+                    err_string = paste0('No value found in g3_param_table ', as.character(x[[2]]), ', ifmissing not specified')))
                 if (rlang::is_formula(ifmissing)) stop("Formula ifmissing not supported")  # Should f_substitute for this to work
                 ifmissing <- call_replace(ifmissing,
                     g3_param_table = repl_fn,
