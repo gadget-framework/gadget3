@@ -677,7 +677,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
             if (x[[1]] == 'g3_param_table') {
                 ifmissing <- find_arg('ifmissing', NULL, do_eval = FALSE)
                 if (rlang::is_formula(ifmissing)) stop("Formula ifmissing not supported")  # Should f_substitute for this to work
-                ifmissing <- call_replace(ifmissing, g3_param = repl_fn)
+                ifmissing <- call_replace(ifmissing,
+                    g3_param_table = repl_fn,
+                    g3_param = repl_fn)
 
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)

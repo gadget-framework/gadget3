@@ -368,6 +368,10 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             }
             rest$name_part <- NULL
 
+            if (!is.null(rest$ifmissing) && rlang::is_formula(rest$ifmissing)) {
+                rest$ifmissing <- g3_step(rest$ifmissing, recursing = TRUE, orig_env = orig_env)
+            }
+
             # Append first argument to complete name
             param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
             rest <- tail(rest, -1)
