@@ -1115,7 +1115,16 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     unlist(out)
 }
 # NB: include_random = TRUE so you can do things like obj.fn$report(g3_tmb_par())
-g3_tmb_par <- function (parameters, include_random = TRUE) g3_tmb_bound(parameters, 'value', include_random)
+g3_tmb_par <- function (parameters, include_random = TRUE) {
+    call_stack <- vapply(
+        sys.calls(),
+        function (x) if (is.call(x)) deparse1(x[[1]]) else "",
+        character(1))
+    if (length(intersect(call_stack, c('nlminb', 'optim', 'stats::nlminb', 'stats::optim'))) > 0) {
+        stop("Don't use g3_tmb_par() with nlminb/optim, use obj.fun$par")
+    }
+    g3_tmb_bound(parameters, 'value', include_random)
+}
 # NB: include_random = FALSE as optim()/nlminb() won't expect them
 g3_tmb_lower <- function (parameters) g3_tmb_bound(parameters, 'lower')
 g3_tmb_upper <- function (parameters) g3_tmb_bound(parameters, 'upper')

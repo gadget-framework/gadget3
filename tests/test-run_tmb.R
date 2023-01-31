@@ -353,6 +353,13 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
             "b",
             NULL)), "env$random: TMB got the random parameters we expected")
 
+        ok(ut_cmp_error({
+            nlminb(g3_tmb_par(param_tbl), model_tmb$fn, model_tmb$gr)
+        }, "\\$par"), "g3_tmb_par: Not allowed in nlminb() call")
+        ok(ut_cmp_error({
+            optim(g3_tmb_par(param_tbl), model_tmb$fn, model_tmb$gr)
+        }, "\\$par"), "g3_tmb_par: Not allowed in optim() call")
+
         res <- suppressWarnings({
             nlminb(model_tmb$par, model_tmb$fn, model_tmb$gr,
                 upper = g3_tmb_upper(param_tbl),

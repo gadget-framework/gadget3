@@ -7,6 +7,8 @@
 
 * ``g3_param_table()`` now returns NaN (and warns) on a missing value, instead of aborting.
 
+* ``optim(g3_tmb_par(...))`` is now an error. When optimising, always use ``obj.fun$par``.
+
 ## New features
 
 * Support ``as.vector(array)`` in TMB formulas, so arrays can be used with TMB vectorized functions, e.g. ``pnorm(as.vector(ar[,1]))``.
