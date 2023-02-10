@@ -137,7 +137,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     debug_trace("Clear name migration matrix")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__migratematrix[] &lt;- NaN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562652f2f558&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x558bc1a9b0c8&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :002:f43e386b07dca64199ee`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
@@ -150,15 +150,15 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>         debug_trace("Fill in any gaps in the migration matrix")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         if (any(is.nan(name__migratematrix[, name__area_idx]))) {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             for (name__destarea_idx in seq_along(name__areas)) g3_with(`:=`(dest_area, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__areas[[name__destarea_idx]]), name__migratematrix[name__destarea_idx, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__area_idx] &lt;- g3_param("migrate_spring"))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__areas[[name__destarea_idx]]), name__migratematrix[[name__destarea_idx, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__area_idx]] &lt;- g3_param("migrate_spring"))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[, name__area_idx] &lt;- g3a_migrate_normalize(name__migratematrix[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 name__area_idx], name__area_idx, 1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         debug_trace("Apply migration matrix to current stock")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         for (name__destarea_idx in seq_along(name__areas)) g3_with(`:=`(dest_area, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             name__areas[[name__destarea_idx]]), `:=`(migrate_prop, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[name__destarea_idx, name__area_idx]), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[[name__destarea_idx, name__area_idx]]), </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratewgt[, name__destarea_idx] &lt;- ratio_add_vec(name__postmigratewgt[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx], name__postmigratenum[, </span>
@@ -180,7 +180,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__num &lt;- name__postmigratenum</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__wgt &lt;- name__postmigratewgt</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562653155210&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x558bbdfd50d8&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
