@@ -59,6 +59,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
         ~(if ((stock_with(prey_b, sum(prey_b__num * prey_b__wgt)) +
              (stock_with(prey_a, sum(prey_a__num * prey_a__wgt)) + 0)) < 100) 0 else 800) *
                 2134 * cur_step_size * stock_ss(stock__predby_fleet_stock)), "sum_stocks: Summing all named stocks")
+    # TODO: Make sure resulting formula can be predate_fleet()ed
 
     out_f <- g3a_predate_catchability_quotafleet(
             data.frame(biomass = c(100, Inf), quota = c(0, 800)),

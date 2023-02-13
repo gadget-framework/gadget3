@@ -71,10 +71,15 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
             quota_var = as.symbol(quota_var_name)))
     }
 
-    f_substitute(
+    out <- f_substitute(
         ~quota_f * E * cur_step_size * stock_ss(stock__predby_fleet_stock), list(
         quota_f = quota_f,
         E = E))
+    # Make sure stocks with final name are available when making up formula
+    for (stock in sum_stocks) {
+        assign(stock$name, stock, envir = environment(out))
+    }
+    return(out)
 }
 
 g3a_predate_fleet <- function (fleet_stock,
