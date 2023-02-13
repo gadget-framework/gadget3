@@ -26,7 +26,7 @@ namespace map_extras {
 template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
             return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }
-template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
+template<typename T> std::map<int, T> intlookup_zip(array<int> keys, array<T> values) {
             std::map<int, T> lookup = {};
 
             assert(keys.size() == values.size());
@@ -209,7 +209,7 @@ Type objective_function<Type>::operator() () {
 };
     int cur_time = -1;
     Type nll = (double)(0);
-    vector<int> step_lengths(4); step_lengths.setConstant(3);
+    array<int> step_lengths(4); step_lengths.setConstant(3);
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
@@ -232,7 +232,7 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(ling_mat_stddev)
     array<Type> ling_mat__num(35,1,11); ling_mat__num.setZero();
     array<Type> ling_mat__wgt(35,1,11); ling_mat__wgt.setConstant((double)(1));
-    vector<Type> igfs__catch(1);
+    array<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
     array<Type> ling_mat__totalpredate(35,1,11);
     array<Type> ling_imm__predby_igfs(35,1,8);
@@ -240,8 +240,8 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
     array<Type> ling_mat__predby_igfs(35,1,11);
     array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
-    DATA_IVECTOR(igfs_totaldata__keys)
-    DATA_IVECTOR(igfs_totaldata__values)
+    DATA_IARRAY(igfs_totaldata__keys)
+    DATA_IARRAY(igfs_totaldata__values)
     auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
     array<Type> ling_imm__consratio(35,1,8);
     Type ling_imm__overconsumption = (double)(0);
@@ -265,18 +265,18 @@ Type objective_function<Type>::operator() () {
     int cdist_sumofsquares_ldist_lln_model__area = 1;
     array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
     int cdist_sumofsquares_ldist_lln_obs__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
+    DATA_IARRAY(times_cdist_sumofsquares_ldist_lln_obs__keys)
+    DATA_IARRAY(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
     Type g3l_understocking_total = (double)(0);
-    vector<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
-    vector<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
+    array<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
+    array<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;

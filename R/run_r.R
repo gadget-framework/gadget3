@@ -151,9 +151,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     y = if (!is.null(attr(var_val, 'dynamic_dimnames'))) as.call(c(as.symbol("list"), attr(var_val, 'dynamic_dimnames'))) else to_call(dimnames(var_val)))))
             } else if ((is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) && length(var_val) == 1) {
                 # Add single-value literal to code
+                attr(var_val, "force_vector") <- NULL
                 defn <- call("<-", as.symbol(var_name), to_call(var_val))
             } else {
                 # Bung in model_env, no need to define
+                attr(var_val, "force_vector") <- NULL
                 assign(var_name, var_val, envir = model_env)
             }
             if (!identical(defn, logical(0))) scope[[var_name]] <<- defn

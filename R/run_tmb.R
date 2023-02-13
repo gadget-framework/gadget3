@@ -537,12 +537,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name %in% c("colSums", "Matrix::colSums")) {
         # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(vector<Type>)((", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum())"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum()"))
     }
 
     if (call_name %in% c("rowSums", "Matrix::rowSums")) {
         # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(vector<Type>)((", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().rowwise().sum())"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().rowwise().sum()"))
     }
 
     if (call_name == "rep" && (is.null(names(in_call)[[3]]) || names(in_call)[[3]] == 'times')) {
@@ -795,15 +795,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 defn <- cpp_definition(
                     'Eigen::SparseMatrix<Type>',
                     dims = dim(var_val))
-            } else if (is.array(var_val) && ( length(var_val) < 2 || all(is.na(var_val)) || all(var_val == var_val[[1]]) )) {
-                if (length(dim(var_val)) == 1) {
-                    # NB: vector isn't just an alias, more goodies are available to the vector class
-                    cpp_type <- 'vector'
-                } else {
-                    # NB: Otherwise array. We only use matrix<> when we know we want matrix multiplication
-                    cpp_type <- 'array'
-                }
-                cpp_type <- paste0(cpp_type, if (is.integer(var_val)) '<int>' else '<Type>')
+            } else if (is.array(var_val) && !isTRUE(attr(var_val, 'force_vector'))) {
+                cpp_type <- paste0(
+                    'array',
+                    if (is.integer(var_val)) '<int>' else '<Type>')
                 if (all(dim(var_val) == 0)) {
                     defn <- cpp_definition(cpp_type, var_name)
                 } else if (!is.null(attr(var_val, 'dynamic_dim'))) {
@@ -824,17 +819,24 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                         var_name,
                         dims = dim(var_val))
                 }
-                if (length(var_val) < 1 || is.na(var_val[[1]])) {
+                if ( length(var_val) < 1 || all(is.na(var_val)) ) {
                     # Value is NA, so leave uninitialized
-                } else if (var_val[[1]] == 0) {
-                    defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")
+                } else if (all(var_val == var_val[[1]])) {
+                    # Single value, use setConstant()/setZero()
+                    if (var_val[[1]] == 0) {
+                        defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")
+                    } else {
+                        defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setConstant(", cpp_code(var_val[[1]], env),");")
+                    }
                 } else {
-                    defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setConstant(", cpp_code(var_val[[1]], env),");")
+                    # Store array in model_data
+                    if (is.integer(var_val)) {
+                        defn <- paste0('DATA_IARRAY(', cpp_escape_varname(var_name) , ')')
+                    } else {
+                        defn <- paste0('DATA_ARRAY(', cpp_escape_varname(var_name) , ')')
+                    }
+                    assign(cpp_escape_varname(var_name), var_val, envir = model_data)
                 }
-            } else if (is.array(var_val) && length(dim(var_val)) > 1) {
-                # Store array in model_data
-                defn <- paste0('DATA_ARRAY(', cpp_escape_varname(var_name) , ')')
-                assign(cpp_escape_varname(var_name), var_val, envir = model_data)
             } else if (is.numeric(var_val) || is.character(var_val) || is.logical(var_val)) {
                 if (is.integer(var_val)) {
                     cpp_type <- 'int'
@@ -843,13 +845,14 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 } else {
                     cpp_type <- 'auto'
                 }
-                if (length(var_val) > 1 || is.array(var_val)) {
+                if (length(var_val) > 1 || isTRUE(attr(var_val, 'force_vector'))) {
                     # Store in DATA
                     if (cpp_type == 'int') {
                         defn <- paste0('DATA_IVECTOR(', cpp_escape_varname(var_name) , ')')
                     } else {
                         defn <- paste0('DATA_VECTOR(', cpp_escape_varname(var_name) , ')')
                     }
+                    attr(var_val, "force_vector") <- NULL
                     assign(cpp_escape_varname(var_name), var_val, envir = model_data)
                 } else {
                     # Define as a literal

@@ -13,7 +13,7 @@ g3_intlookup <- function (lookup_name, keys, values) {
             attr(out, 'key_var') <- deparse(sys.call()[[2]])
             attr(out, 'value_var') <- deparse(sys.call()[[3]])
             return(out)
-        }, cpp = 'template<typename T> std::map<int, T> __fn__(vector<int> keys, vector<T> values) {
+        }, cpp = 'template<typename T> std::map<int, T> __fn__(array<int> keys, array<T> values) {
             std::map<int, T> lookup = {};
 
             assert(keys.size() == values.size());

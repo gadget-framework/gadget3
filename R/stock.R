@@ -100,6 +100,9 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
     # Force array so type is stable in TMB
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
+    # TODO: Without, we can't do "stock__growth_l * maturity_bygrowth", which relies on stock__midlen being vector
+    #       to do the right multiplication. (__midlen).vec() doesn't seem to be enough to force the type of maturity_ratio
+    attr(stock__midlen, 'force_vector') <- TRUE
     stock__maxlen <- as.array(c(tail(lengthgroups, -1), stock__upperlen))
     names(stock__maxlen) <- names(stock__midlen)
 

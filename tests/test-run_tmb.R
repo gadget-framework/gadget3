@@ -568,7 +568,7 @@ expecteds$mean_vector_result <- mean(mean_vector)
 
 # colsums
 colsums_in <- array(1:6, dim = c(3,2))
-colsums_result <- c(0, 0)
+colsums_result <- c(0L, 0L)
 actions <- c(actions, ~{
     comment('colsums')
     colsums_result <- colSums(colsums_in)
@@ -577,7 +577,7 @@ actions <- c(actions, ~{
 expecteds$colsums_result <- colSums(colsums_in)
 
 # rowsums
-rowsums_in <- array(1:6, dim = c(3,2))
+rowsums_in <- array(c(1,2,3,4,5,6), dim = c(3,2))
 rowsums_result <- c(0, 0, 0)
 actions <- c(actions, ~{
     comment('rowsums')

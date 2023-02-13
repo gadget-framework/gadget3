@@ -28,7 +28,7 @@ ok(cmp_environment(stock_a$env, list(
     area_a = 1L,
     stock__upperlen = Inf,
     stock__minlen = as.array(c("10:Inf" = 10)),
-    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__midlen = structure(as.array(c("10:Inf" = 10.5)), force_vector = TRUE),
     stock__maxlen = as.array(c("10:Inf" = Inf)),
     stock__plusdl = 1,
     stock__dl = 1)), "stock_a: Environment populated with relevant areas")
@@ -39,7 +39,7 @@ ok(cmp_environment(stock_ac$env, list(
     area_area3 = 3L,
     stock__upperlen = Inf,
     stock__minlen = as.array(c("10:Inf" = 10)),
-    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__midlen = structure(as.array(c("10:Inf" = 10.5)), force_vector = TRUE),
     stock__maxlen = as.array(c("10:Inf" = Inf)),
     stock__plusdl = 1,
     stock__dl = 1)), "stock_c: Environment populated with default areas")
@@ -51,7 +51,7 @@ ok(cmp_environment(stock_bcd$env, list(
     area_d = 4L,
     stock__upperlen = Inf,
     stock__minlen = as.array(c("10:Inf" = 10)),
-    stock__midlen = as.array(c("10:Inf" = 10.5)),
+    stock__midlen = structure(as.array(c("10:Inf" = 10.5)), force_vector = TRUE),
     stock__maxlen = as.array(c("10:Inf" = Inf)),
     stock__plusdl = 1,
     stock__dl = 1)), "stock_a: Environment populated with relevant areas")
