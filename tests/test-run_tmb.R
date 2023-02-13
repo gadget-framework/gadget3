@@ -542,8 +542,10 @@ expecteds$escaped_data_output <- escaped.data.scalar + sum(escaped.data.array)
 # is.nan / is.finite
 is_nan_nan_scalar_input <- NaN
 is_nan_finite_scalar_input <- 4
-is_nan_finite_array_input <- 1:4
-is_nan_nan_array_input <- rep(NaN, 5)
+is_nan_finite_array_input <- as.array(1:4)
+is_nan_nan_array_input <- as.array(rep(NaN, 5))
+is_nan_finite_vector_input <- 1:4
+is_nan_nan_vector_input <- rep(NaN, 5)
 is_nan_output <- 0L
 is_finite_output <- 0L
 actions <- c(actions, ~{
@@ -552,14 +554,16 @@ actions <- c(actions, ~{
     is_nan_output <- is_nan_output + (if (is.nan(is_nan_finite_scalar_input)) 2 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_finite_array_input))) 4 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_array_input))) 8 else 0)
+    is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_vector_input))) 16 else 0)
     REPORT(is_nan_output)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_nan_scalar_input)) 1 else 0)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_finite_scalar_input)) 2 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_finite_array_input))) 4 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_array_input))) 8 else 0)
+    is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_vector_input))) 16 else 0)
     REPORT(is_finite_output)
 })
-expecteds$is_nan_output <- 1 + 8
+expecteds$is_nan_output <- 1 + 8 + 16
 expecteds$is_finite_output <- 2 + 4
 
 # as.vector() --> .vec()
@@ -590,7 +594,7 @@ expecteds$mean_vector_result <- mean(mean_vector)
 
 # colsums
 colsums_in <- array(1:6, dim = c(3,2))
-colsums_result <- c(0, 0)
+colsums_result <- c(0L, 0L)
 actions <- c(actions, ~{
     comment('colsums')
     colsums_result <- colSums(colsums_in)
@@ -599,7 +603,7 @@ actions <- c(actions, ~{
 expecteds$colsums_result <- colSums(colsums_in)
 
 # rowsums
-rowsums_in <- array(1:6, dim = c(3,2))
+rowsums_in <- array(c(1,2,3,4,5,6), dim = c(3,2))
 rowsums_result <- c(0, 0, 0)
 actions <- c(actions, ~{
     comment('rowsums')

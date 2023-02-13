@@ -1,5 +1,24 @@
 # run: Common utilities from turning a set of steps into code
 
+# Return (x) as vector, to be treated as a vector even if 1-element long
+as_force_vector <- function (x) {
+    class(x) <- c("force_vector", class(x))
+    return(x)
+}
+
+# Return all args as vector, to be treated as a vector even if 1-element long
+force_vector <- function (...) as_force_vector(c(...))
+
+# Remove mark, so we don't leak it to the outside world
+hide_force_vector <- function (x) {
+    # NB: Doing this indiscrimitely upsets array classes & makes them more matrix-ish(?)
+    if (inherits(x, "force_vector")) class(x) <- class(x)[class(x) != "force_vector"]
+    return(x)
+}
+
+# Should (x) be treated as a vector?
+is_force_vector <- function (x) length(x) > 1 || inherits(x, "force_vector")
+
 # Combine all provided action lists into one action list, throwing away duplicates
 g3_collate <- function(action_list) {
     # Combine all lists into an environment, later lists win over previous

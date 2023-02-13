@@ -1,5 +1,9 @@
 # gadget3 0.9-0-999:
 
+## Bug fixes
+
+* Stop assuming 1-dimensional R arrays should be TMB vectors.
+
 # gadget3 0.9-0:
 
 ## Bug fixes

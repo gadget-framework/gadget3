@@ -215,9 +215,9 @@ Type objective_function<Type>::operator() () {
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
     int cur_year = 0;
     auto step_count = (step_lengths).size();
-    auto cur_year_projection = false;
+    int cur_year_projection = false;
     int cur_step = 0;
-    auto cur_step_final = false;
+    int cur_step_final = false;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
     int ling_imm__area = 1;
@@ -232,7 +232,7 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(ling_mat_stddev)
     array<Type> ling_mat__num(35,1,11); ling_mat__num.setZero();
     array<Type> ling_mat__wgt(35,1,11); ling_mat__wgt.setConstant((double)(1));
-    vector<Type> igfs__catch(1);
+    array<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,1,8);
     array<Type> ling_mat__totalpredate(35,1,11);
     array<Type> ling_imm__predby_igfs(35,1,8);
@@ -272,11 +272,11 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
-    vector<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
     Type g3l_understocking_total = (double)(0);
-    vector<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
-    vector<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
+    array<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
+    array<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;

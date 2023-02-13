@@ -17,7 +17,7 @@
 g3a_time <- function(
         start_year,
         end_year,
-        step_lengths = as.array(c(12)),
+        step_lengths = c(12),
         final_year_steps = quote( length(step_lengths) ),
         project_years = ~g3_param('project_years', default = 0, optimise = FALSE),
         retro_years = ~g3_param('retro_years', default = 0, optimise = FALSE),
@@ -29,7 +29,7 @@ g3a_time <- function(
     # If these are literals, they should be integers
     if (is.numeric(start_year)) start_year <- as.integer(start_year)
     if (is.numeric(end_year)) end_year <- as.integer(end_year)
-    if (is.numeric(step_lengths)) step_lengths <- as.array(as.integer(step_lengths))
+    if (is.numeric(step_lengths)) step_lengths <- as_force_vector(as.integer(step_lengths))
     if (is.numeric(final_year_steps)) final_year_steps <- as.integer(final_year_steps)
     if (is.numeric(project_years)) project_years <- as.integer(project_years)
     # If a formula, make sure we use one definition

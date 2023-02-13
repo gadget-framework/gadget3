@@ -137,7 +137,6 @@ structure(function (param)
     }
     cur_time <- -1L
     nll <- 0
-    step_lengths <- array(3L, dim = 4L, dimnames = NULL)
     end_year <- 2018L
     retro_years <- param[["retro_years"]]
     start_year <- 1994L
