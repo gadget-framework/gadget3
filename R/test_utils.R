@@ -3,10 +3,12 @@
 # Compare output of TMB & R model runs
 ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimname = 'time', model_cpp = NULL) {
     dearray <- function (x) {
-        # TMB Won't produce arrays for 1-dimensional arrays, so moosh down R correspondingly
-        if (is.array(x) && length(dim(x)) == 1) x <- as.vector(x)
         # TMB Will produce 0/1 for TRUE/FALSE
-        if (is.logical(x)) x <- as.numeric(x)
+        if (is.logical(x)) {
+            oldattr <- attributes(x)
+            x <- as.numeric(x)
+            attributes(x) <- oldattr  # Preserve arrayness
+        }
         # TMB can't produce dynamic dimnames
         if (is.array(x) && ignore_dimname %in% names(dimnames(x))) {
             dimnames(x)[[ignore_dimname]] <- seq_along(dimnames(x)[[ignore_dimname]])

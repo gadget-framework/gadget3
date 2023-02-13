@@ -7,7 +7,7 @@ actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
     list(
         "001" = gadget3:::g3_step(g3_formula(
-            quote( tvout <- x ),
+            quote( tvout[[1]] <- x ),
             tvout = array(0L),
             x = g3_timevariable('gelda', list(
                 init = g3_formula( 2L + 2L ),
