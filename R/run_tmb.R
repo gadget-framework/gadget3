@@ -862,6 +862,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
             }
 
+            attr(defn, 'report_names') <- names(var_val)
             attr(defn, 'report_dimnames') <- dimnames(var_val)
             attr(defn, 'report_dynamic_dimnames') <- attr(var_val, 'dynamic_dimnames')
             scope[[var_name]] <<- defn
@@ -928,6 +929,7 @@ Type objective_function<Type>::operator() () {
     attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
     attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
+    attr(out, 'report_names') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_names')))
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
     attr(out, 'report_dynamic_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dynamic_dimnames')))
     return(out)
@@ -1066,6 +1068,7 @@ g3_tmb_adfun <- function(cpp_code,
         DLL = base_name,
         ...)
 
+    report_names <- attr(cpp_code, 'report_names')
     report_dimnames <- attr(cpp_code, 'report_dimnames')
     report_renames <- attr(cpp_code, 'report_renames')
     report_dynamic_dimnames <- attr(cpp_code, 'report_dynamic_dimnames')
@@ -1078,6 +1081,12 @@ g3_tmb_adfun <- function(cpp_code,
 
             out[[report_renames[[dimname]]]] <- out[[dimname]]
             out[[dimname]] <- NULL
+        }
+
+        # Patch vector names back again
+        for (dimname in names(report_names)) {
+            if (!(dimname %in% names(out))) next
+            names(out[[dimname]]) <- report_names[[dimname]]
         }
 
         # Patch report dimensions back again
