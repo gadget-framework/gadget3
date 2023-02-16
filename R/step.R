@@ -261,7 +261,8 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             dest_upperlen <- g3_stock_def(stock, 'upperlen')
             if (is.infinite(dest_upperlen)) dest_upperlen <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
 
-            if (isTRUE(all.equal(source_lg, dest_lg))) {
+            # NB: The force_vector class stops all.equal() from ignoring int/num
+            if (isTRUE(all.equal(hide_force_vector(source_lg), hide_force_vector(dest_lg)))) {
                 # Source == dest, so no point doing a transform
                 out_f <- inner_f
             } else {

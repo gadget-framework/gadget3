@@ -59,7 +59,7 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         keys = as.integer(unlist(agegroups)),
         values = unlist(lapply(seq_along(agegroups),
         function (i) rep(i, times = length(agegroups[[i]])))))
-    stock__minages <- as.array(vapply(agegroups, function (x) as.integer(x[[1]]), integer(1)))
+    stock__minages <- as_force_vector(vapply(agegroups, function (x) as.integer(x[[1]]), integer(1)))
     lookup_f <- stock__agegroup_lookup('getdefault', ~age, -1L)
 
     structure(list(

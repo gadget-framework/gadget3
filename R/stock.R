@@ -97,12 +97,11 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         names(lengthgroups) <- paste0(lengthgroups, ':', c(tail(lengthgroups, -1), stock__upperlen))
     }
 
-    # Force array so type is stable in TMB
-    stock__minlen <- as.array(lengthgroups)
+    stock__minlen <- as_force_vector(lengthgroups)
     # NB: __midlen must be a vector not array, so we can do "stock__growth_l * maturity_bygrowth"
     # i.e. multiply growth matrix by ~midlen
     stock__midlen <- as_force_vector(lengthgroups + (stock__dl / 2))
-    stock__maxlen <- as.array(c(tail(lengthgroups, -1), stock__upperlen))
+    stock__maxlen <- as_force_vector(c(tail(lengthgroups, -1), stock__upperlen))
     names(stock__maxlen) <- names(stock__midlen)
 
     structure(list(

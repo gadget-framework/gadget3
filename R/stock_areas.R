@@ -3,9 +3,9 @@ g3s_livesonareas <- function(inner_stock, areas) {
     if (is.null(names(areas))) {
         names(areas) <- paste0('area', areas)
     }
-    stock__areas <- as.array(structure(
+    stock__areas <- as_force_vector(structure(
         as.integer(areas),
-        names = names(areas)))  # NB: Force stock__areas to be an array
+        names = names(areas)))
     stock__totalareas <- length(stock__areas)
 
     # Add each area to our formulas, so they can be referenced elsewhere
@@ -105,7 +105,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         keys = as.integer(unlist(areagroups)),
         values = unlist(lapply(seq_along(areagroups),
         function (i) rep(i, times = length(areagroups[[i]])))))
-    stock__minareas <- as.array(vapply(areagroups, function (x) as.integer(x[[1]]), integer(1)))
+    stock__minareas <- as_force_vector(vapply(areagroups, function (x) as.integer(x[[1]]), integer(1)))
     lookup_f <- stock__areagroup_lookup('getdefault', ~area, -1L)
 
     structure(list(

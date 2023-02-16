@@ -302,10 +302,9 @@ ok_group('g3l_likelihood_data:age', {
           0:Inf 4:6 2001 2001.2
           0:Inf 7:10 2001   0.0
         "), "Worked out age dimensions from attributes, filled in missing values")
-    ok(ut_cmp_identical(ld_minages(ld), array(
-        c(x = 1L, y = 4L, z = 7L),
-        dimnames = list(c("1:3", "4:6", "7:10")),
-        dim = 3)), "agegroups using minages from attribute")
+    ok(ut_cmp_identical(
+        ld_minages(ld),
+        gadget3:::force_vector("1:3" = 1L, "4:6" = 4L, "7:10" = 7L)), "agegroups using minages from attribute")
 })
 
 
@@ -408,7 +407,7 @@ ok_group('g3l_likelihood_data:tag', {
         "), "Worked out tag dimensions from data")
     ok(ut_cmp_identical(
         g3_stock_def(ld$modelstock, 'tag_ids'),
-        as.array(c(a = 1L, b = 2L, c = 3L))), "stock__tag_ids: Worked out from factor")
+        gadget3:::force_vector(a = 1L, b = 2L, c = 3L)), "stock__tag_ids: Worked out from factor")
 })
 
 ok_group('g3l_likelihood_data:stock', {
