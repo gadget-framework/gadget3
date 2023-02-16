@@ -88,10 +88,7 @@ r <- attributes(result)
 # We populated min/mean/dl
 ok(ut_cmp_identical(
     r$stock_a__minlen,
-    array(
-        c(10),
-        dimnames = list("10:Inf"),
-        dim = c(1))), "stock_a__minlen")
+    c("10:Inf" = 10)), "stock_a__minlen")
 ok(ut_cmp_identical(
     r$stock_a__midlen,
     structure(
@@ -107,10 +104,9 @@ ok(ut_cmp_identical(
     1), "stock_a__plusdl")
 ok(ut_cmp_identical(
     r$stock_b__minlen,
-    array(
+    structure(
         c(50, 51, 52, 53, 54),
-        dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
-        dim = c(5))), "stock_b__minlen")
+        names = c("50:51", "51:52", "52:53", "53:54", "54:Inf"))), "stock_b__minlen")
 ok(ut_cmp_identical(
     r$stock_b__midlen,
     structure(
@@ -126,10 +122,9 @@ ok(ut_cmp_identical(
     1), "stock_b__plusdl")
 ok(ut_cmp_identical(
     r$stock_wonky__minlen,
-    array(
+    structure(
         c(0, 10, 100, 200, 1000),
-        dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
-        dim = c(5))), "stock_wonky__minlen")
+        names = c("0:10", "10:100", "100:200", "200:1000", "1000:Inf"))), "stock_wonky__minlen")
 ok(ut_cmp_equal(
     r$stock_wonky__midlen,
     structure(

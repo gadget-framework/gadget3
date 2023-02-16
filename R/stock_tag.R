@@ -15,9 +15,9 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
         stock__untagged_idx <- NA
     }
 
-    stock__tag_ids <- as.array(structure(
+    stock__tag_ids <- as_force_vector(structure(
         as.integer(tag_ids),
-        names = names(tag_ids)))  # NB: Force stock__tag_ids to be an array
+        names = names(tag_ids)))
 
     structure(list(
         dim = c(inner_stock$dim,
