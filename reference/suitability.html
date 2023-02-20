@@ -150,23 +150,29 @@ will refer to the prey midlength.</p>
 <p></p>
 <div class="section">
 <h3 id="g-suitability-andersen">g3_suitability_andersen<a class="anchor" aria-label="anchor" href="#g-suitability-andersen"></a></h3>
-<p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use in predation function's <var>suitabilities</var> argument:</p>
+<p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use in predation function's <var>suitabilities</var> argument.</p>
+<p>If \(p_3 = p_4\):
+    $$
+      p_0 + p_2 e^{-\frac{(x - p_1)^2}{p_4}}
+    $$</p>
+<p>Otherwise:</p>
 <p>$$
-      p_0 + p_2 e^{-\frac{(\log\frac{p_5}{l} - p_1)^2}{p_4}}
-    $$</p><dl><dt>\(L\)</dt>
+      p_0
+      + p_2 e^{-\frac{(x - p_1)^2}{p_4}} * \min(\max(p_1 - x, 0), 1)
+      + p_2 e^{-\frac{(x - p_1)^2}{p_3}} * \min(\max(x, 0), 1)
+    $$
+    ...i.e if \(\log\frac{L}{l} &lt;= p_1\) then \(p_3\) used in place of \(p_4\).</p>
+<p></p><dl><dt>\(x\)</dt>
+<dd><p>\(\log\frac{p_5}{l}\)</p></dd>
+
+      <dt>\(L\)</dt>
 <dd><p>Vector of predator midlength for each lengthgroup</p></dd>
 
       <dt>\(l\)</dt>
 <dd><p>Vector of stock midlength for each lengthgroup</p></dd>
 
-      <dt>\(p_0\) .. \(p_2\)</dt>
-<dd><p>Function parameter <var>p0</var> .. <var>p2</var></p></dd>
-
-      <dt>\(p_3\)</dt>
-<dd><p>Currently unsupported. Should be used in place of \(p_3\) if \(\log\frac{L}{l} &lt;= p_1\)</p></dd>
-
-      <dt>\(p_4\)</dt>
-<dd><p>Function parameter <var>p4</var></p></dd>
+      <dt>\(p_0\) .. \(p_4\)</dt>
+<dd><p>Function parameter <var>p0</var> .. <var>p4</var></p></dd>
 
       <dt>\(p_5\)</dt>
 <dd><p>Function parameter <var>p5</var>, if unspecified uses \(L\), Vector of predator midlength for each lengthgroup.</p></dd>
