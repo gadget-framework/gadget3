@@ -55,6 +55,12 @@ actions <- list(
         p1 = ~g3_param("p_andersen_p1"),
         p2 = ~g3_param("p_andersen_p2"),
         p4 = ~g3_param("p_andersen_p4"))),
+    suit_report_action(pred_stock, input_stock, g3_suitability_andersen(
+        p0 = ~g3_param("p_andersen_ne_p0"),
+        p1 = ~g3_param("p_andersen_ne_p1"),
+        p2 = ~g3_param("p_andersen_ne_p2"),
+        p3 = ~g3_param("p_andersen_ne_p3"),
+        p4 = ~g3_param("p_andersen_ne_p4"))),
     suit_report_action(fleet_stock, input_stock, g3_suitability_gamma(
         ~g3_param("p_gamma_alpha"),
         ~g3_param("p_gamma_beta"),

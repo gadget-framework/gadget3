@@ -85,17 +85,27 @@ will refer to the prey midlength.
   }
 
   \subsection{g3_suitability_andersen}{
-    Returns a \link{formula} for use in predation function's \var{suitabilities} argument:
+    Returns a \link{formula} for use in predation function's \var{suitabilities} argument.
+
+    If \eqn{p_3 = p_4}:
+    \deqn{
+      p_0 + p_2 e^{-\frac{(x - p_1)^2}{p_4}}
+    }
+
+    Otherwise:
 
     \deqn{
-      p_0 + p_2 e^{-\frac{(\log\frac{p_5}{l} - p_1)^2}{p_4}}
+      p_0
+      + p_2 e^{-\frac{(x - p_1)^2}{p_4}} * \min(\max(p_1 - x, 0), 1)
+      + p_2 e^{-\frac{(x - p_1)^2}{p_3}} * \min(\max(x, 0), 1)
     }
+    ...i.e if \eqn{\log\frac{L}{l} <= p_1} then \eqn{p_3} used in place of \eqn{p_4}.
+
     \describe{
+      \item{\eqn{x}}{\eqn{\log\frac{p_5}{l}}}
       \item{\eqn{L}}{Vector of predator midlength for each lengthgroup}
       \item{\eqn{l}}{Vector of stock midlength for each lengthgroup}
-      \item{\eqn{p_0} .. \eqn{p_2}}{Function parameter \var{p0} .. \var{p2}}
-      \item{\eqn{p_3}}{Currently unsupported. Should be used in place of \eqn{p_3} if \eqn{\log\frac{L}{l} <= p_1}}
-      \item{\eqn{p_4}}{Function parameter \var{p4}}
+      \item{\eqn{p_0} .. \eqn{p_4}}{Function parameter \var{p0} .. \var{p4}}
       \item{\eqn{p_5}}{Function parameter \var{p5}, if unspecified uses \eqn{L}, Vector of predator midlength for each lengthgroup.}
     }
 
