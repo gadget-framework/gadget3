@@ -8,15 +8,11 @@ teststock <- g3_stock('teststock', seq(10, 35, 5))
 
 ok_group("g3a_grow_lengthvbsimple", {
     # Run g3a_grow_lengthvbsimple for given linf and midlen
-    lvs <- function (linf, midlen = seq(10, 100, 10), kappa = 100) {
-        gadget3:::f_eval(
+    lvs <- function (linf, kappa = 100) {
+        as.numeric(g3_eval(
             g3a_grow_lengthvbsimple(linf, kappa),
-            list(
-                stock__midlen = midlen,
-                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
-                stock__plusdl = diff(midlen)[[1]],
-                kappa = kappa,
-                cur_step_size = 1))
+            stock = g3_stock("s", seq(10, 100, 10) - 5),
+            cur_step_size = 1))
     }
     ok(ut_cmp_equal(
         lvs(linf = 150), 
@@ -28,17 +24,11 @@ ok_group("g3a_grow_lengthvbsimple", {
 
 ok_group("g3a_grow_impl_bbinom:zero-growth", {
     # Run g3a_grow_impl_bbinom for given linf and midlen
-    gim <- function (linf, midlen = seq(10, 100, 10), kappa = 20, beta = 0.5, maxlengthgroupgrowth = 10) {
-        gadget3:::f_eval(
+    gim <- function (linf, kappa = 20, beta = 0.5, maxlengthgroupgrowth = 10) {
+        g3_eval(
             g3a_grow_impl_bbinom(g3a_grow_lengthvbsimple(linf, kappa), ~0, beta, maxlengthgroupgrowth)$len,
-            list(
-                stock__midlen = midlen,
-                stock__dl = c(diff(midlen), diff(midlen)[[1]]),
-                stock__plusdl = diff(midlen)[[1]],
-                kappa = kappa,
-                beta = beta,
-                maxlengthgroupgrowth = maxlengthgroupgrowth,
-                cur_step_size = 1))
+            stock = g3_stock("s", seq(10, 100, 10) - 5),
+            cur_step_size = 1)
     }
 
     ok(ut_cmp_equal(round(gim(linf = 120, maxlengthgroupgrowth = 5), 2), read.matrix('

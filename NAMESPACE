@@ -67,6 +67,9 @@ export(g3a_tag_shedding)
 # R/action_time.R
 export(g3a_time)
 
+# R/eval.R
+export(g3_eval)
+
 # R/formula_utils.R
 export(g3_formula)
 

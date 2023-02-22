@@ -12,8 +12,8 @@ do_lookup <- function(df, cur_vals) {
     df$total_weight <- do.call(paste, df)
     lookup_f <- g3_timeareadata('l', df)
     # Bodge g3_global first
-    environment(lookup_f)$l__lookup <- gadget3:::f_eval(attr(environment(lookup_f)$l__lookup, 'g3_global_init_val'))
-    gadget3:::f_eval(lookup_f, cur_vals)
+    environment(lookup_f)$l__lookup <- g3_eval(attr(environment(lookup_f)$l__lookup, 'g3_global_init_val'))
+    g3_eval(lookup_f, cur_vals)
 }
 
 ok(ut_cmp_identical(

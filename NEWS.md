@@ -1,5 +1,9 @@
 # gadget3 0.8-4-999:
 
+## New features
+
+* ``g3_eval()``, to evaluate snippets of a gadget3 model.
+
 ## Breaking changes
 
 * ``g3l_distribution_*(transform_fs = ...)`` now happens before aggregation, not after.

@@ -11,7 +11,7 @@ stock_acd <- (g3_stock('stock_acd', seq(10, 40, 10))
 
 ok_group("g3a_migrate_normalize", {
     mn <- function (migratematrix, area_idx, row_total = 1) {
-        gadget3:::f_eval(g3a_migrate_normalize(row_total), list(
+        g3_eval(g3a_migrate_normalize(row_total), list(
             stock__migratematrix = migratematrix,
             stock__area_idx = area_idx))
     }
