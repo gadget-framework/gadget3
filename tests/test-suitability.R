@@ -23,6 +23,21 @@ suit_report_action <- function (pred_stock, stock, suit_f, run_at = 99) {
     return(as.list(out))
 }
 
+ok_group("g3_suitability_andersen", {
+    nondiff_andersen <- function (p0, p1, p2, p3 = p4, p4, p5, stock__midlen) {
+        p0 + p2 * exp(-(log(p5/stock__midlen) - p1)^2 / ifelse(log(p5/stock__midlen) <= p1, p4, p3))
+    }
+    g3_andersen <- function (p0, p1, p2, p3 = p4, p4, p5, stock__midlen) {
+        g3_eval(g3_suitability_andersen(p0, p1, p2, p3, p4, p5), stock__midlen = stock__midlen)
+    }
+
+    params <- list(p0 = 0, p1 = 0.659, p2 = 1, p3 = 0.15, p4 = 9942, p5 = 120, stock__midlen = 1:120)
+    ok(ut_cmp_equal(
+        # NB: offset counteracts avoid_zero(p0)
+        do.call(g3_andersen, params) - 0.0006931472,
+        do.call(nondiff_andersen, params),
+        tolerance = 1e-7), paste0("g3_suitability_andersen matches ", deparse1(params)))
+})
 
 fleet_stock <- g3_fleet('fleet') %>% g3s_livesonareas(1:3)
 pred_stock <- g3_stock('pred', c(10, 20, 30, 40, 50, 75, 100)) %>%
