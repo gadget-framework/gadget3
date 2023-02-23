@@ -1,12 +1,14 @@
 g3a_predate_catchability_totalfleet <- function (E) {
+    # NB: sum(stock_ss(fleet_stock__catch)) reduces what is (probably) a 1x1 array to a scalar
     f_substitute(
-        ~stock_ss(stock__predby_fleet_stock) * (E / stock_ss(fleet_stock__catch)),
+        ~stock_ss(stock__predby_fleet_stock) * (E / sum(stock_ss(fleet_stock__catch))),
         list(E = E))
 }
 
 g3a_predate_catchability_numberfleet <- function (E) {
+    # NB: sum(stock_ss(fleet_stock__catchnum)) reduces what is (probably) a 1x1 array to a scalar
     f_substitute(
-        ~(stock_ss(stock__predby_fleet_stock) / avoid_zero_vec(stock_ss(stock__wgt))) * (E / stock_ss(fleet_stock__catchnum)),
+        ~(stock_ss(stock__predby_fleet_stock) / avoid_zero_vec(stock_ss(stock__wgt))) * (E / sum(stock_ss(fleet_stock__catchnum))),
         list(E = E))
 }
 

@@ -18,7 +18,7 @@ g3l_random_dnorm <- function (
 
         stock_iterate(nllstock, g3_with(n := dnorm(param_f, mean_f, sigma_f, log_f), {
             stock_ss(nllstock__dnorm) <- stock_ss(nllstock__dnorm) + n
-            stock_ss(nllstock__weight) <- weight
+            stock_ss(nllstock__weight) <- stock_ss(nllstock__weight) + weight
             nll <- nll + (weight) * n
         }))
 
@@ -58,7 +58,7 @@ g3l_random_walk <- function (
         stock_iterate(nllstock, {
             if (!is.nan(nllstock__prevrec)) g3_with(n := dnorm(param_f, nllstock__prevrec, sigma_f, log_f), {
                 stock_ss(nllstock__dnorm) <- stock_ss(nllstock__dnorm) + n
-                stock_ss(nllstock__weight) <- weight
+                stock_ss(nllstock__weight) <- stock_ss(nllstock__weight) + weight
                 nll <- nll + (weight) * n
             })
             nllstock__prevrec <- param_f

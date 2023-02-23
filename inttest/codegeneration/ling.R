@@ -395,7 +395,7 @@ structure(function (param)
                   {
                     ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx] * ((if (area != 1) 
                       0
-                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/sum(igfs__catch[igfs__area_idx]))
                     ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] <- ling_imm__totalpredate[, ling_imm__area_idx, ling_imm__age_idx] + ling_imm__predby_igfs[, ling_imm__area_idx, ling_imm__age_idx]
                   }
                 }
@@ -413,7 +413,7 @@ structure(function (param)
                   {
                     ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx] * ((if (area != 1) 
                       0
-                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/igfs__catch[igfs__area_idx])
+                    else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/sum(igfs__catch[igfs__area_idx]))
                     ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] <- ling_mat__totalpredate[, ling_mat__area_idx, ling_mat__age_idx] + ling_mat__predby_igfs[, ling_mat__area_idx, ling_mat__age_idx]
                   }
                 }
@@ -705,11 +705,11 @@ structure(function (param)
                   cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 10L + cur_step), -1L)
                   if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                     cdist_sumofsquares_ldist_lln_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]))
-                    cur_cdist_nll <- sum((((cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2))
+                    cur_cdist_nll <- sum(((cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2)
                     {
                       nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
                       nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                      nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
+                      nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] + param[["cdist_sumofsquares_ldist_lln_weight"]]
                     }
                   }
                 }
@@ -736,7 +736,7 @@ structure(function (param)
             g3l_understocking_total <- g3l_understocking_total^2
             nll <- nll + g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
-            nll_understocking__weight[cur_time + 1L] <- 1
+            nll_understocking__weight[cur_time + 1L] <- nll_understocking__weight[cur_time + 1L] + 1
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")

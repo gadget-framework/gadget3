@@ -34,7 +34,7 @@ g3l_understocking <- function (prey_stocks, power_f = ~2, nll_breakdown = FALSE,
 
         stock_iterate(nllstock, {
             stock_ss(nllstock__wgt) <- stock_ss(nllstock__wgt) + g3l_understocking_total
-            stock_ss(nllstock__weight) <- weight
+            stock_ss(nllstock__weight) <- stock_ss(nllstock__weight) + weight
         })
     }, list(
         power_f = power_f,

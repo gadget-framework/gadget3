@@ -79,7 +79,7 @@ ok_group("g3_step:stock_reshape", {
         })))),
 
         list('900:dest_nolength' = gadget3:::g3_step(~stock_iterate(dest_nolength, stock_intersect(source, {
-            stock_ss(dest_nolength__num) <- stock_reshape(dest_nolength, stock_ss(source__num))
+            stock_ss(dest_nolength__num)[[1]] <- stock_reshape(dest_nolength, stock_ss(source__num))
             REPORT(dest_nolength__num)
         })))),
 

@@ -252,20 +252,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             if (length(cols) == 0) return("")
             if (all(!cols_defined)) return("")
 
-            if (all(cols_defined)) {
-                # Nothing missing, i.e. a value lookup
-                # NB: As a byproduct this masks the fact that vec.col(x) == vec,
-                #     as col() falls back to the useless Eigen definition for vector<Type>.
-                #     To get rid of it, we'd also have to use array<Type> even in 1-dim cases
-                return(paste0(
-                    '(',
-                    paste(vapply(
-                        cols,
-                        function (d) cpp_code(d, in_envir, next_indent, expecting_int = TRUE),
-                        character(1)), collapse = ", "),
-                    ')'))
-            }
-
             if (tail(cols_defined, 1)) {
                 # Final value defined, we can use .col()
                 return(paste0(
