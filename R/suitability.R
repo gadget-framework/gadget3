@@ -9,7 +9,7 @@ g3_suitability_exponentiall50 <- function (alpha, l50) {
 }
 
 g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = ~pred_stock__midlen) {
-  f_substitute(~avoid_zero(p0) + 
+  f_substitute(~p0 +
                  avoid_zero(p2) * exp(-(log(avoid_zero_vec(p5/stock__midlen)) - p1)**2/avoid_zero(p3)) *
                  bounded_vec(1000*(p1 - log(avoid_zero_vec(p5/stock__midlen))),0,1) +
                  avoid_zero(p2) * exp(-(log(avoid_zero_vec(p5/stock__midlen)) - p1)**2/avoid_zero(p4)) *

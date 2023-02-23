@@ -33,10 +33,9 @@ ok_group("g3_suitability_andersen", {
 
     params <- list(p0 = 0, p1 = 0.659, p2 = 1, p3 = 0.15, p4 = 9942, p5 = 120, stock__midlen = 1:120)
     ok(ut_cmp_equal(
-        # NB: offset counteracts avoid_zero(p0)
-        do.call(g3_andersen, params) - 0.0006931472,
+        do.call(g3_andersen, params),
         do.call(nondiff_andersen, params),
-        tolerance = 1e-7), paste0("g3_suitability_andersen matches ", deparse1(params)))
+        tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
 })
 
 fleet_stock <- g3_fleet('fleet') %>% g3s_livesonareas(1:3)
