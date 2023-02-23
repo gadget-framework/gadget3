@@ -1,5 +1,9 @@
 # gadget3 0.8-4-999:
 
+## Bug fixes
+
+* ``g3_suitability_andersen()`` now produces sensible values - https://github.com/gadget-framework/gadget3/issues/108
+
 ## New features
 
 * ``g3_eval()``, to evaluate snippets of a gadget3 model.
