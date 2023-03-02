@@ -23,14 +23,14 @@ fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 ok_group("g3a_predate_catchability_totalfleet", {
     ok(cmp_code(
         g3a_predate_catchability_totalfleet(1234),
-        ~stock_ss(stock__predby_fleet_stock) * (1234/sum(stock_ss(fleet_stock__catch)))
+        ~stock_ss(stock__predby_fleet_stock) * (1234/stock_ss(fleet_stock__catch))
         ), "g3a_predate_catchability_totalfleet: Inserts E into formula")
 })
 
 ok_group("g3a_predate_catchability_numberfleet", {
     ok(cmp_code(
         g3a_predate_catchability_numberfleet(1234),
-        ~(stock_ss(stock__predby_fleet_stock)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/sum(stock_ss(fleet_stock__catchnum)))
+        ~(stock_ss(stock__predby_fleet_stock)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/stock_ss(fleet_stock__catchnum))
         ), "g3a_predate_catchability_numberfleet: Uses __catchnum instead of __catch")
 })
 
