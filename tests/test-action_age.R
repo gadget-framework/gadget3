@@ -8,6 +8,8 @@ prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(11, 15)
 prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(11, 13)
 prey_c <- g3_stock('prey_c', c(1)) %>% g3s_age(11, 17)
 
+# TODO: Tests for a single-age prey outputting somewhere else
+
 # Store stock state in temporary variables labelled stock 0..n
 report_action <- list()
 for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {

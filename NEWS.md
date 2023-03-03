@@ -3,6 +3,7 @@
 ## Bug fixes
 
 * ``g3_suitability_andersen()`` now produces sensible values - https://github.com/gadget-framework/gadget3/issues/108
+* ``g3a_age()`` now supports stocks with a single age (i.e. minage == maxage)
 
 ## New features
 

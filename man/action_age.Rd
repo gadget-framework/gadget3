@@ -38,7 +38,10 @@ g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stock
   \item{Move the final age group into temporary storage, \code{stock__transitioning_num} / \code{stock__transitioning_wgt}}
   \item{Move the contents of all other age groups into the age group above}
   \item{Move the contents of the temporary storage into \var{output_stocks}}
-}}
+}
+If \var{stock} has only one age, and \var{output_stocks} has been specified, then the contentes will be moved,
+if \var{output_stocks} is empty, then the action will do nothing.
+}
 
 \seealso{
   \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockmature},

@@ -52,6 +52,35 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         else quote(x[,1])[[3]]  # i.e. anything else should be missing
     }))
 
+    # Handle single-age special case separately
+    if (g3_stock_def(stock, 'maxage') == g3_stock_def(stock, 'minage')) {
+        if (length(output_stocks) == 0) {
+            # Single age, no output stocks -> nothing to do
+            return(list())
+        }
+
+        # Instead of using the below, just move-and-zero stocks
+        out[[step_id(run_at, 1, stock)]] <- g3_step(fix_subsets(f_substitute(~if (run_f) {
+            debug_label("g3a_age for ", stock)
+            stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
+                   stock__age_idx := g3_idx(age - stock__minage + 1L), {
+                debug_trace("Move oldest ", stock, " into ", stock_movement)
+                # NB: We should be doing this once in a normal iterate case, but here there's only one loop so doesn't matter
+                # NB: This relies on the dimension ordering between stock_movement & stock matching
+                stock_movement__transitioning_num[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__num[age_iter_ss])
+                stock_movement__transitioning_wgt[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__wgt[age_iter_ss])
+                stock__num[age_iter_ss] <- 0
+            }))
+        }, list(
+            run_f = run_f,
+            movement_age_iter_ss = movement_age_iter_ss,
+            age_iter_ss = age_iter_ss))))
+
+        # NB: move_remainder = FALSE because it's pointless here (and we can't move back into stock_movement)
+        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, move_remainder = FALSE, run_f = run_f)
+        return(as.list(out))
+    }
+
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
         final_year_f = fix_subsets(f_substitute(~{
