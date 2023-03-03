@@ -103,7 +103,9 @@
     <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol><li><p>Move the final age group into temporary storage, <code>stock__transitioning_num</code> / <code>stock__transitioning_wgt</code></p></li>
 <li><p>Move the contents of all other age groups into the age group above</p></li>
 <li><p>Move the contents of the temporary storage into <var>output_stocks</var></p></li>
-</ol></div>
+</ol><p>If <var>stock</var> has only one age, and <var>output_stocks</var> has been specified, then the contentes will be moved,
+if <var>output_stocks</var> is empty, then the action will do nothing.</p>
+    </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockmature" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockmature</a>,
