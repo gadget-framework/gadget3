@@ -62,7 +62,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
         # Instead of using the below, just move-and-zero stocks
         out[[step_id(run_at, 1, stock)]] <- g3_step(fix_subsets(f_substitute(~if (run_f) {
             debug_label("g3a_age for ", stock)
-            stock_with(stock, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
+            stock_with(stock, stock_with(stock_movement, for (age in seq(stock__maxage, stock__minage, by = -1)) g3_with(
                    stock__age_idx := g3_idx(age - stock__minage + 1L), {
                 debug_trace("Move oldest ", stock, " into ", stock_movement)
                 # NB: We should be doing this once in a normal iterate case, but here there's only one loop so doesn't matter
@@ -70,7 +70,7 @@ g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / lengt
                 stock_movement__transitioning_num[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__num[age_iter_ss])
                 stock_movement__transitioning_wgt[movement_age_iter_ss] <- stock_reshape(stock_movement, stock__wgt[age_iter_ss])
                 stock__num[age_iter_ss] <- 0
-            }))
+            })))
         }, list(
             run_f = run_f,
             movement_age_iter_ss = movement_age_iter_ss,
