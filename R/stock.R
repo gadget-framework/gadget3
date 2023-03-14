@@ -58,7 +58,7 @@ print.g3_stock <- function (x, ...) {
 }
 
 # True iff (x) is a stock object
-g3_is_stock <- function (x) inherits(x, "g3_stock")
+g3_is_stock <- function (stock) inherits(stock, "g3_stock")
 
 g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = NULL) {
     # See LengthGroupDivision::LengthGroupDivision

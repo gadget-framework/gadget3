@@ -4,6 +4,7 @@
 \alias{g3_stock}
 \alias{g3_fleet}
 \alias{g3s_clone}
+\alias{g3_is_stock}
 
 \title{Gadget3 stock storage}
 \description{
@@ -21,6 +22,8 @@ g3_fleet(var_name)
 g3_stock_def(stock, name)
 
 g3s_clone(inner_stock, var_name)
+
+g3_is_stock(stock)
 
 }
 
@@ -65,6 +68,9 @@ g3s_clone(inner_stock, var_name)
   }
   \subsection{g3s_clone}{
     A \code{\link{g3_stock}} with identical dimensions to \var{inner_stock} but with a new name.
+  }
+  \subsection{g3_is_stock}{
+    \code{TRUE} iff \var{stock} is a \code{\link{g3_stock}} object.
   }
 }
 

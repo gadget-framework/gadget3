@@ -7,6 +7,7 @@
 
 ## New features
 
+* Make ``g3_is_stock()`` public
 * ``g3_eval()``, to evaluate snippets of a gadget3 model.
 
 ## Breaking changes
