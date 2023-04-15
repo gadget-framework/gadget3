@@ -108,13 +108,13 @@ g3a_step_transition <- function(input_stock,
             run_f = run_f))))
     }
 
-    g3_step(f_concatenate(list(
-        g3_step(f_substitute(~{
+    out <- c(
+        list(g3_step(f_substitute(~{
             if (move_remainder) stock_with(input_stock, input_stock__transitioning_remainder <- input_stock__transitioning_num)
         }, list(
             move_remainder = move_remainder,
-            run_f = run_f)), recursing = TRUE),
-        f_concatenate(lapply(seq_along(output_stocks), function (n) {
+            run_f = run_f)), recursing = TRUE)),
+        lapply(seq_along(output_stocks), function (n) {
             # NB: Pull these from parent env so g3_step can find them
             input_stock <- input_stock
             output_stock <- output_stocks[[n]]
@@ -137,9 +137,9 @@ g3a_step_transition <- function(input_stock,
             }, list(
                 output_ratio = output_ratios[[n]],
                 move_remainder = move_remainder,
-                run_f = run_f)))
-        })),
-        g3_step(f_substitute(~{
+                run_f = run_f)), recursing = TRUE)
+        }),
+        list(g3_step(f_substitute(~{
             if (move_remainder) {
                 debug_trace("Move any unclaimed stock back to ", input_stock)
                 stock_with(input_stock, if (run_f) {
@@ -148,7 +148,13 @@ g3a_step_transition <- function(input_stock,
             }
         }, list(
             move_remainder = move_remainder,
-            run_f = run_f)), recursing = TRUE))))
+            run_f = run_f)), recursing = TRUE)))
+    # Assign names to each part, and use f_substitute to combine them
+    if (length(out) > length(c(letters, LETTERS))) stop("Not enough temporary names to assign to each part")
+    names(out) <- c(letters, LETTERS)[1:length(out)]
+    g3_step(f_substitute(
+        as.call(c(as.symbol("{"), lapply(names(out), as.symbol))),  # }
+        out))
 }
 
 # Growth step for a stock

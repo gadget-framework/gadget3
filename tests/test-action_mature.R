@@ -1,3 +1,4 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 library(magrittr)
 library(unittest)
 
@@ -253,4 +254,15 @@ ok_group('g3a_mature', {
             gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
         }
     })
+})
+
+ok_group('movement with non-conforming stocks', {
+    # Transform required from a -> b+c, make sure we can form a model
+    prey_a <- g3_stock('prey_a', seq(20, 160, 4)) %>% g3s_age(11, 12)
+    prey_b <- g3_stock('prey_b', seq(20, 160, 4)) %>% g3s_age(11, 15)
+    prey_c <- g3_stock('prey_c', seq(20, 164, 4)) %>% g3s_age(11, 15)
+    # Build model, if missing vars are present the warning will be translated into error
+    m <- g3_to_r(list(
+        g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
+        g3a_age(prey_a, output_stocks = list(prey_b, prey_c), output_ratios = c(0.5,0.5))))
 })

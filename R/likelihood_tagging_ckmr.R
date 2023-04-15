@@ -46,6 +46,7 @@ g3l_tagging_ckmr <- function (
         debug_label("g3l_tagging_ckmr: Gather historical record of spawning / spawned stock")
     })
     for (parent_stock in parent_stocks) {
+        # TODO: f_concatenate won't do what we want here, environment won't be merged, see R/action_mature.R
         step_f <- f_concatenate(list(step_f, g3_step(~{
             if (sum(stock_with(parent_stock, parent_stock__spawningnum)) > 0) {  # i.e. currently in a spawning step. TODO: Safe? Better way?
                 stock_iterate(parent_stock, stock_intersect(modelhist, {

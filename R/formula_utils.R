@@ -147,6 +147,7 @@ call_replace <- function (f, ...) {
 
 # Concatenate (list_of_f) into a single call, with (parent) as the parent environment,
 # cloning formula environments as necessary
+# NB: This is no good within actions, since we stack the environments not merge them.
 f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
     # Formula has same env as first item in list
     has_same_env <- function (f) identical(environment(f), environment(list_of_f[[1]]))
