@@ -146,7 +146,7 @@
 
   <dt>obs_data</dt>
 <dd><p>Data.frame of observation data, for example the results of
-    mfdb_sample_count.</p>
+    <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
@@ -171,7 +171,7 @@
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
 
   <dt>area_group</dt>
-<dd><p>mfdb_group or list mapping area names used in
+<dd><p><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb_group</a> or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
 
@@ -211,7 +211,7 @@
 <p>The <var>obs_data</var> data.frame, as well as providing the observation data to
     compare the model data against, controls the grouping of model data to
     compare to the observation data, by inspecting the MFDB column attributes
-    produced by e.g. mfdb_sample_count.</p>
+    produced by e.g. <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
 <p>Metadata columns describe the observation datapoint in that row. The
     columns should be from this list:</p><dl><dt>year</dt>
 <dd><p>Required.
