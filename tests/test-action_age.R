@@ -3,12 +3,49 @@ library(unittest)
 
 library(gadget3)
 
+ok_group("g3a_age:single_age", {
+    # prey_a, with single age, outputs into b & c
+    prey_a <- g3_stock('prey_a', seq(20, 40, 4)) %>% g3s_age(11, 11)
+    prey_b <- g3_stock('prey_b', seq(20, 40, 4)) %>% g3s_age(11, 15)
+    prey_c <- g3_stock('prey_c', seq(20, 40, 4)) %>% g3s_age(11, 15)
+
+    model_fn <- g3_to_r(list(
+        # Keep TMB happy
+        g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
+        g3a_initialconditions(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
+        g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
+        g3a_initialconditions(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),
+        g3a_age(prey_a, output_stocks = list(prey_b, prey_c), output_ratios = c(0.75, 0.25)),
+        g3a_time(2000, 2002)))
+    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
+    if (Sys.getenv('G3_TEST_TMB') == "2") {
+        #model_cpp <- edit(model_cpp)
+        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
+        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
+    }
+
+    params <- attr(model_fn, 'parameter_template')
+    r <- model_fn(params)
+    for (len_idx in 1:6) {
+        ok(ut_cmp_equal(
+            attr(r, 'prey_a__num')[length=len_idx,],
+            c(0)), paste0("prey_a__num length=", len_idx))
+        # prey_b got 75% of prey_a
+        ok(ut_cmp_equal(
+            attr(r, 'prey_b__num')[length=len_idx,],
+            c(age11=10, age12=20 + 7.5, age13=30, age14=40, age15=50)), paste0("prey_b__num length=", len_idx))
+        # prey_c got 25% of prey_a
+        ok(ut_cmp_equal(
+            attr(r, 'prey_c__num')[length=len_idx,],
+            c(age11=0, age12=2.5, age13=0, age14=0, age15=0)), paste0("prey_c__num length=", len_idx))
+    }
+    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+})
+
 # NB: We start at 11 to make sure we age into the right bracket
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(11, 15)
 prey_b <- g3_stock('prey_b', c(1)) %>% g3s_age(11, 13)
 prey_c <- g3_stock('prey_c', c(1)) %>% g3s_age(11, 17)
-
-# TODO: Tests for a single-age prey outputting somewhere else
 
 # Store stock state in temporary variables labelled stock 0..n
 report_action <- list()
