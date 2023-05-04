@@ -37,10 +37,10 @@ vignettes: install
 
 serve-docs:
 	[ -d docs ] && rm -r docs || true
-	Rscript -e "pkgdown::build_site() ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
+	Rscript --vanilla -e "pkgdown::build_site() ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
 
 test: install
-	for f in tests/test-*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
+	for f in tests/test*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
 
 inttest: install
 	for f in inttest/*/run.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
@@ -50,7 +50,7 @@ coverage:
 	G3_TEST_TMB="" R --vanilla -e 'covr::package_coverage(type = "all", line_exclusions = list("R/run_tmb.R"))'
 
 release: release-description release-news
-	git commit -m "Release version $(NEW_VERSION)" DESCRIPTION NEWS.md
+	git commit -m "Release version $(NEW_VERSION)" $(wildcard DESCRIPTION ChangeLog NEWS.md)
 	git tag -am "Release version $(NEW_VERSION)" v$(NEW_VERSION)
 	#
 	R CMD build .
@@ -60,7 +60,7 @@ release: release-description release-news
 	/bin/echo -e "# $(PACKAGE) $(NEW_VERSION)-999:\n" > NEWS.md
 	cat NEWS.md.o >> NEWS.md
 	rm NEWS.md.o
-	git commit -m "Development version $(NEW_VERSION)-999" DESCRIPTION
+	git commit -m "Development version $(NEW_VERSION)-999" $(wildcard DESCRIPTION ChangeLog NEWS.md)
 
 release-description:
 	[ -n "$(NEW_VERSION)" ]  # NEW_VERSION variable should be set
@@ -68,11 +68,24 @@ release-description:
 	sed -i "s/^Date: .*/Date: $$(date +%Y-%m-%d)/" DESCRIPTION
 	sed -i 's/^Depends: R .*/Depends: R (>= $(shell curl -s https://api.r-hub.io/rversions/r-oldrel/3 | grep -oiE '"version":"[0-9.]+"' | grep -oE '[0-9]+\.[0-9]+\.')0)/' DESCRIPTION
 
+release-changelog:
+	[ -n "$(NEW_VERSION)" ]  # NEW_VERSION variable should be set
+	mv ChangeLog ChangeLog.o || touch ChangeLog.o
+	echo "$$(date +%Y-%m-%d) $$(git config user.name)  <$$(git config user.email)>" > ChangeLog
+	echo "" >> ChangeLog
+	echo "    Version $(NEW_VERSION)" >> ChangeLog
+	echo "" >> ChangeLog
+	git log --pretty=format:'    * %d %s (%h)' $(shell git describe --tags --abbrev=0)..HEAD -- ./R >> ChangeLog
+	echo "" >> ChangeLog
+	echo "" >> ChangeLog
+	cat ChangeLog.o >> ChangeLog
+	rm ChangeLog.o
+
 release-news:
 	[ -n "$(NEW_VERSION)" ]  # NEW_VERSION variable should be set
 	# Remove any -999 header
 	mv NEWS.md NEWS.md.o
-	head -1 NEWS.md.o | grep -qE '^\# $(PACKAGE).*-999:' || head -2 NEWS.md.o > NEWS.md
+	head -1 NEWS.md.o | grep -qE '^\# $(PACKAGE).*-999:?$$' || head -2 NEWS.md.o > NEWS.md
 	tail -n +3 NEWS.md.o >> NEWS.md
 	rm NEWS.md.o
 	# Any news? Add new header if so
@@ -81,4 +94,4 @@ release-news:
 	cat NEWS.md.o >> NEWS.md
 	rm NEWS.md.o
 
-.PHONY: all install full-install build check check-as-cran wincheck examples vignettes serve-docs test inttest coverage release release-description release-news
+.PHONY: all install full-install build check check-as-cran wincheck examples vignettes serve-docs test inttest coverage release release-description release-changelog release-news
