@@ -32,6 +32,15 @@ g3_eval <- function (f, ...) {
     # Apply g3_step to evaluate stock_*()
     f <- g3_step(call_to_formula(f_code, env))
 
+    # Fake g3_param lifts param.name from main formula environment (i.e. arguments to g3_eval)
+    environment(f)$g3_param <- function (name, value = 0, ...) {
+        out <- mget(
+            paste0('param.', name),
+            envir = parent.frame(),
+            ifnotfound = list(value))[[1]]
+        return(out)
+    }
+
     # Evaluate RHS with it's environment
     tryCatch(eval(rlang::f_rhs(f), environment(f)), error = function (e) {
         stop(paste(c(

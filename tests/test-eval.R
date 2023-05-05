@@ -17,6 +17,19 @@ ok(ut_cmp_equal(as.numeric(g3_eval(
         "19:20" = 1.96094041453242,
         "20:Inf" = 1.94597890503981))), "g3_eval: substituted 2 stocks")
 
+ok(ut_cmp_equal(
+    g3_eval(quote( g3_param('x', value = 99) )),
+    99), "Used default value for param")
+ok(ut_cmp_equal(
+    g3_eval(quote( g3_param('x', value = 99) ), param.x = 88),
+    88), "Overrode g3_param with environment")
+ok(ut_cmp_equal(
+    g3_eval(
+        g3_parameterized('lln.alpha', by_stock = TRUE, value = 99),
+        stock = g3_stock("fish", 1:10),
+        param.fish.lln.alpha = 123),
+    123), "Both evaluated stock_param and substituted")
+
 ok_group("g3_eval error output", {
     ok(ut_cmp_error({
         g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)

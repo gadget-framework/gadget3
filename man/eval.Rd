@@ -28,6 +28,7 @@ g3_eval(f, ...)
   \enumerate{
     \item The global \code{\link{g3_env}} is in the environment, so functions such as \code{\link{avoid_zero}} can be used
     \item If substituting a \code{\link{g3_stock}}, all definitions such as \code{stock__minlen} will also be substituted
+    \item \code{g3_param('x')} will pull \code{param.x} from the environment
   }
 }
 
@@ -41,6 +42,13 @@ g3_eval(
     g3_suitability_andersen(0,1,2,3,4),
     pred_stock = g3_stock('pred', 11:20),
     stock = g3_stock('prey', 1:10))
+
+# Parameters can be filled in with "param." items in environment
+g3_eval(quote( g3_param('x') ), param.x = 88)
+g3_eval(
+    g3_parameterized('lln.alpha', by_stock = TRUE, value = 99),
+    stock = g3_stock("fish", 1:10),
+    param.fish.lln.alpha = 123)
 
 # Graph gadget3's built-in logspace_add()
 if (interactive()) {
