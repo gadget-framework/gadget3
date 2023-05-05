@@ -16,3 +16,15 @@ ok(ut_cmp_equal(as.numeric(g3_eval(
         "18:19" = 1.97544436079439,
         "19:20" = 1.96094041453242,
         "20:Inf" = 1.94597890503981))), "g3_eval: substituted 2 stocks")
+
+ok_group("g3_eval error output", {
+    ok(ut_cmp_error({
+        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+    }, 'erk'), "Show error message")
+    ok(ut_cmp_error({
+        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+    }, 'g3_param\\("camel\\.x"\\)'), "Show converted formula")
+    ok(ut_cmp_error({
+        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+    }, '99123'), "Show content of environment")
+})

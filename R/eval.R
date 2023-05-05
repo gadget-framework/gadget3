@@ -33,5 +33,13 @@ g3_eval <- function (f, ...) {
     f <- g3_step(call_to_formula(f_code, env))
 
     # Evaluate RHS with it's environment
-    eval(rlang::f_rhs(f), environment(f))
+    tryCatch(eval(rlang::f_rhs(f), environment(f)), error = function (e) {
+        stop(paste(c(
+            e,
+            "Whilst evaluating expression:",
+            capture.output(print( rlang::f_rhs(f) )),
+            "With environment:",
+            capture.output(print( as.list(environment(f)) )),
+            NULL), collapse = "\n"))
+    })
 }
