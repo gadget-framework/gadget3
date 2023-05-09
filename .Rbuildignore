@@ -16,6 +16,7 @@
 ^demo-
 ^doc$
 ^docs$
+^notes$
 ^cran-comments$
 ^.*\.Rproj$
 ^\.Rproj\.user$
