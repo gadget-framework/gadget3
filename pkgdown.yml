@@ -4,7 +4,6 @@ pkgdown_sha: ~
 articles:
   model-debugging: model-debugging.html
   model_structure: model_structure.html
-  tmb-gotchas: tmb-gotchas.html
   writing_actions: writing_actions.html
-last_built: 2023-05-09T08:57Z
+last_built: 2023-05-09T09:07Z
 
