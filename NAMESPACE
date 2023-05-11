@@ -117,6 +117,7 @@ export(g3_tmb_relist)
 # R/suitability.R
 export(g3_suitability_exponentiall50)
 export(g3_suitability_andersen)
+export(g3_suitability_andersenfleet)
 export(g3_suitability_gamma)
 export(g3_suitability_exponential)
 export(g3_suitability_straightline)

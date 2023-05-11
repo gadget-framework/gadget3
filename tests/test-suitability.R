@@ -38,6 +38,53 @@ ok_group("g3_suitability_andersen", {
         tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
 })
 
+ok_group("g3_suitability_andersenfleet", {
+    nondiff_andersenfleet <- function (
+            lg,
+            param.fish.andersen.p0 = 0,
+            param.fish.andersen.p1 = log(2),
+            param.fish.andersen.p2 = 1,
+            param.fish.andersen.p3_exp = 0.1,
+            param.fish.andersen.p4_exp = 0.1) {
+        p0 <- param.fish.andersen.p0
+        p1 <- param.fish.andersen.p1
+        p2 <- param.fish.andersen.p2
+        p3 <- exp(param.fish.andersen.p3_exp)
+        p4 <- exp(param.fish.andersen.p4_exp)
+        # Work out open-ended midlen, use maximum for p5
+        dl <- diff(lg) / 2 ; dl <- c(dl, dl[[length(dl)]])
+        stock__midlen <- lg + dl
+        p5 <- max(stock__midlen)
+
+        p0 + p2 * ifelse(
+            log(p5/stock__midlen) <= p1,
+            exp(-(log(p5/stock__midlen) - p1)**2/p4),
+            exp(-(log(p5/stock__midlen) - p1)**2/p3))
+    }
+    g3_andersenfleet <- function (lg, ...) {
+        g3_eval(
+            g3_suitability_andersenfleet(),
+            stock=g3_stock('fish', lg),
+            ...)
+    }
+
+    params <- list(lg = seq(100, 500, by = 100))
+    ok(ut_cmp_equal(
+        as.numeric(do.call(g3_andersenfleet, params)),
+        do.call(nondiff_andersenfleet, params),
+        tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
+    params <- list(lg = seq(100, 500, by = 100), param.fish.andersen.p3_exp = -Inf)
+    ok(ut_cmp_equal(
+        as.numeric(do.call(g3_andersenfleet, params)),
+        do.call(nondiff_andersenfleet, params),
+        tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
+    params <- list(lg = seq(100, 500, by = 100), param.fish.andersen.p4_exp = 0.999)
+    ok(ut_cmp_equal(
+        as.numeric(do.call(g3_andersenfleet, params)),
+        do.call(nondiff_andersenfleet, params),
+        tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
+})
+
 fleet_stock <- g3_fleet('fleet') %>% g3s_livesonareas(1:3)
 pred_stock <- g3_stock('pred', c(10, 20, 30, 40, 50, 75, 100)) %>%
     g3s_livesonareas(1:3) %>%

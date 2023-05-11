@@ -2,6 +2,7 @@
 \alias{g3_suitability_*}
 \alias{g3_suitability_exponentiall50}
 \alias{g3_suitability_andersen}
+\alias{g3_suitability_andersenfleet}
 \alias{g3_suitability_gamma}
 \alias{g3_suitability_exponential}
 \alias{g3_suitability_straightline}
@@ -17,6 +18,20 @@
 g3_suitability_exponentiall50(alpha, l50)
 
 g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~pred_stock__midlen)
+
+g3_suitability_andersenfleet(
+        p0 = g3_parameterized('andersen.p0', by_stock = by_stock, value = 0,
+                              optimise = FALSE),
+        p1 = g3_parameterized('andersen.p1', by_stock = by_stock, value = log(2)),
+        p2 = g3_parameterized('andersen.p2', by_stock = by_stock, value = 1,
+                              optimise = FALSE),
+        p3 = g3_parameterized('andersen.p3', by_stock = by_stock, value = 0.1,
+                              exponentiate = exponentiate),
+        p4 = g3_parameterized('andersen.p4', by_stock = by_stock, value = 0.1,
+                              exponentiate = exponentiate),
+        p5 = quote( stock__maxmidlen ),
+        by_stock = TRUE,
+        exponentiate = TRUE)
 
 g3_suitability_gamma(alpha, beta, gamma)
 
@@ -64,6 +79,14 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
   \item{delta}{
     \link{formula} substituted into calcuations, see below.
   }
+  \item{by_stock}{
+    Change the default parameterisation (e.g. to be by 'species'), passed through to default calls to
+    \code{\link{g3_parameterized}}.
+  }
+  \item{exponentiate}{
+    Exponentiate parameters,passed through to default calls to
+    \code{\link{g3_parameterized}}.
+  }
 }
 
 \details{
@@ -110,6 +133,10 @@ will refer to the prey midlength.
     }
 
     NB: Specifying \eqn{p_5} is equivalent to using the \code{andersenfleet} function in gadget2.
+  }
+  \subsection{g3_suitability_andersenfleet}{
+    A simplified version of \code{\link{g3_suitability_andersen}}, suitable for predation by fleets,
+    as the defaults do not rely on the predator's length.
   }
 
   \subsection{g3_suitability_gamma}{
