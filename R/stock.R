@@ -100,6 +100,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
     # Force array so type is stable in TMB
     stock__minlen <- as.array(lengthgroups)
     stock__midlen <- as.array(lengthgroups + (stock__dl / 2))
+    stock__maxmidlen <- as.numeric(tail(stock__midlen, 1))
+    stock__minmidlen <- as.numeric(head(stock__midlen, 1))
     stock__maxlen <- as.array(c(tail(lengthgroups, -1), stock__upperlen))
     names(stock__maxlen) <- names(stock__midlen)
 
@@ -133,6 +135,8 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
             stock__upperlen = stock__upperlen,
             stock__minlen = stock__minlen,
             stock__midlen = stock__midlen,
+            stock__maxmidlen = stock__maxmidlen,
+            stock__minmidlen = stock__minmidlen,
             stock__maxlen = stock__maxlen))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))

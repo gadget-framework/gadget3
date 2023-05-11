@@ -42,6 +42,8 @@ actions <- list(
             stock_with(stock_a, {
                 REPORT(stock_a__minlen)
                 REPORT(stock_a__midlen)
+                REPORT(stock_a__maxmidlen)
+                REPORT(stock_a__minmidlen)
                 REPORT(stock_a__dl)
                 REPORT(stock_a__plusdl)
             })
@@ -49,6 +51,8 @@ actions <- list(
             stock_with(stock_b, {
                 REPORT(stock_b__minlen)
                 REPORT(stock_b__midlen)
+                REPORT(stock_b__maxmidlen)
+                REPORT(stock_b__minmidlen)
                 REPORT(stock_b__dl)
                 REPORT(stock_b__plusdl)
             })
@@ -56,6 +60,8 @@ actions <- list(
             stock_with(stock_wonky, {
                 REPORT(stock_wonky__minlen)
                 REPORT(stock_wonky__midlen)
+                REPORT(stock_wonky__maxmidlen)
+                REPORT(stock_wonky__minmidlen)
                 REPORT(stock_wonky__dl)
                 REPORT(stock_wonky__plusdl)
             })
@@ -92,6 +98,8 @@ ok(ut_cmp_identical(
         c(10.5),
         dimnames = list("10:Inf"),
         dim = c(1))), "stock_a__midlen")
+ok(ut_cmp_identical(r$stock_a__minmidlen, 10.5), "stock_a__minmidlen")
+ok(ut_cmp_identical(r$stock_a__maxmidlen, 10.5), "stock_a__maxmidlen")
 ok(ut_cmp_identical(
     r$stock_a__dl,
     c(1)), "stock_a__dl")
@@ -110,6 +118,8 @@ ok(ut_cmp_identical(
         c(50.5, 51.5, 52.5, 53.5, 54.5),
         dimnames = list(c("50:51", "51:52", "52:53", "53:54", "54:Inf")),
         dim = c(5))), "stock_b__midlen")
+ok(ut_cmp_identical(r$stock_b__minmidlen, 50.5), "stock_b__minmidlen")
+ok(ut_cmp_identical(r$stock_b__maxmidlen, 54.5), "stock_b__maxmidlen")
 ok(ut_cmp_identical(
     r$stock_b__dl,
     c(1,1,1,1,1)), "stock_b__dl")
@@ -128,6 +138,8 @@ ok(ut_cmp_equal(
         c(5, 55, 150, 600, 1005),
         dimnames = list(c("0:10", "10:100", "100:200", "200:1000", "1000:Inf")),
         dim = c(5))), "stock_wonky__midlen")
+ok(ut_cmp_identical(r$stock_wonky__minmidlen, 5), "stock_wonky__minmidlen")
+ok(ut_cmp_identical(r$stock_wonky__maxmidlen, 1005), "stock_wonky__maxmidlen")
 ok(ut_cmp_equal(
     r$stock_wonky__dl,
     c(10, 90, 100, 800, 10)), "stock_wonky__dl")
