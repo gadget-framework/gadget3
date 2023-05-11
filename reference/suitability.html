@@ -73,6 +73,20 @@
 <span></span>
 <span><span class="fu">g3_suitability_andersen</span><span class="op">(</span><span class="va">p0</span>, <span class="va">p1</span>, <span class="va">p2</span>, p3 <span class="op">=</span> <span class="va">p4</span>, <span class="va">p4</span>, p5 <span class="op">=</span> <span class="op">~</span><span class="va">pred_stock__midlen</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3_suitability_andersenfleet</span><span class="op">(</span></span>
+<span>        p0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>                              optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        p1 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p1'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        p2 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p2'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                              optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        p3 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p3'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                              exponentiate <span class="op">=</span> <span class="va">exponentiate</span><span class="op">)</span>,</span>
+<span>        p4 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p4'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                              exponentiate <span class="op">=</span> <span class="va">exponentiate</span><span class="op">)</span>,</span>
+<span>        p5 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="va">stock__maxmidlen</span> <span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        exponentiate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">g3_suitability_gamma</span><span class="op">(</span><span class="va">alpha</span>, <span class="va">beta</span>, <span class="va">gamma</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_suitability_exponential</span><span class="op">(</span><span class="va">alpha</span>, <span class="va">beta</span>, <span class="va">gamma</span>, <span class="va">delta</span><span class="op">)</span></span>
@@ -118,6 +132,14 @@
 
   <dt>delta</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into calcuations, see below.</p></dd>
+
+  <dt>by_stock</dt>
+<dd><p>Change the default parameterisation (e.g. to be by 'species'), passed through to default calls to
+    <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
+
+  <dt>exponentiate</dt>
+<dd><p>Exponentiate parameters,passed through to default calls to
+    <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
 
 </dl></div>
     <div id="details">
@@ -176,6 +198,12 @@ will refer to the prey midlength.</p>
 
     
 </dl><p>NB: Specifying \(p_5\) is equivalent to using the <code>andersenfleet</code> function in gadget2.</p>
+</div>
+<p></p>
+<div class="section">
+<h3 id="g-suitability-andersenfleet">g3_suitability_andersenfleet<a class="anchor" aria-label="anchor" href="#g-suitability-andersenfleet"></a></h3>
+<p>A simplified version of <code>g3_suitability_andersen</code>, suitable for predation by fleets,
+    as the defaults do not rely on the predator's length.</p>
 </div>
 
 
