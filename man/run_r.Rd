@@ -71,6 +71,7 @@ param$ling.init.F <- 0.4
 param$ling.Linf <- 160
 param$ling.K <- 90
 param$ling.recl <- 12
+param$recage <- g3_stock_def(ling_imm, 'minage')
 param[grepl('^ling.init.sd.', names(param))] <- 50.527220
 param[grepl('^ling_imm.init.\\\\d+', names(param))] <- 1
 param$ling_imm.init.scalar <- 200

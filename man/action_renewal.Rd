@@ -16,6 +16,7 @@ g3a_renewal_vonb(
         Linf = g3_parameterized('Linf', by_stock = by_stock),
         K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
         recl = g3_parameterized('recl', by_stock = by_stock),
+        recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
         by_stock = TRUE)
 
 g3a_renewal_initabund(
@@ -23,6 +24,8 @@ g3a_renewal_initabund(
     init = g3_parameterized('init', by_stock = by_stock, by_age = TRUE),
     M = g3_parameterized('M', by_stock = by_stock),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
+    recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
+    proportion_f = ~1,
     by_stock = TRUE,
     by_stock_f = FALSE)
 
@@ -93,10 +96,12 @@ g3a_renewal_normalparam(
   \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
   \item{K}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{scalar}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{init}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{M}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{init_F}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{recage}{\link{formula} substituted into initial abundance and vonb calcuations, see below.}
+  \item{proportion_f}{\link{formula} substituted into initial abundance calcuations, see below.}
+  \item{scalar}{\link{formula} substituted into initial abundance calcuations, see below.}
+  \item{init}{\link{formula} substituted into initial abundance calcuations, see below.}
+  \item{M}{\link{formula} substituted into initial abundance calcuations, see below.}
+  \item{init_F}{\link{formula} substituted into initial abundance calcuations, see below.}
   \item{by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
   \item{wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
   \item{by_stock_f}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
@@ -117,11 +122,11 @@ g3a_renewal_normalparam(
 
 \value{
   \subsection{g3a_renewal_vonb}{A \link{formula} object representing
-    \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (1 + \frac{\log(1 - r/L_{\infty})}{\kappa}  ))}} }
+    \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} }
 
   }
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
-    \deqn{ scalar * init * e{-1 * (M + init_F) * age } }
+    \deqn{ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion_{a} } 
   }
   \subsection{g3a_initialconditions / g3a_renewal}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
