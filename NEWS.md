@@ -7,6 +7,7 @@
 
 ## New features
 
+* Add ``recage`` parameter to ``g3a_renewal_vonb`` / ``g3a_renewal_initabund``
 * Add ``g3_suitability_andersenfleet()``, a fleet-specialised andsersen suitability function.
 * Make ``g3_is_stock()`` public
 * ``g3_eval()``, to evaluate snippets of a gadget3 model.
