@@ -159,6 +159,7 @@ tmb_param$value$ling.init.F <- 0.4
 tmb_param$value$ling.Linf <- 160
 tmb_param$value$ling.K <- 90
 tmb_param$value$ling.recl <- 12
+tmb_param$recage <- g3_stock_def(ling_imm, 'minage')
 tmb_param[grepl('^ling.init.sd.', rownames(tmb_param)), 'value'] <- 50.527220
 tmb_param[grepl('^ling_imm.init.\\\\d+', rownames(tmb_param)), 'value'] <- 1
 tmb_param$value$ling_imm.init.scalar <- 200

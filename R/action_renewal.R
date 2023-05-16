@@ -9,13 +9,15 @@ g3a_renewal_vonb <- function(
         Linf = g3_parameterized('Linf', by_stock = by_stock),
         K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
         recl = g3_parameterized('recl', by_stock = by_stock),
+        recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
         by_stock = TRUE) {
     f_substitute(
-        quote( Linf * (1 - exp(-1 * K * (age - (1 + log(1 - recl/Linf)/K) ))) ),
+        quote( Linf * (1 - exp(-1 * K * (age - (recage + log(1 - recl/Linf)/K) ))) ),
         list(
             Linf = Linf,
             K = K,
-            recl = recl))
+            recl = recl,
+            recage = recage))
 }
 
 g3a_renewal_initabund <- function(
@@ -23,14 +25,18 @@ g3a_renewal_initabund <- function(
     init = g3_parameterized('init', by_stock = by_stock, by_age = TRUE),
     M = g3_parameterized('M', by_stock = by_stock),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
+    recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
+    proportion_f = ~1,
     by_stock = TRUE,
     by_stock_f = FALSE){
   f_substitute(
-    ~scalar * init * exp(-1 * (M + init_F) * age),
+    ~scalar * init * exp(-1 * (M + init_F) * (age - recage)) * proportion_f,
     list(scalar = scalar,
          init = init,
          M = M,
-         init_F = init_F)
+         init_F = init_F,
+         recage = recage,
+         proportion_f = proportion_f)
   )
 }
 
