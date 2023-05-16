@@ -219,20 +219,20 @@
 <span class="r-in"><span><span class="va">prey_stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'herring'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">debug_trace</span><span class="op">(</span><span class="st">"Zero "</span>, <span class="va">stock</span>, <span class="st">"-"</span>, <span class="va">prey_stock</span>, <span class="st">" biomass-consuming counter"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~debug_trace("Zero halibut-herring biomass-consuming counter")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_assert</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_assert</span><span class="op">(</span><span class="fu">stock_with</span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="va">stock</span>, <span class="st">"__num became NaN/Inf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~assert_msg(~all(is.finite(halibut__num)), "halibut__num became NaN/Inf")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_reshape</span></span></span>
 <span class="r-in"><span><span class="va">imm_stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut.imm'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_reshape</span><span class="op">(</span><span class="va">stock</span>, <span class="fu">stock_ss</span><span class="op">(</span><span class="va">imm_stock__transitioning_num</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_matrix_vec(halibut.imm_halibut_lgmatrix, imm_stock__transitioning_num[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     imm_stock__age_idx])</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_ss</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
@@ -242,43 +242,43 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(`:=`(halibut__age_idx, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         g3_idx(age - halibut__minage + 1L)), x &lt;- x + halibut__num[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         halibut__age_idx, halibut__area_idx]))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_ss</span><span class="op">(</span><span class="va">stock__num</span>, area <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~stock__num[, stock__age_idx, 5]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_ss</span><span class="op">(</span><span class="va">stock__num</span>, age <span class="op">=</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~stock__num[, i + 1, stock__area_idx]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_ss</span><span class="op">(</span><span class="va">stock__num</span>, area <span class="op">=</span> , age <span class="op">=</span> <span class="va">j</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~stock__num[, j, ]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_ssinv</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_ssinv</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'age'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_step(~stock[, stock__age_idx, ])</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_ssinv</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'area'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_step(~stock[, , stock__area_idx])</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_switch</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> ; <span class="va">fleet_stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'igfs'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_switch</span><span class="op">(</span><span class="va">stock</span>, halibut <span class="op">=</span> <span class="fl">2</span>, herring <span class="op">=</span> <span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_switch</span><span class="op">(</span><span class="va">fleet_stock</span>, halibut <span class="op">=</span> <span class="fl">2</span>, herring <span class="op">=</span> <span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~(-1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_switch</span><span class="op">(</span><span class="va">stock</span>, halibut <span class="op">=</span> <span class="va">stock__midlen</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~halibut__midlen</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_with</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_with</span><span class="op">(</span><span class="va">stock</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">stock__num</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~sum(halibut__num)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_iterate</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
@@ -286,7 +286,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~for (age in seq(halibut__minage, halibut__maxage, by = 1)) g3_with(`:=`(halibut__age_idx, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     g3_idx(age - halibut__minage + 1L)), x &lt;- x + halibut__num[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     halibut__age_idx])</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_intersect</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
@@ -299,7 +299,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     g3_idx(age - halibut__minage + 1L)), `:=`(herring__age_idx, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     g3_idx(age - herring__minage + 1L)), x &lt;- x + halibut__num[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     halibut__age_idx] + herring__num[, herring__age_idx])</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_interact</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'halibut'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
@@ -312,29 +312,29 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     herring__maxage, by = 1)) g3_with(`:=`(herring__age_idx, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     g3_idx(prey_age - herring__minage + 1L)), x &lt;- x + halibut__num[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     halibut__age_idx] + herring__num[, herring__age_idx]))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_param</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'halibut'</span>, sex <span class="op">=</span> <span class="st">'m'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_param</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'K'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_param("halibut_m_imm.K")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_param</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'K'</span>, name_part <span class="op">=</span> <span class="st">'species'</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_param("halibut.K")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_param</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'K'</span>, name_part <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'species'</span>, <span class="st">'sex'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_param("halibut_m.K")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### stock_param_table</span></span></span>
 <span class="r-in"><span><span class="va">stock</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'halibut'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_param_table</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'K'</span>, <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2000</span><span class="op">:</span><span class="fl">2004</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_param_table("halibut_imm.K", expand.grid(year = 2000:2004))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 <span class="r-in"><span><span class="fu">g3_step</span><span class="op">(</span><span class="op">~</span><span class="fu">stock_param_table</span><span class="op">(</span><span class="va">stock</span>, <span class="st">'K'</span>, <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">stock__minage</span>, <span class="va">stock__maxage</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~g3_param_table("halibut_imm.K", expand.grid(age = seq(halibut_imm__minage, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     halibut_imm__maxage)))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x563ea1b1ddf0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x562010931660&gt;</span>
 </code></pre></div>
     </div>
   </div>
