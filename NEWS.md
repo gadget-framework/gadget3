@@ -1,4 +1,4 @@
-# gadget3 0.8-4-999:
+# gadget3 0.9-0:
 
 ## Bug fixes
 
