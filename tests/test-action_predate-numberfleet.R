@@ -56,6 +56,7 @@ if (Sys.getenv('G3_TEST_TMB') == "2") {
 ok_group("g3a_predate_catchability_numberfleet", {
     params <- attr(model_fn, 'parameter_template')
     params[] <- 1
+    params$recage <- 0
     params$retro_years <- params$project_years <- 0
     
     r <- model_fn(params)
