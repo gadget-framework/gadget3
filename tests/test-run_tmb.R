@@ -391,6 +391,28 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
     }
 }))
 
+ok_group("cpp_code", {
+    ns <- function (s) gsub("\\s+", "", s)
+    ok(ut_cmp_identical(
+        ns(gadget3:::cpp_code(quote( 4 + 4 ))),
+        ns("(double)(4) + (double)(4)")),
+        "4 + 4: Defaulted to double")
+    ok(ut_cmp_identical(
+        ns(gadget3:::cpp_code(quote( (4 + 4) ))),
+        ns("((double)(4) + (double)(4))")),
+        "(4 + 4): Defaulted to double")
+    ok(ut_cmp_identical(
+        ns(gadget3:::cpp_code(quote( x[[4]] + 4 ))),
+        ns("x(3) + (double)(4)")),
+        "x[[4]] + 4: Subtracted one, assumed int")
+    # NB: We rely on this in g3_param_table(ifmissing_param_table) below
+    ok(ut_cmp_identical(
+        ns(gadget3:::cpp_code(quote( x[[(-4 + 1 - 1) / (2*8)]] + 4 ))),
+        ns("x( (-4 + 1 - 1) / (2*8) - 1 ) + (double)(4)")),
+        "x[[(-4 + 1 - 1) / (2*8)]] + 4: Assumed int passses through +, -, *, /, ( ")
+})
+
+
 ###############################################################################
 actions <- list()
 expecteds <- new.env(parent = emptyenv())

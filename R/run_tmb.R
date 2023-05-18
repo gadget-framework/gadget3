@@ -377,9 +377,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             # NB: Would use .cwiseProduct() for dense matrices
         }
         return(paste0(
-            cpp_code(in_call[[2]], in_envir, next_indent),
+            cpp_code(in_call[[2]], in_envir, expecting_int = expecting_int, next_indent),
             "*",
-            cpp_code(in_call[[3]], in_envir, next_indent)))
+            cpp_code(in_call[[3]], in_envir, expecting_int = expecting_int, next_indent)))
     }
 
     if (call_name == "pmin") {
@@ -452,7 +452,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
         if (call_name == "-" && length(in_call) == 2) {
             # Negative numeral, e.g.
-            return(paste0("-", cpp_code(in_call[[2]], in_envir, next_indent)))
+            return(paste0("-", cpp_code(in_call[[2]], in_envir, expecting_int = expecting_int, next_indent)))
         }
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
@@ -461,7 +461,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name == "(") {
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ")"))
+        return(paste0("(", cpp_code(in_call[[2]], in_envir, expecting_int = expecting_int, next_indent), ")"))
     }
 
     if (call_name %in% c("is.nan")) {
