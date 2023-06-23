@@ -158,13 +158,13 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     data$time <- g3s_time_convert(data$year, data$step)
     obsstock <- g3s_time(
         g3s_clone(modelstock, paste(nll_name, "obs", sep = "_")),
-        sort(unique(data$time)))
+        data)
     if (model_history) {
         modelstock <- g3s_time(
             modelstock,
-            sort(unique(data$time)))
+            data)
     }
-    data$time <- g3s_time_labels(data$time)
+    data$time <- g3s_time_labels(data$time, g3s_time_multiplier(data$year, data$step))
     handled_columns$year <- NULL
     handled_columns$step <- NULL
 

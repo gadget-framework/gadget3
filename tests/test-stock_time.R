@@ -15,12 +15,27 @@ ok_group("g3s_time: Times produced in order", {
         quote( g3_idx(6L) )), "stock__max_time_idx: Length of array")
 })
 
+ok_group("g3s_time_convert: correct conversions", {
+  inst <- c(g3s_time_convert(2000, NULL), g3s_time_convert(2000, 1), g3s_time_convert(2000, 12),
+            g3s_time_convert(200, NULL), g3s_time_convert(200, 1), g3s_time_convert(200, 12),
+            g3s_time_convert(20, NULL), g3s_time_convert(20, 1), g3s_time_convert(20, 12),
+            g3s_time_convert(2, NULL), g3s_time_convert(2, 1), g3s_time_convert(2, 12))
+  ok(ut_cmp_identical(inst, as.integer(c(2000,20001,200012,
+                                         200,20001,200012,
+                                         20,20001,200012,
+                                         2,20001,200012))), "Pseudoyear and year conversions correct")
+})
+
 stock_timeyear <- g3_stock('stock_timeyear', 1) %>% g3s_time(year = c(2002, 2004))
 stock_timeyear__num <- g3_stock_instance(stock_timeyear, 0)
-stock_timestep <- g3_stock('stock_timestep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2000, 2003),c(1,2)) ))
+stock_timestep <- 
+  g3_stock('stock_timestep', 1) %>% 
+  g3s_time(time_data = data.frame(year = c(2000, 2003), step = c(1,2), time = g3s_time_convert(year = c(2000, 2003), step = c(1,2))))
 stock_timestep__num <- g3_stock_instance(stock_timestep, 0)
 # NB: There isn't 12 steps to use, but still changes mode
-stock_timebigstep <- g3_stock('stock_timebigstep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2001, 2003),c(1,12)) ))
+stock_timebigstep <- 
+  g3_stock('stock_timebigstep', 1) %>% 
+  g3s_time(time_data = data.frame(year = c(2001, 2003), step = c(1,12), time = g3s_time_convert(year = c(2001, 2003), step = c(1,12))))
 stock_timebigstep__num <- g3_stock_instance(stock_timebigstep, 0)
 
 stock_modeltime <- g3_stock('stock_modeltime', 1) %>% gadget3:::g3s_modeltime()

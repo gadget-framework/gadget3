@@ -1,51 +1,61 @@
+
+
 g3s_time_convert <- function (year, step = NULL) {
-    if (is.null(step)) {
-        as.integer(year)
-    } else if (any(step > 9)) {
-        as.integer(year) * 100L + as.integer(step)
-    } else {
-        as.integer(year) * 10L + as.integer(step)
-    }
+  if (is.null(step)) {
+    as.integer(year)
+  } else {
+    as.integer(year) * g3s_time_multiplier(year, step) + as.integer(step)
+  }
 }
 
-g3s_time_multiplier <- function (times) {
-    if (all(times > 100000)) {
-        # Year + 2-char step
-        100L
-    } else if (all(times > 10000)) {
-        # Year + step
-        10L
-    } else {
-        # Just year
-        1L
-    }
+g3s_time_multiplier <- function(year, step) {
+  g3s_year_multiplier(year) * g3s_step_multiplier(step)
 }
 
-g3s_time_labels <- function (times) {
-    mult <- g3s_time_multiplier(times)
-    if (mult > 1L) {
-        sprintf("%d-%02d",
+g3s_step_multiplier <- function(step) {
+  if (is.null(step)) {
+    1L
+  } else if (all(as.integer(step) < 10)) {
+    10L
+  } else {
+    100L
+  }
+}
+
+g3s_year_multiplier <- function(year){
+  as.integer(10**(4 - min(nchar(as.integer(year)))))
+}
+
+g3s_time_labels <- function (times, mult) {
+  if (mult > 1L) {
+    sprintf("%d-%02d",
             times %/% mult,
             times %% mult)
-    } else {
-        as.character(times)
-    }
+  } else {
+    as.character(times)
+  }
 }
 
 # Time dimension, useful for data objects
-# - times: Vector of g3s_time_convert(year, step) for each year/step data applies to
-g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
+# - time_data: dataframe that contains a year and possibly a step column
+g3s_time <- function(inner_stock, time_data, year = NULL, step = NULL) {
     # If year/step provided, populate times
     if (!is.null(year)) {
         if (is.null(step)) {
-            times <- g3s_time_convert(year)
+          time_data <- data.frame(year = year)
         } else {
             # Generate all combinations of year/step, turn into times
-            times <- expand.grid(step = step, year = year)
-            times <- g3s_time_convert(times$year, times$step)
+          time_data <- expand.grid(step = step, year = year, stringsAsFactors = FALSE)
         }
     }
-    mult <- g3s_time_multiplier(times)
+  
+    if ('time' %in% names(time_data)) {
+      times <- time_data$time
+    } else {
+      times <- g3s_time_convert(time_data$year, time_data$step)
+    }
+    times <- sort(unique(times))
+    mult <- g3s_time_multiplier(time_data$year, time_data$step)
 
     # time -> index lookup
     timelookup <- g3_intlookup(
@@ -64,7 +74,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
         dim = c(inner_stock$dim,
             time = length(times)),
         dimnames = c(inner_stock$dimnames, list(
-            time = g3s_time_labels(times))),
+            time = g3s_time_labels(times, mult))),
         # NB: iterate same as intersect, iterating over all time won't make sense in ~all cases
         iterate = c(inner_stock$iterate, time = substitute(
                 g3_with(stock__time_idx := g3_idx(idx_f), if (stock__time_idx >= g3_idx(1L)) extension_point)
