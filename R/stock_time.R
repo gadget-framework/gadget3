@@ -1,4 +1,7 @@
 g3s_time_convert <- function (year, step = NULL) {
+  if (any(step > 99)) {
+    stop("The number of steps per year cannot exceed 99")
+  }
   if (is.null(step)) {
     as.integer(year) * 100L
   } else {
@@ -8,7 +11,7 @@ g3s_time_convert <- function (year, step = NULL) {
 
 g3s_time_labels <- function (times) {
   ## Steps are included
-  if (!all((times / 100) %% 1 == 0)) {
+  if (any(times %% 100 > 0)) {
     sprintf("%d-%02d",
             times %/% 100L,
             times %% 100L)
@@ -40,7 +43,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
   idx_f <- timelookup('getdefault', f_substitute(
     ~cur_year * 100L + cur_step * step_required,
     list(
-      step_required = as.integer(!all((times / 100) %% 1 == 0)))), -1L)
+      step_required = as.integer(any(times %% 100 > 0)))), -1L)
   stock__max_time_idx <- f_substitute(~g3_idx(t), list(t = length(times)))
   
   structure(list(

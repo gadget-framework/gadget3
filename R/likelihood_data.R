@@ -154,9 +154,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     if (!('year' %in% names(data))) {
         stop("Data must contain a year column")
     }
-    if ('step' %in% names(data) & any(data$step > 99)) {
-        stop("The number of steps per year cannot exceed 99")
-    }
     # NB: Let g3s_time_convert() worry about if the step column is there or not
     data$time <- g3s_time_convert(data$year, data$step)
     obsstock <- g3s_time(
