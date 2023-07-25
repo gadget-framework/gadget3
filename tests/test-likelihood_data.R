@@ -13,7 +13,8 @@ generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), ...) {
     # NB: A failed merge would result in repeated instances
     ok(ut_cmp_equal(
         sort(as.numeric(out$number[out$number != 0])),
-        sort(as.numeric(tbl$number))), "number array has all of source data")
+        sort(as.numeric(tbl$number)),
+        deparse_frame = -2), "number array has all of source data")
     return(out)
 }
 
@@ -37,7 +38,7 @@ cmp_array <- function (ar, table_text) {
         stringsAsFactors = FALSE,
         colClasses = c(rep("character", length(dim(ar))), "numeric"),
         text = table_text)
-    ut_cmp_identical(as.data.frame.table(ar, stringsAsFactors = FALSE), tbl)
+    ut_cmp_identical(as.data.frame.table(ar, stringsAsFactors = FALSE), tbl, deparse_frame = -2)
 }
 
 
