@@ -1,5 +1,10 @@
 # gadget3 0.9-0-999:
 
+## New features
+
+* Support R factor levels as well as MFDB-style attributes for likelihood observation data.
+  This means dplyr ``group_by(length = cut(...))`` can be used as well as MFDB for groupings #112
+
 ## Bug fixes
 
 * Stop assuming 1-dimensional R arrays should be TMB vectors.
