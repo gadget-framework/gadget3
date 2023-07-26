@@ -49,7 +49,7 @@ g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8)
 g3a_renewal_normalparam(
         stock,
         factor_f,
-        mean_f,
+        mean_f = g3a_renewal_vonb(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
