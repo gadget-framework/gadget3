@@ -123,10 +123,24 @@ g3a_renewal_normalparam(
 \value{
   \subsection{g3a_renewal_vonb}{A \link{formula} object representing
     \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} }
+    \describe{
+      \item{\eqn{L_{0}}}{Substituted for \var{recl}}
+      \item{\eqn{L_{\infty}}}{Substituted for \var{Linf}}
+      \item{\eqn{\kappa}}{Substituted for \var{K}}
+      \item{\eqn{a_{0}}}{Substituted for \var{recage}}
+    }
 
   }
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
-    \deqn{ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion_{a} } 
+    \deqn{ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion }
+    \describe{
+      \item{scalar}{Substituted for \var{scalar}}
+      \item{init}{Substituted for \var{init}}
+      \item{\eqn{M}}{Substituted for \var{M}}
+      \item{\eqn{F_{0}}}{Substituted for \var{init_F}}
+      \item{\eqn{a_{0}}}{Substituted for \var{recage}}
+      \item{proportion}{Substituted for \var{proportion}}
+    }
   }
   \subsection{g3a_initialconditions / g3a_renewal}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
