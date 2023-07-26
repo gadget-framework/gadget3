@@ -11,6 +11,7 @@ g3_parameterized(
         name,
         by_stock = FALSE,
         by_year = FALSE,
+        by_step = FALSE,
         by_age = FALSE,
         exponentiate = FALSE,
         avoid_zero = FALSE,
@@ -37,6 +38,13 @@ g3_parameterized(
     \describe{
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.1998"} parameter for each year the model runs}
+    }
+  }
+  \item{by_step}{
+    Should there be individual parameters per step within years?
+    \describe{
+      \item{FALSE}{No}
+      \item{TRUE}{Produce a \code{"name.1"} seasonal parameter for each step, or \code{"name.1998.1"} for every timestep in the model if combined with \var{by_year}.}
     }
   }
   \item{by_age}{

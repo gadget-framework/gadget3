@@ -70,6 +70,21 @@ ok(cmp_code(
 
 ok(cmp_code(
     pretend_stock_action(call("{",  # }
+        g3_parameterized('yr', by_year = TRUE),
+        g3_parameterized('st', by_step = TRUE),
+        g3_parameterized('yrst', by_year = TRUE, by_step = TRUE),
+    NULL)), quote({
+    g3_param_table("yr", expand.grid(
+        cur_year = seq(start_year, end_year)))
+    g3_param_table("st", expand.grid(
+        cur_step = seq_along(step_lengths)))
+    g3_param_table("yrst", expand.grid(
+        cur_year = seq(start_year, end_year),
+        cur_step = seq_along(step_lengths)))
+    NULL})), "by_year & by_step can be combined")
+
+ok(cmp_code(
+    pretend_stock_action(call("{",  # }
         g3_parameterized('parp', by_stock = 'species', lower = 3),
         g3_parameterized('parp', by_stock = c('species', 'sex'), lower = 3),
         g3_parameterized('parp', by_stock = 'sex', by_year = TRUE),

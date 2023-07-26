@@ -2,6 +2,7 @@ g3_parameterized <- function(
         name,
         by_stock = FALSE,
         by_year = FALSE,
+        by_step = FALSE,
         by_age = FALSE,
         exponentiate = FALSE,
         avoid_zero = FALSE,
@@ -11,13 +12,18 @@ g3_parameterized <- function(
     stopifnot(is.character(name))
     stopifnot(is.logical(by_age))
     stopifnot(is.logical(by_year))
+    stopifnot(is.logical(by_step))
     stopifnot(is.logical(avoid_zero))
 
     if (exponentiate) name <- paste0(name, '_exp')
 
     table_defn <- list()
+
     if (by_year) {
         table_defn <- c(table_defn, list( cur_year = quote( seq(start_year, end_year) ) ))
+    }
+    if (by_step) {
+        table_defn <- c(table_defn, list( cur_step = quote( seq_along(step_lengths) ) ))
     }
 
     if (isFALSE(by_stock)) {  # No grouping by stock
