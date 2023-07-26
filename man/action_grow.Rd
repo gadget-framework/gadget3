@@ -21,7 +21,8 @@ g3a_grow_weightsimple(
         by_stock = TRUE)
 
 g3a_grow_impl_bbinom(
-        delta_len_f, delta_wgt_f,
+        delta_len_f = g3a_grow_lengthvbsimple(by_stock = by_stock),
+        delta_wgt_f = g3a_grow_weightsimple(by_stock = by_stock),
         beta_f = g3_parameterized('bbin', by_stock = by_stock),
         maxlengthgroupgrowth,
         by_stock = TRUE)
