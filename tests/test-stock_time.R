@@ -108,6 +108,8 @@ ok_group("g3s_modeltime", {
             c(201, 205, 209, 213, 217),
             .Dim = c(length = 1L, year = 5L),
             .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp, ignore_dimname = c('time', 'year'))
 })
 
 ok_group("g3s_modeltime:project", {
@@ -135,4 +137,6 @@ ok_group("g3s_modeltime:project", {
             c(201, 205, 209, 213, 217, 221, 225),
             .Dim = c(length = 1L, year = 7L),
             .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004", "2005", "2006")))), "stock_modelyear__num: Aggregated by year")
+
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp, ignore_dimname = c('time', 'year'))
 })
