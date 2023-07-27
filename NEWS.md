@@ -8,6 +8,7 @@
 
 ## Bug fixes
 
+* g3s_modeltime() (used for history) now works when final_year_steps set
 * Stop assuming 1-dimensional R arrays should be TMB vectors.
 
 # gadget3 0.9-0:
