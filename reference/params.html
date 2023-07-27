@@ -73,6 +73,7 @@
 <span>        <span class="va">name</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_year <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        by_step <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        exponentiate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        avoid_zero <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -108,6 +109,16 @@
 
       <dt>TRUE</dt>
 <dd><p>Produce a <code>"name.1998"</code> parameter for each year the model runs</p></dd>
+
+    
+</dl><p></p></dd>
+
+  <dt>by_step</dt>
+<dd><p>Should there be individual parameters per step within years?</p><dl><dt>FALSE</dt>
+<dd><p>No</p></dd>
+
+      <dt>TRUE</dt>
+<dd><p>Produce a <code>"name.1"</code> seasonal parameter for each step, or <code>"name.1998.1"</code> for every timestep in the model if combined with <var>by_year</var>.</p></dd>
 
     
 </dl><p></p></dd>

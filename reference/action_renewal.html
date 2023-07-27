@@ -106,7 +106,7 @@
 <span><span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>
 <span>        <span class="va">factor_f</span>,</span>
-<span>        <span class="va">mean_f</span>,</span>
+<span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        stddev_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'rec.sd'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_age <span class="op">=</span> <span class="va">by_age</span><span class="op">)</span>,</span>
 <span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
 <span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
@@ -209,14 +209,45 @@
 <div class="section">
 <h3 id="g-a-renewal-vonb">g3a_renewal_vonb<a class="anchor" aria-label="anchor" href="#g-a-renewal-vonb"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} $$</p>
-<p></p>
+    $$ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} $$</p><dl><dt>\(L_{0}\)</dt>
+<dd><p>Substituted for <var>recl</var></p></dd>
+
+      <dt>\(L_{\infty}\)</dt>
+<dd><p>Substituted for <var>Linf</var></p></dd>
+
+      <dt>\(\kappa\)</dt>
+<dd><p>Substituted for <var>K</var></p></dd>
+
+      <dt>\(a_{0}\)</dt>
+<dd><p>Substituted for <var>recage</var></p></dd>
+
+    
+</dl><p></p>
 </div>
 <p></p>
 <div class="section">
 <h3 id="g-a-renewal-initabund">g3a_renewal_initabund<a class="anchor" aria-label="anchor" href="#g-a-renewal-initabund"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion_{a} $$</p>
+    $$ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion $$</p><dl><dt>scalar</dt>
+<dd><p>Substituted for <var>scalar</var></p></dd>
+
+      <dt>init</dt>
+<dd><p>Substituted for <var>init</var></p></dd>
+
+      <dt>\(M\)</dt>
+<dd><p>Substituted for <var>M</var></p></dd>
+
+      <dt>\(F_{0}\)</dt>
+<dd><p>Substituted for <var>init_F</var></p></dd>
+
+      <dt>\(a_{0}\)</dt>
+<dd><p>Substituted for <var>recage</var></p></dd>
+
+      <dt>proportion</dt>
+<dd><p>Substituted for <var>proportion</var></p></dd>
+
+    
+</dl><p></p>
 </div>
 <p></p>
 <div class="section">

@@ -80,7 +80,8 @@
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_grow_impl_bbinom</span><span class="op">(</span></span>
-<span>        <span class="va">delta_len_f</span>, <span class="va">delta_wgt_f</span>,</span>
+<span>        delta_len_f <span class="op">=</span> <span class="fu">g3a_grow_lengthvbsimple</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        delta_wgt_f <span class="op">=</span> <span class="fu">g3a_grow_weightsimple</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'bbin'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        <span class="va">maxlengthgroupgrowth</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
