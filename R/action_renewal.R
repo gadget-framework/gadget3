@@ -145,7 +145,11 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
 # Steps to set up renewal of stocks on any stock
 g3a_renewal_normalparam <- function (
         stock,
-        factor_f,
+        factor_f = g3_parameterized('rec',
+            by_stock = by_stock,
+            by_year = TRUE,
+            scale = g3_parameterized(name = 'rec.scalar', by_stock = by_stock),
+            ifmissing = NaN),
         mean_f = g3a_renewal_vonb(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
