@@ -735,9 +735,9 @@ structure(function (param)
         {
             comment("g3l_understocking: Combine and add to nll")
             g3l_understocking_total <- g3l_understocking_total^2
-            nll <- nll + g3l_understocking_total
+            nll <- nll + 1e+08 * g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
-            nll_understocking__weight[cur_time + 1L] <- 1
+            nll_understocking__weight[cur_time + 1L] <- 1e+08
         }
         if (cur_step_final) {
             comment("g3a_age for ling_imm")
