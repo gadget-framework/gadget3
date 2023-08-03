@@ -865,9 +865,9 @@ Type objective_function<Type>::operator() () {
         {
             // g3l_understocking: Combine and add to nll;
             g3l_understocking_total = pow(g3l_understocking_total, (Type)(double)(2));
-            nll += g3l_understocking_total;
+            nll += (double)(1e+08)*g3l_understocking_total;
             nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
-            nll_understocking__weight(cur_time + 1 - 1) = (double)(1);
+            nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
         }
         if ( cur_step_final ) {
             // g3a_age for ling_imm;
