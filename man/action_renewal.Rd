@@ -56,7 +56,7 @@ g3a_renewal_normalparam(
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = ~TRUE,
+        run_f = quote( age == stock__minage && !cur_year_projection ),
         run_at = 8)
 
 }

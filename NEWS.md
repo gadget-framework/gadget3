@@ -5,7 +5,7 @@
 * Add ``g3_parameterized('x', by_step = TRUE)`` for seasonal parameters #115
 * Support R factor levels as well as MFDB-style attributes for likelihood observation data.
   This means dplyr ``group_by(length = cut(...))`` can be used as well as MFDB for groupings #112
-* Parameterised defaults for ``g3l_understocking``(), ``g3a_naturalmortality``()
+* Parameterised defaults for ``g3l_understocking``(), ``g3a_naturalmortality``(), ``g3a_renewal_normalparam``()
 
 ## Bug fixes
 
