@@ -14,7 +14,11 @@ g3a_naturalmortality_exp(
         by_age = FALSE,
         action_step_size_f = ~cur_step_size)
 
-g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
+g3a_naturalmortality(
+        stock,
+        mortality_f = g3a_naturalmortality_exp(),
+        run_f = TRUE,
+        run_at = 4)
 
 }
 
@@ -77,6 +81,16 @@ g3a_naturalmortality(stock, mortality_f, run_f = TRUE, run_at = 4)
 ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
 
 # Natural mortality for immature ling
-naturalmortality_action <- g3a_naturalmortality(ling_imm,
-    g3a_naturalmortality_exp())
+naturalmortality_action <- g3a_naturalmortality(ling_imm)
+
+# NB: M is used in both g3a_naturalmortality and g3a_renewal_initabund, to
+# customise, you need to make sure the definitions are in sync, for example:
+
+M <- g3_parameterized('M', by_stock = TRUE, by_age = TRUE)
+actions <- list(
+    g3a_naturalmortality(ling_imm,
+        g3a_naturalmortality_exp(M)),
+    g3a_initialconditions_normalparam(ling_imm,
+        factor_f = g3a_renewal_initabund(M = M)),
+    NULL)
 }
