@@ -156,8 +156,17 @@ g3a_renewal_normalparam <- function (
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
         wgt_by_stock = TRUE,
-        run_f = ~TRUE,
+        run_age = quote(stock__minage),
+        run_projection = FALSE,
+        run_step = 1,
+        run_f = NULL,
         run_at = 8) {
+
+    if (is.null(run_f)) run_f <- f_substitute(quote( age && step && proj ), list(
+        age = (if (is.null(run_age)) TRUE else f_substitute(quote(age == x), list(x = run_age))),
+        step = (if (is.null(run_step)) TRUE else f_substitute(quote(cur_step == x), list(x = run_step))),
+        proj = (if (isFALSE(run_projection)) quote(!cur_year_projection) else TRUE),
+        end = NULL))
 
     # NB: Generate action name with our arguments
     out <- list()

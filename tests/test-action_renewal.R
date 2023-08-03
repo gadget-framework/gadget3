@@ -37,7 +37,36 @@ ok_group('g3a_renewal_vonb', {
                    g3_formula(
                      "Linf" * (1 - exp(-1 * (x * 2) * (age - ("recage" + log(1 - "recl"/"Linf")/(x * 2))))),
                      x = 10)), "Can override with values, formulas")
-    })
+})
+
+ok_group('g3a_renewal:run_f default parameterisation', {
+    run_cond <- function (...) {
+        fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+        x <- g3a_renewal_normalparam(fish, ...)[[1]]
+        # Find the contents of the first if statement
+        gadget3:::f_find(x, as.symbol('if'))[[1]][[2]]
+    }
+
+    ok(ut_cmp_identical(run_cond(), quote(
+        age == fish__minage && cur_step == 1 && (!cur_year_projection)
+    )), "No params, got default")
+
+    ok(ut_cmp_identical(run_cond(run_age = 5), quote(
+        age == 5 && cur_step == 1 && (!cur_year_projection)
+    )), "Overrode age")
+
+    ok(ut_cmp_identical(run_cond(run_age = 2, run_projection = TRUE), quote(
+        age == 2 && cur_step == 1
+    )), "Overrode age & projection")
+
+    ok(ut_cmp_identical(run_cond(run_step = 2), quote(
+        age == fish__minage && cur_step == 2 && (!cur_year_projection)
+    )), "Overrode run_step")
+
+    ok(ut_cmp_identical(run_cond(run_step = NULL), quote(
+        age == fish__minage && (!cur_year_projection)
+    )), "run_step can be turned off entirely")
+})
 
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])

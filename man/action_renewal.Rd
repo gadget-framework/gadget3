@@ -59,7 +59,10 @@ g3a_renewal_normalparam(
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
         wgt_by_stock = TRUE,
-        run_f = ~TRUE,
+        run_age = quote(stock__minage),
+        run_projection = FALSE,
+        run_step = 1,
+        run_f = NULL,
         run_at = 8)
 
 }
@@ -92,9 +95,13 @@ g3a_renewal_normalparam(
   \item{beta_f}{
     \link{formula} substituted into normalparam calcuations, see below.
   }
+  \item{run_age}{Age to run renewals for, used as \code{age == (run_age)} into default \var{run_f}}
+  \item{run_projection}{Boolean. Run renewal in projection years? If false adds \code{!cur_year_projection} into default \var{run_f}}
+  \item{run_step}{Which step to perform renewal in, or \code{NULL} for continuous renewal. Adds \code{cur_step == (run_step)} into default \var{run_f}}
   \item{run_f}{
     \link{formula} specifying a condition for running this action,
-    default always runs for renewal, first timestep for initialcondtions.
+    For initialconditions defaults to first timestep.
+    For renewal, the default is a combination of \var{run_age}, \var{run_step} & \var{run_projection}.
   }
   \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
   \item{K}{\link{formula} substituted into vonb calcuations, see below.}
@@ -190,5 +197,5 @@ renewal_action <- g3a_renewal_normalparam(
         by_year = TRUE,
         ifmissing = NaN),
     mean_f = g3a_renewal_vonb(),
-    run_f = ~cur_step == 1 && age == stock__minage && !cur_year_projection)
+    run_step = 2)  # Renewal happens in spring
 }
