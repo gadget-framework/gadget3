@@ -45,7 +45,7 @@ ok(cmp_code(
         g3_param("parp", value = 4, lower = 2, upper = 9)
         g3_param("parp", optimise = FALSE)
         g3_param("parp", random = TRUE)
-        g3_param_table("parp", expand.grid(cur_year = seq(start_year, end_year)), ifmissing = g3_param("peep"))
+        g3_pt_lookup(g3_pt("parp", expand.grid(cur_year = seq(start_year, end_year))), cur_year, ifmissing = g3_param("peep"))
     NULL})), "Extra parameters passed through")
 
 ok(cmp_code(
@@ -61,11 +61,11 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = TRUE, by_year = TRUE),
         g3_parameterized('parp', by_stock = TRUE, by_year = TRUE, by_age = TRUE),
     NULL)), quote({
-        g3_param_table("st_m_imm.parp", expand.grid(
-            cur_year = seq(start_year, end_year)))
-        g3_param_table("st_m_imm.parp", expand.grid(
+        g3_pt_lookup(g3_pt("st_m_imm.parp", expand.grid(
+            cur_year = seq(start_year, end_year))), cur_year)
+        g3_pt_lookup(g3_pt("st_m_imm.parp", expand.grid(
             cur_year = seq(start_year, end_year),
-            age = seq(st_m_imm__minage, st_m_imm__maxage)))
+            age = seq(st_m_imm__minage, st_m_imm__maxage))), cur_year, age)
     NULL})), "Adding by_year or by_age turns it into a table")
 
 ok(cmp_code(
@@ -74,13 +74,13 @@ ok(cmp_code(
         g3_parameterized('st', by_step = TRUE),
         g3_parameterized('yrst', by_year = TRUE, by_step = TRUE),
     NULL)), quote({
-    g3_param_table("yr", expand.grid(
-        cur_year = seq(start_year, end_year)))
-    g3_param_table("st", expand.grid(
-        cur_step = seq_along(step_lengths)))
-    g3_param_table("yrst", expand.grid(
+    g3_pt_lookup(g3_pt("yr", expand.grid(
+        cur_year = seq(start_year, end_year))), cur_year)
+    g3_pt_lookup(g3_pt("st", expand.grid(
+        cur_step = seq_along(step_lengths))), cur_step)
+    g3_pt_lookup(g3_pt("yrst", expand.grid(
         cur_year = seq(start_year, end_year),
-        cur_step = seq_along(step_lengths)))
+        cur_step = seq_along(step_lengths))), cur_year, cur_step)
     NULL})), "by_year & by_step can be combined")
 
 ok(cmp_code(
@@ -91,7 +91,7 @@ ok(cmp_code(
     NULL)), quote({
         g3_param("st.parp", lower = 3)
         g3_param("st_m.parp", lower = 3)
-        g3_param_table("m.parp", expand.grid(cur_year = seq(start_year, end_year)))
+        g3_pt_lookup(g3_pt("m.parp", expand.grid(cur_year = seq(start_year, end_year))), cur_year)
     NULL})), "Can specify which name_part should be used in the name")
 
 ok(cmp_code(
@@ -102,8 +102,8 @@ ok(cmp_code(
     NULL), quote({
         g3_param("st.m.parp")
         g3_param("st.parp")
-        g3_param_table("st.f.parp", expand.grid(
-            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))
+        g3_pt_lookup(g3_pt("st.f.parp", expand.grid(
+            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage)))), age)
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
 ok(cmp_code(
@@ -114,6 +114,6 @@ ok(cmp_code(
     NULL), quote({
         stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species")
         stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
-        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock,
-            g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species")
+        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * g3_pt_lookup(stock_prepend(stock,
+            g3_pt("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species"), age)
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")

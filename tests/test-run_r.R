@@ -47,13 +47,13 @@ ok_group('g3_param', {
 
 ok_group('g3_param_table', {
     param <- attr(g3_to_r(list(g3a_time(2000, 2004, step_lengths = rep(3, times = 4), project_years = 0), ~{
-        g3_param_table('pt', expand.grid(  # NB: We can use base R
+        g3_pt_lookup(g3_pt('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
-            cur_step = 2:3))
-        g3_param_table('pg', expand.grid(
+            cur_step = 2:3)), cur_year, cur_step)
+        g3_pt_lookup(g3_pt('pg', expand.grid(
             cur_year = start_year,
             # NB: We don't actually use optimise, but shouldn't error if it's there
-            cur_step = 1:2), value = 4, optimise = FALSE)
+            cur_step = 1:2), value = 4, optimise = FALSE), cur_year, cur_step)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param[c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2')],

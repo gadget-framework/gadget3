@@ -69,6 +69,34 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste(cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = TRUE), "- 1"))
     }
 
+    if (call_name == 'g3_pt_lookup') {
+        ifmissing <- call_args[['ifmissing']]
+
+        # List of arguments
+        vars <- as.list(tail(call_args, -1))
+        # Strip off any named arguments (read: ifmissing)
+        if (length(names(vars)) > 0) vars <- vars[!nzchar(names(vars))]
+        vars <- vapply(vars, cpp_escape_varname, character(1))
+
+        if (!is.null(ifmissing)) {
+            return(paste0(
+                "map_extras::at_def(",
+                cpp_code(as.symbol(call_args[[1]]), in_envir, next_indent), ", ",
+                "std::make_tuple(", paste(vars, collapse = ","), "), ",
+                "(Type)(", cpp_code(ifmissing, in_envir, next_indent), ")",
+                ")"))
+        } else {
+            # Replace function call to dereference list
+            return(paste0(
+                "map_extras::at_throw(",
+                cpp_code(as.symbol(call_args[[1]]), in_envir, next_indent), ", ",
+                "std::make_tuple(", paste(vars, collapse = ","), "), ",
+                deparse1(as.character(call_args[[1]])),
+                ")"))
+        }
+    }
+
+
     if (call_name %in% c("g3_with")) {
         # Combine the variable definition with the rest of the code
         inner <- cpp_code(in_call[[length(in_call)]], in_envir, next_indent, statement = TRUE)
@@ -726,6 +754,31 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                         ")")))
                 }
             }
+            if (x[[1]] == 'g3_pt') {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Turn table into parameter-setting definition, adding individual PARAMETERs as we go
+                init_data <- vapply(seq_len(nrow(df)), function (i) {
+                    sub_param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    sub_param_tuple <- paste0(df[i,], collapse = ",")
+
+                    scope[[cpp_escape_varname(sub_param_name)]] <<- structure(
+                        sprintf('PARAMETER(%s);', cpp_escape_varname(sub_param_name)),
+                        param_template = df_template(sub_param_name))
+                    paste0("{std::make_tuple(", sub_param_tuple ,"), &", cpp_escape_varname(sub_param_name), "}")
+                }, character(1))
+
+                # Add definition for overall lookup
+                scope[[param_name]] <<- cpp_definition(
+                    paste0('std::map<std::tuple<', paste(rep('int', times = ncol(df)), collapse=","), '>, Type*>'),
+                    param_name,
+                    paste0("{", paste0(init_data, collapse=", "), "}"))
+
+                # Replace table with *unescaped* name of parameter, so can use it later
+                # NB: Ideally this would be a symbol, but then get caught up by not having a definition for it
+                return(as.character(x[[2]]))
+            }
 
             # Add PARAMETER definition for variable
             scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
@@ -738,6 +791,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
         }
         code <- call_replace(code,
             g3_param_table = repl_fn,
+            g3_pt = repl_fn,
             g3_param_array = repl_fn,
             g3_param_vector = repl_fn,
             g3_param = repl_fn)
@@ -907,7 +961,7 @@ Type objective_function<Type>::operator() () {
             try {
                 return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
-                warning(\"No value found in g3_param_table %s, ifmissing not specified\", err.c_str());
+                warning(\"No value found in param %s, ifmissing not specified\", err.c_str());
                 return NAN;
             }
     }

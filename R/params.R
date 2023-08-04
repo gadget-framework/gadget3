@@ -4,6 +4,7 @@ g3_parameterized <- function(
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
+        ifmissing = NULL,
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -72,7 +73,7 @@ g3_parameterized <- function(
     # Generate core call
     if (length(table_defn) > 0) {
         table_defn <- as.call(c(as.symbol('expand.grid'), table_defn))
-        out <- substitute(g3_param_table(x, table_defn), list(x = name, table_defn = table_defn))
+        out <- substitute(g3_pt(x, table_defn), list(x = name, table_defn = table_defn))
     } else {
         out <- substitute(g3_param(x), list(x = name))
     }
@@ -83,6 +84,15 @@ g3_parameterized <- function(
     if (isTRUE(by_stock) || is.character(by_stock)) {
         # Use stock_prepend() to do stock substitutions
         out <- substitute(stock_prepend(stock, out, name_part = name_part), list(out = out, name_part = name_part))
+    }
+
+    if (length(table_defn) > 0) {
+        # Wrap table in g3_pt_lookup
+        # NB: Eventually g3_pt_lookup will be the code, and the table part of the environment, but not there yet
+        out <- as.call(c(
+            list(as.symbol("g3_pt_lookup"), out),
+            lapply(tail(names(table_defn), -1), function (n) as.symbol(n)),
+            if (!is.null(ifmissing)) list(ifmissing = ifmissing) else list()))
     }
 
     # Turn character scale/offset into parameter code

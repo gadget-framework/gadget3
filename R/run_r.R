@@ -66,6 +66,21 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                         list(sep = ".")))),
                     ifmissing))
             }
+            if (x[[1]] == 'g3_pt') {
+                # NB: We eval, so they can be defined in-formulae
+                df <- eval(x[[3]], envir = env)
+
+                # Add stopifnot for each row in table
+                for (i in seq_len(nrow(df))) {
+                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
+                    scope[[paste0("..param:", param_name)]] <<- structure(
+                        substitute(stopifnot(p %in% names(param)), list(p = param_name)),
+                        param_template = df_template(param_name))
+                }
+                # Replace table with table variable, so can use it later
+                # NB: Ideally this would be a symbol, but then get caught up by not having a definition for it
+                return(as.character(x[[2]]))
+            }
 
             # Default for g3_param / g3_param_vector
             # NB: We haven't actually used ..param:thing, but will end up in top of function anyway
@@ -76,6 +91,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
         }
         code <- call_replace(code,
             g3_param_table = repl_fn,
+            g3_pt = repl_fn,
             g3_param_array = repl_fn,
             g3_param_vector = repl_fn,
             g3_param = repl_fn)
@@ -164,6 +180,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope as side effect
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
+    # Bodge so that g3_pt_lookup has nvl() available
+    var_defns(quote( nvl() ), rlang::f_env(all_actions))
+
     # Make sure REPORT is defined for g3_report_all()
     if ('g3_report_all' %in% all.names(all_actions_code, unique = TRUE)) {
         var_defns(quote( REPORT(0) ), rlang::f_env(all_actions))
@@ -180,6 +199,32 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     g3_functions <- function (in_code) {
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
+            g3_pt_lookup = function (x) {
+                # Assume that the inner function is a g3_pt(), which returned a string table name
+                tbl_name <- as.character(x[[2]])
+
+                # List of arguments
+                vars <- as.list(tail(x, -2))
+                # Strip off any named arguments (read: ifmissing)
+                if (length(names(vars)) > 0) vars <- vars[!nzchar(names(vars))]
+
+                # Paste together the parameter name we need
+                out <- as.call(c(
+                    list(as.symbol("paste")),
+                    list(tbl_name),
+                    lapply(vars, as.symbol),
+                    list(sep = ".")))
+                # Look this up on the parameter table
+                out <- call('[[', as.symbol("param"), out)
+
+                # Wrap in nvl() to do ifmissing
+                ifmissing <- g3_functions(x[['ifmissing']])
+                if (is.null(ifmissing)) ifmissing <- substitute({warning(err_string) ; NaN}, list(
+                    err_string = paste0('No value found in param ', tbl_name, ', ifmissing not specified')))
+                out <- call('nvl', out, ifmissing)
+
+                return(out)
+            },
             g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')),
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),

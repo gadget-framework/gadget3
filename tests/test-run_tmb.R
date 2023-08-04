@@ -49,7 +49,7 @@ ok(ut_cmp_error({
 }, "randomandoptimise,ro2"), "Specifying random and optimise isn't allowed")
 
 ok(ut_cmp_error({
-    g3_tmb_adfun(g3_to_tmb(list(~{ g3_param_table('randomandoptimise', expand.grid(cur_step = 2:3), random = TRUE, optimise = TRUE) })))
+    g3_tmb_adfun(g3_to_tmb(list(~{ g3_pt_lookup(g3_pt('randomandoptimise', expand.grid(cur_step = 2:3), random = TRUE, optimise = TRUE), cur_step) })))
 }, "randomandoptimise"), "Specifying random and optimise isn't allowed")
 
 ok(ut_cmp_error({
@@ -260,12 +260,12 @@ ok_group('g3_param', {
 
 ok_group('g3_param_table', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, step_lengths = c(3,3,3,3)), ~{
-        g3_param_table('pt', expand.grid(  # NB: We can use base R
+        g3_pt_lookup(g3_pt('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
-            cur_step = 2:3))
-        g3_param_table('pg', expand.grid(
+            cur_step = 2:3)), cur_year, cur_step)
+        g3_pt_lookup(g3_pt('pg', expand.grid(
             cur_year = start_year,
-            cur_step = 1:2), value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
+            cur_step = 1:2), value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10), cur_year, cur_step)
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param[c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2'),],
@@ -294,11 +294,11 @@ ok_group('g3_param_table', {
             parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
             stringsAsFactors = FALSE)), "Param table included custom values")
     ok(ut_cmp_identical(
-        attr(g3_to_tmb(list(~{
-            g3_param_table('moo', expand.grid(cur_year=1990:1994))
+        attr(g3_to_tmb(list(g3_formula(quote({
+            g3_pt_lookup(g3_pt('moo', expand.grid(cur_year=1990:1994)), cur_year)
             g3_param('moo.1990')
             g3_param('oink.2')
-        })), 'parameter_template')$switch,
+        }), cur_year = 1993))), 'parameter_template')$switch,
         c("moo.1990", "moo.1991", "moo.1992", "moo.1993", "moo.1994", "oink.2")), "Refering to individual parameters doesn't generate duplicate table entries")
 })
 
@@ -405,7 +405,7 @@ ok_group("cpp_code", {
         ns(gadget3:::cpp_code(quote( x[[4]] + 4 ))),
         ns("x(3) + (double)(4)")),
         "x[[4]] + 4: Subtracted one, assumed int")
-    # NB: We rely on this in g3_param_table(ifmissing_param_table) below
+    # NB: We rely on this in g3_pt(ifmissing_param_table) below
     ok(ut_cmp_identical(
         ns(gadget3:::cpp_code(quote( x[[(-4 + 1 - 1) / (2*8)]] + 4 ))),
         ns("x( (-4 + 1 - 1) / (2*8) - 1 ) + (double)(4)")),
@@ -707,11 +707,11 @@ actions <- c(actions, ~{
 expecteds$sumprod_sum <- sum(sumprod_input)
 expecteds$sumprod_prod <- prod(sumprod_input)
 
-# g3_param_table()
+# g3_pt()
 param_table_out <- array(rep(0, 6))
 actions <- c(actions, ~{
     for (pt_a in seq(1, 3, by = 1)) for (pt_b in seq(7, 8, by = 1)) {
-        param_table_out[[((pt_a - 1L) * 2L) + (pt_b - 7L) + 1L]] <- g3_param_table('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7)))
+        param_table_out[[((pt_a - 1L) * 2L) + (pt_b - 7L) + 1L]] <- g3_pt_lookup(g3_pt('param_table', expand.grid(pt_a = 1:2, pt_b = c(8, 7))), pt_a, pt_b)
     }
     REPORT(param_table_out)
 })
@@ -728,21 +728,21 @@ expecteds$param_table_out <- array(c(
     NaN,
     NULL))
 expected_warnings_r <- c(expected_warnings_r,
-    "No value found in g3_param_table param_table, ifmissing not specified",
-    "No value found in g3_param_table param_table, ifmissing not specified",
+    "No value found in param param_table, ifmissing not specified",
+    "No value found in param param_table, ifmissing not specified",
     NULL)
 expected_warnings_tmb <- c(expected_warnings_tmb,
-    "No value found in g3_param_table param_table, ifmissing not specified",
-    "No value found in g3_param_table param_table, ifmissing not specified",
+    "No value found in param param_table, ifmissing not specified",
+    "No value found in param param_table, ifmissing not specified",
     NULL)
 
-# g3_param_table(ifmissing)
+# g3_pt(ifmissing)
 param_table_ifmissing_out <- array(c(1,2,3,4,5,6))
 actions <- c(actions, ~{
     for (ifmissing in seq(1, 6, by = 1)) {
-        param_table_ifmissing_out[[ifmissing]] <- g3_param_table(
+        param_table_ifmissing_out[[ifmissing]] <- g3_pt_lookup(g3_pt(
             'param_table_ifmissing',
-            expand.grid(ifmissing = 2:4), ifmissing = -1)
+            expand.grid(ifmissing = 2:4)), ifmissing, ifmissing = -1)
     }
     REPORT(param_table_ifmissing_out)
 })
@@ -751,13 +751,13 @@ params[['param_table_ifmissing.3']] <- 47
 params[['param_table_ifmissing.4']] <- 22
 expecteds$param_table_ifmissing_out <- array(c(-1, 27, 47, 22, -1, -1))
 
-# g3_param_table(ifmissing_param)
+# g3_pt(ifmissing_param)
 param_table_ifmparam_out <- array(c(1,2,3,4,5,6))
 actions <- c(actions, ~{
     for (ifmparam in seq(1, 6, by = 1)) {
-        param_table_ifmparam_out[[ifmparam]] <- g3_param_table(
+        param_table_ifmparam_out[[ifmparam]] <- g3_pt_lookup(g3_pt(
             'param_table_ifmparam',
-            expand.grid(ifmparam = 2:4), ifmissing = g3_param("param_table_ifmparam.missing"))
+            expand.grid(ifmparam = 2:4)), ifmparam, ifmissing = g3_param("param_table_ifmparam.missing"))
     }
     REPORT(param_table_ifmparam_out)
 })
@@ -773,15 +773,16 @@ expecteds$param_table_ifmparam_out <- array(c(
     params[['param_table_ifmparam.missing']],
     params[['param_table_ifmparam.missing']]))
 
-# g3_param_table(ifmissing_param_table)
+# g3_pt(ifmissing_param_table)
 param_table_ifmpartab_out <- array(c(1,2,3,4,5,6,7,8,9))
 actions <- c(actions, ~{
     for (ifmpartab in seq(1, 3, by = 1)) for (ifmpartab_m in seq(1, 3, by = 1)) {
-        param_table_ifmpartab_out[[((ifmpartab - 1) * 3) + (ifmpartab_m - 1) + 1]] <- g3_param_table(
-            'param_table_ifmpartab',
-            expand.grid(ifmpartab = 2:3), ifmissing = g3_param_table(
-                "param_table_ifmpartab_m",
-                expand.grid(ifmpartab_m = 1:3)))
+        param_table_ifmpartab_out[[((ifmpartab - 1) * 3) + (ifmpartab_m - 1) + 1]] <- g3_pt_lookup(
+            g3_pt('param_table_ifmpartab', expand.grid(ifmpartab = 2:3)),
+            ifmpartab,
+            ifmissing = g3_pt_lookup(
+                g3_pt("param_table_ifmpartab_m", expand.grid(ifmpartab_m = 1:3)),
+                ifmpartab_m))
     }
     REPORT(param_table_ifmpartab_out)
 })

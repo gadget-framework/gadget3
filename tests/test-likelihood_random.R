@@ -20,13 +20,13 @@ actions <- list(
         log_f = FALSE,
         weight = ~g3_param('dnorm_lin_enabled', value = 0, optimise = FALSE)),
     g3l_random_walk('walk_year',
-        ~g3_param_table('walk_year', expand.grid(cur_year = seq(start_year,  end_year)), value = 0, random = TRUE),
+        ~g3_pt_lookup(g3_pt('walk_year', expand.grid(cur_year = seq(start_year,  end_year)), value = 0, random = TRUE), cur_year),
         sigma_f = ~g3_param('walk_year_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_year_enabled', value = 0, optimise = FALSE)),
     g3l_random_walk('walk_step',
-        ~g3_param_table('walk_step', expand.grid(
+        ~g3_pt_lookup(g3_pt('walk_step', expand.grid(
             cur_year = seq(start_year,  end_year),
-            cur_step = 1:4), value = 0, random = TRUE),
+            cur_step = 1:4), value = 0, random = TRUE), cur_year, cur_step),
         period = 'step',
         sigma_f = ~g3_param('walk_step_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_step_enabled', value = 0, optimise = FALSE)),

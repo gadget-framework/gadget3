@@ -1,5 +1,5 @@
 # Top-level environment for a model, for common functions & definitions to live in
-# NB: baseenv() is above this to allow evaluating of g3_param_table expressions
+# NB: baseenv() is above this to allow evaluating of param table expand.grid() expressions
 g3_env <- new.env(parent = baseenv())
 
 # Transform a vector using matrix, return vec again

@@ -128,11 +128,6 @@ structure(function (param)
         growth.matrix.sum <- colSums(growth.matrix)
         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
     }
-    nvl <- function(...) {
-        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
-            return(...elt(i))
-        return(NULL)
-    }
     ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
     }
@@ -235,6 +230,11 @@ structure(function (param)
     ling_imm_movement__minage <- 11L
     ling_imm_movement__maxage <- 11L
     ling_imm_movement__area <- 1L
+    nvl <- function(...) {
+        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
+            return(...elt(i))
+        return(NULL)
+    }
     REPORT <- function(var) {
         var_name <- as.character(sys.call()[[2]])
         attr(nll, var_name) <<- if (var_name == "nll") 
@@ -619,17 +619,17 @@ structure(function (param)
         }
         {
             factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], {
-                warning("No value found in g3_param_table ling.rec, ifmissing not specified")
+                warning("No value found in param ling.rec, ifmissing not specified")
                 NaN
             }))
             {
                 comment("g3a_renewal for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
                     ling_imm__area_idx <- (1L)
-                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3L + 1L]])
+                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3 + 1]])
                     {
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
@@ -643,17 +643,17 @@ structure(function (param)
         }
         {
             factor <- (param[["ling.rec.scalar"]] * nvl(param[[paste("ling.rec", cur_year, sep = ".")]], {
-                warning("No value found in g3_param_table ling.rec, ifmissing not specified")
+                warning("No value found in param ling.rec, ifmissing not specified")
                 NaN
             }))
             {
                 comment("g3a_renewal for ling_imm")
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 3)) {
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if ((cur_step == 1 && age == 5)) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   {
                     area <- ling_imm__area
                     ling_imm__area_idx <- (1L)
-                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3 + 1]])
+                    dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * (0.001 * param[["ling.K"]]) * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/(0.001 * param[["ling.K"]])))))))/ling_imm_stddev[[age - 3L + 1L]])
                     {
                       ling_imm__renewalnum[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
