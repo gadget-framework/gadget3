@@ -356,61 +356,31 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             out <- g3_step(call_to_formula(out, environment(step_f)), recursing = TRUE, orig_env = orig_env)
             return(rlang::f_rhs(out))
         },
-        stock_param = function (x) { # Arguments: stock variable, name_part = NULL, name, ....
+        stock_prepend = function (x) { # Arguments: stock variable, param, name_part = NULL
             stock_var <- x[[2]]
             stock <- get(as.character(stock_var), envir = orig_env)
-            rest <- tail(as.list(x), -2)
 
-            # Use name_part if part of the call
-            if (!is.null(rest$name_part)) {
-                param_name <- paste(stock$name_part[eval(rest$name_part, envir = baseenv())], collapse = '_')
+            # Fish out extra part to add to name
+            if (!is.null(x$name_part)) {
+                name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
+                # Param argument is first item in arguments that doesn't have a name
+                inner <- tail(x, -2)
+                inner <- inner[!nzchar(names(inner))][[1]]
             } else {
-                param_name <- stock$name
+                name_extra <- stock$name
+                inner <- x[[3]]
             }
-            rest$name_part <- NULL
 
-            # Append first argument to complete name
-            param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
-            rest <- tail(rest, -1)
+            # Add name_extra to the first parameter of inner (i.e. the parameter name)
+            inner[[2]] <- paste(c(name_extra, inner[[2]]), collapse = ".")
 
-            # Make a g3_param call with the newly-named param
-            as.call(c(list(quote(g3_param), param_name), rest))
-        },
-        stock_param_table = function (x) { # Arguments: stock variable, name_part = NULL, name, ....
-            stock_var <- x[[2]]
-            stock <- get(as.character(stock_var), envir = orig_env)
-            rest <- tail(as.list(x), -2)
-
-            # Use name_part if part of the call
-            if (!is.null(rest$name_part)) {
-                param_name <- paste(stock$name_part[eval(rest$name_part, envir = baseenv())], collapse = '_')
-            } else {
-                param_name <- stock$name
-            }
-            rest$name_part <- NULL
-
-            # Append first argument to complete name
-            param_name <- paste(c(param_name, rest[[1]]), collapse = ".")
-            rest <- tail(rest, -1)
-
-            # Apply stock rename to table_defn
-            table_defn <- rest[[1]]
-            table_defn <- call("stock_with", stock_var, table_defn)  # stock_with(stock, ...) is implicit
-            table_defn <- rlang::f_rhs(g3_step(
-                call_to_formula(table_defn, env = as.environment(list())),
+            # Apply stock rename to the rest of the call, to translate any stock__minage references.
+            inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
+            inner <- rlang::f_rhs(g3_step(
+                call_to_formula(inner, env = as.environment(list())),
                 recursing = TRUE, orig_env = orig_env))
-            rest <- tail(rest, -1)
 
-            # TODO: Still not sure if this is truly required, I don't seem to need it with
-            # g3_to_tmb(list( g3_step( g3_formula( stock_with(stock, stock_param_table(stock, "peep", expand.grid(cur_year = 100), ifmissing = stock_param_table(stock, 'parp', expand.grid(cur_year = 100)))), stock = g3_stock('imm', 1:10))) ))
-            if (!is.null(rest$ifmissing) && is.language(rest$ifmissing)) {
-                rest$ifmissing <- rlang::f_rhs(g3_step(
-                    call_to_formula(rest$ifmissing, env = as.environment(list())),
-                    recursing = TRUE, orig_env = orig_env))
-            }
-
-            # Make a g3_param call with the newly-named param
-            as.call(c(list(quote(g3_param_table), param_name, table_defn), rest))
+            return(inner)
         },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'with'))

@@ -8,6 +8,7 @@
 ## Breaking changes
 
 * ``g3l_distribution_surveyindices_*`` now default to ``beta = 1``, set ``beta = NULL`` to restore previous behaviour.
+* ``stock_param``() & ``stock_param_table``() replaced with ``stock_prepend``()
 
 # gadget3 0.10-0:
 

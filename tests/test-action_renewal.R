@@ -10,28 +10,29 @@ cmp_formula <- function (a, b) {
 
     out <- ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
     if (!identical(out, TRUE)) return(out)
-    return(ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b))))
+    out <- ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b)))
+    return(out)
 }
 
 library(gadget3)
 
 ok_group('g3a_renewal_vonb_recl', {
     ok(cmp_formula(g3a_renewal_vonb_recl(), g3_formula(
-        stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 - exp(-1 *
-            stock_param(stock, "K", name_part = NULL, value = 1) *
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = NULL) * (1 - exp(-1 *
+            stock_prepend(stock, g3_param("K", value = 1), name_part = NULL) *
             (age - (g3_param("recage", optimise = FALSE) + 
-                      log(1 - stock_param(stock, "recl", name_part = NULL) /
-                stock_param(stock, "Linf", name_part = NULL, value = 1)) /
-                stock_param(stock, "K", name_part = NULL, value = 1)))))
+                      log(1 - stock_prepend(stock, g3_param("recl"), name_part = NULL) /
+                stock_prepend(stock, g3_param("Linf", value = 1), name_part = NULL)) /
+                stock_prepend(stock, g3_param("K", value = 1), name_part = NULL)))))
             )), "Default params by stock")
 
     ok(cmp_formula(g3a_renewal_vonb_recl(by_stock = "species"), g3_formula(
-        stock_param(stock, "Linf", name_part = "species", value = 1) * (1 - exp(-1 *
-            stock_param(stock, "K", name_part = "species", value = 1) *
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = "species") * (1 - exp(-1 *
+            stock_prepend(stock, g3_param("K", value = 1), name_part = "species") *
             (age - (g3_param("recage", optimise = FALSE) + 
-                      log(1 - stock_param(stock, "recl", name_part = "species") /
-                stock_param(stock, "Linf", name_part = "species", value = 1)) /
-                stock_param(stock, "K", name_part = "species", value = 1)))))
+                      log(1 - stock_prepend(stock, g3_param("recl"), name_part = "species") /
+                stock_prepend(stock, g3_param("Linf", value = 1), name_part = "species")) /
+                stock_prepend(stock, g3_param("K", value = 1), name_part = "species")))))
             )), "by_stock works for all default params")
 
     ok(cmp_formula(g3a_renewal_vonb_recl(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 
@@ -42,19 +43,19 @@ ok_group('g3a_renewal_vonb_recl', {
 
 ok_group('g3a_renewal_vonb_t0', {
     ok(cmp_formula(g3a_renewal_vonb_t0(), g3_formula(
-        stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 -
-            exp(-1 * stock_param(stock, "K", name_part = NULL, value = 1) *
-                (age - stock_param(stock, "t0", name_part = NULL) )))
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = NULL) * (1 -
+            exp(-1 * stock_prepend(stock, g3_param("K", value = 1), name_part = NULL) *
+                (age - stock_prepend(stock, g3_param("t0"), name_part = NULL) )))
             )), "Default params by stock")
 
     ok(cmp_formula(g3a_renewal_vonb_t0(by_stock = "species"), g3_formula(
-        stock_param(stock, "Linf", name_part = "species", value = 1) *
-            (1 - exp(-1 * stock_param(stock, "K", name_part = "species",
-                value = 1) * (age - stock_param(stock, "t0", name_part = "species"))))
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = "species") *
+            (1 - exp(-1 * stock_prepend(stock, g3_param("K",
+                value = 1), name_part = "species") * (age - stock_prepend(stock, g3_param("t0"), name_part = "species"))))
             )), "by_stock works for all default params")
 
     ok(cmp_formula(g3a_renewal_vonb_t0(Linf = 'Linf', K = g3_formula( x * 2, x = 10)), g3_formula(
-        "Linf" * (1 - exp(-1 * (x * 2) * (age - stock_param(stock, "t0", name_part = NULL))
+        "Linf" * (1 - exp(-1 * (x * 2) * (age - stock_prepend(stock, g3_param("t0"), name_part = NULL))
         )), x = 10)), "Can override with values, formulas")
 })
 

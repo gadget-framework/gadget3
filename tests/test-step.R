@@ -267,22 +267,22 @@ ok_group("g3_step:dependent_formulas", (function () {
 
 })())
 
-ok_group("g3_step:stock_param", {
+ok_group("g3_step:stock_prepend", {
     stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
 
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param(stock_a, 'parr', optmise = FALSE)
-            stock_param(stock_a, 'parr', optmise = FALSE, upper = 5)
+            stock_prepend(stock_a, g3_param('parr', optmise = FALSE))
+            stock_prepend(stock_a, g3_param('parr', optmise = FALSE, upper = 5))
         }), ~{
             g3_param("stock_stick_aaa.parr", optmise = FALSE)
             g3_param("stock_stick_aaa.parr", optmise = FALSE, upper = 5)
         }), "Passed through options")
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param(stock_a, name_part = 't', 'parr')
-            stock_param(stock_a, 'parr', name_part = 't')
-            stock_param(stock_a, 'parr', name_part = 't', lower = 4, upper = 5)
+            stock_prepend(stock_a, name_part = 't', g3_param('parr'))
+            stock_prepend(stock_a, g3_param('parr'), name_part = 't')
+            stock_prepend(stock_a, g3_param('parr', lower = 4, upper = 5), name_part = 't')
         }), ~{
             g3_param("stock.parr")
             g3_param("stock.parr")
@@ -290,9 +290,9 @@ ok_group("g3_step:stock_param", {
         }), "name_part can be either beffore or after name, not passed through to g3_param call")
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param(stock_a, name_part = c('t', 'q'), 'par1')
-            stock_param(stock_a, name_part = c('q', 't'), 'par1')
-            stock_param(stock_a, name_part = c('t'), 'par1')
+            stock_prepend(stock_a, name_part = c('t', 'q'), g3_param('par1'))
+            stock_prepend(stock_a, name_part = c('q', 't'), g3_param('par1'))
+            stock_prepend(stock_a, name_part = c('t'), g3_param('par1'))
         }), ~{
             g3_param("stock_stick.par1")
             g3_param("stick_stock.par1")
@@ -300,14 +300,14 @@ ok_group("g3_step:stock_param", {
         }), "name_part can contain multiple name_parts, get used in order")
 })
 
-ok_group("g3_step:stock_param_table", {
+ok_group("g3_step:stock_prepend:table", {
     stock_a <- g3_stock(c(t = 'stock', 'aaa'), seq(10, 35, 5))
     stock_b <- g3_stock(c(t = 'stock', 'bbb'), seq(10, 35, 5))
 
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param_table(stock_a, 'par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), year = 2:3))
-            stock_param_table(stock_a, 'par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), len = stock_a__minlen))
+            stock_prepend(stock_a, g3_param_table('par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), year = 2:3)))
+            stock_prepend(stock_a, g3_param_table('par1', data.frame(age = seq(stock_a__minage, stock_a__maxage), len = stock_a__minlen)))
         }), ~{
             g3_param_table("stock_aaa.par1", data.frame(age = seq(stock_aaa__minage, stock_aaa__maxage), year = 2:3))
             g3_param_table("stock_aaa.par1", data.frame(age = seq(stock_aaa__minage, stock_aaa__maxage), len = stock_aaa__minlen))
@@ -315,8 +315,8 @@ ok_group("g3_step:stock_param_table", {
 
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param_table(stock_a, 'par1', data.frame(year = 2:3), upper = 5)
-            stock_param_table(stock_a, 'par1', data.frame(year = 2:3), upper = 5, lower = 2)
+            stock_prepend(stock_a, g3_param_table('par1', data.frame(year = 2:3), upper = 5))
+            stock_prepend(stock_a, g3_param_table('par1', data.frame(year = 2:3), upper = 5, lower = 2))
         }), ~{
             g3_param_table('stock_aaa.par1', data.frame(year = 2:3), upper = 5)
             g3_param_table('stock_aaa.par1', data.frame(year = 2:3), upper = 5, lower = 2)
@@ -324,8 +324,8 @@ ok_group("g3_step:stock_param_table", {
 
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param_table(stock_a, name_part = 't', 'par1', data.frame(year = 2:3), upper = 5)
-            stock_param_table(stock_a, 'par1', name_part = 't', data.frame(year = 2:3), upper = 5, lower = 2)
+            stock_prepend(stock_a, name_part = 't', g3_param_table('par1', data.frame(year = 2:3), upper = 5))
+            stock_prepend(stock_a, g3_param_table('par1', data.frame(year = 2:3), upper = 5, lower = 2), name_part = 't')
         }), ~{
             g3_param_table('stock.par1', data.frame(year = 2:3), upper = 5)
             g3_param_table('stock.par1', data.frame(year = 2:3), upper = 5, lower = 2)
@@ -333,8 +333,8 @@ ok_group("g3_step:stock_param_table", {
 
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param_table(stock_a, name_part = 't', 'par1', stock_with(stock_b, data.frame(age = seq(stock_a__minage, stock_b__maxage))))
-            stock_param_table(stock_b, name_part = 't', 'par1', stock_with(stock_a, data.frame(age = seq(stock_a__minage, stock_b__maxage))))
+            stock_prepend(stock_a, name_part = 't', g3_param_table('par1', stock_with(stock_b, data.frame(age = seq(stock_a__minage, stock_b__maxage)))))
+            stock_prepend(stock_b, name_part = 't', g3_param_table('par1', stock_with(stock_a, data.frame(age = seq(stock_a__minage, stock_b__maxage)))))
         }), ~{
             g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
             g3_param_table('stock.par1', data.frame(age = seq(stock_aaa__minage, stock_bbb__maxage)))
@@ -343,9 +343,9 @@ ok_group("g3_step:stock_param_table", {
     stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
     ok(cmp_code(
         gadget3:::g3_step(~{
-            stock_param_table(stock_a, name_part = c('t', 'q'), 'par1', data.frame(year = 2:3))
-            stock_param_table(stock_a, name_part = c('q', 't'), 'par1', data.frame(year = 2:3))
-            stock_param_table(stock_a, name_part = c('t'), 'par1', data.frame(year = 2:3))
+            stock_prepend(stock_a, name_part = c('t', 'q'), g3_param_table('par1', data.frame(year = 2:3)))
+            stock_prepend(stock_a, name_part = c('q', 't'), g3_param_table('par1', data.frame(year = 2:3)))
+            stock_prepend(stock_a, name_part = c('t'), g3_param_table('par1', data.frame(year = 2:3)))
         }), ~{
             g3_param_table("stock_stick.par1", data.frame(year = 2:3))
             g3_param_table("stick_stock.par1", data.frame(year = 2:3))

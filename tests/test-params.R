@@ -66,7 +66,7 @@ ok(cmp_code(
 
 ok(cmp_code(
     pretend_stock_action(g3_parameterized('parp', by_stock = TRUE)),
-    quote(g3_param("st_m_imm.parp"))), "by_stock, so will use stock_param() to rename variables")
+    quote(g3_param("st_m_imm.parp"))), "by_stock, so will use stock_prepend() to rename variables")
 
 ok(ut_cmp_error(
     g3_parameterized('parp', by_stock = FALSE, by_age = TRUE),
@@ -128,12 +128,10 @@ ok(cmp_code(
         g3_parameterized('rec', by_stock = 'species', scale = 'rec.scalar', offset = 'rec.offset'),
         g3_parameterized('rec', by_stock = 'species', by_age = TRUE, scale = 'rec.scalar'),
     NULL), quote({
-        stock_param(stock, "rec.scalar", name_part = "species") * stock_param(stock,
-            "rec", name_part = "species")
-        stock_param(stock, "rec.scalar", name_part = "species") * stock_param(stock,
-            "rec", name_part = "species") + stock_param(stock, "rec.offset", name_part = "species")
-        stock_param(stock, "rec.scalar", name_part = "species") * stock_param_table(stock,
-            "rec", name_part = "species", expand.grid(age = seq(stock__minage, stock__maxage)))
+        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species")
+        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
+        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock,
+            g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species")
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
 
 year_range <- 1982:1986

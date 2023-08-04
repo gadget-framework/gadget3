@@ -79,8 +79,7 @@ g3_parameterized(
 \seealso{
   \code{\link{g3_param}},
   \code{\link{g3_param_table}},
-  \code{\link{stock_param}},
-  \code{\link{stock_param_table}}
+  \code{\link{stock_prepend}}
 }
 
 \examples{
@@ -91,7 +90,7 @@ stock_b <- g3_stock(c(species = 'stock', 'bbb'), seq(10, 35, 5)) \%>\% g3s_age(1
 # Not by anything, so just a regular parameter
 g3_parameterized('K')
 
-# by_stock, so will use stock_param() to rename variables
+# by_stock, so will use stock_prepend() to rename variables
 g3_parameterized('K', by_stock = TRUE)
 
 # Adding by_year or by_age turns it into a table
