@@ -15,6 +15,7 @@
 ## Breaking changes
 
 * Remove ``scale = 0.001`` from default ``K`` parameters in g3a_grow, g3a_renew_*
+* ``stock_param``() & ``stock_param_table``() replaced with ``stock_prepend``()
 
 # gadget3 0.9-0:
 
