@@ -28,16 +28,16 @@ ok(ut_cmp_equal(
         g3_parameterized('lln.alpha', by_stock = TRUE, value = 99),
         stock = g3_stock("fish", 1:10),
         param.fish.lln.alpha = 123),
-    123), "Both evaluated stock_param and substituted")
+    123), "Both evaluated stock-ified parameter and substituted")
 
 ok_group("g3_eval error output", {
     ok(ut_cmp_error({
-        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+        g3_eval(quote( stock_prepend(stock, g3_param("x")) + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
     }, 'erk'), "Show error message")
     ok(ut_cmp_error({
-        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+        g3_eval(quote( stock_prepend(stock, g3_param("x")) + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
     }, 'g3_param\\("camel\\.x"\\)'), "Show converted formula")
     ok(ut_cmp_error({
-        g3_eval(quote( stock_param(stock, "x") + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
+        g3_eval(quote( stock_prepend(stock, g3_param("x")) + stop('erk') ), stock = g3_stock("camel", 1), x = 99123)
     }, '99123'), "Show content of environment")
 })

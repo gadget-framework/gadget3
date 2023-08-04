@@ -10,8 +10,7 @@
 \alias{stock_iterate}
 \alias{stock_intersect}
 \alias{stock_interact}
-\alias{stock_param}
-\alias{stock_param_table}
+\alias{stock_prepend}
 
 \title{G3 stock_* transformation functions}
 \description{
@@ -147,25 +146,14 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
 
 }
 
-\section{stock_param}{
-  \code{stock_param(stock, name, name_part = NULL, ...)}
+\section{stock_prepend}{
+  \code{stock_prepend(stock, param_call, name_part = NULL)}
 
-  Convert to a call to \link{g3_param}, prefixing the \var{name} with the stock name.
-  If \var{name_part} given, only use given part(s) of the stock name.
+  Converts a \link{g3_param} or \link{g3_param_table} call, prefixing the
+  parameter name with the stock name, and renaming any references to stock variables.
+  If \var{name_part} given, will only add given part(s) of the stock name.
 
-  All other args passed through to \link{g3_param}.
-}
-
-\section{stock_param_table}{
-  \code{stock_param_table(stock, name, name_part = NULL, table_defn, ...)}
-
-  Convert to a call to \link{g3_param_table}, prefixing the \var{name} with the stock name.
-  If \var{name_part} given, only use given part(s) of the stock name.
-
-  The \var{table_defn} will have any instances of \var{stock} replaced using \link{stock_with}().
-
-  All other args passed through to \link{g3_param_table}.
-
+  Returns \var{param_call} with the additions made.
 }
 
 \value{
