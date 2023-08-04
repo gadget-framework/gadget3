@@ -46,7 +46,7 @@ ling_imm_actions <- list(
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
-        factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
+        factor_f = ~g3_param("ling.rec.scalar") * g3_pt_lookup(g3_pt("ling.rec", data.frame(cur_year = seq(start_year, end_year))), cur_year),
         mean_f = g3a_renewal_vonb(by_stock = 'species'),
         stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
@@ -54,7 +54,7 @@ ling_imm_actions <- list(
         run_f = ~cur_step == 1 && age == 3),
     # Additional renewal for age 5
     g3a_renewal_normalparam(ling_imm,
-        factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
+        factor_f = ~g3_param("ling.rec.scalar") * g3_pt_lookup(g3_pt("ling.rec", data.frame(cur_year = seq(start_year, end_year))), cur_year),
         mean_f = g3a_renewal_vonb(by_stock = 'species'),
         stddev_f = ~ling_imm_stddev[[age - 3L + 1L]],
         alpha_f = ~g3_param("lingimm.walpha"),

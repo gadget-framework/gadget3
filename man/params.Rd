@@ -13,6 +13,7 @@ g3_parameterized(
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
+        ifmissing = NULL,
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -53,6 +54,9 @@ g3_parameterized(
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.4"} parameter for each age of the stock(s) in \var{by_stock}}
     }
+  }
+  \item{ifmissing}{
+    When using \var{by_stock}, \var{by_year}, etc, return this value when outside the bounds of the parameter table (because you are projecting beyond the core model years, e.g.).
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
   \item{avoid_zero}{If TRUE, wrap parameter with \code{avoid_zero}}

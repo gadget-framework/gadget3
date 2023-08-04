@@ -7,7 +7,7 @@ namespace map_extras {
             try {
                 return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
-                warning("No value found in g3_param_table %s, ifmissing not specified", err.c_str());
+                warning("No value found in param %s, ifmissing not specified", err.c_str());
                 return NAN;
             }
     }
@@ -733,7 +733,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     auto area = ling_imm__area;
@@ -757,7 +757,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     auto area = ling_imm__area;

@@ -11,6 +11,9 @@
 
 * g3s_modeltime() (used for history) now works when final_year_steps set
 * Stop assuming 1-dimensional R arrays should be TMB vectors.
+* Code for ``g3_parameterized(by_age = TRUE)`` no longer falls outside the age loop.
+  Specifically, ``g3a_renewal_normalparam(factor_f = g3_parameterized(by_age = TRUE))`` would generate nonsense code
+  as ``factor`` would be defined outside the definition of the age loop variable.
 
 ## Breaking changes
 
