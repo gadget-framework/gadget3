@@ -13,15 +13,15 @@
 
 \usage{
 g3a_renewal_vonb(
-        Linf = g3_parameterized('Linf', by_stock = by_stock),
-        K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock, scale = 0.001),
         recl = g3_parameterized('recl', by_stock = by_stock),
         recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
         by_stock = TRUE)
 
 g3a_renewal_initabund(
-    scalar = g3_parameterized('init.scalar', by_stock = by_stock),
-    init = g3_parameterized('init', by_stock = by_stock, by_age = TRUE),
+    scalar = g3_parameterized('init.scalar', value = 1, by_stock = by_stock),
+    init = g3_parameterized('init', value = 1, by_stock = by_stock, by_age = TRUE),
     M = g3_parameterized('M', by_stock = by_stock),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
     recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
@@ -35,7 +35,8 @@ g3a_initialconditions_normalparam(
         stock,
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
         mean_f = g3a_renewal_vonb(by_stock = by_stock),
-        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        stddev_f = g3_parameterized('init.sd', value = 10,
+            by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
@@ -54,7 +55,7 @@ g3a_renewal_normalparam(
             scale = g3_parameterized(name = 'rec.scalar', by_stock = by_stock),
             ifmissing = NaN),
         mean_f = g3a_renewal_vonb(by_stock = by_stock),
-        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock),
+        stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
