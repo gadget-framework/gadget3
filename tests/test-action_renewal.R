@@ -18,21 +18,21 @@ library(gadget3)
 
 ok_group('g3a_renewal_vonb', {
     ok(cmp_formula(g3a_renewal_vonb(), g3_formula(
-        stock_prepend(stock, g3_param("Linf"), name_part = NULL) * (1 - exp(-1 *
-            (0.001 * stock_prepend(stock, g3_param("K"), name_part = NULL)) *
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = NULL) * (1 - exp(-1 *
+            (0.001 * stock_prepend(stock, g3_param("K", value = 1), name_part = NULL)) *
             (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_prepend(stock, g3_param("recl"), name_part = NULL) /
-                stock_prepend(stock, g3_param("Linf"), name_part = NULL)) /
-                (0.001 * stock_prepend(stock, g3_param("K"), name_part = NULL))))))
+                stock_prepend(stock, g3_param("Linf", value = 1), name_part = NULL)) /
+                (0.001 * stock_prepend(stock, g3_param("K", value = 1), name_part = NULL))))))
             )), "Default params by stock")
 
     ok(cmp_formula(g3a_renewal_vonb(by_stock = "species"), g3_formula(
-        stock_prepend(stock, g3_param("Linf"), name_part = "species") * (1 - exp(-1 *
-            (0.001 * stock_prepend(stock, g3_param("K"), name_part = "species")) *
+        stock_prepend(stock, g3_param("Linf", value = 1), name_part = "species") * (1 - exp(-1 *
+            (0.001 * stock_prepend(stock, g3_param("K", value = 1), name_part = "species")) *
             (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_prepend(stock, g3_param("recl"), name_part = "species") /
-                stock_prepend(stock, g3_param("Linf"), name_part = "species")) /
-                (0.001 * stock_prepend(stock, g3_param("K"), name_part = "species"))))))
+                stock_prepend(stock, g3_param("Linf", value = 1), name_part = "species")) /
+                (0.001 * stock_prepend(stock, g3_param("K", value = 1), name_part = "species"))))))
             )), "by_stock works for all default params")
 
     ok(cmp_formula(g3a_renewal_vonb(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 

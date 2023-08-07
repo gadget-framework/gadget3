@@ -4,8 +4,8 @@ lingimm.init.scalar                                 lingimm.init.scalar         
 lingimm.M                                                     lingimm.M            0     TRUE  FALSE    NA    NA       NA
 ling.init.F                                                 ling.init.F            0     TRUE  FALSE    NA    NA       NA
 lingimm.init                                               lingimm.init VECTOR     0     TRUE  FALSE    NA    NA       NA
-ling.Linf                                                     ling.Linf            0     TRUE  FALSE    NA    NA       NA
-ling.K                                                           ling.K            0     TRUE  FALSE    NA    NA       NA
+ling.Linf                                                     ling.Linf            1     TRUE  FALSE    NA    NA       NA
+ling.K                                                           ling.K            1     TRUE  FALSE    NA    NA       NA
 recage                                                           recage            0    FALSE  FALSE    NA    NA       NA
 ling.recl                                                     ling.recl            0     TRUE  FALSE    NA    NA       NA
 lingimm.walpha                                           lingimm.walpha            0     TRUE  FALSE    NA    NA       NA
