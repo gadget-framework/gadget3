@@ -249,6 +249,22 @@ ok_group("g3_step:dependent_formulas", (function () {
         ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
         (ling_imm__num[, ling_imm__age_idx] + global_init_f))), "global_ind_f: global_ind_f not mentioned anywhere in formula")
     ok(any(grepl("global_init_f <- 2 * 2", deparse(g3_to_r(list(f))), fixed = TRUE)), "global_init_f: init_val in header when fully compiled")
+
+    f <- gadget3:::g3_step(g3_formula(quote(
+            stock_iterate(stock, stock_ss(stock__num) + const + by_age)
+        ),
+        const = g3_parameterized('const', by_stock = TRUE),
+        by_age = g3_parameterized("byage", by_stock = TRUE, by_age = TRUE),
+        stock = stock_imm))
+    ok(cmp_code(f, g3_formula(quote(
+        g3_with(
+            const := g3_param("ling_imm.const"),
+            for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
+                ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
+                by_age := g3_pt_lookup(g3_pt("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))), age),
+                (ling_imm__num[, ling_imm__age_idx] + const + by_age)))
+    ))), "add_dependent_formula: stock substituted both inside and outside loop")
+
 })())
 
 ok_group("g3_step:stock_prepend", {
