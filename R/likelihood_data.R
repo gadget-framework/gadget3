@@ -4,9 +4,9 @@ parse_levels <- function (lvls, var_name) {
         names = lvls,
         lower_incl = TRUE,
         lower_bound = m,
-        upper_bound = m,
-        upper_incl = TRUE,
-        open_ended_upper = FALSE,
+        upper_bound = c(tail(m, -1), Inf),  # NB: No data about final bound, assume open-ended
+        upper_incl = FALSE,
+        open_ended_upper = TRUE,
         stringsAsFactors = FALSE))
 
     m <- regmatches(lvls, regexec('^(\\[|\\()(.*),(.*)(\\]|\\))', lvls))
@@ -66,7 +66,10 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             # Convert data$length to use our naming
             data$length <- factor(data$length, levels = names(length_groups))
             levels(data$length) <- modelstock$dimnames$length
-        } else if (is.factor(data$length)) {
+        } else {
+            # Force length to be a factor if not already
+            if (!is.factor(data$length)) data$length <- as.factor(data$length)
+
             lvls <- parse_levels(levels(data$length), "length")
             open_ended_upper <- lvls$open_ended_upper[[1]]
 
@@ -83,16 +86,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
             # Convert data$length to use our naming
             levels(data$length) <- modelstock$dimnames$length
-        } else {
-            length_groups <- sort(unique(data$length))
-
-            # Default to open-ended, as there's no way to specify the maximum
-            modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_groups, open_ended = TRUE)
-            # Convert length data to use our naming
-            data$length <- factor(
-                data$length,
-                levels = length_groups,
-                labels = modelstock$dimnames$length)
         }
         handled_columns$length <- NULL
     } else {
@@ -114,6 +107,14 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             levels(data$age) <- modelstock$dimnames$age
         } else if (is.factor(data$age)) {
             lvls <- parse_levels(levels(data$age), "age")
+
+            if (is.infinite(tail(lvls$upper_bound, 1))) {
+                # No support for infinite upper bound, bodge
+                lvls$upper_bound[[length(lvls$upper_bound)]] <-
+                    lvls$lower_bound[[length(lvls$lower_bound)]] +
+                    1  # NB: It's not going to be upper-inclusive, so will subtract one at next step
+            }
+
             # Account for lower_incl / upper_incl
             lvls$lower_bound <- ifelse(!lvls$lower_incl, lvls$lower_bound + 1, lvls$lower_bound)
             lvls$upper_bound <- ifelse(!lvls$upper_incl, lvls$upper_bound - 1, lvls$upper_bound)

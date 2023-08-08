@@ -143,7 +143,7 @@ ok_group('g3l_likelihood_data:length', {
         "), "Lengths read from data, missing 2000/10 1999/30 filled in with 0")
     ok(ut_cmp_identical(
         ld_minlen(ld),
-        c("1:5" = 1L, "5:10" = 5L, "10:30" = 10L, "30:Inf" = 30L)), "minlen set via. data")
+        c("1:5" = 1, "5:10" = 5, "10:30" = 10, "30:Inf" = 30)), "minlen set via. data")
     ok(ut_cmp_identical(ld_upperlen(ld), Inf), "If we guess from data, open-ended is only sensible option")
 
     ok(ut_cmp_error(generate_ld("
@@ -381,7 +381,7 @@ ok_group('g3l_likelihood_data:age_factor', {
         length age time Freq
         0:Inf 3:3 1990    1
         0:Inf 4:4 1990    2
-        0:Inf 5:5 1990    3
+        0:Inf 5:7 1990    3
         0:Inf 8:8 1990    4
      "), "ld$number: can also use integer strings as factors")
 
