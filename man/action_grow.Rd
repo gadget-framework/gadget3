@@ -12,7 +12,7 @@
 \usage{
 g3a_grow_lengthvbsimple(
         linf_f = g3_parameterized('Linf', by_stock = by_stock),
-        kappa_f = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        kappa_f = g3_parameterized('K', by_stock = by_stock),
         by_stock = TRUE)
 
 g3a_grow_weightsimple(

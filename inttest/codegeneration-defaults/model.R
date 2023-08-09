@@ -296,7 +296,7 @@ structure(function (param)
                     warning("No value found in param fish.init, ifmissing not specified")
                     NaN
                   }) * exp(-1 * (param[["fish.M"]] + param[["init.F"]]) * (age - param[["recage"]])))
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * (0.001 * param[["fish.K"]]) * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/(0.001 * param[["fish.K"]])))))))/param[["fish.init.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/param[["fish.K"]]))))))/param[["fish.init.sd"]])
                   {
                     fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -534,7 +534,7 @@ structure(function (param)
                 {
                   if (fish__growth_lastcalc != floor(cur_step_size * 12L)) {
                     comment("Calculate length/weight delta matrices for current lengthgroups")
-                    fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-((0.001 * param[["fish.K"]])) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]]))
+                    fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]]))
                     fish__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]]
                     comment("Don't recalculate until cur_step_size changes")
                     fish__growth_lastcalc <- floor(cur_step_size * 12L)
@@ -573,7 +573,7 @@ structure(function (param)
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * (0.001 * param[["fish.K"]]) * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/(0.001 * param[["fish.K"]])))))))/param[["fish.rec.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/param[["fish.K"]]))))))/param[["fish.rec.sd"]])
                   {
                     fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]

@@ -357,7 +357,7 @@ Type objective_function<Type>::operator() () {
 
                     auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( age - 3 + 1 - 1 ));
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__K)*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__K))))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
 
                     {
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -378,7 +378,7 @@ Type objective_function<Type>::operator() () {
 
                     auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( age - 5 + 1 - 1 ));
 
-                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__K)*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__K))))))) / ling_mat_stddev ( age - 5 + 1 - 1 ));
+                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( age - 5 + 1 - 1 ));
 
                     {
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -740,7 +740,7 @@ Type objective_function<Type>::operator() () {
 
                     auto ling_imm__area_idx = 0;
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__K)*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__K))))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
 
                     {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -764,7 +764,7 @@ Type objective_function<Type>::operator() () {
 
                     auto ling_imm__area_idx = 0;
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*((double)(0.001)*ling__K)*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ((double)(0.001)*ling__K))))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
 
                     {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;

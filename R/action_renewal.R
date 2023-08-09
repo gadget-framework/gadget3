@@ -7,7 +7,7 @@ renewal_into <- function (stock) {
 # Parameterised vonb formula, for use as mean_f
 g3a_renewal_vonb <- function(
         Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
-        K = g3_parameterized('K', value = 1, by_stock = by_stock, scale = 0.001),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock),
         recl = g3_parameterized('recl', by_stock = by_stock),
         recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
         by_stock = TRUE) {

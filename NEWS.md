@@ -14,6 +14,7 @@
 * Code for ``g3_parameterized(by_age = TRUE)`` no longer falls outside the age loop.
   Specifically, ``g3a_renewal_normalparam(factor_f = g3_parameterized(by_age = TRUE))`` would generate nonsense code
   as ``factor`` would be defined outside the definition of the age loop variable.
+* Remove ``scale = 0.001`` from default ``K`` parameters in g3a_grow, g3a_renew_*
 
 ## Breaking changes
 
