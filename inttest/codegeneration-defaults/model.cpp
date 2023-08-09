@@ -663,7 +663,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for fish;
-                for (auto age = fish__minage; age <= fish__maxage; age++) if ( age == fish__minage && ! cur_year_projection ) {
+                for (auto age = fish__minage; age <= fish__maxage; age++) if ( age == fish__minage && cur_step == 1 && (! cur_year_projection) ) {
                     auto fish__age_idx = age - fish__minage + 1 - 1;
 
                     auto area = fish__area;

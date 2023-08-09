@@ -569,7 +569,7 @@ structure(function (param)
             factor <- (param[["fish.rec.scalar"]] * nvl(param[[paste("fish.rec", cur_year, sep = ".")]], NaN))
             {
                 comment("g3a_renewal for fish")
-                for (age in seq(fish__minage, fish__maxage, by = 1)) if (age == fish__minage && !cur_year_projection) {
+                for (age in seq(fish__minage, fish__maxage, by = 1)) if (age == fish__minage && cur_step == 1 && (!cur_year_projection)) {
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
