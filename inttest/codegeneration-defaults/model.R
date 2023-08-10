@@ -17,7 +17,8 @@ structure(function (param)
     stopifnot("recage" %in% names(param))
     stopifnot("fish.Linf" %in% names(param))
     stopifnot("fish.K" %in% names(param))
-    stopifnot("fish.recl" %in% names(param))
+    stopifnot("fish.t0" %in% names(param))
+    stopifnot("fish.deltat" %in% names(param))
     stopifnot("fish.init.sd" %in% names(param))
     stopifnot("fish.walpha" %in% names(param))
     stopifnot("fish.wbeta" %in% names(param))
@@ -46,6 +47,11 @@ structure(function (param)
             return(TRUE)
         }
         return(FALSE)
+    }
+    nvl <- function(...) {
+        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
+            return(...elt(i))
+        return(NULL)
     }
     normalize_vec <- function(a) {
         a/sum(a)
@@ -222,11 +228,6 @@ structure(function (param)
     detail_fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
     detail_fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
     detail_fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
-    nvl <- function(...) {
-        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
-            return(...elt(i))
-        return(NULL)
-    }
     while (TRUE) {
         {
             comment("g3a_time: Start of time period")
@@ -293,10 +294,10 @@ structure(function (param)
                   area <- fish__area
                   fish__area_idx <- (1L)
                   factor <- (param[["fish.init.scalar"]] * nvl(param[[paste("fish.init", age, sep = ".")]], {
-                    warning("No value found in param fish.init, ifmissing not specified")
+                    warning("No value found in g3_param_table fish.init, ifmissing not specified")
                     NaN
                   }) * exp(-1 * (param[["fish.M"]] + param[["init.F"]]) * (age - param[["recage"]])))
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/param[["fish.K"]]))))))/param[["fish.init.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["fish.t0"]] + param[["fish.deltat"]]))))))/param[["fish.init.sd"]])
                   {
                     fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -573,7 +574,7 @@ structure(function (param)
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["recage"]] + log(1 - param[["fish.recl"]]/param[["fish.Linf"]])/param[["fish.K"]]))))))/param[["fish.rec.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["fish.t0"]] + param[["fish.deltat"]]))))))/param[["fish.rec.sd"]])
                   {
                     fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -821,5 +822,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.recl = 0, fish.init.sd = 10, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, 
-    fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.sd = 10, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.deltat = 0, fish.init.sd = 10, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, 
+    fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.sd = 10, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))

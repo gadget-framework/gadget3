@@ -5,7 +5,7 @@ renewal_into <- function (stock) {
 }
 
 # Parameterised vonb formula, for use as mean_f
-g3a_renewal_vonb <- function(
+g3a_renewal_vonb_recl <- function(
         Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
         K = g3_parameterized('K', value = 1, by_stock = by_stock),
         recl = g3_parameterized('recl', by_stock = by_stock),
@@ -19,6 +19,19 @@ g3a_renewal_vonb <- function(
             recl = recl,
             recage = recage))
 }
+g3a_renewal_vonb_t0 <- function(
+        Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock),
+        t0 = g3_parameterized('t0', by_stock = by_stock, offset = 'deltat'),
+        by_stock = TRUE) {
+    f_substitute(
+        quote( Linf * (1 - exp(-1 * K * (age - t0))) ),
+        list(
+            Linf = Linf,
+            K = K,
+            t0 = t0))
+}
+g3a_renewal_vonb <- g3a_renewal_vonb_recl  # NB: Default to _recl for backwards-compatibility
 
 g3a_renewal_initabund <- function(
     scalar = g3_parameterized('init.scalar', value = 1, by_stock = by_stock),
@@ -92,7 +105,7 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 g3a_initialconditions_normalparam <- function (
         stock,
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', value = 10,
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
@@ -152,7 +165,7 @@ g3a_renewal_normalparam <- function (
             by_year = TRUE,
             scale = g3_parameterized(name = 'rec.scalar', by_stock = by_stock),
             ifmissing = NaN),
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),

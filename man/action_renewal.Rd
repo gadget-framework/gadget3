@@ -1,4 +1,6 @@
 \name{action_renewal}
+\alias{g3a_renewal_vonb_recl}
+\alias{g3a_renewal_vonb_t0}
 \alias{g3a_renewal_vonb}
 \alias{g3a_renewal_initabund}
 \alias{g3a_initialconditions}
@@ -12,11 +14,17 @@
 }
 
 \usage{
-g3a_renewal_vonb(
+g3a_renewal_vonb_recl(
         Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
         K = g3_parameterized('K', value = 1, by_stock = by_stock),
         recl = g3_parameterized('recl', by_stock = by_stock),
         recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
+        by_stock = TRUE)
+
+g3a_renewal_vonb_t0(
+        Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock),
+        t0 = g3_parameterized('t0', by_stock = by_stock, offset = 'deltat'),
         by_stock = TRUE)
 
 g3a_renewal_initabund(
@@ -34,7 +42,7 @@ g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
 g3a_initialconditions_normalparam(
         stock,
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', value = 10,
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
@@ -54,7 +62,7 @@ g3a_renewal_normalparam(
             by_year = TRUE,
             scale = g3_parameterized(name = 'rec.scalar', by_stock = by_stock),
             ifmissing = NaN),
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
@@ -106,6 +114,7 @@ g3a_renewal_normalparam(
   }
   \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
   \item{K}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{t0}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recage}{\link{formula} substituted into initial abundance and vonb calcuations, see below.}
   \item{proportion_f}{\link{formula} substituted into initial abundance calcuations, see below.}
@@ -132,7 +141,7 @@ g3a_renewal_normalparam(
 }
 
 \value{
-  \subsection{g3a_renewal_vonb}{A \link{formula} object representing
+  \subsection{g3a_renewal_vonb_recl}{A \link{formula} object representing
     \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} }
     \describe{
       \item{\eqn{L_{0}}}{Substituted for \var{recl}}
@@ -142,6 +151,16 @@ g3a_renewal_normalparam(
     }
 
   }
+  \subsection{g3a_renewal_vonb_t0}{A \link{formula} object representing
+    \deqn{ L_{\infty} * (1 - e^{-1 * \kappa * (a - t_{0}) }) }
+    \describe{
+      \item{\eqn{L_{\infty}}}{Substituted for \var{Linf}}
+      \item{\eqn{\kappa}}{Substituted for \var{K}}
+      \item{\eqn{t_{0}}}{Substituted for \var{t0}}
+    }
+
+  }
+  \subsection{g3a_renewal_vonb}{An alias for \code{g3a_renewal_vonb_recl}()}
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
     \deqn{ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion }
     \describe{
@@ -192,11 +211,5 @@ initialconditions_action <- g3a_initialconditions_normalparam(
     by_age = TRUE)  # per-age init.sd parameters
 renewal_action <- g3a_renewal_normalparam(
     ling_imm,
-    factor_f = g3_parameterized(
-        'rec',
-        by_stock = ling_imm,
-        by_year = TRUE,
-        ifmissing = NaN),
-    mean_f = g3a_renewal_vonb(),
     run_step = 2)  # Renewal happens in spring
 }

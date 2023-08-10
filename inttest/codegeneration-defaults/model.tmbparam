@@ -16,7 +16,8 @@ init.F                                                                          
 recage                                                                             recage          0    FALSE  FALSE    NA    NA       NA
 fish.Linf                                                                       fish.Linf          1     TRUE  FALSE    NA    NA       NA
 fish.K                                                                             fish.K          1     TRUE  FALSE    NA    NA       NA
-fish.recl                                                                       fish.recl          0     TRUE  FALSE    NA    NA       NA
+fish.t0                                                                           fish.t0          0     TRUE  FALSE    NA    NA       NA
+fish.deltat                                                                   fish.deltat          0     TRUE  FALSE    NA    NA       NA
 fish.init.sd                                                                 fish.init.sd         10     TRUE  FALSE    NA    NA       NA
 fish.walpha                                                                   fish.walpha          0     TRUE  FALSE    NA    NA       NA
 fish.wbeta                                                                     fish.wbeta          0     TRUE  FALSE    NA    NA       NA

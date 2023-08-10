@@ -8,14 +8,15 @@ cmp_formula <- function (a, b) {
         if (length(x) > 0) x[order(names(x))] else x
     }
 
-    ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
-    ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b)))
+    out <- ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
+    if (!identical(out, TRUE)) return(out)
+    return(ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b))))
 }
 
 library(gadget3)
 
-ok_group('g3a_renewal_vonb', {
-    ok(cmp_formula(g3a_renewal_vonb(), g3_formula(
+ok_group('g3a_renewal_vonb_recl', {
+    ok(cmp_formula(g3a_renewal_vonb_recl(), g3_formula(
         stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 - exp(-1 *
             stock_param(stock, "K", name_part = NULL, value = 1) *
             (age - (g3_param("recage", optimise = FALSE) + 
@@ -24,7 +25,7 @@ ok_group('g3a_renewal_vonb', {
                 stock_param(stock, "K", name_part = NULL, value = 1)))))
             )), "Default params by stock")
 
-    ok(cmp_formula(g3a_renewal_vonb(by_stock = "species"), g3_formula(
+    ok(cmp_formula(g3a_renewal_vonb_recl(by_stock = "species"), g3_formula(
         stock_param(stock, "Linf", name_part = "species", value = 1) * (1 - exp(-1 *
             stock_param(stock, "K", name_part = "species", value = 1) *
             (age - (g3_param("recage", optimise = FALSE) + 
@@ -33,10 +34,31 @@ ok_group('g3a_renewal_vonb', {
                 stock_param(stock, "K", name_part = "species", value = 1)))))
             )), "by_stock works for all default params")
 
-    ok(cmp_formula(g3a_renewal_vonb(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 
+    ok(cmp_formula(g3a_renewal_vonb_recl(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 
                    g3_formula(
                      "Linf" * (1 - exp(-1 * (x * 2) * (age - ("recage" + log(1 - "recl"/"Linf")/(x * 2))))),
                      x = 10)), "Can override with values, formulas")
+})
+
+ok_group('g3a_renewal_vonb_t0', {
+    ok(cmp_formula(g3a_renewal_vonb_t0(), g3_formula(
+        stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 -
+            exp(-1 * stock_param(stock, "K", name_part = NULL, value = 1) *
+                (age - (stock_param(stock, "t0", name_part = NULL) +
+                    stock_param(stock, "deltat", name_part = NULL)))))
+            )), "Default params by stock")
+
+    ok(cmp_formula(g3a_renewal_vonb_t0(by_stock = "species"), g3_formula(
+        stock_param(stock, "Linf", name_part = "species", value = 1) *
+            (1 - exp(-1 * stock_param(stock, "K", name_part = "species",
+                value = 1) * (age - (stock_param(stock, "t0", name_part = "species") +
+                stock_param(stock, "deltat", name_part = "species")))))
+            )), "by_stock works for all default params")
+
+    ok(cmp_formula(g3a_renewal_vonb_t0(Linf = 'Linf', K = g3_formula( x * 2, x = 10)), g3_formula(
+        "Linf" * (1 - exp(-1 * (x * 2) * (age - (stock_param(stock, "t0", name_part = NULL) + 
+            stock_param(stock, "deltat", name_part = NULL)))
+        )), x = 10)), "Can override with values, formulas")
 })
 
 ok_group('g3a_renewal:run_f default parameterisation', {
