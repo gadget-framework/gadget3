@@ -17,20 +17,20 @@ library(gadget3)
 ok_group('g3a_renewal_vonb', {
     ok(cmp_formula(g3a_renewal_vonb(), g3_formula(
         stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 - exp(-1 *
-            (0.001 * stock_param(stock, "K", name_part = NULL, value = 1)) *
+            stock_param(stock, "K", name_part = NULL, value = 1) *
             (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_param(stock, "recl", name_part = NULL) /
                 stock_param(stock, "Linf", name_part = NULL, value = 1)) /
-                (0.001 * stock_param(stock, "K", name_part = NULL, value = 1))))))
+                stock_param(stock, "K", name_part = NULL, value = 1)))))
             )), "Default params by stock")
 
     ok(cmp_formula(g3a_renewal_vonb(by_stock = "species"), g3_formula(
         stock_param(stock, "Linf", name_part = "species", value = 1) * (1 - exp(-1 *
-            (0.001 * stock_param(stock, "K", name_part = "species", value = 1)) *
+            stock_param(stock, "K", name_part = "species", value = 1) *
             (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_param(stock, "recl", name_part = "species") /
                 stock_param(stock, "Linf", name_part = "species", value = 1)) /
-                (0.001 * stock_param(stock, "K", name_part = "species", value = 1))))))
+                stock_param(stock, "K", name_part = "species", value = 1)))))
             )), "by_stock works for all default params")
 
     ok(cmp_formula(g3a_renewal_vonb(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 

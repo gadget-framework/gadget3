@@ -12,6 +12,10 @@
 * g3s_modeltime() (used for history) now works when final_year_steps set
 * Stop assuming 1-dimensional R arrays should be TMB vectors.
 
+## Breaking changes
+
+* Remove ``scale = 0.001`` from default ``K`` parameters in g3a_grow, g3a_renew_*
+
 # gadget3 0.9-0:
 
 ## Bug fixes
