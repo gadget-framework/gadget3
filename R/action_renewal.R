@@ -151,11 +151,10 @@ g3a_renewal_normalparam <- function (
             scale = g3_parameterized(name = 'rec.scalar', by_stock = by_stock),
             ifmissing = NaN),
         mean_f = g3a_renewal_vonb(by_stock = by_stock),
-        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
+        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
-        by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~TRUE,
         run_at = 8) {
