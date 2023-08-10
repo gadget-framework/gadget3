@@ -90,6 +90,23 @@ ok_group('g3a_renewal:run_f default parameterisation', {
     )), "run_step can be turned off entirely")
 })
 
+ok_group('g3a_renewal:default parameterisation', {
+    renewal_params <- function (...) {
+        fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+        fn <- g3_to_r(c(g3a_time(1990, 1994, c(3L, 3L, 3L, 3L)), g3a_renewal_normalparam(fish, ...)))
+        sort(grep("^fish\\.rec\\.", names(attr(fn, 'parameter_template')), value = TRUE))
+    }
+
+    ok(ut_cmp_identical(renewal_params(), c(
+        "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
+        "fish.rec.scalar",
+        "fish.rec.sd")), "Default, per-year rec, one scalar property")
+    ok(ut_cmp_identical(renewal_params(run_step = NULL), c(
+        "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
+        "fish.rec.scalar.1", "fish.rec.scalar.2", "fish.rec.scalar.3", "fish.rec.scalar.4",
+        "fish.rec.sd")), "Continuous renewal, per-year rec, per-step scalar property")
+})
+
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a', 'c')])
