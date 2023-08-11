@@ -8,36 +8,104 @@ cmp_formula <- function (a, b) {
         if (length(x) > 0) x[order(names(x))] else x
     }
 
-    ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
-    ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b)))
+    out <- ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
+    if (!identical(out, TRUE)) return(out)
+    return(ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b))))
 }
 
 library(gadget3)
 
-ok_group('g3a_renewal_vonb', {
-    ok(cmp_formula(g3a_renewal_vonb(), g3_formula(
-        stock_param(stock, "Linf", name_part = NULL) * (1 - exp(-1 *
-            (0.001 * stock_param(stock, "K", name_part = NULL)) *
-            (age - (stock_param(stock, "recage", name_part = NULL) + 
+ok_group('g3a_renewal_vonb_recl', {
+    ok(cmp_formula(g3a_renewal_vonb_recl(), g3_formula(
+        stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 - exp(-1 *
+            stock_param(stock, "K", name_part = NULL, value = 1) *
+            (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_param(stock, "recl", name_part = NULL) /
-                stock_param(stock, "Linf", name_part = NULL)) /
-                (0.001 * stock_param(stock, "K", name_part = NULL))))))
+                stock_param(stock, "Linf", name_part = NULL, value = 1)) /
+                stock_param(stock, "K", name_part = NULL, value = 1)))))
             )), "Default params by stock")
 
-    ok(cmp_formula(g3a_renewal_vonb(by_stock = "species"), g3_formula(
-        stock_param(stock, "Linf", name_part = "species") * (1 - exp(-1 *
-            (0.001 * stock_param(stock, "K", name_part = "species")) *
-            (age - (stock_param(stock, "recage", name_part = "species") + 
+    ok(cmp_formula(g3a_renewal_vonb_recl(by_stock = "species"), g3_formula(
+        stock_param(stock, "Linf", name_part = "species", value = 1) * (1 - exp(-1 *
+            stock_param(stock, "K", name_part = "species", value = 1) *
+            (age - (g3_param("recage", optimise = FALSE) + 
                       log(1 - stock_param(stock, "recl", name_part = "species") /
-                stock_param(stock, "Linf", name_part = "species")) /
-                (0.001 * stock_param(stock, "K", name_part = "species"))))))
+                stock_param(stock, "Linf", name_part = "species", value = 1)) /
+                stock_param(stock, "K", name_part = "species", value = 1)))))
             )), "by_stock works for all default params")
 
-    ok(cmp_formula(g3a_renewal_vonb(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 
+    ok(cmp_formula(g3a_renewal_vonb_recl(Linf = 'Linf', K = g3_formula( x * 2, x = 10), recl = 'recl', recage = 'recage'), 
                    g3_formula(
                      "Linf" * (1 - exp(-1 * (x * 2) * (age - ("recage" + log(1 - "recl"/"Linf")/(x * 2))))),
                      x = 10)), "Can override with values, formulas")
-    })
+})
+
+ok_group('g3a_renewal_vonb_t0', {
+    ok(cmp_formula(g3a_renewal_vonb_t0(), g3_formula(
+        stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 -
+            exp(-1 * stock_param(stock, "K", name_part = NULL, value = 1) *
+                (age - (stock_param(stock, "t0", name_part = NULL) +
+                    stock_param(stock, "deltat", name_part = NULL)))))
+            )), "Default params by stock")
+
+    ok(cmp_formula(g3a_renewal_vonb_t0(by_stock = "species"), g3_formula(
+        stock_param(stock, "Linf", name_part = "species", value = 1) *
+            (1 - exp(-1 * stock_param(stock, "K", name_part = "species",
+                value = 1) * (age - (stock_param(stock, "t0", name_part = "species") +
+                stock_param(stock, "deltat", name_part = "species")))))
+            )), "by_stock works for all default params")
+
+    ok(cmp_formula(g3a_renewal_vonb_t0(Linf = 'Linf', K = g3_formula( x * 2, x = 10)), g3_formula(
+        "Linf" * (1 - exp(-1 * (x * 2) * (age - (stock_param(stock, "t0", name_part = NULL) + 
+            stock_param(stock, "deltat", name_part = NULL)))
+        )), x = 10)), "Can override with values, formulas")
+})
+
+ok_group('g3a_renewal:run_f default parameterisation', {
+    run_cond <- function (...) {
+        fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+        x <- g3a_renewal_normalparam(fish, ...)[[1]]
+        # Find the contents of the first if statement
+        gadget3:::f_find(x, as.symbol('if'))[[1]][[2]]
+    }
+
+    ok(ut_cmp_identical(run_cond(), quote(
+        age == fish__minage && cur_step == 1 && (!cur_year_projection)
+    )), "No params, got default")
+
+    ok(ut_cmp_identical(run_cond(run_age = 5), quote(
+        age == 5 && cur_step == 1 && (!cur_year_projection)
+    )), "Overrode age")
+
+    ok(ut_cmp_identical(run_cond(run_age = 2, run_projection = TRUE), quote(
+        age == 2 && cur_step == 1
+    )), "Overrode age & projection")
+
+    ok(ut_cmp_identical(run_cond(run_step = 2), quote(
+        age == fish__minage && cur_step == 2 && (!cur_year_projection)
+    )), "Overrode run_step")
+
+    ok(ut_cmp_identical(run_cond(run_step = NULL), quote(
+        age == fish__minage && (!cur_year_projection)
+    )), "run_step can be turned off entirely")
+})
+
+ok_group('g3a_renewal:default parameterisation', {
+    renewal_params <- function (...) {
+        fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+        fn <- g3_to_r(c(g3a_time(1990, 1994, c(3L, 3L, 3L, 3L)), g3a_renewal_normalparam(fish, ...)))
+        sort(grep("^fish\\.rec\\.", names(attr(fn, 'parameter_template')), value = TRUE))
+    }
+
+    ok(ut_cmp_identical(renewal_params(), c(
+        "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
+        "fish.rec.scalar",
+        "fish.rec.sd")), "Default, per-year rec, one scalar property")
+    ok(ut_cmp_identical(renewal_params(run_step = NULL), c(
+        "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
+        "fish.rec.scalar.1", "fish.rec.scalar.2", "fish.rec.scalar.3", "fish.rec.scalar.4",
+        "fish.rec.sd")), "Continuous renewal, per-year rec, per-step scalar property")
+})
 
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])

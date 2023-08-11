@@ -1,4 +1,9 @@
-g3l_understocking <- function (prey_stocks, power_f = ~2, nll_breakdown = FALSE, weight = 1.0, run_at = 10) {
+g3l_understocking <- function (
+        prey_stocks,
+        power_f = ~2,
+        nll_breakdown = FALSE,
+        weight = 1e+08,
+        run_at = 10) {
     out <- new.env(parent = emptyenv())
 
     nllstock <- g3_storage("nll_understocking")

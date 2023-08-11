@@ -1,7 +1,7 @@
 # Returns formula for lengthvbsimple growth function
 g3a_grow_lengthvbsimple <- function (
         linf_f = g3_parameterized('Linf', by_stock = by_stock),
-        kappa_f = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+        kappa_f = g3_parameterized('K', by_stock = by_stock),
         by_stock = TRUE) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
     # NB: avoid_zero_vec() converts negative growth into zero-growth, due to

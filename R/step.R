@@ -428,6 +428,8 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         if (!recursing) {
             # Add anything that's not a global_formula to this level
             rv <- add_dependent_formula(rv, TRUE)
+            # Run g3_step again to fix up dependents that got added
+            rv <- g3_step(rv, recursing = TRUE, orig_env = orig_env)
             # Neaten output code by collapsing the stack of g3_with()s we made
             rv <- collapse_g3_with(rv)
             rv <- f_optimize(rv)

@@ -7,9 +7,12 @@
 }
 
 \usage{
-g3l_understocking(prey_stocks, power_f = ~2, nll_breakdown = FALSE, weight = 1,
-    run_at = 10)
-
+g3l_understocking(
+        prey_stocks,
+        power_f = ~2,
+        nll_breakdown = FALSE,
+        weight = 1e+08,
+        run_at = 10)
 }
 
 \arguments{

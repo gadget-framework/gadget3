@@ -5,9 +5,9 @@ renewal_into <- function (stock) {
 }
 
 # Parameterised vonb formula, for use as mean_f
-g3a_renewal_vonb <- function(
-        Linf = g3_parameterized('Linf', by_stock = by_stock),
-        K = g3_parameterized('K', by_stock = by_stock, scale = 0.001),
+g3a_renewal_vonb_recl <- function(
+        Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock),
         recl = g3_parameterized('recl', by_stock = by_stock),
         recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
         by_stock = TRUE) {
@@ -19,10 +19,23 @@ g3a_renewal_vonb <- function(
             recl = recl,
             recage = recage))
 }
+g3a_renewal_vonb_t0 <- function(
+        Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
+        K = g3_parameterized('K', value = 1, by_stock = by_stock),
+        t0 = g3_parameterized('t0', by_stock = by_stock, offset = 'deltat'),
+        by_stock = TRUE) {
+    f_substitute(
+        quote( Linf * (1 - exp(-1 * K * (age - t0))) ),
+        list(
+            Linf = Linf,
+            K = K,
+            t0 = t0))
+}
+g3a_renewal_vonb <- g3a_renewal_vonb_recl  # NB: Default to _recl for backwards-compatibility
 
 g3a_renewal_initabund <- function(
-    scalar = g3_parameterized('init.scalar', by_stock = by_stock),
-    init = g3_parameterized('init', by_stock = by_stock, by_age = TRUE),
+    scalar = g3_parameterized('init.scalar', value = 1, by_stock = by_stock),
+    init = g3_parameterized('init', value = 1, by_stock = by_stock, by_age = TRUE),
     M = g3_parameterized('M', by_stock = by_stock),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
     recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
@@ -42,7 +55,8 @@ g3a_renewal_initabund <- function(
 
 g3a_renewal_len_dnorm <- function(
         mean_f,
-        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        stddev_f = g3_parameterized('init.sd', value = 10,
+            by_stock = by_stock, by_age = by_age),
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
         by_stock = TRUE,
         by_age = FALSE) {
@@ -91,8 +105,9 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 g3a_initialconditions_normalparam <- function (
         stock,
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
-        stddev_f = g3_parameterized('init.sd', by_stock = by_stock, by_age = by_age),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('init.sd', value = 10,
+            by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
@@ -145,16 +160,31 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
 # Steps to set up renewal of stocks on any stock
 g3a_renewal_normalparam <- function (
         stock,
-        factor_f,
-        mean_f = g3a_renewal_vonb(by_stock = by_stock),
-        stddev_f = g3_parameterized('rec.sd', by_stock = by_stock, by_age = by_age),
+        factor_f = g3_parameterized('rec',
+            by_stock = by_stock,
+            by_year = TRUE,
+            scale = g3_parameterized(
+                name = 'rec.scalar',
+                by_stock = by_stock,
+                by_step = is.null(run_step)),
+            ifmissing = NaN),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
-        by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = ~TRUE,
+        run_age = quote(stock__minage),
+        run_projection = FALSE,
+        run_step = 1,
+        run_f = NULL,
         run_at = 8) {
+
+    if (is.null(run_f)) run_f <- f_substitute(quote( age && step && proj ), list(
+        age = (if (is.null(run_age)) TRUE else f_substitute(quote(age == x), list(x = run_age))),
+        step = (if (is.null(run_step)) TRUE else f_substitute(quote(cur_step == x), list(x = run_step))),
+        proj = (if (isFALSE(run_projection)) quote(!cur_year_projection) else TRUE),
+        end = NULL))
 
     # NB: Generate action name with our arguments
     out <- list()

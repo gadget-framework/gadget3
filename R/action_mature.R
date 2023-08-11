@@ -1,5 +1,5 @@
 g3a_mature_continuous <- function (
-        alpha = g3_parameterized('mat.alpha', by_stock = by_stock, scale = 0.001),
+        alpha = g3_parameterized('mat.alpha', by_stock = by_stock),
         l50 = g3_parameterized('mat.l50', by_stock = by_stock),
         beta = 0,
         a50 = 0,

@@ -5,11 +5,18 @@
 * Add ``g3_parameterized('x', by_step = TRUE)`` for seasonal parameters #115
 * Support R factor levels as well as MFDB-style attributes for likelihood observation data.
   This means dplyr ``group_by(length = cut(...))`` can be used as well as MFDB for groupings #112
+* Parameterised defaults for ``g3l_understocking``(), ``g3a_naturalmortality``(), ``g3a_renewal_normalparam``()
+* Add ``g3a_renewal_vonb_t0``() & ``g3a_renewal_vonb_recl``(), with ``g3a_renewal_vonb``() being an alias to the latter
 
 ## Bug fixes
 
 * g3s_modeltime() (used for history) now works when final_year_steps set
 * Stop assuming 1-dimensional R arrays should be TMB vectors.
+
+## Breaking changes
+
+* Remove ``scale = 0.001`` from default ``K`` parameters in g3a_grow, g3a_renew_*
+* ``g3a_renewal_vonb_t0``() is now the default mean_f for ``*_normalparam``()
 
 # gadget3 0.9-0:
 
