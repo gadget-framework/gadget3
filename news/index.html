@@ -69,11 +69,19 @@
 <h3 id="new-features-0-9-0-999">New features<a class="anchor" aria-label="anchor" href="#new-features-0-9-0-999"></a></h3>
 <ul><li>Add <code>g3_parameterized('x', by_step = TRUE)</code> for seasonal parameters <a href="https://github.com/gadget-framework/gadget3/issues/115" class="external-link">#115</a></li>
 <li>Support R factor levels as well as MFDB-style attributes for likelihood observation data. This means dplyr <code>group_by(length = cut(...))</code> can be used as well as MFDB for groupings <a href="https://github.com/gadget-framework/gadget3/issues/112" class="external-link">#112</a></li>
+<li>Parameterised defaults for <code>g3l_understocking</code>(), <code>g3a_naturalmortality</code>(), <code>g3a_renewal_normalparam</code>()</li>
+<li>Add <code>g3a_renewal_vonb_t0</code>() &amp; <code>g3a_renewal_vonb_recl</code>(), with <code>g3a_renewal_vonb</code>() being an alias to the latter</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-9-0-999">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-9-0-999"></a></h3>
 <ul><li>g3s_modeltime() (used for history) now works when final_year_steps set</li>
 <li>Stop assuming 1-dimensional R arrays should be TMB vectors.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-9-0-999">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-9-0-999"></a></h3>
+<ul><li>Remove <code>scale = 0.001</code> from default <code>K</code> parameters in g3a_grow, g3a_renew_*</li>
+<li>
+<code>g3a_renewal_vonb_t0</code>() is now the default mean_f for <code>*_normalparam</code>()</li>
 </ul></div>
 </div>
     <div class="section level2">

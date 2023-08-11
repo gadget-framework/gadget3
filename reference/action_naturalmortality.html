@@ -75,7 +75,11 @@
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        action_step_size_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step_size</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_naturalmortality</span><span class="op">(</span><span class="va">stock</span>, <span class="va">mortality_f</span>, run_f <span class="op">=</span> <span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">g3a_naturalmortality</span><span class="op">(</span></span>
+<span>        <span class="va">stock</span>,</span>
+<span>        mortality_f <span class="op">=</span> <span class="fu">g3a_naturalmortality_exp</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -146,8 +150,18 @@
 <span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Natural mortality for immature ling</span></span></span>
-<span class="r-in"><span><span class="va">naturalmortality_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_naturalmortality</span><span class="op">(</span><span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    <span class="fu">g3a_naturalmortality_exp</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">naturalmortality_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_naturalmortality</span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># NB: M is used in both g3a_naturalmortality and g3a_renewal_initabund, to</span></span></span>
+<span class="r-in"><span><span class="co"># customise, you need to make sure the definitions are in sync, for example:</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'M'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_naturalmortality</span><span class="op">(</span><span class="va">ling_imm</span>,</span></span>
+<span class="r-in"><span>        <span class="fu">g3a_naturalmortality_exp</span><span class="op">(</span><span class="va">M</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_renewal.html">g3a_initialconditions_normalparam</a></span><span class="op">(</span><span class="va">ling_imm</span>,</span></span>
+<span class="r-in"><span>        factor_f <span class="op">=</span> <span class="fu"><a href="action_renewal.html">g3a_renewal_initabund</a></span><span class="op">(</span>M <span class="op">=</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
