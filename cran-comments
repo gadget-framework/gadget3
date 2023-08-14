@@ -1,5 +1,15 @@
 # https://cran.r-project.org/submit.html
 
+Test failure: donttest: Running examples in ‘gadget3-Ex.R’ failed
+> writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
+Error in system(cmd, intern = TRUE, ignore.stdout = FALSE, ignore.stderr = TRUE) : 
+  error in running command
+Calls: writeLines -> <Anonymous> -> system
+Execution halted
+
+TMB::gdbsource() expects both `R` and `gdb` available on the path, the example
+is now wrapped with a test to make sure this is the case before running.
+
 ==== 0.9-0
 
 New release of existing package.

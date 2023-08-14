@@ -177,8 +177,16 @@ tmb_param['parscale'] <- 1
 # Compile to a TMB ADFun
 tmb <- g3_tmb_adfun(cpp, tmb_param)
 
-# Build the model in an isolated R session w/debugger
-writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
+# NB: TMB::gdbsource() requires both "R" and "gdb" to be available
+if (all(nzchar(Sys.which(c('gdb', 'R'))))) {
+
+  # Build the model in an isolated R session w/debugger
+  writeLines(TMB::gdbsource(g3_tmb_adfun(
+      cpp,
+      compile_flags = "-g",
+      output_script = TRUE)))
+
+}
 
 # Perform a single run, using values in table
 result <- tmb$fn(g3_tmb_par(tmb_param))
