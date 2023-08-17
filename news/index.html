@@ -82,6 +82,8 @@
 <ul><li>Remove <code>scale = 0.001</code> from default <code>K</code> parameters in g3a_grow, g3a_renew_*</li>
 <li>
 <code>g3a_renewal_vonb_t0</code>() is now the default mean_f for <code>*_normalparam</code>()</li>
+<li>
+<code>g3a_initialconditions_normalparam</code>() now offsets any <code>age</code> in <code>mean_f</code> (i.e. the VonB formula) by <code>cur_step_size</code>, in effect running at step -1.</li>
 </ul></div>
 </div>
     <div class="section level2">
