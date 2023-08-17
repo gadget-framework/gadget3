@@ -17,6 +17,8 @@
 
 * Remove ``scale = 0.001`` from default ``K`` parameters in g3a_grow, g3a_renew_*
 * ``g3a_renewal_vonb_t0``() is now the default mean_f for ``*_normalparam``()
+* ``g3a_initialconditions_normalparam``() now offsets any ``age`` in ``mean_f`` (i.e. the VonB formula) by ``cur_step_size``,
+  in effect running at step -1.
 
 # gadget3 0.9-0:
 

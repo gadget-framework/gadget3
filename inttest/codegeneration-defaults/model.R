@@ -18,7 +18,6 @@ structure(function (param)
     stopifnot("fish.Linf" %in% names(param))
     stopifnot("fish.K" %in% names(param))
     stopifnot("fish.t0" %in% names(param))
-    stopifnot("fish.deltat" %in% names(param))
     stopifnot("fish.init.sd" %in% names(param))
     stopifnot("fish.walpha" %in% names(param))
     stopifnot("fish.wbeta" %in% names(param))
@@ -169,6 +168,7 @@ structure(function (param)
     fish__minage <- 1L
     fish__maxage <- 10L
     fish__area <- 1L
+    cur_step_size <- step_lengths[[1]]/12
     fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     nan_fish__num <- FALSE
@@ -200,7 +200,6 @@ structure(function (param)
     comm_landings__lookup <- intlookup_zip(comm_landings__keys, comm_landings__values)
     fish__consratio <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__overconsumption <- structure(0, desc = "Total overconsumption of fish")
-    cur_step_size <- step_lengths[[1]]/12
     fish__growth_lastcalc <- -1L
     fish__growth_l <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
     fish__plusdl <- 10
@@ -297,7 +296,7 @@ structure(function (param)
                     warning("No value found in g3_param_table fish.init, ifmissing not specified")
                     NaN
                   }) * exp(-1 * (param[["fish.M"]] + param[["init.F"]]) * (age - param[["recage"]])))
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["fish.t0"]] + param[["fish.deltat"]]))))))/param[["fish.init.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/param[["fish.init.sd"]])
                   {
                     fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -574,7 +573,7 @@ structure(function (param)
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - (param[["fish.t0"]] + param[["fish.deltat"]]))))))/param[["fish.rec.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))))/param[["fish.rec.sd"]])
                   {
                     fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -822,5 +821,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.deltat = 0, fish.init.sd = 10, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, 
-    fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.sd = 10, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.init.sd = 10, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, 
+    fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.sd = 10, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))

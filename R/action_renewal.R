@@ -22,7 +22,7 @@ g3a_renewal_vonb_recl <- function(
 g3a_renewal_vonb_t0 <- function(
         Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
         K = g3_parameterized('K', value = 1, by_stock = by_stock),
-        t0 = g3_parameterized('t0', by_stock = by_stock, offset = 'deltat'),
+        t0 = g3_parameterized('t0', by_stock = by_stock),
         by_stock = TRUE) {
     f_substitute(
         quote( Linf * (1 - exp(-1 * K * (age - t0))) ),
@@ -110,11 +110,18 @@ g3a_initialconditions_normalparam <- function (
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
         run_at = 0) {
+
+    # Replace "age" with "age - cur_step_size", i.e. pretending this is happening at time "-1"
+    if (!is.null(age_offset)) {
+        age_offset <- f_substitute(quote(age - age_offset), list(age_offset = age_offset))
+        mean_f <- f_substitute(mean_f, list(age = age_offset))
+    }
 
     # NB: Generate action name with our arguments
     out <- list()

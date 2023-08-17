@@ -24,7 +24,7 @@ g3a_renewal_vonb_recl(
 g3a_renewal_vonb_t0(
         Linf = g3_parameterized('Linf', value = 1, by_stock = by_stock),
         K = g3_parameterized('K', value = 1, by_stock = by_stock),
-        t0 = g3_parameterized('t0', by_stock = by_stock, offset = 'deltat'),
+        t0 = g3_parameterized('t0', by_stock = by_stock),
         by_stock = TRUE)
 
 g3a_renewal_initabund(
@@ -47,6 +47,7 @@ g3a_initialconditions_normalparam(
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
@@ -107,6 +108,9 @@ g3a_renewal_normalparam(
   \item{beta_f}{
     \link{formula} substituted into normalparam calcuations, see below.
   }
+  \item{age_offset}{
+    Replace \code{age} with \code{age - age_offset} in \var{mean_f}. Used to simulate initialconditions at time "-1".
+  }
   \item{run_age}{Age to run renewals for, used as \code{age == (run_age)} into default \var{run_f}}
   \item{run_projection}{Boolean. Run renewal in projection years? If false adds \code{!cur_year_projection} into default \var{run_f}}
   \item{run_step}{Which step to perform renewal in, or \code{NULL} for continuous renewal. Adds \code{cur_step == (run_step)} into default \var{run_f}}
@@ -152,7 +156,7 @@ g3a_renewal_normalparam(
       \item{\eqn{\kappa}}{Substituted for \var{K}}
       \item{\eqn{a_{0}}}{Substituted for \var{recage}}
     }
-
+    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - t_{0}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb_t0}{A \link{formula} object representing
     \deqn{ L_{\infty} * (1 - e^{-1 * \kappa * (a - t_{0}) }) }
@@ -161,7 +165,7 @@ g3a_renewal_normalparam(
       \item{\eqn{\kappa}}{Substituted for \var{K}}
       \item{\eqn{t_{0}}}{Substituted for \var{t0}}
     }
-
+    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - t_{0}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb}{An alias for \code{g3a_renewal_vonb_recl}()}
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing

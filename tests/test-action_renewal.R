@@ -44,20 +44,17 @@ ok_group('g3a_renewal_vonb_t0', {
     ok(cmp_formula(g3a_renewal_vonb_t0(), g3_formula(
         stock_param(stock, "Linf", name_part = NULL, value = 1) * (1 -
             exp(-1 * stock_param(stock, "K", name_part = NULL, value = 1) *
-                (age - (stock_param(stock, "t0", name_part = NULL) +
-                    stock_param(stock, "deltat", name_part = NULL)))))
+                (age - stock_param(stock, "t0", name_part = NULL) )))
             )), "Default params by stock")
 
     ok(cmp_formula(g3a_renewal_vonb_t0(by_stock = "species"), g3_formula(
         stock_param(stock, "Linf", name_part = "species", value = 1) *
             (1 - exp(-1 * stock_param(stock, "K", name_part = "species",
-                value = 1) * (age - (stock_param(stock, "t0", name_part = "species") +
-                stock_param(stock, "deltat", name_part = "species")))))
+                value = 1) * (age - stock_param(stock, "t0", name_part = "species"))))
             )), "by_stock works for all default params")
 
     ok(cmp_formula(g3a_renewal_vonb_t0(Linf = 'Linf', K = g3_formula( x * 2, x = 10)), g3_formula(
-        "Linf" * (1 - exp(-1 * (x * 2) * (age - (stock_param(stock, "t0", name_part = NULL) + 
-            stock_param(stock, "deltat", name_part = NULL)))
+        "Linf" * (1 - exp(-1 * (x * 2) * (age - stock_param(stock, "t0", name_part = NULL))
         )), x = 10)), "Can override with values, formulas")
 })
 
@@ -106,6 +103,51 @@ ok_group('g3a_renewal:default parameterisation', {
         "fish.rec.scalar.1", "fish.rec.scalar.2", "fish.rec.scalar.3", "fish.rec.scalar.4",
         "fish.rec.sd")), "Continuous renewal, per-year rec, per-step scalar property")
 })
+
+ok_group('g3a_initialconditions_normalparam:age_offset', {
+    extract_dnorm <- function (renewal_f, var_sym = as.symbol("dnorm")) {
+        for (f in gadget3:::f_find(renewal_f[[1]], ":=")) {
+            if (f[[2]] == var_sym) return(f[[3]])
+        }
+        stop("Could not find ", var_sym)
+    }
+    fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+
+    out_f <- extract_dnorm(g3a_initialconditions_normalparam(
+        fish,
+        mean_f = quote(m_f),
+        stddev_f = quote(stddev)))
+    ok(cmp_formula(out_f, g3_formula(quote(
+        (fish__midlen - m_f)/stddev)
+    )), "mean_f = m_f, nothing to replace")
+
+    out_f <- extract_dnorm(g3a_initialconditions_normalparam(
+        fish,
+        mean_f = quote(m_f + age - 4),
+        stddev_f = quote(stddev)))
+    ok(cmp_formula(out_f, g3_formula(quote(
+        (fish__midlen - (m_f + (age - cur_step_size) - 4))/stddev)
+    )), "mean_f = m_f + age - 4, replaced inner age")
+
+    out_f <- extract_dnorm(g3a_initialconditions_normalparam(
+        fish,
+        mean_f = quote(m_f + age - 4),
+        age_offset = 99,
+        stddev_f = quote(stddev)))
+    ok(cmp_formula(out_f, g3_formula(quote(
+        (fish__midlen - (m_f + (age - 99) - 4))/stddev)
+    )), "mean_f = m_f + age - 4, overrode age_offset")
+
+    out_f <- extract_dnorm(g3a_initialconditions_normalparam(
+        fish,
+        mean_f = quote(m_f + age - 4),
+        age_offset = NULL,
+        stddev_f = quote(stddev)))
+    ok(cmp_formula(out_f, g3_formula(quote(
+        (fish__midlen - (m_f + age - 4))/stddev)
+    )), "mean_f = m_f + age - 4, disabled age_offset")
+})
+
 
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])

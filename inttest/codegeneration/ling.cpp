@@ -223,6 +223,7 @@ Type objective_function<Type>::operator() () {
     int ling_imm__maxage = 10;
     int ling_imm__area = 1;
     DATA_VECTOR(ling_imm__midlen)
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     DATA_VECTOR(ling_imm_stddev)
     array<Type> ling_imm__num(35,1,8); ling_imm__num.setZero();
     array<Type> ling_imm__wgt(35,1,8); ling_imm__wgt.setConstant((double)(1));
@@ -248,7 +249,6 @@ Type objective_function<Type>::operator() () {
     Type ling_imm__overconsumption = (double)(0);
     array<Type> ling_mat__consratio(35,1,11);
     Type ling_mat__overconsumption = (double)(0);
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
     array<Type> ling_imm__transitioning_wgt(35,1,8);
     int ling_imm__growth_lastcalc = -1;
@@ -357,7 +357,7 @@ Type objective_function<Type>::operator() () {
 
                     auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( age - 3 + 1 - 1 ));
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
 
                     {
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -378,7 +378,7 @@ Type objective_function<Type>::operator() () {
 
                     auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( age - 5 + 1 - 1 ));
 
-                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( age - 5 + 1 - 1 ));
+                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( age - 5 + 1 - 1 ));
 
                     {
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;

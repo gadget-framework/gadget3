@@ -150,6 +150,7 @@ structure(function (param)
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
     ling_imm__area <- 1L
+    cur_step_size <- step_lengths[[1]]/12
     ling_imm__num <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", "age6", 
         "age7", "age8", "age9", "age10")))
     ling_imm__wgt <- array(1, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", "age5", "age6", 
@@ -196,7 +197,6 @@ structure(function (param)
     ling_mat__consratio <- array(NA, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
         "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     ling_mat__overconsumption <- structure(0, desc = "Total overconsumption of ling_mat")
-    cur_step_size <- step_lengths[[1]]/12
     ling_imm__transitioning_num <- array(0, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", 
         "age5", "age6", "age7", "age8", "age9", "age10")))
     ling_imm__transitioning_wgt <- array(NA, dim = c(length = 35L, area = 1L, age = 8L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age3", "age4", 
@@ -308,7 +308,7 @@ structure(function (param)
                   area <- ling_imm__area
                   ling_imm__area_idx <- (1L)
                   factor <- (param[["lingimm.init.scalar"]] * exp(-1 * (param[["lingimm.M"]] + param[["ling.init.F"]]) * age) * param[["lingimm.init"]][[age - 3 + 1]])
-                  dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_imm_stddev[[age - 3 + 1]])
+                  dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_imm_stddev[[age - 3 + 1]])
                   {
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
@@ -324,7 +324,7 @@ structure(function (param)
                   area <- ling_mat__area
                   ling_mat__area_idx <- (1L)
                   factor <- (param[["lingmat.init.scalar"]] * exp(-1 * (param[["lingmat.M"]] + param[["ling.init.F"]]) * age) * param[["lingmat.init"]][[age - 5 + 1]])
-                  dnorm <- ((ling_mat__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_mat_stddev[[age - 5 + 1]])
+                  dnorm <- ((ling_mat__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_mat_stddev[[age - 5 + 1]])
                   {
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- param[["lingmat.walpha"]] * ling_mat__midlen^param[["lingmat.wbeta"]]

@@ -57,7 +57,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__Linf);
     PARAMETER(fish__K);
     PARAMETER(fish__t0);
-    PARAMETER(fish__deltat);
     PARAMETER(fish__init__sd);
     PARAMETER(fish__walpha);
     PARAMETER(fish__wbeta);
@@ -232,6 +231,7 @@ Type objective_function<Type>::operator() () {
     int fish__maxage = 10;
     int fish__area = 1;
     DATA_VECTOR(fish__midlen)
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(6,1,10); fish__num.setZero();
     array<Type> fish__wgt(6,1,10); fish__wgt.setConstant((double)(1));
     int nan_fish__num = false;
@@ -252,7 +252,6 @@ Type objective_function<Type>::operator() () {
     auto comm_landings__lookup = intlookup_zip(comm_landings__keys, comm_landings__values);
     array<Type> fish__consratio(6,1,10);
     Type fish__overconsumption = (double)(0);
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     int fish__growth_lastcalc = -1;
     array<Type> fish__growth_l(6,6);
     Type fish__plusdl = (double)(10);
@@ -364,7 +363,7 @@ Type objective_function<Type>::operator() () {
 
                     auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(fish__M + init__F)*(age - recage)));
 
-                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - (fish__t0 + fish__deltat)))))) / fish__init__sd);
+                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / fish__init__sd);
 
                     {
                         fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -671,7 +670,7 @@ Type objective_function<Type>::operator() () {
 
                     auto fish__area_idx = 0;
 
-                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - (fish__t0 + fish__deltat)))))) / fish__rec__sd);
+                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))) / fish__rec__sd);
 
                     {
                         fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
