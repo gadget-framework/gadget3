@@ -63,8 +63,7 @@ g3a_renewal_normalparam(
             by_year = TRUE,
             scale = g3_parameterized(
                 name = 'rec.scalar',
-                by_stock = by_stock,
-                by_step = is.null(run_step)),
+                by_stock = by_stock),
             ifmissing = NaN),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),

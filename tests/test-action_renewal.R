@@ -98,10 +98,6 @@ ok_group('g3a_renewal:default parameterisation', {
         "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
         "fish.rec.scalar",
         "fish.rec.sd")), "Default, per-year rec, one scalar property")
-    ok(ut_cmp_identical(renewal_params(run_step = NULL), c(
-        "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
-        "fish.rec.scalar.1", "fish.rec.scalar.2", "fish.rec.scalar.3", "fish.rec.scalar.4",
-        "fish.rec.sd")), "Continuous renewal, per-year rec, per-step scalar property")
 })
 
 ok_group('g3a_initialconditions_normalparam:age_offset', {
