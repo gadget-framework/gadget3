@@ -1,14 +1,34 @@
 # https://cran.r-project.org/submit.html
 
-Test failure: donttest: Running examples in ‘gadget3-Ex.R’ failed
-> writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
-Error in system(cmd, intern = TRUE, ignore.stdout = FALSE, ignore.stderr = TRUE) : 
-  error in running command
-Calls: writeLines -> <Anonymous> -> system
-Execution halted
+==== 0.10-0
 
-TMB::gdbsource() expects both `R` and `gdb` available on the path, the example
-is now wrapped with a test to make sure this is the case before running.
+New release of existing package.
+
+Test failure: donttest:
+> Running examples in ‘gadget3-Ex.R’ failed
+> > writeLines(TMB::gdbsource(g3_tmb_adfun(cpp, compile_flags = "-g", output_script = TRUE)))
+> Error in system(cmd, intern = TRUE, ignore.stdout = FALSE, ignore.stderr = TRUE) : 
+>   error in running command
+> Calls: writeLines -> <Anonymous> -> system
+> Execution halted
+
+TMB::gdbsource() expects both `R` and `gdb` to be available on the path, the
+example is now wrapped with a test to make sure this is the case before running:
+
+  https://github.com/gadget-framework/gadget3/commit/f84f816ded28101461cddda703519c3f8df3f3cf
+
+R-pkg-devel discussion on issue:
+
+  https://stat.ethz.ch/pipermail/r-package-devel/2023q3/009428.html
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.10-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.9-0...v0.10-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/5923993347
 
 ==== 0.9-0
 
