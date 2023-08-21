@@ -20,7 +20,6 @@ Encoding: UTF-8
 Depends: R (>= 4.0.0)
 Imports:
     digest,
-    Matrix (>= 1.2-0),
     rlang (>= 0.4.5),
     stats,
     TMB (>= 1.7.0),

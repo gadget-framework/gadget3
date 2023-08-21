@@ -355,11 +355,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         to_matrix <- function (x) {
             inner <- cpp_code(x, in_envir, next_indent)
             if (is.symbol(x)) {
-                # If we're multiplying a symbol already defined as a sparse matrix, no need for .matrix()
-                env_defn <- mget(as.character(x), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-                if (inherits(env_defn, 'sparseMatrix')) {
-                    return(inner)
-                }
                 return(paste0(inner, '.matrix()'))
             }
             return(paste0('(', inner, ').matrix()'))
@@ -369,13 +364,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "*") {
         # Element-wise multiplication
-        if (is.symbol(in_call[[2]])) {
-            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (inherits(env_defn, 'sparseMatrix')) {
-                stop("Don't know how to do cwiseProduct for sparse matrix ", in_call[[2]])
-            }
-            # NB: Would use .cwiseProduct() for dense matrices
-        }
         return(paste0(
             cpp_code(in_call[[2]], in_envir, expecting_int = expecting_int, next_indent),
             "*",
@@ -535,12 +523,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").prod()"))
     }
 
-    if (call_name %in% c("colSums", "Matrix::colSums")) {
+    if (call_name %in% c("colSums")) {
         # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum()"))
     }
 
-    if (call_name %in% c("rowSums", "Matrix::rowSums")) {
+    if (call_name %in% c("rowSums")) {
         # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().rowwise().sum()"))
     }
@@ -790,11 +778,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
                 }
             } else if (is.call(var_val)) {
                 defn <- cpp_definition('auto', var_name, cpp_code(var_val, env))
-            } else if (inherits(var_val, 'sparseMatrix') && Matrix::nnzero(var_val) == 0) {
-                # Define empty sparseMatrix
-                defn <- cpp_definition(
-                    'Eigen::SparseMatrix<Type>',
-                    dims = dim(var_val))
             } else {
                 # Decide base type
                 if (all(is.integer(var_val))) {
