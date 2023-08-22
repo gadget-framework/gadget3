@@ -155,7 +155,7 @@ g3a_renewal_normalparam(
       \item{\eqn{\kappa}}{Substituted for \var{K}}
       \item{\eqn{a_{0}}}{Substituted for \var{recage}}
     }
-    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - t_{0}}, see \var{age_offset}
+    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - \Delta{t}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb_t0}{A \link{formula} object representing
     \deqn{ L_{\infty} * (1 - e^{-1 * \kappa * (a - t_{0}) }) }
@@ -164,7 +164,7 @@ g3a_renewal_normalparam(
       \item{\eqn{\kappa}}{Substituted for \var{K}}
       \item{\eqn{t_{0}}}{Substituted for \var{t0}}
     }
-    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - t_{0}}, see \var{age_offset}
+    \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - \Delta{t}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb}{An alias for \code{g3a_renewal_vonb_recl}()}
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
