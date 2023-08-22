@@ -1002,7 +1002,10 @@ g3_tmb_adfun <- function(cpp_code,
 
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
     # NB: as.character() strips attributes, so only use the code to define our digest
-    base_name <- paste0('g3_tmb_', digest::sha1(as.character(cpp_code)))
+    base_name <- paste0('g3_tmb_', digest::sha1(paste0(
+        as.character(cpp_code),
+        as.character(compile_flags),
+        collapse = "")))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
 
