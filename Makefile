@@ -28,6 +28,8 @@ check-as-cran: build
 wincheck: build
 	# See https://win-builder.r-project.org/ for more information
 	curl -# -T "$(TARBALL)" ftp://win-builder.r-project.org/R-devel/
+	# https://www.mail-archive.com/r-package-devel@r-project.org/msg05040.html
+	curl -s ftp://win-builder.r-project.org/R-devel/ | sed -E 's/(AM|PM)/\t\1/g' | sort -k 1 -k 3 -k 2
 
 examples: install
 	Rscript -e 'devtools::run_examples(run_donttest = TRUE, run_dontrun = FALSE, document = FALSE)'
