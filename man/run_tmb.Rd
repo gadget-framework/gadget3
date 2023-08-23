@@ -178,7 +178,8 @@ tmb_param['parscale'] <- 1
 tmb <- g3_tmb_adfun(cpp, tmb_param)
 
 # NB: TMB::gdbsource() requires both "R" and "gdb" to be available
-if (all(nzchar(Sys.which(c('gdb', 'R'))))) {
+# NB: gdbsource hangs on windows - https://github.com/kaskr/adcomp/issues/385
+if (all(nzchar(Sys.which(c('gdb', 'R')))) && .Platform$OS.type !="windows") {
 
   cpp_broken <- g3_to_tmb(list(
     initialconditions_action,
