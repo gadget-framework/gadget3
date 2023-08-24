@@ -1,11 +1,26 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.10-1
+
+New release to fix CRAN-pretest problems.
+
 Examples no not finish under Windows with --run-donttest, this appears to be a
 bug in TMB:
 
   https://github.com/kaskr/adcomp/issues/385
 
-The relevant example has been disabled under Windows as a workaround.
+The relevant example has been disabled under Windows as a workaround:
+
+  https://github.com/gadget-framework/gadget3/commit/f42f9dda644aba2d2e3ecee5b470c6b7a17a65cc
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.10-1/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.10-0...v0.10-1
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/5961520352
 
 ==== 0.10-0
 
