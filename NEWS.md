@@ -1,5 +1,3 @@
-# gadget3 0.10-0-999:
-
 # gadget3 0.10-0:
 
 ## New features
