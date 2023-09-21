@@ -11,7 +11,7 @@ g3_parameterized <- function(
         ...) {
     stopifnot(is.character(name))
     stopifnot(is.logical(by_age))
-    stopifnot(is.logical(by_year))
+    stopifnot(is.logical(by_year) || is.numeric(by_year))
     stopifnot(is.logical(by_step))
     stopifnot(is.logical(avoid_zero))
 
@@ -19,8 +19,12 @@ g3_parameterized <- function(
 
     table_defn <- list()
 
-    if (by_year) {
+    if (isTRUE(by_year)) {
         table_defn <- c(table_defn, list( cur_year = quote( seq(start_year, end_year) ) ))
+    } else if (length(by_year) == 2) {
+        table_defn <- c(table_defn, list( cur_year = substitute( seq(start_year, end_year), list(
+            start_year = by_year[[1]],
+            end_year = by_year[[2]]))))
     }
     if (by_step) {
         table_defn <- c(table_defn, list( cur_step = quote( seq_along(step_lengths) ) ))
