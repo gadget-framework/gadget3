@@ -38,6 +38,7 @@ g3_parameterized(
     \describe{
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.1998"} parameter for each year the model runs}
+      \item{1998:2099}{Override the year range, so when projecting there will be sufficient parameters available.}
     }
   }
   \item{by_step}{

@@ -6,6 +6,22 @@ library(gadget3)
 
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
+# Generate parameter template for all given parameters (beginning with "ut.")
+param_tmpl <- function (...) {
+    actions <- c(
+        list(g3a_time(1990, 1994)),
+        lapply(list(...), function (p) {
+            x <- 4
+            stock <- g3_stock(c(species = 'ut', sex = 'm', maturity = 'imm'), 1)
+            gadget3:::g3_step(gadget3:::f_substitute(
+                ~{x <- p},
+                list(p = p)))
+        }))
+    m <- g3_to_tmb(actions)
+    pt <- attr(m, 'parameter_template')
+    pt[startsWith(rownames(pt), 'ut.'),]
+}
+
 stock_mimm <- g3_stock(c(species = 'st', sex = 'm', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
 stock_mmat <- g3_stock(c(species = 'st', sex = 'm', maturity = 'mat'), seq(10, 35, 5)) %>% g3s_age(3, 7)
 stock_fimm <- g3_stock(c(species = 'st', sex = 'f', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
@@ -119,3 +135,14 @@ ok(cmp_code(
         stock_param(stock, "rec.scalar", name_part = "species") * stock_param_table(stock,
             "rec", name_part = "species", expand.grid(age = seq(stock__minage, stock__maxage)))
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
+
+year_range <- 1982:1986
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized('ut.param.def', by_year = TRUE),
+    g3_parameterized('ut.param.var', by_year = year_range),
+    g3_parameterized('ut.param.custom', by_year = 1999:2004))$switch, c(
+    "ut.param.def.1990", "ut.param.def.1991", "ut.param.def.1992", "ut.param.def.1993", "ut.param.def.1994",
+    "ut.param.var.1982", "ut.param.var.1983", "ut.param.var.1984", "ut.param.var.1985", "ut.param.var.1986",
+    "ut.param.custom.1999", "ut.param.custom.2000", "ut.param.custom.2001",
+    "ut.param.custom.2002", "ut.param.custom.2003", "ut.param.custom.2004",
+    NULL)), "by_year: Can customise ranges")

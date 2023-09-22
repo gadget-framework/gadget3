@@ -1,5 +1,8 @@
 # gadget3 0.10-1-999:
 
+## New features
+* Add ``g3_parameterized('x', by_year = 1998:2099)`` to override year range for parameters
+
 # gadget3 0.10-0:
 
 ## New features
