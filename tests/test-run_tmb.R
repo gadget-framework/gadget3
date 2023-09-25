@@ -546,6 +546,7 @@ is_nan_finite_array_input <- as.array(1:4)
 is_nan_nan_array_input <- as.array(rep(NaN, 5))
 is_nan_finite_vector_input <- 1:4
 is_nan_nan_vector_input <- rep(NaN, 5)
+is_nan_finite_single_array_input <- as.array(1)
 is_nan_output <- 0L
 is_finite_output <- 0L
 actions <- c(actions, ~{
@@ -555,16 +556,18 @@ actions <- c(actions, ~{
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_finite_array_input))) 4 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_array_input))) 8 else 0)
     is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_nan_vector_input))) 16 else 0)
+    is_nan_output <- is_nan_output + (if (any(is.nan(is_nan_finite_single_array_input))) 32 else 0)
     REPORT(is_nan_output)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_nan_scalar_input)) 1 else 0)
     is_finite_output <- is_finite_output + (if (is.finite(is_nan_finite_scalar_input)) 2 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_finite_array_input))) 4 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_array_input))) 8 else 0)
     is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_nan_vector_input))) 16 else 0)
+    is_finite_output <- is_finite_output + (if (any(is.finite(is_nan_finite_single_array_input))) 32 else 0)
     REPORT(is_finite_output)
 })
 expecteds$is_nan_output <- 1 + 8 + 16
-expecteds$is_finite_output <- 2 + 4
+expecteds$is_finite_output <- 2 + 4 + 32
 
 # as.vector() --> .vec()
 as_vector_array <- array(runif(20), dim=c(10, 2))

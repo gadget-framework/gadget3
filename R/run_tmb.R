@@ -456,7 +456,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         if (is.symbol(in_call[[2]])) {
             env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
             if (!is.null(attr(env_defn, 'g3_global_init_val'))) env_defn <- attr(env_defn, 'g3_global_init_val')
-            if (is.numeric(env_defn) && length(env_defn) == 1) {
+            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
                 # Use std::isnan for single values, otherwise assume array and use Eigen method.
                 return(paste0(
                     "std::isnan(asDouble(",
@@ -473,7 +473,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     if (call_name %in% c("is.finite")) {
         if (is.symbol(in_call[[2]])) {
             env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (is.numeric(env_defn) && length(env_defn) == 1) {
+            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
                 # Use std::isnan for single values, otherwise assume array and use Eigen method.
                 return(paste0(
                     "std::isfinite(asDouble(",
