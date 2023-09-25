@@ -143,7 +143,7 @@
 
   <dt>obs_data</dt>
 <dd><p>Data.frame of observation data, for example the results of
-    <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    mfdb_sample_count.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
@@ -168,7 +168,7 @@
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
 
   <dt>area_group</dt>
-<dd><p><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb_group</a> or list mapping area names used in
+<dd><p>mfdb_group or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
 
@@ -208,7 +208,7 @@
 <p>The <var>obs_data</var> data.frame, as well as providing the observation data to
     compare the model data against, controls the grouping of model data to
     compare to the observation data, by inspecting the MFDB column attributes
-    produced by e.g. <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    produced by e.g. mfdb_sample_count.</p>
 <p>Metadata columns describe the observation datapoint in that row. The
     columns should be from this list:</p><dl><dt>year</dt>
 <dd><p>Required.
@@ -519,13 +519,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         age</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length   5:5 6:6 7:7 8:8 9:9 10:10 11:11 12:12 13:13 14:14 15:15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10:20    0   2   2   0   3     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   20:30    3   4   2   0   1     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   30:40    1   2   2   2   0     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   40:50    0   1   0   0   4     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   50:60    2   0   2   1   2     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   60:70    2   2   5   3   1     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   70:80    0   1   0   0   0     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   10:20    2   2   3   0   9     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   20:30    1   1   1   1   1     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   30:40    1   1   2   1   0     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   40:50    1   2   2   1   0     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   50:60    2   2   1   2   2     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   60:70    2   1   0   3   3     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   70:80    0   0   0   0   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   80:90    0   0   0   0   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   90:100   0   0   0   0   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -533,13 +533,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         age</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> length   5:5 6:6 7:7 8:8 9:9 10:10 11:11 12:12 13:13 14:14 15:15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10:20    0   1   2   0   0     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   20:30    2   0   1   3   1     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   30:40    2   1   2   1   1     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   40:50    1   3   6   2   0     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   50:60    1   4   3   1   2     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   60:70    1   3   2   1   1     0     0     0     0     0     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   70:80    1   0   1   0   0     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   10:20    1   1   0   5   2     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   20:30    2   1   0   3   1     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   30:40    2   2   2   3   3     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   40:50    2   0   1   5   3     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   50:60    1   1   2   1   1     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   60:70    2   1   1   0   0     0     0     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   70:80    0   0   0   1   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   80:90    0   0   0   0   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   90:100   0   0   0   0   0     0     0     0     0     0     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
