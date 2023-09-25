@@ -166,6 +166,14 @@ ok_group('g3a_initialconditions_cv', {
           (g3_param("fish.Linf", value = 1) * (1 - exp(-1 * g3_param("fish.K", value = 1) * (age - g3_param("fish.t0"))))) *
           g3_param("fish.lencv", value = 0.1, optimise = FALSE))
     ))), "g3a_initialconditions_normalcv default")
+
+    ok(cmp_formula(extract_dnorm(g3a_renewal_normalcv(fish)), g3_formula(quote(
+        (fish__midlen - (g3_param("fish.Linf", value = 1) * (1 - exp(-1 *
+            g3_param("fish.K", value = 1) * (age - g3_param("fish.t0"))))))
+        / (
+          (g3_param("fish.Linf", value = 1) * (1 - exp(-1 * g3_param("fish.K", value = 1) * (age - g3_param("fish.t0"))))) *
+          g3_param("fish.lencv", value = 0.1, optimise = FALSE))
+    ))), "g3a_renewal_normalcv default")
 })
 
 areas <- list(a=1, b=2, c=3, d=4)

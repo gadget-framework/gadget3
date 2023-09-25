@@ -230,3 +230,41 @@ g3a_renewal_normalparam <- function (
         run_at = run_at)[[1]]
     return(out)
 }
+
+# normalparam, but with a cv_f instead of stddev_f
+g3a_renewal_normalcv <- function (
+        stock,
+        factor_f = g3_parameterized('rec',
+            by_stock = by_stock,
+            by_year = TRUE,
+            scale = g3_parameterized(
+                name = 'rec.scalar',
+                by_stock = by_stock),
+            ifmissing = NaN),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
+            optimise = FALSE),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        wgt_by_stock = TRUE,
+        run_age = quote(stock__minage),
+        run_projection = FALSE,
+        run_step = 1,
+        run_f = NULL,
+        run_at = 8) {
+    g3a_renewal_normalparam(
+        stock,
+        factor_f = factor_f,
+        mean_f = mean_f,
+        stddev_f = f_substitute(quote(mean_f * cv_f), list(mean_f = mean_f, cv_f = cv_f)),
+        alpha_f = alpha_f,
+        beta_f = beta_f,
+        by_stock = by_stock,
+        wgt_by_stock = wgt_by_stock,
+        run_age = run_age,
+        run_projection = run_projection,
+        run_step = run_step,
+        run_f = run_f,
+        run_at = run_at)
+}

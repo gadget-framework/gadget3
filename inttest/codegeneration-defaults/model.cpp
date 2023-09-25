@@ -77,7 +77,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__1999);
     PARAMETER(fish__rec__2000);
     std::map<std::tuple<int>, Type*> fish__rec = {{std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}};
-    PARAMETER(fish__rec__sd);
     PARAMETER(adist_surveyindices_log_acoustic_dist_weight);
     PARAMETER(cdist_sumofsquares_comm_ldist_weight);
     auto assert_msg = [](bool expr, std::string message) -> bool {
@@ -670,7 +669,7 @@ Type objective_function<Type>::operator() () {
 
                     auto fish__area_idx = 0;
 
-                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))) / fish__rec__sd);
+                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv));
 
                     {
                         fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;

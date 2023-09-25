@@ -36,7 +36,6 @@ fish.rec.1997                                                               fish
 fish.rec.1998                                                               fish.rec.1998          0     TRUE  FALSE    NA    NA       NA
 fish.rec.1999                                                               fish.rec.1999          0     TRUE  FALSE    NA    NA       NA
 fish.rec.2000                                                               fish.rec.2000          0     TRUE  FALSE    NA    NA       NA
-fish.rec.sd                                                                   fish.rec.sd         10     TRUE  FALSE    NA    NA       NA
 adist_surveyindices_log_acoustic_dist_weight adist_surveyindices_log_acoustic_dist_weight          1    FALSE  FALSE    NA    NA       NA
 cdist_sumofsquares_comm_ldist_weight                 cdist_sumofsquares_comm_ldist_weight          1    FALSE  FALSE    NA    NA       NA
 project_years                                                               project_years          0    FALSE  FALSE    NA    NA       NA

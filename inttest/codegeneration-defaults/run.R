@@ -24,7 +24,7 @@ actions_fish <- list(
     maxlengthgroupgrowth = 5L)),
   g3a_naturalmortality(fish),
   g3a_initialconditions_normalcv(fish),
-  g3a_renewal_normalparam(fish),
+  g3a_renewal_normalcv(fish),
   g3a_age(fish),
   NULL)
 

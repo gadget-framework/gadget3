@@ -37,7 +37,6 @@ structure(function (param)
     stopifnot("fish.rec.1998" %in% names(param))
     stopifnot("fish.rec.1999" %in% names(param))
     stopifnot("fish.rec.2000" %in% names(param))
-    stopifnot("fish.rec.sd" %in% names(param))
     stopifnot("adist_surveyindices_log_acoustic_dist_weight" %in% names(param))
     stopifnot("cdist_sumofsquares_comm_ldist_weight" %in% names(param))
     assert_msg <- function(expr, message) {
@@ -573,7 +572,7 @@ structure(function (param)
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))))/param[["fish.rec.sd"]])
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]]))
                   {
                     fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -822,4 +821,4 @@ structure(function (param)
     }
     stop("Should have return()ed somewhere in the loop")
 }, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.lencv = 0.1, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, 
-    fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.sd = 10, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+    fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))

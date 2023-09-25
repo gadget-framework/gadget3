@@ -8,6 +8,7 @@
 \alias{g3a_initialconditions_normalcv}
 \alias{g3a_renewal}
 \alias{g3a_renewal_normalparam}
+\alias{g3a_renewal_normalcv}
 
 \title{Gadget3 renewal actions}
 \description{
@@ -93,6 +94,27 @@ g3a_renewal_normalparam(
         run_f = NULL,
         run_at = 8)
 
+g3a_renewal_normalcv(
+        stock,
+        factor_f = g3_parameterized('rec',
+            by_stock = by_stock,
+            by_year = TRUE,
+            scale = g3_parameterized(
+                name = 'rec.scalar',
+                by_stock = by_stock),
+            ifmissing = NaN),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
+            optimise = FALSE),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        wgt_by_stock = TRUE,
+        run_age = quote(stock__minage),
+        run_projection = FALSE,
+        run_step = 1,
+        run_f = NULL,
+        run_at = 8)
 }
 
 \arguments{
@@ -219,7 +241,7 @@ g3a_renewal_normalparam(
       \item{\eqn{\beta}}{Substituted for \var{beta_f}}
     }
   }
-  \subsection{g3a_initialconditions_normalcv}{
+  \subsection{g3a_initialconditions_normalcv / g3a_renewal_normalcv}{
     As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
 
     \deqn{n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}}
@@ -256,4 +278,7 @@ renewal_action <- g3a_renewal_normalparam(
 # To get a single ling_imm.lencv parameter instead of init.sd
 initialconditions_action <- g3a_initialconditions_normalcv(
     ling_imm)
+renewal_action <- g3a_renewal_normalcv(
+    ling_imm,
+    run_step = 2)  # Renewal happens in spring
 }
