@@ -75,6 +75,9 @@ export(g3_eval)
 # R/formula_utils.R
 export(g3_formula)
 
+# R/likelihood_bounds.R
+export(g3l_bounds_penalty)
+
 # R/likelihood_distribution.R
 export(g3l_distribution_sumofsquares)
 export(g3l_distribution_multinomial)
