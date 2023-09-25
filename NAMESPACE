@@ -48,6 +48,7 @@ export(g3a_renewal)
 export(g3a_renewal_normalparam)
 export(g3a_initialconditions)
 export(g3a_initialconditions_normalparam)
+export(g3a_initialconditions_normalcv)
 
 # R/action_report.R
 export(g3a_report_stock)

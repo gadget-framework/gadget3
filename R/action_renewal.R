@@ -135,6 +135,33 @@ g3a_initialconditions_normalparam <- function (
     return(out)
 }
 
+# normalparam, but with a cv_f instead of stddev_f
+g3a_initialconditions_normalcv <- function (
+        stock,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
+            optimise = FALSE),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~cur_time == 0L,
+        run_at = 0) {
+    g3a_initialconditions_normalparam(
+        stock = stock,
+        factor_f = factor_f,
+        mean_f = mean_f,
+        stddev_f = f_substitute(quote(mean_f * cv_f), list(mean_f = mean_f, cv_f = cv_f)),
+        alpha_f = alpha_f,
+        beta_f = beta_f,
+        age_offset = age_offset,
+        run_f = run_f,
+        run_at = run_at)
+}
+
 # Assign number / mean weight based on formulae
 g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
     # See InitialCond::Initialise

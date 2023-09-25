@@ -144,6 +144,29 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
     )), "mean_f = m_f + age - 4, disabled age_offset")
 })
 
+ok_group('g3a_initialconditions_cv', {
+    extract_dnorm <- function (renewal_f, var_sym = as.symbol("dnorm")) {
+        for (f in gadget3:::f_find(renewal_f[[1]], ":=")) {
+            if (f[[2]] == var_sym) return(f[[3]])
+        }
+        stop("Could not find ", var_sym)
+    }
+    fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
+
+    ok(cmp_formula(extract_dnorm(g3a_initialconditions_normalparam(fish)), g3_formula(quote(
+        (fish__midlen - (g3_param("fish.Linf", value = 1) * (1 - exp(-1 *
+            g3_param("fish.K", value = 1) * ((age - cur_step_size) - g3_param("fish.t0"))))))
+        / g3_param("fish.init.sd", value = 10)
+    ))), "g3a_initialconditions_normalparam default")
+
+    ok(cmp_formula(extract_dnorm(g3a_initialconditions_normalcv(fish)), g3_formula(quote(
+        (fish__midlen - (g3_param("fish.Linf", value = 1) * (1 - exp(-1 *
+            g3_param("fish.K", value = 1) * ((age - cur_step_size) - g3_param("fish.t0"))))))
+        / (
+          (g3_param("fish.Linf", value = 1) * (1 - exp(-1 * g3_param("fish.K", value = 1) * (age - g3_param("fish.t0"))))) *
+          g3_param("fish.lencv", value = 0.1, optimise = FALSE))
+    ))), "g3a_initialconditions_normalcv default")
+})
 
 areas <- list(a=1, b=2, c=3, d=4)
 stock_a <- g3_stock('stock_a', seq(10, 10, 5)) %>% g3s_livesonareas(areas[c('a')])

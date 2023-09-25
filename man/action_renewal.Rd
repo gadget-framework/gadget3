@@ -5,6 +5,7 @@
 \alias{g3a_renewal_initabund}
 \alias{g3a_initialconditions}
 \alias{g3a_initialconditions_normalparam}
+\alias{g3a_initialconditions_normalcv}
 \alias{g3a_renewal}
 \alias{g3a_renewal_normalparam}
 
@@ -45,6 +46,21 @@ g3a_initialconditions_normalparam(
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', value = 10,
             by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = ~cur_time == 0L,
+        run_at = 0)
+
+g3a_initialconditions_normalcv(
+        stock,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
+            optimise = FALSE),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         age_offset = quote( cur_step_size ),
@@ -100,6 +116,9 @@ g3a_renewal_normalparam(
   }
   \item{stddev_f}{
     \link{formula} substituted into normalparam calcuations, see below.
+  }
+  \item{cv_f}{
+    \link{formula} substituted into normalcv calcuations, basically \code{stddev_f = mean_f * cv_f}, see below.
   }
   \item{alpha_f}{
     \link{formula} substituted into normalparam calcuations, see below.
@@ -200,6 +219,21 @@ g3a_renewal_normalparam(
       \item{\eqn{\beta}}{Substituted for \var{beta_f}}
     }
   }
+  \subsection{g3a_initialconditions_normalcv}{
+    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
+
+    \deqn{n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}}
+    \deqn{N = F 10000 \frac{n}{\sum n}}
+    \deqn{W = \alpha L^{\beta}}
+    \describe{
+      \item{\eqn{L}}{Midlength of length groups for current area/age/...}
+      \item{\eqn{F}}{Substituted for \var{factor_f}}
+      \item{\eqn{\mu}}{Substituted for \var{mean_f}}
+      \item{\eqn{CV}}{Substituted for \var{cv_f}}
+      \item{\eqn{\alpha}}{Substituted for \var{alpha_f}}
+      \item{\eqn{\beta}}{Substituted for \var{beta_f}}
+    }
+  }
 }
 
 \seealso{
@@ -218,4 +252,8 @@ initialconditions_action <- g3a_initialconditions_normalparam(
 renewal_action <- g3a_renewal_normalparam(
     ling_imm,
     run_step = 2)  # Renewal happens in spring
+
+# To get a single ling_imm.lencv parameter instead of init.sd
+initialconditions_action <- g3a_initialconditions_normalcv(
+    ling_imm)
 }
