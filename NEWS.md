@@ -3,6 +3,10 @@
 ## New features
 * Add ``g3_parameterized('x', by_year = 1998:2099)`` to override year range for parameters
 
+## Breaking changes
+
+* ``g3l_distribution_surveyindices_*`` now default to ``beta = 1``, set ``beta = NULL`` to restore previous behaviour.
+
 # gadget3 0.10-0:
 
 ## New features

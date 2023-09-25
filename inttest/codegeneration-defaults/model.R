@@ -636,7 +636,7 @@ structure(function (param)
                       {
                         adist_surveyindices_log_acoustic_dist_model__params <- if (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx) 
                           adist_surveyindices_log_acoustic_dist_model__params
-                        else surveyindices_linreg(log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])), log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])), NaN, NaN)
+                        else surveyindices_linreg(log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])), log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])), NaN, 1)
                         {
                           cur_cdist_nll <- if (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx) 
                             0

@@ -20,9 +20,9 @@ g3l_distribution_multinomial(epsilon = 10)
 
 g3l_distribution_multivariate(rho_f, sigma_f, over = c("area"))
 
-g3l_distribution_surveyindices_log(alpha = NULL, beta = NULL)
+g3l_distribution_surveyindices_log(alpha = NULL, beta = 1)
 
-g3l_distribution_surveyindices_linear(alpha = NULL, beta = NULL)
+g3l_distribution_surveyindices_linear(alpha = NULL, beta = 1)
 
 g3l_abundancedistribution(
         nll_name,

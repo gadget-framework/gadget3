@@ -118,8 +118,8 @@ g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NU
         list(N = N, I = I))
     return(out)
 }
-g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('log', alpha, beta)
-g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = NULL) g3l_distribution_surveyindices('linear', alpha, beta)
+g3l_distribution_surveyindices_log <- function (alpha = NULL, beta = 1) g3l_distribution_surveyindices('log', alpha, beta)
+g3l_distribution_surveyindices_linear <- function (alpha = NULL, beta = 1) g3l_distribution_surveyindices('linear', alpha, beta)
 
 # i.e. catchinkilo's sumofsquares
 g3l_distribution_sumofsquaredlogratios <- function (epsilon = 10) {
