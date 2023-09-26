@@ -15,7 +15,11 @@
 }
 
 \usage{
-g3_suitability_exponentiall50(alpha, l50)
+g3_suitability_exponentiall50(
+    alpha = g3_parameterized("alpha", by_stock = by_stock, by_predator = by_predator),
+    l50 = g3_parameterized("l50", by_stock = by_stock, by_predator = by_predator),
+    by_stock = TRUE,
+    by_predator = TRUE)
 
 g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~predstock__midlen)
 
@@ -81,6 +85,10 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
   }
   \item{by_stock}{
     Change the default parameterisation (e.g. to be by 'species'), passed through to default calls to
+    \code{\link{g3_parameterized}}.
+  }
+  \item{by_predator}{
+    Change the default parameterisation (e.g. to be by 'fleet'), passed through to default calls to
     \code{\link{g3_parameterized}}.
   }
   \item{exponentiate}{

@@ -5,6 +5,7 @@
 * Add ``g3a_initialconditions_normalcv`` for initialconditions driven by a ``lencv`` parameter
 * Add ``g3a_renewal_normalcv`` for initialconditions driven by a ``lencv`` parameter
 * ``by_predator`` parameter for ``g3_parameterized``
+* Defaults for ``g3_suitability_exponentiall50``
 
 ## Breaking changes
 

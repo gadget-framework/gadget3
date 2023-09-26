@@ -2,7 +2,11 @@
 # * stock__midlen
 # * predstock__midlen
 
-g3_suitability_exponentiall50 <- function (alpha, l50) {
+g3_suitability_exponentiall50 <- function (
+    alpha = g3_parameterized("alpha", by_stock = by_stock, by_predator = by_predator),
+    l50 = g3_parameterized("l50", by_stock = by_stock, by_predator = by_predator),
+    by_stock = TRUE,
+    by_predator = TRUE) {
   f_substitute(~1 / ( 1 + exp(-alpha * (stock__midlen - l50)) ), list(
     alpha = alpha,
     l50 = l50))
