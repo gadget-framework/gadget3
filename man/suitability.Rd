@@ -17,7 +17,7 @@
 \usage{
 g3_suitability_exponentiall50(alpha, l50)
 
-g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~pred_stock__midlen)
+g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~predstock__midlen)
 
 g3_suitability_andersenfleet(
         p0 = g3_parameterized('andersen.p0', by_stock = by_stock, value = 0,

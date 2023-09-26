@@ -23,14 +23,14 @@ fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 ok_group("g3a_predate_catchability_totalfleet", {
     ok(cmp_code(
         g3a_predate_catchability_totalfleet(1234),
-        ~stock_ss(stock__predby_fleet_stock) * (1234/stock_ss(fleet_stock__catch))
+        ~stock_ss(stock__predby_predstock) * (1234/stock_ss(predstock__catch))
         ), "g3a_predate_catchability_totalfleet: Inserts E into formula")
 })
 
 ok_group("g3a_predate_catchability_numberfleet", {
     ok(cmp_code(
         g3a_predate_catchability_numberfleet(1234),
-        ~(stock_ss(stock__predby_fleet_stock)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/stock_ss(fleet_stock__catchnum))
+        ~(stock_ss(stock__predby_predstock)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/stock_ss(predstock__catchnum))
         ), "g3a_predate_catchability_numberfleet: Uses __catchnum instead of __catch")
 })
 
@@ -39,7 +39,7 @@ ok_group("g3a_predate_catchability_effortfleet", {
         g3a_predate_catchability_effortfleet(
             list(ling_imm = 123, ling_mat = 456),
             1234),
-        ~stock_switch(stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(stock__predby_fleet_stock)), "Converts list into stock_switch")
+        ~stock_switch(stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(stock__predby_predstock)), "Converts list into stock_switch")
 })
 
 ok_group("g3a_predate_catchability_quotafleet", {
@@ -49,7 +49,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
             quota = c(10, 20, 30)), 1234),
         ~(if (sum(stock__num * stock__wgt) < 1000) 10 else
           if (sum(stock__num * stock__wgt) < 2000) 20 else 30) *
-              1234 * cur_step_size * stock_ss(stock__predby_fleet_stock)), "quota_table: Quota converted into if condition")
+              1234 * cur_step_size * stock_ss(stock__predby_predstock)), "quota_table: Quota converted into if condition")
 
     ok(cmp_code(
         g3a_predate_catchability_quotafleet(
@@ -58,7 +58,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
             sum_stocks = list(prey_a, prey_b)),
         ~(if ((stock_with(prey_b, sum(prey_b__num * prey_b__wgt)) +
              (stock_with(prey_a, sum(prey_a__num * prey_a__wgt)) + 0)) < 100) 0 else 800) *
-                2134 * cur_step_size * stock_ss(stock__predby_fleet_stock)), "sum_stocks: Summing all named stocks")
+                2134 * cur_step_size * stock_ss(stock__predby_predstock)), "sum_stocks: Summing all named stocks")
     # TODO: Make sure resulting formula can be predate_fleet()ed
 
     out_f <- g3a_predate_catchability_quotafleet(
@@ -74,7 +74,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
         out_f,
         gadget3:::f_substitute(
             ~(quota_var <- if (cur_step == 1) if (sum(stock__num * stock__wgt) <
-                100) 0 else 800 else quota_var) * 2134 * cur_step_size * stock_ss(stock__predby_fleet_stock),
+                100) 0 else 800 else quota_var) * 2134 * cur_step_size * stock_ss(stock__predby_predstock),
             list(quota_var = as.symbol(quota_var_name)))), "recalc_f: Assign to quota_var as part of code")
 })
 

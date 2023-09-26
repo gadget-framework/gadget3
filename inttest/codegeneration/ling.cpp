@@ -789,7 +789,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
                     {
-                        // Take prey_stock__predby_fleet_stock weight, convert to individuals, add to our count;
+                        // Take prey_stock__predby_predstock weight, convert to individuals, add to our count;
                         cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm__predby_igfs.col(ling_imm__age_idx).col(ling_imm__area_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__age_idx).col(ling_imm__area_idx));
                     }
                 }
@@ -808,7 +808,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
                     {
-                        // Take prey_stock__predby_fleet_stock weight, convert to individuals, add to our count;
+                        // Take prey_stock__predby_predstock weight, convert to individuals, add to our count;
                         cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat__predby_igfs.col(ling_mat__age_idx).col(ling_mat__area_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__age_idx).col(ling_mat__area_idx));
                     }
                 }

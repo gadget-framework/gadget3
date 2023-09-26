@@ -62,18 +62,18 @@ g3l_tagging_ckmr <- function (
             }
         })))
     }
-    for (fleet_stock in fleets) {
-        fleet_stock_var <- as.symbol(paste0('prey_stock__predby_', fleet_stock$name))
+    for (predstock in fleets) {
+        predstock_var <- as.symbol(paste0('prey_stock__predby_', predstock$name))
 
         for (prey_stock in c(parent_stocks, offspring_stocks)) {
             step_f <- f_concatenate(list(step_f, g3_step(f_substitute(~{
                 stock_iterate(prey_stock, stock_intersect(modelhist, {
-                    stock_with(fleet_stock, debug_trace("Convert ", fleet_stock, " catch of ", prey_stock, " to numbers, add it to our total"))
+                    stock_with(predstock, debug_trace("Convert ", predstock, " catch of ", prey_stock, " to numbers, add it to our total"))
                     stock_ss(modelhist__catch) <- stock_ss(modelhist__catch) +
-                        stock_reshape(modelhist, stock_ss(prey_stock__predby_fleet_stock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
+                        stock_reshape(modelhist, stock_ss(prey_stock__predby_predstock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
                 }))
             }, list(
-                prey_stock__predby_fleet_stock = fleet_stock_var)))))
+                prey_stock__predby_predstock = predstock_var)))))
         }
     }
     out[[step_id(run_at, 'g3l_tagging', nll_name, 1)]] <- step_f

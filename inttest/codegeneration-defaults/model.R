@@ -673,7 +673,7 @@ structure(function (param)
                   cdist_sumofsquares_comm_ldist_model__area_idx <- (1L)
                   cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year * 100L + cur_step * 0L), -1L)
                   if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) {
-                    comment("Take prey_stock__predby_fleet_stock weight, add to our count")
+                    comment("Take prey_stock__predby_predstock weight, add to our count")
                     cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm[, fish__area_idx, fish__age_idx])
                   }
                 }

@@ -784,7 +784,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
-                        // Take prey_stock__predby_fleet_stock weight, add to our count;
+                        // Take prey_stock__predby_predstock weight, add to our count;
                         cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm.col(fish__age_idx).col(fish__area_idx));
                     }
                 }

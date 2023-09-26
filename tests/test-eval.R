@@ -4,7 +4,7 @@ library(gadget3)
 
 ok(ut_cmp_equal(as.numeric(g3_eval(
     g3_suitability_andersen(0,1,2,3,4),
-    pred_stock = g3_stock('pred', 11:20),
+    predstock = g3_stock('pred', 11:20),
     stock = g3_stock('prey', 1:10))), as.numeric(c(
         "11:12" = 1.39762234830867,
         "12:13" = 1.76710448730415,
