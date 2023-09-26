@@ -11,15 +11,17 @@ param_tmpl <- function (...) {
     actions <- c(
         list(g3a_time(1990, 1994)),
         lapply(list(...), function (p) {
+            if (is.null(p)) return(~{})
             x <- 4
-            stock <- g3_stock(c(species = 'ut', sex = 'm', maturity = 'imm'), 1)
+            stock <- g3_stock(c(species = 'had', sex = 'm', maturity = 'imm'), 1)
+            predstock <- g3_fleet(c(country = 'is', 'comm'))
             gadget3:::g3_step(gadget3:::f_substitute(
                 ~{x <- p},
                 list(p = p)))
         }))
     m <- g3_to_tmb(actions)
     pt <- attr(m, 'parameter_template')
-    pt[startsWith(rownames(pt), 'ut.'),]
+    pt[grepl('paramut', rownames(pt), fixed = TRUE),]
 }
 
 stock_mimm <- g3_stock(c(species = 'st', sex = 'm', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
@@ -116,10 +118,10 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = list(stock_mimm, stock_fmat)),  # M vs F, so only species matches
         g3_parameterized('parp', by_stock = list(stock_fimm, stock_fmat), by_age = TRUE),
     NULL), quote({
-        g3_param("st.m.parp")
-        g3_param("st.parp")
-        g3_param_table("st.f.parp", expand.grid(
-            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))
+        stock_prepend("st.m", g3_param("parp"))
+        stock_prepend("st", g3_param("parp"))
+        stock_prepend("st.f", g3_param_table("parp", expand.grid(
+            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage)))))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
 ok(cmp_code(
@@ -136,11 +138,21 @@ ok(cmp_code(
 
 year_range <- 1982:1986
 ok(ut_cmp_identical(param_tmpl(
-    g3_parameterized('ut.param.def', by_year = TRUE),
-    g3_parameterized('ut.param.var', by_year = year_range),
-    g3_parameterized('ut.param.custom', by_year = 1999:2004))$switch, c(
-    "ut.param.def.1990", "ut.param.def.1991", "ut.param.def.1992", "ut.param.def.1993", "ut.param.def.1994",
-    "ut.param.var.1982", "ut.param.var.1983", "ut.param.var.1984", "ut.param.var.1985", "ut.param.var.1986",
-    "ut.param.custom.1999", "ut.param.custom.2000", "ut.param.custom.2001",
-    "ut.param.custom.2002", "ut.param.custom.2003", "ut.param.custom.2004",
-    NULL)), "by_year: Can customise ranges")
+    g3_parameterized('paramut.def', by_year = TRUE),
+    g3_parameterized('paramut.var', by_year = year_range),
+    g3_parameterized('paramut.custom', by_year = 1999:2004),
+    NULL)$switch, c(
+    "paramut.def.1990", "paramut.def.1991", "paramut.def.1992", "paramut.def.1993", "paramut.def.1994",
+    "paramut.var.1982", "paramut.var.1983", "paramut.var.1984", "paramut.var.1985", "paramut.var.1986",
+    "paramut.custom.1999", "paramut.custom.2000", "paramut.custom.2001",
+    "paramut.custom.2002", "paramut.custom.2003", "paramut.custom.2004")), "by_year: Can customise ranges")
+
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized('paramut.fleet', by_predator = TRUE),
+    g3_parameterized('paramut.stockfleet', by_predator = TRUE, by_stock = TRUE),
+    g3_parameterized('paramut.stockfleetcty', by_predator = "country", by_stock = TRUE),
+    NULL)$switch, c(
+    "is_comm.paramut.fleet",
+    "had_m_imm.is_comm.paramut.stockfleet",
+    "had_m_imm.is.paramut.stockfleetcty",
+    NULL)), "by_predator: Can combine with by_stock")

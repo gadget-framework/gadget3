@@ -4,6 +4,7 @@
 * Add ``g3_parameterized('x', by_year = 1998:2099)`` to override year range for parameters
 * Add ``g3a_initialconditions_normalcv`` for initialconditions driven by a ``lencv`` parameter
 * Add ``g3a_renewal_normalcv`` for initialconditions driven by a ``lencv`` parameter
+* ``by_predator`` parameter for ``g3_parameterized``
 
 ## Breaking changes
 

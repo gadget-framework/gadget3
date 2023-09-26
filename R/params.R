@@ -1,6 +1,7 @@
 g3_parameterized <- function(
         name,
         by_stock = FALSE,
+        by_predator = FALSE,
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
@@ -15,9 +16,23 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_step))
     stopifnot(is.logical(avoid_zero))
 
+    # Define name_part based on input arg
+    name_part <- function (arg) {
+        if (isTRUE(arg)) {
+            name_part <- NULL
+        } else if (length(arg) > 1) {
+            # Turn a vector into it's c(x, y, ...) language expression
+            name_part <- as.call(c(as.symbol("c"), arg))
+        } else {
+            name_part <- arg
+        }
+        return(name_part)
+    }
+
     if (exponentiate) name <- paste0(name, '_exp')
 
     table_defn <- list()
+    stock_extra <- NULL
 
     if (isTRUE(by_year)) {
         table_defn <- c(table_defn, list( cur_year = quote( seq(start_year, end_year) ) ))
@@ -33,16 +48,6 @@ g3_parameterized <- function(
     } else if (isTRUE(by_stock) || is.character(by_stock)) {  # Group by default "stock", with an optional name_part
         if (by_age) {
             table_defn <- c(table_defn, list(age = quote(seq(stock__minage, stock__maxage))))
-        }
-
-        # Define name_part based on input by_stock
-        if (isTRUE(by_stock)) {
-            name_part <- NULL
-        } else if (length(by_stock) > 1) {
-            # Turn a vector into it's c(x, y, ...) language expression
-            name_part <- as.call(c(as.symbol("c"), by_stock))
-        } else {
-            name_part <- by_stock
         }
     } else if (g3_is_stock(by_stock) || (is.list(by_stock) && all(sapply(by_stock, g3_is_stock)))) {  # Group by explicit stocks
         if (g3_is_stock(by_stock)) by_stock <- list(by_stock)
@@ -68,7 +73,7 @@ g3_parameterized <- function(
         for (i in seq_along(by_stock)) if (i > 1) {
             common_part <- common_part & (by_stock[[1]]$name_parts == by_stock[[i]]$name_parts)
         }
-        name <- paste(c(by_stock[[1]]$name_parts[common_part], name), collapse = ".")
+        stock_extra <- paste(by_stock[[1]]$name_parts[common_part], collapse = ".")
     } else stop('Unknown by_stock parameter, should be FALSE, TRUE, a name_part or list of stocks')
 
     # Generate core call
@@ -82,9 +87,16 @@ g3_parameterized <- function(
     # Pass through standard g3_param arguments
     out <- as.call(c(as.list(out), list(...)))
 
-    if (isTRUE(by_stock) || is.character(by_stock)) {
+    if (isTRUE(by_predator) || is.character(by_predator)) {
         # Use stock_prepend() to do stock substitutions
-        out <- substitute(stock_prepend(stock, out, name_part = name_part), list(out = out, name_part = name_part))
+        out <- substitute(stock_prepend(predstock, out, name_part = name_part), list(out = out, name_part = name_part(by_predator)))
+    }
+
+    if (!is.null(stock_extra)) {
+        out <- substitute(stock_prepend(stock_extra, out), list(out = out, stock_extra = stock_extra))
+    } else if (isTRUE(by_stock) || is.character(by_stock)) {
+        # Use stock_prepend() to do stock substitutions
+        out <- substitute(stock_prepend(stock, out, name_part = name_part), list(out = out, name_part = name_part(by_stock)))
     }
 
     # Turn character scale/offset into parameter code

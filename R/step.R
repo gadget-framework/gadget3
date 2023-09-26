@@ -361,24 +361,35 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             stock <- get(as.character(stock_var), envir = orig_env)
 
             # Fish out extra part to add to name
-            if (!is.null(x$name_part)) {
+            if (is.character(stock_var)) {
+                # Adding a fixed string, don't invoke stock mechanisms
+                name_extra <- stock_var
+            } else if (!is.null(x$name_part)) {
                 name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
-                # Param argument is first item in arguments that doesn't have a name
+            } else {
+                name_extra <- stock$name
+            }
+
+            # Inner code is first item in arguments that doesn't have a name
+            if (length(names(x)) > 0) {
                 inner <- tail(x, -2)
                 inner <- inner[!nzchar(names(inner))][[1]]
             } else {
-                name_extra <- stock$name
                 inner <- x[[3]]
             }
 
-            # Add name_extra to the first parameter of inner (i.e. the parameter name)
-            inner[[2]] <- paste(c(name_extra, inner[[2]]), collapse = ".")
-
             # Apply stock rename to the rest of the call, to translate any stock__minage references.
+            # NB: Recurse first to resolve any nested stock_prepend()
             inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
             inner <- rlang::f_rhs(g3_step(
                 call_to_formula(inner, env = as.environment(list())),
                 recursing = TRUE, orig_env = orig_env))
+
+            # Add name_extra to the first parameter of inner (i.e. the parameter name)
+            if (!is.character(inner[[2]])) {
+                stop("First parameter isn't a string, not prepending to : ", deparse1(x))
+            }
+            inner[[2]] <- paste(c(name_extra, inner[[2]]), collapse = ".")
 
             return(inner)
         },

@@ -10,6 +10,7 @@
 g3_parameterized(
         name,
         by_stock = FALSE,
+        by_predator = FALSE,
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
@@ -30,6 +31,15 @@ g3_parameterized(
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"stock_name.name"} parameter}
       \item{character vector}{Select the stock name_part(s) to use, e.g. to produce \code{"stock_species.name"} parameter with "species"}
+      \item{List of \code{\link{g3_stock}} objects}{Produce a parameter that applies to all given stocks}
+    }
+  }
+  \item{by_predator}{
+    Should there be individual parameters per-predator (read: per-fleet) stock?
+    \describe{
+      \item{FALSE}{No}
+      \item{TRUE}{Produce a \code{"fleet_stock_name.name"} parameter}
+      \item{character vector}{Select the stock name_part(s) to use, e.g. to produce \code{"fleet_country.name"} parameter with "country"}
       \item{List of \code{\link{g3_stock}} objects}{Produce a parameter that applies to all given stocks}
     }
   }
