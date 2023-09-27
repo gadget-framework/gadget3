@@ -121,6 +121,7 @@ g3a_initialconditions_normalparam <- function (
     if (!is.null(age_offset)) {
         age_offset <- f_substitute(quote(age - age_offset), list(age_offset = age_offset))
         mean_f <- f_substitute(mean_f, list(age = age_offset))
+        stddev_f <- f_substitute(stddev_f, list(age = age_offset))
     }
 
     # NB: Generate action name with our arguments

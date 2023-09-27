@@ -143,6 +143,15 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
     ok(cmp_formula(out_f, g3_formula(quote(
         (fish__midlen - (m_f + age - 4))/stddev)
     )), "mean_f = m_f + age - 4, disabled age_offset")
+
+    out_f <- extract_dnorm(g3a_initialconditions_normalcv(
+        fish,
+        mean_f = quote(m_f + age)))
+    ok(cmp_formula(out_f, g3_formula(quote(
+        (fish__midlen - (m_f + (age - cur_step_size)))
+          /
+        ((m_f + (age - cur_step_size)) * g3_param("fish.lencv", value = 0.1, optimise = FALSE))
+    ))), "normalcv: Replaced age in both mean_f & stddev_f")
 })
 
 ok_group('g3a_initialconditions_cv', {
@@ -164,7 +173,7 @@ ok_group('g3a_initialconditions_cv', {
         (fish__midlen - (g3_param("fish.Linf", value = 1) * (1 - exp(-1 *
             g3_param("fish.K", value = 1) * ((age - cur_step_size) - g3_param("fish.t0"))))))
         / (
-          (g3_param("fish.Linf", value = 1) * (1 - exp(-1 * g3_param("fish.K", value = 1) * (age - g3_param("fish.t0"))))) *
+          (g3_param("fish.Linf", value = 1) * (1 - exp(-1 * g3_param("fish.K", value = 1) * ((age - cur_step_size) - g3_param("fish.t0"))))) *
           g3_param("fish.lencv", value = 0.1, optimise = FALSE))
     ))), "g3a_initialconditions_normalcv default")
 
