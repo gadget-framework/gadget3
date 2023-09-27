@@ -109,6 +109,21 @@
 <span>        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3a_initialconditions_normalcv</span><span class="op">(</span></span>
+<span>        <span class="va">stock</span>,</span>
+<span>        factor_f <span class="op">=</span> <span class="fu">g3a_renewal_initabund</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        cv_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'lencv'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        age_offset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="va">cur_step_size</span> <span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        wgt_by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">g3a_renewal</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span>
@@ -122,6 +137,28 @@
 <span>            ifmissing <span class="op">=</span> <span class="cn">NaN</span><span class="op">)</span>,</span>
 <span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        stddev_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'rec.sd'</span>, value <span class="op">=</span> <span class="fl">10</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        wgt_by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">stock__minage</span><span class="op">)</span>,</span>
+<span>        run_projection <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        run_step <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_renewal_normalcv</span><span class="op">(</span></span>
+<span>        <span class="va">stock</span>,</span>
+<span>        factor_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'rec'</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span>,</span>
+<span>            by_year <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            scale <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
+<span>                name <span class="op">=</span> <span class="st">'rec.scalar'</span>,</span>
+<span>                by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>            ifmissing <span class="op">=</span> <span class="cn">NaN</span><span class="op">)</span>,</span>
+<span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        cv_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'lencv'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>        alpha_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'walpha'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
 <span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -155,6 +192,9 @@
 
   <dt>stddev_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into normalparam calcuations, see below.</p></dd>
+
+  <dt>cv_f</dt>
+<dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into normalcv calcuations, basically <code>stddev_f = mean_f * cv_f</code>, see below.</p></dd>
 
   <dt>alpha_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into normalparam calcuations, see below.</p></dd>
@@ -337,6 +377,33 @@
     
 </dl><p></p>
 </div>
+<p></p>
+<div class="section">
+<h3 id="g-a-initialconditions-normalcv-g-a-renewal-normalcv">g3a_initialconditions_normalcv / g3a_renewal_normalcv<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalcv-g-a-renewal-normalcv"></a></h3>
+<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate num/wgt:</p>
+<p>$$n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}$$
+    $$N = F 10000 \frac{n}{\sum n}$$
+    $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
+<dd><p>Midlength of length groups for current area/age/...</p></dd>
+
+      <dt>\(F\)</dt>
+<dd><p>Substituted for <var>factor_f</var></p></dd>
+
+      <dt>\(\mu\)</dt>
+<dd><p>Substituted for <var>mean_f</var></p></dd>
+
+      <dt>\(CV\)</dt>
+<dd><p>Substituted for <var>cv_f</var></p></dd>
+
+      <dt>\(\alpha\)</dt>
+<dd><p>Substituted for <var>alpha_f</var></p></dd>
+
+      <dt>\(\beta\)</dt>
+<dd><p>Substituted for <var>beta_f</var></p></dd>
+
+    
+</dl><p></p>
+</div>
 
 
     </div>
@@ -356,6 +423,13 @@
 <span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
 <span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># per-age init.sd parameters</span></span></span>
 <span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
+<span class="r-in"><span>    run_step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>  <span class="co"># Renewal happens in spring</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># To get a single ling_imm.lencv parameter instead of init.sd</span></span></span>
+<span class="r-in"><span><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_initialconditions_normalcv</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">ling_imm</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalcv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
 <span class="r-in"><span>    run_step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>  <span class="co"># Renewal happens in spring</span></span></span>
 </code></pre></div>

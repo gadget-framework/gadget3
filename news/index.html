@@ -68,6 +68,20 @@
 <div class="section level3">
 <h3 id="new-features-0-10-1-999">New features<a class="anchor" aria-label="anchor" href="#new-features-0-10-1-999"></a></h3>
 <ul><li>Add <code>g3_parameterized('x', by_year = 1998:2099)</code> to override year range for parameters</li>
+<li>Add <code>g3a_initialconditions_normalcv</code> for initialconditions driven by a <code>lencv</code> parameter</li>
+<li>Add <code>g3a_renewal_normalcv</code> for initialconditions driven by a <code>lencv</code> parameter</li>
+<li>
+<code>by_predator</code> parameter for <code>g3_parameterized</code>
+</li>
+<li>Defaults for <code>g3_suitability_exponentiall50</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-10-1-999">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-10-1-999"></a></h3>
+<ul><li>
+<code>g3l_distribution_surveyindices_*</code> now default to <code>beta = 1</code>, set <code>beta = NULL</code> to restore previous behaviour.</li>
+<li>
+<code>stock_param</code>() &amp; <code>stock_param_table</code>() replaced with <code>stock_prepend</code>()</li>
 </ul></div>
 </div>
     <div class="section level2">

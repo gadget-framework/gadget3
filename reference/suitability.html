@@ -69,9 +69,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_suitability_exponentiall50</span><span class="op">(</span><span class="va">alpha</span>, <span class="va">l50</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_suitability_exponentiall50</span><span class="op">(</span></span>
+<span>    alpha <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"alpha"</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_predator <span class="op">=</span> <span class="va">by_predator</span><span class="op">)</span>,</span>
+<span>    l50 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"l50"</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, by_predator <span class="op">=</span> <span class="va">by_predator</span><span class="op">)</span>,</span>
+<span>    by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    by_predator <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3_suitability_andersen</span><span class="op">(</span><span class="va">p0</span>, <span class="va">p1</span>, <span class="va">p2</span>, p3 <span class="op">=</span> <span class="va">p4</span>, <span class="va">p4</span>, p5 <span class="op">=</span> <span class="op">~</span><span class="va">pred_stock__midlen</span><span class="op">)</span></span>
+<span><span class="fu">g3_suitability_andersen</span><span class="op">(</span><span class="va">p0</span>, <span class="va">p1</span>, <span class="va">p2</span>, p3 <span class="op">=</span> <span class="va">p4</span>, <span class="va">p4</span>, p5 <span class="op">=</span> <span class="op">~</span><span class="va">predstock__midlen</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_suitability_andersenfleet</span><span class="op">(</span></span>
 <span>        p0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'andersen.p0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -135,6 +139,10 @@
 
   <dt>by_stock</dt>
 <dd><p>Change the default parameterisation (e.g. to be by 'species'), passed through to default calls to
+    <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
+
+  <dt>by_predator</dt>
+<dd><p>Change the default parameterisation (e.g. to be by 'fleet'), passed through to default calls to
     <code><a href="params.html">g3_parameterized</a></code>.</p></dd>
 
   <dt>exponentiate</dt>

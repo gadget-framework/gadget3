@@ -72,6 +72,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_parameterized</span><span class="op">(</span></span>
 <span>        <span class="va">name</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        by_predator <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_year <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_step <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -96,6 +97,22 @@
 
       <dt>character vector</dt>
 <dd><p>Select the stock name_part(s) to use, e.g. to produce <code>"stock_species.name"</code> parameter with "species"</p></dd>
+
+      <dt>List of <code><a href="stock.html">g3_stock</a></code> objects</dt>
+<dd><p>Produce a parameter that applies to all given stocks</p></dd>
+
+    
+</dl><p></p></dd>
+
+  <dt>by_predator</dt>
+<dd><p>Should there be individual parameters per-predator (read: per-fleet) stock?</p><dl><dt>FALSE</dt>
+<dd><p>No</p></dd>
+
+      <dt>TRUE</dt>
+<dd><p>Produce a <code>"fleet_stock_name.name"</code> parameter</p></dd>
+
+      <dt>character vector</dt>
+<dd><p>Select the stock name_part(s) to use, e.g. to produce <code>"fleet_country.name"</code> parameter with "country"</p></dd>
 
       <dt>List of <code><a href="stock.html">g3_stock</a></code> objects</dt>
 <dd><p>Produce a parameter that applies to all given stocks</p></dd>
@@ -168,8 +185,7 @@
     <h2>See also</h2>
     <div class="dont-index"><p><code><a href="language.html">g3_param</a></code>,
   <code><a href="language.html">g3_param_table</a></code>,
-  <code><a href="step.html">stock_param</a></code>,
-  <code><a href="step.html">stock_param_table</a></code></p></div>
+  <code><a href="step.html">stock_prepend</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -182,26 +198,26 @@
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> g3_param("K")</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># by_stock, so will use stock_param() to rename variables</span></span></span>
+<span class="r-in"><span><span class="co"># by_stock, so will use stock_prepend() to rename variables</span></span></span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_param(stock, "K", name_part = NULL)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param("K"), name_part = NULL)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Adding by_year or by_age turns it into a table</span></span></span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_param_table(stock, "K", name_part = NULL, expand.grid(cur_year = seq(start_year, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year), age = seq(stock__minage, stock__maxage)))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param_table("K", expand.grid(cur_year = seq(start_year, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year), age = seq(stock__minage, stock__maxage))), name_part = NULL)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Can specify the name parts you want</span></span></span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="st">'species'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_param_table(stock, "K", name_part = "species", expand.grid(cur_year = seq(start_year, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year)))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param_table("K", expand.grid(cur_year = seq(start_year, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year))), name_part = "species")</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Can give a list of stocks, in which case it works out name parts for you</span></span></span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_a</span>, <span class="va">stock_b</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3_param("stock.K")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend("stock", g3_param("K"))</span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_a</span>, <span class="va">stock_b</span><span class="op">)</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3_param_table("stock.K", expand.grid(age = seq(min(stock_aaa__minage, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stock_bbb__minage), max(stock_aaa__maxage, stock_bbb__maxage))))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend("stock", g3_param_table("K", expand.grid(age = seq(min(stock_aaa__minage, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     stock_bbb__minage), max(stock_aaa__maxage, stock_bbb__maxage)))))</span>
 </code></pre></div>
     </div>
   </div>
