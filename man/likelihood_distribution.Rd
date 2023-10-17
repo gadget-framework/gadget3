@@ -180,6 +180,10 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
         \code{cut(raw_length, c(seq(0, 50, by = 10), Inf), right = FALSE)}
         for an open-ended upper group.
 
+        The column can be character strings also formatted as factors as above.
+        The column entries are assumed to be sorted in order and converted back
+        to a factor.
+
         If \code{open_ended = c('lower', 'upper')} was used when querying MFDB
         for the data, then the bottom/top length groups will be modified to
         start from zero or be infinite respectively.

@@ -68,7 +68,12 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             levels(data$length) <- modelstock$dimnames$length
         } else {
             # Force length to be a factor if not already
-            if (!is.factor(data$length)) data$length <- as.factor(data$length)
+            if (!is.factor(data$length)) {
+                # Make sure levels are ordered according to cut strings
+                lvls <- parse_levels(unique(data$length))
+                lvls <- lvls[with(lvls, order(lower_bound, upper_bound)), 'names']
+                data$length <- factor(data$length, levels = lvls)
+            }
 
             lvls <- parse_levels(levels(data$length), "length")
             open_ended_upper <- lvls$open_ended_upper[[1]]

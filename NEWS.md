@@ -6,6 +6,7 @@
 * Add ``g3a_renewal_normalcv`` for initialconditions driven by a ``lencv`` parameter
 * ``by_predator`` parameter for ``g3_parameterized``
 * Defaults for ``g3_suitability_exponentiall50``
+* Support cut() formatted character columns as well as factor columns in likelihood observation data.
 
 ## Breaking changes
 

@@ -296,6 +296,68 @@ ok_group('g3l_likelihood_data:length_factor', {
 })
 
 
+ok_group('g3l_likelihood_data:length_char', {
+    ld <- generate_ld(expand.grid(
+        year = 1990,
+        length = as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
+        age = 1:2,
+        stringsAsFactors = FALSE))
+    ok(cmp_array(ld$number, "
+        length  age time   Freq
+           0:5 age1 1990    1
+          5:10 age1 1990    2
+         10:15 age1 1990    3
+         15:20 age1 1990    4
+         20:25 age1 1990    5
+         25:30 age1 1990    6
+         30:35 age1 1990    7
+         35:40 age1 1990    8
+         40:45 age1 1990    9
+           0:5 age2 1990   10
+          5:10 age2 1990   11
+         10:15 age2 1990   12
+         15:20 age2 1990   13
+         20:25 age2 1990   14
+         25:30 age2 1990   15
+         30:35 age2 1990   16
+         35:40 age2 1990   17
+         40:45 age2 1990   18
+        "), "Converted back to factor, preserving ordering of entries")
+
+    ld <- generate_ld(data.frame(
+        year = 1990,
+        length = c(
+            as.character(cut(seq(23, 39, by=5), seq(0, 50, by = 5), right = FALSE)),
+            as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
+            NULL),
+        age = c(
+            rep(1, 4),
+            rep(2, 9),
+            NULL),
+        stringsAsFactors = FALSE))
+    ok(cmp_array(ld$number, "
+        length  age time   Freq
+           0:5 age1 1990    0
+          5:10 age1 1990    0
+         10:15 age1 1990    0
+         15:20 age1 1990    0
+         20:25 age1 1990    1
+         25:30 age1 1990    2
+         30:35 age1 1990    3
+         35:40 age1 1990    4
+         40:45 age1 1990    0
+           0:5 age2 1990    5
+          5:10 age2 1990    6
+         10:15 age2 1990    7
+         15:20 age2 1990    8
+         20:25 age2 1990    9
+         25:30 age2 1990   10
+         30:35 age2 1990   11
+         35:40 age2 1990   12
+         40:45 age2 1990   13
+        "), "Partial ranges padded out with zeros")
+})
+
 ok_group('g3l_likelihood_data:age', {
     ld <- generate_ld("
         age year number
