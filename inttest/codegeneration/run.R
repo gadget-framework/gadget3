@@ -42,7 +42,7 @@ ling_imm_actions <- list(
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init")[[age - 3 + 1]],
         mean_f = g3a_renewal_vonb(by_stock = 'species'),
-        stddev_f = ~ling_imm_stddev[[age - 3 + 1]],
+        stddev_f = ~ling_imm_stddev[[age - 3 + 2]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
@@ -97,7 +97,7 @@ ling_mat_actions <- list(
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init")[[age - 5 + 1]],
         mean_f = g3a_renewal_vonb(by_stock = 'species'),
-        stddev_f = ~ling_mat_stddev[[age - 5 + 1]],
+        stddev_f = ~ling_mat_stddev[[age - 5 + 2]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),
     g3a_growmature(ling_mat,

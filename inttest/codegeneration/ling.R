@@ -308,7 +308,7 @@ structure(function (param)
                   area <- ling_imm__area
                   ling_imm__area_idx <- (1L)
                   factor <- (param[["lingimm.init.scalar"]] * exp(-1 * (param[["lingimm.M"]] + param[["ling.init.F"]]) * age) * param[["lingimm.init"]][[age - 3 + 1]])
-                  dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_imm_stddev[[age - 3 + 1]])
+                  dnorm <- ((ling_imm__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_imm_stddev[[(age - cur_step_size) - 3 + 2]])
                   {
                     ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
@@ -324,7 +324,7 @@ structure(function (param)
                   area <- ling_mat__area
                   ling_mat__area_idx <- (1L)
                   factor <- (param[["lingmat.init.scalar"]] * exp(-1 * (param[["lingmat.M"]] + param[["ling.init.F"]]) * age) * param[["lingmat.init"]][[age - 5 + 1]])
-                  dnorm <- ((ling_mat__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_mat_stddev[[age - 5 + 1]])
+                  dnorm <- ((ling_mat__midlen - (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))))/ling_mat_stddev[[(age - cur_step_size) - 5 + 2]])
                   {
                     ling_mat__num[, ling_mat__area_idx, ling_mat__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     ling_mat__wgt[, ling_mat__area_idx, ling_mat__age_idx] <- param[["lingmat.walpha"]] * ling_mat__midlen^param[["lingmat.wbeta"]]

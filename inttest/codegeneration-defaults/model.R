@@ -295,7 +295,7 @@ structure(function (param)
                     warning("No value found in g3_param_table fish.init, ifmissing not specified")
                     NaN
                   }) * exp(-1 * (param[["fish.M"]] + param[["init.F"]]) * (age - param[["recage"]])))
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]]))
+                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))
                   {
                     fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                     fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
