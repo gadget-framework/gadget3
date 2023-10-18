@@ -51,7 +51,17 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__init__9);
     PARAMETER(fish__init__10);
     std::map<std::tuple<int>, Type*> fish__init = {{std::make_tuple(1), &fish__init__1}, {std::make_tuple(2), &fish__init__2}, {std::make_tuple(3), &fish__init__3}, {std::make_tuple(4), &fish__init__4}, {std::make_tuple(5), &fish__init__5}, {std::make_tuple(6), &fish__init__6}, {std::make_tuple(7), &fish__init__7}, {std::make_tuple(8), &fish__init__8}, {std::make_tuple(9), &fish__init__9}, {std::make_tuple(10), &fish__init__10}};
-    PARAMETER(fish__M);
+    PARAMETER(fish__M__1);
+    PARAMETER(fish__M__2);
+    PARAMETER(fish__M__3);
+    PARAMETER(fish__M__4);
+    PARAMETER(fish__M__5);
+    PARAMETER(fish__M__6);
+    PARAMETER(fish__M__7);
+    PARAMETER(fish__M__8);
+    PARAMETER(fish__M__9);
+    PARAMETER(fish__M__10);
+    std::map<std::tuple<int>, Type*> fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}, {std::make_tuple(6), &fish__M__6}, {std::make_tuple(7), &fish__M__7}, {std::make_tuple(8), &fish__M__8}, {std::make_tuple(9), &fish__M__9}, {std::make_tuple(10), &fish__M__10}};
     PARAMETER(init__F);
     PARAMETER(recage);
     PARAMETER(fish__Linf);
@@ -360,7 +370,7 @@ Type objective_function<Type>::operator() () {
 
                     auto fish__area_idx = 0;
 
-                    auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(fish__M + init__F)*(age - recage)));
+                    auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                     auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
 
@@ -597,7 +607,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(fish__M)*cur_step_size);
+                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
             }
         }
         {

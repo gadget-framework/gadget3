@@ -12,7 +12,16 @@ structure(function (param)
     stopifnot("fish.init.8" %in% names(param))
     stopifnot("fish.init.9" %in% names(param))
     stopifnot("fish.init.10" %in% names(param))
-    stopifnot("fish.M" %in% names(param))
+    stopifnot("fish.M.1" %in% names(param))
+    stopifnot("fish.M.2" %in% names(param))
+    stopifnot("fish.M.3" %in% names(param))
+    stopifnot("fish.M.4" %in% names(param))
+    stopifnot("fish.M.5" %in% names(param))
+    stopifnot("fish.M.6" %in% names(param))
+    stopifnot("fish.M.7" %in% names(param))
+    stopifnot("fish.M.8" %in% names(param))
+    stopifnot("fish.M.9" %in% names(param))
+    stopifnot("fish.M.10" %in% names(param))
     stopifnot("init.F" %in% names(param))
     stopifnot("recage" %in% names(param))
     stopifnot("fish.Linf" %in% names(param))
@@ -294,7 +303,10 @@ structure(function (param)
                   factor <- (param[["fish.init.scalar"]] * nvl(param[[paste("fish.init", age, sep = ".")]], {
                     warning("No value found in g3_param_table fish.init, ifmissing not specified")
                     NaN
-                  }) * exp(-1 * (param[["fish.M"]] + param[["init.F"]]) * (age - param[["recage"]])))
+                  }) * exp(-1 * (nvl(param[[paste("fish.M", age, sep = ".")]], {
+                    warning("No value found in g3_param_table fish.M, ifmissing not specified")
+                    NaN
+                  }) + param[["init.F"]]) * (age - param[["recage"]])))
                   dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))
                   {
                     fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
@@ -510,7 +522,10 @@ structure(function (param)
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(param[["fish.M"]]) * cur_step_size)
+                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(nvl(param[[paste("fish.M", age, sep = ".")]], {
+                  warning("No value found in g3_param_table fish.M, ifmissing not specified")
+                  NaN
+                })) * cur_step_size)
             }
         }
         {
@@ -820,5 +835,5 @@ structure(function (param)
         }
     }
     stop("Should have return()ed somewhere in the loop")
-}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.lencv = 0.1, fish.walpha = 0, fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, 
-    fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M.1 = 0, fish.M.2 = 0, fish.M.3 = 0, fish.M.4 = 0, fish.M.5 = 0, fish.M.6 = 0, fish.M.7 = 0, fish.M.8 = 0, fish.M.9 = 0, fish.M.10 = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.lencv = 0.1, fish.walpha = 0, 
+    fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))

@@ -11,7 +11,16 @@ fish.init.7                                                                   fi
 fish.init.8                                                                   fish.init.8          1     TRUE  FALSE    NA    NA       NA
 fish.init.9                                                                   fish.init.9          1     TRUE  FALSE    NA    NA       NA
 fish.init.10                                                                 fish.init.10          1     TRUE  FALSE    NA    NA       NA
-fish.M                                                                             fish.M          0     TRUE  FALSE    NA    NA       NA
+fish.M.1                                                                         fish.M.1          0     TRUE  FALSE    NA    NA       NA
+fish.M.2                                                                         fish.M.2          0     TRUE  FALSE    NA    NA       NA
+fish.M.3                                                                         fish.M.3          0     TRUE  FALSE    NA    NA       NA
+fish.M.4                                                                         fish.M.4          0     TRUE  FALSE    NA    NA       NA
+fish.M.5                                                                         fish.M.5          0     TRUE  FALSE    NA    NA       NA
+fish.M.6                                                                         fish.M.6          0     TRUE  FALSE    NA    NA       NA
+fish.M.7                                                                         fish.M.7          0     TRUE  FALSE    NA    NA       NA
+fish.M.8                                                                         fish.M.8          0     TRUE  FALSE    NA    NA       NA
+fish.M.9                                                                         fish.M.9          0     TRUE  FALSE    NA    NA       NA
+fish.M.10                                                                       fish.M.10          0     TRUE  FALSE    NA    NA       NA
 init.F                                                                             init.F          0     TRUE  FALSE    NA    NA       NA
 recage                                                                             recage          0    FALSE  FALSE    NA    NA       NA
 fish.Linf                                                                       fish.Linf          1     TRUE  FALSE    NA    NA       NA

@@ -32,7 +32,7 @@ g3a_renewal_vonb_t0(
 g3a_renewal_initabund(
     scalar = g3_parameterized('init.scalar', value = 1, by_stock = by_stock),
     init = g3_parameterized('init', value = 1, by_stock = by_stock, by_age = TRUE),
-    M = g3_parameterized('M', by_stock = by_stock),
+    M = g3_parameterized('M', by_stock = by_stock, by_age = TRUE),
     init_F = g3_parameterized('init.F', by_stock = by_stock_f),
     recage = g3_parameterized('recage', by_stock = FALSE, optimise = FALSE),
     proportion_f = ~1,
