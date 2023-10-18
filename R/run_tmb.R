@@ -586,7 +586,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         paste(deparse(in_call), collapse = "\n"))
 }
 
-g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$') {
+g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
@@ -863,7 +863,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE, adreport_re = '^$'
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
         call_replace(in_code,
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.', ADREPORT = adreport_re)))
+            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')))
     }
     all_actions_code <- g3_functions(all_actions_code)
     ss <- scope_split(scope)
