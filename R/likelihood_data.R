@@ -19,6 +19,16 @@ parse_levels <- function (lvls, var_name) {
         open_ended_upper = is.infinite(as.numeric(tail(m, 1)[[1]][[4]])),
         stringsAsFactors = FALSE))
 
+    m <- regmatches(lvls, regexec('^(.+):(.+)$', lvls))
+    if (all(vapply(m, length, numeric(1)) == 3)) return(data.frame(
+        names = lvls,
+        lower_incl = TRUE,
+        lower_bound = vapply(m, function (mm) as.numeric(mm[[2]]), numeric(1)),
+        upper_bound = vapply(m, function (mm) as.numeric(mm[[3]]), numeric(1)),
+        upper_incl = FALSE,
+        open_ended_upper = is.infinite(as.numeric(tail(m, 1)[[1]][[3]])),
+        stringsAsFactors = FALSE))
+
     stop("Unknown form of ", var_name, " levels, see ?cut for formatting: ", paste(lvls, collapse = ", "))
 }
 
@@ -208,11 +218,17 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     }
 
     # Work out time dimension, create an obsstock using it
-    if (!('year' %in% names(data))) {
+    if ('year' %in% names(data)) {
+        # NB: Let g3s_time_convert() worry about if the step column is there or not
+        data$time <- g3s_time_convert(data$year, data$step)
+        handled_columns$year <- NULL
+        handled_columns$step <- NULL
+    } else if ('time' %in% names(data)) {  # Convert our time=1999-01 strings back
+        data$time <- g3s_time_convert(data$time)
+        handled_columns$time <- NULL
+    } else {
         stop("Data must contain a year column")
     }
-    # NB: Let g3s_time_convert() worry about if the step column is there or not
-    data$time <- g3s_time_convert(data$year, data$step)
     obsstock <- g3s_time(
         g3s_clone(modelstock, paste(nll_name, "obs", sep = "_")),
         sort(unique(data$time)))
@@ -222,8 +238,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             sort(unique(data$time)))
     }
     data$time <- g3s_time_labels(data$time)
-    handled_columns$year <- NULL
-    handled_columns$step <- NULL
 
     # NB: area has to be last, so we can sum for the entire area/time
     if ('area' %in% names(data)) {

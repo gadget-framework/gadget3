@@ -94,8 +94,35 @@ ok_group('g3l_likelihood_data:time', {
           0:Inf 2000-01    4
           0:Inf 2000-02    5
         "), "Year gap, wonky year order preserved")
-})
 
+    ld <- generate_ld("
+        time number
+        1998 1
+        2002 2
+        2001 3
+    ")
+    ok(cmp_array(ld$number, "
+        length time Freq
+          0:Inf 1998    1
+          0:Inf 2001    3
+          0:Inf 2002    2
+        "), "Time column used when year not present (i.e. can parse our own output)")
+
+    ld <- generate_ld("
+        time number
+        1998-01 2
+        1998-02 4
+        1999-01 3
+        1999-02 9
+    ")
+    ok(cmp_array(ld$number, "
+        length time Freq
+          0:Inf 1998-01    2
+          0:Inf 1998-02    4
+          0:Inf 1999-01    3
+          0:Inf 1999-02    9
+        "), "Year-step separated in time column")
+})
 
 ok_group('g3l_likelihood_data:length', {
     ld <- generate_ld("
@@ -356,6 +383,13 @@ ok_group('g3l_likelihood_data:length_char', {
          35:40 age2 1990   12
          40:45 age2 1990   13
         "), "Partial ranges padded out with zeros")
+
+    ld <- generate_ld(data.frame(
+        year = 1990,
+        length = cut(c(4, 14, 28, 33, 33, 44), c(seq(0, 50, by = 10), Inf), right = FALSE),
+        stringsAsFactors = TRUE))
+    ld_loopback <- generate_ld(as.data.frame.table(ld$number, responseName = 'number'))
+    ok(ut_cmp_equal(ld$number, ld_loopback$number), "Can parse our own output")
 })
 
 ok_group('g3l_likelihood_data:age', {

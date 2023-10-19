@@ -8,13 +8,16 @@
 }
 
 \usage{
-g3s_time_convert(year, step = NULL)
+g3s_time_convert(year_or_time, step = NULL)
 
 g3s_time(inner_stock, times, year = NULL, step = NULL)
 
 }
 
 \arguments{
+  \item{year_or_time}{
+    Etiher vector of years, or vector of year & step strings, e.g. "1999-01".
+  }
   \item{year}{
     Vector of years, used to generate \var{times} if provided.
   }
@@ -77,6 +80,9 @@ year step
 ')
 stock <- g3_stock('name', c(1, 10, 100)) \%>\%
     g3s_time(times = g3s_time_convert(data$year, data$step))
+
+# Will also parse strings
+g3s_time_convert(c("1999-01", "1999-02"))
 
 # Use stock_instance to see what the array would look like
 g3_stock_instance(stock)

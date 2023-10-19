@@ -1,7 +1,17 @@
-g3s_time_convert <- function (year, step = NULL) {
+g3s_time_convert <- function (year_or_time, step = NULL) {
+  year <- year_or_time
   if (any(step > 99)) {
     stop("The number of steps per year cannot exceed 99")
-}
+  }
+
+  # Parse "1999-01" strings & extract step
+  if (is.factor(year)) year <- as.character(year)
+  if (any(is.character(year) & grepl("-", year, fixed = TRUE))) {
+    s <- strsplit(year, "-")
+    year <- vapply(s, function (x) as.integer(x[[1]]), integer(1))
+    step <- vapply(s, function (x) as.integer(x[[2]]), integer(1))
+  }
+
   if (is.null(step)) {
     as.integer(year) * 100L
     } else {
