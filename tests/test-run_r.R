@@ -28,6 +28,21 @@ ok_group("g3_to_r: attr.actions", {
     ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
 })
 
+ok_group("g3_to_r: attr.parameter_template", {
+    actions <- list(
+        list("001" = ~{ 1 + 1 }, "002" = ~{2 + 2}),
+        "003" = ~{3 + 3})
+    model_fn <- g3_to_r(actions)
+    ok(ut_cmp_identical(attr(model_fn, 'parameter_template'), NULL), "Empty parameter template")
+
+    actions <- list(
+        "001" = ~{ 1 + 1 },
+        "002" = ~{g3_param('moo', value = 4) + g3_param('oink', value = 99)},
+        "003" = ~{3 + 3})
+    model_fn <- g3_to_r(actions)
+    ok(ut_cmp_identical(attr(model_fn, 'parameter_template'), list(moo = 4, oink = 99)), "2 values populated")
+})
+
 ok_group('g3_param', {
     param <- attr(g3_to_r(list(g3a_time(2000, 2004, project_years = 0), ~{
         g3_param('a')

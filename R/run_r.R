@@ -207,7 +207,8 @@ g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
 
     # Restore model data and attributes
     environment(out) <- environment(model)
-    attributes(out) <- attributes(model)
+    # NB: We need to do this since the environment pointers will be broken in the serialised version
+    attr(out, 'actions') <- attr(model, 'actions')
 
     # Optimize model function
     out <- compiler::cmpfun(out, options = list(optimize = optimize))

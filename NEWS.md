@@ -1,5 +1,8 @@
 # gadget3 0.10-1-999:
 
+## Bug fixes
+* g3_to_r() output can be debugged in R-Studio
+
 ## New features
 * Add ``g3_parameterized('x', by_year = 1998:2099)`` to override year range for parameters
 * Add ``g3a_initialconditions_normalcv`` for initialconditions driven by a ``lencv`` parameter
