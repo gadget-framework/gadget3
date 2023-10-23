@@ -233,8 +233,6 @@ Type objective_function<Type>::operator() () {
     auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(6,1,10); fish__num.setZero();
     array<Type> fish__wgt(6,1,10); fish__wgt.setConstant((double)(1));
-    int nan_fish__num = false;
-    int nan_fish__wgt = false;
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
@@ -333,8 +331,6 @@ Type objective_function<Type>::operator() () {
                     REPORT(fish__totalpredate);
                     REPORT(fish__wgt);
                     REPORT(g3l_understocking_total);
-                    REPORT(nan_fish__num);
-                    REPORT(nan_fish__wgt);
                     REPORT(nll);
                     REPORT(nll_adist_surveyindices_log_acoustic_dist__weight);
                     REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt);
@@ -371,28 +367,6 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
-            // g3a_trace_nan: g3a_initialconditions for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_initialconditions for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_initialconditions for fish'\n", cur_year, cur_step);
-            }
-        }
-        {
-            // g3a_trace_nan: g3a_time: Start of time period;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_time: Start of time period'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_time: Start of time period'\n", cur_year, cur_step);
-            }
-        }
         if ( report_detail == 1 ) {
             detail_fish__num.col(cur_time + 1 - 1) = fish__num;
         }
@@ -405,30 +379,8 @@ Type objective_function<Type>::operator() () {
             comm__catchnum.setZero();
         }
         {
-            // g3a_trace_nan: Zero biomass-caught counter for comm;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero biomass-caught counter for comm'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero biomass-caught counter for comm'\n", cur_year, cur_step);
-            }
-        }
-        {
             // Zero total predation counter for fish;
             fish__totalpredate.setZero();
-        }
-        {
-            // g3a_trace_nan: Zero total predation counter for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero total predation counter for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero total predation counter for fish'\n", cur_year, cur_step);
-            }
         }
         {
             // g3a_predate_fleet for fish;
@@ -457,17 +409,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: g3a_predate_fleet for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_predate_fleet for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_predate_fleet for fish'\n", cur_year, cur_step);
-            }
-        }
-        {
             // Scale comm catch of fish by total expected catch;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -489,30 +430,8 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: Scale comm catch of fish by total expected catch;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Scale comm catch of fish by total expected catch'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Scale comm catch of fish by total expected catch'\n", cur_year, cur_step);
-            }
-        }
-        {
             // Temporarily convert to being proportion of totalpredate;
             fish__predby_comm /= avoid_zero_vec(fish__totalpredate);
-        }
-        {
-            // g3a_trace_nan: Temporarily convert to being proportion of totalpredate;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Temporarily convert to being proportion of totalpredate'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Temporarily convert to being proportion of totalpredate'\n", cur_year, cur_step);
-            }
         }
         {
             // Calculate fish overconsumption coefficient;
@@ -526,17 +445,6 @@ Type objective_function<Type>::operator() () {
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;
             fish__overconsumption -= (fish__totalpredate).sum();
             fish__num *= ((double)(1) - fish__consratio);
-        }
-        {
-            // g3a_trace_nan: Calculate fish overconsumption coefficient;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Calculate fish overconsumption coefficient'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Calculate fish overconsumption coefficient'\n", cur_year, cur_step);
-            }
         }
         {
             // Zero comm catch before working out post-adjustment value;
@@ -567,28 +475,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: Revert to being total biomass (applying overconsumption in process);
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Revert to being total biomass (applying overconsumption in process)'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Revert to being total biomass (applying overconsumption in process)'\n", cur_year, cur_step);
-            }
-        }
-        {
-            // g3a_trace_nan: Zero comm catch before working out post-adjustment value;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero comm catch before working out post-adjustment value'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero comm catch before working out post-adjustment value'\n", cur_year, cur_step);
-            }
-        }
-        {
             // Natural mortality for fish;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -598,17 +484,6 @@ Type objective_function<Type>::operator() () {
                 auto fish__area_idx = 0;
 
                 fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(fish__M)*cur_step_size);
-            }
-        }
-        {
-            // g3a_trace_nan: Natural mortality for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Natural mortality for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Natural mortality for fish'\n", cur_year, cur_step);
             }
         }
         {
@@ -647,17 +522,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: g3a_grow for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_grow for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_grow for fish'\n", cur_year, cur_step);
-            }
-        }
-        {
             auto factor = (fish__rec__scalar*map_extras::at_def(fish__rec, std::make_tuple(cur_year), (Type)(NAN)));
 
             {
@@ -682,17 +546,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: g3a_renewal for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_renewal for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_renewal for fish'\n", cur_year, cur_step);
-            }
-        }
-        {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -711,17 +564,6 @@ Type objective_function<Type>::operator() () {
                         adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx)));
                     }
                 }
-            }
-        }
-        {
-            // g3a_trace_nan: g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist'\n", cur_year, cur_step);
             }
         }
         {
@@ -759,17 +601,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs'\n", cur_year, cur_step);
-            }
-        }
-        {
             // g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -788,17 +619,6 @@ Type objective_function<Type>::operator() () {
                         cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm.col(fish__age_idx).col(fish__area_idx));
                     }
                 }
-            }
-        }
-        {
-            // g3a_trace_nan: g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist'\n", cur_year, cur_step);
             }
         }
         {
@@ -835,30 +655,8 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_trace_nan: g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs'\n", cur_year, cur_step);
-            }
-        }
-        {
             // Reset understocking total;
             g3l_understocking_total = (double)(0);
-        }
-        {
-            // g3a_trace_nan: Reset understocking total;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'Reset understocking total'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Reset understocking total'\n", cur_year, cur_step);
-            }
         }
         {
             // g3l_understocking for fish;
@@ -866,33 +664,11 @@ Type objective_function<Type>::operator() () {
             g3l_understocking_total += fish__overconsumption;
         }
         {
-            // g3a_trace_nan: g3l_understocking for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_understocking for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_understocking for fish'\n", cur_year, cur_step);
-            }
-        }
-        {
             // g3l_understocking: Combine and add to nll;
             g3l_understocking_total = pow(g3l_understocking_total, (Type)(double)(2));
             nll += (double)(1e+08)*g3l_understocking_total;
             nll_understocking__wgt(cur_time + 1 - 1) += g3l_understocking_total;
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
-        }
-        {
-            // g3a_trace_nan: g3l_understocking: Combine and add to nll;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_understocking: Combine and add to nll'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_understocking: Combine and add to nll'\n", cur_year, cur_step);
-            }
         }
         if ( report_detail == 1 ) {
             detail_fish__predby_comm.col(cur_time + 1 - 1) = fish__predby_comm;
@@ -931,17 +707,6 @@ Type objective_function<Type>::operator() () {
                         }
                     }
                 }
-            }
-        }
-        {
-            // g3a_trace_nan: g3a_age for fish;
-            if ( ! nan_fish__num && ((fish__num).isNaN()).any() ) {
-                nan_fish__num = true;
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_age for fish'\n", cur_year, cur_step);
-            }
-            if ( ! nan_fish__wgt && ((fish__wgt).isNaN()).any() ) {
-                nan_fish__wgt = true;
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_age for fish'\n", cur_year, cur_step);
             }
         }
     }

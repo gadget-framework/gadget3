@@ -95,7 +95,7 @@ actions <- c(actions, actions_acoustic, actions_likelihood_acoustic)
 actions_reporting <- list(
   g3a_report_detail(actions),
   # g3a_report_history(actions),
-  g3experiments:::g3a_trace_nan(actions,  var_re = c("fish__num$", "fish__wgt$")),
+  # g3experiments:::g3a_trace_nan(actions,  var_re = c("fish__num$", "fish__wgt$")),
   NULL)
 
 actions <- c(actions, actions_reporting)

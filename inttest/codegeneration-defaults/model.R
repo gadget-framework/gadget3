@@ -54,9 +54,6 @@ structure(function (param)
     normalize_vec <- function(a) {
         a/sum(a)
     }
-    Rprintf <- function(...) {
-        cat(sprintf(...))
-    }
     avoid_zero_vec <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
@@ -170,8 +167,6 @@ structure(function (param)
     cur_step_size <- step_lengths[[1]]/12
     fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    nan_fish__num <- FALSE
-    nan_fish__wgt <- FALSE
     as_integer <- as.integer
     total_years <- end_year - retro_years - start_year + project_years + 1L
     detail_fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
@@ -267,8 +262,6 @@ structure(function (param)
                   REPORT(fish__totalpredate)
                   REPORT(fish__wgt)
                   REPORT(g3l_understocking_total)
-                  REPORT(nan_fish__num)
-                  REPORT(nan_fish__wgt)
                   REPORT(nll)
                   REPORT(nll_adist_surveyindices_log_acoustic_dist__weight)
                   REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt)
@@ -303,28 +296,6 @@ structure(function (param)
                 }
             }
         }
-        {
-            comment("g3a_trace_nan: g3a_initialconditions for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_initialconditions for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_initialconditions for fish'\n", cur_year, cur_step)
-            }
-        }
-        {
-            comment("g3a_trace_nan: g3a_time: Start of time period")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_time: Start of time period'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_time: Start of time period'\n", cur_year, cur_step)
-            }
-        }
         if (param[["report_detail"]] == 1) 
             detail_fish__num[, , , cur_time + 1] <- fish__num
         if (param[["report_detail"]] == 1) 
@@ -335,30 +306,8 @@ structure(function (param)
             comm__catchnum[] <- 0
         }
         {
-            comment("g3a_trace_nan: Zero biomass-caught counter for comm")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero biomass-caught counter for comm'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero biomass-caught counter for comm'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("Zero total predation counter for fish")
             fish__totalpredate[] <- 0
-        }
-        {
-            comment("g3a_trace_nan: Zero total predation counter for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero total predation counter for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero total predation counter for fish'\n", cur_year, cur_step)
-            }
         }
         {
             comment("g3a_predate_fleet for fish")
@@ -382,17 +331,6 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: g3a_predate_fleet for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_predate_fleet for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_predate_fleet for fish'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("Scale comm catch of fish by total expected catch")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
@@ -411,30 +349,8 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: Scale comm catch of fish by total expected catch")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Scale comm catch of fish by total expected catch'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Scale comm catch of fish by total expected catch'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("Temporarily convert to being proportion of totalpredate")
             fish__predby_comm <- fish__predby_comm/avoid_zero_vec(fish__totalpredate)
-        }
-        {
-            comment("g3a_trace_nan: Temporarily convert to being proportion of totalpredate")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Temporarily convert to being proportion of totalpredate'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Temporarily convert to being proportion of totalpredate'\n", cur_year, cur_step)
-            }
         }
         {
             comment("Calculate fish overconsumption coefficient")
@@ -447,17 +363,6 @@ structure(function (param)
             fish__totalpredate <- (fish__num * fish__wgt) * fish__consratio
             fish__overconsumption <- fish__overconsumption - sum(fish__totalpredate)
             fish__num <- fish__num * (1 - fish__consratio)
-        }
-        {
-            comment("g3a_trace_nan: Calculate fish overconsumption coefficient")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Calculate fish overconsumption coefficient'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Calculate fish overconsumption coefficient'\n", cur_year, cur_step)
-            }
         }
         {
             comment("Zero comm catch before working out post-adjustment value")
@@ -483,45 +388,12 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: Revert to being total biomass (applying overconsumption in process)")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Revert to being total biomass (applying overconsumption in process)'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Revert to being total biomass (applying overconsumption in process)'\n", cur_year, cur_step)
-            }
-        }
-        {
-            comment("g3a_trace_nan: Zero comm catch before working out post-adjustment value")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Zero comm catch before working out post-adjustment value'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Zero comm catch before working out post-adjustment value'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("Natural mortality for fish")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
                 fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(param[["fish.M"]]) * cur_step_size)
-            }
-        }
-        {
-            comment("g3a_trace_nan: Natural mortality for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Natural mortality for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Natural mortality for fish'\n", cur_year, cur_step)
             }
         }
         {
@@ -554,17 +426,6 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: g3a_grow for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_grow for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_grow for fish'\n", cur_year, cur_step)
-            }
-        }
-        {
             factor <- (param[["fish.rec.scalar"]] * nvl(param[[paste("fish.rec", cur_year, sep = ".")]], NaN))
             {
                 comment("g3a_renewal for fish")
@@ -584,17 +445,6 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: g3a_renewal for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_renewal for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_renewal for fish'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
@@ -608,17 +458,6 @@ structure(function (param)
                     adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] <- adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] + g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]))
                   }
                 }
-            }
-        }
-        {
-            comment("g3a_trace_nan: g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist'\n", cur_year, cur_step)
             }
         }
         {
@@ -653,17 +492,6 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
@@ -677,17 +505,6 @@ structure(function (param)
                     cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm[, fish__area_idx, fish__age_idx])
                   }
                 }
-            }
-        }
-        {
-            comment("g3a_trace_nan: g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist'\n", cur_year, cur_step)
             }
         }
         {
@@ -715,30 +532,8 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_trace_nan: g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("Reset understocking total")
             g3l_understocking_total <- 0
-        }
-        {
-            comment("g3a_trace_nan: Reset understocking total")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'Reset understocking total'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'Reset understocking total'\n", cur_year, cur_step)
-            }
         }
         {
             comment("g3l_understocking for fish")
@@ -746,33 +541,11 @@ structure(function (param)
             g3l_understocking_total <- g3l_understocking_total + fish__overconsumption
         }
         {
-            comment("g3a_trace_nan: g3l_understocking for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_understocking for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_understocking for fish'\n", cur_year, cur_step)
-            }
-        }
-        {
             comment("g3l_understocking: Combine and add to nll")
             g3l_understocking_total <- g3l_understocking_total^2
             nll <- nll + 1e+08 * g3l_understocking_total
             nll_understocking__wgt[cur_time + 1L] <- nll_understocking__wgt[cur_time + 1L] + g3l_understocking_total
             nll_understocking__weight[cur_time + 1L] <- 1e+08
-        }
-        {
-            comment("g3a_trace_nan: g3l_understocking: Combine and add to nll")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3l_understocking: Combine and add to nll'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3l_understocking: Combine and add to nll'\n", cur_year, cur_step)
-            }
         }
         if (param[["report_detail"]] == 1) 
             detail_fish__predby_comm[, , , cur_time + 1] <- fish__predby_comm
@@ -805,17 +578,6 @@ structure(function (param)
                     fish__wgt[, , fish__age_idx] <- fish__wgt[, , fish__age_idx - 1L]
                   }
                 }
-            }
-        }
-        {
-            comment("g3a_trace_nan: g3a_age for fish")
-            if (!nan_fish__num && any(is.nan(fish__num))) {
-                nan_fish__num <- TRUE
-                Rprintf("fish__num became NaN at %d-%d, after 'g3a_age for fish'\n", cur_year, cur_step)
-            }
-            if (!nan_fish__wgt && any(is.nan(fish__wgt))) {
-                nan_fish__wgt <- TRUE
-                Rprintf("fish__wgt became NaN at %d-%d, after 'g3a_age for fish'\n", cur_year, cur_step)
             }
         }
     }
