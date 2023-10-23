@@ -358,15 +358,17 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         },
         stock_prepend = function (x) { # Arguments: stock variable, param, name_part = NULL
             stock_var <- x[[2]]
-            stock <- get(as.character(stock_var), envir = orig_env)
 
             # Fish out extra part to add to name
             if (is.character(stock_var)) {
+                stock <- NULL
                 # Adding a fixed string, don't invoke stock mechanisms
                 name_extra <- stock_var
             } else if (!is.null(x$name_part)) {
+                stock <- get(as.character(stock_var), envir = orig_env)
                 name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
             } else {
+                stock <- get(as.character(stock_var), envir = orig_env)
                 name_extra <- stock$name
             }
 
@@ -380,7 +382,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             # Apply stock rename to the rest of the call, to translate any stock__minage references.
             # NB: Recurse first to resolve any nested stock_prepend()
-            inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
+            if (!is.null(stock)) {
+                inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
+            }
             inner <- rlang::f_rhs(g3_step(
                 call_to_formula(inner, env = as.environment(list())),
                 recursing = TRUE, orig_env = orig_env))

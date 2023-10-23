@@ -298,6 +298,14 @@ ok_group("g3_step:stock_prepend", {
             g3_param("stick_stock.par1")
             g3_param("stock.par1")
         }), "name_part can contain multiple name_parts, get used in order")
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            stock_prepend("bling", g3_param("Linf", value = 1))
+            stock_prepend("blang", g3_param("Linf", value = 1))
+        }), ~{
+            g3_param("bling.Linf", value = 1)
+            g3_param("blang.Linf", value = 1)
+        }), "stock_var can also be a string (worked out by g3_parameterized), which just gets prepended")
 })
 
 ok_group("g3_step:stock_prepend:table", {
