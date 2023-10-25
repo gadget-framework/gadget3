@@ -168,6 +168,13 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_groups <- levels(as.factor(data$stock))
         stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)
 
+        unknown_stocks <- setdiff(
+            stock_groups,
+            vapply(all_stocks, function (s) s$name, character(1)) )
+        if (length(unknown_stocks) > 0) {
+            stop("Unknown stock names in likelihood data: ", paste(unknown_stocks, collapse = ", "))
+        }
+
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
         handled_columns$stock <- NULL
@@ -181,6 +188,13 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_regexes <- as.character(data$stock_re[!duplicated(data$stock_re)])
         for (i in rev(seq_along(stock_regexes))) {  # NB: Reverse so first ones have precedence
             stock_map[grep(stock_regexes[[i]], names(stock_map))] <- i
+        }
+
+        unused_regexes <- setdiff(
+            seq_along(stock_regexes),
+            unique(unlist(stock_map)) )
+        if (length(unused_regexes) > 0) {
+            stop("stock_re regexes matched no stocks in likelihood data: ", paste(stock_regexes[unused_regexes], collapse = ", "))
         }
 
         # NB: We have to replace stockidx_f later whenever we intersect over these

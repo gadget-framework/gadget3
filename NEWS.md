@@ -2,6 +2,7 @@
 
 ## Bug fixes
 * g3_to_r() output can be debugged in R-Studio
+* Unknown stock names in likelihood data now an error
 
 ## New features
 * Add ``g3_parameterized('x', by_year = 1998:2099)`` to override year range for parameters
