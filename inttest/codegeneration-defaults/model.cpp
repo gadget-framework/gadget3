@@ -265,8 +265,8 @@ Type objective_function<Type>::operator() () {
     int adist_surveyindices_log_acoustic_dist_obs__area = 1;
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
     DATA_ARRAY(adist_surveyindices_log_acoustic_dist_obs__wgt)
-    array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + (double)(1))); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
-    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + (double)(1))); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
+    array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
+    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     int cdist_sumofsquares_comm_ldist_model__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
@@ -278,11 +278,11 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
     auto times_cdist_sumofsquares_comm_ldist_obs__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values);
     DATA_ARRAY(cdist_sumofsquares_comm_ldist_obs__wgt)
-    array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
-    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
+    array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
+    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     Type g3l_understocking_total = (double)(0);
-    array<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
-    array<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
+    array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
+    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
     array<Type> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
     array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
     array<Type> detail_fish__suit_comm(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__suit_comm.setZero();

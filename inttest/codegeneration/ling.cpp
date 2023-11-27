@@ -273,11 +273,11 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__num.setZero();
-    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + (double)(1))); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__num.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
     Type g3l_understocking_total = (double)(0);
-    array<Type> nll_understocking__wgt(as_integer(total_steps + (double)(1))); nll_understocking__wgt.setZero();
-    array<Type> nll_understocking__weight(as_integer(total_steps + (double)(1))); nll_understocking__weight.setZero();
+    array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
+    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
     array<Type> ling_imm_movement__transitioning_num(35,1,1);
     array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;

@@ -87,11 +87,11 @@ g3s_modeltime <- function (inner_stock, by_year = FALSE) {
         new_dimnames <- list(year = quote(seq(start_year, start_year + total_years - 1L)))
         lookup <- list(year = quote(g3_idx(cur_year - start_year + 1L)))
     } else {
-        new_dims <- list(time = quote(as_integer(total_steps + 1)))
+        new_dims <- list(time = quote(as_integer(total_steps + 1L)))
         # NB: head() truncates the vector at the right length, so we don't need accounting for final_year_steps
         new_dimnames <- list(time = quote(head(sprintf("%d-%02d",
             rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)),
-            rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1))))
+            rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
         lookup <- list(time = quote(g3_idx(cur_time+1L)))
     }
     structure(list(
