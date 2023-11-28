@@ -1,0 +1,92 @@
+g3_init_val <- function (
+        param_template,
+        name_spec,
+        value = NULL,
+        spread = NULL,
+        lower = if (!is.null(spread)) value * (1 - spread),
+        upper = if (!is.null(spread)) value * (1 + spread),
+        optimise = !is.null(lower) & !is.null(upper),
+        parscale = if (is.null(lower) || is.null(upper)) NULL else
+            diff(c(lower, upper), lag = length(lower)),
+        random = NULL,
+        auto_exponentiate = TRUE) {
+    stopifnot(is.data.frame(param_template) || is.list(param_template))
+    stopifnot(is.character(name_spec) && length(name_spec) == 1)
+    stopifnot(is.numeric(value) || is.null(value))
+    stopifnot(is.numeric(spread) || is.null(spread))
+    stopifnot(is.numeric(lower) || is.null(lower))
+    stopifnot(is.numeric(upper) || is.null(upper))
+    stopifnot(is.logical(optimise) || is.null(optimise))
+    stopifnot(is.numeric(parscale) || is.null(parscale))
+    stopifnot(is.logical(random) || is.null(random))
+    stopifnot(is.logical(auto_exponentiate))
+
+    # Parse name_spec --> regex
+    name_re <- paste0(vapply(strsplit(name_spec, ".", fixed = TRUE)[[1]], function (part) {
+        # [1979-1984] - range match
+        m <- regmatches(part, regexec('^\\[(\\d+)[:-](\\d+)\\]$', part))
+        if (all(vapply(m, length, numeric(1)) == 3)) {
+            m <- m[[1]]
+            return(paste0(
+                '(?:',
+                paste(seq(as.numeric(m[[2]]), as.numeric(m[[3]])), collapse = "|"),
+                ')'))
+        }
+
+        # # - numeric match
+        part <- gsub("#", "\\E\\d+\\Q", part, fixed = TRUE)
+
+        # *  - string match
+        part <- gsub("*", "\\E.*\\Q", part, fixed = TRUE)
+
+        # Make sure by default text in part is quoted
+        return(paste0('\\Q', part, '\\E'))
+    }, character(1)), collapse = "\\.")
+
+    name_re <- paste0(
+        '^',
+        name_re,
+        if (auto_exponentiate) '(_exp)?',
+        '$')
+    names_in <- if (is.data.frame(param_template)) param_template$switch else names(param_template)
+    m <- regmatches(names_in, regexec(name_re, names_in))
+
+    matches <- sapply(m, length) > 0
+    if (!any(matches)) {
+        warning("g3_init_val('", name_spec, "') didn't match any parameters")
+        return(param_template)
+    }
+
+    # Make boolean vector for all places to auto_exp 
+    if (auto_exponentiate) {
+        auto_exp <- vapply(m, function(x) length(x) >= 2 && x[[2]] == '_exp', logical(1))
+    } else {
+        auto_exp <- FALSE
+    }
+
+    if (is.data.frame(param_template)) {
+        if (!is.null(value)) {
+            param_template[matches, 'value'] <- value
+            if (any(auto_exp)) param_template[auto_exp, 'value'] <- log(param_template[auto_exp, 'value'])
+        }
+        if (!is.null(lower)) {
+            param_template[matches, 'lower'] <- lower
+            if (any(auto_exp)) param_template[auto_exp, 'lower'] <- log(param_template[auto_exp, 'lower'])
+        }
+        if (!is.null(upper)) {
+            param_template[matches, 'upper'] <- upper
+            if (any(auto_exp)) param_template[auto_exp, 'upper'] <- log(param_template[auto_exp, 'upper'])
+        }
+        # NB: Can't set optimise & random
+        if (!is.null(random)) param_template[matches, 'random'] <- random
+        if (!is.null(optimise)) param_template[matches, 'optimise'] <- optimise & !param_template[matches, 'random']
+        if (!is.null(parscale)) param_template[matches, 'parscale'] <- parscale
+    } else {  # is.list
+        if (!is.null(value)) {
+            param_template[matches] <- value
+            if (any(auto_exp)) param_template[auto_exp] <- log(param_template[auto_exp])
+        }
+    }
+    
+    return(param_template)
+}
