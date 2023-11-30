@@ -70,6 +70,7 @@ g3_init_val(
     \item{A wildcard matching anything (\code{*}), or a matching anything with a prefix, e.g. \code{m*}}
     \item{A wildcard matching any number (\code{#}), or a matching a number with a prefix, e.g. \code{age*}}
     \item{A range of numbers, e.g. \code{[1979-1984]}}
+    \item{A choice of options can be separated with \code{|}, e.g. \code{init|rec} or \code{[1979-1984]|[2000-2003]}}
   }
 }
 

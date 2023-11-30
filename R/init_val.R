@@ -39,8 +39,11 @@ g3_init_val <- function (
         # *  - string match
         part <- gsub("*", "\\E.*\\Q", part, fixed = TRUE)
 
-        # Make sure by default text in part is quoted
-        return(paste0('\\Q', part, '\\E'))
+        # | - or part
+        part <- gsub("|", "\\E|\\Q", part, fixed = TRUE)
+
+        # Make sure by default text in part is quoted, scope | above
+        return(paste0('(?:\\Q', part, '\\E)'))
     }, character(1)), collapse = "\\.")
 
     name_re <- paste0(

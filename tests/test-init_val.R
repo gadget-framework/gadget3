@@ -31,6 +31,10 @@ sample_names = c(
     paste('ling', 'mat', 'm', sep = "."),
     paste('ling', 'imm', 'm', 0:3, sep = "."),
     paste('ling', 'mat', 'm', 0:5, sep = "."),
+    paste('ling', 'imm', 'init', 0:3, sep = "."),
+    paste('ling', 'mat', 'init', 0:5, sep = "."),
+    paste('ling', 'imm', 'rec', 0:3, sep = "."),
+    paste('ling', 'mat', 'rec', 0:5, sep = "."),
     NULL)
 
 #### name_spec matching behaviour
@@ -49,18 +53,24 @@ ok(ut_cmp_equal(
     name_spec_matched('moo(c)', c("moo(c)", "mooc")),
     c('moo(c)')), "Regex in parts escaped")
 
+ok(ut_cmp_equal(name_spec_matched('ling.imm.*.*', sample_names), c(
+    'ling.imm.m.0', 'ling.imm.m.1', 'ling.imm.m.2', 'ling.imm.m.3',
+    'ling.imm.init.0', 'ling.imm.init.1', 'ling.imm.init.2', 'ling.imm.init.3',
+    'ling.imm.rec.0', 'ling.imm.rec.1', 'ling.imm.rec.2', 'ling.imm.rec.3',
+    NULL)), "* matches strings and numeric")
+ok(ut_cmp_equal(name_spec_matched('ling.*m*.*.1', sample_names), c(
+    'ling.imm.m.1', 'ling.mat.m.1',
+    'ling.imm.init.1', 'ling.mat.init.1',
+    'ling.imm.rec.1', 'ling.mat.rec.1',
+    NULL)), "* matches variable lengths")
 ok(ut_cmp_equal(
-    name_spec_matched('ling.imm.*.*', sample_names),
-    c('ling.imm.m.0', 'ling.imm.m.1', 'ling.imm.m.2', 'ling.imm.m.3')), "* matches strings and numeric")
-ok(ut_cmp_equal(
-    name_spec_matched('ling.*.*.1', sample_names),
-    c('ling.imm.m.1', 'ling.mat.m.1')), "* matches variable lengths")
-ok(ut_cmp_equal(
-    name_spec_matched('ling.m*t.*.1', sample_names),
+    name_spec_matched('ling.m*t.m*.1', sample_names),
     c('ling.mat.m.1')), "* can be used to partially match")
-ok(ut_cmp_equal(
-    name_spec_matched('ling.*m*.*.1', sample_names),
-    c('ling.imm.m.1', 'ling.mat.m.1')), "* can be used to match multiple times")
+ok(ut_cmp_equal(name_spec_matched('ling.*m*.*.1', sample_names), c(
+    'ling.imm.m.1', 'ling.mat.m.1',
+    'ling.imm.init.1', 'ling.mat.init.1',
+    'ling.imm.rec.1', 'ling.mat.rec.1',
+    NULL)), "* can be used to match multiple times")
 
 ok(ut_cmp_equal(
     name_spec_matched('ling.imm.m.#', sample_names),
@@ -68,6 +78,13 @@ ok(ut_cmp_equal(
 ok(ut_cmp_equal(
     suppressWarnings(name_spec_matched('ling.imm.#.1', sample_names)),
     c()), "# ignores non-numeric")
+
+ok(ut_cmp_equal(name_spec_matched('ling.*m*.i*t|rec.#', sample_names), c(
+    'ling.imm.init.0', 'ling.imm.init.1', 'ling.imm.init.2', 'ling.imm.init.3',
+    'ling.mat.init.0', 'ling.mat.init.1', 'ling.mat.init.2', 'ling.mat.init.3', 'ling.mat.init.4', 'ling.mat.init.5',
+    'ling.imm.rec.0', 'ling.imm.rec.1', 'ling.imm.rec.2', 'ling.imm.rec.3',
+    'ling.mat.rec.0', 'ling.mat.rec.1', 'ling.mat.rec.2', 'ling.mat.rec.3', 'ling.mat.rec.4', 'ling.mat.rec.5',
+    NULL)), "Pipe scoped to work within section, wildcards work within")
 
 ok(ut_cmp_equal(
     name_spec_matched('moo.[2-18]', paste0("moo.", 1:40)),
