@@ -1,7 +1,6 @@
 g3a_naturalmortality_exp <- function (
-        param_f = g3_parameterized('M', by_stock = by_stock, by_age = by_age),
+        param_f = g3_parameterized('M', by_stock = by_stock, by_age = TRUE),
         by_stock = TRUE,
-        by_age = FALSE,
         action_step_size_f = ~cur_step_size) {
     f_substitute(
         ~exp(-(param_f) * action_step_size_f),

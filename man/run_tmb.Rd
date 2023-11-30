@@ -157,7 +157,7 @@ tmb_param[grepl('^ling_imm.init.\\\\d+', rownames(tmb_param)), 'value'] <- 1
 tmb_param$value$ling_imm.init.scalar <- 200
 tmb_param$value$ling_imm.walpha <- 2.27567436711055e-06
 tmb_param$value$ling_imm.wbeta <- 3.20200445996187
-tmb_param$value$ling_imm.M <- 0.15
+tmb_param[grepl('\\\\.M$', rownames(tmb_param)), 'value'] <- 0.15
 
 # We can set lower/upper bounds for multiple properties at once with grepl()
 tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- -1000
