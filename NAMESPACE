@@ -112,6 +112,7 @@ export(g3_to_desc)
 # R/run_r.R
 export(g3_to_r)
 S3method(edit, g3_r)
+S3method(print, g3_r)
 
 # R/run_tmb.R
 export(g3_to_tmb)

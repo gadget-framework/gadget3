@@ -231,3 +231,17 @@ edit.g3_r <- function(name = NULL, file = "", title = NULL, editor = getOption("
     environment(out) <- environment(name)
     return(out)
 }
+
+print.g3_r <- function(x, ..., with_environment = FALSE, with_template = FALSE) {
+    a <- attributes(x)
+    attributes(x) <- NULL
+    print.function(x)
+    if (with_environment) {
+        writeLines("Environment:")
+        str(as.list(environment(x)), no.list = TRUE)
+    }
+    if (with_template) {
+        writeLines("Parameter template:")
+        str(a$parameter_template, no.list = TRUE)
+    }
+}
