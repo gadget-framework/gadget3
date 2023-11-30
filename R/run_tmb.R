@@ -878,7 +878,6 @@ Type objective_function<Type>::operator() () {
     %s
 
     %s
-    abort();  // Should have returned somewhere in the loop
 }\n", paste(ss[['function']], collapse = "\n"), paste(ss$definition, collapse = "\n    "),
       cpp_code(all_actions_code, rlang::f_env(all_actions), statement = TRUE))
     out <- strsplit(out, "\n")[[1]]

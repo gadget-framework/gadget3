@@ -168,8 +168,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
         scope,
-        all_actions_code,
-        quote(stop("Should have return()ed somewhere in the loop")))))
+        all_actions_code )))
 
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
