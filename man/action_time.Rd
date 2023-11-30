@@ -7,11 +7,14 @@
 }
 
 \usage{
-g3a_time(start_year, end_year, step_lengths = c(12),
-     final_year_steps = quote( length(step_lengths) ),
-     project_years = ~g3_param('project_years', default = 0, optimise = FALSE),
-     retro_years = ~g3_param('retro_years', default = 0, optimise = FALSE),
-     run_at = 0)
+g3a_time(
+        start_year,
+        end_year,
+        step_lengths = c(12),
+        final_year_steps = quote( length(step_lengths) ),
+        project_years = g3_parameterized("project_years", value = 0, optimise = FALSE),
+        retro_years = g3_parameterized("retro_years", value = 0, optimise = FALSE),
+        run_at = 0)
 
 }
 
