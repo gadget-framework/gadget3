@@ -12,6 +12,7 @@
 * Defaults for ``g3_suitability_exponentiall50``
 * Support cut() formatted character columns as well as factor columns in likelihood observation data.
 * Add ``g3_init_val()`` helper, to replace ``gadgetutils::g3_init_guess()``
+* Add ``g3_areas()`` helper to create numbered area vectors
 
 ## Breaking changes
 

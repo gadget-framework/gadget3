@@ -4,7 +4,7 @@ library(unittest)
 library(gadget3)
 
 actions <- list()
-area_names <- c(IXa = 1L)
+area_names <- g3_areas(c("IXa"))
 
 actions_time <- list(
   g3a_time(
