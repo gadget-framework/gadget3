@@ -285,7 +285,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     if ('number' %in% names(full_table)) {
         # TODO: More fancy NA-handling (i.e. random effects) goes here
-        if (missing_val == 'stop') {
+        if (identical(missing_val, 'stop')) {
             if (any(is.na(full_table$number))) stop("Missing values in data")
         } else {
             # Fill in missing values with given value
