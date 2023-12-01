@@ -19,9 +19,22 @@ vignette: >
 
 ```{r, message=FALSE, echo=FALSE}
 library(gadget3)
+set.seed(123)
 ```
 
 ## Gadget3 and the gadget framework
+
+Gadget3 is a marine modelling R package, but it is not in itself an ecosystem model.
+Instead, it gives you building blocks (or *actions*) that can be assembled to produce as complex model as your situation requires.
+This can then be converted into other forms,
+most importantly a [TMB](https://CRAN.R-project.org/package=TMB) objective function or an R function,
+which can then be optimised and run to generate reporting.
+
+As the name suggests, it's designed to be a successor to the previous [gadget](https://cran.r-project.org/package=gadget2)
+modelling framework.
+The actions currently available are designed to be very similar, if not identical, to the components present in gadget2.
+If you are familiar with previous versions of gadget then you will find the naming very similar,
+and translation of old input files to gadget3 can be done in a rote fashion.
 
 Gadget3 is the core part of what is known as the *gadget framework*,
 a set of packages that are designed to work together to produce ecosystem models.
@@ -53,15 +66,13 @@ remotes::install_github('gadget-framework/g3experiments')
 
 ## Creating a (single species) model
 
-gadget3 itself is not an ecosystem model.
-Rather, it's main aim is to produce code that can be converted into other forms,
-most importantly a [TMB](https://CRAN.R-project.org/package=TMB) objective function or an R function,
-which can then be optimised and run to generate reporting.
-
-As opposed to other modelling frameworks there is no input data formats,
-the model configuration is written as an R script.
+As opposed gadget2 and other modelling frameworks, there is no input data format.
+Instead, the model configuration is written as an R script.
 This document will walk through the parts of a model script for a single-species model,
 introducing concepts along the way.
+
+NB: All code samples in a blue box are part of the model script.
+See [the appendix for the full model script](#appendix-full-model-script)
 
 The first step in any script is to load ``gadget3``. We will also use ``dplyr`` when formatting input data:
 
@@ -71,9 +82,6 @@ library(gadget3)
 library(dplyr)
 ```
 </div>
-
-NB: This and all subsequent sections of the model script are marked in blue.
-See [the appendix for the full model script](#appendix-full-model-script)
 
 ### Actions
 
@@ -99,11 +107,17 @@ actions <- c(actions, actions_time)
 </div>
 
 This acts as timekeeping for our model, starting in year 1979 and progressing until 2023.
+Each year will have 4 time steps in, of equal length.
+
+As a convention, we build up an ``actions`` array of everything required, allowing sections
+to be added/removed as necessary.
 
 ### Stocks
 
-The other key concept in a gadget3 model is a *stock*.
-These do not directly correspond to a species, more complicated models may have many stocks with independent processes representing a species.
+After actions, the other key concept in a gadget3 model is a *stock*.
+These are the means to describe populations within your model.
+For simpler scenarios such as here, stocks map directly to a species.
+However, more complicated models may have one stock per-maturation-stage, sex or both.
 
 We define a stock with the ``g3_stock()`` and associated ``g3s_*`` functions, for example:
 
@@ -120,8 +134,9 @@ fish <- g3_stock("fish", seq(5L, 25L, 5)) |>
 
 Here we define a stock called "fish" with length bins 5..25, then add an area to live in & 5 age bins.
 
-The main aim of the stock functions is to define the structure for arrays that will hold stock state.
-We can produce an example of an array using ``g3_stock_instance()``:
+The stock functions define the structure of the arrays that will hold the state of that stock within
+gadget3.
+To see the end result, we can use ``g3_stock_instance()`` to see an example of the arrays used:
 
 ```{r}
 g3_stock_instance(fish, 0)[,area='IXa',]
@@ -129,7 +144,7 @@ g3_stock_instance(fish, 0)[,area='IXa',]
 
 ### Stock actions
 
-Next we add population dynamics actions for our stock into our ``actions`` array from earlier:
+Now we have a stock, we can add apply population dynamics *actions*, and save them in the ``actions`` array from earlier:
 
 <div class="modelScript">
 ```{r}
@@ -151,7 +166,7 @@ actions <- c(actions, actions_fish, actions_likelihood_fish)
 ```
 </div>
 
-Each of these ``g3a_*`` actions will have a 1:1 parallel with gadget2 components,
+Each of these ``g3a_*`` actions will have a 1:1 parallel with gadget2 stockfile components,
 so if you are familiar with these config files will do what you expect.
 
 For each action you can click through to the reference to get more information on what it does, but in summary we have defined:
@@ -166,7 +181,7 @@ For each action you can click through to the reference to get more information o
 The order of these actions as we have defined them is not preserved, they will be re-ordered to match the standard action order, see `?g3_action_order`.
 
 Likelihood actions are actions that will sum their output into the model's overall likelihood score,
-More will be defined later, when we deal with fleets.
+analogous to gadget2's [likelihood components](https://gadget-framework.github.io/gadget2/userguide/chap-like.html).
 
 #### Recruitment
 
