@@ -1,0 +1,22 @@
+---
+title: "Model customisation"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Model customisation}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+TODO:
+
+To change this we can call ``g3_parameterized()`` ourself with different parameters:
+
+```{r, eval = FALSE}
+attr(suppressWarnings(g3_to_tmb(list(
+    g3a_naturalmortality(
+        fish,
+        g3a_naturalmortality_exp(g3_parameterized("M", by_stock = TRUE, by_age = FALSE)))
+    ))), 'parameter_template')
+```

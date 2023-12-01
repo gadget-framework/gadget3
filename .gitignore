@@ -5,6 +5,8 @@
 ^cran-comments$
 /docs
 /vignettes/*.html
+/vignettes/WGTS/
+/vignettes/figs/
 .Rproj.user
 /inttest/*/*.out
 /inttest/*/*.log

@@ -1,0 +1,12 @@
+---
+title: "Supplying data to gadget3"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Supplying data to gadget3}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+TODO:

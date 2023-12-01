@@ -25,6 +25,7 @@ Imports:
     TMB (>= 1.7.0),
     utils,
 Suggests:
+    dplyr,
     knitr,
     magrittr (>= 1.5),
     rmarkdown,

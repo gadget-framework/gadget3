@@ -3,6 +3,7 @@
 \.travis.yml
 ^Makefile
 ^[^/]+\.tar\.gz
+^_pkgdown.yml$
 ^.bash_history
 ^do-release\.sh$
 ^LICENSE$
@@ -20,3 +21,6 @@
 ^cran-comments$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+^/vignettes/WGTS/
+^/vignettes/figs/

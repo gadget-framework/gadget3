@@ -1,0 +1,16 @@
+articles:
+- title: User guides
+  navbar: ~
+  contents:
+  - introduction-single-stock
+  - supplying-data-to-gadget3
+  - order-of-calculations
+  - model-customisation
+  - model-debugging
+
+- title: Advanced documentation
+  navbar: Advanced
+  desc: Vignettes describing internals of gadget3 & how to extend it
+  contents:
+  - model_structure
+  - writing_actions
