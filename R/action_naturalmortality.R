@@ -11,7 +11,7 @@ g3a_naturalmortality <- function (
         stock,
         mortality_f = g3a_naturalmortality_exp(),
         run_f = TRUE,
-        run_at = 4) {
+        run_at = g3_action_order$naturalmortality) {
     # See Stock::reducePop, NaturalMortality::Reset
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()

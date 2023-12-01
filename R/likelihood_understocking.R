@@ -3,7 +3,7 @@ g3l_understocking <- function (
         power_f = ~2,
         nll_breakdown = FALSE,
         weight = 1e+08,
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     out <- new.env(parent = emptyenv())
 
     nllstock <- g3_storage("nll_understocking")

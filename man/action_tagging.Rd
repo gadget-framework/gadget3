@@ -10,9 +10,11 @@
 \usage{
 g3a_predate_tagrelease(
        fleet_stock, prey_stocks, suitabilities, catchability_f,
-       output_tag_f, mortality_f = 0, run_f = ~TRUE, run_at = 3, ...)
+       output_tag_f, mortality_f = 0, run_f = ~TRUE,
+       run_at = g3_action_order$predate, ...)
 
-g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE, run_at = 9)
+g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE,
+       run_at = g3_action_order$straying)
 }
 
 \arguments{

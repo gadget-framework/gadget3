@@ -25,8 +25,9 @@ g3a_spawn_recruitment_hockeystick(r0, blim)
 g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0, 
           weightloss_f = 0, output_stocks = list(), 
           output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
-          mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE, run_at = 6, 
-          recruit_at = 8)
+          mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE,
+          run_at = g3_action_order$spawn,
+          recruit_at = g3_action_order$renewal)
 }
 
 \arguments{

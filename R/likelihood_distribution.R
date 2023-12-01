@@ -177,7 +177,7 @@ g3l_distribution <- function (
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     stopifnot(is.character(nll_name) && length(nll_name) == 1)
     stopifnot(is.data.frame(obs_data))
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))

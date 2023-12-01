@@ -10,7 +10,7 @@
 g3l_bounds_penalty(
         parameter_template,
         weight = 1,
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 }
 
 \arguments{

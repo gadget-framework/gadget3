@@ -20,8 +20,9 @@ g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL,
     k50 = NA)
 
 g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output_stocks), 
-    times = length(output_stocks)), run_f = ~TRUE, run_at = 5, 
-    transition_at = 7)
+    times = length(output_stocks)), run_f = ~TRUE,
+    run_at = g3_action_order$grow,
+    transition_at = g3_action_order$mature)
 
 }
 

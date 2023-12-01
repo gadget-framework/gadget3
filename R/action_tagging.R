@@ -6,7 +6,7 @@ g3a_predate_tagrelease <- function (
         output_tag_f,
         mortality_f = 0,
         run_f = ~TRUE,
-        run_at = 3,
+        run_at = g3_action_order$predate,
         ...) {
     stopifnot(g3_is_stock(fleet_stock))
     stopifnot(is.list(prey_stocks) && all(sapply(prey_stocks, g3_is_stock)))
@@ -52,7 +52,7 @@ g3a_tag_shedding <- function (
         stocks,
         tagshed_f,
         run_f = ~TRUE,
-        run_at = 9) {  # TODO: it's kinda like straying, but it's own home would be more sensible
+        run_at = g3_action_order$straying) {  # TODO: it's kinda like straying, but it's own home would be more sensible
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
 
     out <- new.env(parent = emptyenv())

@@ -12,7 +12,7 @@ g3l_understocking(
         power_f = ~2,
         nll_breakdown = FALSE,
         weight = 1e+08,
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 }
 
 \arguments{

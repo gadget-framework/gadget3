@@ -11,7 +11,8 @@
 g3a_migrate_normalize(row_total = 1)
 
 g3a_migrate(stock, migrate_f, normalize_f = g3a_migrate_normalize(),
-            run_f = TRUE, run_at = 2)
+            run_f = TRUE,
+            run_at = g3_action_order$migrate)
 }
 
 \arguments{

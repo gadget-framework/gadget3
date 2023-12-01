@@ -39,7 +39,8 @@ g3a_renewal_initabund(
     by_stock = TRUE,
     by_stock_f = FALSE)
 
-g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0)
+g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L,
+        run_at = g3_action_order$initial)
 
 g3a_initialconditions_normalparam(
         stock,
@@ -54,7 +55,7 @@ g3a_initialconditions_normalparam(
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
-        run_at = 0)
+        run_at = g3_action_order$initial)
 
 g3a_initialconditions_normalcv(
         stock,
@@ -69,9 +70,10 @@ g3a_initialconditions_normalcv(
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
-        run_at = 0)
+        run_at = g3_action_order$initial)
 
-g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8)
+g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE,
+        run_at = g3_action_order$renewal)
 
 g3a_renewal_normalparam(
         stock,
@@ -92,7 +94,7 @@ g3a_renewal_normalparam(
         run_projection = FALSE,
         run_step = 1,
         run_f = NULL,
-        run_at = 8)
+        run_at = g3_action_order$renewal)
 
 g3a_renewal_normalcv(
         stock,
@@ -114,7 +116,7 @@ g3a_renewal_normalcv(
         run_projection = FALSE,
         run_step = 1,
         run_f = NULL,
-        run_at = 8)
+        run_at = g3_action_order$renewal)
 }
 
 \arguments{

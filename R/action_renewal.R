@@ -81,7 +81,7 @@ g3a_renewal_wgt_wl <- function(
 }
 
 # Assign number / mean weight based on formulae
-g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = 0) {
+g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L, run_at = g3_action_order$initial) {
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
 
@@ -115,7 +115,7 @@ g3a_initialconditions_normalparam <- function (
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
-        run_at = 0) {
+        run_at = g3_action_order$initial) {
 
     # Replace "age" with "age - cur_step_size", i.e. pretending this is happening at time "-1"
     if (!is.null(age_offset)) {
@@ -150,7 +150,7 @@ g3a_initialconditions_normalcv <- function (
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
-        run_at = 0) {
+        run_at = g3_action_order$initial) {
     g3a_initialconditions_normalparam(
         stock = stock,
         factor_f = factor_f,
@@ -164,7 +164,7 @@ g3a_initialconditions_normalcv <- function (
 }
 
 # Assign number / mean weight based on formulae
-g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = 8) {
+g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_action_order$renewal) {
     # See InitialCond::Initialise
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
@@ -212,7 +212,7 @@ g3a_renewal_normalparam <- function (
         run_projection = FALSE,
         run_step = 1,
         run_f = NULL,
-        run_at = 8) {
+        run_at = g3_action_order$renewal) {
 
     if (is.null(run_f)) run_f <- f_substitute(quote( age && step && proj ), list(
         age = (if (is.null(run_age)) TRUE else f_substitute(quote(age == x), list(x = run_age))),
@@ -253,7 +253,7 @@ g3a_renewal_normalcv <- function (
         run_projection = FALSE,
         run_step = 1,
         run_f = NULL,
-        run_at = 8) {
+        run_at = g3_action_order$renewal) {
     g3a_renewal_normalparam(
         stock,
         factor_f = factor_f,

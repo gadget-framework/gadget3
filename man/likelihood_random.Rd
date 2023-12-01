@@ -15,7 +15,7 @@ g3l_random_dnorm(
         sigma_f = 1,
         log_f = TRUE,
         weight = if (log_f) -1.0 else 1.0,
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 
 g3l_random_walk(
         nll_name,
@@ -25,7 +25,7 @@ g3l_random_walk(
         period = 'year',
         nll_breakdown = FALSE,
         weight = if (log_f) -1.0 else 1.0,
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 }
 
 \arguments{

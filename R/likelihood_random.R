@@ -5,7 +5,7 @@ g3l_random_dnorm <- function (
         sigma_f = 1,
         log_f = TRUE,
         weight = if (log_f) -1.0 else 1.0,
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     out <- new.env(parent = emptyenv())
     
     nllstock <- g3_storage(paste0('nll_random_dnorm_', nll_name))
@@ -41,7 +41,7 @@ g3l_random_walk <- function (
         period = 'year',
         nll_breakdown = FALSE,
         weight = if (log_f) -1.0 else 1.0,
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     stopifnot(period %in% c('year', 'step'))
     out <- new.env(parent = emptyenv())
     

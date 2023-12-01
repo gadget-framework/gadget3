@@ -11,19 +11,20 @@
 \usage{
 g3a_report_stock(report_stock, input_stock, report_f,
     include_adreport = FALSE,
-    run_f = TRUE, run_at = 11)
+    run_f = TRUE,
+    run_at = g3_action_order$report)
 
 g3a_report_history(
         actions,
         var_re = "__num$|__wgt$",
         out_prefix = "hist_",
         run_f = TRUE,
-        run_at = 11)
+        run_at = g3_action_order$report)
 
 g3a_report_detail(actions,
     run_f = quote( g3_param('report_detail', optimise = FALSE, value = 0L) == 1 ),
-    abundance_run_at = 1,
-    run_at = 11)
+    abundance_run_at = g3_action_order$report_early,
+    run_at = g3_action_order$report)
 }
 
 \arguments{

@@ -233,8 +233,8 @@ g3a_growmature <- function(stock,
                      output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
                      transition_f = ~cur_step_final,
                      run_f = ~TRUE,
-                     run_at = 5,
-                     transition_at = 7) {
+                     run_at = g3_action_order$grow,
+                     transition_at = g3_action_order$mature) {
     # Drag g3a_grow_apply into scope (we only don't include it here to keep source intelligable)
     g3a_grow_apply <- g3a_grow_apply
 

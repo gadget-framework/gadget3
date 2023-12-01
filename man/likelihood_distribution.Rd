@@ -41,7 +41,7 @@ g3l_abundancedistribution(
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 
 g3l_catchdistribution(
         nll_name,
@@ -57,7 +57,7 @@ g3l_catchdistribution(
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 
 g3_distribution_preview(
         obs_data,

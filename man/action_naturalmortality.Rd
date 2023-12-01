@@ -17,7 +17,7 @@ g3a_naturalmortality(
         stock,
         mortality_f = g3a_naturalmortality_exp(),
         run_f = TRUE,
-        run_at = 4)
+        run_at = g3_action_order$naturalmortality)
 
 }
 

@@ -5,7 +5,7 @@ g3l_tagging_ckmr <- function (
         parent_stocks,
         offspring_stocks,
         weight = substitute(g3_param(n, optimise = FALSE, value = 1), list(n = paste0(nll_name, "_weight"))),
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     stopifnot(is.character(nll_name))
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(parent_stocks) && all(sapply(parent_stocks, g3_is_stock)))

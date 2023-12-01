@@ -14,7 +14,7 @@ g3a_time(
         final_year_steps = quote( length(step_lengths) ),
         project_years = g3_parameterized("project_years", value = 0, optimise = FALSE),
         retro_years = g3_parameterized("retro_years", value = 0, optimise = FALSE),
-        run_at = 0)
+        run_at = g3_action_order$initial)
 
 }
 

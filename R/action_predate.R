@@ -88,7 +88,7 @@ g3a_predate_fleet <- function (fleet_stock,
                                     catchability_f,
                                     overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
                                     run_f = ~TRUE,
-                                    run_at = 3) {
+                                    run_at = g3_action_order$predate) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
     predstock <- fleet_stock  # Preserve historical function signature
@@ -243,7 +243,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
                                     amount_f,
                                     overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
                                     run_f = ~TRUE,
-                                    run_at = 3) {
+                                    run_at = g3_action_order$predate) {
     g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, overconsumption_f = overconsumption_f, run_f = run_f, run_at = run_at,
         catchability_f = g3a_predate_catchability_totalfleet(amount_f))
 }

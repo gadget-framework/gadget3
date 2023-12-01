@@ -7,9 +7,14 @@
 }
 
 \usage{
-g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stocks), 
-    times = length(output_stocks)), run_f = ~cur_step_final, 
-    run_at = 12, transition_at = 12)
+g3a_age(
+        stock,
+        output_stocks = list(),
+        output_ratios = rep(1/length(output_stocks),
+        times = length(output_stocks)),
+        run_f = ~cur_step_final,
+        run_at = g3_action_order$age,
+        transition_at = g3_action_order$age)
 
 }
 
