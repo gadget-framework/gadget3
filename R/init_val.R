@@ -70,7 +70,7 @@ g3_init_val <- function (
     if (is.data.frame(param_template)) {
         if (!is.null(value)) {
             param_template[matches, 'value'] <- value
-            if (any(auto_exp)) param_template[auto_exp, 'value'] <- log(param_template[auto_exp, 'value'])
+            if (any(auto_exp)) param_template[auto_exp, 'value'] <- sapply(param_template[auto_exp, 'value'], log)
         }
         if (!is.null(lower)) {
             param_template[matches, 'lower'] <- lower

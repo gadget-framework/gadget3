@@ -5,7 +5,7 @@ library(gadget3)
 
 default_pt <- function (sn) data.frame(
         switch = sn,
-        value = NA,
+        value = I(as.list( rep(NA, length(sn)) )),
         lower = NA,
         upper = NA,
         parscale = NA,
@@ -108,7 +108,7 @@ ok(ut_cmp_equal(g3_init_val(out, 'moo.[3-7]', 13:17), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = NA,
     upper = NA,
     parscale = NA,
@@ -117,7 +117,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4, lower = 4), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = 4,
     upper = NA,
     parscale = NA,
@@ -126,7 +126,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 4), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4, upper = 8), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = NA,
     upper = 8,
     parscale = NA,
@@ -135,7 +135,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, upper = 8), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = 2,
     upper = 8,
     parscale = 6,
@@ -144,7 +144,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, optimise = FALSE), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = 2,
     upper = 8,
     parscale = 6,
@@ -153,7 +153,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, optimise = FALS
 
 ok(ut_cmp_equal(iv_options('x', value = 4, optimise = TRUE), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = NA,
     upper = NA,
     parscale = NA,
@@ -162,7 +162,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, optimise = TRUE), list(
 
 ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, random = TRUE), list(
     switch = "x",
-    value = 4,
+    value = I(list(4)),
     lower = 2,
     upper = 8,
     parscale = 6,
@@ -174,7 +174,7 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, random = TRUE),
 pt <- default_pt(c('moo.1', 'moo.1_exp', 'baa.2', 'baa.2_exp', 'oink.1', 'oink.1_exp'))
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1', 4, auto_exponentiate = TRUE)$value,
-    c(4, log(4), NA, NA, 4, log(4))), "log() values that are in _exp columns")
+    I(list(4, log(4), NA, NA, 4, log(4)))), "log() values that are in _exp columns")
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1', lower = 22, auto_exponentiate = TRUE)$lower,
     c(22, log(22), NA, NA, 22, log(22))), "Can auto_exp lower")
@@ -183,13 +183,13 @@ ok(ut_cmp_equal(
     c(22, log(22), NA, NA, 22, log(22))), "Can auto_exp upper")
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1', 4, auto_exponentiate = FALSE)$value,
-    c(4, NA, NA, NA, 4, NA)), "Can disable auto_exponentiate, values aren't matched")
+    I(list(4, NA, NA, NA, 4, NA))), "Can disable auto_exponentiate, values aren't matched")
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = TRUE)$value,
-    c(NA, 8, NA, NA, NA, 8)), "Manual _exp matching still works, no log()")
+    I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works, no log()")
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = FALSE)$value,
-    c(NA, 8, NA, NA, NA, 8)), "Manual _exp matching still works")
+    I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works")
 
 #### Warning
 
@@ -207,3 +207,56 @@ pt <- default_pt(c('moo.1', 'moo.1_exp', 'baa.2', 'baa.2_exp', 'oink.1', 'oink.1
 out <- captureWarning(g3_init_val(pt, "neigh.#", value = 9))
 ok(ut_cmp_identical(pt, out[[1]]), "Non-matching g3_init_val makes no modification")
 ok(cmp_contains("neigh.#", out$warning), "name_spec in warning output")
+
+#### test with a real parameter template
+
+params.in <- attr(g3_to_tmb(list( g3a_time(1980L, 2000L), g3_formula(
+    quote(d + e + f + g),
+    d = g3_parameterized('par.years', value = 0, by_year = TRUE),
+    e = g3_parameterized('pare', value = 1),
+    f = g3_parameterized('par.a', value = 2),
+    g = g3_parameterized('par.b', value = 3, exponentiate = TRUE),
+    x = NA) )), 'parameter_template')
+
+params.in <- g3_init_val(params.in, 'par.years.#', value = 99, optimise = FALSE)
+params.in <- g3_init_val(params.in, 'par.years.[1986-1994]', value = 11:19, lower = 1:9, upper = 101:109)
+params.in <- g3_init_val(params.in, 'par.a|b', value = 100, spread = 0.1)
+
+ok(ut_cmp_equal(params.in$value, I(list(
+    retro_years = 0, project_years = 0,
+    par.years.1980 = 99, par.years.1981 = 99, par.years.1982 = 99, par.years.1983 = 99, par.years.1984 = 99, par.years.1985 = 99,
+    par.years.1986 = 11L, par.years.1987 = 12L, par.years.1988 = 13L,
+    par.years.1989 = 14L, par.years.1990 = 15L, par.years.1991 = 16L,
+    par.years.1992 = 17L, par.years.1993 = 18L, par.years.1994 = 19L,
+    par.years.1995 = 99, par.years.1996 = 99, par.years.1997 = 99, par.years.1998 = 99,
+    par.years.1999 = 99, par.years.2000 = 99,
+    pare = 1,
+    par.a = 100,
+    par.b_exp = log(100) ))), "params.in$value: Applied vector, wildcard, auto_exp")
+
+ok(ut_cmp_equal(structure(params.in$lower, names = params.in$switch), c(
+    retro_years = NA, project_years = NA,
+    par.years.1980 = NA, par.years.1981 = NA, par.years.1982 = NA, par.years.1983 = NA,
+    par.years.1984 = NA, par.years.1985 = NA,
+    par.years.1986 = 1, par.years.1987 = 2, par.years.1988 = 3,
+    par.years.1989 = 4, par.years.1990 = 5, par.years.1991 = 6,
+    par.years.1992 = 7, par.years.1993 = 8, par.years.1994 = 9,
+    par.years.1995 = NA, par.years.1996 = NA, par.years.1997 = NA,
+    par.years.1998 = NA, par.years.1999 = NA, par.years.2000 = NA,
+    pare = NA,
+    par.a = 90,
+    par.b_exp = log(90) )), "params.in$lower: Applied vector, auto_exp")
+
+ok(ut_cmp_equal(structure(params.in$upper, names = params.in$switch), c(
+    retro_years = NA, project_years = NA, par.years.1980 = NA,
+    par.years.1981 = NA, par.years.1982 = NA, par.years.1983 = NA,
+    par.years.1984 = NA, par.years.1985 = NA,
+    par.years.1986 = 101, par.years.1987 = 102, par.years.1988 = 103,
+    par.years.1989 = 104, par.years.1990 = 105, par.years.1991 = 106,
+    par.years.1992 = 107, par.years.1993 = 108, par.years.1994 = 109,
+    par.years.1995 = NA,
+    par.years.1996 = NA, par.years.1997 = NA, par.years.1998 = NA,
+    par.years.1999 = NA, par.years.2000 = NA,
+    pare = NA,
+    par.a = 110,
+    par.b_exp = log(110) )), "params.in$upper: Applied vector, auto_exp")
