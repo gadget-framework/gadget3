@@ -12,5 +12,5 @@ articles:
   navbar: Advanced
   desc: Vignettes describing internals of gadget3 & how to extend it
   contents:
-  - model_structure
+  - model-structure
   - writing_actions
