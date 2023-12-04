@@ -1,5 +1,6 @@
 \name{likelihood_tagging_ckmr}
 \alias{g3l_tagging_ckmr}
+\concept{G3 action}
 
 \title{Gadget3 CKMR likelihood}
 \description{

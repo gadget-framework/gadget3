@@ -3,6 +3,7 @@
 \alias{g3a_grow_weightsimple}
 \alias{g3a_grow_impl_bbinom}
 \alias{g3a_growmature}
+\concept{G3 action}
 
 \title{Gadget3 growth action}
 \description{

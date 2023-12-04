@@ -1,6 +1,7 @@
 \name{action_migrate}
 \alias{g3a_migrate_normalize}
 \alias{g3a_migrate}
+\concept{G3 action}
 
 \title{Gadget3 migration action}
 \description{

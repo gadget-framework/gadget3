@@ -11,6 +11,7 @@
 \alias{stock_intersect}
 \alias{stock_interact}
 \alias{stock_prepend}
+\concept{G3 internals}
 
 \title{G3 stock_* transformation functions}
 \description{

@@ -5,6 +5,7 @@
 \alias{g3a_spawn_recruitment_bevertonholt}
 \alias{g3a_spawn_recruitment_hockeystick}
 \alias{g3a_spawn}
+\concept{G3 action}
 
 \title{Gadget3 spawning action}
 \description{

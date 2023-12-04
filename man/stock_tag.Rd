@@ -1,5 +1,6 @@
 \name{stock_tag}
 \alias{g3s_tag}
+\concept{G3 stock}
 
 \title{Gadget3 tag dimension}
 \description{

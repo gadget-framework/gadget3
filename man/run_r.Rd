@@ -1,6 +1,7 @@
 \name{run_r}
 \alias{g3_to_r}
 \alias{print.g3_r}
+\concept{G3 compilation}
 
 \title{Gadget3 actions into R code}
 \description{

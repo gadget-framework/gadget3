@@ -2,6 +2,7 @@
 \alias{g3_areas}
 \alias{g3s_livesonareas}
 \alias{g3s_areagroup}
+\concept{G3 stock}
 
 \title{Gadget3 stock area dimensions}
 \description{

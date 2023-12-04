@@ -1,6 +1,7 @@
 \name{action_tagging}
 \alias{g3a_predate_tagrelease}
 \alias{g3a_tag_shedding}
+\concept{G3 action}
 
 \title{Gadget3 tag-release action}
 \description{

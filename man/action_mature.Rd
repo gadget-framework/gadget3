@@ -2,6 +2,7 @@
 \alias{g3a_mature_continuous}
 \alias{g3a_mature_constant}
 \alias{g3a_mature}
+\concept{G3 action}
 
 \title{Gadget3 maturity action}
 \description{

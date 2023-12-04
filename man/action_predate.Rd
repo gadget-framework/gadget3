@@ -6,6 +6,7 @@
 \alias{g3a_predate_catchability_quotafleet}
 \alias{g3a_predate_fleet}
 \alias{g3a_predate_totalfleet}
+\concept{G3 action}
 
 \title{Gadget3 predation actions}
 \description{

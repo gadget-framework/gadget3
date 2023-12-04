@@ -1,5 +1,6 @@
 \name{action_order}
 \alias{g3_action_order}
+\concept{G3 action}
 
 \title{Standard gadget3 order of actions}
 \description{

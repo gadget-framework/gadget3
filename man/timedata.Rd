@@ -1,5 +1,6 @@
 \name{timedata}
 \alias{g3_timeareadata}
+\concept{G3 utilities}
 
 \title{Gadget3 time-based data}
 \description{

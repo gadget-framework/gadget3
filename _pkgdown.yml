@@ -1,3 +1,32 @@
+reference:
+- title: "G3 stock functions"
+  desc: "Create stock objects, or add additional dimensions to a stock object"
+  contents:
+  # i.e. \concept{G3 stock}
+  - stock
+  - has_concept("G3 stock")
+- title: "G3 action functions"
+  desc: "Actions add functionalty into a model, operating on stock objects"
+  contents:
+  - action_order
+  - has_concept("G3 action")
+- title: "G3 utilities"
+  desc: "Tools to aid customising G3 actions, applicable to many actions"
+  contents:
+  - has_concept("G3 utilities")
+- title: "G3 compilation"
+  desc: "Functions converting actions into code, or other formats"
+  contents:
+  - has_concept("G3 compilation")
+- title: "G3 internals"
+  desc: "Tools useful when writing your own G3 actions"
+  contents:
+  - has_concept("G3 internals")
+## NB: Should be empty, so only for documentation debugging
+#- title: "Miscallaneous"
+#  contents:
+#  - lacks_concepts(c("G3 stock", "G3 action", "G3 utilities", "G3 compilation", "G3 internals"))
+
 articles:
 - title: User guides
   navbar: ~

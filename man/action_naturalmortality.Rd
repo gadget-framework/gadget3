@@ -1,6 +1,7 @@
 \name{action_naturalmortality}
 \alias{g3a_naturalmortality_exp}
 \alias{g3a_naturalmortality}
+\concept{G3 action}
 
 \title{Gadget3 natural mortality action}
 \description{

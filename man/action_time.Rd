@@ -1,5 +1,6 @@
 \name{action_time}
 \alias{g3a_time}
+\concept{G3 action}
 
 \title{Gadget3 timekeeping actions}
 \description{

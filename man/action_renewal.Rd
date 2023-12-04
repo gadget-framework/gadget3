@@ -9,6 +9,7 @@
 \alias{g3a_renewal}
 \alias{g3a_renewal_normalparam}
 \alias{g3a_renewal_normalcv}
+\concept{G3 action}
 
 \title{Gadget3 renewal actions}
 \description{

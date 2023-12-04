@@ -1,5 +1,6 @@
 \name{action_age}
 \alias{g3a_age}
+\concept{G3 action}
 
 \title{Gadget3 age action}
 \description{

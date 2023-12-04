@@ -1,5 +1,6 @@
 \name{likelihood_bounds_penalty}
 \alias{g3l_bounds_penalty}
+\concept{G3 action}
 
 \title{Gadget3 likelihood bounds_penalty action}
 \description{

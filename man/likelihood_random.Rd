@@ -1,6 +1,7 @@
 \name{likelihood_random}
 \alias{g3l_random_dnorm}
 \alias{g3l_random_walk}
+\concept{G3 action}
 
 \title{Gadget3 random effects likelihood actions}
 \description{

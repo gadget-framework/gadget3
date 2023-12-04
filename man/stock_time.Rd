@@ -1,6 +1,7 @@
 \name{stock_time}
 \alias{g3s_time_convert}
 \alias{g3s_time}
+\concept{G3 stock}
 
 \title{Gadget3 stock time dimensions}
 \description{

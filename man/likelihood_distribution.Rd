@@ -8,6 +8,7 @@
 \alias{g3_distribution_preview}
 \alias{g3l_abundancedistribution}
 \alias{g3l_catchdistribution}
+\concept{G3 action}
 
 \title{Gadget3 likelihood actions}
 \description{

@@ -1,5 +1,6 @@
 \name{likelihood_understocking}
 \alias{g3l_understocking}
+\concept{G3 action}
 
 \title{Gadget3 likelihood understocking action}
 \description{

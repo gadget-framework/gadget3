@@ -1,5 +1,6 @@
 \name{formula_utils}
 \alias{g3_formula}
+\concept{G3 utilities}
 
 \title{Gadget3 formula helpers}
 \description{

@@ -2,6 +2,7 @@
 \alias{g3a_report_stock}
 \alias{g3a_report_history}
 \alias{g3a_report_detail}
+\concept{G3 action}
 
 \title{Gadget3 report actions}
 \description{

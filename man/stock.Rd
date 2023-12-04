@@ -5,6 +5,7 @@
 \alias{g3_fleet}
 \alias{g3s_clone}
 \alias{g3_is_stock}
+\concept{G3 stock}
 
 \title{Gadget3 stock storage}
 \description{

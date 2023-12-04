@@ -1,5 +1,6 @@
 \name{run_desc}
 \alias{g3_to_desc}
+\concept{G3 compilation}
 
 \title{Gadget3 actions into R code}
 \description{

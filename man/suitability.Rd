@@ -8,6 +8,7 @@
 \alias{g3_suitability_straightline}
 \alias{g3_suitability_constant}
 \alias{g3_suitability_richards}
+\concept{G3 utilities}
 
 \title{Gadget3 suitability formulae}
 \description{
