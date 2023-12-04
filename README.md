@@ -20,18 +20,25 @@ This package is part of suite of tools, including:
 
 ## Installation
 
-Install latest version from github:
+gadget3 is available on CRAN:
+
+    > install.packages('gadget3')
+
+You can also install the latest development version from github:
 
     > remotes::install_github('gadget-framework/gadget3')
 
 ## Documentation
 
-For more information, read the [structure of a gadget3 model](https://gadget-framework.github.io/gadget3/articles/model_structure.html)
-vignette.
+The gadget3 documentation is [published online](https://gadget-framework.github.io/gadget3/).
+To get started, read the [introductory vignette](https://gadget-framework.github.io/gadget3/articles/introduction-single-stock.html),
+which walks through the process of building a model.
 
-For some worked examples, look at the following models in [gadget-models](https://github.com/gadget-framework/gadget-models/):
+For some real-life examples of gadget3 models,
+look in the [gadget-models](https://github.com/gadget-framework/gadget-models/) repository:
 
 * [ling](https://github.com/gadget-framework/gadget-models/tree/master/06-ling/gadget3/00-setup)
+* [Blue Ling](https://github.com/gadget-framework/gadget-models/tree/master/07-bling/gadget3/00-setup)
 
 ## Development of gadget3
 
