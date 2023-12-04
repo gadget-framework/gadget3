@@ -438,8 +438,10 @@ ldist.lln.raw <- data.frame(
 # Group length into 10-long bins
 # NB: The last 2 bins will be empty, but gadget3 will use the factor levels, include them as zero
 # NB: Generally one would use mfdb::mfdb_sample_count() source and group data for you
-ldist.lln.raw$length <- cut(ldist.lln.raw$length, seq(10, 100, by = 10), right = FALSE)
-ldist.lln <- aggregate(number ~ year + age + length, ldist.lln.raw, sum)
+ldist.lln.raw |> dplyr::group_by(
+  year = year, age = age,
+  length = cut(length, breaks = seq(10, 100, by = 10), right = FALSE)
+) |> dplyr::summarise(number = sum(number), .groups = 'keep') -> ldist.lln
 
 # Turn age into a factor, indicating all ages we should be interested in
 ldist.lln$age <- factor(ldist.lln$age, levels = 5:15)
