@@ -154,7 +154,7 @@ actions_fish <- list(
   g3a_naturalmortality(fish),
   g3a_initialconditions_normalcv(fish),
   g3a_renewal_normalparam(fish,
-    run_step = NULL),
+    run_step = 2),
   g3a_age(fish),
   NULL)
 
@@ -174,22 +174,19 @@ For each action you can click through to the reference to get more information o
 * ``g3a_growmature()``: The growth model
 * ``g3a_naturalmortality()``: Natural mortality of our stock
 * ``g3a_initialconditions_normalcv()``: Initial recruitment, defining numbers & mean weights for the start of the model
-* ``g3a_renewal_normalparam()``: Ongoing recruitment at every timestep (``run_step = NULL``), see the [Recruitment](#recruitment) section below
+* ``g3a_renewal_normalparam()``: Recruitment occuring every spring (``run_step = 2``), independent of stock status
 * ``g3a_age()``: Move fish through age groups at the end of a year
 * ``g3l_understocking()``: A penalty applied to the likelihood used to prevent more fish being eaten/fished than is available.
 
-The order of these actions as we have defined them is not preserved, they will be re-ordered to match the standard action order, see `?g3_action_order`.
+There are more actions available besides these, for instance ``g3a_spawn()`` can be used for recruitment dependent on stock size instead of ``g3a_renewal_normalparam()``.
+For a full list, see [the package reference index](/reference/index.html#g-action-functions).
 
 Likelihood actions are actions that will sum their output into the model's overall likelihood score,
 analogous to gadget2's [likelihood components](https://gadget-framework.github.io/gadget2/userguide/chap-like.html).
 
-#### Recruitment
-
-There are 2 recruitment processes you can employ in a gadget3 (or gadget2) model;
-``g3a_renewal_normalparam()`` which introduces new individuals into a stock regardless of the current state of the stock,
-and ``g3a_spawn()``, which adds individuals based on the current size & state of the stock.
-
-TODO: Further description of using g3a_spawn at this point?
+The order of these actions as we have defined them is not preserved.
+When a model runs, the steps will not happen in the above order,
+they will be re-ordered to match the standard action order, see `?g3_action_order`.
 
 ### Fleet actions
 
