@@ -30,6 +30,13 @@ ok(ut_cmp_identical(
     g3s_time_convert(c("1999-01", "1999-02")),
     c(199901L, 199902L)), "Parsed year/step string")
 
+ok(ut_cmp_identical(
+    g3s_time_convert(c(1999, 1999)),
+    c(199900L, 199900L)), "Step ignored if NULL")
+ok(ut_cmp_identical(
+    g3s_time_convert(c(1999, 1999), c('all', 'all')),
+    c(199900L, 199900L)), "Treated MFDB 'all' as NULL")
+
 stock_timeyear <- g3_stock('stock_timeyear', 1) %>% g3s_time(year = c(2002, 2004))
 stock_timeyear__num <- g3_stock_instance(stock_timeyear, 0)
 stock_timestep <- g3_stock('stock_timestep', 1) %>% g3s_time(times = c( g3s_time_convert(c(2000, 2003),c(1,2)) ))

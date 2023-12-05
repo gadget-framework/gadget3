@@ -1,6 +1,6 @@
 g3s_time_convert <- function (year_or_time, step = NULL) {
   year <- year_or_time
-  if (any(step > 99)) {
+  if (any(is.numeric(step) & step > 99)) {
     stop("The number of steps per year cannot exceed 99")
   }
 
@@ -12,7 +12,7 @@ g3s_time_convert <- function (year_or_time, step = NULL) {
     step <- vapply(s, function (x) as.integer(x[[2]]), integer(1))
   }
 
-  if (is.null(step)) {
+  if (is.null(step) || all(step == 'all')) {
     as.integer(year) * 100L
     } else {
     as.integer(year) * 100L + as.integer(step)
