@@ -299,7 +299,7 @@ Note that the only difference between the 2 likelihood actions is the structure 
 
 ``aldist_f_surv`` unlike ``ldist_f_surv`` has an age column, gadget3 will detect this and group the modelled catch accordingly.
 Similarly neither data.frame has the full range of years, so comparisons will be made outside those ranges.
-For more detail on what can be done here, see [Supplying data to gadget3](supplying-data-to-gadget3.html).
+For more detail on what can be done here, see `vignette("incorporating-observation-data")`.
 
 ``function_f`` defines the method of comparison between modelled catch & observation data, once aggregation has been done.
 ``g3l_distribution_sumofsquares()`` in this case compares the sum of squared difference. For more options on what to use here,

@@ -1,0 +1,329 @@
+---
+title: "Incorporating observation data into models"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Incorporating observation data}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{css, echo=FALSE}
+/* https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html */
+.modelScript pre.sourceCode, .modelScript pre.sourceCode code {
+  background-color: #f0f8ff !important;
+}
+```
+
+
+```{r, message=FALSE, echo=FALSE}
+library(gadget3)
+library(dplyr)
+set.seed(123)
+```
+
+Each run of a model will generate a likelihood score, by summing the result of any *likelihood actions* in the model together.
+To fit a model to observation data, we need to add a *likelihood action* that will compare observation data to the model.
+
+To do this you either need `g3l_catchdistribution()` or `g3l_abundancedistribution()`.
+As the names suggest, `g3l_catchdistribution()` will compare catch data of stocks from the provided fleets,
+`g3l_abundancedistribution()` will compare total abundance of stocks.
+Otherwise they are identical.
+
+This comparison is a 2 stage process:
+
+1. Aggregation: The columns in the observation data are inspected, and converted into an array. Model data is then aggregated into an identically-sized array ready for the next step
+2. Comparison: A comparison function (`function_f`) is supplied to `g3l_*distribution()`, to convert to a likelihood score.
+   For example `g3l_distribution_sumofsquares()`, which compares the relative abundance of each grouping vs. the model, and sums the square of these
+
+We saw the following example in `vignette("introduction-single-stock")`:
+
+```{r, message=FALSE, echo=FALSE}
+library(dplyr)
+area_names <- g3_areas(c('IXa', 'IXb'))
+fish <- g3_stock("fish", seq(5L, 25L, 5)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(1L, 5L)
+```
+
+<div class="modelScript">
+```{r}
+# TODO: This isn't a brilliantly-named example, something else?
+# Generate random data
+expand.grid(year = 1990:1994, step = 3, area = 'IXa') |>
+    # Fill in a number column with total numbers in that year/step/area combination
+    mutate(number = runif(n(), min = 10000, max = 100000)) ->
+    dist_si_acoustic
+
+actions_likelihood_si_acoustic <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_acoustic",
+    dist_si_acoustic,
+    
+    stocks = list(fish),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+```
+</div>
+
+The first step generates random observation data. We have the following columns:
+
+* *year*: We want to do comparisons in 5 years, 1990..1994. Other years nothing will happen.
+* *step*: We compare abundance in the autumn step
+* *area*: We only compare with stock within the 'IXa' area
+* *number*: We compare against number individuals.
+
+There are no *age* or *length* columns, so this is total abundance within that area/time.
+
+We use `g3l_distribution_surveyindices_log()`, which calculates the likelihood score by performing a linear fit using the log scale,
+the slope (*beta*) is fixed.
+
+
+The model optimisation process will minimise the total likelihood score,
+and in the process fit the model to the observation data.
+
+## gadget2<->gadget3 translation
+
+The function of many of gadget2's likeihood components has been collapsed down into these 2 functions.
+Here is a summary of how to translate:
+
+* [CatchDistribution](https://gadget-framework.github.io/gadget2/userguide/chap-like.html#sec-catchdist) likelihood component
+  * Use ``g3l_catchdistribution()``
+  * Set *function_f* parameter to the matching ``g3l_distribution_*()`` function, e.g. ``g3l_distribution_sumofsquares()``
+  * Supply data with columns *year*, *step*, *area*, *age*, *length*, *number*
+* [SurveyIndices](https://gadget-framework.github.io/gadget2/userguide/chap-like.html#sec-surveyindices) likelihood component
+  * Use ``g3l_abundancedistribution()``
+  * Set *function_f* parameter to ``g3l_distribution_surveyindices_log()`` or ``g3l_distribution_surveyindices_linear()``
+  * Supply data with columns *year*, *step*, *area*, *length*, *number*
+* [CatchInKilos](https://gadget-framework.github.io/gadget2/userguide/chap-like.html#sec-catchinkilos) likelihood component
+  * Use ``g3l_catchdistribution(function_f = g3l_distribution_sumofsquares())``
+  * Supply data with columns *year*, *step*, *area*, *fleet*, *weight*
+
+## Observation data format
+
+gadget3 bases it's decision on how to aggregate on the incoming data.
+Whilst it tries to do the "right thing" in most cases,
+it's important to get the shape of this data to match what you require.
+
+In doing so, the incoming `data.frame()` is converted into an `array()`.
+We can use the `g3_distribution_preview()` function to see what that array will look like,
+and in doing so see how gadget3 will treat the observation data.
+
+Critically, your data needs to have column names it recognises.
+The following breaks down what can be by each column.
+
+### *weight* and *number* columns
+
+At least a *weight* or *number* column needs to be supplied.
+If a *number* column is present then each value will be compared to number of individuals in that group.
+If a *weight* column is present then each value will be compared to total biomass in that group.
+
+The *weight* is suitable for total catches in kilos, otherwise the *number* column will generally be used.
+
+### *year* and *step* columns: Landings, abundance indices
+
+If a *year* column is given, then catch/abundance will be aggregated by year.
+Gaps are allowed, if so then no comparisons will be made for that year/step.
+
+The following observations will be compared against the total number of indivduals caught in years 1999, 2000, 2002, 2003:
+
+```{r}
+g3_distribution_preview(read.table(header = TRUE, text="
+year  number
+1999    1000
+2000    1002
+2002    1004
+2003    1008
+"))
+```
+
+If *step* is given, then it will restrict it to that step within the year (see `?g3a_time` for how to define steps in a year).
+
+In the following example, we will aggregate **spring** of 1999 & 2000, **autumn** of 2001.
+Any catch in spring of 2001, or other periods not mentioned, will be ignored:
+
+```{r}
+g3_distribution_preview(read.table(header = TRUE, text="
+year step number
+1999    2   1020
+2000    2   2040
+2001    3   1902
+"))
+```
+
+### *length* column: Length distribution data
+
+Adding a length column will aggregate catch/abundance data by the same length bins as in the observation data.
+
+For instance:
+
+```{r}
+g3_distribution_preview(read.table(header = TRUE, text="
+year  length number
+1999  [0,10)  1023
+1999 [10,20)  2938
+1999 [20,30)  3948
+1999 [30,40)  3855
+2000  [0,10)  1023
+2000 [10,20)  2938
+# NB: No [10,30)
+2000 [30,40)  3855
+"))
+```
+
+Note that unlike with the *year* & *step* columns, here gaps in data are preserved,
+in the preview output we see ``NA`` for the missing *year* & *length* combination.
+By default we will compare to ``0`` at this point,
+this behaviour is controlled with the *missing_val* parameter to `?g3l_catchdistribution`.
+
+Length aggregations do not have to be hand-crafted like we do above,
+a length column could be generated using ``dplyr::group_by()`` and ``cut()``:
+
+```{r}
+# Generate an unaggregated length distribution
+ldist.lln.raw <- data.frame(
+    year = c(1999, 2000),
+    length = sample(10:75, 100, replace = TRUE),
+    number = 1,
+    stringsAsFactors = FALSE)
+
+# Group length into 10-long bins
+ldist.lln.raw |> dplyr::group_by(
+  year = year,
+  length = cut(length, breaks = seq(10, 100, by = 10), right = FALSE)
+) |> dplyr::summarise(number = sum(number), .groups = 'keep') -> ldist.lln.agg
+ldist.lln.agg
+
+# NB: The last 2 bins are empty, but because cut() creates a factor column,
+#     gadget3 knows about them even though they don't appear in the data.
+g3_distribution_preview(ldist.lln.agg)
+```                        
+
+gadget3 will also automatically read the aggregation attributes used by `?mfdb::mfdb_sample_count`.
+
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# Import data into a temporary database
+library(mfdb)
+mdb <- mfdb(tempfile(fileext=".duckdb"))
+ldist.lln.raw$month <- 1
+ldist.lln.raw$areacell <- 'all'  # NB: We have to have an areacell mapping for MFDB
+mfdb_import_area(mdb, data.frame(name = c('all'), size = c(5)))
+mfdb_import_survey(mdb, ldist.lln.raw)
+
+# Use mfdb_sample_count to extract & group in the same manner as above
+ldist.lln.agg <- mfdb_sample_count(mdb, c('length'), list(
+    year=1999:2000,
+    length = mfdb_interval("len", seq(10, 100, by = 10)) ))[[1]]
+g3_distribution_preview(ldist.lln.agg, area_group = c(all=1))
+
+mfdb_disconnect(mdb)
+```
+
+### *age* column: Age-Length distribution data
+
+Age-length aggregations can be performed by adding an *age* column in a very similar manner to the *length* column:
+
+We can both group by individual age values:
+
+```{r}
+g3_distribution_preview(read.table(header = TRUE, text="
+year  age  length number
+1999    1  [0,10)  1026
+1999    1 [10,20)  2936
+1999    1 [20,30)  3962
+1999    1 [30,40)  3863
+1999    2  [0,10)  1026
+1999    2 [10,20)  2936
+1999    2 [20,30)  3962
+1999    2 [30,40)  3863
+"))
+```
+
+...or group ages together:
+
+```{r}
+g3_distribution_preview(read.table(header = TRUE, text="
+year  age    length number
+1999  [1,1]    [0,10)  1026
+1999  [1,1]   [10,20)  2936
+1999  [1,1]   [20,30)  3962
+1999  [1,1]   [30,40)  3863
+1999  [2,4]  [0,10)  1011
+# Missing [2,4] [10,20)
+1999  [2,4] [20,30)  3946
+1999  [2,4] [30,40)  3872
+"))
+```
+
+As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
+
+Again, gadget3 will also interpret aggregation generated by ``group_by(age = cut(...))`` or `?mfdb::mfdb_sample_count`.
+
+### *area* column
+
+If a stock is divided up into multiple areas, then data can be broken down by area
+
+```{r}
+area_names <- g3_areas(c('IXa', 'IXb', 'IXc'))
+
+g3_distribution_preview(read.table(header = TRUE, text="
+year    area    number
+1999   IXa   1000
+1999   IXb   4305
+2000   IXa   7034
+2000   IXb   2381
+2001   IXb   3913
+"), area_group = area_names)[length = '0:Inf',,]
+```
+
+As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
+
+However, if an area isn't mentioned at all (note that ``IXc`` does not figure in the above data), then it won't be compared.
+
+### *stock* column: Maturity stage distribution
+
+If you have multiple stocks, for example because you have divided up your species into mature and immature substocks,
+you can use this division in likelihood components also:
+
+```{r}
+st_imm <- g3_stock(c(species = 'fish', 'imm'), 1:10)
+st_mat <- g3_stock(c(species = 'fish', 'mat'), 1:10)
+
+g3_distribution_preview(read.table(header = TRUE, text="
+year    stock    number
+1999   fish_imm   1000
+1999   fish_mat   4305
+2000   fish_imm   7034
+2000   fish_mat   2381
+2001   fish_mat   3913
+"), stocks = list(st_imm, st_mat))[length = '0:Inf',,]
+```
+
+The stock names have to match what gadget3 uses, or an error will be generated.
+
+As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
+
+### *fleet* column
+
+```{r}
+f_comm <- g3_fleet('comm')
+f_surv <- g3_fleet('surv')
+
+g3_distribution_preview(read.table(header = TRUE, text="
+year    fleet    number
+1999   f_comm   1000
+1999   f_surv   4305
+2000   f_comm   7034
+2000   f_surv   2381
+2001   f_surv   3913
+"), fleets = list(f_comm, f_surv))[length = '0:Inf',,]
+```
+
+The stock names have to match what gadget3 uses, or an error will be generated.
+
+As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.

@@ -32,7 +32,7 @@ articles:
   navbar: ~
   contents:
   - introduction-single-stock
-  - supplying-data-to-gadget3
+  - incorporating-observation-data
   - order-of-calculations
   - model-customisation
   - model-debugging
