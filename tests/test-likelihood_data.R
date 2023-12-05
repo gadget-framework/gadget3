@@ -360,7 +360,7 @@ ok_group('g3l_likelihood_data:length_factor', {
 })
 
 
-ok_group('g3l_likelihood_data:length_char', {
+ok_group('g3l_likelihood_data:age_char', {
     ld <- generate_ld(expand.grid(
         year = 1990,
         length = as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
@@ -387,6 +387,33 @@ ok_group('g3l_likelihood_data:length_char', {
          35:40 age2 1990   17
          40:45 age2 1990   18
         "), "Converted back to factor, preserving ordering of entries")
+
+    ld <- generate_ld(expand.grid(
+        year = 1990,
+        length = as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
+        age = c('[1,3]', '[4,9]'),
+        stringsAsFactors = FALSE))
+    ok(cmp_array(ld$number, "
+        length  age time   Freq
+           0:5 1:3 1990    1
+          5:10 1:3 1990    2
+         10:15 1:3 1990    3
+         15:20 1:3 1990    4
+         20:25 1:3 1990    5
+         25:30 1:3 1990    6
+         30:35 1:3 1990    7
+         35:40 1:3 1990    8
+         40:45 1:3 1990    9
+           0:5 4:9 1990   10
+          5:10 4:9 1990   11
+         10:15 4:9 1990   12
+         15:20 4:9 1990   13
+         20:25 4:9 1990   14
+         25:30 4:9 1990   15
+         30:35 4:9 1990   16
+         35:40 4:9 1990   17
+         40:45 4:9 1990   18
+        "), "Can use intervals in strings, converted to groups")
 
     ld <- generate_ld(data.frame(
         year = 1990,
