@@ -1,0 +1,367 @@
+---
+title: "Modelling maturity & sex with multiple stocks"
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Mutltiple stocks: maturity & sex}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{css, echo=FALSE}
+/* https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html */
+.modelScript pre.sourceCode, .modelScript pre.sourceCode code {
+  background-color: #f0f8ff !important;
+}
+```
+
+
+```{r, message=FALSE, echo=FALSE}
+library(gadget3)
+set.seed(123)
+```
+
+As mentioned before in `vignette('introduction-single-stock')`,
+gadget3 stock objects do not have to correspond 1:1 with a species.
+
+We can have multiple stock objects representing the same species in a different stage in their life-cycle,
+most commonly `mature` and `immature` versions, `male` and `female` versions, or all 4.
+
+The set up is much the same as before, but major differences will be highlighted.
+
+Initial setup & time-keeping is identical:
+
+<div class="modelScript">
+```{r, warning = FALSE, message = FALSE}
+library(gadget3)
+library(dplyr)
+
+actions <- list()
+area_names <- g3_areas(c('IXa', 'IXb'))
+
+# Create time definitions ####################
+
+actions_time <- list(
+  g3a_time(
+    1979L, 2023L,
+    step_lengths = c(3L, 3L, 3L, 3L)),
+  NULL)
+
+actions <- c(actions, actions_time)
+```
+</div>
+
+### Stocks
+
+We define 2 stocks instead of one, and a `list()` containing both for convenience:
+
+<div class="modelScript">
+```{r}
+# Create stock definition for fish ####################
+st_imm <- g3_stock(c(species = "fish", 'imm'), seq(5L, 25L, 5)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(1L, 5L)
+
+st_mat <- g3_stock(c(species = "fish", 'mat'), seq(5L, 25L, 5)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(3L, 10L)
+stocks = list(imm = st_imm, mat = st_mat)
+```
+</div>
+
+Notice that:
+
+* The name of the stock has 2 parts. This makes it possible to have parameters that refer to the species as a whole.
+  In the model output the names will have been combined, e.g. ``"fish_imm"``.
+* The age ranges are not identical, obviously mature stocks are older, and we adjust to suit.
+
+### Stock actions
+
+Stock actions now need to include interactions between immature & mature:
+
+<div class="modelScript">
+```{r}
+actions_st_imm <- list(
+  g3a_growmature(st_imm,
+    g3a_grow_impl_bbinom(
+      # TODO: We need to cancel by_stock to get a separate fish_imm.K as g3a_renewal_vonb_t0() creates. Do we want to?
+      delta_len_f = g3a_grow_lengthvbsimple(by_stock = TRUE),
+      by_stock = stocks, ## Ensures the bbin parameter across stocks within species
+      maxlengthgroupgrowth = 4L ),
+    # Add maturation
+    maturity_f = g3a_mature_continuous(),
+    output_stocks = list(st_mat),
+    transition_f = ~TRUE ),
+  g3a_naturalmortality(st_imm),
+  g3a_initialconditions_normalcv(st_imm),
+  g3a_renewal_normalparam(st_imm),
+  g3a_age(st_imm, output_stocks = list(st_mat)),
+  NULL)
+
+actions_st_mat <- list(
+  g3a_growmature(st_mat,
+    g3a_grow_impl_bbinom(
+      delta_len_f = g3a_grow_lengthvbsimple(by_stock = TRUE),
+      by_stock = stocks,  ## Ensures the bbin parameter across stocks within species
+      maxlengthgroupgrowth = 4L )),
+  g3a_naturalmortality(st_mat),
+  g3a_initialconditions_normalcv(st_mat),
+  g3a_age(st_mat),
+  NULL)
+
+actions_likelihood_st <- list(
+  g3l_understocking(stocks, nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_st_imm, actions_st_mat, actions_likelihood_st)
+```
+</div>
+
+`actions_st_imm` and `actions_st_imm` are largely similar, but:
+
+* Immature `g3a_growmature()` will also move individuals to the mature stock.
+  The rate of maturity is coupled to growth, so this process is combined with the growth *action*.
+* Immature `g3a_age()` can also move individuals to the mature stock.
+  This will happen if an immature fish ages beyond the final age bin (5 in our case).
+* Mature has no `g3a_renewal_normalparam()`, as there is no recruitment directly into the mature stock.
+
+Another difference is the use of `by_stock`.
+This feeds directly into the defaults for `g3_parameterized()`, telling it to use the same parameters across all stocks.
+We will see the results of this in the parameter template later.
+
+### Fleet actions
+
+There is very little difference defining a fleet for a multiple stock model vs. single stocks.
+
+To define a fleet, we need to introduce historical data into the model.
+In our case we will generate random data to use later:
+
+<div class="modelScript">
+```{r}
+# Fleet data for f_surv #################################
+
+# Landings data: For each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa') |>
+    # Generate a random total landings by weight
+    mutate(weight = runif(n(), min = 100, max = 1000)) ->
+    landings_f_surv
+
+# Length distribution data: Assume 50 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 50)) |>
+  # Generate random lengths for these samples
+  mutate(length = runif(n(), min = 5, max = 25)) |>
+  # Group into length bins
+  group_by(
+      year = year,
+      step = step,
+      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+  # Report count in each length bin
+  summarise(number = n(), .groups = 'keep') ->
+  ldist_f_surv
+
+# Assume 5 * 5 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', age = rep(NA, 5), length = rep(NA, 5)) |>
+  # Generate random lengths/ages for these samples
+  mutate(length = runif(n(), min = 5, max = 25)) |>
+  mutate(age = runif(n(), min = 1, max = 5)) |>
+  # Group into length/age bins
+  group_by(
+      year = year,
+      step = step,
+      age = cut(age, breaks = seq(1, 5, 1), right = FALSE),
+      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+  # Report count in each length bin
+  summarise(number = n(), .groups = 'keep') ->
+  aldist_f_surv
+```
+</div>
+
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+A fleet is defined in much the same way as our stock above, however with a different set of actions:
+
+<div class="modelScript">
+```{r}
+# Create fleet definition for f_surv ####################
+f_surv <- g3_fleet("f_surv") |> g3s_livesonareas(area_names["IXa"])
+
+actions_f_surv <- list(
+  g3a_predate_fleet(
+    f_surv,
+    stocks,
+    suitabilities = g3_suitability_exponentiall50(by_stock = stocks),
+    catchability_f = g3a_predate_catchability_totalfleet(
+      g3_timeareadata("landings_f_surv", landings_f_surv, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_f_surv <- list(
+  g3l_catchdistribution(
+    "ldist_f_surv",
+    obs_data = ldist_f_surv,
+    fleets = list(f_surv),
+    stocks = stocks,
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_f_surv",
+    obs_data = aldist_f_surv,
+    fleets = list(f_surv),
+    stocks = stocks,
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_f_surv, actions_likelihood_f_surv)
+```
+</div>
+
+There are 2 differences here:
+
+* We predate & compare catches over our list of `stocks`, not just the individual stock.
+  There is no preferential treatment for mature vs. immature, beyond any bias in the mean length of the stocks.
+* We set `g3_suitability_exponentiall50(by_stock = stocks)`, this passes through the list of stocks to
+  `g3_parameterized()`, instructing it to have a single `alpha` & `l50` parameter for both our stocks.
+
+If we had data on the distribution of mature vs. immature, our observation data could contain a *stock*
+column with ``fish_imm`` or ``fish_mat``. See `vignette("incorporating-observation-data")`.
+
+Again, further fleets can be added by repeating the code above.
+
+### Survey indices
+
+Again, survey indices should be handed the full `stocks` list, instead of a single stock:
+
+<div class="modelScript">
+```{r}
+# Create abundance index for si_acoustic ####################
+
+# Generate random data
+expand.grid(year = 1990:1994, step = 3, area = 'IXa') |>
+    # Fill in a number column with total numbers in that year/step/area combination
+    mutate(number = runif(n(), min = 10000, max = 100000)) ->
+    dist_si_acoustic
+
+actions_si_acoustic <- list(
+  NULL)
+actions_likelihood_si_acoustic <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_acoustic",
+    dist_si_acoustic,
+    
+    stocks = stocks,
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_acoustic, actions_likelihood_si_acoustic)
+```
+</div>
+
+### Creating model functions and Parameterization
+
+At this point, we are ready to convert our model into code:
+
+<div class="modelScript">
+```{r}
+# Create model objective function ####################
+
+model_code <- g3_to_tmb(actions)
+```
+</div>
+
+Now we should be configuring parameters based on the template.
+
+Thanks to using wildcards in the `g3_init_val()` calls,
+a lot of the parameter settings will work regardless of the model being single- or multi-stock,
+so we don't need to change the initial values from the previous model:
+
+<div class="modelScript">
+```{r}
+# Guess l50 / linf based on stock sizes
+estimate_l50 <- g3_stock_def(st_imm, "midlen")[[length(g3_stock_def(st_imm, "midlen")) / 2]]
+estimate_linf <- max(g3_stock_def(st_imm, "midlen"))
+estimate_t0 <- g3_stock_def(st_imm, "minage") - 0.8
+
+attr(model_code, "parameter_template") |>
+  g3_init_val("*.rec|init.scalar", 10, lower = 0.001, upper = 200) |>
+  g3_init_val("*.init.#", 10, lower = 0.001, upper = 200) |>
+  g3_init_val("*.rec.#", 100, lower = 1e-6, upper = 1000) |>
+  g3_init_val("*.rec.sd", 5, lower = 4, upper = 20) |>
+  g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1) |>
+  g3_init_val("init.F", 0.5, lower = 0.1, upper = 1) |>
+  g3_init_val("*.Linf", estimate_linf, spread = 0.2) |>
+  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+  g3_init_val("*.t0", estimate_t0, spread = 2) |>
+  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+  g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 0.2) |>
+  g3_init_val("*.*.l50", estimate_l50, spread = 0.25) |>
+  g3_init_val("*.bbin", 100, lower = 1e-05, upper = 1000) |>
+  identity() -> params.in
+```
+</div>
+
+Finally we are ready for optimisation runs.
+``g3_tmb_adfun()`` is a wrapper around ``TMB::MakeADFun()`` and ``TMB::compile``, producing a TMB *objective function*.
+``gadgetutils::g3_iterative()`` then optimises based on iterative reweighting
+
+<div class="modelScript">
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# Optimise model ################################
+# Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)
+bounded_code <- g3_to_tmb(c(actions, list(
+    g3l_bounds_penalty(params.in) )))
+obj.fn <- g3_tmb_adfun(bounded_code, params.in)
+
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = list(
+        fleet = c("ldist_f_surv", "aldist_f_surv"),
+        abund = c("dist_si_acoustic")),
+    method = "BFGS",
+    control = list(maxit = 1000, reltol = 1e-10),
+    use_parscale = TRUE,
+    shortcut = FALSE,
+    cv_floor = 0.05,
+    resume_final = FALSE)
+```
+</div>
+
+Once this has finished, we can view the output using ``gadgetplots::gadget_plots()``.
+
+<div class="modelScript">
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# Generate detailed report ######################
+fit <- gadgetutils::g3_fit(model_code, params.out)
+gadgetplots::gadget_plots(fit, "figs", file_type = "html")
+```
+</div>
+
+Once finished, you can view the output in your web browser:
+
+<div class="modelScript">
+```{r, eval=FALSE}
+utils::browseURL("figs/model_output_figures.html")
+```
+</div>
+
+## Appendix: Full model script
+
+For convenience, here is all the sections of the model script above joined together:
+
+```{js, echo=FALSE}
+document.write(
+    '<div class="modelScript"><div class="sourceCode hasCopyButton"><pre class="downlit sourceCode r">' +
+    Array.from(document.querySelectorAll('.modelScript > .sourceCode > pre')).map((x) => x.innerHTML).join("\n\n") +
+    '</pre></div></div>');
+```
+
