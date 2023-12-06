@@ -131,7 +131,7 @@ g3a_renewal_normalcv(
     \link{formula} that produces a lenghgroup vector of mean weight for the current age/area/... length group.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{factor_f}{
     \link{formula} substituted into normalparam calcuations, see below.

@@ -37,7 +37,7 @@ g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE,
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that spawning actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that spawning actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{...}{Any further options for \link{g3a_predate_fleet}}
 }

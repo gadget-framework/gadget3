@@ -65,10 +65,10 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{transition_at}{
-    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that transition actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

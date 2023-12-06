@@ -41,7 +41,7 @@ g3l_tagging_ckmr(
     that defaults to 1, allowing weights to be altered without recompiling.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

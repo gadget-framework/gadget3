@@ -33,10 +33,10 @@ g3a_age(
     \link{formula} specifying a condition for running this action, default is end of model year.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{transition_at}{
-    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that transition actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 
