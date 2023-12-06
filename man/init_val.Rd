@@ -103,5 +103,8 @@ pt <- g3_init_val(pt, '*.M', value = 0.3, optimise = FALSE)
 # Set a fixed value for a range of recruitment years, optimise the rest
 pt |>
     g3_init_val('*.rec.#', value = 4, lower = 0, upper = 10) |>
-    g3_init_val('*.rec.[1993-1996]', value = 0, optimise = FALSE) -> pt
+    g3_init_val('*.rec.[1993-1996]', value = 0, optimise = FALSE) |>
+    identity() -> pt
+
+pt
 }
