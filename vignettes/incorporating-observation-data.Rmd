@@ -60,7 +60,7 @@ actions_likelihood_si_acoustic <- list(
 
   g3l_abundancedistribution(
     "dist_si_acoustic",
-    dist_si_acoustic,
+    obs_data = dist_si_acoustic,
     
     stocks = list(fish),
     function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),

@@ -240,6 +240,8 @@ We also assume we will have some length-distribution and age-length distribution
 We produce this by first generating random unaggregated data,
 then use ``dplyr::group_by()`` and ``cut()`` to aggregate into bins.
 
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
 A fleet is defined in much the same way as our stock above, however with a different set of actions:
 
 <div class="modelScript">
@@ -258,7 +260,7 @@ actions_f_surv <- list(
 actions_likelihood_f_surv <- list(
   g3l_catchdistribution(
     "ldist_f_surv",
-    ldist_f_surv,
+    obs_data = ldist_f_surv,
     fleets = list(f_surv),
     stocks = list(fish),
     function_f = g3l_distribution_sumofsquares(),
@@ -267,7 +269,7 @@ actions_likelihood_f_surv <- list(
     nll_breakdown = TRUE),
   g3l_catchdistribution(
     "aldist_f_surv",
-    aldist_f_surv,
+    obs_data = aldist_f_surv,
     fleets = list(f_surv),
     stocks = list(fish),
     function_f = g3l_distribution_sumofsquares(),
@@ -304,6 +306,8 @@ For more detail on what can be done here, see `vignette("incorporating-observati
 ``function_f`` defines the method of comparison between modelled catch & observation data, once aggregation has been done.
 ``g3l_distribution_sumofsquares()`` in this case compares the sum of squared difference. For more options on what to use here,
 follow the links to the reference.
+
+To add futher fleets to your model, just repeat the same code with a different fleet name.
 
 ### Survey indices
 
