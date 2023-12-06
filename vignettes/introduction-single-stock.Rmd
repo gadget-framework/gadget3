@@ -424,7 +424,34 @@ The model is expecting 5 parameters, ``fish.M.1`` to ``fish.M.5``, for each age 
 For each we can set the initial value, and/or bounds to optimise within.
 
 The helper, `g3_init_val()`, will assist in filling in these values for you.
-Instead of setting individual values we can assign values using wildcards.
+
+Instead of setting individual values we can assign values using wildcard characters ``*``, ``#`` (numeric), ``|`` (or):
+
+```{r}
+attr(model_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.1) |>
+    g3_init_val("*.M.3", 0.5) |>
+    g3_init_val("*.M.2|4", 0.2) |>
+    filter(grepl('\\.M\\.', switch))
+```
+
+Setting lower & upper bounds automatically turns on optimise, and fills in parscale:
+
+```{r}
+attr(model_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1) |>
+    filter(grepl('\\.M\\.', switch))
+```
+
+We can also use spread as a shorthand for ``lower = value * (1 - spread), upper = value * (1 + spread)``:
+
+```{r}
+attr(model_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, spread = 0.5) |>
+    filter(grepl('\\.M\\.', switch))
+```
+
+This allows us to fill in parameters without worrying too much about stock/fleet naming:
 
 <div class="modelScript">
 ```{r}
