@@ -32,15 +32,8 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
 }
 
 \arguments{
-  \item{p0}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p1}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p2}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p3}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{mu}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{lambda}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{r0}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{p0,p1,p2,p3,p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
+  \item{mu,lambda,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{stock}{
      The mature \code{\link{g3_stock}} that will spawn in this action.
   }
@@ -69,16 +62,7 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
   \item{output_ratios}{
     Vector of proportions for how to distribute into \var{output_stocks}, summing to 1, default evenly spread.
   }
-  \item{mean_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{stddev_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{alpha_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{beta_f}{
+  \item{mean_f,stddev_f,alpha_f,beta_f}{
     \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
   }
   \item{run_f}{

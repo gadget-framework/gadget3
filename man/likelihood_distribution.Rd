@@ -73,10 +73,7 @@ g3_distribution_preview(
     For example the default "area" means the proprtion of the current lengthgroup to all individuals
     in that area.
   }
-  \item{rho_f}{
-    \link{formula} substituted into multivariate calcuations, see below.
-  }
-  \item{sigma_f}{
+  \item{rho_f,sigma_f}{
     \link{formula} substituted into multivariate calcuations, see below.
   }
   \item{epsilon}{

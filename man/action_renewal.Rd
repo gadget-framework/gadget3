@@ -133,23 +133,11 @@ g3a_renewal_normalcv(
   \item{run_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
-  \item{factor_f}{
-    \link{formula} substituted into normalparam calcuations, see below.
-  }
-  \item{mean_f}{
-    \link{formula} substituted into normalparam calcuations, see below.
-  }
-  \item{stddev_f}{
+  \item{factor_f,mean_f,stddev_f,alpha_f,beta_f}{
     \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{cv_f}{
     \link{formula} substituted into normalcv calcuations, basically \code{stddev_f = mean_f * cv_f}, see below.
-  }
-  \item{alpha_f}{
-    \link{formula} substituted into normalparam calcuations, see below.
-  }
-  \item{beta_f}{
-    \link{formula} substituted into normalparam calcuations, see below.
   }
   \item{age_offset}{
     Replace \code{age} with \code{age - age_offset} in \var{mean_f}. Used to simulate initialconditions at time "-1".
@@ -162,20 +150,10 @@ g3a_renewal_normalcv(
     For initialconditions defaults to first timestep.
     For renewal, the default is a combination of \var{run_age}, \var{run_step} & \var{run_projection}.
   }
-  \item{Linf}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{K}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{t0}{\link{formula} substituted into vonb calcuations, see below.}
-  \item{recl}{\link{formula} substituted into vonb calcuations, see below.}
+  \item{Linf,K,t0,recl}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recage}{\link{formula} substituted into initial abundance and vonb calcuations, see below.}
-  \item{proportion_f}{\link{formula} substituted into initial abundance calcuations, see below.}
-  \item{scalar}{\link{formula} substituted into initial abundance calcuations, see below.}
-  \item{init}{\link{formula} substituted into initial abundance calcuations, see below.}
-  \item{M}{\link{formula} substituted into initial abundance calcuations, see below.}
-  \item{init_F}{\link{formula} substituted into initial abundance calcuations, see below.}
-  \item{by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
-  \item{wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
-  \item{by_stock_f}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
-  \item{by_age}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
+  \item{proportion_f,scalar,init,M,init_F}{\link{formula} substituted into initial abundance calcuations, see below.}
+  \item{by_stock,wgt_by_stock,by_stock_f,by_age}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
 \details{
