@@ -491,6 +491,7 @@ attr(model_code, "parameter_template") |>
   # fish.bbin: Beta for beta-binomial distribution for fish growth, see g3a_grow_impl_bbinom()
   g3_init_val("*.bbin", 100, lower = 1e-05, upper = 1000) |>
 
+  # identity() is a do-nothing function, but it lets us finish on a new line
   identity() -> params.in
 ```
 </div>
