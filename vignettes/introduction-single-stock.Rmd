@@ -517,10 +517,7 @@ params.out <- gadgetutils::g3_iterative(getwd(),
         abund = c("dist_si_acoustic")),
     method = "BFGS",
     control = list(maxit = 1000, reltol = 1e-10),
-    use_parscale = TRUE,
-    shortcut = FALSE,
-    cv_floor = 0.05,
-    resume_final = FALSE)
+    cv_floor = 0.05)
 ```
 </div>
 
