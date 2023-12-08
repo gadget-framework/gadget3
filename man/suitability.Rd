@@ -53,37 +53,7 @@ g3_suitability_richards(p0, p1, p2, p3, p4)
 }
 
 \arguments{
-  \item{alpha}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{l50}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p0}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p1}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p2}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p3}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p4}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{p5}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{beta}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{gamma}{
-    \link{formula} substituted into calcuations, see below.
-  }
-  \item{delta}{
+  \item{alpha,beta,gamma,delta,l50,p0,p1,p2,p3,p4,p5}{
     \link{formula} substituted into calcuations, see below.
   }
   \item{by_stock}{
