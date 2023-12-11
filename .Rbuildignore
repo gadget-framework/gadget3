@@ -3,7 +3,6 @@
 \.travis.yml
 ^Makefile
 ^[^/]+\.tar\.gz
-^_pkgdown.yml$
 ^.bash_history
 ^do-release\.sh$
 ^LICENSE$
@@ -24,3 +23,6 @@
 
 ^/vignettes/WGTS/
 ^/vignettes/figs/
+
+^_pkgdown.yml$
+^pkgdown/
