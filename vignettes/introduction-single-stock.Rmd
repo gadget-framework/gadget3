@@ -22,6 +22,21 @@ library(gadget3)
 set.seed(123)
 ```
 
+This vignette walks through a script that will generate a gadget3 model,
+explaining concepts along the way.
+
+Code blocks that make up the gadget3 script are marked in blue, like this:
+
+<div class="modelScript">
+```{r, warning = FALSE, message = FALSE}
+### Introduction to gadget3: A single stock model
+
+```
+</div>
+
+When combined they will form a full model,
+see [the appendix for the entire script](#appendix-full-model-script).
+
 ## Gadget3 and the gadget framework
 
 Gadget3 is a marine modelling R package, but it is not in itself an ecosystem model.
@@ -70,9 +85,6 @@ As opposed gadget2 and other modelling frameworks, there is no input data format
 Instead, the model configuration is written as an R script.
 This document will walk through the parts of a model script for a single-species model,
 introducing concepts along the way.
-
-NB: All code samples in a blue box are part of the model script.
-See [the appendix for the full model script](#appendix-full-model-script)
 
 The first step in any script is to load ``gadget3``. We will also use ``dplyr`` when formatting input data:
 
