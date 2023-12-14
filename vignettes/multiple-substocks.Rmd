@@ -161,33 +161,38 @@ In our case we will generate random data to use later:
 # Landings data: For each year/step/area
 expand.grid(year = 1990:1994, step = 2, area = 'IXa') |>
     # Generate a random total landings by weight
-    mutate(weight = runif(n(), min = 100, max = 1000)) ->
-    landings_f_surv
+    mutate(weight = rnorm(n(), mean = 1000, sd = 100)) |>
+    # Assign result to landings_f_surv
+    identity() -> landings_f_surv
 
-# Length distribution data: Assume 50 samples in each year/step/area
-expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 50)) |>
+# Length distribution data: Assume 100 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 100)) |>
   # Generate random lengths for these samples
-  mutate(length = runif(n(), min = 5, max = 25)) |>
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Save our unaggregated data, carry on
+  assign("ldist_f_surv.raw", value = _) |>
   # Group into length bins
   group_by(
       year = year,
       step = step,
-      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
   # Report count in each length bin
-  summarise(number = n(), .groups = 'keep') ->
-  ldist_f_surv
+  summarise(number = n(), .groups = 'keep') |>
+  # Save into ldist_f_surv
+  identity() -> ldist_f_surv
 
 # Assume 5 * 5 samples in each year/step/area
 expand.grid(year = 1990:1994, step = 2, area = 'IXa', age = rep(NA, 5), length = rep(NA, 5)) |>
   # Generate random lengths/ages for these samples
-  mutate(length = runif(n(), min = 5, max = 25)) |>
-  mutate(age = runif(n(), min = 1, max = 5)) |>
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Generate random whole numbers for age
+  mutate(age = floor(runif(n(), min = 1, max = 5))) |>
   # Group into length/age bins
   group_by(
       year = year,
       step = step,
-      age = cut(age, breaks = seq(1, 5, 1), right = FALSE),
-      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+      age = age,
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
   # Report count in each length bin
   summarise(number = n(), .groups = 'keep') ->
   aldist_f_surv
@@ -250,26 +255,25 @@ Again, further fleets can be added by repeating the code above.
 
 ### Survey indices
 
-Again, survey indices should be handed the full `stocks` list, instead of a single stock:
+Survey indices should be handed the full `stocks` list, instead of a single stock,
+but are otherwise the same as before:
 
 <div class="modelScript">
 ```{r}
-# Create abundance index for si_acoustic ####################
+# Create abundance index for si_cpue ########################
 
 # Generate random data
 expand.grid(year = 1990:1994, step = 3, area = 'IXa') |>
-    # Fill in a number column with total numbers in that year/step/area combination
-    mutate(number = runif(n(), min = 10000, max = 100000)) ->
-    dist_si_acoustic
+    # Fill in a weight column with total biomass for the year/step/area combination
+    mutate(weight = runif(n(), min = 10000, max = 100000)) ->
+    dist_si_cpue
 
-actions_si_acoustic <- list(
-  NULL)
-actions_likelihood_si_acoustic <- list(
+actions_likelihood_si_cpue <- list(
 
   g3l_abundancedistribution(
-    "dist_si_acoustic",
-    dist_si_acoustic,
-    
+    "dist_si_cpue",
+    dist_si_cpue,
+
     stocks = stocks,
     function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
     area_group = area_names,
@@ -277,7 +281,7 @@ actions_likelihood_si_acoustic <- list(
     nll_breakdown = TRUE),
   NULL)
 
-actions <- c(actions, actions_si_acoustic, actions_likelihood_si_acoustic)
+actions <- c(actions, actions_likelihood_si_cpue)
 ```
 </div>
 
