@@ -138,21 +138,23 @@ We define a stock with the ``g3_stock()`` and associated ``g3s_*`` functions, fo
 area_names <- g3_areas(c('IXa', 'IXb'))
 
 # Create stock definition for fish ####################
-fish <- g3_stock("fish", seq(5L, 25L, 5)) |>
+fish <- g3_stock("fish", seq(10, 100, 10)) |>
   g3s_livesonareas(area_names["IXa"]) |>
   g3s_age(1L, 5L)
 ```
 </div>
 
-Here we define a stock called "fish" with length bins 5..25, then add an area to live in & 5 age bins.
+Here we define a stock called "fish" with length bins 10..100, then add an area to live in & 5 age bins.
 
-The stock functions define the structure of the arrays that will hold the state of that stock within
-gadget3.
-To see the end result, we can use ``g3_stock_instance()`` to see an example of the arrays used:
+Ultimately, the stock functions define the structure of the arrays that will hold the state of that stock within gadget3.
+We can use ``g3_stock_instance()`` to see an example of the array used:
 
 ```{r}
-g3_stock_instance(fish, 0)[,area='IXa',]
+# aperm() re-orders dimensions for more compact printing
+aperm(g3_stock_instance(fish, 0), c(1,3,2))
 ```
+
+For example, the abundance and mean weight of the stock will be stored in one of these arrays within the model.
 
 ### Stock actions
 
@@ -205,7 +207,9 @@ they will be re-ordered to match the standard action order, see `?g3_action_orde
 Fleets in gadget3 are modelled as stock objects, which predate on their target stocks.
 
 To define a fleet, we need to introduce historical data into the model.
-In our case we will generate random data to use later:
+In our case we will generate random data, but the aggretation steps would apply regardless.
+
+#### Landings data
 
 <div class="modelScript">
 ```{r}
@@ -214,53 +218,140 @@ In our case we will generate random data to use later:
 # Landings data: For each year/step/area
 expand.grid(year = 1990:1994, step = 2, area = 'IXa') |>
     # Generate a random total landings by weight
-    mutate(weight = runif(n(), min = 100, max = 1000)) ->
-    landings_f_surv
+    mutate(weight = rnorm(n(), mean = 1000, sd = 100)) |>
+    # Assign result to landings_f_surv
+    identity() -> landings_f_surv
+```
+</div>
 
-# Length distribution data: Assume 50 samples in each year/step/area
-expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 50)) |>
+Here we use ``expand.grid()`` to generate a ``data.frame()`` with all possible *year*/*step*/*area* cominations.
+We then use ``dplyr::mutate()`` to add a *weight* column to this table,
+using ``rnorm()`` to generate random numbers distributed about a mean.
+
+The ``identity()`` function is a do-nothing function that passes through the input.
+We use this to move the assignment onto it's own line.
+
+The end result is a ``data.frame()`` of total biomass figures:
+
+```{r}
+landings_f_surv
+plot(landings_f_surv[c('year', 'weight')], ylim = c(0, 2000), col = "red")
+```
+
+Note that we haven't provided data for all years/steps, as we'll assume this fleet only works in spring.
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+#### Length distribution data
+
+Next we generate some length-distribution data:
+
+<div class="modelScript">
+```{r}
+# Length distribution data: Assume 100 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 100)) |>
   # Generate random lengths for these samples
-  mutate(length = runif(n(), min = 5, max = 25)) |>
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Save our unaggregated data, carry on
+  assign("ldist_f_surv.raw", value = _) |> 
   # Group into length bins
   group_by(
       year = year,
       step = step,
-      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
   # Report count in each length bin
-  summarise(number = n(), .groups = 'keep') ->
-  ldist_f_surv
+  summarise(number = n(), .groups = 'keep') |>
+  # Save into ldist_f_surv
+  identity() -> ldist_f_surv
+```
+</div>
 
+As before, ``expand.grid()`` and ``mutate()`` generate a table with random lengths distributed about the mean.
+This is our unaggregated data, which we save using ``assign()`` so we can see the end result:
+
+```{r}
+head(ldist_f_surv.raw)
+```
+
+We next use ``group_by()`` and ``cut()`` to aggregate by year, step & length bins.
+``cut()`` is responsible for binning continuous data.
+We can see what it does by running for single values:
+
+```{r}
+cut(c(50), breaks = c(seq(0, 80, 20), Inf), right = FALSE)
+```
+
+Note that we add ``Inf`` to the end of the list of breaks, to create a plus-group.
+We also specify ``right = FALSE`` so that the groups are closed on the left.
+
+Also note that our breaks aren't the same as our stock definition,
+this is allowed and gadget3 will re-aggregate the model data to match.
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+Finally, summarise counts the number in each group and puts the result into a *number* column.
+The end result looks like:
+
+```{r}
+summary(ldist_f_surv)
+years <- unique(ldist_f_surv$year)
+par(mfrow=c(2, ceiling(length(years) / 2)))
+for (y in years) plot(as.data.frame(ldist_f_surv) |>
+    filter(year == y & step == 2) |>
+    select(length, number), main = y, ylim = c(0, 60))
+```
+
+#### Age-length distribution data
+
+Finally, we can apply the same techniques to generate and aggregate age-length data:
+
+<div class="modelScript">
+```{r}
 # Assume 5 * 5 samples in each year/step/area
 expand.grid(year = 1990:1994, step = 2, area = 'IXa', age = rep(NA, 5), length = rep(NA, 5)) |>
   # Generate random lengths/ages for these samples
-  mutate(length = runif(n(), min = 5, max = 25)) |>
-  mutate(age = runif(n(), min = 1, max = 5)) |>
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Generate random whole numbers for age
+  mutate(age = floor(runif(n(), min = 1, max = 5))) |>
   # Group into length/age bins
   group_by(
       year = year,
       step = step,
-      age = cut(age, breaks = seq(1, 5, 1), right = FALSE),
-      length = cut(length, breaks = seq(5, 25, 5), right = FALSE) ) |>
+      age = age,
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
   # Report count in each length bin
   summarise(number = n(), .groups = 'keep') ->
   aldist_f_surv
 ```
 </div>
 
-Our fleet, ``f_surv``, will define it's operations based on landings data.
-We also assume we will have some length-distribution and age-length distribution data to compare.
-We produce this by first generating random unaggregated data,
-then use ``dplyr::group_by()`` and ``cut()`` to aggregate into bins.
+The end result is a ``data.frame()`` with *year*/*step*/*age*/*length*/*number*:
 
-For more information on how this works, see `vignette("incorporating-observation-data")`.
+```{r}
+summary(aldist_f_surv)
+years <- unique(aldist_f_surv$year)
+ages <- unique(aldist_f_surv$age)
 
-A fleet is defined in much the same way as our stock above, however with a different set of actions:
+par(mfrow=c(length(years), length(ages)), mar = c(2,2,1,0))
+for (y in years) for (a in ages) plot(as.data.frame(ldist_f_surv) |>
+    filter(year == y & step == 2) |>
+    select(length, number), main = sprintf("year = %d, age = %s", y, a), ylim = c(0, 60))
+```
+
+#### Fleet definition
+
+A fleet, ``f_surv``, is defined in much the same way as our stock above, however with a different set of actions:
 
 <div class="modelScript">
 ```{r}
 # Create fleet definition for f_surv ####################
 f_surv <- g3_fleet("f_surv") |> g3s_livesonareas(area_names["IXa"])
+```
+</div>
 
+We define the stock with ``g3_fleet()`` instead of ``g3_stock()``, as a fleet isn't divided into length or age bins.
+Simiarly, ``g3s_age()`` to divide into age bins isn't relevant.
+
+<div class="modelScript">
+```{r}
 actions_f_surv <- list(
   g3a_predate_fleet(
     f_surv,
@@ -269,6 +360,26 @@ actions_f_surv <- list(
     catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_f_surv", landings_f_surv, "weight", areas = area_names))),
   NULL)
+actions <- c(actions, actions_f_surv)
+```
+</div>
+
+The only action of ``f_surv`` is to predate ``fish``. We define this with ``g3a_predate_fleet()``, setting:
+
+* *suitabilities*: This defines a predator's preference for stocks.
+  In this case we use ``g3_suitability_exponentiall50()`` a logarithmic dependence on the difference between
+  length of individuals to $l_{50}$, the length of prey with a 50% probability of predation
+* *catchability_f*: This controls a predator's catch/effort.
+  In this case we use ``g3a_predate_catchability_totalfleet()`` to define effort based on total biomass caught,
+  and ``g3_timeareadata()`` to provide a timeseries table of landings data generated above
+
+For other possible settings, follow the links to the function definitions.
+
+Finally we define likelihood actions using ``g3l_catchdistribution()``,
+to compare modelled catch against our length & age-length distribution data generated above.
+
+<div class="modelScript">
+```{r}
 actions_likelihood_f_surv <- list(
   g3l_catchdistribution(
     "ldist_f_surv",
@@ -289,28 +400,11 @@ actions_likelihood_f_surv <- list(
     report = TRUE,
     nll_breakdown = TRUE),
   NULL)
-
-actions <- c(actions, actions_f_surv, actions_likelihood_f_surv)
+actions <- c(actions, actions_likelihood_f_surv)
 ```
 </div>
 
-We define the stock with ``g3_fleet()`` instead of ``g3_stock()``, as a fleet isn't divided into length or age bins.
-Simiarly, ``g3s_age()`` to divide into age bins isn't relevant.
-
-Next we define the predation of ``fish`` by ``f_surv``. To do this we also set 2 parameters:
-
-* *suitabilities*: This defines a predator's preference for stocks.
-  In this case we use ``g3_suitability_exponentiall50()`` a logarithmic dependence on the difference between
-  length of individuals to $l_{50}$, the length of prey with a 50% probability of predation
-* *catchability_f*: This controls a predator's catch/effort.
-  In this case we use ``g3a_predate_catchability_totalfleet()`` to define effort based on total biomass caught,
-  and ``g3_timeareadata()`` to provide a timeseries table of landings data generated above
-
-For other possible settings, follow the links to the reference section.
-
-Finally we define likelihood actions, to compare modelled catch against our length & age-length distribution data from above.
 Note that the only difference between the 2 likelihood actions is the structure of the inputted data.
-
 ``aldist_f_surv`` unlike ``ldist_f_surv`` has an age column, gadget3 will detect this and group the modelled catch accordingly.
 Similarly neither data.frame has the full range of years, so comparisons will be made outside those ranges.
 For more detail on what can be done here, see `vignette("incorporating-observation-data")`.
@@ -323,25 +417,24 @@ To add futher fleets to your model, just repeat the same code with a different f
 
 ### Survey indices
 
-Survey indices can be defined by adding an extra likelihood action:
+Measures of abudnance, such as commercial CPUE data,
+can be added as observation data by adding ``g3l_abundancedistribution()`` likelihood actions:
 
 <div class="modelScript">
 ```{r}
-# Create abundance index for si_acoustic ####################
+# Create abundance index for si_cpue ########################
 
 # Generate random data
 expand.grid(year = 1990:1994, step = 3, area = 'IXa') |>
-    # Fill in a number column with total numbers in that year/step/area combination
-    mutate(number = runif(n(), min = 10000, max = 100000)) ->
-    dist_si_acoustic
+    # Fill in a weight column with total biomass for the year/step/area combination
+    mutate(weight = runif(n(), min = 10000, max = 100000)) ->
+    dist_si_cpue
 
-actions_si_acoustic <- list(
-  NULL)
-actions_likelihood_si_acoustic <- list(
+actions_likelihood_si_cpue <- list(
 
   g3l_abundancedistribution(
-    "dist_si_acoustic",
-    dist_si_acoustic,
+    "dist_si_cpue",
+    dist_si_cpue,
     
     stocks = list(fish),
     function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
@@ -350,27 +443,22 @@ actions_likelihood_si_acoustic <- list(
     nll_breakdown = TRUE),
   NULL)
 
-actions <- c(actions, actions_si_acoustic, actions_likelihood_si_acoustic)
+actions <- c(actions, actions_likelihood_si_cpue)
 ```
 </div>
+
+We create a ``data.frame()`` with *year*/*step*/*area*/*weight* columns,
+and input this into a likelihood action as before with our fleet.
 
 The key differences between the catch distribution above are:
 
 * We are using ``g3l_abundancedistribution()`` instead of ``g3l_catchdistribution()``,
   which compares model abundance instead of catch from a fleet.
+* Our observation data has a *weight* column instead of *number*.
+  This results in us comparing total biomass, instead of number of individuals.
 * We use ``g3l_distribution_surveyindices_log()`` to perform linear regression to calculate likelihood score.
   We have fixed beta (the slope) of the regression, only alpha will be estimated. We could reverse this, or
   estimate both by setting to NULL.
-
-As before, the actual comparison performed depends on the input data.
-As we have provided a *number* column in the input data, we will compare against number of individuals in the model
-(as opposed to total biomass, which would have been done if we had a *weight* column).
-
-It is possible to preview the array that gadget3 converts the input data into with:
-
-```{r}
-g3_distribution_preview(dist_si_acoustic, area_group = area_names)
-```
 
 ### Creating model functions and Parameterization
 
@@ -526,7 +614,7 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     params.in = params.in,
     grouping = list(
         fleet = c("ldist_f_surv", "aldist_f_surv"),
-        abund = c("dist_si_acoustic")),
+        abund = c("dist_si_cpue")),
     method = "BFGS",
     control = list(maxit = 1000, reltol = 1e-10),
     cv_floor = 0.05)
