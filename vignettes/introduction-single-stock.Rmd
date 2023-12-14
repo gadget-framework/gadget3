@@ -16,8 +16,11 @@ vignette: >
 }
 ```
 
-
 ```{r, message=FALSE, echo=FALSE}
+library(unittest)
+# Redirect ok() output to stderr
+options(unittest.output = stderr())
+
 library(gadget3)
 set.seed(123)
 ```
@@ -201,6 +204,100 @@ analogous to gadget2's [likelihood components](https://gadget-framework.github.i
 The order of these actions as we have defined them is not preserved.
 When a model runs, the steps will not happen in the above order,
 they will be re-ordered to match the standard action order, see `?g3_action_order`.
+
+#### Model parameters
+
+The definition above should look quite barren,
+bar ``maxlengthgroupgrowth`` we have not provided any figures for the stock dynamics.
+
+The defaults for all actions define *model parameters* that can be set as fixed values or optimised later,
+rather than baking them into the model.
+
+For instance, we can see that ``g3a_naturalmortality()`` creates a parameter for ``M`` by default:
+
+```{r}
+head(g3a_naturalmortality)
+head(g3a_naturalmortality_exp)
+```
+
+Without any arguments, we use ``g3a_naturalmortality_exp()``, which sets ``M`` to be
+``g3_parameterized("M", by_stock = TRUE, by_age = TRUE)``.
+This tells gadget3 that a parameter ``M`` should be expected by the model,
+that will both be broken down by stock (i.e. will include the name of our stock),
+and each age within that stock.
+
+We can define a model with just ``g3a_time()`` and ``g3a_initialconditions_normalcv()`` to see the end result.
+``g3_to_r()`` will convert a list of actions into R code.
+To be able to run the function you need to provide a list of parameter values,
+the format of this list is defined by the attached *parameter template*:
+
+```{r}
+simple_fn <- g3_to_r(list(g3a_time(1990, 1991), g3a_initialconditions_normalcv(fish)))
+params <- attr(simple_fn, 'parameter_template')
+unlist(params)
+```
+
+```{r, message=FALSE, echo=FALSE}
+ok(ut_cmp_identical(sort(names(params), method = "radix"), c(
+    "fish.K",
+    "fish.Linf",
+    "fish.M.1", "fish.M.2", "fish.M.3", "fish.M.4", "fish.M.5",
+    "fish.init.1", "fish.init.2", "fish.init.3", "fish.init.4", "fish.init.5",
+    "fish.init.scalar",
+    "fish.lencv",
+    "fish.t0",
+    "fish.walpha",
+    "fish.wbeta",
+    "init.F",
+    "project_years",
+    "recage",
+    "retro_years")), "parameter_template names match expected")
+```
+
+We can fill in these values and run the model:
+
+```{r}
+params$fish.init.scalar <- 10
+params$fish.init.1 <- 10
+params$fish.init.2 <- 10
+params$fish.init.3 <- 10
+params$fish.init.4 <- 10
+params$fish.init.5 <- 10
+params$fish.M.1 <- 0.15
+params$fish.M.2 <- 0.15
+params$fish.M.3 <- 0.15
+params$fish.M.4 <- 0.15
+params$fish.M.5 <- 0.15
+params$init.F <- 0.5
+params$recage <- 0
+params$fish.Linf <- max(g3_stock_def(fish, "midlen"))
+params$fish.K <- 0.3
+params$fish.t0 <- g3_stock_def(fish, "minage") - 0.8
+params$fish.lencv <- 0.1
+
+# Run model and pull out final abundance from the result
+abund <- attr(simple_fn(params), "fish__num")
+
+par(mfrow=c(3, 2), mar = c(2,2,1,0))
+for (a in dimnames(abund)$age) barplot(abund[,area = 'IXa', age = a], main = a)
+```
+
+Altering K results in corresponding changes to the stock structure:
+
+```{r}
+params$fish.K <- 0.9
+abund <- attr(simple_fn(params), "fish__num")
+par(mfrow=c(3, 2), mar = c(2,2,1,0))
+for (a in dimnames(abund)$age) barplot(abund[,area = 'IXa', age = a], main = a)
+```
+
+```{r, message=FALSE, echo=FALSE}
+# Make reporting is working
+ok(ut_cmp_identical(dimnames(abund), list(
+    length = c("10:20", "20:30", "30:40", "40:50", "50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"),
+    area = "IXa",
+    age = c("age1", "age2", "age3", "age4", "age5"))), "abund dimnames() structure")
+```
 
 ### Fleet actions
 
@@ -473,40 +570,16 @@ model_code <- g3_to_tmb(actions)
 </div>
 
 ``g3_to_tmb()`` will take our list of actions and convert it into C++ code suitable for use with TMB.
-Also available is ``g3_to_r()``, which converts our model into a plain R function.
-You can use ``edit(model_code)`` to inspect the contents of this, or similarly for ``g3_to_r()`` output.
 
-Conspicuously, there are many figures that the model should have by this point.
-Bar ``maxlengthgroupgrowth`` we have not provided any figures for the stock dynamics.
-
-This is because the defaults to many action functions will define *parameters* that can either be set as
-fixed values or otimised later.
-For example, we can use ``formals`` (or follow the link to the documentation) to look at the default arguments for ``g3a_naturalmortality()``:
+To be able to run this model, we need to provide values (or initial guesses) for parameters.
+Earlier we used ``g3_to_r()`` and saw the resultant parameter template.
+With ``g3_to_tmb()`` we can do the same, however the template is more complex:
 
 ```{r}
-str(formals(g3a_naturalmortality))
-str(formals(g3a_naturalmortality_exp))
-```
-
-We can see that by default we use ``g3a_naturalmortality_exp()``, which sets ``M`` to be
-``g3_parameterized("M", by_stock = TRUE, by_age = TRUE)``. 
-This tells gadget3 that a parameter ``M`` should be expected by the model,
-that will both be broken down by stock (i.e. will include the name of our stock),
-and each age within that stock.
-
-When this model is run, values for these parameters will need to be provided.
-To find out what you need to provide, both ``g3_to_tmb()`` & ``g3_to_r()`` attach a
-*parameter template* to their output. In both cases, you get this with ``attr(x, 'parameter_template')``.
-
-We can see the results of the above by generating a model with a single action inside,
-and looking at it's parameter template:
-
-```{r}
-# NB: This isn't a complete model, without g3a_time, 'cur_step_size' isn't defined in the
-# model. g3_to_tmb() will produce a warning about this, telling us this model can't run.
-attr(g3_to_tmb(list(
-    g3a_naturalmortality(fish)
-    )), 'parameter_template')
+simple_code <- g3_to_tmb(list(
+    g3a_time(1990, 1991),
+    g3a_naturalmortality(fish) ))
+attr(simple_code, 'parameter_template')
 ```
 
 The TMB parameter template has the following columns:
@@ -521,34 +594,31 @@ The TMB parameter template has the following columns:
 * *parscale*: Relative scale for this parameter vs. others
 
 The model is expecting 5 parameters, ``fish.M.1`` to ``fish.M.5``, for each age group.
-For each we can set the initial value, and/or bounds to optimise within.
+We can either fix these to known values, or configure bounds to optimise within.
 
+Filling in individual values can be tedious.
 The helper, `g3_init_val()`, will assist in filling in these values for you.
-
 Instead of setting individual values we can assign values using wildcard characters ``*``, ``#`` (numeric), ``|`` (or):
 
 ```{r}
-attr(model_code, "parameter_template") |>
+attr(simple_code, "parameter_template") |>
     g3_init_val("*.M.#", 0.1) |>
     g3_init_val("*.M.3", 0.5) |>
-    g3_init_val("*.M.2|4", 0.2) |>
-    filter(grepl('\\.M\\.', switch))
+    g3_init_val("*.M.2|4", 0.2)
 ```
 
 Setting lower & upper bounds automatically turns on optimise, and fills in parscale:
 
 ```{r}
-attr(model_code, "parameter_template") |>
-    g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1) |>
-    filter(grepl('\\.M\\.', switch))
+attr(simple_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1)
 ```
 
 We can also use spread as a shorthand for ``lower = value * (1 - spread), upper = value * (1 + spread)``:
 
 ```{r}
-attr(model_code, "parameter_template") |>
-    g3_init_val("*.M.#", 0.15, spread = 0.5) |>
-    filter(grepl('\\.M\\.', switch))
+attr(simple_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, spread = 0.5)
 ```
 
 This allows us to fill in parameters without worrying too much about stock/fleet naming:
