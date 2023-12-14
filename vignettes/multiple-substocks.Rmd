@@ -16,8 +16,11 @@ vignette: >
 }
 ```
 
-
 ```{r, message=FALSE, echo=FALSE}
+library(unittest)
+# Redirect ok() output to stderr
+options(unittest.output = stderr())
+
 library(gadget3)
 set.seed(123)
 ```
@@ -102,9 +105,6 @@ Stock actions now need to include interactions between immature & mature:
 actions_st_imm <- list(
   g3a_growmature(st_imm,
     g3a_grow_impl_bbinom(
-      # TODO: We need to cancel by_stock to get a separate fish_imm.K as g3a_renewal_vonb_t0() creates. Do we want to?
-      delta_len_f = g3a_grow_lengthvbsimple(by_stock = TRUE),
-      by_stock = stocks, ## Ensures the bbin parameter across stocks within species
       maxlengthgroupgrowth = 4L ),
     # Add maturation
     maturity_f = g3a_mature_continuous(),
@@ -119,8 +119,6 @@ actions_st_imm <- list(
 actions_st_mat <- list(
   g3a_growmature(st_mat,
     g3a_grow_impl_bbinom(
-      delta_len_f = g3a_grow_lengthvbsimple(by_stock = TRUE),
-      by_stock = stocks,  ## Ensures the bbin parameter across stocks within species
       maxlengthgroupgrowth = 4L )),
   g3a_naturalmortality(st_mat),
   g3a_initialconditions_normalcv(st_mat),
@@ -135,17 +133,14 @@ actions <- c(actions, actions_st_imm, actions_st_mat, actions_likelihood_st)
 ```
 </div>
 
-`actions_st_imm` and `actions_st_imm` are largely similar, but:
+`actions_st_imm` and `actions_st_imm` are largely similar to our `actions_fish` from the previous model, but:
 
-* Immature `g3a_growmature()` will also move individuals to the mature stock.
-  The rate of maturity is coupled to growth, so this process is combined with the growth *action*.
+* We have added a `maturity_f` to `g3a_growmature()` to move individuals to the mature stock.
+  The rate of maturity is coupled to growth, which is why `g3a_growmature()` does both at the same time.
 * Immature `g3a_age()` can also move individuals to the mature stock.
   This will happen if an immature fish ages beyond the final age bin (5 in our case).
+  At that point it matures "by default".
 * Mature has no `g3a_renewal_normalparam()`, as there is no recruitment directly into the mature stock.
-
-Another difference is the use of `by_stock`.
-This feeds directly into the defaults for `g3_parameterized()`, telling it to use the same parameters across all stocks.
-We will see the results of this in the parameter template later.
 
 ### Fleet actions
 
@@ -201,7 +196,7 @@ expand.grid(year = 1990:1994, step = 2, area = 'IXa', age = rep(NA, 5), length =
 
 For more information on how this works, see `vignette("incorporating-observation-data")`.
 
-A fleet is defined in much the same way as our stock above, however with a different set of actions:
+Our fleet is defined with the same set of actions as the single-species model:
 
 <div class="modelScript">
 ```{r}
@@ -212,7 +207,7 @@ actions_f_surv <- list(
   g3a_predate_fleet(
     f_surv,
     stocks,
-    suitabilities = g3_suitability_exponentiall50(by_stock = stocks),
+    suitabilities = g3_suitability_exponentiall50(by_stock = 'species'),
     catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_f_surv", landings_f_surv, "weight", areas = area_names))),
   NULL)
@@ -241,12 +236,84 @@ actions <- c(actions, actions_f_surv, actions_likelihood_f_surv)
 ```
 </div>
 
-There are 2 differences here:
+There are 2 differences to before:
 
-* We predate & compare catches over our list of `stocks`, not just the individual stock.
-  There is no preferential treatment for mature vs. immature, beyond any bias in the mean length of the stocks.
-* We set `g3_suitability_exponentiall50(by_stock = stocks)`, this passes through the list of stocks to
-  `g3_parameterized()`, instructing it to have a single `alpha` & `l50` parameter for both our stocks.
+* All actions use our list `stocks`, not an individual stock.
+  Without additional changes, the 2 are treated as a single combined stock.
+* We set `g3_suitability_exponentiall50(by_stock = 'species')`,
+  instructing it to have a single `alpha` & `l50` parameter for both our stocks,
+  as they have the same species name.
+
+The `by_stock` parameter is passed through to `g3_parameterized()`.
+We can see the result of setting this in the parameter template.
+If ``by_stock = TRUE`` (the default) then we get parameters for both ``fish_imm.f_surv.l50`` & ``fish_mat.f_surv.l50``:
+
+```{r}
+simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
+    f_surv,
+    stocks,
+    suitabilities = g3_suitability_exponentiall50(by_stock = TRUE),
+    catchability_f = g3a_predate_catchability_totalfleet(1) )))
+names(attr(simple_model, "parameter_template"))
+```
+
+```{r, message=FALSE, echo=FALSE}
+ok(ut_cmp_identical(sort(names(attr(simple_model, "parameter_template")), method = "radix"), c(
+    "fish_imm.f_surv.alpha",
+    "fish_imm.f_surv.l50",
+    "fish_mat.f_surv.alpha",
+    "fish_mat.f_surv.l50",
+    "project_years", "retro_years",
+    NULL)), "Params for simple_model, by_stock = TRUE")
+```
+
+If ``by_stock = 'species'``, then there is a single, shared ``fish.f_surv.l50`` parameter:
+
+```{r}
+simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
+    f_surv,
+    stocks,
+    suitabilities = g3_suitability_exponentiall50(by_stock = 'species'),
+    catchability_f = g3a_predate_catchability_totalfleet(1) )))
+names(attr(simple_model, "parameter_template"))
+```
+
+```{r, message=FALSE, echo=FALSE}
+ok(ut_cmp_identical(sort(names(attr(simple_model, "parameter_template")), method = "radix"), c(
+    "fish.f_surv.alpha",
+    "fish.f_surv.l50",
+    "project_years", "retro_years",
+    NULL)), "Params for simple_model, by_stock = 'species'")
+```
+
+The ``by_stock`` parameter is just a convenient shortcut to change the default settings,
+if we specify ``g3_parameterized()`` ourselves we can change the parameterization in other ways,
+for example ``by_year = TRUE`` gives us per-year ``l50``:
+
+```{r}
+simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
+    f_surv,
+    stocks,
+    suitabilities = g3_suitability_exponentiall50(
+        l50 = g3_parameterized("l50", by_stock = 'species', by_predator = TRUE, by_year = TRUE)),
+    catchability_f = g3a_predate_catchability_totalfleet(1) )))
+names(attr(simple_model, "parameter_template"))
+```
+
+```{r, message=FALSE, echo=FALSE}
+ok(ut_cmp_identical(sort(names(attr(simple_model, "parameter_template")), method = "radix"), c(
+    "fish.f_surv.l50.1990",
+    "fish.f_surv.l50.1991",
+    "fish.f_surv.l50.1992",
+    "fish.f_surv.l50.1993",
+    "fish.f_surv.l50.1994",
+    "fish_imm.f_surv.alpha",
+    "fish_mat.f_surv.alpha",
+    "project_years", "retro_years",
+    NULL)), "Params for simple_model, by_year = TRUE")
+```
+
+See ``?vignette('model-customisation')`` for more.
 
 If we had data on the distribution of mature vs. immature, our observation data could contain a *stock*
 column with ``fish_imm`` or ``fish_mat``. See `vignette("incorporating-observation-data")`.
