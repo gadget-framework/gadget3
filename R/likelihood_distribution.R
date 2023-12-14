@@ -145,8 +145,8 @@ g3_distribution_preview <- function (
         all_fleets = fleets,
         area_group = area_group,
         model_history = FALSE )
-    if ('number' %in% names(ld)) return(ld$number)
-    if ('weight' %in% names(ld)) return(ld$weight)
+    if (!is.null(ld$number)) return(ld$number)
+    if (!is.null(ld$weight)) return(ld$weight)
     stop('Could not find output array')
 }
 
