@@ -414,7 +414,7 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     params.in = params.in,
     grouping = list(
         fleet = c("ldist_f_surv", "aldist_f_surv"),
-        abund = c("dist_si_acoustic")),
+        abund = c("dist_si_cpue")),
     method = "BFGS",
     control = list(maxit = 1000, reltol = 1e-10),
     cv_floor = 0.05)
