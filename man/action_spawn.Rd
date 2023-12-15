@@ -23,12 +23,23 @@ g3a_spawn_recruitment_bevertonholt(mu, lambda)
 
 g3a_spawn_recruitment_hockeystick(r0, blim)
 
-g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0, 
-          weightloss_f = 0, output_stocks = list(), 
-          output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
-          mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE,
-          run_at = g3_action_order$spawn,
-          recruit_at = g3_action_order$renewal)
+g3a_spawn(
+        stock,
+        recruitment_f,
+        proportion_f = 1,
+        mortality_f = 0,
+        weightloss_f = 0,
+        output_stocks = list(),
+        output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        wgt_by_stock = TRUE,
+        run_f = ~TRUE,
+        run_at = g3_action_order$spawn,
+        recruit_at = g3_action_order$renewal)
 }
 
 \arguments{
@@ -74,6 +85,7 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
   \item{recruit_at}{
     Integer order that recruitment from spawning will be run within model, see \code{\link{g3_action_order}}.
   }
+  \item{by_stock,wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
 \details{
