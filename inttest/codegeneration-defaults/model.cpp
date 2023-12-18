@@ -74,7 +74,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__comm__alpha);
     PARAMETER(fish__comm__l50);
     PARAMETER(fish__bbin);
-    PARAMETER(fish__rec__scalar);
     PARAMETER(fish__rec__1990);
     PARAMETER(fish__rec__1991);
     PARAMETER(fish__rec__1992);
@@ -87,6 +86,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__1999);
     PARAMETER(fish__rec__2000);
     std::map<std::tuple<int>, Type*> fish__rec = {{std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}};
+    PARAMETER(fish__rec__scalar);
     PARAMETER(adist_surveyindices_log_acoustic_dist_weight);
     PARAMETER(cdist_sumofsquares_comm_ldist_weight);
     auto assert_msg = [](bool expr, std::string message) -> bool {
@@ -532,7 +532,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (fish__rec__scalar*map_extras::at_def(fish__rec, std::make_tuple(cur_year), (Type)(NAN)));
+            auto factor = (map_extras::at_def(fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
 
             {
                 // g3a_renewal for fish;

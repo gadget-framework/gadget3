@@ -105,7 +105,7 @@ g3_parameterized <- function(
 
     # Modify value if asked
     if (exponentiate) out <- substitute(exp(x), list(x = out))
-    if (scale != 1) out <- substitute(scale * x, list(x = out, scale = scale))
+    if (scale != 1) out <- substitute(x * scale, list(x = out, scale = scale))
     if (avoid_zero != 0) out <- substitute(avoid_zero(x), list(x = out))
     if (offset != 0) out <- substitute(x + offset, list(x = out, offset = offset))
     return(out)

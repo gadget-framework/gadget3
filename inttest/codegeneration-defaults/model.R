@@ -34,7 +34,6 @@ structure(function (param)
     stopifnot("fish.comm.alpha" %in% names(param))
     stopifnot("fish.comm.l50" %in% names(param))
     stopifnot("fish.bbin" %in% names(param))
-    stopifnot("fish.rec.scalar" %in% names(param))
     stopifnot("fish.rec.1990" %in% names(param))
     stopifnot("fish.rec.1991" %in% names(param))
     stopifnot("fish.rec.1992" %in% names(param))
@@ -46,6 +45,7 @@ structure(function (param)
     stopifnot("fish.rec.1998" %in% names(param))
     stopifnot("fish.rec.1999" %in% names(param))
     stopifnot("fish.rec.2000" %in% names(param))
+    stopifnot("fish.rec.scalar" %in% names(param))
     stopifnot("adist_surveyindices_log_acoustic_dist_weight" %in% names(param))
     stopifnot("cdist_sumofsquares_comm_ldist_weight" %in% names(param))
     assert_msg <- function(expr, message) {
@@ -441,7 +441,7 @@ structure(function (param)
             }
         }
         {
-            factor <- (param[["fish.rec.scalar"]] * nvl(param[[paste("fish.rec", cur_year, sep = ".")]], NaN))
+            factor <- (nvl(param[[paste("fish.rec", cur_year, sep = ".")]], NaN) * param[["fish.rec.scalar"]])
             {
                 comment("g3a_renewal for fish")
                 for (age in seq(fish__minage, fish__maxage, by = 1)) if (age == fish__minage && cur_step == 1 && (!cur_year_projection)) {
@@ -597,4 +597,4 @@ structure(function (param)
         }
     }
 }, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M.1 = 0, fish.M.2 = 0, fish.M.3 = 0, fish.M.4 = 0, fish.M.5 = 0, fish.M.6 = 0, fish.M.7 = 0, fish.M.8 = 0, fish.M.9 = 0, fish.M.10 = 0, init.F = 0, recage = 0, fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.lencv = 0.1, fish.walpha = 0, 
-    fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.scalar = 0, fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+    fish.wbeta = 0, report_detail = 0L, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.scalar = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
