@@ -337,15 +337,15 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
             g3l_random_dnorm("a",
                 ~g3_param('a', value=1, random=TRUE),
                 ~g3_param('mu.a', value=1),
-                ~g3_param('sigma.a', value=1)),
+                ~g3_param('sigma.a', value=1), period="single"),
             g3l_random_dnorm("b",
                 ~g3_param('b', value=1, random=TRUE),
                 ~g3_param('mu.b', value=1),
-                ~g3_param('sigma.b', value=1)),
+                ~g3_param('sigma.b', value=1), period="single"),
             g3l_random_dnorm("x",
                 ~x,
                 ~g3_param('a', value=1, random=TRUE) * t + g3_param('b', value=1, random=TRUE),
-                ~g3_param('sigma0', value=1)))
+                ~g3_param('sigma0', value=1), period="single" ))
     })
     model_fn <- g3_to_r(actions)
 

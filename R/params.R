@@ -1,3 +1,25 @@
+# Reverse g3_parameterized(), find out how parameter would be broken down
+g3_parameterized_breakdown <- function (in_c) {
+    if (!is.call(in_c)) stop("Expect a g3_parameterized() call")
+    fn_name <- deparse1(in_c[[1]])
+
+    # Ignore value modifiers
+    if (fn_name == '~') return(g3_parameterized_breakdown(in_c[[2]]))
+    if (fn_name == 'exp') return(g3_parameterized_breakdown(in_c[[2]]))
+    if (fn_name == '*') return(g3_parameterized_breakdown(in_c[[2]]))
+    if (fn_name == 'avoid_zero') return(g3_parameterized_breakdown(in_c[[2]]))
+    if (fn_name == '+') return(g3_parameterized_breakdown(in_c[[2]]))
+
+    if (fn_name == 'stock_prepend') return(c("stock", g3_parameterized_breakdown(in_c[[3]])))
+    if (fn_name == 'g3_param') return(as.character(c()))
+    if (fn_name == 'g3_param_table') {
+        if (deparse1(in_c[[3]][[1]]) != "expand.grid") stop("Expect g3_param_table() to use expand.grid()")
+        col_names <- names(in_c[[3]])
+        return(col_names[nzchar(col_names)])
+    }
+    stop("Unknown parameter definition: ", deparse1(in_c))
+}
+
 g3_parameterized <- function(
         name,
         by_stock = FALSE,

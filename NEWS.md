@@ -14,6 +14,7 @@
 * Add ``g3_init_val()`` helper, to replace ``gadgetutils::g3_init_guess()``
 * Add ``g3_areas()`` helper to create numbered area vectors
 * Add ``g3_distribution_preview()`` helper to see how observatation data will be converted to array
+* ``period`` now optional for ``g3l_random_walk()``, ``g3l_random_dnorm()``
 
 ## Breaking changes
 

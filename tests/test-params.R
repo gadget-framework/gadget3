@@ -35,6 +35,38 @@ pretend_stock_action <- function (x) {
         env = list2env(list(stock = stock_mimm), parent = baseenv()))))
 }
 
+##### g3_parameterized_breakdown
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_year = TRUE)),
+    c("cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_year")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_year = TRUE, by_step = TRUE)),
+    c("cur_year", "cur_step"),
+    filter = NULL), "g3_parameterized_breakdown: by_year, by_step")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, by_year = TRUE)),
+    c("stock", "cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, by_year")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, by_year = TRUE, exponentiate = TRUE)),
+    c("stock", "cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, by_year, exponentiate")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, scale = 4, avoid_zero = TRUE)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, scale, avoid_zero")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, offset = 4)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, offset")
+
+#### g3_parameterized
+
 ok(cmp_code(
     call("{",  # }
         g3_parameterized('parp', by_stock = FALSE),

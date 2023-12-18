@@ -27,7 +27,6 @@ actions <- list(
         ~g3_param_table('walk_step', expand.grid(
             cur_year = seq(start_year,  end_year),
             cur_step = 1:4), value = 0, random = TRUE),
-        period = 'step',
         sigma_f = ~g3_param('walk_step_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_step_enabled', value = 0, optimise = FALSE)),
     list('999' = ~{}))
@@ -158,3 +157,32 @@ ok_group('g3l_random_walk', {
         writeLines("# skip: not running TMB tests")
     }
 })
+
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    # An end-to-end test, too complex to be a vignette example
+    in_param <- g3_parameterized('par', by_year = TRUE, random = TRUE, value = 50)
+    out_stock <- g3_stock('output', 1) |> g3s_time(year = 1990:2000)
+
+    simple_code <- g3_to_tmb(list(
+        g3a_time(1990, 2000),
+        gadget3:::g3_step(g3_formula(
+            quote( stock_iterate(out_stock, stock_ss(out_stock__val) <- force_type * in_param) ),
+            out_stock = out_stock,
+            # NB: We need to set an array<Type>
+            force_type = as.array(1),
+            out_stock__val = g3_stock_instance(out_stock, 0),
+            in_param = in_param )),
+        g3l_random_dnorm(
+            'rdnorm_par',
+            param_f = in_param,
+            # These need to be Types, not (double), thus g3_formula()
+            mean_f = g3_formula(cur_year * m, m = 0.001),
+            sigma_f = g3_formula(s, s = 1) ),
+        NULL))
+    obj.fn <- g3_tmb_adfun(simple_code)
+    out <- suppressWarnings(optim(obj.fn$par, obj.fn$fn, obj.fn$gr, method = "BFGS", control = list(maxit = 10)))
+    ok(ut_cmp_equal(
+        as.vector(obj.fn$report()$output__val),
+        c(1.99, 1.991, 1.992, 1.993, 1.994, 1.995, 1.996, 1.997, 1.998, 1.999, 2),
+        filter = NULL), "output__val: Found mean for each year")
+}

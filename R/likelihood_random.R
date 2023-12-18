@@ -1,14 +1,32 @@
+guess_period <- function (param_f) {
+    tryCatch({
+        cols <- sort(g3_parameterized_breakdown(param_f), method = 'radix')
+    }, error = function (e) stop("Cannot use period='auto', set period manually: ", e))
+
+    if (length(cols) == 0) return('single')
+    if ('stock' %in% cols) stop("Per-stock random parameters not supported yet")
+    if (identical(cols, c('cur_step', 'cur_year'))) return('step')
+    if (identical(cols, c('cur_year')) == 1) return('year')
+    if (identical(cols, c('cur_step')) == 1) stop("Seasonal random parameters not supported yet")
+    stop("Cannot use period='auto', set period manually: ", cols)
+}
+
 g3l_random_dnorm <- function (
         nll_name,
         param_f,
         mean_f = 0,
         sigma_f = 1,
         log_f = TRUE,
+        period = 'auto',
+        nll_breakdown = FALSE,
         weight = if (log_f) -1.0 else 1.0,
         run_at = g3_action_order$likelihood) {
+    stopifnot(period %in% c('year', 'step', 'single', 'auto'))
+    if (period == 'auto') period <- guess_period(param_f)
     out <- new.env(parent = emptyenv())
     
     nllstock <- g3_storage(paste0('nll_random_dnorm_', nll_name))
+    if (nll_breakdown && period != 'single') nllstock <- g3s_modeltime(nllstock, by_year = period == 'year')
     nllstock__dnorm <- g3_stock_instance(nllstock, 0)
     nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
@@ -28,7 +46,7 @@ g3l_random_dnorm <- function (
         mean_f = mean_f,
         sigma_f = sigma_f,
         log_f = log_f,
-        run_f = quote( cur_time == total_steps ),
+        run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
     return(as.list(out))
 }
@@ -38,15 +56,16 @@ g3l_random_walk <- function (
         param_f,
         sigma_f = 1,
         log_f = TRUE,
-        period = 'year',
+        period = 'auto',
         nll_breakdown = FALSE,
         weight = if (log_f) -1.0 else 1.0,
         run_at = g3_action_order$likelihood) {
-    stopifnot(period %in% c('year', 'step'))
+    stopifnot(period %in% c('year', 'step', 'single', 'auto'))
+    if (period == 'auto') period <- guess_period(param_f)
     out <- new.env(parent = emptyenv())
     
     nllstock <- g3_storage(paste0('nll_random_walk_', nll_name))
-    if (nll_breakdown) nllstock <- g3s_modeltime(nllstock, by_year = period == 'year')
+    if (nll_breakdown && period != 'single') nllstock <- g3s_modeltime(nllstock, by_year = period == 'year')
     nllstock__dnorm <- g3_stock_instance(nllstock, 0)
     nllstock__weight <- g3_stock_instance(nllstock, 0)
     nllstock__prevrec <- g3_global_formula(init_val = NaN)
@@ -68,7 +87,7 @@ g3l_random_walk <- function (
         param_f = param_f,
         sigma_f = sigma_f,
         log_f = log_f,
-        run_f = if (period == 'year') quote( cur_step_final ) else TRUE,
+        run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
     return(as.list(out))
 }
