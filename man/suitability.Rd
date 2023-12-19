@@ -26,15 +26,16 @@ g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~predstock__midlen)
 g3_suitability_andersenfleet(
         p0 = g3_parameterized('andersen.p0', by_stock = by_stock, value = 0,
                               optimise = FALSE),
-        p1 = g3_parameterized('andersen.p1', by_stock = by_stock, value = log(2)),
+        p1 = g3_parameterized('andersen.p1', by_stock = by_stock, by_predator = by_predator, value = log(2)),
         p2 = g3_parameterized('andersen.p2', by_stock = by_stock, value = 1,
                               optimise = FALSE),
-        p3 = g3_parameterized('andersen.p3', by_stock = by_stock, value = 0.1,
+        p3 = g3_parameterized('andersen.p3', by_stock = by_stock, by_predator = by_predator, value = 0.1,
                               exponentiate = exponentiate),
-        p4 = g3_parameterized('andersen.p4', by_stock = by_stock, value = 0.1,
+        p4 = g3_parameterized('andersen.p4', by_stock = by_stock, by_predator = by_predator, value = 0.1,
                               exponentiate = exponentiate),
         p5 = quote( stock__maxmidlen ),
         by_stock = TRUE,
+        by_predator = TRUE,
         exponentiate = TRUE)
 
 g3_suitability_gamma(alpha, beta, gamma)
