@@ -61,15 +61,15 @@ ok_group("g3_suitability_andersenfleet", {
     nondiff_andersenfleet <- function (
             lg,
             param.fish.andersen.p0 = 0,
-            param.fish.andersen.p1 = log(2),
+            param.fish.pred.andersen.p1 = log(2),
             param.fish.andersen.p2 = 1,
-            param.fish.andersen.p3_exp = 0.1,
-            param.fish.andersen.p4_exp = 0.1) {
+            param.fish.pred.andersen.p3_exp = 0.1,
+            param.fish.pred.andersen.p4_exp = 0.1) {
         p0 <- param.fish.andersen.p0
-        p1 <- param.fish.andersen.p1
+        p1 <- param.fish.pred.andersen.p1
         p2 <- param.fish.andersen.p2
-        p3 <- exp(param.fish.andersen.p3_exp)
-        p4 <- exp(param.fish.andersen.p4_exp)
+        p3 <- exp(param.fish.pred.andersen.p3_exp)
+        p4 <- exp(param.fish.pred.andersen.p4_exp)
         # Work out open-ended midlen, use maximum for p5
         dl <- diff(lg) / 2 ; dl <- c(dl, dl[[length(dl)]])
         stock__midlen <- lg + dl
@@ -84,6 +84,7 @@ ok_group("g3_suitability_andersenfleet", {
         g3_eval(
             g3_suitability_andersenfleet(),
             stock=g3_stock('fish', lg),
+            predstock=g3_fleet('pred'),
             ...)
     }
 
@@ -92,12 +93,12 @@ ok_group("g3_suitability_andersenfleet", {
         as.numeric(do.call(g3_andersenfleet, params)),
         do.call(nondiff_andersenfleet, params),
         tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
-    params <- list(lg = seq(100, 500, by = 100), param.fish.andersen.p3_exp = -Inf)
+    params <- list(lg = seq(100, 500, by = 100), param.fish.pred.andersen.p3_exp = -Inf)
     ok(ut_cmp_equal(
         as.numeric(do.call(g3_andersenfleet, params)),
         do.call(nondiff_andersenfleet, params),
         tolerance = 1e-6), paste0("g3_suitability_andersen matches ", deparse1(params)))
-    params <- list(lg = seq(100, 500, by = 100), param.fish.andersen.p4_exp = 0.999)
+    params <- list(lg = seq(100, 500, by = 100), param.fish.pred.andersen.p4_exp = 0.999)
     ok(ut_cmp_equal(
         as.numeric(do.call(g3_andersenfleet, params)),
         do.call(nondiff_andersenfleet, params),
