@@ -113,3 +113,55 @@ $5 = 0
 Note that for the ``.print()`` method to be available for arrays, it has to be
 referenced at least once in the model source, otherwise it won't be compiled
 in. Use ``edit(tmb_ling)`` to add it somewhere first.
+
+### Random effects
+
+Some notes on debugging errors with random effects models.
+
+#### Tracing inner model
+
+Control arguments for the inner ``TMB:::newton()`` model can be provided to ``g3_tmb_adfun()``,
+e.g. to add tracing:
+
+```{r, eval=FALSE}
+obj.fn <- g3_tmb_adfun(bounded_code, params.in, inner.control = list(trace = 3, maxit = 100))
+```
+
+#### Missing value for ``m``
+
+The error:
+
+```
+Error in if (m < 0) { : missing value where TRUE/FALSE needed
+```
+
+...comes from TMB's newton optimiser, and essentially says there is `NaN` in the hessian matrix.
+``m`` in this case is equivalent to:
+
+```{r, eval=FALSE}
+local({ min(diag(spHess(random = TRUE, set_tail = random[1]))) }, envir = obj.fn$env)
+```
+
+#### Separate netwton optimisation
+
+Generally, ``TMB:::newton()`` is called from ``obj.fn$env$ff``.
+You can extract the arguments provided by editing this function:
+
+```{r, eval=FALSE}
+obj.fn$env$ff <- edit(obj.fn$env$ff)
+```
+
+Around line 16, add code to extract the arguments provided, e.g:
+
+```{r, eval=FALSE}
+        assign("newt.args", c(list(par = eval(random.start),
+            fn = f0, gr = function(x) f0(x, order = 1), he = H0,
+            env = env), inner.control), env = globalenv())
+```
+
+Then you can perform a single run to extract arguments:
+
+```{r, eval=FALSE}
+obj.fn$fn()
+do.call(TMB:::newton, newt.args)
+```

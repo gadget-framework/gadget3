@@ -126,7 +126,7 @@ g3a_spawn <- function(
     }, list(
         recruitment_s_f = recruitment_f$s,
         recruitment_r_f = recruitment_f$r,
-        proportion_f = proportion_f,
+        proportion_f = f_substitute(proportion_f, list(predstock = 'spawn')),
         mortality_enabled = !identical(mortality_f, 0),
         mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
         weightloss_enabled = !identical(weightloss_f, 0),
