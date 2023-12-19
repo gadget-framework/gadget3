@@ -19,6 +19,7 @@
 * ``stock_param``() & ``stock_param_table``() replaced with ``stock_prepend``()
 * Remove unused ``g3_to_tmb(adreport_re)`` option #60
 * Naturalmortality ``M`` now by-age by default #113
+* ``g3_suitability_andersenfleet()`` now uses ``by_predator = TRUE`` by default #133
 
 # gadget3 0.10-0:
 
