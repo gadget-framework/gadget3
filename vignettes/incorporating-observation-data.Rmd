@@ -3,6 +3,7 @@ title: "Incorporating observation data into models"
 output:
   html_document:
     toc: true
+    theme: null
 vignette: >
   %\VignetteIndexEntry{Incorporating observation data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,6 +11,10 @@ vignette: >
 ---
 
 ```{css, echo=FALSE}
+.hide {
+  display: none!important;
+}
+
 /* https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html */
 .modelScript pre.sourceCode, .modelScript pre.sourceCode code {
   background-color: #f0f8ff !important;

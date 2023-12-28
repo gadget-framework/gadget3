@@ -3,6 +3,7 @@ title: "Introduction to gadget3: A single stock model"
 output:
   html_document:
     toc: true
+    theme: null
 vignette: >
   %\VignetteIndexEntry{Introduction / single-stock model}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,8 +11,12 @@ vignette: >
 ---
 
 ```{css, echo=FALSE}
+.hide {
+  display: none!important;
+}
+
 /* https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html */
-.modelScript pre.sourceCode, .modelScript pre.sourceCode code {
+.modelScript pre, .modelScript pre.sourceCode code {
   background-color: #f0f8ff !important;
 }
 ```
@@ -716,6 +721,6 @@ For convenience, here is all the sections of the model script above joined toget
 ```{js, echo=FALSE}
 document.write(
     '<div class="modelScript"><div class="sourceCode hasCopyButton"><pre class="downlit sourceCode r">' +
-    Array.from(document.querySelectorAll('.modelScript > .sourceCode > pre')).map((x) => x.innerHTML).join("\n\n") +
+    Array.from(document.querySelectorAll('.modelScript pre')).map((x) => x.innerHTML).join("\n\n") +
     '</pre></div></div>');
 ```

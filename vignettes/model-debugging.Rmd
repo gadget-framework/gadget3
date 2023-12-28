@@ -3,6 +3,7 @@ title: "Debugging a gadget3 model"
 output:
   html_document:
     toc: true
+    theme: null
 vignette: >
   %\VignetteIndexEntry{Model Debugging}
   %\VignetteEngine{knitr::rmarkdown}
