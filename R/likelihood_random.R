@@ -19,9 +19,12 @@ g3l_random_dnorm <- function (
         log_f = TRUE,
         period = 'auto',
         nll_breakdown = FALSE,
-        weight = if (log_f) -1.0 else 1.0,
+        weight = substitute(
+            g3_param(n, optimise = FALSE, value = 1),
+            list(n = paste0(nll_name, "_weight"))),
         run_at = g3_action_order$likelihood) {
     stopifnot(period %in% c('year', 'step', 'single', 'auto'))
+    stopifnot(is.logical(log_f))
     if (period == 'auto') period <- guess_period(param_f)
     out <- new.env(parent = emptyenv())
     
@@ -34,7 +37,7 @@ g3l_random_dnorm <- function (
     out[[step_id(run_at, 'g3l_random_dnorm', nll_name)]] <- g3_step(f_substitute(~ if (run_f) {
         debug_label("g3l_random_dnorm: ", nll_name)
 
-        stock_iterate(nllstock, g3_with(n := dnorm(param_f, mean_f, sigma_f, log_f), {
+        stock_iterate(nllstock, g3_with(n := dist_sense * dnorm(param_f, mean_f, sigma_f, log_f), {
             stock_ss(nllstock__dnorm) <- stock_ss(nllstock__dnorm) + n
             stock_ss(nllstock__weight) <- weight
             nll <- nll + (weight) * n
@@ -45,6 +48,7 @@ g3l_random_dnorm <- function (
         param_f = param_f,
         mean_f = mean_f,
         sigma_f = sigma_f,
+        dist_sense = if (log_f) -1.0 else 1.0,
         log_f = log_f,
         run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
@@ -58,9 +62,12 @@ g3l_random_walk <- function (
         log_f = TRUE,
         period = 'auto',
         nll_breakdown = FALSE,
-        weight = if (log_f) -1.0 else 1.0,
+        weight = substitute(
+            g3_param(n, optimise = FALSE, value = 1),
+            list(n = paste0(nll_name, "_weight"))),
         run_at = g3_action_order$likelihood) {
     stopifnot(period %in% c('year', 'step', 'single', 'auto'))
+    stopifnot(is.logical(log_f))
     if (period == 'auto') period <- guess_period(param_f)
     out <- new.env(parent = emptyenv())
     
@@ -75,7 +82,7 @@ g3l_random_walk <- function (
         debug_label("g3l_random_walk: ", nll_name)
 
         stock_iterate(nllstock, {
-            if (!is.nan(nllstock__prevrec)) g3_with(n := dnorm(param_f, nllstock__prevrec, sigma_f, log_f), {
+            if (!is.nan(nllstock__prevrec)) g3_with(n := dist_sense * dnorm(param_f, nllstock__prevrec, sigma_f, log_f), {
                 stock_ss(nllstock__dnorm) <- stock_ss(nllstock__dnorm) + n
                 stock_ss(nllstock__weight) <- weight
                 nll <- nll + (weight) * n
@@ -87,6 +94,7 @@ g3l_random_walk <- function (
         param_f = param_f,
         sigma_f = sigma_f,
         log_f = log_f,
+        dist_sense = if (log_f) -1.0 else 1.0,
         run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
     return(as.list(out))

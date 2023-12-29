@@ -56,7 +56,7 @@ ok_group('g3l_random_dnorm', {
 
     ok(ut_cmp_equal(
         as.vector(attr(result, "nll_random_dnorm_dnorm_log__dnorm")),
-        dnorm(params$dnorm_log, params$dnorm_log_mean, params$dnorm_log_sigma, TRUE),
+        -dnorm(params$dnorm_log, params$dnorm_log_mean, params$dnorm_log_sigma, TRUE),
         tolerance = 1e-7), "dnorm_log matches dnorm")
     ok(ut_cmp_equal(
         as.vector(attr(result, "nll_random_dnorm_dnorm_lin__dnorm")),
@@ -65,7 +65,7 @@ ok_group('g3l_random_dnorm', {
     ok(ut_cmp_equal(
         as.vector(result),
         sum(c(
-            dnorm(params$dnorm_log, params$dnorm_log_mean, params$dnorm_log_sigma, TRUE),
+            -dnorm(params$dnorm_log, params$dnorm_log_mean, params$dnorm_log_sigma, TRUE),
             dnorm(params$dnorm_lin, params$dnorm_lin_mean, params$dnorm_lin_sigma, FALSE),
             0)),
         tolerance = 1e-7), "nll matches both (and has been included only once)")
@@ -125,7 +125,7 @@ ok_group('g3l_random_walk', {
         lag <- tail(vals, -1)
         sum(vapply(
             seq_along(lead),
-            function (i) dnorm(lead[[i]], lag[[i]], sigma, is_log),
+            function (i) -dnorm(lead[[i]], lag[[i]], sigma, is_log),
             numeric(1)))
     }
 
