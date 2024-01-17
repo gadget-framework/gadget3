@@ -15,8 +15,7 @@ g3_init_val(
         lower = if (!is.null(spread)) value * (1 - spread),
         upper = if (!is.null(spread)) value * (1 + spread),
         optimise = !is.null(lower) & !is.null(upper),
-        parscale = if (is.null(lower) || is.null(upper)) NULL else
-            diff(c(lower, upper), lag = length(lower)),
+        parscale = if (is.null(lower) || is.null(upper)) NULL else 'auto',
         random = NULL,
         auto_exponentiate = TRUE)
 }
@@ -50,7 +49,7 @@ g3_init_val(
   }
   \item{parscale}{
     Numeric value / vector of values to set for 'parscale' column in template.
-    Default is difference between lower & upper (or NULL if they're not set).
+    Default (\code{auto}) is difference between lower & upper (or NULL if they're not set).
     Original value left if NULL
   }
   \item{random}{

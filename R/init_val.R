@@ -6,8 +6,7 @@ g3_init_val <- function (
         lower = if (!is.null(spread)) value * (1 - spread),
         upper = if (!is.null(spread)) value * (1 + spread),
         optimise = !is.null(lower) & !is.null(upper),
-        parscale = if (is.null(lower) || is.null(upper)) NULL else
-            diff(c(lower, upper), lag = length(lower)),
+        parscale = if (is.null(lower) || is.null(upper)) NULL else 'auto',
         random = NULL,
         auto_exponentiate = TRUE) {
     stopifnot(is.data.frame(param_template) || is.list(param_template))
@@ -17,7 +16,7 @@ g3_init_val <- function (
     stopifnot(is.numeric(lower) || is.null(lower))
     stopifnot(is.numeric(upper) || is.null(upper))
     stopifnot(is.logical(optimise) || is.null(optimise))
-    stopifnot(is.numeric(parscale) || is.null(parscale))
+    stopifnot(identical(parscale, 'auto') || is.numeric(parscale) || is.null(parscale))
     stopifnot(is.logical(random) || is.null(random))
     stopifnot(is.logical(auto_exponentiate))
 
@@ -83,7 +82,15 @@ g3_init_val <- function (
         # NB: Can't set optimise & random
         if (!is.null(random)) param_template[matches, 'random'] <- random
         if (!is.null(optimise)) param_template[matches, 'optimise'] <- optimise & !param_template[matches, 'random']
-        if (!is.null(parscale)) param_template[matches, 'parscale'] <- parscale
+        if (identical(parscale, 'auto')) {
+            # NB: Happens post-auto_exp, so don't need to apply it
+            param_template[matches, 'parscale'] <- diff(c(
+                param_template[matches, 'lower'],
+                param_template[matches, 'upper']), lag = length(param_template[matches, 'lower']))
+        } else if (!is.null(parscale)) {
+            param_template[matches, 'parscale'] <- parscale
+            if (any(auto_exp)) param_template[auto_exp, 'parscale'] <- log(param_template[auto_exp, 'parscale'])
+        }
     } else {  # is.list
         if (!is.null(value)) {
             param_template[matches] <- value

@@ -211,12 +211,13 @@ ok(cmp_contains("neigh.#", out$warning), "name_spec in warning output")
 #### test with a real parameter template
 
 actions <- list( g3a_time(1980L, 2000L), g3_formula(
-    quote(d + e + f + g + h),
+    quote(d + e + f + g + h + i),
     d = g3_parameterized('par.years', value = 0, by_year = TRUE),
     e = g3_parameterized('par.yrs.exp', value = 0, by_year = TRUE, exponentiate = TRUE),
     f = g3_parameterized('pare', value = 1),
     g = g3_parameterized('par.a', value = 2),
     h = g3_parameterized('par.b', value = 3, exponentiate = TRUE),
+    i = g3_parameterized('par.lu', value = 9, exponentiate = TRUE),
     x = NA) )
 params.in <- attr(g3_to_tmb(actions), 'parameter_template')
 params.in <- g3_init_val(params.in, 'par.years.#', value = 99, optimise = FALSE)
@@ -224,6 +225,7 @@ params.in <- g3_init_val(params.in, 'par.yrs.exp.#', value = 100, optimise = FAL
 params.in <- g3_init_val(params.in, 'par.yrs.exp.1999', value = 9, optimise = FALSE)
 params.in <- g3_init_val(params.in, 'par.years.[1986-1994]', value = 11:19, lower = 1:9, upper = 101:109)
 params.in <- g3_init_val(params.in, 'par.a|b', value = 100, spread = 0.1)
+params.in <- g3_init_val(params.in, 'par.lu', value = 1000, spread = 0.1)
 
 params.in.R <- attr(g3_to_r(actions), 'parameter_template')
 params.in.R <- g3_init_val(params.in.R, 'par.years.#', value = 99)
@@ -231,6 +233,7 @@ params.in.R <- g3_init_val(params.in.R, 'par.yrs.exp.#', value = 100)
 params.in.R <- g3_init_val(params.in.R, 'par.yrs.exp.1999', value = 9)
 params.in.R <- g3_init_val(params.in.R, 'par.years.[1986-1994]', value = 11:19)
 params.in.R <- g3_init_val(params.in.R, 'par.a|b', value = 100)
+params.in.R <- g3_init_val(params.in.R, 'par.lu', value = 1000, spread = 0.1)
 
 ok(ut_cmp_equal(params.in$value, I(list(
     retro_years = 0, project_years = 0,
@@ -249,7 +252,8 @@ ok(ut_cmp_equal(params.in$value, I(list(
     par.yrs.exp.1998_exp = log(100), par.yrs.exp.1999_exp = log(9), par.yrs.exp.2000_exp = log(100),
     pare = 1,
     par.a = 100,
-    par.b_exp = log(100) ))), "params.in$value: Applied vector, wildcard, auto_exp")
+    par.b_exp = log(100),
+    par.lu_exp = log(1000) ))), "params.in$value: Applied vector, wildcard, auto_exp")
 
 ok(ut_cmp_equal(structure(params.in$lower, names = params.in$switch), c(
     retro_years = NA, project_years = NA,
@@ -269,7 +273,8 @@ ok(ut_cmp_equal(structure(params.in$lower, names = params.in$switch), c(
     par.yrs.exp.1998_exp = NA, par.yrs.exp.1999_exp = NA, par.yrs.exp.2000_exp = NA,
     pare = NA,
     par.a = 90,
-    par.b_exp = log(90) )), "params.in$lower: Applied vector, auto_exp")
+    par.b_exp = log(90),
+    par.lu_exp = log(900) )), "params.in$lower: Applied vector, auto_exp")
 
 ok(ut_cmp_equal(structure(params.in$upper, names = params.in$switch), c(
     retro_years = NA, project_years = NA, par.years.1980 = NA,
@@ -290,4 +295,10 @@ ok(ut_cmp_equal(structure(params.in$upper, names = params.in$switch), c(
     par.yrs.exp.1998_exp = NA, par.yrs.exp.1999_exp = NA, par.yrs.exp.2000_exp = NA,
     pare = NA,
     par.a = 110,
-    par.b_exp = log(110) )), "params.in$upper: Applied vector, auto_exp")
+    par.b_exp = log(110),
+    par.lu_exp = log(1100) )), "params.in$upper: Applied vector, auto_exp")
+
+ok(ut_cmp_equal(
+    params.in['par.lu_exp', 'parscale'],
+    diff(c(params.in['par.lu_exp', 'lower'], params.in['par.lu_exp', 'upper'])),
+    tolerance = sqrt(.Machine$double.eps)), "params.in$parscale: par.lu_exp used log lower/upper")
