@@ -87,7 +87,7 @@ g3_init_val <- function (
     } else {  # is.list
         if (!is.null(value)) {
             param_template[matches] <- value
-            if (any(auto_exp)) param_template[auto_exp] <- log(param_template[auto_exp])
+            if (any(auto_exp)) param_template[auto_exp] <- sapply(param_template[auto_exp], log)
         }
     }
     

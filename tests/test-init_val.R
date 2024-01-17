@@ -210,20 +210,27 @@ ok(cmp_contains("neigh.#", out$warning), "name_spec in warning output")
 
 #### test with a real parameter template
 
-params.in <- attr(g3_to_tmb(list( g3a_time(1980L, 2000L), g3_formula(
+actions <- list( g3a_time(1980L, 2000L), g3_formula(
     quote(d + e + f + g + h),
     d = g3_parameterized('par.years', value = 0, by_year = TRUE),
     e = g3_parameterized('par.yrs.exp', value = 0, by_year = TRUE, exponentiate = TRUE),
     f = g3_parameterized('pare', value = 1),
     g = g3_parameterized('par.a', value = 2),
     h = g3_parameterized('par.b', value = 3, exponentiate = TRUE),
-    x = NA) )), 'parameter_template')
-
+    x = NA) )
+params.in <- attr(g3_to_tmb(actions), 'parameter_template')
 params.in <- g3_init_val(params.in, 'par.years.#', value = 99, optimise = FALSE)
 params.in <- g3_init_val(params.in, 'par.yrs.exp.#', value = 100, optimise = FALSE)
 params.in <- g3_init_val(params.in, 'par.yrs.exp.1999', value = 9, optimise = FALSE)
 params.in <- g3_init_val(params.in, 'par.years.[1986-1994]', value = 11:19, lower = 1:9, upper = 101:109)
 params.in <- g3_init_val(params.in, 'par.a|b', value = 100, spread = 0.1)
+
+params.in.R <- attr(g3_to_r(actions), 'parameter_template')
+params.in.R <- g3_init_val(params.in.R, 'par.years.#', value = 99)
+params.in.R <- g3_init_val(params.in.R, 'par.yrs.exp.#', value = 100)
+params.in.R <- g3_init_val(params.in.R, 'par.yrs.exp.1999', value = 9)
+params.in.R <- g3_init_val(params.in.R, 'par.years.[1986-1994]', value = 11:19)
+params.in.R <- g3_init_val(params.in.R, 'par.a|b', value = 100)
 
 ok(ut_cmp_equal(params.in$value, I(list(
     retro_years = 0, project_years = 0,
