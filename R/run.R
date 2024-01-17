@@ -120,3 +120,13 @@ g3_with_extract_terms <- function(x) {
     })
 }
 # g3_with_extract_terms(quote(g3_with(x := 2, parp.x := 4 + 4, moo)))
+
+gen_param_tbl_name <- function (base, vals) {
+    postfix <- if (endsWith(base, '_exp')) '_exp' else ''
+    out <- paste0(c(
+        gsub('_exp$', '', base),
+        vals,
+        NULL), collapse = ".")
+    if (endsWith(base, '_exp')) out <- paste0(out, '_exp')
+    return(out)
+}

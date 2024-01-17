@@ -52,10 +52,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
                 # Add stopifnot for each row in table
                 for (i in seq_len(nrow(df))) {
-                    param_name <- paste0(c(as.character(x[[2]]), df[i,]), collapse = ".")
-                    scope[[paste0("..param:", param_name)]] <<- structure(
-                        substitute(stopifnot(p %in% names(param)), list(p = param_name)),
-                        param_template = df_template(param_name))
+                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), df[i,])
+
+                    scope[[paste0("..param:", sub_param_name)]] <<- structure(
+                        substitute(stopifnot(p %in% names(param)), list(p = sub_param_name)),
+                        param_template = df_template(sub_param_name))
                 }
 
                 # Replace with a  param[["lookup.cur_year.cur_step"]] call

@@ -211,14 +211,17 @@ ok(cmp_contains("neigh.#", out$warning), "name_spec in warning output")
 #### test with a real parameter template
 
 params.in <- attr(g3_to_tmb(list( g3a_time(1980L, 2000L), g3_formula(
-    quote(d + e + f + g),
+    quote(d + e + f + g + h),
     d = g3_parameterized('par.years', value = 0, by_year = TRUE),
-    e = g3_parameterized('pare', value = 1),
-    f = g3_parameterized('par.a', value = 2),
-    g = g3_parameterized('par.b', value = 3, exponentiate = TRUE),
+    e = g3_parameterized('par.yrs.exp', value = 0, by_year = TRUE, exponentiate = TRUE),
+    f = g3_parameterized('pare', value = 1),
+    g = g3_parameterized('par.a', value = 2),
+    h = g3_parameterized('par.b', value = 3, exponentiate = TRUE),
     x = NA) )), 'parameter_template')
 
 params.in <- g3_init_val(params.in, 'par.years.#', value = 99, optimise = FALSE)
+params.in <- g3_init_val(params.in, 'par.yrs.exp.#', value = 100, optimise = FALSE)
+params.in <- g3_init_val(params.in, 'par.yrs.exp.1999', value = 9, optimise = FALSE)
 params.in <- g3_init_val(params.in, 'par.years.[1986-1994]', value = 11:19, lower = 1:9, upper = 101:109)
 params.in <- g3_init_val(params.in, 'par.a|b', value = 100, spread = 0.1)
 
@@ -230,6 +233,13 @@ ok(ut_cmp_equal(params.in$value, I(list(
     par.years.1992 = 17L, par.years.1993 = 18L, par.years.1994 = 19L,
     par.years.1995 = 99, par.years.1996 = 99, par.years.1997 = 99, par.years.1998 = 99,
     par.years.1999 = 99, par.years.2000 = 99,
+    par.yrs.exp.1980_exp = log(100), par.yrs.exp.1981_exp = log(100), par.yrs.exp.1982_exp = log(100),
+    par.yrs.exp.1983_exp = log(100), par.yrs.exp.1984_exp = log(100), par.yrs.exp.1985_exp = log(100),
+    par.yrs.exp.1986_exp = log(100), par.yrs.exp.1987_exp = log(100), par.yrs.exp.1988_exp = log(100),
+    par.yrs.exp.1989_exp = log(100), par.yrs.exp.1990_exp = log(100), par.yrs.exp.1991_exp = log(100),
+    par.yrs.exp.1992_exp = log(100), par.yrs.exp.1993_exp = log(100), par.yrs.exp.1994_exp = log(100),
+    par.yrs.exp.1995_exp = log(100), par.yrs.exp.1996_exp = log(100), par.yrs.exp.1997_exp = log(100),
+    par.yrs.exp.1998_exp = log(100), par.yrs.exp.1999_exp = log(9), par.yrs.exp.2000_exp = log(100),
     pare = 1,
     par.a = 100,
     par.b_exp = log(100) ))), "params.in$value: Applied vector, wildcard, auto_exp")
@@ -243,6 +253,13 @@ ok(ut_cmp_equal(structure(params.in$lower, names = params.in$switch), c(
     par.years.1992 = 7, par.years.1993 = 8, par.years.1994 = 9,
     par.years.1995 = NA, par.years.1996 = NA, par.years.1997 = NA,
     par.years.1998 = NA, par.years.1999 = NA, par.years.2000 = NA,
+    par.yrs.exp.1980_exp = NA, par.yrs.exp.1981_exp = NA, par.yrs.exp.1982_exp = NA,
+    par.yrs.exp.1983_exp = NA, par.yrs.exp.1984_exp = NA, par.yrs.exp.1985_exp = NA,
+    par.yrs.exp.1986_exp = NA, par.yrs.exp.1987_exp = NA, par.yrs.exp.1988_exp = NA,
+    par.yrs.exp.1989_exp = NA, par.yrs.exp.1990_exp = NA, par.yrs.exp.1991_exp = NA,
+    par.yrs.exp.1992_exp = NA, par.yrs.exp.1993_exp = NA, par.yrs.exp.1994_exp = NA,
+    par.yrs.exp.1995_exp = NA, par.yrs.exp.1996_exp = NA, par.yrs.exp.1997_exp = NA,
+    par.yrs.exp.1998_exp = NA, par.yrs.exp.1999_exp = NA, par.yrs.exp.2000_exp = NA,
     pare = NA,
     par.a = 90,
     par.b_exp = log(90) )), "params.in$lower: Applied vector, auto_exp")
@@ -257,6 +274,13 @@ ok(ut_cmp_equal(structure(params.in$upper, names = params.in$switch), c(
     par.years.1995 = NA,
     par.years.1996 = NA, par.years.1997 = NA, par.years.1998 = NA,
     par.years.1999 = NA, par.years.2000 = NA,
+    par.yrs.exp.1980_exp = NA, par.yrs.exp.1981_exp = NA, par.yrs.exp.1982_exp = NA,
+    par.yrs.exp.1983_exp = NA, par.yrs.exp.1984_exp = NA, par.yrs.exp.1985_exp = NA,
+    par.yrs.exp.1986_exp = NA, par.yrs.exp.1987_exp = NA, par.yrs.exp.1988_exp = NA,
+    par.yrs.exp.1989_exp = NA, par.yrs.exp.1990_exp = NA, par.yrs.exp.1991_exp = NA,
+    par.yrs.exp.1992_exp = NA, par.yrs.exp.1993_exp = NA, par.yrs.exp.1994_exp = NA,
+    par.yrs.exp.1995_exp = NA, par.yrs.exp.1996_exp = NA, par.yrs.exp.1997_exp = NA,
+    par.yrs.exp.1998_exp = NA, par.yrs.exp.1999_exp = NA, par.yrs.exp.2000_exp = NA,
     pare = NA,
     par.a = 110,
     par.b_exp = log(110) )), "params.in$upper: Applied vector, auto_exp")
