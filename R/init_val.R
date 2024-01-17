@@ -85,8 +85,7 @@ g3_init_val <- function (
         if (!is.null(optimise)) param_template[matches, 'optimise'] <- optimise & !param_template[matches, 'random']
         if (!is.null(parscale)) {
           param_template[matches, 'parscale'] <- parscale
-          if (any(auto_exp)) param_template[auto_exp, 'parscale'] <- diff(c(param_template[auto_exp, 'lower'],
-                                                                            param_template[auto_exp, 'upper']))
+          if (any(auto_exp)) param_template[auto_exp, 'parscale'] <- diff(c(log(lower), log(upper)))
         }
     } else {  # is.list
         if (!is.null(value)) {
