@@ -56,6 +56,15 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~g3_param("camel", optimize = FALSE)))
 }, "optimise"), "Optimise is spelt with an s in g3_param()")
 
+ok_group("Exponentiate params")
+params.in <- attr(g3_to_tmb(list( g3a_time(1990, 2000), g3_formula(
+    quote(d),
+    d = g3_parameterized('par.years', value = 0, by_year = TRUE, exponentiate = TRUE),
+    x = NA) )), 'parameter_template')
+ok(ut_cmp_identical(params.in[grep('^par', params.in$switch), 'switch'], c(
+    paste0('par.years.', 1990:2000, '_exp'),
+    NULL)), "exponentiate prefix ends up at the end of parameters")
+
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
