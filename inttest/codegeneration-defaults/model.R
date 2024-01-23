@@ -241,7 +241,7 @@ structure(function (param)
             if (FALSE) 
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) {
-                {
+                if (reporting_enabled > 0) {
                   REPORT(adist_surveyindices_log_acoustic_dist_model__params)
                   REPORT(adist_surveyindices_log_acoustic_dist_model__wgt)
                   REPORT(cdist_sumofsquares_comm_ldist_model__wgt)

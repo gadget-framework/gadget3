@@ -592,6 +592,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
 
+    # Reporting disabled by default, but updatable
+    model_data$reporting_enabled <- 0
+    scope$reporting_enabled <- 'DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);'
+
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
         strict_mode = function (x) { !isFALSE(strict) },
@@ -865,7 +869,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     # Rework any g3_* function calls into the code we expect
     g3_functions <- function (in_code) {
         call_replace(in_code,
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')))
+            g3_report_all = function (x) {
+                out <- g3_functions(action_reports(collated_actions, REPORT = '.'))
+                substitute(if (reporting_enabled > 0L) out, list(out = out))
+            } )
     }
     all_actions_code <- g3_functions(all_actions_code)
     ss <- scope_split(scope)
@@ -1065,6 +1072,9 @@ g3_tmb_adfun <- function(cpp_code,
     report_dynamic_dimnames <- attr(cpp_code, 'report_dynamic_dimnames')
     fn$orig_report <- fn$report
     fn$report <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
         out <- fn$orig_report(...)
         # Patch report names back again
         for (dimname in names(report_renames)) {

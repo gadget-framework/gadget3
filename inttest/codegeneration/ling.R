@@ -250,7 +250,7 @@ structure(function (param)
             if (TRUE) 
                 assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) {
-                {
+                if (reporting_enabled > 0) {
                   REPORT(cdist_sumofsquares_ldist_lln_model__num)
                   REPORT(cur_step)
                   REPORT(cur_step_final)

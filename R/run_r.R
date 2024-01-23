@@ -9,6 +9,9 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     model_env <- new.env(parent = globalenv())
     scope <- list()
 
+    # R always reports
+    model_env$reporting_enabled <- 1L
+
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
         strict_mode = function (x) { !isFALSE(strict) },
@@ -103,7 +106,7 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
 
         # TODO: Should this loop be combined with the above?
         for (var_name in all_undefined_vars(code)) {
-            if (var_name %in% names(scope)) {
+            if (var_name %in% names(scope) || var_name %in% names(model_env)) {
                 # Already init'ed this, ignore it.
                 next
             }
@@ -174,7 +177,10 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     g3_functions <- function (in_code) {
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')),
+            g3_report_all = function (x) {
+                out <- g3_functions(action_reports(collated_actions, REPORT = '.'))
+                substitute(if (reporting_enabled > 0) out, list(out = out))
+            },
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

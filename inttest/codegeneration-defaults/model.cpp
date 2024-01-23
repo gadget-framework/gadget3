@@ -38,6 +38,7 @@ template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> 
 
 template<class Type>
 Type objective_function<Type>::operator() () {
+    DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);
     PARAMETER(retro_years);
     PARAMETER(fish__init__scalar);
     PARAMETER(fish__init__1);
@@ -311,7 +312,7 @@ Type objective_function<Type>::operator() () {
                 assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
             }
             if ( cur_time > total_steps ) {
-                {
+                if ( reporting_enabled > 0 ) {
                     REPORT(adist_surveyindices_log_acoustic_dist_model__params);
                     REPORT(adist_surveyindices_log_acoustic_dist_model__wgt);
                     REPORT(cdist_sumofsquares_comm_ldist_model__wgt);

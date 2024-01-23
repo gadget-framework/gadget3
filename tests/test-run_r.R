@@ -54,7 +54,8 @@ ok_group('print.g3_r', {
         "<>",
         "<>",
         "Environment:",
-        " $ y: num [1:2] 4 5",
+        " $ y                : num [1:2] 4 5",
+        " $ reporting_enabled: int 1",
         "Parameter template:",
         " $ parp: num 0",
         NULL)), "Can add with_environment = TRUE, with_template = TRUE")
