@@ -46,7 +46,7 @@ g3_collate <- function(action_list) {
     actions <- as.list(actions)
 
     # Order items in alphanumeric order
-    return(actions[order(names(actions))])
+    return(actions[order(names(actions), method = 'radix')])
 }
 
 # Find all vars from collated actions that get assigned to, we'll report those.
