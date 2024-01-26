@@ -1,5 +1,11 @@
 # On final step of year, move stock into the next age bracket
-g3a_age <- function(stock, output_stocks = list(), output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f = ~cur_step_final, run_at = 12, transition_at = 12) {
+g3a_age <- function(
+        stock,
+        output_stocks = list(),
+        output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+        run_f = ~cur_step_final,
+        run_at = g3_action_order$age,
+        transition_at = g3_action_order$age ) {
     out <- new.env(parent = emptyenv())
 
     # Replace anything of form xxx[.[1,2,3]] with xxx[1,2,3]

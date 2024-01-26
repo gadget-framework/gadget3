@@ -2,6 +2,7 @@
 \alias{g3a_mature_continuous}
 \alias{g3a_mature_constant}
 \alias{g3a_mature}
+\concept{G3 action}
 
 \title{Gadget3 maturity action}
 \description{
@@ -20,8 +21,9 @@ g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL,
     k50 = NA)
 
 g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output_stocks), 
-    times = length(output_stocks)), run_f = ~TRUE, run_at = 5, 
-    transition_at = 7)
+    times = length(output_stocks)), run_f = ~TRUE,
+    run_at = g3_action_order$grow,
+    transition_at = g3_action_order$mature)
 
 }
 
@@ -63,10 +65,10 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{transition_at}{
-    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that transition actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

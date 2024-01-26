@@ -23,6 +23,43 @@ g3_logspace_add <- g3_env$logspace_add
 g3_logspace_add_vec <- g3_env$logspace_add_vec
 g3_lgamma_vec <- lgamma
 
+ok_group("g3_distribution_preview", {
+    dat <- expand.grid(year = 1990:1994, step = 2, area = 'IXa')
+    dat$number <- seq_len(nrow(dat))
+    out <- g3_distribution_preview(dat, area_group = c(IXa = 1))
+    ok(ut_cmp_equal(out, structure(
+        1:5,
+        dim = c(length = 1L, time = 5L, area = 1L),
+        dimnames = list(
+            length = "0:Inf",
+            time = c("1990-02", "1991-02", "1992-02", "1993-02", "1994-02"),
+            area = "IXa") )), "Returned number array")
+
+    dat <- expand.grid(year = 1990:1994, step = 2, area = 'IXa')
+    dat$weight <- seq_len(nrow(dat)) * 40
+    out <- g3_distribution_preview(dat, area_group = c(IXa = 1))
+    ok(ut_cmp_equal(out, structure(
+        1:5 * 40,
+        dim = c(length = 1L, time = 5L, area = 1L),
+        dimnames = list(
+            length = "0:Inf",
+            time = c("1990-02", "1991-02", "1992-02", "1993-02", "1994-02"),
+            area = "IXa") )), "Returned weight array")
+
+    dat <- expand.grid(year = 1990:1994, step = 2, area = 'IXa')
+    dat$number <- seq_len(nrow(dat)) * 9
+    dat$weight <- seq_len(nrow(dat)) * 40
+    out <- g3_distribution_preview(dat, area_group = c(IXa = 1))
+    ok(ut_cmp_equal(out, structure(
+        1:5 * 9,
+        dim = c(length = 1L, time = 5L, area = 1L),
+        dimnames = list(
+            length = "0:Inf",
+            time = c("1990-02", "1991-02", "1992-02", "1993-02", "1994-02"),
+            area = "IXa") )), "Number array wins if both present")
+
+})
+
 ok_group("g3l_distribution_sumofsquares", {
     ok(cmp_grep(
         deparse1(environment(g3l_distribution_sumofsquares(c('area', 'age')))$modelstock__sstotal),

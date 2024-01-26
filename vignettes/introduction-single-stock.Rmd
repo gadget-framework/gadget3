@@ -1,0 +1,729 @@
+---
+title: "Introduction to gadget3: A single stock model"
+output:
+  html_document:
+    toc: true
+    theme: null
+vignette: >
+  %\VignetteIndexEntry{Introduction / single-stock model}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{css, echo=FALSE}
+.hide {
+  display: none!important;
+}
+
+/* https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html */
+.modelScript pre, .modelScript pre.sourceCode code {
+  background-color: #f0f8ff !important;
+}
+```
+
+```{r, message=FALSE, echo=FALSE}
+library(unittest)
+# Redirect ok() output to stderr
+options(unittest.output = stderr())
+
+library(gadget3)
+set.seed(123)
+```
+
+This vignette walks through a script that will generate a gadget3 model,
+explaining concepts along the way.
+
+Code blocks that make up the gadget3 script are marked in blue, like this:
+
+<div class="modelScript">
+```{r, warning = FALSE, message = FALSE}
+### Introduction to gadget3: A single stock model
+
+```
+</div>
+
+When combined they will form a full model,
+see [the appendix for the entire script](#appendix-full-model-script).
+
+## Gadget3 and the gadget framework
+
+Gadget3 is a marine modelling R package, but it is not in itself an ecosystem model.
+Instead, it gives you building blocks (or *actions*) that can be assembled to produce as complex model as your situation requires.
+This can then be converted into other forms,
+most importantly a [TMB](https://CRAN.R-project.org/package=TMB) objective function or an R function,
+which can then be optimised and run to generate reporting.
+
+As the name suggests, it's designed to be a successor to the previous [gadget](https://cran.r-project.org/package=gadget2)
+modelling framework.
+The actions currently available are designed to be very similar, if not identical, to the components present in gadget2.
+If you are familiar with previous versions of gadget then you will find the naming very similar,
+and translation of old input files to gadget3 can be done in a rote fashion.
+
+Gadget3 is the core part of what is known as the *gadget framework*,
+a set of packages that are designed to work together to produce ecosystem models.
+
+* [gadget3](https://cran.r-project.org/package=gadget3): The core package, assembles ecosystem models from R code
+* [MFDB](https://cran.r-project.org/package=mfdb): The data-handling package, to help aggregating & formatting time-series data suitable for using as inputs to your model
+* [gadgetutils](https://github.com/gadget-framework/gadgetutils): A set of utilities to help produce an optimised model
+* [gadgetplots](https://github.com/gadget-framework/gadgetplots): Tools to produce plots and HTML pages summarising model output
+* [g3experiments](https://github.com/gadget-framework/g3experiments): Additional actions / features not yet ready for inclusion in gadget3
+* [modelwizard](https://github.com/gadget-framework/modelwizard): A GUI package to assist in building in model scripts, both for gadget3 and SS3
+
+These packages are loosely coupled; you do not need everything installed to create a gadget3 model.
+However, when they will prove useful it will be mentioned here.
+
+The `gadget3` package can be installed via. CRAN:
+
+```{r, eval=FALSE}
+install.packages('gadget3')
+```
+
+The full set of packages can be installed with:
+
+```{r, eval=FALSE}
+install.packages('MFDB')
+remotes::install_github('gadget-framework/gadgetutils')
+remotes::install_github('gadget-framework/gadgetplots')
+remotes::install_github('gadget-framework/g3experiments')
+```
+
+## Creating a (single species) model
+
+As opposed gadget2 and other modelling frameworks, there is no input data format.
+Instead, the model configuration is written as an R script.
+This document will walk through the parts of a model script for a single-species model,
+introducing concepts along the way.
+
+The first step in any script is to load ``gadget3``. We will also use ``dplyr`` when formatting input data:
+
+<div class="modelScript">
+```{r, warning = FALSE, message = FALSE}
+library(gadget3)
+library(dplyr)
+```
+</div>
+
+### Actions
+
+A gadget3 model is defined as a list of *actions*.
+*Actions* are snippets of code that define processes in a model.
+
+To start with, we will add the ``g3a_time()`` to our list of actions:
+
+<div class="modelScript">
+```{r}
+actions <- list()
+
+# Create time definitions ####################
+
+actions_time <- list(
+  g3a_time(
+    1979L, 2023L,
+    step_lengths = c(3L, 3L, 3L, 3L)),
+  NULL)
+
+actions <- c(actions, actions_time)
+```
+</div>
+
+This acts as timekeeping for our model, starting in year 1979 and progressing until 2023.
+Each year will have 4 time steps in, of equal length.
+
+As a convention, we build up an ``actions`` array of everything required, allowing sections
+to be added/removed as necessary.
+
+### Stocks
+
+After actions, the other key concept in a gadget3 model is a *stock*.
+These are the means to describe populations within your model.
+For simpler scenarios such as here, stocks map directly to a species.
+However, more complicated models may have one stock per-maturation-stage, sex or both.
+
+We define a stock with the ``g3_stock()`` and associated ``g3s_*`` functions, for example:
+
+<div class="modelScript">
+```{r}
+area_names <- g3_areas(c('IXa', 'IXb'))
+
+# Create stock definition for fish ####################
+fish <- g3_stock("fish", seq(10, 100, 10)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(1L, 5L)
+```
+</div>
+
+Here we define a stock called "fish" with length bins 10..100, then add an area to live in & 5 age bins.
+
+Ultimately, the stock functions define the structure of the arrays that will hold the state of that stock within gadget3.
+We can use ``g3_stock_instance()`` to see an example of the array used:
+
+```{r}
+# aperm() re-orders dimensions for more compact printing
+aperm(g3_stock_instance(fish, 0), c(1,3,2))
+```
+
+For example, the abundance and mean weight of the stock will be stored in one of these arrays within the model.
+
+### Stock actions
+
+Now we have a stock, we can add apply population dynamics *actions*, and save them in the ``actions`` array from earlier:
+
+<div class="modelScript">
+```{r}
+actions_fish <- list(
+  g3a_growmature(fish, g3a_grow_impl_bbinom(
+    maxlengthgroupgrowth = 4L)),
+  g3a_naturalmortality(fish),
+  g3a_initialconditions_normalcv(fish),
+  g3a_renewal_normalparam(fish,
+    run_step = 2),
+  g3a_age(fish),
+  NULL)
+
+actions_likelihood_fish <- list(
+  g3l_understocking(list(fish), nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_fish, actions_likelihood_fish)
+```
+</div>
+
+Each of these ``g3a_*`` actions will have a 1:1 parallel with gadget2 stockfile components,
+so if you are familiar with these config files will do what you expect.
+
+For each action you can click through to the reference to get more information on what it does, but in summary we have defined:
+
+* ``g3a_growmature()``: The growth model
+* ``g3a_naturalmortality()``: Natural mortality of our stock
+* ``g3a_initialconditions_normalcv()``: Initial recruitment, defining numbers & mean weights for the start of the model
+* ``g3a_renewal_normalparam()``: Recruitment occuring every spring (``run_step = 2``), independent of stock status
+* ``g3a_age()``: Move fish through age groups at the end of a year
+* ``g3l_understocking()``: A penalty applied to the likelihood used to prevent more fish being eaten/fished than is available.
+
+There are more actions available besides these, for instance ``g3a_spawn()`` can be used for recruitment dependent on stock size instead of ``g3a_renewal_normalparam()``.
+For a full list, see [the package reference index](/reference/index.html#g-action-functions).
+
+Likelihood actions are actions that will sum their output into the model's overall likelihood score,
+analogous to gadget2's [likelihood components](https://gadget-framework.github.io/gadget2/userguide/chap-like.html).
+
+The order of these actions as we have defined them is not preserved.
+When a model runs, the steps will not happen in the above order,
+they will be re-ordered to match the standard action order, see `?g3_action_order`.
+
+#### Model parameters
+
+The definition above should look quite barren,
+bar ``maxlengthgroupgrowth`` we have not provided any figures for the stock dynamics.
+
+The defaults for all actions define *model parameters* that can be set as fixed values or optimised later,
+rather than baking them into the model.
+
+For instance, we can see that ``g3a_naturalmortality()`` creates a parameter for ``M`` by default:
+
+```{r}
+head(g3a_naturalmortality)
+head(g3a_naturalmortality_exp)
+```
+
+Without any arguments, we use ``g3a_naturalmortality_exp()``, which sets ``M`` to be
+``g3_parameterized("M", by_stock = TRUE, by_age = TRUE)``.
+This tells gadget3 that a parameter ``M`` should be expected by the model,
+that will both be broken down by stock (i.e. will include the name of our stock),
+and each age within that stock.
+
+We can define a model with just ``g3a_time()`` and ``g3a_initialconditions_normalcv()`` to see the end result.
+``g3_to_r()`` will convert a list of actions into R code.
+To be able to run the function you need to provide a list of parameter values,
+the format of this list is defined by the attached *parameter template*:
+
+```{r}
+simple_fn <- g3_to_r(list(g3a_time(1990, 1991), g3a_initialconditions_normalcv(fish)))
+params <- attr(simple_fn, 'parameter_template')
+unlist(params)
+```
+
+```{r, message=FALSE, echo=FALSE}
+ok(ut_cmp_identical(sort(names(params), method = "radix"), c(
+    "fish.K",
+    "fish.Linf",
+    "fish.M.1", "fish.M.2", "fish.M.3", "fish.M.4", "fish.M.5",
+    "fish.init.1", "fish.init.2", "fish.init.3", "fish.init.4", "fish.init.5",
+    "fish.init.scalar",
+    "fish.lencv",
+    "fish.t0",
+    "fish.walpha",
+    "fish.wbeta",
+    "init.F",
+    "project_years",
+    "recage",
+    "retro_years")), "parameter_template names match expected")
+```
+
+We can fill in these values and run the model:
+
+```{r}
+params$fish.init.scalar <- 10
+params$fish.init.1 <- 10
+params$fish.init.2 <- 10
+params$fish.init.3 <- 10
+params$fish.init.4 <- 10
+params$fish.init.5 <- 10
+params$fish.M.1 <- 0.15
+params$fish.M.2 <- 0.15
+params$fish.M.3 <- 0.15
+params$fish.M.4 <- 0.15
+params$fish.M.5 <- 0.15
+params$init.F <- 0.5
+params$recage <- 0
+params$fish.Linf <- max(g3_stock_def(fish, "midlen"))
+params$fish.K <- 0.3
+params$fish.t0 <- g3_stock_def(fish, "minage") - 0.8
+params$fish.lencv <- 0.1
+
+# Run model and pull out final abundance from the result
+abund <- attr(simple_fn(params), "fish__num")
+
+par(mfrow=c(3, 2), mar = c(2,2,1,0))
+for (a in dimnames(abund)$age) barplot(abund[,area = 'IXa', age = a], main = a)
+```
+
+Altering K results in corresponding changes to the stock structure:
+
+```{r}
+params$fish.K <- 0.9
+abund <- attr(simple_fn(params), "fish__num")
+par(mfrow=c(3, 2), mar = c(2,2,1,0))
+for (a in dimnames(abund)$age) barplot(abund[,area = 'IXa', age = a], main = a)
+```
+
+```{r, message=FALSE, echo=FALSE}
+# Make reporting is working
+ok(ut_cmp_identical(dimnames(abund), list(
+    length = c("10:20", "20:30", "30:40", "40:50", "50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"),
+    area = "IXa",
+    age = c("age1", "age2", "age3", "age4", "age5"))), "abund dimnames() structure")
+```
+
+### Fleet actions
+
+Fleets in gadget3 are modelled as stock objects, which predate on their target stocks.
+
+To define a fleet, we need to introduce historical data into the model.
+In our case we will generate random data, but the aggretation steps would apply regardless.
+
+#### Landings data
+
+<div class="modelScript">
+```{r}
+# Fleet data for f_surv #################################
+
+# Landings data: For each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa') |>
+    # Generate a random total landings by weight
+    mutate(weight = rnorm(n(), mean = 1000, sd = 100)) |>
+    # Assign result to landings_f_surv
+    identity() -> landings_f_surv
+```
+</div>
+
+Here we use ``expand.grid()`` to generate a ``data.frame()`` with all possible *year*/*step*/*area* cominations.
+We then use ``dplyr::mutate()`` to add a *weight* column to this table,
+using ``rnorm()`` to generate random numbers distributed about a mean.
+
+The ``identity()`` function is a do-nothing function that passes through the input.
+We use this to move the assignment onto it's own line.
+
+The end result is a ``data.frame()`` of total biomass figures:
+
+```{r}
+landings_f_surv
+plot(landings_f_surv[c('year', 'weight')], ylim = c(0, 2000), col = "red")
+```
+
+Note that we haven't provided data for all years/steps, as we'll assume this fleet only works in spring.
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+#### Length distribution data
+
+Next we generate some length-distribution data:
+
+<div class="modelScript">
+```{r}
+# Length distribution data: Randomly generate 100 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 100)) |>
+  # Generate random lengths for these samples
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Save unagggregated data into ldist_f_surv.raw
+  identity() -> ldist_f_surv.raw
+
+# Aggregate .raw data
+ldist_f_surv.raw |>
+  # Group into length bins
+  group_by(
+      year = year,
+      step = step,
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
+  # Report count in each length bin
+  summarise(number = n(), .groups = 'keep') |>
+  # Save into ldist_f_surv
+  identity() -> ldist_f_surv
+```
+</div>
+
+As before, ``expand.grid()`` and ``mutate()`` generate a table with random lengths distributed about the mean.
+This is our unaggregated data, which we save using ``assign()`` so we can see the end result:
+
+```{r}
+head(ldist_f_surv.raw)
+```
+
+We next use ``group_by()`` and ``cut()`` to aggregate by year, step & length bins.
+``cut()`` is responsible for binning continuous data.
+We can see what it does by running for single values:
+
+```{r}
+cut(c(50), breaks = c(seq(0, 80, 20), Inf), right = FALSE)
+```
+
+Note that we add ``Inf`` to the end of the list of breaks, to create a plus-group.
+We also specify ``right = FALSE`` so that the groups are closed on the left.
+
+Also note that our breaks aren't the same as our stock definition,
+this is allowed and gadget3 will re-aggregate the model data to match.
+For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+Finally, summarise counts the number in each group and puts the result into a *number* column.
+The end result looks like:
+
+```{r}
+summary(ldist_f_surv)
+years <- unique(ldist_f_surv$year)
+par(mfrow=c(2, ceiling(length(years) / 2)))
+for (y in years) plot(as.data.frame(ldist_f_surv) |>
+    filter(year == y & step == 2) |>
+    select(length, number), main = y, ylim = c(0, 60))
+```
+
+#### Age-length distribution data
+
+Finally, we can apply the same techniques to generate and aggregate age-length data:
+
+<div class="modelScript">
+```{r}
+# Assume 5 * 5 samples in each year/step/area
+expand.grid(year = 1990:1994, step = 2, area = 'IXa', age = rep(NA, 5), length = rep(NA, 5)) |>
+  # Generate random lengths/ages for these samples
+  mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
+  # Generate random whole numbers for age
+  mutate(age = floor(runif(n(), min = 1, max = 5))) |>
+  # Group into length/age bins
+  group_by(
+      year = year,
+      step = step,
+      age = age,
+      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
+  # Report count in each length bin
+  summarise(number = n(), .groups = 'keep') ->
+  aldist_f_surv
+```
+</div>
+
+The end result is a ``data.frame()`` with *year*/*step*/*age*/*length*/*number*:
+
+```{r}
+summary(aldist_f_surv)
+years <- unique(aldist_f_surv$year)
+ages <- unique(aldist_f_surv$age)
+
+par(mfrow=c(length(years), length(ages)), mar = c(2,2,1,0))
+for (y in years) for (a in ages) plot(as.data.frame(ldist_f_surv) |>
+    filter(year == y & step == 2) |>
+    select(length, number), main = sprintf("year = %d, age = %s", y, a), ylim = c(0, 60))
+```
+
+#### Fleet definition
+
+A fleet, ``f_surv``, is defined in much the same way as our stock above, however with a different set of actions:
+
+<div class="modelScript">
+```{r}
+# Create fleet definition for f_surv ####################
+f_surv <- g3_fleet("f_surv") |> g3s_livesonareas(area_names["IXa"])
+```
+</div>
+
+We define the stock with ``g3_fleet()`` instead of ``g3_stock()``, as a fleet isn't divided into length or age bins.
+Simiarly, ``g3s_age()`` to divide into age bins isn't relevant.
+
+<div class="modelScript">
+```{r}
+actions_f_surv <- list(
+  g3a_predate_fleet(
+    f_surv,
+    list(fish),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_totalfleet(
+      g3_timeareadata("landings_f_surv", landings_f_surv, "weight", areas = area_names))),
+  NULL)
+actions <- c(actions, actions_f_surv)
+```
+</div>
+
+The only action of ``f_surv`` is to predate ``fish``. We define this with ``g3a_predate_fleet()``, setting:
+
+* *suitabilities*: This defines a predator's preference for stocks.
+  In this case we use ``g3_suitability_exponentiall50()`` a logarithmic dependence on the difference between
+  length of individuals to $l_{50}$, the length of prey with a 50% probability of predation
+* *catchability_f*: This controls a predator's catch/effort.
+  In this case we use ``g3a_predate_catchability_totalfleet()`` to define effort based on total biomass caught,
+  and ``g3_timeareadata()`` to provide a timeseries table of landings data generated above
+
+For other possible settings, follow the links to the function definitions.
+
+Finally we define likelihood actions using ``g3l_catchdistribution()``,
+to compare modelled catch against our length & age-length distribution data generated above.
+
+<div class="modelScript">
+```{r}
+actions_likelihood_f_surv <- list(
+  g3l_catchdistribution(
+    "ldist_f_surv",
+    obs_data = ldist_f_surv,
+    fleets = list(f_surv),
+    stocks = list(fish),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_f_surv",
+    obs_data = aldist_f_surv,
+    fleets = list(f_surv),
+    stocks = list(fish),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+actions <- c(actions, actions_likelihood_f_surv)
+```
+</div>
+
+Note that the only difference between the 2 likelihood actions is the structure of the inputted data.
+``aldist_f_surv`` unlike ``ldist_f_surv`` has an age column, gadget3 will detect this and group the modelled catch accordingly.
+Similarly neither data.frame has the full range of years, so comparisons will be made outside those ranges.
+For more detail on what can be done here, see `vignette("incorporating-observation-data")`.
+
+``function_f`` defines the method of comparison between modelled catch & observation data, once aggregation has been done.
+``g3l_distribution_sumofsquares()`` in this case compares the sum of squared difference. For more options on what to use here,
+follow the links to the reference.
+
+To add futher fleets to your model, just repeat the same code with a different fleet name.
+
+### Survey indices
+
+Measures of abudnance, such as commercial CPUE data,
+can be added as observation data by adding ``g3l_abundancedistribution()`` likelihood actions:
+
+<div class="modelScript">
+```{r}
+# Create abundance index for si_cpue ########################
+
+# Generate random data
+expand.grid(year = 1990:1994, step = 3, area = 'IXa') |>
+    # Fill in a weight column with total biomass for the year/step/area combination
+    mutate(weight = runif(n(), min = 10000, max = 100000)) ->
+    dist_si_cpue
+
+actions_likelihood_si_cpue <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_cpue",
+    dist_si_cpue,
+    
+    stocks = list(fish),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_likelihood_si_cpue)
+```
+</div>
+
+We create a ``data.frame()`` with *year*/*step*/*area*/*weight* columns,
+and input this into a likelihood action as before with our fleet.
+
+The key differences between the catch distribution above are:
+
+* We are using ``g3l_abundancedistribution()`` instead of ``g3l_catchdistribution()``,
+  which compares model abundance instead of catch from a fleet.
+* Our observation data has a *weight* column instead of *number*.
+  This results in us comparing total biomass, instead of number of individuals.
+* We use ``g3l_distribution_surveyindices_log()`` to perform linear regression to calculate likelihood score.
+  We have fixed beta (the slope) of the regression, only alpha will be estimated. We could reverse this, or
+  estimate both by setting to NULL.
+
+### Creating model functions and Parameterization
+
+At this point, we are ready to convert our model into code:
+
+<div class="modelScript">
+```{r}
+# Create model objective function ####################
+
+model_code <- g3_to_tmb(actions)
+```
+</div>
+
+``g3_to_tmb()`` will take our list of actions and convert it into C++ code suitable for use with TMB.
+
+To be able to run this model, we need to provide values (or initial guesses) for parameters.
+Earlier we used ``g3_to_r()`` and saw the resultant parameter template.
+With ``g3_to_tmb()`` we can do the same, however the template is more complex:
+
+```{r}
+simple_code <- g3_to_tmb(list(
+    g3a_time(1990, 1991),
+    g3a_naturalmortality(fish) ))
+attr(simple_code, 'parameter_template')
+```
+
+The TMB parameter template has the following columns:
+
+* *switch*: The parameter name
+* *type*: Is the parameter a vector? Currently unused
+* *value*: The initial value for this parameter
+* *optimise*: Should this parameter be optimised or fixed
+* *random*: Should random effects be applied to this parameter? See `vignette('random-effects')`
+* *lower*: A lower bound for this parameter
+* *upper*: An upper bound for this parameter
+* *parscale*: Relative scale for this parameter vs. others
+
+The model is expecting 5 parameters, ``fish.M.1`` to ``fish.M.5``, for each age group.
+We can either fix these to known values, or configure bounds to optimise within.
+
+Filling in individual values can be tedious.
+The helper, `g3_init_val()`, will assist in filling in these values for you.
+Instead of setting individual values we can assign values using wildcard characters ``*``, ``#`` (numeric), ``|`` (or):
+
+```{r}
+attr(simple_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.1) |>
+    g3_init_val("*.M.3", 0.5) |>
+    g3_init_val("*.M.2|4", 0.2)
+```
+
+Setting lower & upper bounds automatically turns on optimise, and fills in parscale:
+
+```{r}
+attr(simple_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1)
+```
+
+We can also use spread as a shorthand for ``lower = value * (1 - spread), upper = value * (1 + spread)``:
+
+```{r}
+attr(simple_code, "parameter_template") |>
+    g3_init_val("*.M.#", 0.15, spread = 0.5)
+```
+
+This allows us to fill in parameters without worrying too much about stock/fleet naming:
+
+<div class="modelScript">
+```{r}
+# Guess l50 / linf based on stock sizes
+estimate_l50 <- g3_stock_def(fish, "midlen")[[length(g3_stock_def(fish, "midlen")) / 2]]
+estimate_linf <- max(g3_stock_def(fish, "midlen"))
+estimate_t0 <- g3_stock_def(fish, "minage") - 0.8
+
+attr(model_code, "parameter_template") |>
+  # fish.init.scalar & fish.rec.scalar: Overall scalar for recruitment/initial conditions, see g3a_renewal_normalparam()
+  g3_init_val("*.rec|init.scalar", 10, lower = 0.001, upper = 200) |>
+  # fish.rec.(age): Per-age recriutment scalar, see g3a_renewal_normalparam()
+  g3_init_val("*.init.#", 10, lower = 0.001, upper = 200) |>
+  # fish.rec.(year): Recruitment level year-on-year, see g3a_renewal_normalparam()
+  g3_init_val("*.rec.#", 100, lower = 1e-6, upper = 1000) |>
+  # fish.rec.sd: Standard deviation for recruitment, see g3a_renewal_normalparam()
+  g3_init_val("*.rec.sd", 5, lower = 4, upper = 20) |>
+  # init.F: Offset for initial M, see g3a_renewal_initabund()
+  g3_init_val("init.F", 0.5, lower = 0.1, upper = 1) |>
+
+  # fish.M.(age): per-age M for our species, see g3a_naturalmortality()
+  g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1) |>
+
+  # fish.Linf, fish.K, fish.t0: VonB parameters for our species, see g3a_renewal_vonb_t0(), g3a_grow_lengthvbsimple()
+  g3_init_val("*.Linf", estimate_linf, spread = 0.2) |>
+  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+  g3_init_val("*.t0", estimate_t0, spread = 2) |>
+
+  # fish.walpha, fish.wbeta: Age/weight relationship for initialconditions, renewal, see g3a_renewal_normalparam()
+  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+
+  # fish.f_surv.alpha, fish.f_surv.l50: Curve/l50 for fishing suitability, see g3_suitability_exponentiall50()
+  g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 0.2) |>
+  g3_init_val("*.*.l50", estimate_l50, spread = 0.25) |>
+
+  # fish.bbin: Beta for beta-binomial distribution for fish growth, see g3a_grow_impl_bbinom()
+  g3_init_val("*.bbin", 100, lower = 1e-05, upper = 1000) |>
+
+  # identity() is a do-nothing function, but it lets us finish on a new line
+  identity() -> params.in
+```
+</div>
+
+Finally we are ready for optimisation runs.
+``g3_tmb_adfun()`` is a wrapper around ``TMB::MakeADFun()`` and ``TMB::compile``, producing a TMB *objective function*.
+``gadgetutils::g3_iterative()`` then optimises based on iterative reweighting
+
+<div class="modelScript">
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# Optimise model ################################
+# Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)
+bounded_code <- g3_to_tmb(c(actions, list(
+    g3l_bounds_penalty(params.in) )))
+obj.fn <- g3_tmb_adfun(bounded_code, params.in)
+
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = list(
+        fleet = c("ldist_f_surv", "aldist_f_surv"),
+        abund = c("dist_si_cpue")),
+    method = "BFGS",
+    control = list(maxit = 1000, reltol = 1e-10),
+    cv_floor = 0.05)
+```
+</div>
+
+Once this has finished, we can view the output using ``gadgetplots::gadget_plots()``.
+
+<div class="modelScript">
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# Generate detailed report ######################
+fit <- gadgetutils::g3_fit(model_code, params.out)
+gadgetplots::gadget_plots(fit, "figs", file_type = "html")
+```
+</div>
+
+Once finished, you can view the output in your web browser:
+
+<div class="modelScript">
+```{r, eval=FALSE}
+utils::browseURL("figs/model_output_figures.html")
+```
+</div>
+
+## Appendix: Full model script
+
+For convenience, here is all the sections of the model script above joined together:
+
+```{js, echo=FALSE}
+document.write(
+    '<div class="modelScript"><div class="sourceCode hasCopyButton"><pre class="downlit sourceCode r">' +
+    Array.from(document.querySelectorAll('.modelScript pre')).map((x) => x.innerHTML).join("\n\n") +
+    '</pre></div></div>');
+```

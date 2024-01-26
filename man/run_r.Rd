@@ -1,5 +1,7 @@
 \name{run_r}
 \alias{g3_to_r}
+\alias{print.g3_r}
+\concept{G3 compilation}
 
 \title{Gadget3 actions into R code}
 \description{
@@ -8,6 +10,8 @@
 
 \usage{
 g3_to_r(actions, trace = FALSE, strict = FALSE)
+
+\method{print}{g3_r}(x, ..., with_environment = FALSE, with_template = FALSE)
 
 }
 
@@ -22,6 +26,16 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
     If TRUE, enable extra sanity checking in actions. Any invalid conditions
     (e.g. more/less fish after growth) will result in a warning.
   }
+  \item{x}{
+    The \code{g3_to_r}-generated function to print
+  }
+  \item{with_environment}{
+    If TRUE, list data stored in function environment when printing
+  }
+  \item{with_template}{
+    If TRUE, show parameter template when printing
+  }
+  \item{...}{Other arguments}
 }
 
 \value{

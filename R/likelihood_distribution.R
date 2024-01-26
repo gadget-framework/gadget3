@@ -132,6 +132,24 @@ g3l_distribution_sumofsquaredlogratios <- function (epsilon = 10) {
         epsilon = epsilon))
 }
 
+g3_distribution_preview <- function (
+        obs_data,
+        fleets = list(),
+        stocks = list(),
+        area_group = NULL) {
+    ld <- g3l_likelihood_data(
+        'preview',
+        obs_data,
+        missing_val = NA,
+        all_stocks = stocks,
+        all_fleets = fleets,
+        area_group = area_group,
+        model_history = FALSE )
+    if (!is.null(ld$number)) return(ld$number)
+    if (!is.null(ld$weight)) return(ld$weight)
+    stop('Could not find output array')
+}
+
 # Compare model state to observation data
 # - obs_data: Real-world observations. data.frame containing colums:
 #    - year
@@ -159,7 +177,7 @@ g3l_distribution <- function (
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
     stopifnot(is.character(nll_name) && length(nll_name) == 1)
     stopifnot(is.data.frame(obs_data))
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))

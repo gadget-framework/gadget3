@@ -23,7 +23,7 @@ g3a_migrate <- function(
         migrate_f,
         normalize_f = g3a_migrate_normalize(),
         run_f = TRUE,
-        run_at = 2) {
+        run_at = g3_action_order$migrate) {
     stopifnot(g3_is_stock(stock))
     stopifnot(rlang::is_formula(migrate_f) || is.call(migrate_f))
 

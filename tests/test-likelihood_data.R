@@ -5,11 +5,18 @@ library(gadget3)
 
 
 # Helper to generate ld from table string and attributes
-generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), ...) {
+generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), use_preview = FALSE, ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
     all_stocks <- lapply(all_stocks, function (x) g3_stock(x, 1))
-    out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets)
+    if (use_preview) {
+        # Use new public preview function
+        out <- list(
+            number = g3_distribution_preview(structure(tbl, ...), stocks = all_stocks, fleets = all_fleets) )
+    } else {
+        # Fall back to old behaviour
+        out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets)
+    }
 
     # NB: A failed merge would result in repeated instances
     ok(ut_cmp_equal(
@@ -238,6 +245,35 @@ ok_group('g3l_likelihood_data:length', {
         length = list(
             a = structure(quote(seq(10, 20)), min = 10, max = 20),
             b = structure(quote(seq(20, 40)), min = 20, max = 40),
+            c = structure(quote(seq(40, 80)), min = 40, max = 80) ),
+        use_preview = TRUE )
+    ok(cmp_array(ld$number, "
+        length time   Freq
+         10:20 1999 1999.1
+         20:40 1999 1999.2
+         40:80 1999 1999.3
+         10:20 2000 2000.1
+         20:40 2000 2000.2
+         40:80 2000     NA
+         10:20 2001 2001.1
+         20:40 2001 2001.2
+         40:80 2001 2001.3
+        "), "Use lengths, removed names from attribute, gaps filled in (with new g3_distribution_preview)")
+
+    ld <- generate_ld("
+        year length number
+        1999      a      1999.1
+        2000      a      2000.1
+        2001      a      2001.1
+        1999      b      1999.2
+        2000      b      2000.2
+        2001      b      2001.2
+        1999      c      1999.3
+        2001      c      2001.3
+        ",
+        length = list(
+            a = structure(quote(seq(10, 20)), min = 10, max = 20),
+            b = structure(quote(seq(20, 40)), min = 20, max = 40),
             c = structure(quote(seq(40, 80)), min = 40, max = 80, max_open_ended = TRUE)))
     ok(cmp_array(ld$number, "
         length time   Freq
@@ -324,7 +360,7 @@ ok_group('g3l_likelihood_data:length_factor', {
 })
 
 
-ok_group('g3l_likelihood_data:length_char', {
+ok_group('g3l_likelihood_data:age_char', {
     ld <- generate_ld(expand.grid(
         year = 1990,
         length = as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
@@ -351,6 +387,33 @@ ok_group('g3l_likelihood_data:length_char', {
          35:40 age2 1990   17
          40:45 age2 1990   18
         "), "Converted back to factor, preserving ordering of entries")
+
+    ld <- generate_ld(expand.grid(
+        year = 1990,
+        length = as.character(cut(seq(3, 47, by=5), seq(0, 50, by = 5), right = FALSE)),
+        age = c('[1,3]', '[4,9]'),
+        stringsAsFactors = FALSE))
+    ok(cmp_array(ld$number, "
+        length  age time   Freq
+           0:5 1:3 1990    1
+          5:10 1:3 1990    2
+         10:15 1:3 1990    3
+         15:20 1:3 1990    4
+         20:25 1:3 1990    5
+         25:30 1:3 1990    6
+         30:35 1:3 1990    7
+         35:40 1:3 1990    8
+         40:45 1:3 1990    9
+           0:5 4:9 1990   10
+          5:10 4:9 1990   11
+         10:15 4:9 1990   12
+         15:20 4:9 1990   13
+         20:25 4:9 1990   14
+         25:30 4:9 1990   15
+         30:35 4:9 1990   16
+         35:40 4:9 1990   17
+         40:45 4:9 1990   18
+        "), "Can use intervals in strings, converted to groups")
 
     ld <- generate_ld(data.frame(
         year = 1990,

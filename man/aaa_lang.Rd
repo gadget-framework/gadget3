@@ -1,6 +1,7 @@
 \name{aaa_lang}
 \alias{g3_native}
 \alias{g3_global_formula}
+\concept{G3 internals}
 
 \title{Gadget3 language utilities}
 \description{

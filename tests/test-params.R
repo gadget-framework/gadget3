@@ -35,6 +35,38 @@ pretend_stock_action <- function (x) {
         env = list2env(list(stock = stock_mimm), parent = baseenv()))))
 }
 
+##### g3_parameterized_breakdown
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_year = TRUE)),
+    c("cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_year")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_year = TRUE, by_step = TRUE)),
+    c("cur_year", "cur_step"),
+    filter = NULL), "g3_parameterized_breakdown: by_year, by_step")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, by_year = TRUE)),
+    c("stock", "cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, by_year")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, by_year = TRUE, exponentiate = TRUE)),
+    c("stock", "cur_year"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, by_year, exponentiate")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, scale = 4, avoid_zero = TRUE)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, scale, avoid_zero")
+ok(ut_cmp_identical(
+    gadget3:::g3_parameterized_breakdown(g3_parameterized('par', by_stock = TRUE, offset = 4)),
+    c("stock"),
+    filter = NULL), "g3_parameterized_breakdown: by_stock, offset")
+
+#### g3_parameterized
+
 ok(cmp_code(
     call("{",  # }
         g3_parameterized('parp', by_stock = FALSE),
@@ -49,8 +81,8 @@ ok(cmp_code(
         g3_parameterized('parp_avz', by_stock = FALSE, scale = 0.2, offset = 4, avoid_zero = TRUE),
     NULL), quote({
         exp(g3_param("parp_exp")) + 5
-        0.001 * g3_param("parp") + 2
-        avoid_zero(0.2 * g3_param("parp_avz")) + 4
+        g3_param("parp") * 0.001 + 2
+        avoid_zero(g3_param("parp_avz") * 0.2) + 4
     NULL})), "Can wrap with exp(), scale, offset, avoid_zero")
 
 ok(cmp_code(
@@ -130,10 +162,9 @@ ok(cmp_code(
         g3_parameterized('rec', by_stock = 'species', scale = 'rec.scalar', offset = 'rec.offset'),
         g3_parameterized('rec', by_stock = 'species', by_age = TRUE, scale = 'rec.scalar'),
     NULL), quote({
-        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species")
-        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock, g3_param("rec"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
-        stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") * stock_prepend(stock,
-            g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species")
+        stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
+        stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
+        stock_prepend(stock, g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
 
 year_range <- 1982:1986

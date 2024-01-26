@@ -1,5 +1,6 @@
 \name{likelihood_tagging_ckmr}
 \alias{g3l_tagging_ckmr}
+\concept{G3 action}
 
 \title{Gadget3 CKMR likelihood}
 \description{
@@ -16,7 +17,7 @@ g3l_tagging_ckmr(
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 }
 
 \arguments{
@@ -40,7 +41,7 @@ g3l_tagging_ckmr(
     that defaults to 1, allowing weights to be altered without recompiling.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

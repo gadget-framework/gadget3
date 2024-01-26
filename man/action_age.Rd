@@ -1,5 +1,6 @@
 \name{action_age}
 \alias{g3a_age}
+\concept{G3 action}
 
 \title{Gadget3 age action}
 \description{
@@ -7,9 +8,14 @@
 }
 
 \usage{
-g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stocks), 
-    times = length(output_stocks)), run_f = ~cur_step_final, 
-    run_at = 12, transition_at = 12)
+g3a_age(
+        stock,
+        output_stocks = list(),
+        output_ratios = rep(1/length(output_stocks),
+        times = length(output_stocks)),
+        run_f = ~cur_step_final,
+        run_at = g3_action_order$age,
+        transition_at = g3_action_order$age)
 
 }
 
@@ -27,10 +33,10 @@ g3a_age(stock, output_stocks = list(), output_ratios = rep(1/length(output_stock
     \link{formula} specifying a condition for running this action, default is end of model year.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{transition_at}{
-    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that transition actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

@@ -3,6 +3,7 @@ title: "Structure of a gadget3 model"
 output:
   html_document:
     toc: true
+    theme: null
 vignette: >
   %\VignetteIndexEntry{Model Structure}
   %\VignetteEngine{knitr::rmarkdown}

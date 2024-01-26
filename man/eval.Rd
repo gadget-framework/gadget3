@@ -1,5 +1,6 @@
 \name{eval}
 \alias{g3_eval}
+\concept{G3 compilation}
 
 \title{Evaluate G3 forumulas}
 \description{

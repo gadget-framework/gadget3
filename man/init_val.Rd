@@ -1,5 +1,6 @@
 \name{init_val}
 \alias{g3_init_val}
+\concept{G3 compilation}
 
 \title{Gadget3 parameter value setter}
 \description{

@@ -5,6 +5,7 @@
 \alias{g3_param_table}
 \alias{g3_report_all}
 \alias{g3_with}
+\concept{G3 internals}
 
 \title{G3 language extensions to R}
 \description{

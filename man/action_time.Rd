@@ -1,5 +1,6 @@
 \name{action_time}
 \alias{g3a_time}
+\concept{G3 action}
 
 \title{Gadget3 timekeeping actions}
 \description{
@@ -14,7 +15,7 @@ g3a_time(
         final_year_steps = quote( length(step_lengths) ),
         project_years = g3_parameterized("project_years", value = 0, optimise = FALSE),
         retro_years = g3_parameterized("retro_years", value = 0, optimise = FALSE),
-        run_at = 0)
+        run_at = g3_action_order$initial)
 
 }
 
@@ -56,7 +57,7 @@ g3a_time(
     Generally, you would change this parameter in the parameter template, rather than changing here.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

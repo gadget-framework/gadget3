@@ -3,6 +3,7 @@
 \alias{g3a_grow_weightsimple}
 \alias{g3a_grow_impl_bbinom}
 \alias{g3a_growmature}
+\concept{G3 action}
 
 \title{Gadget3 growth action}
 \description{
@@ -29,8 +30,9 @@ g3a_grow_impl_bbinom(
 
 g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(), 
     output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
-    transition_f = ~cur_step_final, run_f = ~TRUE, run_at = 5, 
-    transition_at = 7)
+    transition_f = ~cur_step_final, run_f = ~TRUE,
+    run_at = g3_action_order$grow,
+    transition_at = g3_action_order$mature)
 
 }
 
@@ -86,10 +88,10 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{transition_at}{
-    Integer order that transition actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that transition actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

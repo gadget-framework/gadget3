@@ -1,3 +1,7 @@
+g3_areas <- function (area_names) {
+    structure(seq_along(area_names), names = area_names)
+}
+
 g3s_livesonareas <- function(inner_stock, areas) {
     # If no names given, add some
     if (is.null(names(areas))) {

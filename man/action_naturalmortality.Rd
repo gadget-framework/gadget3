@@ -1,6 +1,7 @@
 \name{action_naturalmortality}
 \alias{g3a_naturalmortality_exp}
 \alias{g3a_naturalmortality}
+\concept{G3 action}
 
 \title{Gadget3 natural mortality action}
 \description{
@@ -17,7 +18,7 @@ g3a_naturalmortality(
         stock,
         mortality_f = g3a_naturalmortality_exp(),
         run_f = TRUE,
-        run_at = 4)
+        run_at = g3_action_order$naturalmortality)
 
 }
 
@@ -42,7 +43,7 @@ g3a_naturalmortality(
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

@@ -6,6 +6,7 @@
 \alias{g3_tmb_upper}
 \alias{g3_tmb_parscale}
 \alias{g3_tmb_relist}
+\concept{G3 compilation}
 
 \title{Gadget3 actions into TMB code}
 \description{

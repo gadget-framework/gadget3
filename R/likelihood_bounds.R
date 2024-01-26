@@ -2,7 +2,7 @@
 g3l_bounds_penalty <- function(
         parameter_template,
         weight = 1,
-        run_at = 10) {
+        run_at = g3_action_order$likelihood) {
   out <- new.env(parent = emptyenv())
 
   for(i in 1:nrow(parameter_template)) {

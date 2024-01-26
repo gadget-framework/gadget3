@@ -20,6 +20,46 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
     ok(ut_cmp_identical(n, model_fn_n(list(nll = n))), "Edited function works too")
 })
 
+ok_group('print.g3_r', {
+    cap <- function (x) {
+        out <- capture.output(x)
+        out[grepl("^<", out)] <- "<>"
+        return(out)
+    }
+    model_fn <- g3_to_r(list( g3_formula(
+        return(x + sum(y)),
+        y = c(4, 5),
+        x = g3_parameterized('parp') )))
+    ok(ut_cmp_identical(cap(print(model_fn)), c(
+        "function (param) ",
+        "{",
+        "    stopifnot(\"parp\" %in% names(param))",
+        "    x <- param[[\"parp\"]]",
+        "    while (TRUE) {",
+        "        return(x + sum(y))",
+        "    }",
+        "}",
+        "<>",
+        "<>",
+        NULL)), "Default print output has code, no attributes")
+    ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
+        "function (param) ",
+        "{",
+        "    stopifnot(\"parp\" %in% names(param))",
+        "    x <- param[[\"parp\"]]",
+        "    while (TRUE) {",
+        "        return(x + sum(y))",
+        "    }",
+        "}",
+        "<>",
+        "<>",
+        "Environment:",
+        " $ y: num [1:2] 4 5",
+        "Parameter template:",
+        " $ parp: num 0",
+        NULL)), "Can add with_environment = TRUE, with_template = TRUE")
+})
+
 ok_group("g3_to_r: attr.actions", {
     actions <- list(
         list("001" = ~{ 1 + 1 }, "002" = ~{2 + 2}),

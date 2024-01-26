@@ -954,5 +954,4 @@ Type objective_function<Type>::operator() () {
             }
         }
     }
-    abort();  // Should have returned somewhere in the loop
 }

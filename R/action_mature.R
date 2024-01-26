@@ -162,7 +162,7 @@ g3a_step_transition <- function(input_stock,
 # - output_stocks: g3_stock / list of g3_stocks that mature individuals end up in
 # - maturity_f: formula for proportion of length vector maturing
 # - output_ratios: Proportions of matured fish that end up in each output stock. Either a list of formulae or values summing to 1. Default evenly spread across all.
-g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f =~TRUE, run_at = 5, transition_at = 7) {
+g3a_mature <- function(stock, maturity_f, output_stocks, output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)), run_f =~TRUE, run_at = g3_action_order$grow, transition_at = g3_action_order$mature) {
     # Single stock --> list
     if (!is.null(output_stocks$name)) output_stocks <- list(output_stocks)
 

@@ -3,6 +3,7 @@ title: "Writing G3 Actions"
 output:
   html_document:
     toc: true
+    theme: null
 vignette: >
   %\VignetteIndexEntry{Writing G3 Actions}
   %\VignetteEngine{knitr::rmarkdown}

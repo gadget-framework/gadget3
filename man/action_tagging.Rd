@@ -1,6 +1,7 @@
 \name{action_tagging}
 \alias{g3a_predate_tagrelease}
 \alias{g3a_tag_shedding}
+\concept{G3 action}
 
 \title{Gadget3 tag-release action}
 \description{
@@ -10,9 +11,11 @@
 \usage{
 g3a_predate_tagrelease(
        fleet_stock, prey_stocks, suitabilities, catchability_f,
-       output_tag_f, mortality_f = 0, run_f = ~TRUE, run_at = 3, ...)
+       output_tag_f, mortality_f = 0, run_f = ~TRUE,
+       run_at = g3_action_order$predate, ...)
 
-g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE, run_at = 9)
+g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE,
+       run_at = g3_action_order$straying)
 }
 
 \arguments{
@@ -34,7 +37,7 @@ g3a_tag_shedding(stocks, tagshed_f, run_f = ~TRUE, run_at = 9)
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that spawning actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that spawning actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{...}{Any further options for \link{g3a_predate_fleet}}
 }

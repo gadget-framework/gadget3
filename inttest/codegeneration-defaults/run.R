@@ -6,7 +6,7 @@ library(gadget3)
 
 # Create time/area definitions ################################################
 
-area_names <- c("all" = 1)
+area_names <- g3_areas(c("all"))
 
 actions_time <- list(
   g3a_time(1990L, 2000L),

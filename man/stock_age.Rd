@@ -1,6 +1,7 @@
 \name{stock_age}
 \alias{g3s_age}
 \alias{g3s_agegroup}
+\concept{G3 stock}
 
 \title{Gadget3 stock age dimensions}
 \description{

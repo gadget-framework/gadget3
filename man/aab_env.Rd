@@ -20,6 +20,7 @@
 \alias{REPORT}
 \alias{REprintf}
 \alias{Rprintf}
+\concept{G3 internals}
 
 \title{Gadget3 global environment}
 \description{

@@ -5,8 +5,10 @@
 \alias{g3l_distribution_surveyindices_log}
 \alias{g3l_distribution_surveyindices_linear}
 \alias{g3l_distribution_sumofsquaredlogratios}
+\alias{g3_distribution_preview}
 \alias{g3l_abundancedistribution}
 \alias{g3l_catchdistribution}
+\concept{G3 action}
 
 \title{Gadget3 likelihood actions}
 \description{
@@ -24,6 +26,8 @@ g3l_distribution_surveyindices_log(alpha = NULL, beta = 1)
 
 g3l_distribution_surveyindices_linear(alpha = NULL, beta = 1)
 
+g3l_distribution_sumofsquaredlogratios(epsilon = 10)
+
 g3l_abundancedistribution(
         nll_name,
         obs_data,
@@ -38,7 +42,7 @@ g3l_abundancedistribution(
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 
 g3l_catchdistribution(
         nll_name,
@@ -54,10 +58,13 @@ g3l_catchdistribution(
         weight = substitute(
             g3_param(n, optimise = FALSE, value = 1),
             list(n = paste0(nll_name, "_weight"))),
-        run_at = 10)
+        run_at = g3_action_order$likelihood)
 
-g3l_distribution_sumofsquaredlogratios(epsilon = 10)
-
+g3_distribution_preview(
+        obs_data,
+        fleets = list(),
+        stocks = list(),
+        area_group = NULL)
 }
 
 \arguments{
@@ -66,10 +73,7 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
     For example the default "area" means the proprtion of the current lengthgroup to all individuals
     in that area.
   }
-  \item{rho_f}{
-    \link{formula} substituted into multivariate calcuations, see below.
-  }
-  \item{sigma_f}{
+  \item{rho_f,sigma_f}{
     \link{formula} substituted into multivariate calcuations, see below.
   }
   \item{epsilon}{
@@ -132,7 +136,7 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
     that defaults to 1, allowing weights to be altered without recompiling.
   }
   \item{run_at}{
-    Integer order that actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 
@@ -291,6 +295,9 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
         column.
       }
     }
+
+    You can use \code{g3_distribution_preview} to see how your observation data
+    will be converted into an array.
   }
 }
 
@@ -380,18 +387,6 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
     The used values will be stored in a \code{cdist_\var{nll_name}_model__param} array and
     reported after model run, whether calculated or hard-coded.
   }
-  \subsection{g3l_*distribution}{Assuming \var{fleets} is empty, an action (i.e. list of formula objects) that will...\enumerate{
-    \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
-    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
-  }
-  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
-  }
-  \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
-    \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
-    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
-  }
-  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
-  }
   \subsection{g3l_distribution_sumofsquaredlogratios}{
     The equivalent of gadget2's \code{catchinkilos}.
 
@@ -405,6 +400,21 @@ g3l_distribution_sumofsquaredlogratios(epsilon = 10)
       \item{\eqn{\nu_{tral}}}{Model sample size for current time/area/age/length combination}
       \item{\eqn{\epsilon}}{\var{epsilon} parameter}
     }
+  }
+  \subsection{g3l_abundancedistribution}{An action (i.e. list of formula objects) that will...\enumerate{
+    \item{For all \var{stocks}, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
+    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
+  }
+  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
+  }
+  \subsection{g3l_catchdistribution}{An action (i.e. list of formula objects) that will...\enumerate{
+    \item{For all \var{fleets} and \var{stocks} combinations, collect catch data into \var{modelstock}__num or \var{modelstock}__wgt, depending on the columns provided in \var{obs_data}}
+    \item{Compare \var{modelstock}__num/wgt with \var{obsstock}__num/wgt, using \var{function_f}}
+  }
+  The output of \var{function_f} is summed over all stock dimensions (age/area) and time and added to \code{nll}.
+  }
+  \subsection{g3_distribution_preview}{
+    The input \var{obs_data} formatted as an array, applying the same rules that \code{g3l_*distribution} will.
   }
 }
 
@@ -425,11 +435,16 @@ ldist.lln.raw <- data.frame(
 # Group length into 10-long bins
 # NB: The last 2 bins will be empty, but gadget3 will use the factor levels, include them as zero
 # NB: Generally one would use mfdb::mfdb_sample_count() source and group data for you
-ldist.lln.raw$length <- cut(ldist.lln.raw$length, seq(10, 100, by = 10), right = FALSE)
-ldist.lln <- aggregate(number ~ year + age + length, ldist.lln.raw, sum)
+ldist.lln.raw |> dplyr::group_by(
+  year = year, age = age,
+  length = cut(length, breaks = seq(10, 100, by = 10), right = FALSE)
+) |> dplyr::summarise(number = sum(number), .groups = 'keep') -> ldist.lln
 
 # Turn age into a factor, indicating all ages we should be interested in
 ldist.lln$age <- factor(ldist.lln$age, levels = 5:15)
+
+# We can see the results of this being turned into an array:
+g3_distribution_preview(ldist.lln)
 
 likelihood_actions <- list(
   g3l_catchdistribution(

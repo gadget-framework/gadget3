@@ -120,7 +120,23 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             # Convert data$age to use our naming
             data$age <- factor(data$age, levels = names(age_groups))
             levels(data$age) <- modelstock$dimnames$age
-        } else if (is.factor(data$age)) {
+        } else if (is.numeric(data$age)) {
+            # Numeric age columns don't need grouping
+            age_groups <- seq(min(data$age), max(data$age))
+
+            modelstock <- g3s_age(modelstock, min(data$age), max(data$age))
+            # Convert age data to use our naming
+            data$age <- factor(
+                data$age,
+                levels = age_groups,
+                labels = modelstock$dimnames$age)
+        } else {
+            if (!is.factor(data$age)) {
+                # Make sure levels are ordered according to cut strings
+                lvls <- parse_levels(unique(data$age))
+                lvls <- lvls[with(lvls, order(lower_bound, upper_bound)), 'names']
+                data$age <- factor(data$age, levels = lvls)
+            }
             lvls <- parse_levels(levels(data$age), "age")
 
             if (is.infinite(tail(lvls$upper_bound, 1))) {
@@ -138,15 +154,6 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
             modelstock <- g3s_agegroup(modelstock, age_groups)
             levels(data$age) <- modelstock$dimnames$age
-        } else {
-            age_groups <- seq(min(data$age), max(data$age))
-
-            modelstock <- g3s_age(modelstock, min(data$age), max(data$age))
-            # Convert age data to use our naming
-            data$age <- factor(
-                data$age,
-                levels = age_groups,
-                labels = modelstock$dimnames$age)
         }
         handled_columns$age <- NULL
     }
@@ -234,7 +241,8 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     # Work out time dimension, create an obsstock using it
     if ('year' %in% names(data)) {
         # NB: Let g3s_time_convert() worry about if the step column is there or not
-        data$time <- g3s_time_convert(data$year, data$step)
+        #     Suppress warnings from tibbles that it might be missing
+        data$time <- g3s_time_convert(data$year, suppressWarnings(data$step))
         handled_columns$year <- NULL
         handled_columns$step <- NULL
     } else if ('time' %in% names(data)) {  # Convert our time=1999-01 strings back
@@ -285,7 +293,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     if ('number' %in% names(full_table)) {
         # TODO: More fancy NA-handling (i.e. random effects) goes here
-        if (missing_val == 'stop') {
+        if (identical(missing_val, 'stop')) {
             if (any(is.na(full_table$number))) stop("Missing values in data")
         } else {
             # Fill in missing values with given value
@@ -302,7 +310,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     if ('weight' %in% names(full_table)) {
         # TODO: More fancy NA-handling (i.e. random effects) goes here
-        if (missing_val == 'stop') {
+        if (identical(missing_val, 'stop')) {
             if (any(is.na(full_table$weight))) stop("Missing values in data")
         } else {
             # Fill in missing values with given value

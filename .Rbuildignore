@@ -20,3 +20,9 @@
 ^cran-comments$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+^/vignettes/WGTS/
+^/vignettes/figs/
+
+^_pkgdown.yml$
+^pkgdown/

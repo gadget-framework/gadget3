@@ -1,5 +1,6 @@
 \name{params}
 \alias{g3_parameterized}
+\concept{G3 utilities}
 
 \title{Gadget3 parameter helpers}
 \description{

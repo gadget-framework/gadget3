@@ -1,5 +1,6 @@
 \name{timevariable}
 \alias{g3_timevariable}
+\concept{G3 utilities}
 
 \title{Gadget3 time-based formulas}
 \description{

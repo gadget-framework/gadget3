@@ -57,10 +57,15 @@ g3a_spawn <- function(
         weightloss_f = 0,
         output_stocks = list(),
         output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
-        mean_f, stddev_f, alpha_f, beta_f,
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        wgt_by_stock = TRUE,
         run_f = ~TRUE,
-        run_at = 6,
-        recruit_at = 8) {
+        run_at = g3_action_order$spawn,
+        recruit_at = g3_action_order$renewal) {
     stopifnot(g3_is_stock(stock))
     stopifnot(is.list(output_stocks) && all(sapply(output_stocks, g3_is_stock)))
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
@@ -121,7 +126,7 @@ g3a_spawn <- function(
     }, list(
         recruitment_s_f = recruitment_f$s,
         recruitment_r_f = recruitment_f$r,
-        proportion_f = proportion_f,
+        proportion_f = f_substitute(proportion_f, list(predstock = 'spawn')),
         mortality_enabled = !identical(mortality_f, 0),
         mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
         weightloss_enabled = !identical(weightloss_f, 0),

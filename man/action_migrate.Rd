@@ -1,6 +1,7 @@
 \name{action_migrate}
 \alias{g3a_migrate_normalize}
 \alias{g3a_migrate}
+\concept{G3 action}
 
 \title{Gadget3 migration action}
 \description{
@@ -11,7 +12,8 @@
 g3a_migrate_normalize(row_total = 1)
 
 g3a_migrate(stock, migrate_f, normalize_f = g3a_migrate_normalize(),
-            run_f = TRUE, run_at = 2)
+            run_f = TRUE,
+            run_at = g3_action_order$migrate)
 }
 
 \arguments{
@@ -33,7 +35,7 @@ g3a_migrate(stock, migrate_f, normalize_f = g3a_migrate_normalize(),
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that spawning actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that spawning actions will be run within model, see \code{\link{g3_action_order}}.
   }
 }
 

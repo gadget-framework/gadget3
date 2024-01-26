@@ -5,6 +5,7 @@
 \alias{g3a_spawn_recruitment_bevertonholt}
 \alias{g3a_spawn_recruitment_hockeystick}
 \alias{g3a_spawn}
+\concept{G3 action}
 
 \title{Gadget3 spawning action}
 \description{
@@ -22,23 +23,28 @@ g3a_spawn_recruitment_bevertonholt(mu, lambda)
 
 g3a_spawn_recruitment_hockeystick(r0, blim)
 
-g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0, 
-          weightloss_f = 0, output_stocks = list(), 
-          output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
-          mean_f, stddev_f, alpha_f, beta_f, run_f = ~TRUE, run_at = 6, 
-          recruit_at = 8)
+g3a_spawn(
+        stock,
+        recruitment_f,
+        proportion_f = 1,
+        mortality_f = 0,
+        weightloss_f = 0,
+        output_stocks = list(),
+        output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        by_stock = TRUE,
+        wgt_by_stock = TRUE,
+        run_f = ~TRUE,
+        run_at = g3_action_order$spawn,
+        recruit_at = g3_action_order$renewal)
 }
 
 \arguments{
-  \item{p0}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p1}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p2}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p3}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{mu}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{lambda}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{r0}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
-  \item{blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{p0,p1,p2,p3,p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
+  \item{mu,lambda,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{stock}{
      The mature \code{\link{g3_stock}} that will spawn in this action.
   }
@@ -67,27 +73,19 @@ g3a_spawn(stock, recruitment_f, proportion_f = 1, mortality_f = 0,
   \item{output_ratios}{
     Vector of proportions for how to distribute into \var{output_stocks}, summing to 1, default evenly spread.
   }
-  \item{mean_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{stddev_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{alpha_f}{
-    \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
-  }
-  \item{beta_f}{
+  \item{mean_f,stddev_f,alpha_f,beta_f}{
     \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
   }
   \item{run_at}{
-    Integer order that spawning actions will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that spawning actions will be run within model, see \code{\link{g3_action_order}}.
   }
   \item{recruit_at}{
-    Integer order that recruitment from spawning will be run within model, see "Ordering of actions" in \code{vignette("model_structure")}.
+    Integer order that recruitment from spawning will be run within model, see \code{\link{g3_action_order}}.
   }
+  \item{by_stock,wgt_by_stock}{Controls how parameters are grouped, see \code{\link{g3_parameterized}}}
 }
 
 \details{
