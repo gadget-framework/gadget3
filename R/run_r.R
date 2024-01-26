@@ -3,8 +3,11 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # Compile actions together into a single R function,
 # The attached environment contains model_data, i.e. fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
-    collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
+    collated_actions <- g3_collate(c(actions, list(g3a_report_vars(actions)) ))
+    all_actions <- f_concatenate(c(
+        g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
+        collated_actions,
+        NULL), parent = g3_env, wrap_call = call("while", TRUE))
     # NB: Needs to be globalenv() to evaluate core R
     model_env <- new.env(parent = globalenv())
     scope <- list()
@@ -162,11 +165,6 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope as side effect
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
-    # Make sure REPORT is defined for g3_report_all()
-    if ('g3_report_all' %in% all.names(all_actions_code, unique = TRUE)) {
-        var_defns(quote( REPORT(0) ), rlang::f_env(all_actions))
-    }
-
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),
@@ -177,10 +175,6 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     g3_functions <- function (in_code) {
         call_replace(in_code,
             g3_idx = function (x) if (is.call(x[[2]])) g3_functions(x[[2]]) else call("(", g3_functions(x[[2]])),  # R indices are 1-based, so just strip off call
-            g3_report_all = function (x) {
-                out <- g3_functions(action_reports(collated_actions, REPORT = '.'))
-                substitute(if (reporting_enabled > 0) out, list(out = out))
-            },
             g3_with = function (x) as.call(c(
                 list(as.symbol(open_curly_bracket)),
                 lapply(g3_with_extract_terms(x), function (c) { c[[3]] <- g3_functions(c[[3]]) ; c }),

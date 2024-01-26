@@ -62,7 +62,6 @@ ok(cmp_environment(stock_bcd$env, list(
     stock__plusdl = 1,
     stock__dl = 1)), "stock_a: Environment populated with relevant areas")
     
-cur_time <- 0L  # Initialconditions needs to know what the time is
 nll <- 0.0
 stock_sum_a_ac <- 0.0
 stock_sum_ac_a <- 0.0
@@ -151,7 +150,14 @@ actions <- list(
             }, prefix = "sub"))
         }),
         '999' = ~{
-            g3_report_all()
+            REPORT(stock_a__num)
+            REPORT(stock_ac__num)
+            REPORT(stock_bcd__num)
+            REPORT(stock_aggregated__num)
+            REPORT(stock_1agg__num)
+            REPORT(stock_bcd_a_interactions)
+            REPORT(stock_bcd_ac_interactions)
+            REPORT(stock_bcd__interacttotals)
             nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         }))

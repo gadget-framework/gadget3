@@ -587,8 +587,11 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 }
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
-    collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
+    collated_actions <- g3_collate(c(actions, list(g3a_report_vars(actions)) ))
+    all_actions <- f_concatenate(c(
+        g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
+        collated_actions,
+        NULL), parent = g3_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
 
@@ -866,15 +869,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope in process
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
-    # Rework any g3_* function calls into the code we expect
-    g3_functions <- function (in_code) {
-        call_replace(in_code,
-            g3_report_all = function (x) {
-                out <- g3_functions(action_reports(collated_actions, REPORT = '.'))
-                substitute(if (reporting_enabled > 0L) out, list(out = out))
-            } )
-    }
-    all_actions_code <- g3_functions(all_actions_code)
     ss <- scope_split(scope)
 
 

@@ -1,6 +1,8 @@
 g3_action_order <- list(
-  initial = 0L,
-  report_early = 1L,
+  # NB: Using -1 is okay, but -2 will sort incorrectly
+  initial = -1L,
+  report_early = 0L,
+  time = 1L,
   migrate = 2L,
   predate = 3L,
   naturalmortality = 4L,

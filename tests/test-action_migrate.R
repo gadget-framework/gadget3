@@ -85,7 +85,7 @@ ok_group("g3a_migrate", {
     expected_nums <- model_nums[,1]
     expected_wgts <- model_wgts[,1]
     ratio_add_vec <- function (orig_vec, orig_amount, new_vec, new_amount) (orig_vec * orig_amount + new_vec * new_amount)/(orig_amount + new_amount)
-    for (t in 1:attr(result, 'cur_time')) {
+    for (t in 1:((2004 - 2000) * 3)) {
         if ((t-1) %% 4 == 1) {
             # Spring migration, apply it ourselves
             expected_wgts['a'] <- ratio_add_vec(

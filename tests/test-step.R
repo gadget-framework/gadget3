@@ -24,6 +24,11 @@ ok_group("step_id", {
 
     ok(ut_cmp_identical(step_id(0, 10, 200), "000:010:200"), "Multiple numbers: 0, 10, 200")
     ok(ut_cmp_identical(step_id(0, stock_a, "camel"), "000:stock_aaa           :camel               "), "All the things")
+
+    ok(ut_cmp_identical(
+        sort(sapply(-1:11, gadget3:::step_id), method="radix"),
+        c("-01", "000", "001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011"),
+        filter = NULL), "-1 sorted before 0")
 })
 
 ok_group("g3_step:stock_reshape", {
@@ -47,7 +52,6 @@ ok_group("g3_step:stock_reshape", {
     dest_nolength <- gadget3:::g3_storage('dest_nolength')  # No length at all
     dest_nolength__num <- g3_stock_instance(dest_nolength)
 
-    cur_time <- 0L  # Initialconditions needs to know what the time is
     nll <- 0.0
     actions <- list(
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),

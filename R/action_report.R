@@ -14,7 +14,7 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, include_adrep
     report_stock_instance_name <- paste0('report_stock__', instance_name)
     assign(report_stock_instance_name, g3_stock_instance(report_stock))
 
-    out[[step_id(run_at, report_stock, instance_name, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, 0, report_stock, instance_name, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_report_stock for ", report_stock, " from ", input_stock)
         if (run_f) {
             if (cur_time == 0L) {
@@ -104,7 +104,7 @@ g3a_report_history <- function (
         environment(x)[[hist_var_name]] <- defn
 
         # Turn back into formula, add to out
-        out[[step_id(run_at, 'g3a_report_history', var_name)]] <- x
+        out[[step_id(run_at, 0, 'g3a_report_history', var_name)]] <- x
     }
 
     return(as.list(out))
@@ -128,4 +128,71 @@ g3a_report_detail <- function (actions,
             run_f = run_f,
             run_at = run_at),
         NULL)
+}
+
+# Find all vars from collated actions that get assigned to, we'll report those.
+# ... is list of functions to regex filter, e.g. REPORT = '.'
+action_reports <- function (actions, ...) {
+    terms <- new.env(parent = emptyenv())
+    find_assignments <- function (f, ignore_vars) call_replace(f,
+        g3_with = function (x) find_assignments(
+            x[[length(x)]],
+            # Ignore any scoped variables when recursing
+            c(ignore_vars, vapply(
+                g3_with_extract_terms(x),
+                function (term) as.character(term[[2]]),
+                character(1)))),
+        "<-" = function(x) {
+            lhs <- x[[2]]
+            # lhs is either a symbol or a subsetting call
+            if (is.symbol(lhs)) {
+                lhs <- as.character(lhs)
+            } else if (is.call(lhs)) {
+                lhs <- as.character(lhs[[2]])
+            } else {
+                stop("Unknown lhs: ", lhs)
+            }
+            if (!(lhs %in% ignore_vars)) {
+                terms[[lhs]] <<- TRUE
+            }
+        })
+    for (a in actions) find_assignments(a, c())
+
+    # For each action_reports() argument, filter terms by the regex value
+    # and treat the name as the name of the report function.
+    args <- list(...)
+    concatenate_calls <- function (x) as.call(c(as.symbol("{"), x))
+    f_optimize(concatenate_calls(lapply(seq_along(args), function (arg_i) {
+        fn_name <- names(args)[[arg_i]]  # i.e. the argument name
+        fn_regex <- args[[arg_i]]  # i.e. the argument value
+        report_var_names <- sort(grep(fn_regex, names(terms), value = TRUE))
+
+        concatenate_calls(lapply(
+            report_var_names,
+            function (x) call(fn_name, as.symbol(x))))
+    })))
+}
+
+g3a_report_vars <- function (actions,
+        var_re = '.',
+        run_at = g3_action_order$report_early) {
+    out <- new.env(parent = emptyenv())
+    action_name <- unique_action_name()
+
+    # Form list of definitions as we would do when compiling
+    collated_actions <- g3_collate(actions)
+    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
+    code <- rlang::f_rhs(all_actions)
+    env <- environment(all_actions)
+    all_vars <- all.names(code, unique = TRUE)
+
+    # NB: 9 as this has to happen after any early reporting
+    out[[step_id(run_at, 9, 'g3a_report_vars', var_re)]] <- f_optimize(f_substitute(quote(
+        if (reporting_enabled > 0L && cond) x
+    ), list(
+        # Only check total_steps if it's already defined
+        cond = if ('total_steps' %in% all_vars) quote( cur_time > total_steps ) else TRUE,
+        x = action_reports(collated_actions, REPORT = var_re) )))
+
+    return(as.list(out))
 }

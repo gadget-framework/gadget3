@@ -3,7 +3,6 @@
 \alias{g3_param}
 \alias{g3_param_vector}
 \alias{g3_param_table}
-\alias{g3_report_all}
 \alias{g3_with}
 \concept{G3 internals}
 
@@ -94,17 +93,6 @@
   The call to \code{g3_param_table} will be replaced with
   \code{param[[paste("lingimm.M", age, sep = ".")]]}, or equivalent code
   in C++.
-}
-
-\section{g3_report_all}{
-  Report all non-constant variables from a model.
-
-  Any variable that gets assigned to in the course of the model will be
-  reported. If a variable doesn't change (i.e. data/params/constant), then
-  there shouldn't be any point reporting.
-
-  \emph{Note:} This is added by default in \link{g3a_time}(), so shouldn't be
-  used manually unless re-implementing.
 }
 
 \section{g3_with}{

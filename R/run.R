@@ -49,49 +49,6 @@ g3_collate <- function(action_list) {
     return(actions[order(names(actions), method = 'radix')])
 }
 
-# Find all vars from collated actions that get assigned to, we'll report those.
-# ... is list of functions to regex filter, e.g. REPORT = '.'
-action_reports <- function (actions, ...) {
-    terms <- new.env(parent = emptyenv())
-    find_assignments <- function (f, ignore_vars) call_replace(f,
-        g3_with = function (x) find_assignments(
-            x[[length(x)]],
-            # Ignore any scoped variables when recursing
-            c(ignore_vars, vapply(
-                g3_with_extract_terms(x),
-                function (term) as.character(term[[2]]),
-                character(1)))),
-        "<-" = function(x) {
-            lhs <- x[[2]]
-            # lhs is either a symbol or a subsetting call
-            if (is.symbol(lhs)) {
-                lhs <- as.character(lhs)
-            } else if (is.call(lhs)) {
-                lhs <- as.character(lhs[[2]])
-            } else {
-                stop("Unknown lhs: ", lhs)
-            }
-            if (!(lhs %in% ignore_vars)) {
-                terms[[lhs]] <<- TRUE
-            }
-        })
-    for (a in actions) find_assignments(a, c())
-
-    # For each action_reports() argument, filter terms by the regex value
-    # and treat the name as the name of the report function.
-    args <- list(...)
-    concatenate_calls <- function (x) as.call(c(as.symbol("{"), x))
-    f_optimize(concatenate_calls(lapply(seq_along(args), function (arg_i) {
-        fn_name <- names(args)[[arg_i]]  # i.e. the argument name
-        fn_regex <- args[[arg_i]]  # i.e. the argument value
-        report_var_names <- sort(grep(fn_regex, names(terms), value = TRUE))
-
-        concatenate_calls(lapply(
-            report_var_names,
-            function (x) call(fn_name, as.symbol(x))))
-    })))
-}
-
 scope_to_parameter_template <- function (scope, return_type) {
     parts <- lapply(scope, function (val) attr(val, 'param_template'))
     names(parts) <- NULL
