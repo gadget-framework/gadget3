@@ -372,9 +372,6 @@ Type objective_function<Type>::operator() () {
             if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
                 return NAN;
             }
-            if ( false ) {
-                assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
-            }
             if ( cur_time > total_steps ) {
                 return nll;
             }
@@ -696,12 +693,6 @@ Type objective_function<Type>::operator() () {
 
                 {
                     // Check stock has remained finite for this step;
-                    if ( false ) {
-                        assert_msg(((fish__num.col(fish__age_idx)).isFinite()).all(), "fish__num became NaN/Inf in this timestep");
-                    }
-                    if ( false ) {
-                        assert_msg(((fish__wgt.col(fish__age_idx)).isFinite()).all(), "fish__wgt became NaN/Inf in this timestep");
-                    }
                     if (age == fish__maxage) {
                         // Oldest fish is a plus-group, combine with younger individuals;
                         fish__wgt.col(fish__age_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx), fish__num.col(fish__age_idx), fish__wgt.col(fish__age_idx - 1), fish__num.col(fish__age_idx - 1));

@@ -321,8 +321,6 @@ structure(function (param)
             comment("g3a_time: Start of time period")
             if (cur_time == 0 && assert_msg(param[["retro_years"]] >= 0, "retro_years must be >= 0")) 
                 return(NaN)
-            if (TRUE) 
-                assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
             if (cur_time > total_steps) 
                 return(nll)
             cur_year <- start_year + (cur_time%/%step_count)
@@ -738,10 +736,6 @@ structure(function (param)
                 ling_imm__age_idx <- age - ling_imm__minage + 1L
                 {
                   comment("Check stock has remained finite for this step")
-                  if (TRUE) 
-                    assert_msg(~all(is.finite(ling_imm__num[, , ling_imm__age_idx])), "ling_imm__num became NaN/Inf in this timestep")
-                  if (TRUE) 
-                    assert_msg(~all(is.finite(ling_imm__wgt[, , ling_imm__age_idx])), "ling_imm__wgt became NaN/Inf in this timestep")
                   if (age == ling_imm__maxage) {
                     comment("Move oldest ling_imm into ling_imm_movement")
                     ling_imm_movement__transitioning_num[, , (1)] <- ling_imm__num[, , ling_imm__age_idx]
@@ -767,10 +761,6 @@ structure(function (param)
                 ling_mat__age_idx <- age - ling_mat__minage + 1L
                 {
                   comment("Check stock has remained finite for this step")
-                  if (TRUE) 
-                    assert_msg(~all(is.finite(ling_mat__num[, , ling_mat__age_idx])), "ling_mat__num became NaN/Inf in this timestep")
-                  if (TRUE) 
-                    assert_msg(~all(is.finite(ling_mat__wgt[, , ling_mat__age_idx])), "ling_mat__wgt became NaN/Inf in this timestep")
                   if (age == ling_mat__maxage) {
                     comment("Oldest ling_mat is a plus-group, combine with younger individuals")
                     ling_mat__wgt[, , ling_mat__age_idx] <- ratio_add_vec(ling_mat__wgt[, , ling_mat__age_idx], ling_mat__num[, , ling_mat__age_idx], ling_mat__wgt[, , ling_mat__age_idx - 1L], ling_mat__num[, , ling_mat__age_idx - 1L])

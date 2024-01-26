@@ -68,7 +68,6 @@ g3a_time <- function(
         debug_label("g3a_time: Start of time period")
         if (have_retro_years) if (cur_time == 0 && assert_msg(retro_years >= 0, "retro_years must be >= 0")) return(NaN)
         if (have_projection_years) if (cur_time == 0 && assert_msg(project_years >= 0, "project_years must be >= 0")) return(NaN)
-        if (strict_mode) assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
         if (cur_time > total_steps) {
             return(nll)
         }
