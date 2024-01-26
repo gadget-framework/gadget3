@@ -132,6 +132,17 @@ Each year will have 4 time steps in, of equal length.
 As a convention, we build up an ``actions`` array of everything required, allowing sections
 to be added/removed as necessary.
 
+Ultimately, this list will be converted to either R or TMB code with with ``g3_to_r()``
+or ``g3_to_tmb()`` respectively.
+We can try this already with our time action, and generate a function that will count years & steps:
+
+```{r, comment = ''}
+g3_to_r(actions_time)
+```
+```{r, comment = ''}
+g3_to_tmb(actions_time)
+```
+
 ### Stocks
 
 After actions, the other key concept in a gadget3 model is a *stock*.
@@ -232,7 +243,6 @@ that will both be broken down by stock (i.e. will include the name of our stock)
 and each age within that stock.
 
 We can define a model with just ``g3a_time()`` and ``g3a_initialconditions_normalcv()`` to see the end result.
-``g3_to_r()`` will convert a list of actions into R code.
 To be able to run the function you need to provide a list of parameter values,
 the format of this list is defined by the attached *parameter template*:
 
