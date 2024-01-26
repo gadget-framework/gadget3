@@ -151,10 +151,9 @@ actions_st_mat <- list(
   g3a_initialconditions_normalcv(st_mat),
   g3a_spawn(
       st_mat,
-      recruitment_f = g3a_spawn_recruitment_simplessb(mu = st_spawn_mu),
-      #recruitment_f = g3a_spawn_recruitment_ricker(
-      #    mu = st_spawn_mu,
-      #    lambda = g3_parameterized("spawn_lambda", by_stock = TRUE) ),
+      recruitment_f = g3a_spawn_recruitment_bevertonholt(
+          mu = st_spawn_mu,
+          lambda = g3_parameterized("spawn_lambda", by_stock = TRUE) ),
       proportion_f = g3_suitability_exponentiall50(),
       output_stocks = list(st_imm) ),
   g3a_age(st_mat),
