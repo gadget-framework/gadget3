@@ -1,4 +1,7 @@
 ---
+# Source vignette in R session:
+#   Sys.setenv(G3_TEST_TMB=1)
+#   knitr::purl('gadget3/vignettes/random-effects.Rmd', output="/tmp/vign.R") ; source("/tmp/vign.R", echo = T)
 title: "Spawning & Random effects"
 output:
   html_document:
