@@ -161,12 +161,15 @@ expand.grid(year = 1990:1994, step = 2, area = 'IXa') |>
     # Assign result to landings_f_surv
     identity() -> landings_f_surv
 
-# Length distribution data: Assume 100 samples in each year/step/area
+# Length distribution data: Generate 100 random samples in each year/step/area
 expand.grid(year = 1990:1994, step = 2, area = 'IXa', length = rep(NA, 100)) |>
   # Generate random lengths for these samples
   mutate(length = rnorm(n(), mean = 50, sd = 20)) |>
-  # Save our unaggregated data, carry on
-  assign("ldist_f_surv.raw", value = _) |>
+  # Save unagggregated data into ldist_f_surv.raw
+  identity() -> ldist_f_surv.raw
+
+# Aggregate .raw data
+ldist_f_surv.raw |>
   # Group into length bins
   group_by(
       year = year,
