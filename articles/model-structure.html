@@ -11,7 +11,8 @@
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Structure of a gadget3 model">
+<script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<script src="../extra.js"></script><meta property="og:title" content="Structure of a gadget3 model">
 <meta property="og:description" content="gadget3">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -50,10 +51,28 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
+      <a href="../articles/introduction-single-stock.html">Introduction to gadget3: A single stock model</a>
     </li>
     <li>
-      <a href="../articles/model_structure.html">Structure of a gadget3 model</a>
+      <a href="../articles/incorporating-observation-data.html">Incorporating observation data into models</a>
+    </li>
+    <li>
+      <a href="../articles/multiple-substocks.html">Modelling maturity &amp; sex with multiple stocks</a>
+    </li>
+    <li>
+      <a href="../articles/model-customisation.html">Model customisation</a>
+    </li>
+    <li>
+      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+    </li>
+    <li>
+      <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="../articles/model-structure.html">Structure of a gadget3 model</a>
     </li>
     <li>
       <a href="../articles/writing_actions.html">Writing G3 Actions</a>
@@ -87,8 +106,8 @@
       <h1 data-toc-skip>Structure of a gadget3 model</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/HEAD/vignettes/model_structure.Rmd" class="external-link"><code>vignettes/model_structure.Rmd</code></a></small>
-      <div class="hidden name"><code>model_structure.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/HEAD/vignettes/model-structure.Rmd" class="external-link"><code>vignettes/model-structure.Rmd</code></a></small>
+      <div class="hidden name"><code>model-structure.Rmd</code></div>
 
     </div>
 
@@ -122,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x561cf9aff0b8&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55da35fe0a60&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -158,16 +177,9 @@ an R function:</p>
 <span><span class="co">##     while (TRUE) {</span></span>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x561cf699c350&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x561cf67bf6d8&gt;</span></span>
-<span><span class="co">## attr(,"class")</span></span>
-<span><span class="co">## [1] "g3_r"     "function"</span></span>
-<span><span class="co">## attr(,"actions")</span></span>
-<span><span class="co">## attr(,"actions")[[1]]</span></span>
-<span><span class="co">## ~cows + pigs</span></span>
-<span><span class="co">## &lt;environment: 0x561cf9aff0b8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55da32e9a1c0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55da334014c8&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -183,7 +195,6 @@ an R function:</p>
 <span><span class="co">##     while (true) {</span></span>
 <span><span class="co">##         cows + pigs;</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     abort();  // Should have returned somewhere in the loop</span></span>
 <span><span class="co">## }</span></span></code></pre>
 <p>Obviously this in itself isn’t a very useful function, but you can
 see that the environment for the formula has provided the initial values
@@ -230,7 +241,7 @@ reached. For example:</p>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x561cf75fe9c8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x55da33b586d8&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -296,42 +307,9 @@ code.</p>
 <span><span class="co">##             cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x561cf74d0dd8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x561cf8d5db88&gt;</span></span>
-<span><span class="co">## attr(,"class")</span></span>
-<span><span class="co">## [1] "g3_r"     "function"</span></span>
-<span><span class="co">## attr(,"actions")</span></span>
-<span><span class="co">## attr(,"actions")$`000`</span></span>
-<span><span class="co">## ~{</span></span>
-<span><span class="co">##     debug_label("g3a_time: Start of time period")</span></span>
-<span><span class="co">##     cur_time &lt;- cur_time + 1L</span></span>
-<span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(g3_param("retro_years", value = 0, </span></span>
-<span><span class="co">##         optimise = FALSE) &gt;= 0, "retro_years must be &gt;= 0")) </span></span>
-<span><span class="co">##         return(NaN)</span></span>
-<span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(project_years &gt;= 0, "project_years must be &gt;= 0")) </span></span>
-<span><span class="co">##         return(NaN)</span></span>
-<span><span class="co">##     if (strict_mode) </span></span>
-<span><span class="co">##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")</span></span>
-<span><span class="co">##     if (cur_time &gt; total_steps) {</span></span>
-<span><span class="co">##         g3_report_all()</span></span>
-<span><span class="co">##         return(nll)</span></span>
-<span><span class="co">##     }</span></span>
-<span><span class="co">##     cur_year &lt;- start_year + (cur_time%/%step_count)</span></span>
-<span><span class="co">##     cur_year_projection &lt;- cur_year &gt; end_year - g3_param("retro_years", </span></span>
-<span><span class="co">##         value = 0, optimise = FALSE)</span></span>
-<span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
-<span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
-<span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x561cf8670118&gt;</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")</span></span>
-<span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
-<span><span class="co">## [1] 0</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")$project_years</span></span>
-<span><span class="co">## [1] 0</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55da339ce330&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55da35267940&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
@@ -397,42 +375,9 @@ model. For example:</p>
 <span><span class="co">##             cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x561cf6a11138&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x561cf854a5d8&gt;</span></span>
-<span><span class="co">## attr(,"class")</span></span>
-<span><span class="co">## [1] "g3_r"     "function"</span></span>
-<span><span class="co">## attr(,"actions")</span></span>
-<span><span class="co">## attr(,"actions")$`000`</span></span>
-<span><span class="co">## ~{</span></span>
-<span><span class="co">##     debug_label("g3a_time: Start of time period")</span></span>
-<span><span class="co">##     cur_time &lt;- cur_time + 1L</span></span>
-<span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(g3_param("retro_years", value = 0, </span></span>
-<span><span class="co">##         optimise = FALSE) &gt;= 0, "retro_years must be &gt;= 0")) </span></span>
-<span><span class="co">##         return(NaN)</span></span>
-<span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(project_years &gt;= 0, "project_years must be &gt;= 0")) </span></span>
-<span><span class="co">##         return(NaN)</span></span>
-<span><span class="co">##     if (strict_mode) </span></span>
-<span><span class="co">##         assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")</span></span>
-<span><span class="co">##     if (cur_time &gt; total_steps) {</span></span>
-<span><span class="co">##         g3_report_all()</span></span>
-<span><span class="co">##         return(nll)</span></span>
-<span><span class="co">##     }</span></span>
-<span><span class="co">##     cur_year &lt;- start_year + (cur_time%/%step_count)</span></span>
-<span><span class="co">##     cur_year_projection &lt;- cur_year &gt; end_year - g3_param("retro_years", </span></span>
-<span><span class="co">##         value = 0, optimise = FALSE)</span></span>
-<span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
-<span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
-<span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x561cf7c3e2a8&gt;</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")</span></span>
-<span><span class="co">## attr(,"parameter_template")$retro_years</span></span>
-<span><span class="co">## [1] 0</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")$project_years</span></span>
-<span><span class="co">## [1] 0</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55da32e649c8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55da349dff18&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -642,47 +587,9 @@ example:</p>
 <span><span class="co">##             }</span></span>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x561cf7dfffd8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x561cf94d3ed0&gt;</span></span>
-<span><span class="co">## attr(,"class")</span></span>
-<span><span class="co">## [1] "g3_r"     "function"</span></span>
-<span><span class="co">## attr(,"actions")</span></span>
-<span><span class="co">## attr(,"actions")$`005:ling_imm            :4e6ce20f8ec197c80cab`</span></span>
-<span><span class="co">## ~{</span></span>
-<span><span class="co">##     debug_label("g3a_grow for ling_imm")</span></span>
-<span><span class="co">##     for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(`:=`(ling_imm__age_idx, </span></span>
-<span><span class="co">##         g3_idx(age - ling_imm__minage + 1L)), for (ling_imm__area_idx in seq_along(ling_imm__areas)) g3_with(`:=`(area, </span></span>
-<span><span class="co">##         ling_imm__areas[[ling_imm__area_idx]]), {</span></span>
-<span><span class="co">##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")</span></span>
-<span><span class="co">##         ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
-<span><span class="co">##             10)/ling_imm__plusdl), 4L, avoid_zero(g3_param("ling.bbin")))</span></span>
-<span><span class="co">##         ling_imm__growth_w[] &lt;- area * 20</span></span>
-<span><span class="co">##         if (strict_mode) </span></span>
-<span><span class="co">##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx])</span></span>
-<span><span class="co">##         debug_trace("Update ling_imm using delta matrices")</span></span>
-<span><span class="co">##         g3_with(`:=`(growthresult, g3a_grow_apply(ling_imm__growth_l, </span></span>
-<span><span class="co">##             ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx])), {</span></span>
-<span><span class="co">##             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, </span></span>
-<span><span class="co">##                 g3_idx(1)]</span></span>
-<span><span class="co">##             ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, </span></span>
-<span><span class="co">##                 g3_idx(2)]</span></span>
-<span><span class="co">##         })</span></span>
-<span><span class="co">##         if (strict_mode) </span></span>
-<span><span class="co">##             assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, </span></span>
-<span><span class="co">##                 ling_imm__area_idx, ling_imm__age_idx])) &lt; 1e-04, </span></span>
-<span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
-<span><span class="co">##     }))</span></span>
-<span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x561cf78ce5c8&gt;</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")</span></span>
-<span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
-<span><span class="co">## [1] 0</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55da33fe8b50&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55da359165d8&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -838,48 +745,9 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##             }</span></span>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
-<span><span class="co">##     stop("Should have return()ed somewhere in the loop")</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x561cf9492128&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x561cf69fab08&gt;</span></span>
-<span><span class="co">## attr(,"class")</span></span>
-<span><span class="co">## [1] "g3_r"     "function"</span></span>
-<span><span class="co">## attr(,"actions")</span></span>
-<span><span class="co">## attr(,"actions")$`005:ling_imm            :66b9ec4f30b4ade3c3e0`</span></span>
-<span><span class="co">## ~g3_with(`:=`(custom_delta_w, (ling_imm__plusdl * 44)), {</span></span>
-<span><span class="co">##     debug_label("g3a_grow for ling_imm")</span></span>
-<span><span class="co">##     for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(`:=`(ling_imm__age_idx, </span></span>
-<span><span class="co">##         g3_idx(age - ling_imm__minage + 1L)), for (ling_imm__area_idx in seq_along(ling_imm__areas)) g3_with(`:=`(area, </span></span>
-<span><span class="co">##         ling_imm__areas[[ling_imm__area_idx]]), `:=`(custom_delta_l, </span></span>
-<span><span class="co">##         (area * 99)), {</span></span>
-<span><span class="co">##         debug_trace("Calculate length/weight delta matrices for current lengthgroups")</span></span>
-<span><span class="co">##         ling_imm__growth_l[] &lt;- growth_bbinom(avoid_zero_vec((age * </span></span>
-<span><span class="co">##             custom_delta_l * 10)/ling_imm__plusdl), 4L, avoid_zero(g3_param("ling.bbin")))</span></span>
-<span><span class="co">##         ling_imm__growth_w[] &lt;- area * custom_delta_w * 20</span></span>
-<span><span class="co">##         if (strict_mode) </span></span>
-<span><span class="co">##             ling_imm__prevtotal &lt;- sum(ling_imm__num[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx])</span></span>
-<span><span class="co">##         debug_trace("Update ling_imm using delta matrices")</span></span>
-<span><span class="co">##         g3_with(`:=`(growthresult, g3a_grow_apply(ling_imm__growth_l, </span></span>
-<span><span class="co">##             ling_imm__growth_w, ling_imm__num[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx], ling_imm__wgt[, ling_imm__area_idx, </span></span>
-<span><span class="co">##                 ling_imm__age_idx])), {</span></span>
-<span><span class="co">##             ling_imm__num[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, </span></span>
-<span><span class="co">##                 g3_idx(1)]</span></span>
-<span><span class="co">##             ling_imm__wgt[, ling_imm__area_idx, ling_imm__age_idx] &lt;- growthresult[, </span></span>
-<span><span class="co">##                 g3_idx(2)]</span></span>
-<span><span class="co">##         })</span></span>
-<span><span class="co">##         if (strict_mode) </span></span>
-<span><span class="co">##             assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, </span></span>
-<span><span class="co">##                 ling_imm__area_idx, ling_imm__age_idx])) &lt; 1e-04, </span></span>
-<span><span class="co">##                 "g3a_growmature: ling_imm__num totals are not the same before and after growth")</span></span>
-<span><span class="co">##     }))</span></span>
-<span><span class="co">## })</span></span>
-<span><span class="co">## &lt;environment: 0x561cf4f00860&gt;</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attr(,"parameter_template")</span></span>
-<span><span class="co">## attr(,"parameter_template")$ling.bbin</span></span>
-<span><span class="co">## [1] 0</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55da3575ba18&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55da333be800&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>

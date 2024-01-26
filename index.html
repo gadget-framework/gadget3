@@ -11,7 +11,8 @@
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Globally-Applicable Area Disaggregated General Ecosystem Toolbox V3">
+<script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<script src="extra.js"></script><meta property="og:title" content="Globally-Applicable Area Disaggregated General Ecosystem Toolbox V3">
 <meta property="og:description" content="A framework to assist creation of marine ecosystem models,
              generating either R or C++ code which can then be optimised using
              the TMB package and standard R tools. Principally designed to
@@ -56,10 +57,28 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/model-debugging.html">Debugging a gadget3 model</a>
+      <a href="articles/introduction-single-stock.html">Introduction to gadget3: A single stock model</a>
     </li>
     <li>
-      <a href="articles/model_structure.html">Structure of a gadget3 model</a>
+      <a href="articles/incorporating-observation-data.html">Incorporating observation data into models</a>
+    </li>
+    <li>
+      <a href="articles/multiple-substocks.html">Modelling maturity &amp; sex with multiple stocks</a>
+    </li>
+    <li>
+      <a href="articles/model-customisation.html">Model customisation</a>
+    </li>
+    <li>
+      <a href="articles/random-effects.html">Spawning &amp; Random effects</a>
+    </li>
+    <li>
+      <a href="articles/model-debugging.html">Debugging a gadget3 model</a>
+    </li>
+    <li class="divider">
+    </li>
+<li class="dropdown-header">Advanced</li>
+    <li>
+      <a href="articles/model-structure.html">Structure of a gadget3 model</a>
     </li>
     <li>
       <a href="articles/writing_actions.html">Writing G3 Actions</a>
@@ -109,16 +128,19 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install latest version from github:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">'gadget-framework/gadget3'</span>)</span></code></pre></div>
+<p>gadget3 is available on CRAN:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">install.packages</span>(<span class="st">'gadget3'</span>)</span></code></pre></div>
+<p>You can also install the latest development version from github:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">'gadget-framework/gadget3'</span>)</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>For more information, read the <a href="https://gadget-framework.github.io/gadget3/articles/model_structure.html" class="external-link">structure of a gadget3 model</a> vignette.</p>
-<p>For some worked examples, look at the following models in <a href="https://github.com/gadget-framework/gadget-models/" class="external-link">gadget-models</a>:</p>
+<p>The gadget3 documentation is <a href="https://gadget-framework.github.io/gadget3/" class="external-link">published online</a>. To get started, read the <a href="https://gadget-framework.github.io/gadget3/articles/introduction-single-stock.html" class="external-link">introductory vignette</a>, which walks through the process of building a model.</p>
+<p>For some real-life examples of gadget3 models, look in the <a href="https://github.com/gadget-framework/gadget-models/" class="external-link">gadget-models</a> repository:</p>
 <ul>
 <li><a href="https://github.com/gadget-framework/gadget-models/tree/master/06-ling/gadget3/00-setup" class="external-link">ling</a></li>
+<li><a href="https://github.com/gadget-framework/gadget-models/tree/master/07-bling/gadget3/00-setup" class="external-link">Blue Ling</a></li>
 </ul>
 </div>
 <div class="section level2">
@@ -131,8 +153,8 @@
 <code>make</code>, which runs both test &amp; integration tests with G3_TEST_TMB</li>
 </ol>
 <p>Releases are made with:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
 <p>On success, upload the tarball to <a href="https://cran.r-project.org/submit.html" class="external-link uri">https://cran.r-project.org/submit.html</a></p>
 </div>
 </div>
