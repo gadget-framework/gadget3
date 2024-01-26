@@ -125,12 +125,18 @@ Next, we need to define the set of parameters that will constitute our random wa
 <div class="modelScript">
 ```{r}
 # Configure our random walk for mu
-st_spawn_mu <- g3_parameterized('spawn_mu', by_year = TRUE, random = TRUE)
+st_spawn_mu <- g3_parameterized('spawn_mu',
+    by_year = TRUE,
+    scale = g3_parameterized('spawn_mu_seasonal', by_step = TRUE, value = 1, optimise = FALSE),
+    random = TRUE)
 ```
 </div>
 
 As we saw in `vignette('multiple-substocks')`, ``by_year`` will give us a series of parameters for ``spawn_mu``, one per year.
 ``random = TRUE`` will ensure that these parameters have TRUE in the *random* column in the parameter template.
+
+The ``scale`` parameter adds seasonal variation parameters, ``spawn_mu_seasonal.1``..``spawn_mu_seasonal.4``, which can be used
+to control when spawning happens.
 
 We store this as a separate variable as we need to use it in 2 places.
 First, when we configure our spawning action:
@@ -149,7 +155,6 @@ actions_st_mat <- list(
       #recruitment_f = g3a_spawn_recruitment_ricker(
       #    mu = st_spawn_mu,
       #    lambda = g3_parameterized("spawn_lambda", by_stock = TRUE) ),
-      #    # TODO: Want seasonal spawning, so have to insert by_step somewhere.
       proportion_f = g3_suitability_exponentiall50(),
       output_stocks = list(st_imm) ),
   g3a_age(st_mat),
