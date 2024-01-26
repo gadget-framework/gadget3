@@ -143,6 +143,15 @@ Error in if (m < 0) { : missing value where TRUE/FALSE needed
 local({ min(diag(spHess(random = TRUE, set_tail = random[1]))) }, envir = obj.fn$env)
 ```
 
+#### Missing value par - parold
+
+```
+Error in if (norm(par - parold) < step.tol) { :
+  missing value where TRUE/FALSE needed
+```
+
+The ``par`` list of parameters to optimise became NaN, for various reasons, but likely ``solveCholesky()`` failed.
+
 #### Separate netwton optimisation
 
 Generally, ``TMB:::newton()`` is called from ``obj.fn$env$ff``.
@@ -165,4 +174,12 @@ Then you can perform a single run to extract arguments:
 ```{r, eval=FALSE}
 obj.fn$fn()
 do.call(TMB:::newton, newt.args)
+```
+
+...or modify the newton function:
+
+```{r, eval=FALSE}
+newt <- TMB:::newton
+newt <- edit(newt)
+do.call(newt, newt.args)
 ```
