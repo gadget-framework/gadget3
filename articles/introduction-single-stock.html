@@ -232,6 +232,130 @@ length.</p>
 <p>As a convention, we build up an <code>actions</code> array of
 everything required, allowing sections to be added/removed as
 necessary.</p>
+<p>Ultimately, this list will be converted to either R or TMB code with
+with <code><a href="../reference/run_r.html">g3_to_r()</a></code> or <code><a href="../reference/run_tmb.html">g3_to_tmb()</a></code> respectively. We
+can try this already with our time action, and generate a function that
+will count years &amp; steps:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
+<pre><code>function (param) 
+{
+    stopifnot("retro_years" %in% names(param))
+    assert_msg &lt;- function(expr, message) {
+        if (isFALSE(expr)) {
+            warning(message)
+            return(TRUE)
+        }
+        return(FALSE)
+    }
+    cur_time &lt;- -1L
+    stopifnot("project_years" %in% names(param))
+    project_years &lt;- param[["project_years"]]
+    nll &lt;- 0
+    end_year &lt;- 2023L
+    retro_years &lt;- param[["retro_years"]]
+    start_year &lt;- 1979L
+    total_steps &lt;- length(step_lengths) * (end_year - retro_years - 
+        start_year + project_years) + length(step_lengths) - 
+        1L
+    cur_year &lt;- 0L
+    step_count &lt;- length(step_lengths)
+    cur_year_projection &lt;- FALSE
+    cur_step &lt;- 0L
+    cur_step_final &lt;- FALSE
+    REPORT &lt;- function(var) {
+        var_name &lt;- as.character(sys.call()[[2]])
+        attr(nll, var_name) &lt;&lt;- if (var_name == "nll") 
+            as.vector(var)
+        else var
+    }
+    while (TRUE) {
+        {
+            comment("g3a_time: Start of time period")
+            cur_time &lt;- cur_time + 1L
+            if (cur_time == 0 &amp;&amp; assert_msg(param[["retro_years"]] &gt;= 
+                0, "retro_years must be &gt;= 0")) 
+                return(NaN)
+            if (cur_time == 0 &amp;&amp; assert_msg(project_years &gt;= 
+                0, "project_years must be &gt;= 0")) 
+                return(NaN)
+            if (FALSE) 
+                assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
+            if (cur_time &gt; total_steps) {
+                {
+                  REPORT(cur_step)
+                  REPORT(cur_step_final)
+                  REPORT(cur_time)
+                  REPORT(cur_year)
+                  REPORT(cur_year_projection)
+                }
+                return(nll)
+            }
+            cur_year &lt;- start_year + (cur_time%/%step_count)
+            cur_year_projection &lt;- cur_year &gt; end_year - param[["retro_years"]]
+            cur_step &lt;- (cur_time%%step_count) + 1L
+            cur_step_final &lt;- cur_step == step_count
+        }
+    }
+}
+&lt;bytecode: 0x560a042d61e0&gt;
+&lt;environment: 0x560a029a9c38&gt;</code></pre>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
+<pre><code>#include &lt;TMB.hpp&gt;
+
+
+
+template&lt;class Type&gt;
+Type objective_function&lt;Type&gt;::operator() () {
+    PARAMETER(retro_years);
+    auto assert_msg = [](bool expr, std::string message) -&gt; bool {
+    if (!expr) { warning(message.c_str()); return TRUE; }
+    return FALSE;
+};
+    int cur_time = -1;
+    PARAMETER(project_years);
+    Type nll = (double)(0);
+    vector&lt;int&gt; step_lengths(4); step_lengths.setConstant(3);
+    int end_year = 2023;
+    int start_year = 1979;
+    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
+    int cur_year = 0;
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
+    int cur_step = 0;
+    int cur_step_final = false;
+
+    while (true) {
+        {
+            // g3a_time: Start of time period;
+            cur_time += 1;
+            if ( cur_time == 0 &amp;&amp; assert_msg(retro_years &gt;= (double)(0), "retro_years must be &gt;= 0") ) {
+                return NAN;
+            }
+            if ( cur_time == 0 &amp;&amp; assert_msg(project_years &gt;= (double)(0), "project_years must be &gt;= 0") ) {
+                return NAN;
+            }
+            if ( false ) {
+                assert_msg(std::isfinite(asDouble(nll)), "g3a_time: nll became NaN/Inf in previous timestep");
+            }
+            if ( cur_time &gt; total_steps ) {
+                {
+                    REPORT(cur_step);
+                    REPORT(cur_step_final);
+                    REPORT(cur_time);
+                    REPORT(cur_year);
+                    REPORT(cur_year_projection);
+                }
+                return nll;
+            }
+            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year &gt; end_year - retro_years;
+            cur_step = (cur_time % step_count) + 1;
+            cur_step_final = cur_step == step_count;
+        }
+    }
+}</code></pre>
 </div>
 <div class="section level3">
 <h3 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -244,7 +368,7 @@ per-maturation-stage, sex or both.</p>
 <p>We define a stock with the <code><a href="../reference/stock.html">g3_stock()</a></code> and associated
 <code>g3s_*</code> functions, for example:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">area_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock_areas.html">g3_areas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'IXa'</span>, <span class="st">'IXb'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create stock definition for fish ####################</span></span>
@@ -258,7 +382,7 @@ add an area to live in &amp; 5 age bins.</p>
 that will hold the state of that stock within gadget3. We can use
 <code><a href="../reference/stock.html">g3_stock_instance()</a></code> to see an example of the array
 used:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># aperm() re-orders dimensions for more compact printing</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_instance</a></span><span class="op">(</span><span class="va">fish</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## , , area = IXa</span></span>
@@ -285,7 +409,7 @@ stored in one of these arrays within the model.</p>
 <em>actions</em>, and save them in the <code>actions</code> array from
 earlier:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_fish</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span><span class="va">fish</span>, <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span></span>
 <span>    maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -350,7 +474,7 @@ can be set as fixed values or optimised later, rather than baking them
 into the model.</p>
 <p>For instance, we can see that <code><a href="../reference/action_naturalmortality.html">g3a_naturalmortality()</a></code>
 creates a parameter for <code>M</code> by default:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">g3a_naturalmortality</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                                                                            </span></span>
 <span><span class="co">## 1 function (stock, mortality_f = g3a_naturalmortality_exp(), run_f = TRUE, </span></span>
@@ -359,7 +483,7 @@ creates a parameter for <code>M</code> by default:</p>
 <span><span class="co">## 4     out &lt;- new.env(parent = emptyenv())                                  </span></span>
 <span><span class="co">## 5     action_name &lt;- unique_action_name()                                  </span></span>
 <span><span class="co">## 6     stock__num &lt;- g3_stock_instance(stock, 0)</span></span></code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">g3a_naturalmortality_exp</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                                                                                   </span></span>
 <span><span class="co">## 1 function (param_f = g3_parameterized("M", by_stock = by_stock,                  </span></span>
@@ -375,12 +499,11 @@ tells gadget3 that a parameter <code>M</code> should be expected by the
 model, that will both be broken down by stock (i.e. will include the
 name of our stock), and each age within that stock.</p>
 <p>We can define a model with just <code><a href="../reference/action_time.html">g3a_time()</a></code> and
-<code><a href="../reference/action_renewal.html">g3a_initialconditions_normalcv()</a></code> to see the end result.
-<code><a href="../reference/run_r.html">g3_to_r()</a></code> will convert a list of actions into R code. To be
-able to run the function you need to provide a list of parameter values,
-the format of this list is defined by the attached <em>parameter
+<code><a href="../reference/action_renewal.html">g3a_initialconditions_normalcv()</a></code> to see the end result. To
+be able to run the function you need to provide a list of parameter
+values, the format of this list is defined by the attached <em>parameter
 template</em>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1991</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_renewal.html">g3a_initialconditions_normalcv</a></span><span class="op">(</span><span class="va">fish</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_fn</span>, <span class="st">'parameter_template'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
@@ -397,7 +520,7 @@ template</em>:</p>
 <span><span class="co">##    project_years </span></span>
 <span><span class="co">##              0.0</span></span></code></pre>
 <p>We can fill in these values and run the model:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">$</span><span class="va">fish.init.scalar</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span><span class="va">params</span><span class="op">$</span><span class="va">fish.init.1</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span><span class="va">params</span><span class="op">$</span><span class="va">fish.init.2</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
@@ -421,15 +544,15 @@ template</em>:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">abund</span><span class="op">)</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">abund</span><span class="op">[</span>,area <span class="op">=</span> <span class="st">'IXa'</span>, age <span class="op">=</span> <span class="va">a</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">a</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 <p>Altering K results in corresponding changes to the stock
 structure:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">$</span><span class="va">fish.K</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
 <span><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"fish__num"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">abund</span><span class="op">)</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">abund</span><span class="op">[</span>,area <span class="op">=</span> <span class="st">'IXa'</span>, age <span class="op">=</span> <span class="va">a</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">a</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level3">
@@ -444,7 +567,7 @@ steps would apply regardless.</p>
 <h4 id="landings-data">Landings data<a class="anchor" aria-label="anchor" href="#landings-data"></a>
 </h4>
 <div class="modelScript">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fleet data for f_surv #################################</span></span>
 <span></span>
 <span><span class="co"># Landings data: For each year/step/area</span></span>
@@ -465,7 +588,7 @@ passes through the input. We use this to move the assignment onto it’s
 own line.</p>
 <p>The end result is a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> of total biomass
 figures:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">landings_f_surv</span></span></code></pre></div>
 <pre><code><span><span class="co">##   year step area    weight</span></span>
 <span><span class="co">## 1 1990    2  IXa  943.9524</span></span>
@@ -473,9 +596,9 @@ figures:</p>
 <span><span class="co">## 3 1992    2  IXa 1155.8708</span></span>
 <span><span class="co">## 4 1993    2  IXa 1007.0508</span></span>
 <span><span class="co">## 5 1994    2  IXa 1012.9288</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">landings_f_surv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'year'</span>, <span class="st">'weight'</span><span class="op">)</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2000</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
 <p>Note that we haven’t provided data for all years/steps, as we’ll
 assume this fleet only works in spring. For more information on how this
 works, see <code><a href="../articles/incorporating-observation-data.html">vignette("incorporating-observation-data")</a></code>.</p>
@@ -485,7 +608,7 @@ works, see <code><a href="../articles/incorporating-observation-data.html">vigne
 </h4>
 <p>Next we generate some length-distribution data:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Length distribution data: Randomly generate 100 samples in each year/step/area</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Generate random lengths for these samples</span></span>
@@ -509,7 +632,7 @@ works, see <code><a href="../articles/incorporating-observation-data.html">vigne
 generate a table with random lengths distributed about the mean. This is
 our unaggregated data, which we save using <code><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign()</a></code> so we
 can see the end result:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ldist_f_surv.raw</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   year step area   length</span></span>
 <span><span class="co">## 1 1990    2  IXa 84.30130</span></span>
@@ -522,7 +645,7 @@ can see the end result:</p>
 aggregate by year, step &amp; length bins. <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> is
 responsible for binning continuous data. We can see what it does by
 running for single values:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">80</span>, <span class="fl">20</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span>, right <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] [40,60)</span></span>
 <span><span class="co">## Levels: [0,20) [20,40) [40,60) [60,80) [80,Inf)</span></span></code></pre>
@@ -535,7 +658,7 @@ For more information on how this works, see
 <code><a href="../articles/incorporating-observation-data.html">vignette("incorporating-observation-data")</a></code>.</p>
 <p>Finally, summarise counts the number in each group and puts the
 result into a <em>number</em> column. The end result looks like:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##       year           step        length      number     </span></span>
 <span><span class="co">##  Min.   :1990   Min.   :2   [0,20)  :5   Min.   : 2.00  </span></span>
@@ -544,13 +667,13 @@ result into a <em>number</em> column. The end result looks like:</p>
 <span><span class="co">##  Mean   :1992   Mean   :2   [60,80) :5   Mean   :19.23  </span></span>
 <span><span class="co">##  3rd Qu.:1993   3rd Qu.:2   [80,Inf):5   3rd Qu.:26.75  </span></span>
 <span><span class="co">##  Max.   :1994   Max.   :2   NA's    :1   Max.   :46.00</span></span></code></pre>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">y</span> <span class="kw">in</span> <span class="va">years</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">y</span> <span class="op">&amp;</span> <span class="va">step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">length</span>, <span class="va">number</span><span class="op">)</span>, main <span class="op">=</span> <span class="va">y</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="age-length-distribution-data">Age-length distribution data<a class="anchor" aria-label="anchor" href="#age-length-distribution-data"></a>
@@ -558,7 +681,7 @@ result into a <em>number</em> column. The end result looks like:</p>
 <p>Finally, we can apply the same techniques to generate and aggregate
 age-length data:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Assume 5 * 5 samples in each year/step/area</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">5</span><span class="op">)</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Generate random lengths/ages for these samples</span></span>
@@ -577,7 +700,7 @@ age-length data:</p>
 </div>
 <p>The end result is a <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> with
 <em>year</em>/<em>step</em>/<em>age</em>/<em>length</em>/<em>number</em>:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##       year           step        age             length       number     </span></span>
 <span><span class="co">##  Min.   :1990   Min.   :2   Min.   :1.000   [0,20)  : 3   Min.   :1.000  </span></span>
@@ -586,7 +709,7 @@ age-length data:</p>
 <span><span class="co">##  Mean   :1992   Mean   :2   Mean   :2.552   [60,80) :15   Mean   :2.155  </span></span>
 <span><span class="co">##  3rd Qu.:1993   3rd Qu.:2   3rd Qu.:3.750   [80,Inf): 5   3rd Qu.:3.000  </span></span>
 <span><span class="co">##  Max.   :1994   Max.   :2   Max.   :4.000   NA's    : 2   Max.   :6.000</span></span></code></pre>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
 <span><span class="va">ages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
 <span></span>
@@ -594,7 +717,7 @@ age-length data:</p>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">y</span> <span class="kw">in</span> <span class="va">years</span><span class="op">)</span> <span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="va">ages</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">y</span> <span class="op">&amp;</span> <span class="va">step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">length</span>, <span class="va">number</span><span class="op">)</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"year = %d, age = %s"</span>, <span class="va">y</span>, <span class="va">a</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-26-1.png" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="fleet-definition">Fleet definition<a class="anchor" aria-label="anchor" href="#fleet-definition"></a>
@@ -602,7 +725,7 @@ age-length data:</p>
 <p>A fleet, <code>f_surv</code>, is defined in much the same way as our
 stock above, however with a different set of actions:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create fleet definition for f_surv ####################</span></span>
 <span><span class="va">f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">"f_surv"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="va">area_names</span><span class="op">[</span><span class="st">"IXa"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -611,7 +734,7 @@ stock above, however with a different set of actions:</p>
 bins. Simiarly, <code><a href="../reference/stock_age.html">g3s_age()</a></code> to divide into age bins isn’t
 relevant.</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
@@ -645,7 +768,7 @@ definitions.</p>
 <code><a href="../reference/likelihood_distribution.html">g3l_catchdistribution()</a></code>, to compare modelled catch against
 our length &amp; age-length distribution data generated above.</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_likelihood_f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/likelihood_distribution.html">g3l_catchdistribution</a></span><span class="op">(</span></span>
 <span>    <span class="st">"ldist_f_surv"</span>,</span>
@@ -691,7 +814,7 @@ different fleet name.</p>
 observation data by adding <code><a href="../reference/likelihood_distribution.html">g3l_abundancedistribution()</a></code>
 likelihood actions:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create abundance index for si_cpue ########################</span></span>
 <span></span>
 <span><span class="co"># Generate random data</span></span>
@@ -737,7 +860,7 @@ this, or estimate both by setting to NULL.</li>
 </h3>
 <p>At this point, we are ready to convert our model into code:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
 <span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span></span></code></pre></div>
@@ -748,7 +871,7 @@ into C++ code suitable for use with TMB.</p>
 guesses) for parameters. Earlier we used <code><a href="../reference/run_r.html">g3_to_r()</a></code> and saw
 the resultant parameter template. With <code><a href="../reference/run_tmb.html">g3_to_tmb()</a></code> we can
 do the same, however the template is more complex:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1991</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">fish</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span>
@@ -790,7 +913,7 @@ known values, or configure bounds to optimise within.</p>
 you. Instead of setting individual values we can assign values using
 wildcard characters <code>*</code>, <code>#</code> (numeric),
 <code>|</code> (or):</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.#"</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.3"</span>, <span class="fl">0.5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -805,7 +928,7 @@ wildcard characters <code>*</code>, <code>#</code> (numeric),
 <span><span class="co">## project_years project_years          0    FALSE  FALSE    NA    NA       NA</span></span></code></pre>
 <p>Setting lower &amp; upper bounds automatically turns on optimise, and
 fills in parscale:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.#"</span>, <span class="fl">0.15</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                      switch type value optimise random lower upper parscale</span></span>
@@ -818,7 +941,7 @@ fills in parscale:</p>
 <span><span class="co">## project_years project_years          0    FALSE  FALSE    NA    NA       NA</span></span></code></pre>
 <p>We can also use spread as a shorthand for
 <code>lower = value * (1 - spread), upper = value * (1 + spread)</code>:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.#"</span>, <span class="fl">0.15</span>, spread <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                      switch type value optimise random lower upper parscale</span></span>
@@ -832,7 +955,7 @@ fills in parscale:</p>
 <p>This allows us to fill in parameters without worrying too much about
 stock/fleet naming:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guess l50 / linf based on stock sizes</span></span>
 <span><span class="va">estimate_l50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">fish</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">fish</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">estimate_linf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">fish</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span></span>
@@ -879,7 +1002,7 @@ TMB <em>objective function</em>.
 <code>gadgetutils::g3_iterative()</code> then optimises based on
 iterative reweighting</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
 <span><span class="co"># Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)</span></span>
 <span><span class="va">bounded_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -900,14 +1023,14 @@ iterative reweighting</p>
 <p>Once this has finished, we can view the output using
 <code>gadgetplots::gadget_plots()</code>.</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate detailed report ######################</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_fit</span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span>
 <span><span class="fu">gadgetplots</span><span class="fu">::</span><span class="fu">gadget_plots</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"figs"</span>, file_type <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Once finished, you can view the output in your web browser:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="st">"figs/model_output_figures.html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
