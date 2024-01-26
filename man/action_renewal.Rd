@@ -262,4 +262,16 @@ initialconditions_action <- g3a_initialconditions_normalcv(
 renewal_action <- g3a_renewal_normalcv(
     ling_imm,
     run_step = 2)  # Renewal happens in spring
+
+## Plots
+par(mar = c(4,2,2,1), cex.main = 1)
+curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 0.8, t0 = 0), age = x),
+    0, 10, col = 2, xlab = "age", main = "g3a_renewal_vonb_t0(Linf = 20, K = 0.8..1.4, t0 = 0)")
+curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.0, t0 = 0), age = x),
+    0, 10, col = 1, add = TRUE)
+curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.2, t0 = 0), age = x),
+    0, 10, col = 3, add = TRUE)
+curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.4, t0 = 0), age = x),
+    0, 10, col = 4, add = TRUE)
+
 }
