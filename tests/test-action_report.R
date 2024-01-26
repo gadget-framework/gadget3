@@ -23,6 +23,20 @@ capture_warnings <- function(x, full_object = FALSE) {
     return(list(rv = rv, warnings = all_warnings))
 }
 
+ok_group("action_reports")
+ok(ut_cmp_equal(
+    gadget3:::action_reports(list(g3_formula(quote({
+        const_var <- 4
+        arr_var[2] <- 4
+        doublearr_var[2][[1]] <- 4
+    }))), REPORT = '.'), quote({
+        REPORT(arr_var)
+        REPORT(const_var)
+        REPORT(doublearr_var)
+    })), "action_reports: Removed subsets")
+
+#######################################
+
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
 
 # Report that aggregates ages together

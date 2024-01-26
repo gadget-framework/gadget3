@@ -144,14 +144,12 @@ action_reports <- function (actions, ...) {
                 character(1)))),
         "<-" = function(x) {
             lhs <- x[[2]]
-            # lhs is either a symbol or a subsetting call
-            if (is.symbol(lhs)) {
-                lhs <- as.character(lhs)
-            } else if (is.call(lhs)) {
-                lhs <- as.character(lhs[[2]])
-            } else {
-                stop("Unknown lhs: ", lhs)
+            # Strip off any subsetting calls
+            while (is.call(lhs)) {
+                lhs <- lhs[[2]]
             }
+            if (!is.symbol(lhs)) stop("Unknown lhs: ", lhs)
+            lhs <- as.character(lhs)
             if (!(lhs %in% ignore_vars)) {
                 terms[[lhs]] <<- TRUE
             }
