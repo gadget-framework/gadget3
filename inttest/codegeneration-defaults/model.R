@@ -259,6 +259,8 @@ structure(function (param)
         if (param[["report_detail"]] == 1) 
             detail_fish__wgt[, , , cur_time + 1] <- fish__wgt
         if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(adist_surveyindices_log_acoustic_dist_model__params)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(adist_surveyindices_log_acoustic_dist_model__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(adist_surveyindices_log_acoustic_dist_obs__wgt)

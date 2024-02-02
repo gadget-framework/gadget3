@@ -44,6 +44,10 @@ g3l_understocking <- function (
     }, list(
         power_f = power_f,
         weight = weight)))
-        
-    return(as.list(out))
+
+    return(c(as.list(out), g3a_report_var(
+        "nllstock__wgt",
+        nllstock__wgt,
+        stock = nllstock,
+        out_prefix = NULL )))  # Don't add history
 }

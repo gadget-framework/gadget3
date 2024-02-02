@@ -229,6 +229,10 @@ Type objective_function<Type>::operator() () {
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
+};
+    array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
     int cur_step = 0;
     int cur_step_final = false;
@@ -261,13 +265,9 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
     array<Type> ling_mat__totalpredate(35,1,11);
     Type nll = (double)(0);
-    auto as_integer = [](Type v) -> int {
-    return std::floor(asDouble(v));
-};
     array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__num.setZero();
     array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
-    array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     auto step_count = (step_lengths).size();
     int igfs__area = 1;
     DATA_IVECTOR(igfs_totaldata__keys)
@@ -328,6 +328,9 @@ Type objective_function<Type>::operator() () {
                     }
                 }
             }
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll_understocking__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(cdist_sumofsquares_ldist_lln_model__num);

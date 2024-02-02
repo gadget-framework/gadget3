@@ -162,6 +162,9 @@ structure(function (param)
     retro_years <- param[["retro_years"]]
     start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - retro_years - start_year + 0L) + length(step_lengths) - 1L
+    as_integer <- as.integer
+    total_years <- end_year - retro_years - start_year + 0L + 1L
+    nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "1"))
     cur_step <- 0L
     cur_step_final <- FALSE
@@ -210,12 +213,9 @@ structure(function (param)
     ling_mat__totalpredate <- array(NA, dim = c(length = 35L, area = 1L, age = 11L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "area1", age = c("age5", "age6", "age7", 
         "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15")))
     nll <- 0
-    as_integer <- as.integer
-    total_years <- end_year - retro_years - start_year + 0L + 1L
     nll_cdist_sumofsquares_ldist_lln__num <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     nll_cdist_sumofsquares_ldist_lln__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     nll_understocking__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
-    nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     step_count <- length(step_lengths)
     igfs__area <- 1L
     intlookup_zip <- function(keys, values) {
@@ -275,6 +275,8 @@ structure(function (param)
                 }
             }
         }
+        if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(nll_understocking__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) {
             REPORT(cdist_sumofsquares_ldist_lln_model__num)
             REPORT(cur_step)

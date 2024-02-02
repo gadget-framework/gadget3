@@ -52,7 +52,12 @@ g3l_random_dnorm <- function (
         log_f = log_f,
         run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
-    return(as.list(out))
+
+    return(c(as.list(out), g3a_report_var(
+        "nllstock__dnorm",
+        nllstock__dnorm,
+        stock = nllstock,
+        out_prefix = NULL )))  # Don't add history
 }
 
 g3l_random_walk <- function (
@@ -97,5 +102,10 @@ g3l_random_walk <- function (
         dist_sense = if (log_f) -1.0 else 1.0,
         run_f = if (period == 'single') quote( cur_time == total_steps ) else if (period == 'year') quote( cur_step_final ) else TRUE,
         nll_name = nll_name)))
-    return(as.list(out))
+
+    return(c(as.list(out), g3a_report_var(
+        "nllstock__dnorm",
+        nllstock__dnorm,
+        stock = nllstock,
+        out_prefix = NULL )))  # Don't add history
 }

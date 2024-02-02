@@ -406,7 +406,45 @@ g3l_distribution <- function (
             generic_var_replace(compare_f, 'wgt')
     }
 
-    return(as.list(out))
+    if (!report) return(as.list(out))
+
+    return(c(as.list(out),
+        if (!('modelstock__params' %in% names(environment(function_f)))) NULL else g3a_report_var(
+            "modelstock__params",
+            environment(function_f)$modelstock__params,
+            stock = modelstock,
+            out_prefix = NULL ),
+        if (is.null(ld$number)) NULL else g3a_report_var(
+            "obsstock__num",
+            obsstock__num,
+            stock = obsstock,
+            out_prefix = NULL ),
+        if (is.null(ld$number)) NULL else g3a_report_var(
+            "modelstock__num",
+            modelstock__num,
+            stock = modelstock,
+            out_prefix = NULL ),
+        if (is.null(ld$number)) NULL else g3a_report_var(
+            "nllstock__num",
+            nllstock__num,
+            stock = nllstock,
+            out_prefix = NULL ),
+        if (is.null(ld$weight)) NULL else g3a_report_var(
+            "obsstock__wgt",
+            obsstock__wgt,
+            stock = obsstock,
+            out_prefix = NULL ),
+        if (is.null(ld$weight)) NULL else g3a_report_var(
+            "modelstock__wgt",
+            modelstock__wgt,
+            stock = modelstock,
+            out_prefix = NULL ),
+        if (is.null(ld$weight)) NULL else g3a_report_var(
+            "nllstock__wgt",
+            nllstock__wgt,
+            stock = nllstock,
+            out_prefix = NULL ),
+        NULL))
 }
 g3l_catchdistribution <- g3l_distribution
 g3l_abundancedistribution <- g3l_distribution
