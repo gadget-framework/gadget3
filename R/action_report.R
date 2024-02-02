@@ -166,7 +166,7 @@ g3a_report_detail <- function (actions,
             actions = actions,
             var_re = c('__num$', '__wgt$'),
             out_prefix = "detail_",
-            run_f = run_f,
+            run_f = f_substitute(quote(cur_time <= total_steps && run_f), list(run_f = run_f)),
             run_at = abundance_run_at),
         g3a_report_history(
             actions = actions,
