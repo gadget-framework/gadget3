@@ -3,7 +3,7 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 # Compile actions together into a single R function,
 # The attached environment contains model_data, i.e. fixed values refered to within function
 g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
-    collated_actions <- g3_collate(c(actions, list(g3a_report_vars(actions)) ))
+    collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(c(
         g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
         collated_actions,

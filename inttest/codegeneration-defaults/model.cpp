@@ -234,13 +234,13 @@ Type objective_function<Type>::operator() () {
     auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(6,1,10); fish__num.setZero();
     array<Type> fish__wgt(6,1,10); fish__wgt.setConstant((double)(1));
-    auto as_integer = [](Type v) -> int {
-    return std::floor(asDouble(v));
-};
     int end_year = 2000;
     int start_year = 1990;
     PARAMETER(project_years);
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
+};
     array<Type> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
     array<Type> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
@@ -254,40 +254,37 @@ Type objective_function<Type>::operator() () {
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    array<Type> comm__catch(1);
-    array<Type> comm__catchnum(1);
+    Type nll = (double)(0);
+    int cur_year = 0;
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
-    int cur_year = 0;
-    int cur_year_projection = false;
-    array<Type> fish__consratio(6,1,10);
-    array<Type> fish__growth_l(6,6);
-    int fish__growth_lastcalc = -1;
-    array<Type> fish__growth_w(6,6);
-    Type fish__overconsumption = (double)(0);
-    array<Type> fish__predby_comm(6,1,10);
-    Type fish__prevtotal = (double)(0);
-    array<Type> fish__renewalnum(6,1,10); fish__renewalnum.setZero();
-    array<Type> fish__renewalwgt(6,1,10); fish__renewalwgt.setZero();
-    array<Type> fish__suit_comm(6,1,10); fish__suit_comm.setZero();
+    array<Type> comm__catch(1);
+    array<Type> comm__catchnum(1);
     array<Type> fish__totalpredate(6,1,10);
-    Type g3l_understocking_total = (double)(0);
-    Type nll = (double)(0);
-    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
-    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
-    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
-    auto step_count = (step_lengths).size();
+    array<Type> fish__predby_comm(6,1,10);
     int comm__area = 1;
+    array<Type> fish__suit_comm(6,1,10); fish__suit_comm.setZero();
     DATA_IVECTOR(comm_landings__keys)
     DATA_VECTOR(comm_landings__values)
     auto comm_landings__lookup = intlookup_zip(comm_landings__keys, comm_landings__values);
+    array<Type> fish__consratio(6,1,10);
+    Type fish__overconsumption = (double)(0);
+    int fish__growth_lastcalc = -1;
+    array<Type> fish__growth_l(6,6);
     Type fish__plusdl = (double)(10);
+    array<Type> fish__growth_w(6,6);
+    Type fish__prevtotal = (double)(0);
+    array<Type> fish__renewalnum(6,1,10); fish__renewalnum.setZero();
+    array<Type> fish__renewalwgt(6,1,10); fish__renewalwgt.setZero();
     int adist_surveyindices_log_acoustic_dist_model__area = 1;
     DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__keys)
     DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__values)
     auto times_adist_surveyindices_log_acoustic_dist_model__lookup = intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values);
     array<Type> fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix(1,6); fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.setConstant((double)(1));
     int adist_surveyindices_log_acoustic_dist_obs__area = 1;
+    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     int cdist_sumofsquares_comm_ldist_model__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
@@ -297,6 +294,9 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
     auto times_cdist_sumofsquares_comm_ldist_obs__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values);
+    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
+    Type g3l_understocking_total = (double)(0);
+    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
 
     while (true) {
         cur_time += 1;
@@ -321,10 +321,10 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        if ( report_detail == 1 ) {
+        if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish__num.col(cur_time + 1 - 1) = fish__num;
         }
-        if ( report_detail == 1 ) {
+        if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish__wgt.col(cur_time + 1 - 1) = fish__wgt;
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
@@ -364,43 +364,6 @@ Type objective_function<Type>::operator() () {
             REPORT(nll_cdist_sumofsquares_comm_ldist__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(nll_understocking__wgt);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(adist_surveyindices_log_acoustic_dist_model__params);
-            REPORT(adist_surveyindices_log_acoustic_dist_model__wgt);
-            REPORT(cdist_sumofsquares_comm_ldist_model__wgt);
-            REPORT(comm__catch);
-            REPORT(comm__catchnum);
-            REPORT(cur_step);
-            REPORT(cur_step_final);
-            REPORT(cur_year);
-            REPORT(cur_year_projection);
-            REPORT(detail_fish__num);
-            REPORT(detail_fish__predby_comm);
-            REPORT(detail_fish__renewalnum);
-            REPORT(detail_fish__suit_comm);
-            REPORT(detail_fish__wgt);
-            REPORT(fish__consratio);
-            REPORT(fish__growth_l);
-            REPORT(fish__growth_lastcalc);
-            REPORT(fish__growth_w);
-            REPORT(fish__num);
-            REPORT(fish__overconsumption);
-            REPORT(fish__predby_comm);
-            REPORT(fish__prevtotal);
-            REPORT(fish__renewalnum);
-            REPORT(fish__renewalwgt);
-            REPORT(fish__suit_comm);
-            REPORT(fish__totalpredate);
-            REPORT(fish__wgt);
-            REPORT(g3l_understocking_total);
-            REPORT(nll);
-            REPORT(nll_adist_surveyindices_log_acoustic_dist__weight);
-            REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt);
-            REPORT(nll_cdist_sumofsquares_comm_ldist__weight);
-            REPORT(nll_cdist_sumofsquares_comm_ldist__wgt);
-            REPORT(nll_understocking__weight);
             REPORT(nll_understocking__wgt);
         }
         {

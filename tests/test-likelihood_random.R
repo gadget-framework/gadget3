@@ -178,6 +178,11 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
             # These need to be Types, not (double), thus g3_formula()
             mean_f = g3_formula(cur_year * m, m = 0.001),
             sigma_f = g3_formula(s, s = 1) ),
+        gadget3:::g3a_report_var(
+            'out_stock__val',
+            g3_stock_instance(out_stock, 0),
+            stock = out_stock,
+            out_prefix = NULL),
         NULL))
     obj.fn <- g3_tmb_adfun(simple_code)
     out <- suppressWarnings(optim(obj.fn$par, obj.fn$fn, obj.fn$gr, method = "BFGS", control = list(maxit = 10)))

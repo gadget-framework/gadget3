@@ -9,9 +9,14 @@ ok_group("g3a_age:single_age", {
     prey_b <- g3_stock('prey_b', seq(20, 40, 4)) %>% g3s_age(11, 15)
     prey_c <- g3_stock('prey_c', seq(20, 40, 4)) %>% g3s_age(11, 15)
 
-    model_fn <- g3_to_r(list(
-        # Keep TMB happy
-        g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
+    model_fn <- g3_to_r(c(
+        list("99999" = g3_formula({
+            # Keep TMB happy
+            nll <- nll + g3_param("dummy", value = 0)
+            REPORT(prey_a__num)
+            REPORT(prey_b__num)
+            REPORT(prey_c__num)
+        })),
         g3a_initialconditions(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
         g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
         g3a_initialconditions(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),

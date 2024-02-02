@@ -70,6 +70,12 @@ actions <- list(
         "999" = ~{
             stock_modeltime_iterator <- stock_modeltime_iterator + 1
             nll <- g3_param('nll', value = 1)
+            REPORT(stock_timeyear__num)
+            REPORT(stock_timestep__num)
+            REPORT(stock_timebigstep__num)
+            REPORT(stock_modeltime__num)
+            REPORT(stock_modelyear__num)
+            REPORT(stock_modeltime__num)
         }))
 
 # Compile model

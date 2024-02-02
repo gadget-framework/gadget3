@@ -88,7 +88,10 @@ ok_group("g3l_distribution_sumofsquares", {
     obsdata$number <- runif(nrow(obsdata))
     model_fn <- g3_to_r(list(
         # Keep TMB happy
-        g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
+        g3_formula({
+            nll <- nll + g3_param("dummy", value = 0) 
+            REPORT(prey_a__num)
+        }),
         g3a_time(2000, 2001),
         g3a_initialconditions(prey_a,
             num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),

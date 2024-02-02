@@ -164,13 +164,13 @@ structure(function (param)
     cur_step_size <- step_lengths[[1]]/12
     fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    as_integer <- as.integer
     end_year <- 2000L
     retro_years <- param[["retro_years"]]
     start_year <- 1990L
     stopifnot("project_years" %in% names(param))
     project_years <- param[["project_years"]]
     total_steps <- length(step_lengths) * (end_year - retro_years - start_year + project_years) + length(step_lengths) - 1L
+    as_integer <- as.integer
     total_years <- end_year - retro_years - start_year + project_years + 1L
     detail_fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
     detail_fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years))))
@@ -182,30 +182,18 @@ structure(function (param)
     nll_adist_surveyindices_log_acoustic_dist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     nll_cdist_sumofsquares_comm_ldist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
-    comm__catch <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
-    comm__catchnum <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
+    nll <- 0
+    cur_year <- 0L
+    step_count <- length(step_lengths)
+    cur_year_projection <- FALSE
     cur_step <- 0L
     cur_step_final <- FALSE
-    cur_year <- 0L
-    cur_year_projection <- FALSE
-    fish__consratio <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    fish__growth_l <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
-    fish__growth_lastcalc <- -1L
-    fish__growth_w <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
-    fish__overconsumption <- structure(0, desc = "Total overconsumption of fish")
-    fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    fish__prevtotal <- 0
-    fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    fish__renewalwgt <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    comm__catch <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
+    comm__catchnum <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
     fish__totalpredate <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    g3l_understocking_total <- 0
-    nll <- 0
-    nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
-    nll_cdist_sumofsquares_comm_ldist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
-    nll_understocking__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
-    step_count <- length(step_lengths)
+    fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     comm__area <- 1L
+    fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     intlookup_zip <- function(keys, values) {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
@@ -221,15 +209,27 @@ structure(function (param)
         return(out)
     }
     comm_landings__lookup <- intlookup_zip(comm_landings__keys, comm_landings__values)
+    fish__consratio <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    fish__overconsumption <- structure(0, desc = "Total overconsumption of fish")
+    fish__growth_lastcalc <- -1L
+    fish__growth_l <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
     fish__plusdl <- 10
+    fish__growth_w <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
+    fish__prevtotal <- 0
+    fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    fish__renewalwgt <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     adist_surveyindices_log_acoustic_dist_model__area <- 1L
     times_adist_surveyindices_log_acoustic_dist_model__lookup <- intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values)
     fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix <- array(1, dim = c(1L, 6L), dimnames = NULL)
     adist_surveyindices_log_acoustic_dist_obs__area <- 1L
+    nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     cdist_sumofsquares_comm_ldist_model__area <- 1L
     times_cdist_sumofsquares_comm_ldist_model__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values)
     cdist_sumofsquares_comm_ldist_obs__area <- 1L
     times_cdist_sumofsquares_comm_ldist_obs__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values)
+    nll_cdist_sumofsquares_comm_ldist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
+    g3l_understocking_total <- 0
+    nll_understocking__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = head(sprintf("%d-%02d", rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)), rep(seq_along(step_lengths), times = total_years)), as_integer(total_steps + 1L))))
     while (TRUE) {
         cur_time <- cur_time + 1L
         {
@@ -254,9 +254,9 @@ structure(function (param)
                 }
             }
         }
-        if (param[["report_detail"]] == 1) 
+        if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
             detail_fish__num[, , , cur_time + 1] <- fish__num
-        if (param[["report_detail"]] == 1) 
+        if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
             detail_fish__wgt[, , , cur_time + 1] <- fish__wgt
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(adist_surveyindices_log_acoustic_dist_model__params)
@@ -284,43 +284,6 @@ structure(function (param)
             REPORT(nll_cdist_sumofsquares_comm_ldist__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_understocking__wgt)
-        if (reporting_enabled > 0L && cur_time > total_steps) {
-            REPORT(adist_surveyindices_log_acoustic_dist_model__params)
-            REPORT(adist_surveyindices_log_acoustic_dist_model__wgt)
-            REPORT(cdist_sumofsquares_comm_ldist_model__wgt)
-            REPORT(comm__catch)
-            REPORT(comm__catchnum)
-            REPORT(cur_step)
-            REPORT(cur_step_final)
-            REPORT(cur_year)
-            REPORT(cur_year_projection)
-            REPORT(detail_fish__num)
-            REPORT(detail_fish__predby_comm)
-            REPORT(detail_fish__renewalnum)
-            REPORT(detail_fish__suit_comm)
-            REPORT(detail_fish__wgt)
-            REPORT(fish__consratio)
-            REPORT(fish__growth_l)
-            REPORT(fish__growth_lastcalc)
-            REPORT(fish__growth_w)
-            REPORT(fish__num)
-            REPORT(fish__overconsumption)
-            REPORT(fish__predby_comm)
-            REPORT(fish__prevtotal)
-            REPORT(fish__renewalnum)
-            REPORT(fish__renewalwgt)
-            REPORT(fish__suit_comm)
-            REPORT(fish__totalpredate)
-            REPORT(fish__wgt)
-            REPORT(g3l_understocking_total)
-            REPORT(nll)
-            REPORT(nll_adist_surveyindices_log_acoustic_dist__weight)
-            REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt)
-            REPORT(nll_cdist_sumofsquares_comm_ldist__weight)
-            REPORT(nll_cdist_sumofsquares_comm_ldist__wgt)
-            REPORT(nll_understocking__weight)
-            REPORT(nll_understocking__wgt)
-        }
         {
             comment("g3a_time: Start of time period")
             if (cur_time == 0 && assert_msg(param[["retro_years"]] >= 0, "retro_years must be >= 0")) 

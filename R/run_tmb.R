@@ -587,7 +587,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 }
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
-    collated_actions <- g3_collate(c(actions, list(g3a_report_vars(actions)) ))
+    collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(c(
         g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
         collated_actions,

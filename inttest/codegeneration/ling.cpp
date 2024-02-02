@@ -233,54 +233,54 @@ Type objective_function<Type>::operator() () {
     return std::floor(asDouble(v));
 };
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
+    Type nll = (double)(0);
+    int cur_year = 0;
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
-    int cur_year = 0;
-    int cur_year_projection = false;
-    Type g3l_understocking_total = (double)(0);
     array<Type> igfs__catch(1);
-    array<Type> ling_imm__consratio(35,1,8);
-    array<Type> ling_imm__growth_l(35,16);
-    int ling_imm__growth_lastcalc = -1;
-    array<Type> ling_imm__growth_w(35,16);
-    Type ling_imm__overconsumption = (double)(0);
-    array<Type> ling_imm__predby_igfs(35,1,8);
-    Type ling_imm__prevtotal = (double)(0);
-    array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
-    array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
-    array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
     array<Type> ling_imm__totalpredate(35,1,8);
-    array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
-    array<Type> ling_imm__transitioning_wgt(35,1,8);
-    array<Type> ling_imm_movement__transitioning_num(35,1,1);
-    array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
-    array<Type> ling_mat__consratio(35,1,11);
-    array<Type> ling_mat__growth_l(35,16);
-    int ling_mat__growth_lastcalc = -1;
-    array<Type> ling_mat__growth_w(35,16);
-    Type ling_mat__overconsumption = (double)(0);
-    array<Type> ling_mat__predby_igfs(35,1,11);
-    Type ling_mat__prevtotal = (double)(0);
-    array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
     array<Type> ling_mat__totalpredate(35,1,11);
-    Type nll = (double)(0);
-    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__num.setZero();
-    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
-    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
-    auto step_count = (step_lengths).size();
+    array<Type> ling_imm__predby_igfs(35,1,8);
     int igfs__area = 1;
+    array<Type> ling_imm__suit_igfs(35,1,8); ling_imm__suit_igfs.setZero();
+    array<Type> ling_mat__predby_igfs(35,1,11);
+    array<Type> ling_mat__suit_igfs(35,1,11); ling_mat__suit_igfs.setZero();
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_IVECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    array<Type> ling_imm__consratio(35,1,8);
+    Type ling_imm__overconsumption = (double)(0);
+    array<Type> ling_mat__consratio(35,1,11);
+    Type ling_mat__overconsumption = (double)(0);
+    array<Type> ling_imm__transitioning_num(35,1,8); ling_imm__transitioning_num.setZero();
+    array<Type> ling_imm__transitioning_wgt(35,1,8);
+    int ling_imm__growth_lastcalc = -1;
+    array<Type> ling_imm__growth_l(35,16);
     Type ling_imm__plusdl = (double)(4);
+    array<Type> ling_imm__growth_w(35,16);
+    Type ling_imm__prevtotal = (double)(0);
+    int ling_mat__growth_lastcalc = -1;
+    array<Type> ling_mat__growth_l(35,16);
     Type ling_mat__plusdl = (double)(4);
+    array<Type> ling_mat__growth_w(35,16);
+    Type ling_mat__prevtotal = (double)(0);
+    array<Type> ling_imm__renewalnum(35,1,8); ling_imm__renewalnum.setZero();
+    array<Type> ling_imm__renewalwgt(35,1,8); ling_imm__renewalwgt.setZero();
     int cdist_sumofsquares_ldist_lln_model__area = 1;
+    array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
     int cdist_sumofsquares_ldist_lln_obs__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
     auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
+    array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__num.setZero();
+    array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
+    Type g3l_understocking_total = (double)(0);
+    array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
+    array<Type> ling_imm_movement__transitioning_num(35,1,1);
+    array<Type> ling_imm_movement__transitioning_wgt(35,1,1);
     int ling_imm_movement__minage = 11;
     int ling_imm_movement__maxage = 11;
     int ling_imm_movement__area = 1;
@@ -330,48 +330,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(nll_understocking__wgt);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(cdist_sumofsquares_ldist_lln_model__num);
-            REPORT(cur_step);
-            REPORT(cur_step_final);
-            REPORT(cur_year);
-            REPORT(cur_year_projection);
-            REPORT(g3l_understocking_total);
-            REPORT(igfs__catch);
-            REPORT(ling_imm__consratio);
-            REPORT(ling_imm__growth_l);
-            REPORT(ling_imm__growth_lastcalc);
-            REPORT(ling_imm__growth_w);
-            REPORT(ling_imm__num);
-            REPORT(ling_imm__overconsumption);
-            REPORT(ling_imm__predby_igfs);
-            REPORT(ling_imm__prevtotal);
-            REPORT(ling_imm__renewalnum);
-            REPORT(ling_imm__renewalwgt);
-            REPORT(ling_imm__suit_igfs);
-            REPORT(ling_imm__totalpredate);
-            REPORT(ling_imm__transitioning_num);
-            REPORT(ling_imm__transitioning_wgt);
-            REPORT(ling_imm__wgt);
-            REPORT(ling_imm_movement__transitioning_num);
-            REPORT(ling_imm_movement__transitioning_wgt);
-            REPORT(ling_mat__consratio);
-            REPORT(ling_mat__growth_l);
-            REPORT(ling_mat__growth_lastcalc);
-            REPORT(ling_mat__growth_w);
-            REPORT(ling_mat__num);
-            REPORT(ling_mat__overconsumption);
-            REPORT(ling_mat__predby_igfs);
-            REPORT(ling_mat__prevtotal);
-            REPORT(ling_mat__suit_igfs);
-            REPORT(ling_mat__totalpredate);
-            REPORT(ling_mat__wgt);
-            REPORT(nll);
-            REPORT(nll_cdist_sumofsquares_ldist_lln__num);
-            REPORT(nll_cdist_sumofsquares_ldist_lln__weight);
-            REPORT(nll_understocking__weight);
             REPORT(nll_understocking__wgt);
         }
         {
