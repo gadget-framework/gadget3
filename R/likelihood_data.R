@@ -32,13 +32,27 @@ parse_levels <- function (lvls, var_name) {
     stop("Unknown form of ", var_name, " levels, see ?cut for formatting: ", paste(lvls, collapse = ", "))
 }
 
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = FALSE, all_stocks = list(), all_fleets = list()) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = "", all_stocks = list(), all_fleets = list()) {
     mfdb_min_bound <- function (x) { if (is.null(attr(x, 'min'))) x[[1]] else attr(x, 'min') }
     mfdb_max_bound <- function (x) { if (is.null(attr(x, 'max'))) tail(x, 1) else attr(x, 'max') }
     mfdb_eval <- function (x) { if (is.call(x)) eval(x) else x }
 
     # vector of col names, will cross them off as we go
     handled_columns <- structure(as.list(seq_along(names(data))), names = names(data))
+
+    # Work out time dimension, but don't add it just yet
+    if ('year' %in% names(data)) {
+        # NB: Let g3s_time_convert() worry about if the step column is there or not
+        #     Suppress warnings from tibbles that it might be missing
+        data$time <- g3s_time_convert(data$year, suppressWarnings(data$step))
+        handled_columns$year <- NULL
+        handled_columns$step <- NULL
+    } else if ('time' %in% names(data)) {  # Convert our time=1999-01 strings back
+        data$time <- g3s_time_convert(data$time)
+        handled_columns$time <- NULL
+    } else {
+        stop("Data must contain a year column")
+    }
 
     # Turn incoming data into stocks with correct dimensions
     if ('length' %in% names(data)) {
@@ -72,6 +86,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             names(length_vec) <- NULL
 
             modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
+            obsstock <- g3_stock(paste(nll_name, "obs", sep = "_"), length_vec, open_ended = open_ended_upper)
 
             # Convert data$length to use our naming
             data$length <- factor(data$length, levels = names(length_groups))
@@ -98,6 +113,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             }
 
             modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), length_vec, open_ended = open_ended_upper)
+            obsstock <- g3_stock(paste(nll_name, "obs", sep = "_"), length_vec, open_ended = open_ended_upper)
 
             # Convert data$length to use our naming
             levels(data$length) <- modelstock$dimnames$length
@@ -106,7 +122,19 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     } else {
         # Stocks currently have to have a length vector, even if it only has one element
         modelstock <- g3_stock(paste(nll_name, "model", sep = "_"), c(0))
+        obsstock <- g3_stock(paste(nll_name, "obs", sep = "_"), c(0))
         data$length <- modelstock$dimnames$length
+    }
+
+    # Add early time dimension for surveyindices
+    if (identical(model_history, 'early')) {
+        modelstock <- g3s_time(
+            modelstock,
+            sort(unique(data$time)))
+        obsstock <- g3s_time(
+            obsstock,
+            sort(unique(data$time)))
+        data$time <- g3s_time_labels(data$time)
     }
 
     if ('age' %in% names(data)) {
@@ -116,6 +144,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
             # We want to use our own names, so remove MFDB's
             modelstock <- g3s_agegroup(modelstock, unname(age_groups))
+            obsstock <- g3s_agegroup(obsstock, unname(age_groups))
 
             # Convert data$age to use our naming
             data$age <- factor(data$age, levels = names(age_groups))
@@ -125,6 +154,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             age_groups <- seq(min(data$age), max(data$age))
 
             modelstock <- g3s_age(modelstock, min(data$age), max(data$age))
+            obsstock <- g3s_age(obsstock, min(data$age), max(data$age))
             # Convert age data to use our naming
             data$age <- factor(
                 data$age,
@@ -153,6 +183,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             # NB: We never set the original names on age_groups
 
             modelstock <- g3s_agegroup(modelstock, age_groups)
+            obsstock <- g3s_agegroup(obsstock, age_groups)
             levels(data$age) <- modelstock$dimnames$age
         }
         handled_columns$age <- NULL
@@ -167,6 +198,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
             tag_ids <- as.integer(unique(data$tag))
         }
         modelstock <- g3s_tag(modelstock, tag_ids, force_untagged = FALSE)
+        obsstock <- g3s_tag(obsstock, tag_ids, force_untagged = FALSE)
         handled_columns$tag <- NULL
     }
 
@@ -184,6 +216,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
+        obsstock <- g3s_manual(obsstock, 'stock', stock_groups, ~stockidx_f)
         handled_columns$stock <- NULL
     } else if ('stock_re' %in% names(data)) {
         # Start off with everything mapping to NULL
@@ -206,6 +239,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
         # NB: We have to replace stockidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'stock_re', stock_regexes, ~stockidx_f)
+        obsstock <- g3s_manual(obsstock, 'stock_re', stock_regexes, ~stockidx_f)
         handled_columns$stock_re <- NULL
     } else {
         stock_map <- NULL
@@ -218,6 +252,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
         # NB: We have to replace fleetidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'fleet', fleet_groups, ~fleetidx_f)
+        obsstock <- g3s_manual(obsstock, 'fleet', fleet_groups, ~fleetidx_f)
         handled_columns$fleet <- NULL
     } else if ('fleet_re' %in% names(data)) {
         # Start off with everything mapping to NULL
@@ -233,33 +268,25 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
         # NB: We have to replace fleetidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'fleet_re', fleet_regexes, ~fleetidx_f)
+        obsstock <- g3s_manual(obsstock, 'fleet_re', fleet_regexes, ~fleetidx_f)
         handled_columns$fleet_re <- NULL
     } else {
         fleet_map <- NULL
     }
 
-    # Work out time dimension, create an obsstock using it
-    if ('year' %in% names(data)) {
-        # NB: Let g3s_time_convert() worry about if the step column is there or not
-        #     Suppress warnings from tibbles that it might be missing
-        data$time <- g3s_time_convert(data$year, suppressWarnings(data$step))
-        handled_columns$year <- NULL
-        handled_columns$step <- NULL
-    } else if ('time' %in% names(data)) {  # Convert our time=1999-01 strings back
-        data$time <- g3s_time_convert(data$time)
-        handled_columns$time <- NULL
-    } else {
-        stop("Data must contain a year column")
-    }
-    obsstock <- g3s_time(
-        g3s_clone(modelstock, paste(nll_name, "obs", sep = "_")),
-        sort(unique(data$time)))
-    if (model_history) {
-        modelstock <- g3s_time(
-            modelstock,
+    # Add time dimension if it's supposed to be last
+    if (!identical(model_history, 'early')) {
+        # NB: We always add time to observations, whereas only when explicitly requested for model
+        if (identical(model_history, 'late')) {
+            modelstock <- g3s_time(
+                modelstock,
+                sort(unique(data$time)))
+        }
+        obsstock <- g3s_time(
+            obsstock,
             sort(unique(data$time)))
+        data$time <- g3s_time_labels(data$time)
     }
-    data$time <- g3s_time_labels(data$time)
 
     # NB: area has to be last, so we can sum for the entire area/time
     if ('area' %in% names(data)) {

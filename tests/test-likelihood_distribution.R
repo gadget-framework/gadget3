@@ -251,24 +251,6 @@ ok(ut_cmp_error(g3l_abundancedistribution(
     area_group = areas,
     g3l_distribution_sumofsquares()), "Fleets must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
 
-# Can't make g3l_distribution_surveyindices without report
-ok(ut_cmp_error(g3l_abundancedistribution(
-    'surveyindices',
-    surveyindices_data,
-    fleets = list(),
-    stocks = list(prey_b),
-    area_group = areas,
-    g3l_distribution_surveyindices_linear(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0)),
-    report = FALSE), "report"), "Can't have report = FALSE & g3l_distribution_surveyindices_linear")
-ok(ut_cmp_error(g3l_abundancedistribution(
-    'surveyindices',
-    surveyindices_data,
-    fleets = list(),
-    stocks = list(prey_b),
-    area_group = areas,
-    g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0)),
-    report = FALSE), "report"), "Can't have report = FALSE & g3l_distribution_surveyindices_log")
-
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
 report_step <- function (var_name, steps, initial_val) {
