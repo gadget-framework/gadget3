@@ -175,8 +175,10 @@ stock <- g3_stock('halibut', 1:10) \%>\% g3s_age(1,10)
 g3_step(~stock_assert(stock_with(stock, all(is.finite(stock__num))), stock, "__num became NaN/Inf"))
 
 ### stock_reshape
-imm_stock <- g3_stock('halibut.imm', 1:5) \%>\% g3s_age(1,3)
-g3_step(~stock_reshape(stock, stock_ss(imm_stock__transitioning_num)))
+s <- g3_stock('s', seq(3, 21, 3))
+s__num <- g3_stock_instance(s, 100)
+agg <- g3_stock('agg', c(3, 10, 21), open_ended = FALSE)
+g3_eval(~stock_iterate(s, stock_reshape(agg, stock_ss(s__num))))
 
 ### stock_ss
 stock <- g3_stock('halibut', 1:10) \%>\% g3s_age(1,10) \%>\% g3s_livesonareas(1)
