@@ -144,7 +144,7 @@ g3_distribution_preview <- function (
         all_stocks = stocks,
         all_fleets = fleets,
         area_group = area_group,
-        model_history = FALSE )
+        model_history = "" )
     if (!is.null(ld$number)) return(ld$number)
     if (!is.null(ld$weight)) return(ld$weight)
     stop('Could not find output array')
@@ -184,8 +184,14 @@ g3l_distribution <- function (
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
     stopifnot(is.list(transform_fs) && all(sapply(transform_fs, rlang::is_formula)))
-    if (!report && "modelstock__time_idx" %in% all.vars(function_f)) {
-        stop("report must be TRUE when using this comparison function (probably g3l_distribution_surveyindices)")
+
+    if ("modelstock__time_idx" %in% all.vars(function_f)) {
+        # g3l_distribution_surveyindices needs to generate time vectors, so needs time early in dimension list
+        model_history <- 'early'
+    } else if (report) {
+        model_history <- 'late'
+    } else {
+        model_history <- ''
     }
 
     # Replace any __x vars in (f) with (repl_postfix), e.g. "num"
@@ -241,7 +247,7 @@ g3l_distribution <- function (
         sep = "_")
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = report, all_stocks = stocks, all_fleets = fleets)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = model_history, all_stocks = stocks, all_fleets = fleets)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {
