@@ -15,6 +15,30 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(x)
     }
 
+    # Does this call produce a scalar value?
+    value_is_scalar <- function (c_val) {
+        # Single numeric values are constants
+        if (is.numeric(c_val)) return(length(c_val) == 1)
+
+        # Single parameters are constants
+        if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
+
+        # If a variable, try fetching it out of environment and inspecting that
+        if (is.symbol(c_val) && exists(as.character(c_val), envir = in_envir, inherits = TRUE)) {
+            env_defn <- get(as.character(c_val), envir = in_envir, inherits = TRUE)
+            if (!is.null(attr(env_defn, "g3_global_init_val"))) {
+                # When considering a global formula, consider the init condition
+                env_defn <- attr(env_defn, "g3_global_init_val")
+            }
+            return(is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1)
+        }
+
+        # TODO: Obviously not exhaustive, but ideally one would consider setConstant() a TMB bug.
+
+        # Dunno. Assume not.
+        return(FALSE)
+    }
+
     if (!is.call(in_call)) {
         # Literals
         if (length(in_call) == 1) {
@@ -95,20 +119,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Assignment
         assign_lhs <- in_call[[2]]
         assign_rhs <- in_call[[3]]
-
-        # Is this value a scalar?
-        value_is_scalar <- function (c_val) {
-            # Single numeric values are constants
-            if (is.numeric(c_val)) return(length(c_val) == 1)
-
-            # Single parameters are constants
-            if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
-
-            # TODO: Obviously not exhaustive, but ideally one would consider this a TMB bug.
-
-            # Dunno. Assume not.
-            return(FALSE)
-        }
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
@@ -453,16 +463,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("is.nan")) {
-        if (is.symbol(in_call[[2]])) {
-            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (!is.null(attr(env_defn, 'g3_global_init_val'))) env_defn <- attr(env_defn, 'g3_global_init_val')
-            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
-                # Use std::isnan for single values, otherwise assume array and use Eigen method.
-                return(paste0(
-                    "std::isnan(asDouble(",
-                    cpp_code(in_call[[2]], in_envir, next_indent),
-                    "))"))
-            }
+        if ( value_is_scalar(in_call[[2]]) ) {
+            # Use std::isnan for single values, otherwise assume array and use Eigen method.
+            return(paste0(
+                "std::isnan(asDouble(",
+                cpp_code(in_call[[2]], in_envir, next_indent),
+                "))"))
         }
         return(paste0(
             "(",
@@ -471,15 +477,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("is.finite")) {
-        if (is.symbol(in_call[[2]])) {
-            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
-                # Use std::isnan for single values, otherwise assume array and use Eigen method.
-                return(paste0(
-                    "std::isfinite(asDouble(",
-                    cpp_code(in_call[[2]], in_envir, next_indent),
-                    "))"))
-            }
+        if ( value_is_scalar(in_call[[2]]) ) {
+            # Use std::isfinite for single values, otherwise assume array and use Eigen method.
+            return(paste0(
+                "std::isfinite(asDouble(",
+                cpp_code(in_call[[2]], in_envir, next_indent),
+                "))"))
         }
         return(paste0(
             "(",
