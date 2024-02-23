@@ -165,6 +165,14 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope as side effect
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
+    # Bodge gen_dimnames into environment
+    # NB: That we need to do this is a bug
+    if (exists('gen_dimnames', environment(all_actions), inherits = TRUE)) {
+        assign('gen_dimnames',
+            get('gen_dimnames', environment(all_actions), inherits = TRUE),
+            envir = model_env)
+    }
+
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
         list(as.symbol(open_curly_bracket)),

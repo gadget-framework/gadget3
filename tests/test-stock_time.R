@@ -130,7 +130,10 @@ ok_group("g3s_modeltime", {
             .Dim = c(length = 1L, year = 5L),
             .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp, ignore_dimname = c('time', 'year'))
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    }
 })
 
 ok_group("g3s_modeltime:project", {
@@ -159,7 +162,10 @@ ok_group("g3s_modeltime:project", {
             .Dim = c(length = 1L, year = 7L),
             .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004", "2005", "2006")))), "stock_modelyear__num: Aggregated by year")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp, ignore_dimname = c('time', 'year'))
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    }
 })
 
 ok_group("g3s_modeltime:final_year_steps", {
@@ -205,5 +211,8 @@ ok_group("g3s_modeltime:final_year_steps", {
             .Dim = c(length = 1L, year = 5L),
             .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year (2004 short)")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp, ignore_dimname = c('time', 'year'))
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    }
 })

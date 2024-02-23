@@ -89,5 +89,16 @@ g3a_time <- function(
     assign("end_year", end_year, envir = environment(out[[step_id(run_at)]]))
     assign("total_years", total_years, envir = environment(out[[step_id(run_at)]]))
 
+    # Generate micro-model to build labels per year/step
+    gen_dimnames <- g3_to_r(c(as.list(out), list("5" = g3_formula(quote({
+        time <- c(time, sprintf('%d-%02d', cur_year, cur_step))
+        REPORT(time)
+        if (cur_time == 0 || cur_step == 1) {
+            year <- c(year, sprintf('%d', cur_year))
+            REPORT(year)
+        }
+    }), time = c(), year = c()) )))
+    assign("gen_dimnames", gen_dimnames, envir = environment(out[[step_id(run_at)]]))
+
     return(as.list(out))
 }

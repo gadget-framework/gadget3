@@ -84,9 +84,7 @@ g3a_report_var <- function (
 
         # Add dynamic dims for time dimension
         attr(defn, "dynamic_dim")$time <- quote(as_integer(total_steps + 1))
-        attr(defn, "dynamic_dimnames")$time <- quote(sprintf("%d-%02d",
-            rep(seq(start_year, start_year + total_years - 1L), each = length(step_lengths)),
-            rep(seq_along(step_lengths), times = total_years)))
+        attr(defn, "dynamic_dimnames")$time <- quote( attributes(gen_dimnames(param))[['time']] )
 
         # Generate code/env to define history report
         hist_var_name <- paste0(out_prefix, var_name)

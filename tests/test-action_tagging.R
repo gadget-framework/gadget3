@@ -94,6 +94,7 @@ ok_group("tagging without mortality", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
+        model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     }
 })
@@ -143,6 +144,7 @@ ok_group("tagging with mortality", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
+        model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     }
 })
@@ -196,6 +198,7 @@ ok_group("tag shedding", {
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
+        model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     }
 })

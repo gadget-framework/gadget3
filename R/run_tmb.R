@@ -863,7 +863,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
             attr(defn, 'report_names') <- names(var_val)
             attr(defn, 'report_dimnames') <- dimnames(var_val)
-            attr(defn, 'report_dynamic_dimnames') <- attr(var_val, 'dynamic_dimnames')
             scope[[var_name]] <<- defn
         }
         return(code)
@@ -923,7 +922,13 @@ Type objective_function<Type>::operator() () {
     attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
     attr(out, 'report_names') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_names')))
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
-    attr(out, 'report_dynamic_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dynamic_dimnames')))
+    attr(out, 'report_gen_dimnames') <- mget(
+        "gen_dimnames",
+        envir = rlang::f_env(all_actions),
+        ifnotfound = list(NA),
+        inherits = TRUE )[[1]]
+    # NB: ifnotfound doesn't work with function output
+    if (!is.function(attr(out, 'report_gen_dimnames'))) attr(out, 'report_gen_dimnames') <- function (x) 0
     return(out)
 }
 
@@ -1066,7 +1071,18 @@ g3_tmb_adfun <- function(cpp_code,
     report_names <- attr(cpp_code, 'report_names')
     report_dimnames <- attr(cpp_code, 'report_dimnames')
     report_renames <- attr(cpp_code, 'report_renames')
-    report_dynamic_dimnames <- attr(cpp_code, 'report_dynamic_dimnames')
+
+    # Run gen_dimnames & repopulate any dynamic dims
+    # TODO: This should be paying attention to the code within, not just assuming that gen_dimnames was used
+    dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(tmb_parameters))
+    for (dimname in names(dyndims)) {
+        for (var_name in names(report_dimnames)) {
+            if (dimname %in% names(report_dimnames[[var_name]]) && is.null(report_dimnames[[var_name]][[dimname]])) {
+                report_dimnames[[var_name]][[dimname]] <- dyndims[[dimname]]
+            }
+        }
+    }
+
     fn$orig_report <- fn$report
     fn$report <- function (...) {
         old_reporting_enabled <- fn$env$data$reporting_enabled
@@ -1095,13 +1111,6 @@ g3_tmb_adfun <- function(cpp_code,
             if (!is.array(out[[dimname]])) out[[dimname]] <- array(
                 out[[dimname]],
                 length(out[[dimname]]))
-
-            # Find and bodge any dynamic dims into having something that fits
-            for (di in seq_along(report_dimnames[[dimname]])) {
-                if (is.null(report_dimnames[[dimname]][[di]]) && !is.null(report_dynamic_dimnames[[dimname]][[di]])) {
-                    report_dimnames[[dimname]][[di]] <- seq_len(dim(out[[dimname]])[[di]])
-                }
-            }
 
             names(dim(out[[dimname]])) <- names(report_dimnames[[dimname]])
             dimnames(out[[dimname]]) <- report_dimnames[[dimname]]
