@@ -114,6 +114,7 @@ writeLines(model_cpp, con = 'inttest/codegeneration-defaults/model.cpp')
 
 # Write out default paramter_template
 params <- attr(model_cpp, 'parameter_template')
+params <- g3_init_val(params, 'report_detail', 0)
 capture.output(print(params), file = 'inttest/codegeneration-defaults/model.tmbparam')
 
 r <- attributes(model_fn(params$value))
