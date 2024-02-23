@@ -252,7 +252,9 @@ Type objective_function<Type>::operator() () {
     array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
     array<Type> detail_fish__suit_comm(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__suit_comm.setZero();
     Type nll = (double)(0);
+    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
+    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     int cur_year = 0;
@@ -284,7 +286,6 @@ Type objective_function<Type>::operator() () {
     auto times_adist_surveyindices_log_acoustic_dist_model__lookup = intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values);
     array<Type> fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix(1,6); fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.setConstant((double)(1));
     int adist_surveyindices_log_acoustic_dist_obs__area = 1;
-    array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     int cdist_sumofsquares_comm_ldist_model__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
@@ -294,7 +295,6 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
     auto times_cdist_sumofsquares_comm_ldist_obs__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values);
-    array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     Type g3l_understocking_total = (double)(0);
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
 
@@ -361,7 +361,13 @@ Type objective_function<Type>::operator() () {
             REPORT(nll);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll_adist_surveyindices_log_acoustic_dist__weight);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll_cdist_sumofsquares_comm_ldist__weight);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_cdist_sumofsquares_comm_ldist__wgt);
@@ -603,7 +609,6 @@ Type objective_function<Type>::operator() () {
                                         nll += adist_surveyindices_log_acoustic_dist_weight*cur_cdist_nll;
                                         nll_adist_surveyindices_log_acoustic_dist__wgt(cur_time + 1 - 1) += cur_cdist_nll;
                                         nll_adist_surveyindices_log_acoustic_dist__weight(cur_time + 1 - 1) = adist_surveyindices_log_acoustic_dist_weight;
-                                        REPORT(adist_surveyindices_log_acoustic_dist_obs__wgt);
                                     }
                                 }
                             }
@@ -659,7 +664,6 @@ Type objective_function<Type>::operator() () {
                                 nll += cdist_sumofsquares_comm_ldist_weight*cur_cdist_nll;
                                 nll_cdist_sumofsquares_comm_ldist__wgt(cur_time + 1 - 1) += cur_cdist_nll;
                                 nll_cdist_sumofsquares_comm_ldist__weight(cur_time + 1 - 1) = cdist_sumofsquares_comm_ldist_weight;
-                                REPORT(cdist_sumofsquares_comm_ldist_obs__wgt);
                             }
                         }
                     }

@@ -380,8 +380,6 @@ g3l_distribution <- function (
                 nll <- nll + (weight) * cur_cdist_nll
                 stock_ss(nllstock__x) <- stock_ss(nllstock__x) + cur_cdist_nll
                 stock_ss(nllstock__weight) <- weight
-                # NB: Have to report obsstock__x explicitly because it's just data.
-                if (report) REPORT(obsstock__x)
             }))))
             if (!report) {
                 debug_trace("Zero counters for next reporting period")
@@ -442,6 +440,11 @@ g3l_distribution <- function (
         if (is.null(ld$weight)) NULL else g3a_report_var(
             "nllstock__wgt",
             nllstock__wgt,
+            stock = nllstock,
+            out_prefix = NULL ),
+        g3a_report_var(
+            "nllstock__weight",
+            nllstock__weight,
             stock = nllstock,
             out_prefix = NULL ),
         NULL))

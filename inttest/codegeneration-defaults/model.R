@@ -179,7 +179,9 @@ structure(function (param)
     detail_fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
+    nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_adist_surveyindices_log_acoustic_dist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
+    nll_cdist_sumofsquares_comm_ldist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_cdist_sumofsquares_comm_ldist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     cur_year <- 0L
@@ -221,12 +223,10 @@ structure(function (param)
     times_adist_surveyindices_log_acoustic_dist_model__lookup <- intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values)
     fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix <- array(1, dim = c(1L, 6L), dimnames = NULL)
     adist_surveyindices_log_acoustic_dist_obs__area <- 1L
-    nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     cdist_sumofsquares_comm_ldist_model__area <- 1L
     times_cdist_sumofsquares_comm_ldist_model__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values)
     cdist_sumofsquares_comm_ldist_obs__area <- 1L
     times_cdist_sumofsquares_comm_ldist_obs__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values)
-    nll_cdist_sumofsquares_comm_ldist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     g3l_understocking_total <- 0
     nll_understocking__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     while (TRUE) {
@@ -280,7 +280,11 @@ structure(function (param)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll)
         if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(nll_adist_surveyindices_log_acoustic_dist__weight)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(nll_cdist_sumofsquares_comm_ldist__weight)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_cdist_sumofsquares_comm_ldist__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
@@ -484,7 +488,6 @@ structure(function (param)
                             nll <- nll + param[["adist_surveyindices_log_acoustic_dist_weight"]] * cur_cdist_nll
                             nll_adist_surveyindices_log_acoustic_dist__wgt[cur_time + 1L] <- nll_adist_surveyindices_log_acoustic_dist__wgt[cur_time + 1L] + cur_cdist_nll
                             nll_adist_surveyindices_log_acoustic_dist__weight[cur_time + 1L] <- param[["adist_surveyindices_log_acoustic_dist_weight"]]
-                            REPORT(adist_surveyindices_log_acoustic_dist_obs__wgt)
                           }
                         }
                       }
@@ -526,7 +529,6 @@ structure(function (param)
                         nll <- nll + param[["cdist_sumofsquares_comm_ldist_weight"]] * cur_cdist_nll
                         nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] <- nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] + cur_cdist_nll
                         nll_cdist_sumofsquares_comm_ldist__weight[cur_time + 1L] <- param[["cdist_sumofsquares_comm_ldist_weight"]]
-                        REPORT(cdist_sumofsquares_comm_ldist_obs__wgt)
                       }
                     }
                   }
