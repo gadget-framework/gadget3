@@ -7,6 +7,9 @@
 /vignettes/*.html
 /vignettes/WGTS/
 /vignettes/figs/
+/WGTS/
+/figs/
+
 .Rproj.user
 /inttest/*/*.out
 /inttest/*/*.log
