@@ -251,10 +251,10 @@ Type objective_function<Type>::operator() () {
     array<Type> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
     array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
     array<Type> detail_fish__suit_comm(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__suit_comm.setZero();
+    Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    Type nll = (double)(0);
     int cur_year = 0;
     auto step_count = (step_lengths).size();
     int cur_year_projection = false;
@@ -356,6 +356,9 @@ Type objective_function<Type>::operator() () {
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt);

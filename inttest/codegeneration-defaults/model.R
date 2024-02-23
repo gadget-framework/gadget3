@@ -178,10 +178,10 @@ structure(function (param)
     detail_fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
+    nll <- 0
     nll_adist_surveyindices_log_acoustic_dist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_cdist_sumofsquares_comm_ldist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
-    nll <- 0
     cur_year <- 0L
     step_count <- length(step_lengths)
     cur_year_projection <- FALSE
@@ -277,6 +277,8 @@ structure(function (param)
             REPORT(detail_fish__suit_comm)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(detail_fish__wgt)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(nll)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_adist_surveyindices_log_acoustic_dist__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 

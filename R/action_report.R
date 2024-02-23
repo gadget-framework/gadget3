@@ -163,6 +163,14 @@ g3a_report_detail <- function (actions,
     c(
         g3a_report_history(
             actions = actions,
+            var_re = paste(c(
+                '^.+_surveyindices_.+__params$',
+                '^nll$' ), collapse = "|"),
+            out_prefix = NULL,  # Don't log history
+            run_f = run_f,
+            run_at = run_at),
+        g3a_report_history(
+            actions = actions,
             var_re = c('__num$', '__wgt$'),
             out_prefix = "detail_",
             run_f = f_substitute(quote(cur_time <= total_steps && run_f), list(run_f = run_f)),
