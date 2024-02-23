@@ -247,11 +247,17 @@ To be able to run the function you need to provide a list of parameter values,
 the format of this list is defined by the attached *parameter template*:
 
 ```{r}
-simple_actions <- list(g3a_time(1990, 1991), g3a_initialconditions_normalcv(fish))
-simple_fn <- g3_to_r(c(simple_actions, list(g3a_report_detail(simple_actions))))
+simple_actions <- c(
+    g3a_time(1990, 1991),
+    g3a_initialconditions_normalcv(fish))
+simple_fn <- g3_to_r(c(simple_actions, list(
+    g3a_report_detail(simple_actions) )))
+
 params <- attr(simple_fn, 'parameter_template')
 unlist(params)
 ```
+
+``g3a_report_detail()`` adds standard reporting to our model, we will cover it's use later.
 
 ```{r, message=FALSE, echo=FALSE}
 ok(ut_cmp_identical(sort(names(params), method = "radix"), c(
@@ -586,11 +592,21 @@ At this point, we are ready to convert our model into code:
 ```{r}
 # Create model objective function ####################
 
-model_code <- g3_to_tmb(actions)
+# Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)
+model_code <- g3_to_tmb(c(actions, list(
+    g3a_report_detail(actions),
+    g3l_bounds_penalty(actions) )))
 ```
 </div>
 
 ``g3_to_tmb()`` will take our list of actions and convert it into C++ code suitable for use with TMB.
+
+``g3a_report_detail()`` and ``g3l_bounds_penalty()`` add further actions to the model,
+based on the actions already within it:
+
+* ``g3a_report_detail()``: Adds abundance / catch reporting suitable for use with ``gadgetutils::g3_fit()`` and ``gadgetplots::gadget_plots()``
+* ``g3l_bounds_penalty()``: Adds a large likelihood penalty for any parameter straying outside the lower/upper bounds.
+  This allows us to use the lower/upper bounds for parameters with optimising methods that don't support them natively.
 
 To be able to run this model, we need to provide values (or initial guesses) for parameters.
 Earlier we used ``g3_to_r()`` and saw the resultant parameter template.
@@ -694,10 +710,7 @@ Finally we are ready for optimisation runs.
 <div class="modelScript">
 ```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
 # Optimise model ################################
-# Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)
-bounded_code <- g3_to_tmb(c(actions, list(
-    g3l_bounds_penalty(params.in) )))
-obj.fn <- g3_tmb_adfun(bounded_code, params.in)
+obj.fn <- g3_tmb_adfun(model_code, params.in)
 
 params.out <- gadgetutils::g3_iterative(getwd(),
     wgts = "WGTS",
