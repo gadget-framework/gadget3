@@ -3,6 +3,8 @@ library(unittest)
 
 library(gadget3)
 
+############# Tests for parameter_template mode
+
 actions <- list()
 area_names <- g3_areas(c("IXa"))
 
@@ -68,3 +70,76 @@ ok(ut_cmp_identical(lapply(g3l_bounds_penalty(params.in), deparse), list(
         "            40), 0))^2)", 
         "    }",
     "}"))), "Generated code for 2 parameters")
+
+############# Tests for actions mode
+
+actions <- list(g3a_time(2000, 2000), list("555" = g3_formula({
+    # TMB will fail mysteriously if at least one parameter isn't optimisable
+    nll <- nll + g3_param('p0', value = 0, optimise = TRUE)
+    nll <- nll + g3_param('pa')
+    nll <- nll + g3_param('pb')
+    nll <- nll + g3_param('pc')
+})))
+model_code <- g3_to_tmb( actions |> g3m_bounds_penalty() )
+fn <- g3_to_r( actions |> g3m_bounds_penalty() )
+
+ok(ut_cmp_equal(
+    as.numeric(fn(c(list(pa=1, pb=2, pc=3), attr(fn, 'parameter_template')))),
+    1 + 2 + 3), "nll: R version ignores g3l_bounds_penalty()")
+
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    attr(model_code, 'parameter_template') |>
+        g3_init_val('pa', 100.45) |>
+        g3_init_val('pb', 200) |>
+        g3_init_val('pc', 300.5342) |>
+        identity() -> params.in
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        sum(unlist(params.in$value)) ), "nll: TMB version with no bounds enabled")
+
+    attr(model_code, 'parameter_template') |>
+        g3_init_val('pa', 100, lower = 50, upper = 150) |>
+        g3_init_val('pb', 200) |>
+        g3_init_val('pc', 300) |>
+        identity() -> params.in
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        sum(unlist(params.in$value)) ), "nll: TMB version, within bounds")
+
+    attr(model_code, 'parameter_template') |>
+        g3_init_val('pa', 100, lower = 10, upper = 50) |>
+        g3_init_val('pb', 200) |>
+        g3_init_val('pc', 300) |>
+        identity() -> params.in
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        1.6e12,
+        tolerance=1e1), "nll: TMB version, above bounds")
+
+    attr(model_code, 'parameter_template') |>
+        g3_init_val('pa', 10, lower = 20, upper = 50) |>
+        g3_init_val('pb', 200) |>
+        g3_init_val('pc', 300) |>
+        identity() -> params.in
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        1e+11,
+        tolerance=1e1), "nll: TMB version, outside bounds")
+
+    attr(model_code, 'parameter_template') |>
+        g3_init_val('pa', 10, lower = 20, upper = 50) |>
+        g3_init_val('pb', 90, lower = 20, upper = 50) |>
+        g3_init_val('pc', 300) |>
+        identity() -> params.in
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        2e12,
+        tolerance=1e1), "nll: TMB version, 2 parameters outside bounds")
+} else {
+    writeLines("# skip: not compiling TMB model")
+}

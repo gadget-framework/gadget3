@@ -74,17 +74,27 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                     ifmissing))
             }
 
+            if (x[[1]] == 'g3_param_upper' || x[[1]] == 'g3_param_lower') {
+                # We have no bounds for R. Hard-code to NA, short-circuiting any bounds-checking
+                return(NA)
+            }
+
             # Default for g3_param / g3_param_vector
-            # NB: We haven't actually used ..param:thing, but will end up in top of function anyway
-            scope[[paste0("..param:", x[[2]])]] <<- structure(
-                substitute(stopifnot(p %in% names(param)), list(p = x[[2]])),
-                param_template = df_template(x[[2]]))
+            if (x[[1]] != 'g3_param_nodef') {
+                # NB: We haven't actually used ..param:thing, but will end up in top of function anyway
+                scope[[paste0("..param:", x[[2]])]] <<- structure(
+                    substitute(stopifnot(p %in% names(param)), list(p = x[[2]])),
+                    param_template = df_template(x[[2]]))
+            }
             return(call('[[', as.symbol("param"), x[[2]]))
         }
         code <- call_replace(code,
             g3_param_table = repl_fn,
             g3_param_array = repl_fn,
             g3_param_vector = repl_fn,
+            g3_param_upper = repl_fn,
+            g3_param_lower = repl_fn,
+            g3_param_nodef = repl_fn,
             g3_param = repl_fn)
 
         # Find all things that have definitions in our environment

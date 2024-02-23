@@ -725,12 +725,25 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 }
             }
 
+            if (x[[1]] == 'g3_param_lower' || x[[1]] == 'g3_param_upper') {
+                param_name <- paste0(param_name, if (x[[1]] == 'g3_param_lower') "__lower" else "__upper")
+                scope[[param_name]] <<- sprintf(
+                    "DATA_SCALAR(%s);",
+                    param_name )
+                # NB: We'll update these later with real values
+                model_data[[param_name]] <<- NaN
+                # NB: Tell assignment if we're scalar, so it can use is.finite()
+                return(call("g3_cpp_asis", param_name, scalar = TRUE))
+            }
+
             # Add PARAMETER definition for variable
-            scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
-                if (x[[1]] == 'g3_param_array') '_ARRAY'
-                else if (x[[1]] == 'g3_param_vector') '_VECTOR'
-                else '',
-                param_name), param_template = df_template(x[[2]]))
+            if (x[[1]] != 'g3_param_nodef') {
+                scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
+                    if (x[[1]] == 'g3_param_array') '_ARRAY'
+                    else if (x[[1]] == 'g3_param_vector') '_VECTOR'
+                    else '',
+                    param_name), param_template = df_template(x[[2]]))
+            }
             # NB: Tell assignment if we're scalar, so it can use setConstant()
             return(call("g3_cpp_asis", param_name, scalar = (x[[1]] == 'g3_param')))
         }
@@ -738,6 +751,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             g3_param_table = repl_fn,
             g3_param_array = repl_fn,
             g3_param_vector = repl_fn,
+            g3_param_lower = repl_fn,
+            g3_param_upper = repl_fn,
+            g3_param_nodef = repl_fn,
             g3_param = repl_fn)
 
         # Find all things that have definitions in our environment
@@ -917,8 +933,8 @@ Type objective_function<Type>::operator() () {
     class(out) <- c("g3_cpp", class(out))
 
     attr(out, 'actions') <- actions
-    attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
+    attr(out, 'model_data') <- update_data_bounds(model_data, attr(out, 'parameter_template'))
     attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
     attr(out, 'report_names') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_names')))
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
@@ -1041,10 +1057,11 @@ g3_tmb_adfun <- function(cpp_code,
         dyn.load(so_path)
     }
 
+    # Update any bounds used by the model
+    tmb_data <- as.list(update_data_bounds(attr(cpp_code, 'model_data'), parameters))
     if (output_script) {
         tmp_script_path <- tempfile(fileext = ".R")
         tmp_data_path <- paste0(tmp_script_path, "data")
-        tmb_data <- attr(cpp_code, 'model_data')
         save(tmb_data, tmb_parameters, tmb_map, tmb_random, file = tmp_data_path)
         writeLines(c(
             "library(TMB)",
@@ -1052,7 +1069,7 @@ g3_tmb_adfun <- function(cpp_code,
             deparse(call("load", tmp_data_path)),
             "",
             deparse(call("MakeADFun",
-                data = as.list(tmb_data),
+                data = tmb_data,
                 parameters = quote(tmb_parameters),
                 map = quote(tmb_map),
                 random = quote(tmb_random),
@@ -1061,7 +1078,7 @@ g3_tmb_adfun <- function(cpp_code,
         return(tmp_script_path)
     }
     fn <- TMB::MakeADFun(
-        data = as.list(attr(cpp_code, 'model_data')),
+        data = tmb_data,
         parameters = tmb_parameters,
         map = tmb_map,
         random = tmb_random,

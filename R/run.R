@@ -64,6 +64,26 @@ scope_to_cppnamemap <- function (scope) {
     out[names(out) != out]
 }
 
+# Update any bounds values in model_data
+update_data_bounds <- function (model_data, param_tmpl) {
+    if (is.null(param_tmpl)) {
+        # User didn't supply extra parameters, nothing to do
+    } else if (is.data.frame(param_tmpl)) {
+        for (param_type in c('lower', 'upper')) {
+            for (i in which(is.finite(param_tmpl[[param_type]])) ) {
+                data_var <- cpp_escape_varname(paste0(param_tmpl[i, 'switch'], '__', param_type))
+                if (!exists(data_var, envir = model_data)) next
+
+                data_val <- param_tmpl[i, param_type]
+                model_data[[data_var]] <- if (is.finite(data_val)) data_val else NaN
+            }
+        }
+    } else {
+        stop("Unknown param_tmpl type: ", deparse1(param_tmpl))
+    }
+    return(model_data)
+}
+
 # Given a g3_with(x := 2, y := 4, exp) call, extract calls to set terms
 g3_with_extract_terms <- function(x) {
     # Strip off g3_with symbol, exp
