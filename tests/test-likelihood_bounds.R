@@ -80,8 +80,8 @@ actions <- list(g3a_time(2000, 2000), list("555" = g3_formula({
     nll <- nll + g3_param('pb')
     nll <- nll + g3_param('pc')
 })))
-model_code <- g3_to_tmb( actions |> g3m_bounds_penalty() )
-fn <- g3_to_r( actions |> g3m_bounds_penalty() )
+model_code <- g3_to_tmb(c(actions, list( g3l_bounds_penalty(actions) )))
+fn <- g3_to_r(c(actions, list( g3l_bounds_penalty(actions) )))
 
 ok(ut_cmp_equal(
     as.numeric(fn(c(list(pa=1, pb=2, pc=3), attr(fn, 'parameter_template')))),
