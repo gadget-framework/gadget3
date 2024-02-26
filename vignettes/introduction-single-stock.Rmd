@@ -247,7 +247,7 @@ To be able to run the function you need to provide a list of parameter values,
 the format of this list is defined by the attached *parameter template*:
 
 ```{r}
-simple_actions <- c(
+simple_actions <- list(
     g3a_time(1990, 1991),
     g3a_initialconditions_normalcv(fish))
 simple_fn <- g3_to_r(c(simple_actions, list(
