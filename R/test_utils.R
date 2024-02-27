@@ -1,19 +1,13 @@
 # Helpers for unit testing, not for general use
 
 # Compare output of TMB & R model runs
-ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, ignore_dimname = 'time', model_cpp = NULL) {
+ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, model_cpp = NULL) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
         if (is.logical(x)) {
             oldattr <- attributes(x)
             x <- as.numeric(x)
             attributes(x) <- oldattr  # Preserve arrayness
-        }
-        # TMB can't produce dynamic dimnames
-        for (dn in ignore_dimname) {
-            if (is.array(x) && dn %in% names(dimnames(x))) {
-                dimnames(x)[[dn]] <- seq_along(dimnames(x)[[dn]])
-            }
         }
         return(x)
     }

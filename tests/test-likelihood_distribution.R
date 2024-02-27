@@ -88,7 +88,10 @@ ok_group("g3l_distribution_sumofsquares", {
     obsdata$number <- runif(nrow(obsdata))
     model_fn <- g3_to_r(list(
         # Keep TMB happy
-        g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
+        g3_formula({
+            nll <- nll + g3_param("dummy", value = 0) 
+            REPORT(prey_a__num)
+        }),
         g3a_time(2000, 2001),
         g3a_initialconditions(prey_a,
             num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
@@ -258,16 +261,22 @@ report_step <- function (var_name, steps, initial_val) {
     for (i in seq(steps - 1, 0, by = -1)) {
         step_var_name <- paste0("step", i, "_", var_name)
         assign(step_var_name, initial_val)
-        out <- gadget3:::f_substitute(~if (cur_time == i) {
+        out <- gadget3:::f_optimize(gadget3:::f_substitute(~if (cur_time == i) {
             comment(report_comment)
-            step_var[] <- var
+            if (is_nll) {
+                # nll is a scalar, and should have attributes stripped
+                step_var <- as.numeric(nll)
+            } else {
+                step_var[] <- var
+            }
             REPORT(step_var)
         } else rest, list(
             report_comment = paste0("Reporting on ", var_name, " at step ", i),
+            is_nll = var_name == 'nll',
             step_var = as.symbol(step_var_name),
             var = as.symbol(var_name),
             i = i,
-            rest = out))
+            rest = out )))
     }
     return(out)
 }

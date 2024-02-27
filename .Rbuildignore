@@ -21,8 +21,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
-^/vignettes/WGTS/
-^/vignettes/figs/
+^vignettes/WGTS/
+^vignettes/figs/
+^WGTS/
+^figs/
 
 ^_pkgdown.yml$
 ^pkgdown/

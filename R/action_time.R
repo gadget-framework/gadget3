@@ -21,7 +21,7 @@ g3a_time <- function(
         final_year_steps = quote( length(step_lengths) ),
         project_years = g3_parameterized("project_years", value = 0, optimise = FALSE),
         retro_years = g3_parameterized("retro_years", value = 0, optimise = FALSE),
-        run_at = g3_action_order$initial) {
+        run_at = g3_action_order$time) {
     if (inherits(step_lengths, "mfdb_group")) step_lengths <- vapply(step_lengths, length, numeric(1))
     if (is.numeric(step_lengths) && sum(step_lengths) != 12) stop("step_lengths should sum to 12 (i.e. represent a whole year)")
     if (is.call(step_lengths) && !is.call(final_year_steps)) stop("If step_lengths is a call/formula, final_year_steps should also be a call/formula")
@@ -66,12 +66,9 @@ g3a_time <- function(
     out <- new.env(parent = emptyenv())
     out[[step_id(run_at)]] <- g3_step(f_substitute(~{
         debug_label("g3a_time: Start of time period")
-        cur_time <- cur_time + 1L
         if (have_retro_years) if (cur_time == 0 && assert_msg(retro_years >= 0, "retro_years must be >= 0")) return(NaN)
         if (have_projection_years) if (cur_time == 0 && assert_msg(project_years >= 0, "project_years must be >= 0")) return(NaN)
-        if (strict_mode) assert_msg(is.finite(nll), "g3a_time: nll became NaN/Inf in previous timestep")
         if (cur_time > total_steps) {
-            g3_report_all()
             return(nll)
         }
         cur_year <- start_year + (cur_time %/% step_count)
@@ -91,6 +88,17 @@ g3a_time <- function(
     assign("step_lengths", step_lengths, envir = environment(out[[step_id(run_at)]]))
     assign("end_year", end_year, envir = environment(out[[step_id(run_at)]]))
     assign("total_years", total_years, envir = environment(out[[step_id(run_at)]]))
+
+    # Generate micro-model to build labels per year/step
+    gen_dimnames <- g3_to_r(c(as.list(out), list("5" = g3_formula(quote({
+        time <- c(time, sprintf('%d-%02d', cur_year, cur_step))
+        REPORT(time)
+        if (cur_time == 0 || cur_step == 1) {
+            year <- c(year, sprintf('%d', cur_year))
+            REPORT(year)
+        }
+    }), time = c(), year = c()) )))
+    assign("gen_dimnames", gen_dimnames, envir = environment(out[[step_id(run_at)]]))
 
     return(as.list(out))
 }

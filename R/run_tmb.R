@@ -15,6 +15,30 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(x)
     }
 
+    # Does this call produce a scalar value?
+    value_is_scalar <- function (c_val) {
+        # Single numeric values are constants
+        if (is.numeric(c_val)) return(length(c_val) == 1)
+
+        # Single parameters are constants
+        if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
+
+        # If a variable, try fetching it out of environment and inspecting that
+        if (is.symbol(c_val) && exists(as.character(c_val), envir = in_envir, inherits = TRUE)) {
+            env_defn <- get(as.character(c_val), envir = in_envir, inherits = TRUE)
+            if (!is.null(attr(env_defn, "g3_global_init_val"))) {
+                # When considering a global formula, consider the init condition
+                env_defn <- attr(env_defn, "g3_global_init_val")
+            }
+            return(is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1)
+        }
+
+        # TODO: Obviously not exhaustive, but ideally one would consider setConstant() a TMB bug.
+
+        # Dunno. Assume not.
+        return(FALSE)
+    }
+
     if (!is.call(in_call)) {
         # Literals
         if (length(in_call) == 1) {
@@ -95,20 +119,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Assignment
         assign_lhs <- in_call[[2]]
         assign_rhs <- in_call[[3]]
-
-        # Is this value a scalar?
-        value_is_scalar <- function (c_val) {
-            # Single numeric values are constants
-            if (is.numeric(c_val)) return(length(c_val) == 1)
-
-            # Single parameters are constants
-            if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
-
-            # TODO: Obviously not exhaustive, but ideally one would consider this a TMB bug.
-
-            # Dunno. Assume not.
-            return(FALSE)
-        }
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
@@ -453,16 +463,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("is.nan")) {
-        if (is.symbol(in_call[[2]])) {
-            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (!is.null(attr(env_defn, 'g3_global_init_val'))) env_defn <- attr(env_defn, 'g3_global_init_val')
-            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
-                # Use std::isnan for single values, otherwise assume array and use Eigen method.
-                return(paste0(
-                    "std::isnan(asDouble(",
-                    cpp_code(in_call[[2]], in_envir, next_indent),
-                    "))"))
-            }
+        if ( value_is_scalar(in_call[[2]]) ) {
+            # Use std::isnan for single values, otherwise assume array and use Eigen method.
+            return(paste0(
+                "std::isnan(asDouble(",
+                cpp_code(in_call[[2]], in_envir, next_indent),
+                "))"))
         }
         return(paste0(
             "(",
@@ -471,15 +477,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("is.finite")) {
-        if (is.symbol(in_call[[2]])) {
-            env_defn <- mget(as.character(in_call[[2]]), envir = in_envir, inherits = TRUE, ifnotfound = list(NA))[[1]]
-            if (is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1) {
-                # Use std::isnan for single values, otherwise assume array and use Eigen method.
-                return(paste0(
-                    "std::isfinite(asDouble(",
-                    cpp_code(in_call[[2]], in_envir, next_indent),
-                    "))"))
-            }
+        if ( value_is_scalar(in_call[[2]]) ) {
+            # Use std::isfinite for single values, otherwise assume array and use Eigen method.
+            return(paste0(
+                "std::isfinite(asDouble(",
+                cpp_code(in_call[[2]], in_envir, next_indent),
+                "))"))
         }
         return(paste0(
             "(",
@@ -588,9 +591,16 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
-    all_actions <- f_concatenate(collated_actions, parent = g3_env, wrap_call = call("while", TRUE))
+    all_actions <- f_concatenate(c(
+        g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
+        collated_actions,
+        NULL), parent = g3_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
     scope <- list()  # NB: Order is important, can't be an env.
+
+    # Reporting disabled by default, but updatable
+    model_data$reporting_enabled <- 0
+    scope$reporting_enabled <- 'DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);'
 
     # Enable / disable strict mode & trace mode
     all_actions <- call_replace(all_actions,
@@ -715,12 +725,25 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 }
             }
 
+            if (x[[1]] == 'g3_param_lower' || x[[1]] == 'g3_param_upper') {
+                param_name <- paste0(param_name, if (x[[1]] == 'g3_param_lower') "__lower" else "__upper")
+                scope[[param_name]] <<- sprintf(
+                    "DATA_SCALAR(%s);",
+                    param_name )
+                # NB: We'll update these later with real values
+                model_data[[param_name]] <<- NaN
+                # NB: Tell assignment if we're scalar, so it can use is.finite()
+                return(call("g3_cpp_asis", param_name, scalar = TRUE))
+            }
+
             # Add PARAMETER definition for variable
-            scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
-                if (x[[1]] == 'g3_param_array') '_ARRAY'
-                else if (x[[1]] == 'g3_param_vector') '_VECTOR'
-                else '',
-                param_name), param_template = df_template(x[[2]]))
+            if (x[[1]] != 'g3_param_nodef') {
+                scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
+                    if (x[[1]] == 'g3_param_array') '_ARRAY'
+                    else if (x[[1]] == 'g3_param_vector') '_VECTOR'
+                    else '',
+                    param_name), param_template = df_template(x[[2]]))
+            }
             # NB: Tell assignment if we're scalar, so it can use setConstant()
             return(call("g3_cpp_asis", param_name, scalar = (x[[1]] == 'g3_param')))
         }
@@ -728,6 +751,9 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             g3_param_table = repl_fn,
             g3_param_array = repl_fn,
             g3_param_vector = repl_fn,
+            g3_param_lower = repl_fn,
+            g3_param_upper = repl_fn,
+            g3_param_nodef = repl_fn,
             g3_param = repl_fn)
 
         # Find all things that have definitions in our environment
@@ -853,7 +879,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
             attr(defn, 'report_names') <- names(var_val)
             attr(defn, 'report_dimnames') <- dimnames(var_val)
-            attr(defn, 'report_dynamic_dimnames') <- attr(var_val, 'dynamic_dimnames')
             scope[[var_name]] <<- defn
         }
         return(code)
@@ -862,12 +887,6 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     # Define all vars, populating scope in process
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
-    # Rework any g3_* function calls into the code we expect
-    g3_functions <- function (in_code) {
-        call_replace(in_code,
-            g3_report_all = function (x) g3_functions(action_reports(collated_actions, REPORT = '.')))
-    }
-    all_actions_code <- g3_functions(all_actions_code)
     ss <- scope_split(scope)
 
 
@@ -914,12 +933,18 @@ Type objective_function<Type>::operator() () {
     class(out) <- c("g3_cpp", class(out))
 
     attr(out, 'actions') <- actions
-    attr(out, 'model_data') <- model_data
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'data.frame')
+    attr(out, 'model_data') <- update_data_bounds(model_data, attr(out, 'parameter_template'))
     attr(out, 'report_renames') <- scope_to_cppnamemap(scope)
     attr(out, 'report_names') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_names')))
     attr(out, 'report_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dimnames')))
-    attr(out, 'report_dynamic_dimnames') <- Filter(Negate(is.null), lapply(scope, function (x) attr(x, 'report_dynamic_dimnames')))
+    attr(out, 'report_gen_dimnames') <- mget(
+        "gen_dimnames",
+        envir = rlang::f_env(all_actions),
+        ifnotfound = list(NA),
+        inherits = TRUE )[[1]]
+    # NB: ifnotfound doesn't work with function output
+    if (!is.function(attr(out, 'report_gen_dimnames'))) attr(out, 'report_gen_dimnames') <- function (x) 0
     return(out)
 }
 
@@ -1032,10 +1057,11 @@ g3_tmb_adfun <- function(cpp_code,
         dyn.load(so_path)
     }
 
+    # Update any bounds used by the model
+    tmb_data <- as.list(update_data_bounds(attr(cpp_code, 'model_data'), parameters))
     if (output_script) {
         tmp_script_path <- tempfile(fileext = ".R")
         tmp_data_path <- paste0(tmp_script_path, "data")
-        tmb_data <- attr(cpp_code, 'model_data')
         save(tmb_data, tmb_parameters, tmb_map, tmb_random, file = tmp_data_path)
         writeLines(c(
             "library(TMB)",
@@ -1043,7 +1069,7 @@ g3_tmb_adfun <- function(cpp_code,
             deparse(call("load", tmp_data_path)),
             "",
             deparse(call("MakeADFun",
-                data = as.list(tmb_data),
+                data = tmb_data,
                 parameters = quote(tmb_parameters),
                 map = quote(tmb_map),
                 random = quote(tmb_random),
@@ -1052,7 +1078,7 @@ g3_tmb_adfun <- function(cpp_code,
         return(tmp_script_path)
     }
     fn <- TMB::MakeADFun(
-        data = as.list(attr(cpp_code, 'model_data')),
+        data = tmb_data,
         parameters = tmb_parameters,
         map = tmb_map,
         random = tmb_random,
@@ -1062,9 +1088,23 @@ g3_tmb_adfun <- function(cpp_code,
     report_names <- attr(cpp_code, 'report_names')
     report_dimnames <- attr(cpp_code, 'report_dimnames')
     report_renames <- attr(cpp_code, 'report_renames')
-    report_dynamic_dimnames <- attr(cpp_code, 'report_dynamic_dimnames')
+
+    # Run gen_dimnames & repopulate any dynamic dims
+    # TODO: This should be paying attention to the code within, not just assuming that gen_dimnames was used
+    dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(tmb_parameters))
+    for (dimname in names(dyndims)) {
+        for (var_name in names(report_dimnames)) {
+            if (dimname %in% names(report_dimnames[[var_name]]) && is.null(report_dimnames[[var_name]][[dimname]])) {
+                report_dimnames[[var_name]][[dimname]] <- dyndims[[dimname]]
+            }
+        }
+    }
+
     fn$orig_report <- fn$report
     fn$report <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
         out <- fn$orig_report(...)
         # Patch report names back again
         for (dimname in names(report_renames)) {
@@ -1088,13 +1128,6 @@ g3_tmb_adfun <- function(cpp_code,
             if (!is.array(out[[dimname]])) out[[dimname]] <- array(
                 out[[dimname]],
                 length(out[[dimname]]))
-
-            # Find and bodge any dynamic dims into having something that fits
-            for (di in seq_along(report_dimnames[[dimname]])) {
-                if (is.null(report_dimnames[[dimname]][[di]]) && !is.null(report_dynamic_dimnames[[dimname]][[di]])) {
-                    report_dimnames[[dimname]][[di]] <- seq_len(dim(out[[dimname]])[[di]])
-                }
-            }
 
             names(dim(out[[dimname]])) <- names(report_dimnames[[dimname]])
             dimnames(out[[dimname]]) <- report_dimnames[[dimname]]

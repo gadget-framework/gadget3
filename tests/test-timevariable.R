@@ -6,7 +6,7 @@ library(gadget3)
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
     list(
-        "001" = gadget3:::g3_step(g3_formula(
+        "001:ut" = gadget3:::g3_step(g3_formula(
             quote( tvout[[1]] <- x ),
             tvout = array(0L),
             x = g3_timevariable('gelda', list(
@@ -14,7 +14,7 @@ actions <- list(
                 "2002" = g3_formula( y * 4L, y = 10L ),
                 "2003-02" = g3_formula( z * 2L, z = 9L ),
                 "2999" = NaN)))),
-        "999" = g3_formula( nll <- nll + g3_param('tmb_bodge', value = 1.0) )))
+        "999:ut" = g3_formula( nll <- nll + g3_param('tmb_bodge', value = 1.0) )))
 actions <- c(actions, list(g3a_report_history(actions, var_re = "^tvout$")))
 
 # Compile model

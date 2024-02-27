@@ -64,6 +64,12 @@ actions <- list(
             all_year[[cur_time + 1]] <- cur_year
             all_step_final[[cur_time + 1]] <- cur_step_final
             all_cur_year_projection[[cur_time + 1]] <- cur_year_projection
+            REPORT(all_time)
+            REPORT(all_step)
+            REPORT(all_step_size)
+            REPORT(all_year)
+            REPORT(all_step_final)
+            REPORT(all_cur_year_projection)
             REPORT(total_years)
 
             nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over

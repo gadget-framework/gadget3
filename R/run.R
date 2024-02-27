@@ -46,50 +46,7 @@ g3_collate <- function(action_list) {
     actions <- as.list(actions)
 
     # Order items in alphanumeric order
-    return(actions[order(names(actions))])
-}
-
-# Find all vars from collated actions that get assigned to, we'll report those.
-# ... is list of functions to regex filter, e.g. REPORT = '.'
-action_reports <- function (actions, ...) {
-    terms <- new.env(parent = emptyenv())
-    find_assignments <- function (f, ignore_vars) call_replace(f,
-        g3_with = function (x) find_assignments(
-            x[[length(x)]],
-            # Ignore any scoped variables when recursing
-            c(ignore_vars, vapply(
-                g3_with_extract_terms(x),
-                function (term) as.character(term[[2]]),
-                character(1)))),
-        "<-" = function(x) {
-            lhs <- x[[2]]
-            # lhs is either a symbol or a subsetting call
-            if (is.symbol(lhs)) {
-                lhs <- as.character(lhs)
-            } else if (is.call(lhs)) {
-                lhs <- as.character(lhs[[2]])
-            } else {
-                stop("Unknown lhs: ", lhs)
-            }
-            if (!(lhs %in% ignore_vars)) {
-                terms[[lhs]] <<- TRUE
-            }
-        })
-    for (a in actions) find_assignments(a, c())
-
-    # For each action_reports() argument, filter terms by the regex value
-    # and treat the name as the name of the report function.
-    args <- list(...)
-    concatenate_calls <- function (x) as.call(c(as.symbol("{"), x))
-    f_optimize(concatenate_calls(lapply(seq_along(args), function (arg_i) {
-        fn_name <- names(args)[[arg_i]]  # i.e. the argument name
-        fn_regex <- args[[arg_i]]  # i.e. the argument value
-        report_var_names <- sort(grep(fn_regex, names(terms), value = TRUE))
-
-        concatenate_calls(lapply(
-            report_var_names,
-            function (x) call(fn_name, as.symbol(x))))
-    })))
+    return(actions[order(names(actions), method = 'radix')])
 }
 
 scope_to_parameter_template <- function (scope, return_type) {
@@ -105,6 +62,26 @@ scope_to_cppnamemap <- function (scope) {
     if (length(out) == 0) return(c())
     names(out) <- cpp_escape_varname(out)
     out[names(out) != out]
+}
+
+# Update any bounds values in model_data
+update_data_bounds <- function (model_data, param_tmpl) {
+    if (is.null(param_tmpl)) {
+        # User didn't supply extra parameters, nothing to do
+    } else if (is.data.frame(param_tmpl)) {
+        for (param_type in c('lower', 'upper')) {
+            for (i in which(is.finite(param_tmpl[[param_type]])) ) {
+                data_var <- cpp_escape_varname(paste0(param_tmpl[i, 'switch'], '__', param_type))
+                if (!exists(data_var, envir = model_data)) next
+
+                data_val <- param_tmpl[i, param_type]
+                model_data[[data_var]] <- if (is.finite(data_val)) data_val else NaN
+            }
+        }
+    } else {
+        stop("Unknown param_tmpl type: ", deparse1(param_tmpl))
+    }
+    return(model_data)
 }
 
 # Given a g3_with(x := 2, y := 4, exp) call, extract calls to set terms

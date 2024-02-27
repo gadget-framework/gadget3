@@ -313,7 +313,9 @@ At this point, we are ready to convert our model into code:
 ```{r}
 # Create model objective function ####################
 
-model_code <- g3_to_tmb(actions)
+model_code <- g3_to_tmb(c(actions, list(
+    g3a_report_detail(actions),
+    g3l_bounds_penalty(actions) )))
 ```
 </div>
 
@@ -357,10 +359,7 @@ Finally we are ready for optimisation runs.
 <div class="modelScript">
 ```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
 # Optimise model ################################
-# Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)
-bounded_code <- g3_to_tmb(c(actions, list(
-    g3l_bounds_penalty(params.in) )))
-obj.fn <- g3_tmb_adfun(bounded_code, params.in, inner.control = list(trace = 3, maxit = 100))
+obj.fn <- g3_tmb_adfun(model_code, params.in, inner.control = list(trace = 3, maxit = 100))
 
 #obj.fn$env$tracepar <- TRUE
 #obj.fn$env$tracemgc <- TRUE

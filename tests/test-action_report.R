@@ -23,6 +23,20 @@ capture_warnings <- function(x, full_object = FALSE) {
     return(list(rv = rv, warnings = all_warnings))
 }
 
+ok_group("action_reports")
+ok(ut_cmp_equal(
+    gadget3:::action_reports(list(g3_formula(quote({
+        const_var <- 4
+        arr_var[2] <- 4
+        doublearr_var[2][[1]] <- 4
+    }))), REPORT = '.'), quote({
+        REPORT(arr_var)
+        REPORT(const_var)
+        REPORT(doublearr_var)
+    })), "action_reports: Removed subsets")
+
+#######################################
+
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
 
 # Report that aggregates ages together
@@ -40,7 +54,7 @@ actions <- list(
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num), include_adreport = TRUE),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
     list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
-actions <- c(actions, list(g3a_report_history(actions)))
+actions <- c(actions, list(g3a_report_history(actions, '^prey_a__(num|wgt)')))
             
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)

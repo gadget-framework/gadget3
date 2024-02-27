@@ -138,6 +138,6 @@ year parent_age offspring_age mo_pairs
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
         param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template, ignore_dimname='year')
+        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     }
 })

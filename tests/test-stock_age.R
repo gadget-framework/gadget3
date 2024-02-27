@@ -9,7 +9,6 @@ stock_inbetween <- g3_stock('stock_inbetween', c(10)) %>% g3s_age(2, 5)
 stock_aggregated <- g3_stock('stock_aggregated', c(10)) %>% g3s_agegroup(list(1:2, 5:6))  # NB: Gap in range
 stock_inbetween_old_aggregated <- g3_stock('stock_inbetween_old_aggregated', c(10)) %>% g3s_agegroup(list(1:2, 5:6))  # NB: Gap in range
 
-cur_time <- 0L  # Initialconditions needs to know what the time is
 stock_sum_young_inbetween <- 0.0
 stock_sum_inbetween_old <- 0.0
 stock_sum_young_old <- 0.0

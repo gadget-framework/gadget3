@@ -14,6 +14,7 @@ remove_nll_attributes <- g3_native(r = function (x) x[[1]], cpp = "[](Type x) ->
 report_actions <- list(
        list('999' = ~{
            nll_report[[cur_time + 1]] <- nll - prev_nll
+           REPORT(nll_report)
            prev_nll <- remove_nll_attributes(nll)
        }))
 
