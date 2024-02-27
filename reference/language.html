@@ -185,15 +185,6 @@
   <code>param[[paste("lingimm.M", age, sep = ".")]]</code>, or equivalent code
   in C++.</p>
     </div>
-    <div id="g-report-all">
-    <h2>g3_report_all</h2>
-    <p>Report all non-constant variables from a model.</p>
-<p>Any variable that gets assigned to in the course of the model will be
-  reported. If a variable doesn't change (i.e. data/params/constant), then
-  there shouldn't be any point reporting.</p>
-<p><em>Note:</em> This is added by default in <a href="action_time.html">g3a_time</a>(), so shouldn't be
-  used manually unless re-implementing.</p>
-    </div>
     <div id="g-with">
     <h2>g3_with</h2>
     <p><code>g3_with(var1 := val1, var2 := val2, { x &lt;- val1 * val2 })</code>

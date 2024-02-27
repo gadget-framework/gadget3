@@ -383,7 +383,9 @@ year’s value should not vary significantly from the previous.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
-<span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="modelScript">
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -425,10 +427,7 @@ iterative reweighting</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
-<span><span class="co"># Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)</span></span>
-<span><span class="va">bounded_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">bounded_code</span>, <span class="va">params.in</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">3</span>, maxit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">3</span>, maxit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#obj.fn$env$tracepar &lt;- TRUE</span></span>
 <span><span class="co">#obj.fn$env$tracemgc &lt;- TRUE</span></span>

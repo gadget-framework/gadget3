@@ -429,7 +429,9 @@ instead of a single stock, but are otherwise the same as before:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
-<span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Now we should be configuring parameters based on the template.</p>
 <p>Thanks to using wildcards in the <code><a href="../reference/init_val.html">g3_init_val()</a></code> calls, a
@@ -469,10 +471,7 @@ iterative reweighting</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
-<span><span class="co"># Apply bounds in code - the other option would be using control = list(lower = g3_tmb_lower(params.in), ...)</span></span>
-<span><span class="va">bounded_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">bounded_code</span>, <span class="va">params.in</span><span class="op">)</span></span>
+<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">params.out</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_iterative</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    wgts <span class="op">=</span> <span class="st">"WGTS"</span>,</span>

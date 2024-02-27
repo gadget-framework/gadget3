@@ -110,14 +110,14 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The default action order</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">g3_action_order</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          initial     report_early          migrate          predate </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                0                1                2                3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> naturalmortality             grow            spawn           mature </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                4                5                6                7 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          renewal         straying       likelihood           report </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                8                9               10               11 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              age </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               12 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          initial     report_early             time          migrate </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               -1                0                1                2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          predate naturalmortality             grow            spawn </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                3                4                5                6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           mature          renewal         straying       likelihood </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                7                8                9               10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           report              age </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               11               12 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># View single value</span></span></span>
 <span class="r-in"><span><span class="va">g3_action_order</span><span class="op">$</span><span class="va">age</span></span></span>
