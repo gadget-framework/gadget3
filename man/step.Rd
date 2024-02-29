@@ -74,15 +74,19 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
 }
 
 \section{stock_ss}{
-  \code{stock_ss(stock_var, [ dimname = override, dimname = override, ... ])}
+  \code{stock_ss(stock_var, [ dimname = override, dimname = override, ... ][, vec = (dimname|full|single) ])}
 
-  Subsets \var{stock_var} to get a length vector for the current iteration
-  of \link{stock_iterate}(). If \var{dimname}s are supplied, then these
-  dimensions overwritten with the suppled override, which could be a missing
-  value, to preserve a dimension. See final example.
+  Subsets \var{stock_var} for the current iteration of \link{stock_iterate}().
 
-  Length is a missing value by default, i.e. we return length groups. To avoid
-  this happening, set \code{length = default} to iterate over length too.
+  The \var{vec} parameter decides the start value for all dimensions
+  If \code{full}, no other dimensions are set.
+  If set to a dimname, all dimensions after that dimension are set (i.e. a dimname-vector will be returned)
+  If \code{single}, all dimensions are set (i.e. a single value wil be returned).
+  The default is \code{length} if a length dimension is present (i.e. a length vector will be returned), otherwise \code{single}.
+
+  If \var{dimname}s are supplied, then the code supplied will override the above.
+  This code can include \code{default}, which will be substituted for the default subset,
+  or \code{missing} to represent an empty position in the subset.
 }
 
 \section{stock_ssinv}{
@@ -92,7 +96,7 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
 }
 
 \section{stock_switch}{
-  \code{stock_ss(stock, stock_name1 = expr, stock_name2 = expr, ... [ default ])}
+  \code{stock_switch(stock, stock_name1 = expr, stock_name2 = expr, ... [ default ])}
 
   Switch based on name of \var{stock}, returning the relevant \var{expr} or
   \var{default}. If no default supplied, then an unknown stock is an error.
@@ -185,7 +189,10 @@ stock <- g3_stock('halibut', 1:10) \%>\% g3s_age(1,10) \%>\% g3s_livesonareas(1)
 stock__num <- g3_stock_instance(stock)
 g3_step(~stock_iterate(stock, { x <- x + stock_ss(stock__num) }))
 g3_step(~stock_ss(stock__num, area = 5))
-g3_step(~stock_ss(stock__num, age = i + 1))
+# Lengthgroups for age_idx + 1
+g3_step(~stock_ss(stock__num, age = default + 1))
+# Vector for the entirety of the "next" area
+g3_step(~stock_ss(stock__num, area = default + 1, vec = area))
 g3_step(~stock_ss(stock__num, area = , age = j))
 
 ### stock_ssinv

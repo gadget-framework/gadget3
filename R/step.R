@@ -297,20 +297,44 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             stock <- get(stock_var, envir = orig_env)
             ss_overrides <- as.list(tail(x, -2))
 
-            # By default length is "missing"
-            if (!('length' %in% names(ss_overrides)) && 'length' %in% names(stock$iter_ss)) ss_overrides$length <- quote(.[])[[3]]
+            # Create initial subset of dim -> default
+            ss <- sapply(names(stock$iter_ss), function(x) quote(default))
 
-            # Remove "length = default" overrides, so we have a means to win over the above
-            ss_overrides <- Filter(function (x) !identical(x, as.symbol('default')), ss_overrides)
+            # Decide what sort of vector we're generating
+            if ("vec" %in% names(ss_overrides)) {
+                vec <- as.character(ss_overrides[['vec']])
+                ss_overrides <- ss_overrides[names(ss_overrides) != 'vec']
+            } else if ("length" %in% names(ss)) {
+                vec <- "length"
+            } else {
+                vec <- "single"
+            }
 
-            # Get subset arguments
-            ss <- stock$iter_ss
+            if (vec %in% names(ss)) {
+                # Set all dimensions up until vec to missing
+                ss[seq_len(min(which( names(ss) == vec )))] <- list( quote(missing) )
+            } else if (vec == "full") {
+                # Clear all subset parts
+                ss[] <- list( quote(missing) )
+            } else if (vec == "single") {
+                # Leave all as default
+            } else {
+                stop("Unknown vec argument: ", deparse1(vec))
+            }
+
+            # Apply overrides
+            ss[names(ss_overrides)] <- ss_overrides
+
+            # Substitute "default" with real value. missing with magic missing constant
+            ss <- sapply(names(ss),
+                # NB: Use do.call() so we substitute the contents
+                function(n) do.call(substitute, list(ss[[n]], list(
+                    missing = quote(.[])[[3]],
+                    default = stock$iter_ss[[n]] ))))
 
             # No dimensions mean a 1-entry array (see g3_stock_instance)
             if (length(ss) == 0) ss <- list(quote(g3_idx(1)))
 
-            # Swap in overrides
-            ss[names(ss_overrides)] <- ss_overrides
             return(stock_rename(as.call(c(list(as.symbol("["), stock_inst), unname(ss))), "stock", stock_var))
         },
         # stock_ssinv subsets stock data var, keeping the specified dimensions (i.e. blanking it's part in the normal subset)

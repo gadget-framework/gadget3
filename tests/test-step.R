@@ -146,7 +146,7 @@ ok_group("g3_step:stock_reshape", {
 })
 
 ok_group("g3_step:stock_ss", {
-     stock <- g3_stock('halibut', 1:10) %>% g3s_age(1,10) %>% g3s_livesonareas(1)
+     stock <- g3_stock('halibut', 1:10) |> g3s_age(1,10) |> g3s_livesonareas(1)
      stock__num <- g3_stock_instance(stock)
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, area = 5)),
@@ -164,6 +164,34 @@ ok_group("g3_step:stock_ss", {
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, length = default)),
          ~stock__num[stock__length_idx, stock__age_idx, stock__area_idx]), "Length can be turned back on again")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, area = default + 1)),
+         ~stock__num[, stock__age_idx, stock__area_idx + 1] ), "We substitute 'default' so can be used in expressions")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, vec = full)),
+         ~stock__num[, , ] ), "vec = full returns entire vector")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, area = default, vec = full)),
+         ~stock__num[, , stock__area_idx] ), "vec = full still allows overrides")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, vec = single)),
+         ~stock__num[stock__length_idx, stock__age_idx, stock__area_idx] ), "vec = single returns single value")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, length = 4, vec = single)),
+         ~stock__num[4, stock__age_idx, stock__area_idx] ), "vec = single allows overrides")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, vec = area)),
+         ~stock__num[, , ] ), "vec = area clears everything up until area")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, vec = age)),
+         ~stock__num[, , stock__area_idx] ), "vec = age clears everything up until age")
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, vec = length)),
+         ~stock__num[, stock__age_idx, stock__area_idx] ), "vec = length clears everything up until length (the default)")
 })
 
 ok_group("g3_step:stock_switch", {
