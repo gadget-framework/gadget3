@@ -564,8 +564,8 @@ structure(function (param)
                   comment("Check stock has remained finite for this step")
                   if (age == fish__maxage) {
                     comment("Oldest fish is a plus-group, combine with younger individuals")
-                    fish__wgt[, , fish__age_idx] <- ratio_add_vec(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1L], fish__num[, , fish__age_idx - 1L])
-                    fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx] + fish__num[, , fish__age_idx - 1L]
+                    fish__wgt[, , fish__age_idx] <- ratio_add_vec(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
+                    fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx] + fish__num[, , fish__age_idx - 1]
                   }
                   else if (age == fish__minage) {
                     comment("Empty youngest fish age-group")
@@ -573,8 +573,8 @@ structure(function (param)
                   }
                   else {
                     comment("Move fish age-group to next one up")
-                    fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx - 1L]
-                    fish__wgt[, , fish__age_idx] <- fish__wgt[, , fish__age_idx - 1L]
+                    fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx - 1]
+                    fish__wgt[, , fish__age_idx] <- fish__wgt[, , fish__age_idx - 1]
                   }
                 }
             }
