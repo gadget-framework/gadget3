@@ -65,7 +65,7 @@ g3_init_val(
 
 \details{
   \var{name_spec} is a glob (or wildcard) matching parameters.
-  It is a string separated by \\code{.}, where each part can be:
+  It is a string separated by \code{.}, where each part can be:
   \enumerate{
     \item{A wildcard matching anything (\code{*}), or a matching anything with a prefix, e.g. \code{m*}}
     \item{A wildcard matching any number (\code{#}), or a matching a number with a prefix, e.g. \code{age*}}
