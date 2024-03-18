@@ -206,8 +206,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # for(x in seq(..)) loop, can expressed as a 3-part for loop
         seq_call <- call_args[[2]]
         if (is.null(seq_call$by)) stop("'by' is required in a for(seq(0, 10, by = 1)) loop: ", deparse(in_call)[[1]])
-        check_operator <- if (seq_call$by > 0) " <= " else " >= "
-        iterate_operator <- if (seq_call$by == 1) "++" else if (seq_call$by == -1) "--" else sprintf(" += %d", cpp_code(seq_call$by, in_envir, next_indent, expecting_int = TRUE))
+        by <- eval(seq_call$by, envir = baseenv())  # Convert code (read: quote(-1) ) back to numeric value
+        check_operator <- if (by > 0) " <= " else " >= "
+        iterate_operator <- if (by == 1) "++" else if (by == -1) "--" else sprintf(" += %d", cpp_code(by, in_envir, next_indent, expecting_int = TRUE))
         return(paste0(
             "for (",
             "auto ", cpp_escape_varname(call_args[[1]]), " = ", cpp_code(seq_call[[2]], in_envir, next_indent, expecting_int = TRUE), "; ",

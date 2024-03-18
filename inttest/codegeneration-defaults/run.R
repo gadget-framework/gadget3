@@ -115,7 +115,10 @@ writeLines(model_cpp, con = 'inttest/codegeneration-defaults/model.cpp')
 # Write out default paramter_template
 params <- attr(model_cpp, 'parameter_template')
 params <- g3_init_val(params, 'report_detail', 0)
+oldWidth <- getOption("width")
+options(width=1000)
 capture.output(print(params), file = 'inttest/codegeneration-defaults/model.tmbparam')
+options(width=oldWidth)
 
 r <- attributes(model_fn(params$value))
 ok(all(is.finite(r$detail_fish__num)), "detail_fish__num: finite")

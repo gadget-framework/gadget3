@@ -168,8 +168,12 @@ tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 tmb_param['parscale'] <- 1
 
 \donttest{\dontshow{# NB: Making / optimising a TMB function is slow}
-# Compile to a TMB ADFun
-tmb <- g3_tmb_adfun(cpp, tmb_param)
+
+\dontshow{# NB: Github windows CI can't compile a model}
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Compile to a TMB ADFun
+  tmb <- g3_tmb_adfun(cpp, tmb_param)
+}
 
 # NB: TMB::gdbsource() requires both "R" and "gdb" to be available
 # NB: gdbsource hangs on windows - https://github.com/kaskr/adcomp/issues/385
@@ -189,30 +193,42 @@ if (all(nzchar(Sys.which(c('gdb', 'R')))) && .Platform$OS.type !="windows") {
 
 }
 
-# Perform a single run, using values in table
-result <- tmb$fn(g3_tmb_par(tmb_param))
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Perform a single run, using values in table
+  result <- tmb$fn(g3_tmb_par(tmb_param))
+}
 
-# perform optimisation using upper/lower/parscale from table
-fit <- optim(tmb$par, tmb$fn, tmb$gr,
-    method = "L-BFGS-B",
-    upper = g3_tmb_upper(tmb_param),
-    lower = g3_tmb_lower(tmb_param),
-    control = list(maxit=10, parscale=g3_tmb_parscale(tmb_param)))
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # perform optimisation using upper/lower/parscale from table
+  fit <- optim(tmb$par, tmb$fn, tmb$gr,
+      method = "L-BFGS-B",
+      upper = g3_tmb_upper(tmb_param),
+      lower = g3_tmb_lower(tmb_param),
+      control = list(maxit=10, parscale=g3_tmb_parscale(tmb_param)))
+}
 
-# perform optimisation without bounds
-fit <- optim(tmb$par, tmb$fn, tmb$gr)
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # perform optimisation without bounds
+  fit <- optim(tmb$par, tmb$fn, tmb$gr)
+}
 
-# Go back to a list of parameters, suitable for the R version
-# NB: This will not set the values for random parameters
-param_list <- g3_tmb_relist(tmb_param, fit$par)
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Go back to a list of parameters, suitable for the R version
+  # NB: This will not set the values for random parameters
+  param_list <- g3_tmb_relist(tmb_param, fit$par)
+}
 
-# Update parameters with values from last run, *including* random parameters.
-param_list <- g3_tmb_relist(tmb_param, tmb$env$last.par)
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Update parameters with values from last run, *including* random parameters.
+  param_list <- g3_tmb_relist(tmb_param, tmb$env$last.par)
+}
 
-# Rebuild, only including "Fun" (i.e. without auto-differentiation)
-# Result will only work for tmb$report
-tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
-result <- tmb$report(g3_tmb_par(tmb_param))
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Rebuild, only including "Fun" (i.e. without auto-differentiation)
+  # Result will only work for tmb$report
+  tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
+  result <- tmb$report(g3_tmb_par(tmb_param))
+}
 }
 
 }
