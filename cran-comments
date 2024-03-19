@@ -1,5 +1,25 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.11-0
+
+New release of existing package.
+
+> Error in seq_call$by > 0 : 
+>   comparison (>) is not possible for language types
+
+This has been fixed with the following commit:
+
+  https://github.com/gadget-framework/gadget3/commit/ee6c7a59c2594044f94a0dc6aa9e109290ba56b4
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.11-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.10-1...v0.11-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/8340526551
+
 ==== 0.10-1
 
 New release to fix CRAN-pretest problems.
