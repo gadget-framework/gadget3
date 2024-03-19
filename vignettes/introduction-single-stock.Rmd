@@ -212,7 +212,7 @@ For each action you can click through to the reference to get more information o
 * ``g3l_understocking()``: A penalty applied to the likelihood used to prevent more fish being eaten/fished than is available.
 
 There are more actions available besides these, for instance ``g3a_spawn()`` can be used for recruitment dependent on stock size instead of ``g3a_renewal_normalparam()``.
-For a full list, see [the package reference index](/reference/index.html#g-action-functions).
+For a full list, see `??gadget3::"G3 action"` or the package reference index.
 
 Likelihood actions are actions that will sum their output into the model's overall likelihood score,
 analogous to gadget2's [likelihood components](https://gadget-framework.github.io/gadget2/userguide/chap-like.html).
