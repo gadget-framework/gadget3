@@ -1,4 +1,4 @@
-# gadget3 0.10-1-999:
+# gadget3 0.11-0:
 
 ## Bug fixes
 * g3_to_r() output can be debugged in R-Studio
