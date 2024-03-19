@@ -1,5 +1,27 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.11-1
+
+Bugfix release to fix pretest NOTE:
+
+> Found the following (possibly) invalid file URI:
+>   URI: /reference/index.html
+>     From: inst/doc/introduction-single-stock.html
+
+/reference/index.html is the pkgdown reference index, which obviously does not
+exist on CRAN. This has been fixed with the following commit:
+
+  https://github.com/gadget-framework/gadget3/commit/d5bb93eafd06b1277695081d2f7e7d953233435e
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.11-1/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.11-0...v0.11-1
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/8342609870
+
 ==== 0.11-0
 
 New release of existing package.
