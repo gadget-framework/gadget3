@@ -88,6 +88,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2018);
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     PARAMETER(cdist_sumofsquares_ldist_lln_weight);
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
+};
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / a.sum();
 };
@@ -229,9 +232,6 @@ Type objective_function<Type>::operator() () {
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
-    auto as_integer = [](Type v) -> int {
-    return std::floor(asDouble(v));
-};
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
     int cur_year = 0;
@@ -297,9 +297,9 @@ Type objective_function<Type>::operator() () {
 
                     auto ling_imm__area_idx = 0;
 
-                    auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( age - 3 + 1 - 1 ));
+                    auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( as_integer(age) - 3 + 1 - 1 ));
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( (age - cur_step_size) - 3 + 2 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 ));
 
                     {
                         ling_imm__num.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -318,9 +318,9 @@ Type objective_function<Type>::operator() () {
 
                     auto ling_mat__area_idx = 0;
 
-                    auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( age - 5 + 1 - 1 ));
+                    auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( as_integer(age) - 5 + 1 - 1 ));
 
-                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( (age - cur_step_size) - 5 + 2 - 1 ));
+                    auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 ));
 
                     {
                         ling_mat__num.col(ling_mat__age_idx).col(ling_mat__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -691,14 +691,14 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     auto area = ling_imm__area;
 
                     auto ling_imm__area_idx = 0;
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ));
 
                     {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -715,14 +715,14 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for ling_imm;
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     auto area = ling_imm__area;
 
                     auto ling_imm__area_idx = 0;
 
-                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( age - 3 + 1 - 1 ));
+                    auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ));
 
                     {
                         ling_imm__renewalnum.col(ling_imm__age_idx).col(ling_imm__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
