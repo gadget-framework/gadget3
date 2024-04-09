@@ -135,15 +135,15 @@ g3a_spawn <- function(
 
     # Move spawned fish into their own stock
     out_f <- ~{}
-    sum_all_outputs_f <- ~0
+    actual_sum_all_outputs_f <- ~0  # NB: Give this a different name to it's placeholder, so we don't name-clash when substituting
     for (i in seq_along(output_stocks)) {
         output_stock <- output_stocks[[i]]
         output_ratio <- output_ratios[[i]]
         output_stock__spawnednum <- g3_stock_instance(output_stock, desc = "Individuals spawned")
 
         # Make a formula to sum all our outputs
-        sum_all_outputs_f <- g3_step(f_substitute(~stock_with(output_stock, sum(output_stock__spawnednum)) + sum_all_outputs_f, list(
-            sum_all_outputs_f = sum_all_outputs_f)), recursing = TRUE)
+        actual_sum_all_outputs_f <- g3_step(f_substitute(~stock_with(output_stock, sum(output_stock__spawnednum)) + sum_all_outputs_f, list(
+            sum_all_outputs_f = actual_sum_all_outputs_f)), recursing = TRUE)
 
         out_f <- g3_step(f_substitute(~{
             debug_trace("Generate normal distribution for spawned ", output_stock)
@@ -190,7 +190,7 @@ g3a_spawn <- function(
         }, list(out_f = out_f)), recursing = TRUE)
     }
     out[[step_id(recruit_at, stock, action_name)]] <- g3_step(f_substitute(out_f, list(
-        sum_all_outputs_f = f_optimize(sum_all_outputs_f))))
+        sum_all_outputs_f = f_optimize(actual_sum_all_outputs_f))))
 
     return(out)
 }
