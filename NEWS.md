@@ -1,5 +1,8 @@
 # gadget3 0.11-1-999:
 
+## Bug fixes
+* ``g3a_spawn()`` splits offspring into multiple stocks correctly
+
 # gadget3 0.11-0:
 
 ## Bug fixes
