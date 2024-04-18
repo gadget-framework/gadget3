@@ -911,7 +911,7 @@ Type objective_function<Type>::operator() () {
             try {
                 return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
-                warning(\"No value found in g3_param_table %s, ifmissing not specified\", err.c_str());
+                Rf_warning(\"No value found in g3_param_table %s, ifmissing not specified\", err.c_str());
                 return NAN;
             }
     }
