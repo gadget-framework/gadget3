@@ -114,6 +114,10 @@ g3_env$REprintf <- g3_native(r = function(...) {
     cat(sprintf(...))
 }, cpp = NULL)
 
+# "Rcpp::warning" should be in scope, but on 2024-04-17 r86441 / gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0 :-
+# error: there are no arguments to ‘warning’ that depend on a template parameter, so a declaration of ‘warning’ must be available [-fpermissive]
+g3_env$warning <- g3_native(r = 'warning', cpp = 'Rf_warning')
+
 g3_env$print_array <- g3_native(r = function(ar_name, ar) {
     writeLines(ar_name)
     print(ar)
@@ -129,7 +133,7 @@ g3_env$assert_msg <- g3_native(r = function(expr, message) {
     if (isFALSE(expr)) { warning(message) ; return(TRUE) }
     return(FALSE)
 }, cpp = '[](bool expr, std::string message) -> bool {
-    if (!expr) { warning(message.c_str()); return TRUE; }
+    if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 }')
 

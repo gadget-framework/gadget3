@@ -70,7 +70,7 @@ g3a_spawn <- function(
     stopifnot(is.list(output_stocks) && all(sapply(output_stocks, g3_is_stock)))
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
-    stopifnot(abs(sum(output_ratios) - 1) < 0.0001)
+    stopifnot(!is.numeric(output_ratios) || abs(sum(output_ratios) - 1) < 0.0001)
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
     stock__spawnprop <- g3_stock_instance(stock, desc = "Proportion of parents that are spawning")
@@ -135,28 +135,24 @@ g3a_spawn <- function(
 
     # Move spawned fish into their own stock
     out_f <- ~{}
-    sum_all_outputs_f <- ~0
     for (i in seq_along(output_stocks)) {
         output_stock <- output_stocks[[i]]
         output_ratio <- output_ratios[[i]]
-        output_stock__spawnednum <- g3_stock_instance(output_stock, desc = "Individuals spawned")
-
-        # Make a formula to sum all our outputs
-        sum_all_outputs_f <- g3_step(f_substitute(~stock_with(output_stock, sum(output_stock__spawnednum)) + sum_all_outputs_f, list(
-            sum_all_outputs_f = sum_all_outputs_f)), recursing = TRUE)
+        output_stock__spawnednum <- g3_stock_instance(output_stock, desc = "Individuals spawned by parent")
 
         out_f <- g3_step(f_substitute(~{
             debug_trace("Generate normal distribution for spawned ", output_stock)
-            # Equivalent to Spawner::Storage, pre-calcRecruitNumber()
             stock_with(output_stock, output_stock__spawnednum[] <- 0)
+            # sum(*__spawnednum) is roughly equivalent to Spawner::Storage
+            # Spawner::Storage spawns into a union of output stocks first, we spawn directly to output stocks
             stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
                 stock_ss(output_stock__spawnednum) <- exp(-(((output_stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
             })
             extension_point
             debug_trace("Scale total spawned stock by total to spawn in cycle")
-            # sum_all_outputs_f equivalent to sum in Spawner::addSpawnStock()
+            # __offspringnum eqivalent to calcRecruitNumber()
             stock_with(output_stock, stock_with(stock,
-                output_stock__spawnednum <- (output_stock__spawnednum / avoid_zero(sum_all_outputs_f)) * sum(stock__offspringnum) * output_ratio))
+                output_stock__spawnednum <- (output_stock__spawnednum / avoid_zero(sum(output_stock__spawnednum))) * sum(stock__offspringnum) * output_ratio))
             stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
                 stock_ss(output_stock__wgt) <- ratio_add_vec(
                     stock_ss(output_stock__wgt),
@@ -189,8 +185,7 @@ g3a_spawn <- function(
             out_f
         }, list(out_f = out_f)), recursing = TRUE)
     }
-    out[[step_id(recruit_at, stock, action_name)]] <- g3_step(f_substitute(out_f, list(
-        sum_all_outputs_f = f_optimize(sum_all_outputs_f))))
+    out[[step_id(recruit_at, stock, action_name)]] <- g3_step(out_f)
 
     return(out)
 }
