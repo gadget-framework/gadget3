@@ -7,7 +7,7 @@ namespace map_extras {
             try {
                 return *map_in.at(key_in);
             } catch (const std::out_of_range&) {
-                warning("No value found in g3_param_table %s, ifmissing not specified", err.c_str());
+                Rf_warning("No value found in g3_param_table %s, ifmissing not specified", err.c_str());
                 return NAN;
             }
     }
@@ -94,7 +94,7 @@ Type objective_function<Type>::operator() () {
     return a / a.sum();
 };
     auto assert_msg = [](bool expr, std::string message) -> bool {
-    if (!expr) { warning(message.c_str()); return TRUE; }
+    if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
