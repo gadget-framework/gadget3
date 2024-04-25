@@ -26,6 +26,11 @@ actions <- list(
         prey_a,
         g3a_naturalmortality_exp(~naturalmortality_prey_a[[age - 3 + 1]]),
         run_f = ~cur_time > 0),  # NB: No mortality on the first step
+    g3a_naturalmortality(
+        prey_a,
+        # Spawning mortality, only for age 1, off by default
+        g3a_naturalmortality_exp(g3_parameterized('spawn_mortality', value = 0, optimise = TRUE)),
+        run_f = quote( age == 3 )),  # NB: Only for first age
     list(
         '999' = ~{
             if (cur_time == 0) {
@@ -105,3 +110,50 @@ ok_group("natural mortality", {
         gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
     }
 })
+
+ok_group("Spawning natural mortality")
+params <- attr(model_fn, 'parameter_template')
+params['spawn_mortality'] <- 0.99
+
+result <- model_fn(params)
+r <- attributes(result)
+# str(result)
+# str(as.list(r), vec.len = 10000)
+
+# Step 0
+ok(ut_cmp_identical(as.vector(r$step0_prey_a__num), c(
+    30 * exp(-0.99 * 3 * (1/12)),
+    40,
+    50 )), "step0_prey_a__num: Natural mortality disabled by run_f, spawn natural mortality for first agegroup")
+ok(ut_cmp_identical(as.vector(r$step0_prey_a__wgt), c(300, 400, 500)), "step0_prey_a__wgt: Weight unchanged")
+
+# Step 1
+ok(ut_cmp_identical(as.vector(r$step1_prey_a__num), c(
+    30 * exp(-0.99 * 3 * (1/12))^2
+        * exp(-0.6 * 3 * (1/12)),
+    40 * exp(-0.7 * 3 * (1/12)),
+    50 * exp(-0.1 * 3 * (1/12)))), "step1_prey_a__num: Natural mortality reduced using exp(vec) & spawn natural mortality")
+ok(ut_cmp_identical(as.vector(r$step1_prey_a__wgt), c(300, 400, 500)), "step1_prey_a__wgt: Weight unchanged")
+
+# Step 2
+ok(ut_cmp_identical(as.vector(r$step2_prey_a__num), c(
+    30 * exp(-0.99 * 3 * (1/12))^2 * exp(-0.99 * 5 * (1/12))
+       * exp(-0.6 * 3 * (1/12)) * exp(-0.6 * 5 * (1/12)),
+    40 * exp(-0.7 * 3 * (1/12)) * exp(-0.7 * 5 * (1/12)),
+    50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)))), "step2_prey_a__num: Reduced again, used different step size")
+ok(ut_cmp_identical(as.vector(r$step2_prey_a__wgt), c(300, 400, 500)), "step2_prey_a__wgt: Weight unchanged")
+
+# Step 3
+ok(ut_cmp_identical(as.vector(r$step3_prey_a__num), c(
+    30 * exp(-0.99 * 3 * (1/12))^2 * exp(-0.99 * 5 * (1/12)) * exp(-0.99 * 1 * (1/12))
+       * exp(-0.6 * 3 * (1/12)) * exp(-0.6 * 5 * (1/12)) * exp(-0.6 * 1 * (1/12)),
+    40 * exp(-0.7 * 3 * (1/12)) * exp(-0.7 * 5 * (1/12)) * exp(-0.7 * 1 * (1/12)),
+    50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)) * exp(-0.1 * 1 * (1/12)))), "step3_prey_a__num: Reduced one more time, using another step size")
+ok(ut_cmp_identical(as.vector(r$step3_prey_a__wgt), c(300, 400, 500)), "step3_prey_a__wgt: Weight unchanged")
+
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+    param_template <- attr(model_cpp, "parameter_template")
+    param_template$value <- params[param_template$switch]
+    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+}
+#### ok_group("Spawning natural mortality")

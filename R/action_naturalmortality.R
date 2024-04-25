@@ -19,9 +19,9 @@ g3a_naturalmortality <- function (
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
 
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~if (run_f) {
+    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("Natural mortality for ", stock)
-        stock_iterate(stock, {
+        stock_iterate(stock, if (run_f) {
             stock_ss(stock__num) <- stock_ss(stock__num) * (mortality_f)
         })
     }, list(
