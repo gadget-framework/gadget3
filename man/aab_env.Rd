@@ -101,6 +101,16 @@
 }
 
 \examples{
-# Call g3's avoid_zero_vec directly from R
-g3_env$avoid_zero_vec(c(0, 0.001, 1, 100))
+## avoid_zero / avoid_zero_vec
+g3_eval(quote( c( avoid_zero(0), avoid_zero(10) ) ))
+g3_eval(quote( avoid_zero_vec(0:5) ))
+
+## bounded / bounded_vec
+curve(g3_eval(quote( bounded(x, 100, 200) ), x = x), -100, 100)
+
+## logspace_add
+curve(g3_eval(quote( logspace_add(x, 10) ), x = x), 0, 40)
+
+## normalize_vec
+g3_eval(quote( normalize_vec(c( 4, 4, 8, 2 )) ))
 }
