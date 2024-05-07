@@ -3,6 +3,12 @@ library(unittest)
 
 library(gadget3)
 
+ok_group("g3a_age:no_age")
+ok(ut_cmp_error({
+    g3a_age(g3_stock('prey_a', seq(20, 40, 4)))
+}, "age.*prey_a"), "Cannot use g3a_age() without an age dimension")
+#### g3a_age:no_age
+
 ok_group("g3a_age:single_age", {
     # prey_a, with single age, outputs into b & c
     prey_a <- g3_stock('prey_a', seq(20, 40, 4)) %>% g3s_age(11, 11)
