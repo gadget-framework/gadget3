@@ -6,6 +6,8 @@ g3a_age <- function(
         run_f = ~cur_step_final,
         run_at = g3_action_order$age,
         transition_at = g3_action_order$age ) {
+    if (is.null(tryCatch(g3_stock_def(stock, 'minage'), error = function(x) NULL))) stop("stock missing age ", stock$name)
+
     out <- new.env(parent = emptyenv())
 
     stock__num <- g3_stock_instance(stock, 0)
