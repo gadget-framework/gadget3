@@ -14,13 +14,13 @@ end <- function (x) x
 areas <- list(area1=1)
 
 ling_imm <- g3_stock(c(species = 'ling', 'imm'), seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('area1')]) %>%
     g3s_age(3, 10) %>%
+    g3s_livesonareas(areas[c('area1')]) %>%
     end()
 
 ling_mat <- g3_stock(c(species = 'ling', 'mat'), seq(20, 156, 4)) %>%
-    g3s_livesonareas(areas[c('area1')]) %>%
     g3s_age(5, 15) %>%
+    g3s_livesonareas(areas[c('area1')]) %>%
     end()
 
 lln <- g3_fleet('lln') %>% g3s_livesonareas(areas[c('area1')])
