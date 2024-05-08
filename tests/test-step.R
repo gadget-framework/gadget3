@@ -159,6 +159,10 @@ ok_group("g3_step:stock_ss", {
          ~stock__num[, j, ]), "Missing values are honoured too")
 
      ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, camels = 42)),
+         ~stock__num[, stock__age_idx, stock__area_idx]), "Overrides for non-existant dimensions are ignored")
+
+     ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, length = 0L)),
          ~stock__num[0L, stock__age_idx, stock__area_idx]), "Length can be overriden with a constant")
      ok(cmp_code(

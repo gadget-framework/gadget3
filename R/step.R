@@ -322,6 +322,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 stop("Unknown vec argument: ", deparse1(vec))
             }
 
+            # Remove overrides that don't exist in stock_var
+            ss_overrides[setdiff(names(ss_overrides), names(stock$dim))] <- NULL
+
             # Apply overrides
             ss[names(ss_overrides)] <- ss_overrides
 
