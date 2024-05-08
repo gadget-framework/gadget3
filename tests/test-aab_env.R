@@ -65,6 +65,60 @@ ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amo
 expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / g3_env$avoid_zero_vec(ratio_add_vec_total)) +
     ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / g3_env$avoid_zero_vec(ratio_add_vec_total))
 
+# nonconform_mult
+nonconform_inp1 <- array(runif(4*3*2), dim = c(4,3,2))
+nonconform_inp2 <- array(runif(4*4*5), dim = c(4,4,5))
+nonconform_extra <- array(c(1e1, 1e2, 1e3, 1e4, 1e-1, 1e-2, 1e-3, 1e-4), dim = c(4,2))
+nonconform_outmult1 <- array(dim = c(4,3,2))
+nonconform_outmult2 <- array(dim = c(4,4,5))
+nonconform_outmult2a <- array(dim = c(4,4,1))
+actions <- c(actions, ~{
+    comment('nonconform_mult')
+    nonconform_outmult1 <- nonconform_mult(nonconform_inp1, nonconform_extra[,g3_idx(1)])
+    nonconform_outmult2 <- nonconform_mult(nonconform_inp2, nonconform_extra[,g3_idx(2)])
+    nonconform_outmult2a <- nonconform_mult(nonconform_inp2[,,g3_idx(1)], nonconform_extra[,g3_idx(2)])
+    REPORT(nonconform_outmult1)
+    REPORT(nonconform_outmult2)
+    REPORT(nonconform_outmult2a)
+})
+expecteds$nonconform_outmult1 <- nonconform_inp1 * as.vector(nonconform_extra[,1])
+expecteds$nonconform_outmult2 <- nonconform_inp2 * as.vector(nonconform_extra[,2])
+expecteds$nonconform_outmult2a <- nonconform_inp2[,,1] * as.vector(nonconform_extra[,2])
+
+# nonconform_add
+nonconform_outadd1 <- array(dim = c(4,3,2))
+nonconform_outadd2 <- array(dim = c(4,4,5))
+nonconform_outadd2a <- array(dim = c(4,4,1))
+actions <- c(actions, ~{
+    comment('nonconform_add')
+    nonconform_outadd1 <- nonconform_add(nonconform_inp1, nonconform_extra[,g3_idx(1)])
+    nonconform_outadd2 <- nonconform_add(nonconform_inp2, nonconform_extra[,g3_idx(2)])
+    nonconform_outadd2a <- nonconform_add(nonconform_inp2[,,g3_idx(1)], nonconform_extra[,g3_idx(2)])
+    REPORT(nonconform_outadd1)
+    REPORT(nonconform_outadd2)
+    REPORT(nonconform_outadd2a)
+})
+expecteds$nonconform_outadd1 <- nonconform_inp1 + as.vector(nonconform_extra[,1])
+expecteds$nonconform_outadd2 <- nonconform_inp2 + as.vector(nonconform_extra[,2])
+expecteds$nonconform_outadd2a <- nonconform_inp2[,,1] + as.vector(nonconform_extra[,2])
+
+# nonconform_div
+nonconform_outdiv1 <- array(dim = c(4,3,2))
+nonconform_outdiv2 <- array(dim = c(4,4,5))
+nonconform_outdiv2a <- array(dim = c(4,4,1))
+actions <- c(actions, ~{
+    comment('nonconform_div')
+    nonconform_outdiv1 <- nonconform_div(nonconform_inp1, nonconform_extra[,g3_idx(1)])
+    nonconform_outdiv2 <- nonconform_div(nonconform_inp2, nonconform_extra[,g3_idx(2)])
+    nonconform_outdiv2a <- nonconform_div(nonconform_inp2[,,g3_idx(1)], nonconform_extra[,g3_idx(2)])
+    REPORT(nonconform_outdiv1)
+    REPORT(nonconform_outdiv2)
+    REPORT(nonconform_outdiv2a)
+})
+expecteds$nonconform_outdiv1 <- nonconform_inp1 / as.vector(nonconform_extra[,1])
+expecteds$nonconform_outdiv2 <- nonconform_inp2 / as.vector(nonconform_extra[,2])
+expecteds$nonconform_outdiv2a <- nonconform_inp2[,,1] / as.vector(nonconform_extra[,2])
+
 ###############################################################################
 
 nll <- 0.0

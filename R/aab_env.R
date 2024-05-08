@@ -152,3 +152,23 @@ g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, n
 }, cpp = '[&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 }', depends = c('avoid_zero_vec'))
+
+
+g3_env$nonconform_add <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar + as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+}')
+g3_env$nonconform_mult <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar * as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar * (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+}')
+g3_env$nonconform_div <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar / as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar / (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+}')

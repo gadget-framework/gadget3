@@ -20,6 +20,9 @@
 \alias{REPORT}
 \alias{REprintf}
 \alias{Rprintf}
+\alias{nonconform_mult}
+\alias{nonconform_add}
+\alias{nonconform_div}
 \concept{G3 internals}
 
 \title{Gadget3 global environment}
@@ -88,6 +91,12 @@
   Sum \var{orig_vec} & \var{new_vec} according to ratio of \var{orig_amount} & \var{new_amount}
 }
 
+\section{nonconform_add / nonconform_mult / nonconform_div}{
+  Scalar sum/multiply/divide 2 non-conforming arrays,
+  by treating the latter as a vector and repeating as many times as required.
+  Results will be structured identically to the first array.
+}
+
 \section{REPORT}{
   TMB's \code{REPORT} function.
 }
@@ -113,4 +122,9 @@ curve(g3_eval(quote( logspace_add(x, 10) ), x = x), 0, 40)
 
 ## normalize_vec
 g3_eval(quote( normalize_vec(c( 4, 4, 8, 2 )) ))
+
+## nonconform_mult
+g3_eval(quote( nonconform_mult(
+    array(seq(0, 4*5*6), dim = c(4,5,6)),
+    c(1e1, 1e2, 1e3, 1e4)) ))
 }
