@@ -161,7 +161,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             # Add in stock environment
             out_f <- call_to_formula(out_f, stock$env)
         } else {
-            stop("Unknown stock_fn type: ", out_f)
+            stop("Unknown stock_fn type: ", deparse1(stock[[to_replace]]))
         }
         out_f <- stock_interactvar_prefix(out_f, prefix)
         out_f <- stock_rename(out_f, "stock", stock_var)
