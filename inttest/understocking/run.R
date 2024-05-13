@@ -20,7 +20,7 @@ report_actions <- list(
 
 actions <- local({
     eval(g2to3_mainfile('inttest/understocking'))
-    c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__predby_igfs$|__catch$")))
+    c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__predby_igfs$")))
 })
 environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
 environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
@@ -158,22 +158,14 @@ for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     ####
 
     if (t %in% 25:31) {
-        ok(all.equal(
-            sum(g3_r$hist_lingimm__totalpredate[,1,,t]) + sum(g3_r$hist_lingmat__totalpredate[,1,,t]),
-            g3_r$hist_igfs__catch[1,t],
-            tolerance = 1e-7), paste0("g3_r$hist_igfs__catch: ", t, " - Total catch internally consistent"))
+        # Expect final timesteps not to match
     } else {
         ok(all.equal(
             sum(g2_igfs_imm$weight[,,t,1] + g2_igfs_mat$weight[,,t,1]),
-            g3_r$hist_igfs__catch[1,t],
-            tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$hist_igfs__catch: ", t, " - Total catch matches g2"))
+            sum(g3_r$hist_lingimm__totalpredate[,1,,t]) + sum(g3_r$hist_lingmat__totalpredate[,1,,t]),
+            tolerance = if (t %in% 17:20) 1e-3 else 1e-5), paste0("g3_r$hist_*__totalpredate: ", t, " - Total catch matches g2"))
     }
 }
-ok(all.equal(
-    colSums(g3_r$hist_igfs__catch[]),
-    colSums(colSums(g3_r$hist_lingimm__predby_igfs[,,,])) + colSums(colSums(g3_r$hist_lingmat__predby_igfs[,,,])),
-    tolerance = 1e-7), "hist_igfs__catch: Consistent with hist_lingimm__predby_igfs")
-
 ok(all.equal(
     g3_r$hist_lingimm__predby_igfs,
     g3_r$hist_lingimm__totalpredate,

@@ -69,6 +69,10 @@ structure(function (param)
         }
         return(FALSE)
     }
+    nonconform_div_avz <- function(base_ar, extra_ar) {
+        extra_ar <- (pmax(extra_ar * 1000, 0) + log1p(exp(pmin(extra_ar * 1000, 0) - pmax(extra_ar * 1000, 0))))/1000
+        base_ar/as.vector(extra_ar)
+    }
     avoid_zero_vec <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
@@ -83,8 +87,14 @@ structure(function (param)
         }
         return(if (is.null(out)) def else out)
     }
+    nonconform_add <- function(base_ar, extra_ar) {
+        base_ar + as.vector(extra_ar)
+    }
     logspace_add_vec <- function(a, b) {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    }
+    nonconform_mult <- function(base_ar, extra_ar) {
+        base_ar * as.vector(extra_ar)
     }
     growth_bbinom <- function(delt_l, binn, beta) {
         alpha <- (beta * delt_l)/(binn - delt_l)
@@ -177,7 +187,6 @@ structure(function (param)
     cdist_sumofsquares_comm_ldist_model__wgt <- array(0, dim = c(length = 5L, time = 11L, area = 1L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:Inf"), time = c("1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000"), area = "all"))
     detail_fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
-    detail_fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
     nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_adist_surveyindices_log_acoustic_dist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
@@ -189,12 +198,10 @@ structure(function (param)
     cur_year_projection <- FALSE
     cur_step <- 0L
     cur_step_final <- FALSE
-    comm__catch <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
-    comm__catchnum <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
     fish__totalpredate <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
-    fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    fish_comm__suit <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, pred_area = 1L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), pred_area = "all"))
     comm__area <- 1L
-    fish__suit_comm <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    fish_comm__cons <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, pred_area = 1L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), pred_area = "all"))
     intlookup_zip <- function(keys, values) {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
@@ -212,6 +219,8 @@ structure(function (param)
     comm_landings__lookup <- intlookup_zip(comm_landings__keys, comm_landings__values)
     fish__consratio <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__overconsumption <- structure(0, desc = "Total overconsumption of fish")
+    fish__consconv <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__growth_lastcalc <- -1L
     fish__growth_l <- array(NA, dim = c(length = 6L, delta = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), delta = c("0", "1", "2", "3", "4", "5")))
     fish__plusdl <- 10
@@ -274,8 +283,6 @@ structure(function (param)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(detail_fish__renewalnum)
         if (reporting_enabled > 0L && cur_time > total_steps) 
-            REPORT(detail_fish__suit_comm)
-        if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(detail_fish__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll)
@@ -303,18 +310,13 @@ structure(function (param)
             cur_step_final <- cur_step == step_count
         }
         {
-            comment("Zero biomass-caught counter for comm")
-            comm__catch[] <- 0
-            comm__catchnum[] <- 0
-        }
-        {
             comment("Zero total predation counter for fish")
             fish__totalpredate[] <- 0
         }
         {
             comment("g3a_predate_fleet for fish")
             comment("Zero comm-fish biomass-consuming counter")
-            fish__predby_comm[] <- 0
+            fish_comm__suit[] <- 0
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
@@ -324,69 +326,51 @@ structure(function (param)
                   fleet_area <- area
                   {
                     comment("Collect all suitable fish biomass for comm")
-                    fish__suit_comm[, fish__area_idx, fish__age_idx] <- 1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))
-                    fish__predby_comm[, fish__area_idx, fish__age_idx] <- fish__suit_comm[, fish__area_idx, fish__age_idx] * fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]
-                    comm__catch[comm__area_idx] <- comm__catch[comm__area_idx] + sum(fish__predby_comm[, fish__area_idx, fish__age_idx])
-                    comm__catchnum[comm__area_idx] <- comm__catchnum[comm__area_idx] + sum(fish__suit_comm[, fish__area_idx, fish__age_idx] * fish__num[, fish__area_idx, fish__age_idx])
+                    fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))) * fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]
                   }
                 }
             }
         }
         {
             comment("Scale comm catch of fish by total expected catch")
+            fish_comm__cons[] <- 0
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
                 if (area == comm__area) {
                   comm__area_idx <- (1L)
-                  fleet_area <- area
-                  {
-                    fish__predby_comm[, fish__area_idx, fish__age_idx] <- (fish__predby_comm[, fish__area_idx, fish__age_idx]/avoid_zero_vec(fish__wgt[, fish__area_idx, fish__age_idx])) * ((if (area != 1L) 
-                      0
-                    else intlookup_getdefault(comm_landings__lookup, cur_year, 0))/comm__catchnum[comm__area_idx])
-                    fish__totalpredate[, fish__area_idx, fish__age_idx] <- fish__totalpredate[, fish__area_idx, fish__age_idx] + fish__predby_comm[, fish__area_idx, fish__age_idx]
-                  }
+                  total_predsuitnum <- sum(nonconform_div_avz(fish_comm__suit[, , , comm__area_idx], fish__wgt))
+                  fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx] <- (fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx]/avoid_zero_vec(fish__wgt[, fish__area_idx, fish__age_idx])) * ((if (area != 1L) 
+                    0
+                  else intlookup_getdefault(comm_landings__lookup, cur_year, 0))/total_predsuitnum) * fish__wgt[, fish__area_idx, fish__age_idx]
                 }
+            }
+            {
+                area <- comm__area
+                comm__area_idx <- (1L)
+                fish__totalpredate[] <- nonconform_add(fish__totalpredate[], fish_comm__cons[, , , comm__area_idx])
             }
         }
         {
-            comment("Temporarily convert to being proportion of totalpredate")
-            fish__predby_comm <- fish__predby_comm/avoid_zero_vec(fish__totalpredate)
-        }
-        {
             comment("Calculate fish overconsumption coefficient")
-            fish__consratio <- fish__totalpredate/avoid_zero_vec(fish__num * fish__wgt)
-            fish__consratio <- logspace_add_vec(fish__consratio * -1000, 0.95 * -1000)/-1000
-            if (FALSE) 
-                assert_msg(~all(fish__consratio <= 1), "g3a_predate_fleet: fish__consratio <= 1, can't consume more fish than currently exist")
-            comment("Apply overconsumption to prey")
+            comment("Apply overconsumption to fish")
+            fish__consratio <- logspace_add_vec((fish__totalpredate/avoid_zero_vec(fish__num * fish__wgt)) * -1000, 0.95 * -1000)/-1000
             fish__overconsumption <- sum(fish__totalpredate)
+            fish__consconv <- 1/avoid_zero_vec(fish__totalpredate)
             fish__totalpredate <- (fish__num * fish__wgt) * fish__consratio
             fish__overconsumption <- fish__overconsumption - sum(fish__totalpredate)
+            fish__consconv <- fish__consconv * fish__totalpredate
             fish__num <- fish__num * (1 - fish__consratio)
         }
         {
-            comment("Zero comm catch before working out post-adjustment value")
-            comm__catch[] <- 0
-            comm__catchnum[] <- 0
-        }
-        {
-            comment("Revert to being total biomass (applying overconsumption in process)")
-            fish__predby_comm <- fish__predby_comm * fish__totalpredate
-            comment("Update total catch")
-            for (age in seq(fish__minage, fish__maxage, by = 1)) {
-                fish__age_idx <- age - fish__minage + 1L
-                area <- fish__area
-                fish__area_idx <- (1L)
-                if (area == comm__area) {
-                  comm__area_idx <- (1L)
-                  fleet_area <- area
-                  {
-                    comm__catch[comm__area_idx] <- comm__catch[comm__area_idx] + sum(fish__predby_comm[, fish__area_idx, fish__age_idx])
-                    comm__catchnum[comm__area_idx] <- comm__catchnum[comm__area_idx] + sum(fish__predby_comm[, fish__area_idx, fish__age_idx]/fish__wgt[, fish__area_idx, fish__age_idx])
-                  }
-                }
+            comment("Apply overconsumption to fish_comm__cons")
+            fish_comm__cons <- nonconform_mult(fish_comm__cons, fish__consconv)
+            fish__predby_comm[] <- 0
+            {
+                area <- comm__area
+                comm__area_idx <- (1L)
+                fish__predby_comm[] <- nonconform_add(fish__predby_comm, fish_comm__cons[, , , comm__area_idx])
             }
         }
         {
@@ -554,8 +538,6 @@ structure(function (param)
             detail_fish__predby_comm[, , , cur_time + 1] <- fish__predby_comm
         if (param[["report_detail"]] == 1) 
             detail_fish__renewalnum[, , , cur_time + 1] <- fish__renewalnum
-        if (param[["report_detail"]] == 1) 
-            detail_fish__suit_comm[, , , cur_time + 1] <- fish__suit_comm
         if (cur_step_final) {
             comment("g3a_age for fish")
             for (age in seq(fish__maxage, fish__minage, by = -1)) {

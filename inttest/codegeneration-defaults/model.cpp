@@ -97,6 +97,15 @@ Type objective_function<Type>::operator() () {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
+    auto nonconform_div_avz = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    vector<Type> extra_vec = extra_ar.vec();
+    assert(base_ar.size() % extra_ar.size() == 0);
+
+    for(int i = 0; i < extra_vec.size(); i++) {
+        extra_vec[i] = logspace_add(extra_vec[i] * 1000.0, (Type)0.0) / 1000.0;
+    }
+    return base_ar / (extra_vec.template replicate(base_ar.size() / extra_vec.size(), 1));
+};
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
@@ -104,12 +113,20 @@ Type objective_function<Type>::operator() () {
     }
     return res;
 };
+    auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+};
     auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
         res[i] = logspace_add(a[i], b);
     }
     return res;
+};
+    auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar * (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto growth_bbinom = [](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
@@ -250,7 +267,6 @@ Type objective_function<Type>::operator() () {
     DATA_ARRAY(cdist_sumofsquares_comm_ldist_obs__wgt)
     array<Type> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
     array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
-    array<Type> detail_fish__suit_comm(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__suit_comm.setZero();
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
@@ -262,17 +278,17 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
-    array<Type> comm__catch(1);
-    array<Type> comm__catchnum(1);
     array<Type> fish__totalpredate(6,1,10);
-    array<Type> fish__predby_comm(6,1,10);
+    array<Type> fish_comm__suit(6,1,10,1);
     int comm__area = 1;
-    array<Type> fish__suit_comm(6,1,10); fish__suit_comm.setZero();
+    array<Type> fish_comm__cons(6,1,10,1);
     DATA_IVECTOR(comm_landings__keys)
     DATA_VECTOR(comm_landings__values)
     auto comm_landings__lookup = intlookup_zip(comm_landings__keys, comm_landings__values);
     array<Type> fish__consratio(6,1,10);
     Type fish__overconsumption = (double)(0);
+    array<Type> fish__consconv(6,1,10);
+    array<Type> fish__predby_comm(6,1,10);
     int fish__growth_lastcalc = -1;
     array<Type> fish__growth_l(6,6);
     Type fish__plusdl = (double)(10);
@@ -352,9 +368,6 @@ Type objective_function<Type>::operator() () {
             REPORT(detail_fish__renewalnum);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__suit_comm);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
@@ -392,18 +405,13 @@ Type objective_function<Type>::operator() () {
             cur_step_final = cur_step == step_count;
         }
         {
-            // Zero biomass-caught counter for comm;
-            comm__catch.setZero();
-            comm__catchnum.setZero();
-        }
-        {
             // Zero total predation counter for fish;
             fish__totalpredate.setZero();
         }
         {
             // g3a_predate_fleet for fish;
             // Zero comm-fish biomass-consuming counter;
-            fish__predby_comm.setZero();
+            fish_comm__suit.setZero();
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
 
@@ -418,16 +426,14 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable fish biomass for comm;
-                        fish__suit_comm.col(fish__age_idx).col(fish__area_idx) = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
-                        fish__predby_comm.col(fish__age_idx).col(fish__area_idx) = fish__suit_comm.col(fish__age_idx).col(fish__area_idx)*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
-                        comm__catch(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx)).sum();
-                        comm__catchnum(comm__area_idx) += (fish__suit_comm.col(fish__age_idx).col(fish__area_idx)*fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
+                        fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                     }
                 }
             }
         }
         {
             // Scale comm catch of fish by total expected catch;
+            fish_comm__cons.setZero();
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
 
@@ -438,58 +444,40 @@ Type objective_function<Type>::operator() () {
                 if ( area == comm__area ) {
                     auto comm__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto total_predsuitnum = (nonconform_div_avz(fish_comm__suit.col(comm__area_idx), fish__wgt)).sum();
 
-                    {
-                        fish__predby_comm.col(fish__age_idx).col(fish__area_idx) = (fish__predby_comm.col(fish__age_idx).col(fish__area_idx) / avoid_zero_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx)))*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / comm__catchnum(comm__area_idx));
-                        fish__totalpredate.col(fish__age_idx).col(fish__area_idx) += fish__predby_comm.col(fish__age_idx).col(fish__area_idx);
-                    }
+                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = (fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) / avoid_zero_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx)))*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / total_predsuitnum)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
-        }
-        {
-            // Temporarily convert to being proportion of totalpredate;
-            fish__predby_comm /= avoid_zero_vec(fish__totalpredate);
+            {
+                auto area = comm__area;
+
+                auto comm__area_idx = 0;
+
+                fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons.col(comm__area_idx));
+            }
         }
         {
             // Calculate fish overconsumption coefficient;
-            fish__consratio = fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt);
-            fish__consratio = logspace_add_vec(fish__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
-            if ( false ) {
-                assert_msg((fish__consratio <= (double)(1)).all(), "g3a_predate_fleet: fish__consratio <= 1, can't consume more fish than currently exist");
-            }
-            // Apply overconsumption to prey;
+            // Apply overconsumption to fish;
+            fish__consratio = logspace_add_vec((fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             fish__overconsumption = (fish__totalpredate).sum();
+            fish__consconv = (double)(1) / avoid_zero_vec(fish__totalpredate);
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;
             fish__overconsumption -= (fish__totalpredate).sum();
+            fish__consconv *= fish__totalpredate;
             fish__num *= ((double)(1) - fish__consratio);
         }
         {
-            // Zero comm catch before working out post-adjustment value;
-            comm__catch.setZero();
-            comm__catchnum.setZero();
-        }
-        {
-            // Revert to being total biomass (applying overconsumption in process);
-            fish__predby_comm *= fish__totalpredate;
-            // Update total catch;
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            // Apply overconsumption to fish_comm__cons;
+            fish_comm__cons = nonconform_mult(fish_comm__cons, fish__consconv);
+            fish__predby_comm.setZero();
+            {
+                auto area = comm__area;
 
-                auto area = fish__area;
+                auto comm__area_idx = 0;
 
-                auto fish__area_idx = 0;
-
-                if ( area == comm__area ) {
-                    auto comm__area_idx = 0;
-
-                    auto fleet_area = area;
-
-                    {
-                        comm__catch(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx)).sum();
-                        comm__catchnum(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx) / fish__wgt.col(fish__age_idx).col(fish__area_idx)).sum();
-                    }
-                }
+                fish__predby_comm = nonconform_add(fish__predby_comm, fish_comm__cons.col(comm__area_idx));
             }
         }
         {
@@ -691,9 +679,6 @@ Type objective_function<Type>::operator() () {
         }
         if ( report_detail == 1 ) {
             detail_fish__renewalnum.col(cur_time + 1 - 1) = fish__renewalnum;
-        }
-        if ( report_detail == 1 ) {
-            detail_fish__suit_comm.col(cur_time + 1 - 1) = fish__suit_comm;
         }
         if ( cur_step_final ) {
             // g3a_age for fish;

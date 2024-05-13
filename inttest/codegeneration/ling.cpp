@@ -98,12 +98,9 @@ Type objective_function<Type>::operator() () {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
+    auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
     vector<Type> res(a.size());
@@ -111,6 +108,17 @@ Type objective_function<Type>::operator() () {
         res[i] = logspace_add(a[i], b);
     }
     return res;
+};
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
+    }
+    return res;
+};
+    auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar * (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto growth_bbinom = [](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
@@ -239,21 +247,24 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
-    array<Type> igfs__catch(1);
     array<Type> ling_imm__totalpredate(35,8,1);
     array<Type> ling_mat__totalpredate(35,11,1);
-    array<Type> ling_imm__predby_igfs(35,8,1);
+    array<Type> ling_imm_igfs__suit(35,8,1,1);
     int igfs__area = 1;
-    array<Type> ling_imm__suit_igfs(35,8,1); ling_imm__suit_igfs.setZero();
-    array<Type> ling_mat__predby_igfs(35,11,1);
-    array<Type> ling_mat__suit_igfs(35,11,1); ling_mat__suit_igfs.setZero();
+    array<Type> ling_mat_igfs__suit(35,11,1,1);
+    array<Type> ling_imm_igfs__cons(35,8,1,1);
     DATA_IVECTOR(igfs_totaldata__keys)
     DATA_IVECTOR(igfs_totaldata__values)
     auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    array<Type> ling_mat_igfs__cons(35,11,1,1);
     array<Type> ling_imm__consratio(35,8,1);
     Type ling_imm__overconsumption = (double)(0);
+    array<Type> ling_imm__consconv(35,8,1);
     array<Type> ling_mat__consratio(35,11,1);
     Type ling_mat__overconsumption = (double)(0);
+    array<Type> ling_mat__consconv(35,11,1);
+    array<Type> ling_imm__predby_igfs(35,8,1);
+    array<Type> ling_mat__predby_igfs(35,11,1);
     array<Type> ling_imm__transitioning_num(35,8,1); ling_imm__transitioning_num.setZero();
     array<Type> ling_imm__transitioning_wgt(35,8,1);
     int ling_imm__growth_lastcalc = -1;
@@ -346,10 +357,6 @@ Type objective_function<Type>::operator() () {
             cur_step_final = cur_step == step_count;
         }
         {
-            // Zero biomass-caught counter for igfs;
-            igfs__catch.setZero();
-        }
-        {
             // Zero total predation counter for ling_imm;
             ling_imm__totalpredate.setZero();
         }
@@ -360,7 +367,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_predate_fleet for ling_imm;
             // Zero igfs-ling_imm biomass-consuming counter;
-            ling_imm__predby_igfs.setZero();
+            ling_imm_igfs__suit.setZero();
             {
                 auto area = ling_imm__area;
 
@@ -375,9 +382,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable ling_imm biomass for igfs;
-                        ling_imm__suit_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
-                        ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__suit_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                        igfs__catch(igfs__area_idx) += (ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
+                        ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
                     }
                 }
             }
@@ -385,7 +390,7 @@ Type objective_function<Type>::operator() () {
         {
             // g3a_predate_fleet for ling_mat;
             // Zero igfs-ling_mat biomass-consuming counter;
-            ling_mat__predby_igfs.setZero();
+            ling_mat_igfs__suit.setZero();
             {
                 auto area = ling_mat__area;
 
@@ -400,15 +405,14 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable ling_mat biomass for igfs;
-                        ling_mat__suit_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx) = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
-                        ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat__suit_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx);
-                        igfs__catch(igfs__area_idx) += (ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
+                        ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx);
                     }
                 }
             }
         }
         {
             // Scale igfs catch of ling_imm by total expected catch;
+            ling_imm_igfs__cons.setZero();
             {
                 auto area = ling_imm__area;
 
@@ -419,17 +423,22 @@ Type objective_function<Type>::operator() () {
 
                     auto igfs__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
-                    {
-                        ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx) *= ((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / igfs__catch(igfs__area_idx));
-                        ling_imm__totalpredate.col(ling_imm__area_idx).col(ling_imm__age_idx) += ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                    }
+                    ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
+            }
+            {
+                auto area = igfs__area;
+
+                auto igfs__area_idx = 0;
+
+                ling_imm__totalpredate = nonconform_add(ling_imm__totalpredate, ling_imm_igfs__cons.col(igfs__area_idx));
             }
         }
         {
             // Scale igfs catch of ling_mat by total expected catch;
+            ling_mat_igfs__cons.setZero();
             {
                 auto area = ling_mat__area;
 
@@ -440,91 +449,63 @@ Type objective_function<Type>::operator() () {
 
                     auto igfs__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
-                    {
-                        ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx) *= ((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / igfs__catch(igfs__area_idx));
-                        ling_mat__totalpredate.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx);
-                    }
+                    ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
             }
-        }
-        {
-            // Temporarily convert to being proportion of totalpredate;
-            ling_imm__predby_igfs /= avoid_zero_vec(ling_imm__totalpredate);
-        }
-        {
-            // Temporarily convert to being proportion of totalpredate;
-            ling_mat__predby_igfs /= avoid_zero_vec(ling_mat__totalpredate);
+            {
+                auto area = igfs__area;
+
+                auto igfs__area_idx = 0;
+
+                ling_mat__totalpredate = nonconform_add(ling_mat__totalpredate, ling_mat_igfs__cons.col(igfs__area_idx));
+            }
         }
         {
             // Calculate ling_imm overconsumption coefficient;
-            ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
-            ling_imm__consratio = logspace_add_vec(ling_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
-            if ( true ) {
-                assert_msg((ling_imm__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_imm__consratio <= 1, can't consume more fish than currently exist");
-            }
-            // Apply overconsumption to prey;
+            // Apply overconsumption to ling_imm;
+            ling_imm__consratio = logspace_add_vec((ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
+            ling_imm__consconv = (double)(1) / avoid_zero_vec(ling_imm__totalpredate);
             ling_imm__totalpredate = (ling_imm__num*ling_imm__wgt)*ling_imm__consratio;
             ling_imm__overconsumption -= (ling_imm__totalpredate).sum();
+            ling_imm__consconv *= ling_imm__totalpredate;
             ling_imm__num *= ((double)(1) - ling_imm__consratio);
         }
         {
             // Calculate ling_mat overconsumption coefficient;
-            ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
-            ling_mat__consratio = logspace_add_vec(ling_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
-            if ( true ) {
-                assert_msg((ling_mat__consratio <= (double)(1)).all(), "g3a_predate_fleet: ling_mat__consratio <= 1, can't consume more fish than currently exist");
-            }
-            // Apply overconsumption to prey;
+            // Apply overconsumption to ling_mat;
+            ling_mat__consratio = logspace_add_vec((ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();
+            ling_mat__consconv = (double)(1) / avoid_zero_vec(ling_mat__totalpredate);
             ling_mat__totalpredate = (ling_mat__num*ling_mat__wgt)*ling_mat__consratio;
             ling_mat__overconsumption -= (ling_mat__totalpredate).sum();
+            ling_mat__consconv *= ling_mat__totalpredate;
             ling_mat__num *= ((double)(1) - ling_mat__consratio);
         }
         {
-            // Zero igfs catch before working out post-adjustment value;
-            igfs__catch.setZero();
-        }
-        {
-            // Revert to being total biomass (applying overconsumption in process);
-            ling_imm__predby_igfs *= ling_imm__totalpredate;
-            // Update total catch;
+            // Apply overconsumption to ling_imm_igfs__cons;
+            ling_imm_igfs__cons = nonconform_mult(ling_imm_igfs__cons, ling_imm__consconv);
+            ling_imm__predby_igfs.setZero();
             {
-                auto area = ling_imm__area;
+                auto area = igfs__area;
 
-                auto ling_imm__area_idx = 0;
+                auto igfs__area_idx = 0;
 
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == igfs__area ) {
-                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
-
-                    auto igfs__area_idx = 0;
-
-                    auto fleet_area = area;
-
-                    igfs__catch(igfs__area_idx) += (ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
-                }
+                ling_imm__predby_igfs = nonconform_add(ling_imm__predby_igfs, ling_imm_igfs__cons.col(igfs__area_idx));
             }
         }
         {
-            // Revert to being total biomass (applying overconsumption in process);
-            ling_mat__predby_igfs *= ling_mat__totalpredate;
-            // Update total catch;
+            // Apply overconsumption to ling_mat_igfs__cons;
+            ling_mat_igfs__cons = nonconform_mult(ling_mat_igfs__cons, ling_mat__consconv);
+            ling_mat__predby_igfs.setZero();
             {
-                auto area = ling_mat__area;
+                auto area = igfs__area;
 
-                auto ling_mat__area_idx = 0;
+                auto igfs__area_idx = 0;
 
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == igfs__area ) {
-                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
-
-                    auto igfs__area_idx = 0;
-
-                    auto fleet_area = area;
-
-                    igfs__catch(igfs__area_idx) += (ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
-                }
+                ling_mat__predby_igfs = nonconform_add(ling_mat__predby_igfs, ling_mat_igfs__cons.col(igfs__area_idx));
             }
         }
         {

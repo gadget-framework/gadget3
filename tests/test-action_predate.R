@@ -23,14 +23,14 @@ fleet_bc <- g3_fleet('fleet_bc') %>% g3s_livesonareas(areas[c('b', 'c')])
 ok_group("g3a_predate_catchability_totalfleet", {
     ok(cmp_code(
         g3a_predate_catchability_totalfleet(1234),
-        ~stock_ss(stock__predby_predstock) * (1234/stock_ss(predstock__catch))
+        ~stock_ss(predprey__suit) * (1234/total_predsuit)
         ), "g3a_predate_catchability_totalfleet: Inserts E into formula")
 })
 
 ok_group("g3a_predate_catchability_numberfleet", {
     ok(cmp_code(
         g3a_predate_catchability_numberfleet(1234),
-        ~(stock_ss(stock__predby_predstock)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/stock_ss(predstock__catchnum))
+        ~(stock_ss(predprey__suit)/avoid_zero_vec(stock_ss(stock__wgt))) * (1234/total_predsuitnum) * stock_ss(stock__wgt)
         ), "g3a_predate_catchability_numberfleet: Uses __catchnum instead of __catch")
 })
 
@@ -39,7 +39,7 @@ ok_group("g3a_predate_catchability_effortfleet", {
         g3a_predate_catchability_effortfleet(
             list(ling_imm = 123, ling_mat = 456),
             1234),
-        ~stock_switch(stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(stock__predby_predstock)), "Converts list into stock_switch")
+        ~stock_switch(stock, ling_imm = 123, ling_mat = 456) * 1234 * cur_step_size * stock_ss(predprey__suit)), "Converts list into stock_switch")
 })
 
 ok_group("g3a_predate_catchability_quotafleet", {
@@ -49,7 +49,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
             quota = c(10, 20, 30)), 1234),
         ~(if (sum(stock__num * stock__wgt) < 1000) 10 else
           if (sum(stock__num * stock__wgt) < 2000) 20 else 30) *
-              1234 * cur_step_size * stock_ss(stock__predby_predstock)), "quota_table: Quota converted into if condition")
+              1234 * cur_step_size * stock_ss(predprey__suit)), "quota_table: Quota converted into if condition")
 
     ok(cmp_code(
         g3a_predate_catchability_quotafleet(
@@ -58,7 +58,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
             sum_stocks = list(prey_a, prey_b)),
         ~(if ((stock_with(prey_b, sum(prey_b__num * prey_b__wgt)) +
              (stock_with(prey_a, sum(prey_a__num * prey_a__wgt)) + 0)) < 100) 0 else 800) *
-                2134 * cur_step_size * stock_ss(stock__predby_predstock)), "sum_stocks: Summing all named stocks")
+                2134 * cur_step_size * stock_ss(predprey__suit)), "sum_stocks: Summing all named stocks")
     # TODO: Make sure resulting formula can be predate_fleet()ed
 
     out_f <- g3a_predate_catchability_quotafleet(
@@ -74,7 +74,7 @@ ok_group("g3a_predate_catchability_quotafleet", {
         out_f,
         gadget3:::f_substitute(
             ~(quota_var <- if (cur_step == 1) if (sum(stock__num * stock__wgt) <
-                100) 0 else 800 else quota_var) * 2134 * cur_step_size * stock_ss(stock__predby_predstock),
+                100) 0 else 800 else quota_var) * 2134 * cur_step_size * stock_ss(predprey__suit),
             list(quota_var = as.symbol(quota_var_name)))), "recalc_f: Assign to quota_var as part of code")
 })
 
@@ -134,19 +134,17 @@ actions <- list(
             REPORT(prey_c__totalpredate)
             REPORT(prey_c__consratio)
 
-            REPORT(prey_a__predby_fleet_ab)
-            REPORT(prey_b__predby_fleet_ab)
-            REPORT(prey_c__predby_fleet_ab)
-            REPORT(fleet_ab__catch)
+            REPORT(prey_a_fleet_ab__cons)
+            REPORT(prey_b_fleet_ab__cons)
+            REPORT(prey_c_fleet_ab__cons)
 
-            REPORT(prey_a__predby_fleet_bc)
-            REPORT(prey_b__predby_fleet_bc)
-            REPORT(prey_c__predby_fleet_bc)
-            REPORT(fleet_bc__catch)
+            REPORT(prey_a_fleet_bc__cons)
+            REPORT(prey_b_fleet_bc__cons)
+            REPORT(prey_c_fleet_bc__cons)
 
             REPORT(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
-actions <- c(actions, list(g3a_report_history(actions, "prey_.*__predby_fleet_.*")))
+actions <- c(actions, list(g3a_report_history(actions, ".*__cons$")))
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -194,68 +192,66 @@ ok_group("No overconsumption", {
     ok(ut_cmp_equal(sum(r$nll_understocking__wgt), 0), "nll_understocking__wgt: Breakdown also 0")
 
     # Fleet_ab
-    ok(ut_cmp_equal(
-        as.vector(r$fleet_ab__catch),
-        c(sum(r$prey_a__predby_fleet_ab[,1]), sum(r$prey_b__predby_fleet_ab[,1])),
-        tolerance = 1e-7), "prey_ab__catch: Totals match prey_a__predby_fleet_ab & prey_b__predby_fleet_ab")
     prey_a_catch_45 <- 0.1 * 45 * 450  # NB: 0.1 = selectivity, 45 = __num, 450 = __wgt
     prey_a_catch_55 <- 0.2 * 55 * 550
     prey_a_catch_65 <- 0.1 * 65 * 650
     ok(ut_cmp_equal(
-        as.vector(r$prey_a__predby_fleet_ab),
+        as.vector(r$prey_a_fleet_ab__cons[,,area='a']),
         c(
             0, 0, 0,
             100 * prey_a_catch_45 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             100 * prey_a_catch_55 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
             100 * prey_a_catch_65 / (prey_a_catch_45 + prey_a_catch_55 + prey_a_catch_65),
-            0, 0, 0, 0)), "prey_a__predby_fleet_ab: Scaled to match suitability")
+            0, 0, 0, 0)), "prey_a_fleet_ab__cons: Scaled to match suitability")
     prey_b_catch_65 <- 0.1 * 65 * 650
     prey_b_catch_75 <- 0.2 * 75 * 750
     prey_b_catch_85 <- 0.1 * 85 * 850
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__predby_fleet_ab),
+        as.vector(r$prey_b_fleet_ab__cons[,,area='b']),
         c(
             0, 0, 0, 0, 0,
             200 * prey_b_catch_65 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
             200 * prey_b_catch_75 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
             200 * prey_b_catch_85 / (prey_b_catch_65 + prey_b_catch_75 + prey_b_catch_85),
-            0, 0)), "prey_b__predby_fleet_ab: Scaled to match suitability")
+            0, 0)), "prey_b_fleet_ab__cons: Scaled to match suitability")
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__predby_fleet_ab),
-        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_c__predby_fleet_ab: None, in wrong area")
+        as.vector(r$prey_c_fleet_ab__cons[,,]),
+        c(
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        )), "prey_c_fleet_ab__cons: None, in wrong area")
 
     # Fleet_bc
     ok(ut_cmp_equal(
-        as.vector(r$fleet_bc__catch),
-        c(2 * 50, 3 * 50)), "fleet_bc__catch: 50 * (area) in total")
-    ok(ut_cmp_equal(
-        as.vector(r$prey_a__predby_fleet_bc),
-        c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_a__predby_fleet_bc: None, in wrong area")
+        as.vector(r$prey_a_fleet_bc__cons[,,]),
+        c(
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0)), "prey_a_fleet_bc__cons: None, in wrong area")
     prey_b_catch_1 <- 0.1 * 75 * 750
     prey_b_catch_2 <- 0.2 * 85 * 850
     prey_b_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(r$prey_b__predby_fleet_bc),
+        as.vector(r$prey_b_fleet_bc__cons[,,area='b']),
         c(
             0, 0, 0, 0, 0, 0,
             100 * prey_b_catch_1 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
             100 * prey_b_catch_2 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
             100 * prey_b_catch_3 / (prey_b_catch_1 + prey_b_catch_2 + prey_b_catch_3),
-            0)), "prey_b__predby_fleet_bc: Scaled to match suitability")
+            0)), "prey_b_fleet_bc__cons: Scaled to match suitability")
     prey_c_catch_1 <- 0.1 * 75 * 750
     prey_c_catch_2 <- 0.2 * 85 * 850
     prey_c_catch_3 <- 0.1 * 95 * 950
     ok(ut_cmp_equal(
-        as.vector(r$prey_c__predby_fleet_bc),
+        as.vector(r$prey_c_fleet_bc__cons[,,area='c']),
         c(
             0, 0, 0, 0, 0, 0,
             150 * prey_c_catch_1 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
             150 * prey_c_catch_2 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
             150 * prey_c_catch_3 / (prey_c_catch_1 + prey_c_catch_2 + prey_c_catch_3),
-            0)), "prey_c__predby_fleet_bc: Scaled to match suitability")
+            0)), "prey_c_fleet_bc__cons: Scaled to match suitability")
     ok(ut_cmp_equal(
-        sum(as.vector(r$prey_c__predby_fleet_bc)),
-        150), "prey_c__predby_fleet_bc: Totals 150")
+        sum(as.vector(r$prey_c_fleet_bc__cons)),
+        150), "prey_c_fleet_bc__cons: Totals 150")
 
     # prey_a
     ok(ut_cmp_equal(
@@ -263,8 +259,8 @@ ok_group("No overconsumption", {
         c(F, F, F, F, F, F, F, F, F, F)), "prey_a__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
-        as.vector(r$prey_a__predby_fleet_ab) + 
-        as.vector(r$prey_a__predby_fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_a_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_a_fleet_bc__cons, dims = 2))), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__num),
         c(15.00000, 25.00000, 35.00000, 44.96341, 54.91057, 64.94715, 75.00000, 85.00000, 95.00000, 105.00000),
@@ -276,8 +272,8 @@ ok_group("No overconsumption", {
         c(F, F, F, F, F, F, F, F, F, F)), "prey_b__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
-        as.vector(r$prey_b__predby_fleet_ab) + 
-        as.vector(r$prey_b__predby_fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_b_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_b_fleet_bc__cons, dims = 2))), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 64.94273, 74.84207, 84.86669, 94.96735, 105.00000),
@@ -289,8 +285,8 @@ ok_group("No overconsumption", {
         c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
-        as.vector(r$prey_c__predby_fleet_ab) + 
-        as.vector(r$prey_c__predby_fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_c_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_c_fleet_bc__cons, dims = 2))), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__num),
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
@@ -334,8 +330,8 @@ ok_group("Overconsumption", {
         c(F, F, F, T, T, T, F, F, F, F)), "prey_a__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__totalpredate),
-        as.vector(r$prey_a__predby_fleet_ab) +
-        as.vector(r$prey_a__predby_fleet_bc)), "prey_a__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_a_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_a_fleet_bc__cons, dims = 2))), "prey_a__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_a__num),
         c(15, 25, 35, 45 - (45 * 0.95), 55 - (55 * 0.95), 65 - (65 * 0.95), 75, 85, 95, 105),
@@ -348,8 +344,8 @@ ok_group("Overconsumption", {
         c(F, F, F, F, F, T, T, T, F, F)), "prey_b__consratio: Overconsumed by ab")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__totalpredate),
-        as.vector(r$prey_b__predby_fleet_ab) +
-        as.vector(r$prey_b__predby_fleet_bc)), "prey_b__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_b_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_b_fleet_bc__cons, dims = 2))), "prey_b__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_b__num),
         c(15, 25, 35, 45, 55, 65 - (65 * 0.95), 75 - (75 * 0.95), 85 - (85 * 0.95), 94.96735, 105),
@@ -362,8 +358,8 @@ ok_group("Overconsumption", {
         c(F, F, F, F, F, F, F, F, F, F)), "prey_c__consratio: No overconsumption")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__totalpredate),
-        as.vector(r$prey_c__predby_fleet_ab) +
-        as.vector(r$prey_c__predby_fleet_bc)), "prey_c__totalpredate: fleet_ab + fleet_ac")
+        as.vector(rowSums(r$prey_c_fleet_ab__cons, dims = 2)) +
+        as.vector(rowSums(r$prey_c_fleet_bc__cons, dims = 2))), "prey_c__totalpredate: fleet_ab + fleet_ac")
     ok(ut_cmp_equal(
         as.vector(r$prey_c__num),
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
@@ -395,42 +391,24 @@ ok_group("run_f disabling", {
     # str(as.list(r), vec.len = 10000)
 
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_a__predby_fleet_ab),
-        structure(
-            c(10, 10, 10, 10),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "a", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_a__predby_fleet_ab: Continually fished")
+        colSums(r$hist_prey_a_fleet_ab__cons[,,pred_area = 'a',]),
+        c("2000-01" = 10, "2001-01" = 10, "2002-01" = 10, "2003-01" = 10) ), "hist_prey_a_fleet_ab__cons: Continually fished")
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_b__predby_fleet_ab),
-        structure(
-            c(20, 20, 20, 20),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "b", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_b__predby_fleet_ab: Continually fished")
+        colSums(r$hist_prey_b_fleet_ab__cons[,,pred_area = 'b',]),
+        c("2000-01" = 20, "2001-01" = 20, "2002-01" = 20, "2003-01" = 20) ), "hist_prey_b_fleet_ab__cons: Continually fished")
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_c__predby_fleet_ab),
-        structure(
-            c(0, 0, 0, 0),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "c", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_c__predby_fleet_ab: Not fished")
+        colSums(r$hist_prey_c_fleet_ab__cons[,,pred_area = 'a',]),
+        c("2000-01" = 0, "2001-01" = 0, "2002-01" = 0, "2003-01" = 0) ), "hist_prey_c_fleet_ab__cons: Not fished")
 
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_a__predby_fleet_bc),
-        structure(
-            c(0, 0, 0, 0),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "a", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_a__predby_fleet_bc: Not fished")
+        colSums(r$hist_prey_a_fleet_bc__cons[,,pred_area = 'b',]),
+        c("2000-01" = 0, "2001-01" = 0, "2002-01" = 0, "2003-01" = 0) ), "hist_prey_a_fleet_bc__cons: Not fished")
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_b__predby_fleet_bc),
-        structure(
-            c(20, 0, 20, 0),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "b", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_b__predby_fleet_bc: Only fished on even years")
+        colSums(r$hist_prey_b_fleet_bc__cons[,,pred_area = 'b',]),
+        c("2000-01" = 20, "2001-01" = 0, "2002-01" = 20, "2003-01" = 0) ), "hist_prey_b_fleet_bc__cons: Only fished on even years")
     ok(ut_cmp_equal(
-        colSums(r$hist_prey_c__predby_fleet_bc),
-        structure(
-            c(30, 0, 30, 0),
-            .Dim = c(area = 1L, time = 4L),
-            .Dimnames = list(area = "c", time = c("2000-01", "2001-01", "2002-01", "2003-01")))), "hist_prey_c__predby_fleet_bc: Only fished on even years")
+        colSums(r$hist_prey_c_fleet_bc__cons[,,pred_area = 'c',]),
+        c("2000-01" = 30, "2001-01" = 0, "2002-01" = 30, "2003-01" = 0) ), "hist_prey_c_fleet_bc__cons: Only fished on even years")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
