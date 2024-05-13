@@ -166,7 +166,13 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         out_f <- stock_interactvar_prefix(out_f, prefix)
         out_f <- stock_rename(out_f, "stock", stock_var)
         # Make sure formulas are defined if they need anything the stock code defines
-        inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {
+        defines <- setdiff(all.vars(out_f), all_undefined_vars(out_f))
+        # Also try the renamed equivalents of each of the defines
+        defines <- c(defines, vapply(
+            defines,
+            function (x) gsub(paste0('^', stock_var, '__'), paste0(stock$name, '__'), x),
+            character(1) ))
+        inner_f <- add_dependent_formula(inner_f, defines, function (f) {
             # Attach outer environment so items resolve
             if (rlang::is_formula(f)) {
                 environment(f) <- rlang::env_clone(
