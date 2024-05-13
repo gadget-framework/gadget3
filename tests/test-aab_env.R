@@ -119,6 +119,24 @@ expecteds$nonconform_outdiv1 <- nonconform_inp1 / as.vector(nonconform_extra[,1]
 expecteds$nonconform_outdiv2 <- nonconform_inp2 / as.vector(nonconform_extra[,2])
 expecteds$nonconform_outdiv2a <- nonconform_inp2[,,1] / as.vector(nonconform_extra[,2])
 
+# nonconform_divavz
+nonconform_div_avz_extra <- array(c(0, 1e1, 1e2, 1e3, 0, 1e-1, 1e-2, 1e-3), dim = c(4,2))
+nonconform_outdiv_avz1 <- array(dim = c(4,3,2))
+nonconform_outdiv_avz2 <- array(dim = c(4,4,5))
+nonconform_outdiv_avz2a <- array(dim = c(4,4,1))
+actions <- c(actions, ~{
+    comment('nonconform_div_avz')
+    nonconform_outdiv_avz1 <- nonconform_div_avz(nonconform_inp1, nonconform_div_avz_extra[,g3_idx(1)])
+    nonconform_outdiv_avz2 <- nonconform_div_avz(nonconform_inp2, nonconform_div_avz_extra[,g3_idx(2)])
+    nonconform_outdiv_avz2a <- nonconform_div_avz(nonconform_inp2[,,g3_idx(1)], nonconform_div_avz_extra[,g3_idx(2)])
+    REPORT(nonconform_outdiv_avz1)
+    REPORT(nonconform_outdiv_avz2)
+    REPORT(nonconform_outdiv_avz2a)
+})
+expecteds$nonconform_outdiv_avz1 <- nonconform_inp1 / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,1]))
+expecteds$nonconform_outdiv_avz2 <- nonconform_inp2 / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,2]))
+expecteds$nonconform_outdiv_avz2a <- nonconform_inp2[,,1] / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,2]))
+
 ###############################################################################
 
 nll <- 0.0

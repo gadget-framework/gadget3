@@ -23,6 +23,7 @@
 \alias{nonconform_mult}
 \alias{nonconform_add}
 \alias{nonconform_div}
+\alias{nonconform_divavz}
 \concept{G3 internals}
 
 \title{Gadget3 global environment}
@@ -91,10 +92,12 @@
   Sum \var{orig_vec} & \var{new_vec} according to ratio of \var{orig_amount} & \var{new_amount}
 }
 
-\section{nonconform_add / nonconform_mult / nonconform_div}{
+\section{nonconform_add / nonconform_mult / nonconform_div / nonconform_div_avz}{
   Scalar sum/multiply/divide 2 non-conforming arrays,
   by treating the latter as a vector and repeating as many times as required.
   Results will be structured identically to the first array.
+
+  \code{nonconform_div_avz(x, y)} is equivalent to \code{nonconform_div(x, avoid_zero_vec(y))}
 }
 
 \section{REPORT}{
@@ -127,4 +130,12 @@ g3_eval(quote( normalize_vec(c( 4, 4, 8, 2 )) ))
 g3_eval(quote( nonconform_mult(
     array(seq(0, 4*5*6), dim = c(4,5,6)),
     c(1e1, 1e2, 1e3, 1e4)) ))
+
+## nonconform_div_avz
+g3_eval(quote( nonconform_div_avz(
+    array(seq(0, 4*5*6), dim = c(4,5,6)),
+    c(1e1, 1e2, 0, 1e4)) ))
+g3_eval(quote( nonconform_div(
+    array(seq(0, 4*5*6), dim = c(4,5,6)),
+    avoid_zero(c(1e1, 1e2, 0, 1e4))) ))
 }
