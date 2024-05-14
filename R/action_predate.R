@@ -1,27 +1,39 @@
 g3a_predate_catchability_totalfleet <- function (E) {
-    f_substitute(
-        ~stock_ss(predprey__suit) * (E / total_predsuit),
-        list(E = E))
+    list(
+        suit_unit = "total biomass",
+        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+        cons = f_substitute(
+            ~stock_ss(predprey__suit) * (E / total_predsuit),
+            list(E = E)) )
 }
 
 g3a_predate_catchability_numberfleet <- function (E) {
-    f_substitute(
-        ~(stock_ss(predprey__suit) / avoid_zero_vec(stock_ss(stock__wgt))) * (E / total_predsuitnum) * stock_ss(stock__wgt),
-        list(E = E))
+    list(
+        suit_unit = "number of individuals",
+        suit = quote( suit_f * stock_ss(stock__num) ),
+        cons = f_substitute(
+            ~stock_ss(predprey__suit) * (E / total_predsuit) * stock_ss(stock__wgt),
+            list(E = E)) )
 }
 
 g3a_predate_catchability_linearfleet <- function (E) {
-    f_substitute(
-        ~E * cur_step_size * stock_ss(predprey__suit),
-        list(E = E))
+    list(
+        suit_unit = "total biomass",
+        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+        cons = f_substitute(
+            ~E * cur_step_size * stock_ss(predprey__suit),
+            list(E = E)) )
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {
-    f_substitute(
-        ~catchability_fs * E * cur_step_size * stock_ss(predprey__suit),
-        list(
-            catchability_fs = list_to_stock_switch(catchability_fs),
-            E = E))
+    list(
+        suit_unit = "total biomass",
+        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+        cons = f_substitute(
+            ~catchability_fs * E * cur_step_size * stock_ss(predprey__suit),
+            list(
+                catchability_fs = list_to_stock_switch(catchability_fs),
+                E = E)) )
 }
 
 g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = list(), recalc_f = NULL) {
@@ -71,13 +83,17 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
             quota_var = as.symbol(quota_var_name)))
     }
 
-    out <- f_substitute(
-        ~quota_f * E * cur_step_size * stock_ss(predprey__suit), list(
-        quota_f = quota_f,
-        E = E))
+    out <- list(
+        suit_unit = "energy content",
+        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+        cons = f_substitute(
+            ~quota_f * E * cur_step_size * stock_ss(predprey__suit),
+            list(
+                quota_f = quota_f,
+                E = E)) )
     # Make sure stocks with final name are available when making up formula
     for (stock in sum_stocks) {
-        assign(stock$name, stock, envir = environment(out))
+        assign(stock$name, stock, envir = environment(out$C))
     }
     return(out)
 }
@@ -107,7 +123,7 @@ g3a_predate_fleet <- function (fleet_stock,
     predprey__conses <- lapply(predpreys, function (predprey)
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
     predprey__suits <- lapply(predpreys, function (predprey)
-        g3_stock_instance(predprey, desc = paste0("Total suitable biomass of ", predprey$name)) )
+        g3_stock_instance(predprey, desc = paste0("Suitable ", predprey$name, " by ", catchability_f$suit_unit)) )
 
     # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
     if (length(predstock$dim) == 0) {
@@ -122,9 +138,8 @@ g3a_predate_fleet <- function (fleet_stock,
         names(suit_ss)[[4]] <- final_predim
     }
 
-    # Build total_predsuit / total_predsuitnum from all prey stocks
+    # Build total_predsuit from all prey stocks
     total_predsuit <- 0
-    total_predsuitnum <- 0
     for (stock in prey_stocks) {
         predprey <- predpreys[[stock$name]]
         predprey__cons <- predprey__conses[[stock$name]]
@@ -137,11 +152,6 @@ g3a_predate_fleet <- function (fleet_stock,
             list(
                 suit_ss = suit_ss,
                 total_predsuit = total_predsuit )), recursing = TRUE))
-        total_predsuitnum <- rlang::f_rhs(g3_step(f_substitute(~total_predsuitnum + stock_with(stock, stock_with(predprey,
-                sum(nonconform_div_avz(suit_ss, stock__wgt)) )),
-            list(
-                suit_ss = suit_ss,
-                total_predsuitnum = total_predsuitnum )), recursing = TRUE))
     }
 
     # For each prey stock...
@@ -172,12 +182,11 @@ g3a_predate_fleet <- function (fleet_stock,
 
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", predstock)
-                stock_ss(predprey__suit) <- (suit_f
-                    * stock_ss(stock__num)
-                    * stock_ss(stock__wgt))
+                stock_ss(predprey__suit) <- catchability_suit_f
             }), prefix = 'fleet'))
         }, list(
-            suit_f = list_to_stock_switch(suitabilities),
+            catchability_suit_f = f_substitute(catchability_f$suit, list(
+                suit_f = list_to_stock_switch(suitabilities) )),
             run_f = run_f )))
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
@@ -186,7 +195,7 @@ g3a_predate_fleet <- function (fleet_stock,
             stock_with(predprey, predprey__cons[] <- 0)
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 # NB: In gadget2, E == wanttoeat
-                stock_ss(predprey__cons) <- catchability_f
+                stock_ss(predprey__cons) <- catchability_cons_f
                 # NB: In gadget2, predprey__cons == (*cons[inarea][prey])[predl], totalpredator.cc#68
             }), prefix = 'fleet'))
 
@@ -196,7 +205,7 @@ g3a_predate_fleet <- function (fleet_stock,
                 stock__totalpredate[] <- nonconform_add(stock__totalpredate[], cons_ss)
             })))
         }, list(
-            catchability_f = catchability_f,
+            catchability_cons_f = catchability_f$cons,
             cons_ss = cons_ss,
             run_f = run_f )))
 

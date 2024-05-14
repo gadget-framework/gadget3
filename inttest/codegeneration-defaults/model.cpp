@@ -97,22 +97,6 @@ Type objective_function<Type>::operator() () {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
-    auto nonconform_div_avz = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
-    vector<Type> extra_vec = extra_ar.vec();
-    assert(base_ar.size() % extra_ar.size() == 0);
-
-    for(int i = 0; i < extra_vec.size(); i++) {
-        extra_vec[i] = logspace_add(extra_vec[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return base_ar / (extra_vec.template replicate(base_ar.size() / extra_vec.size(), 1));
-};
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
-};
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
@@ -121,6 +105,13 @@ Type objective_function<Type>::operator() () {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
         res[i] = logspace_add(a[i], b);
+    }
+    return res;
+};
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
     }
     return res;
 };
@@ -426,7 +417,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable fish biomass for comm;
-                        fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                        fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx);
                     }
                 }
             }
@@ -444,9 +435,9 @@ Type objective_function<Type>::operator() () {
                 if ( area == comm__area ) {
                     auto comm__area_idx = 0;
 
-                    auto total_predsuitnum = (nonconform_div_avz(fish_comm__suit.col(comm__area_idx), fish__wgt)).sum();
+                    auto total_predsuit = (fish_comm__suit.col(comm__area_idx)).sum();
 
-                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = (fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) / avoid_zero_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx)))*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / total_predsuitnum)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
             {

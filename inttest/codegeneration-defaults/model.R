@@ -69,13 +69,6 @@ structure(function (param)
         }
         return(FALSE)
     }
-    nonconform_div_avz <- function(base_ar, extra_ar) {
-        extra_ar <- (pmax(extra_ar * 1000, 0) + log1p(exp(pmin(extra_ar * 1000, 0) - pmax(extra_ar * 1000, 0))))/1000
-        base_ar/as.vector(extra_ar)
-    }
-    avoid_zero_vec <- function(a) {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
-    }
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -92,6 +85,9 @@ structure(function (param)
     }
     logspace_add_vec <- function(a, b) {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    }
+    avoid_zero_vec <- function(a) {
+        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     nonconform_mult <- function(base_ar, extra_ar) {
         base_ar * as.vector(extra_ar)
@@ -326,7 +322,7 @@ structure(function (param)
                   fleet_area <- area
                   {
                     comment("Collect all suitable fish biomass for comm")
-                    fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))) * fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]
+                    fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))) * fish__num[, fish__area_idx, fish__age_idx]
                   }
                 }
             }
@@ -340,10 +336,10 @@ structure(function (param)
                 fish__area_idx <- (1L)
                 if (area == comm__area) {
                   comm__area_idx <- (1L)
-                  total_predsuitnum <- sum(nonconform_div_avz(fish_comm__suit[, , , comm__area_idx], fish__wgt))
-                  fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx] <- (fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx]/avoid_zero_vec(fish__wgt[, fish__area_idx, fish__age_idx])) * ((if (area != 1L) 
+                  total_predsuit <- sum(fish_comm__suit[, , , comm__area_idx])
+                  fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx] <- fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] * ((if (area != 1L) 
                     0
-                  else intlookup_getdefault(comm_landings__lookup, cur_year, 0))/total_predsuitnum) * fish__wgt[, fish__area_idx, fish__age_idx]
+                  else intlookup_getdefault(comm_landings__lookup, cur_year, 0))/total_predsuit) * fish__wgt[, fish__area_idx, fish__age_idx]
                 }
             }
             {
