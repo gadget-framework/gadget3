@@ -107,8 +107,8 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     \describe{
       \item{\var{prey_stock__suit_fleet_stock}}{Suitability of (prey_stock) for (fleet_stock), in a prey array.
           i.e. the result of calculating the formula in \var{suitabilities} for the current state of the prey}
+      \item{\var{(predstock)_(prey_stock)__cons}}{Biomass of (prey_stock) caught by (predstock), by predator & prey dimensions}
       \item{\var{prey_stock__predby_predstock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
-      \item{\var{fleet_stock__catch}}{Biomass of all prey caught by (fleet stock), in a fleet array}
       \item{\var{prey_stock__totalpredate}}{Biomass of total consumed (prey_stock), in a prey array}
       \item{\var{prey_stock__consratio}}{Ratio of prey_stock__totalpredate / (current biomass), capped by \var{overconsumption_f}}
     }
