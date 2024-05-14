@@ -31,7 +31,7 @@ actions <- list(
         run_f = ~cur_year >= g3_param('tagshed_start', value = 2999)),
     list())
 actions <- c(actions, list(
-    g3a_report_history(actions, "prey_.*__predby_fleet_.*"),
+    g3a_report_history(actions, "__cons"),
     g3a_report_history(actions)))
 
 # Compile model
@@ -68,7 +68,7 @@ ok_group("tagging without mortality", {
             # Start, not interesting
         } else if (t %% 2 == 0) {
             # Predation step
-            nums_caught <- rowSums(attr(result, "hist_prey_a__predby_fleet_a")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
+            nums_caught <- rowSums(attr(result, "hist_prey_a_fleet_a__cons")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
             if (t == 2) {
                 ok(ut_cmp_equal(
                     as.numeric(attr(result, "hist_prey_a__num")[,2,t]),
@@ -114,7 +114,7 @@ ok_group("tagging with mortality", {
             # Start, not interesting
         } else if (t %% 2 == 0) {
             # Predation step
-            nums_caught <- rowSums(attr(result, "hist_prey_a__predby_fleet_a")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
+            nums_caught <- rowSums(attr(result, "hist_prey_a_fleet_a__cons")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
             if (t == 2) {
                 ok(ut_cmp_equal(
                     as.numeric(attr(result, "hist_prey_a__num")[,2,t]),
@@ -179,7 +179,7 @@ ok_group("tag shedding", {
                 tolerance = 1e-7), paste0("hist_prey_a__num[,'untagged',", t, "]: Fish lose tag and return to untagged"))
         } else if (t %% 2 == 0) {
             # Predation step
-            nums_caught <- rowSums(attr(result, "hist_prey_a__predby_fleet_a")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
+            nums_caught <- rowSums(attr(result, "hist_prey_a_fleet_a__cons")[,,t] / attr(result, "hist_prey_a__wgt")[,,t])
             if (t == 2) {
                 ok(ut_cmp_equal(
                     as.numeric(attr(result, "hist_prey_a__num")[,2,t]),
