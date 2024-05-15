@@ -183,7 +183,7 @@ g3a_predate_fleet <- function (fleet_stock,
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", predstock)
                 stock_ss(predprey__suit) <- catchability_suit_f
-            }), prefix = 'fleet'))
+            }), prefix = 'predator'))
         }, list(
             catchability_suit_f = f_substitute(catchability_f$suit, list(
                 suit_f = list_to_stock_switch(suitabilities) )),
@@ -197,7 +197,7 @@ g3a_predate_fleet <- function (fleet_stock,
                 # NB: In gadget2, E == wanttoeat
                 stock_ss(predprey__cons) <- catchability_cons_f
                 # NB: In gadget2, predprey__cons == (*cons[inarea][prey])[predl], totalpredator.cc#68
-            }), prefix = 'fleet'))
+            }), prefix = 'predator'))
 
             # Add predstock's consumption to total consumption of stock
             stock_iterate(predstock, stock_with(stock, stock_with(predprey, {

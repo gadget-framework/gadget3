@@ -413,7 +413,7 @@ Type objective_function<Type>::operator() () {
                 if ( area == comm__area ) {
                     auto comm__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto predator_area = area;
 
                     {
                         // Collect all suitable fish biomass for comm;
@@ -434,6 +434,8 @@ Type objective_function<Type>::operator() () {
 
                 if ( area == comm__area ) {
                     auto comm__area_idx = 0;
+
+                    auto predator_area = area;
 
                     auto total_predsuit = (fish_comm__suit.col(comm__area_idx)).sum();
 

@@ -319,7 +319,7 @@ structure(function (param)
                 fish__area_idx <- (1L)
                 if (area == comm__area) {
                   comm__area_idx <- (1L)
-                  fleet_area <- area
+                  predator_area <- area
                   {
                     comment("Collect all suitable fish biomass for comm")
                     fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))) * fish__num[, fish__area_idx, fish__age_idx]
@@ -336,6 +336,7 @@ structure(function (param)
                 fish__area_idx <- (1L)
                 if (area == comm__area) {
                   comm__area_idx <- (1L)
+                  predator_area <- area
                   total_predsuit <- sum(fish_comm__suit[, , , comm__area_idx])
                   fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx] <- fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] * ((if (area != 1L) 
                     0

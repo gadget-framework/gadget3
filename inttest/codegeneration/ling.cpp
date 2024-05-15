@@ -378,7 +378,7 @@ Type objective_function<Type>::operator() () {
 
                     auto igfs__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto predator_area = area;
 
                     {
                         // Collect all suitable ling_imm biomass for igfs;
@@ -401,7 +401,7 @@ Type objective_function<Type>::operator() () {
 
                     auto igfs__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto predator_area = area;
 
                     {
                         // Collect all suitable ling_mat biomass for igfs;
@@ -422,6 +422,8 @@ Type objective_function<Type>::operator() () {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                     auto igfs__area_idx = 0;
+
+                    auto predator_area = area;
 
                     auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
@@ -448,6 +450,8 @@ Type objective_function<Type>::operator() () {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
                     auto igfs__area_idx = 0;
+
+                    auto predator_area = area;
 
                     auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
