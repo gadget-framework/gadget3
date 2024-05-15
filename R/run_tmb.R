@@ -1008,6 +1008,10 @@ g3_tmb_adfun <- function(cpp_code,
         if (parameters[i, 'type'] == "" && length(val) != 1) stop("Parameter ", parameters[i, 'switch'], " should be a single value")
     }
 
+    if (!any(parameters$optimise) && !any(parameters$random)) {
+        stop("No parameters with optimise=TRUE or random=TRUE. Set at least one optimisable parameter to run under TMB")
+    }
+
     tmb_parameters <- structure(
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
