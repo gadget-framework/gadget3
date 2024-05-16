@@ -36,6 +36,7 @@ export(g3a_predate_catchability_numberfleet)
 export(g3a_predate_catchability_linearfleet)
 export(g3a_predate_catchability_effortfleet)
 export(g3a_predate_catchability_quotafleet)
+export(g3a_predate)
 export(g3a_predate_fleet)
 export(g3a_predate_totalfleet)
 

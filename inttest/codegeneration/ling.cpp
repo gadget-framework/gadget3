@@ -491,6 +491,12 @@ Type objective_function<Type>::operator() () {
         {
             // Apply overconsumption to ling_imm_igfs__cons;
             ling_imm_igfs__cons = nonconform_mult(ling_imm_igfs__cons, ling_imm__consconv);
+        }
+        {
+            // Apply overconsumption to ling_mat_igfs__cons;
+            ling_mat_igfs__cons = nonconform_mult(ling_mat_igfs__cons, ling_mat__consconv);
+        }
+        {
             ling_imm__predby_igfs.setZero();
             {
                 auto area = igfs__area;
@@ -501,8 +507,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // Apply overconsumption to ling_mat_igfs__cons;
-            ling_mat_igfs__cons = nonconform_mult(ling_mat_igfs__cons, ling_mat__consconv);
             ling_mat__predby_igfs.setZero();
             {
                 auto area = igfs__area;

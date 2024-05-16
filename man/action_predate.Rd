@@ -4,6 +4,7 @@
 \alias{g3a_predate_catchability_linearfleet}
 \alias{g3a_predate_catchability_effortfleet}
 \alias{g3a_predate_catchability_quotafleet}
+\alias{g3a_predate}
 \alias{g3a_predate_fleet}
 \alias{g3a_predate_totalfleet}
 \concept{G3 action}
@@ -26,12 +27,24 @@ g3a_predate_catchability_quotafleet(quota_table, E,
                                     sum_stocks = list(),
                                     recalc_f = NULL)
 
+g3a_predate(
+        predstock,
+        prey_stocks,
+        suitabilities,
+        catchability_f,
+        overconsumption_f = quote(
+            logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
+        ),
+        run_f = ~TRUE,
+        run_at = g3_action_order$predate )
+
+# NB: Deprecated interface, use g3a_predate()
 g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, catchability_f,
     overconsumption_f = quote(
         logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
     run_f = ~TRUE, run_at = g3_action_order$predate)
 
-# NB: Deprecated interface, use g3a_predate_fleet with g3a_predate_catchability_totalfleet
+# NB: Deprecated interface, use g3a_predate() with g3a_predate_catchability_totalfleet
 g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     overconsumption_f = quote(
         logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
@@ -39,8 +52,8 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 }
 
 \arguments{
-  \item{fleet_stock}{
-    \code{\link{g3_stock}} that describes the harvesting fleet.
+  \item{predstock, fleet_stock}{
+    \code{\link{g3_stock}} that describes the harvesting predators/fleet.
   }
   \item{prey_stocks}{
     List of \code{\link{g3_stock}}s that maturing \var{stock} should move into.
@@ -92,7 +105,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 }
 
 \details{
-  \code{g3a_predate_fleet} will, given a \code{\link{g3_fleet}} "predator" and \code{\link{g3_stock}} prey,
+  \code{g3a_predate} will, given a \code{\link{g3_fleet}} "predator" and a set of \code{\link{g3_stock}} preys,
   add predation into a model. The behaviour is driven by 2 parameters:
 
   \describe{
@@ -108,10 +121,12 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
       \item{\var{prey_stock__suit_fleet_stock}}{Suitability of (prey_stock) for (fleet_stock), in a prey array.
           i.e. the result of calculating the formula in \var{suitabilities} for the current state of the prey}
       \item{\var{(predstock)_(prey_stock)__cons}}{Biomass of (prey_stock) caught by (predstock), by predator & prey dimensions}
-      \item{\var{prey_stock__predby_predstock}}{Biomass of (prey_stock) caught by (fleet_stock), in a prey array}
       \item{\var{prey_stock__totalpredate}}{Biomass of total consumed (prey_stock), in a prey array}
       \item{\var{prey_stock__consratio}}{Ratio of prey_stock__totalpredate / (current biomass), capped by \var{overconsumption_f}}
     }
+
+    In addition, \code{g3a_predate_fleet will generate} \var{prey_stock__predby_predstock}, {Biomass of (prey_stock) caught by (fleet_stock), in a prey array},
+    for compatibility with older models. It is otherwise identical to \code{g3a_predate}.
 
     A model can have any number of \code{g3a_predate_*} actions, so long as the
     calling arguments are different. For instance, \code{run_f = ~age == 5} and
@@ -191,13 +206,11 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     will use the previous value.
   }
 
-  \subsection{g3a_predate_fleet}{An action (i.e. list of formula objects) that will...\enumerate{
-    \item{Zero fleet and prey catch counters}
-    \item{For each prey, collect maximum desired by fleet for all prey, into a \var{prey_stock__predby_predstock} variable}
-    \item{After all fleet consumption is done, scale consumption using \var{catchability_f}, sum into \var{prey_stock__totalpredate}}
-    \item{After all consumption is done, temporarily convert \var{prey_stock__predby_predstock} to a proprotion of \var{prey_stock__totalpredate}}
+  \subsection{g3a_predate}{An action (i.e. list of formula objects) that will...\enumerate{
+    \item{For each prey, collect all suitable stock into a \var{predstock_prey_stock__suit} variable, using the \var{catchability_f} \eqn{F_pl} formula. The units here will depend on the \var{catchability_f} method used.}
+    \item{After all predator consumption is done, scale consumption using the \var{catchability_f} \eqn{C_pl} formula into \var{predstock_prey_stock__cons}, summed into \var{prey_stock__totalpredate}}
     \item{Calculate \var{prey_stock__consratio} (ratio of consumed to available), capping using \var{overconsumption_f}. Update \var{prey_stock__num}}
-    \item{Recalculate \var{prey_stock__predby_predstock}, \var{fleet_stock__catch}, post-overconsumption}
+    \item{Recalculate \var{predstock_prey_stock__cons}, \var{predstock_prey_stock__suit}, post-overconsumption}
   }}
 }
 

@@ -413,6 +413,12 @@ structure(function (param)
         {
             comment("Apply overconsumption to ling_imm_igfs__cons")
             ling_imm_igfs__cons <- nonconform_mult(ling_imm_igfs__cons, ling_imm__consconv)
+        }
+        {
+            comment("Apply overconsumption to ling_mat_igfs__cons")
+            ling_mat_igfs__cons <- nonconform_mult(ling_mat_igfs__cons, ling_mat__consconv)
+        }
+        {
             ling_imm__predby_igfs[] <- 0
             {
                 area <- igfs__area
@@ -421,8 +427,6 @@ structure(function (param)
             }
         }
         {
-            comment("Apply overconsumption to ling_mat_igfs__cons")
-            ling_mat_igfs__cons <- nonconform_mult(ling_mat_igfs__cons, ling_mat__consconv)
             ling_mat__predby_igfs[] <- 0
             {
                 area <- igfs__area

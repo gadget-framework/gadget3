@@ -464,6 +464,8 @@ Type objective_function<Type>::operator() () {
         {
             // Apply overconsumption to fish_comm__cons;
             fish_comm__cons = nonconform_mult(fish_comm__cons, fish__consconv);
+        }
+        {
             fish__predby_comm.setZero();
             {
                 auto area = comm__area;

@@ -98,19 +98,20 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
     return(out)
 }
 
-g3a_predate_fleet <- function (fleet_stock,
-                                    prey_stocks,
-                                    suitabilities,
-                                    catchability_f,
-                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
-                                    run_f = ~TRUE,
-                                    run_at = g3_action_order$predate) {
+g3a_predate <- function (
+        predstock,
+        prey_stocks,
+        suitabilities,
+        catchability_f,
+        overconsumption_f = quote(
+            logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
+        ),
+        run_f = ~TRUE,
+        run_at = g3_action_order$predate ) {
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
-    predstock <- fleet_stock  # Preserve historical function signature
 
     # Variables used:
-    # stock__predby_predstock: Biomass of (prey_stock) caught by (predstock) (prey matrix)
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Proportion of total prey biomass to be consumed, capped by overconsumption rule
     # stock__overconsumption: Single figure, proportion of total biomass consumed to total biomass hoping to be consumed. Used by g3l_understocking()
@@ -156,10 +157,6 @@ g3a_predate_fleet <- function (fleet_stock,
 
     # For each prey stock...
     for (stock in prey_stocks) {
-        # Legacy variable for backwards-compatibility
-        predstock_var <- as.symbol(paste0('stock__predby_', predstock$name))
-        assign(as.character(predstock_var), g3_stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", predstock$name)))
-
         stock__totalpredate <- g3_stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
         stock__consratio <- g3_stock_instance(stock, desc = paste0("Proportion of ", stock$name, " biomass to be consumed, capped by overconsumption rule"))
         stock__consconv <- g3_stock_instance(stock, desc = paste0("Conversion factor to apply ", stock$name, " overconsumption to predators"))
@@ -197,6 +194,7 @@ g3a_predate_fleet <- function (fleet_stock,
                 # NB: In gadget2, E == wanttoeat
                 stock_ss(predprey__cons) <- catchability_cons_f
                 # NB: In gadget2, predprey__cons == (*cons[inarea][prey])[predl], totalpredator.cc#68
+                #     All consumption is in biomass, conversion done in Prey::addNumbersConsumption
             }), prefix = 'predator'))
 
             # Add predstock's consumption to total consumption of stock
@@ -243,8 +241,57 @@ g3a_predate_fleet <- function (fleet_stock,
                 # Rough equivalent fleetpreyaggregator.cc:109
                 predprey__cons <- nonconform_mult(predprey__cons, stock__consconv)
             }))
+        }, list(
+            cons_ss = cons_ss,
+            run_f = run_f )))
+    }
 
-            # Build stock__predby_predstock for backwards compatibility
+    return(as.list(out))
+}
+
+# Wrapper for slightly less old interface
+g3a_predate_fleet <- function (fleet_stock,
+                                    prey_stocks,
+                                    suitabilities,
+                                    catchability_f,
+                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
+                                    run_f = ~TRUE,
+                                    run_at = g3_action_order$predate) {
+    predstock <- fleet_stock
+    out <- g3a_predate(
+        predstock = predstock,
+        prey_stocks = prey_stocks,
+        suitabilities = suitabilities,
+        catchability_f = catchability_f,
+        overconsumption_f = overconsumption_f,
+        run_f = run_f,
+        run_at = run_at )
+
+    # Build combined arrays for each pred/prey combination
+    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock) )
+    names(predpreys) <- vapply(prey_stocks, function (stock) stock$name, character(1))
+    predprey__conses <- lapply(predpreys, function (predprey)
+        g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
+
+    # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
+    if (length(predstock$dim) == 0) {
+        # Predator has no dimensions, predprey__cons has the same dimensions as prey
+        cons_ss <- quote(stock_ss(predprey__cons, vec = full))
+    } else {
+        final_predim <- paste0('pred_', head(names(predstock$dim), 1))
+        cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(final_predim), x = as.symbol('default'))
+        names(cons_ss)[[4]] <- final_predim
+    }
+
+    for (stock in prey_stocks) {
+        predprey <- predpreys[[stock$name]]
+        predprey__cons <- predprey__conses[[stock$name]]
+
+        # Generate stock__predby_predstock for backwards compatibility
+        predstock_var <- as.symbol(paste0('stock__predby_', predstock$name))
+        assign(as.character(predstock_var), g3_stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", predstock$name)))
+
+        out[[step_id(run_at, 99, predstock, stock)]] <- g3_step(f_substitute(~{
             stock_with(stock, stock__predby_predstock[] <- 0)
             stock_iterate(predstock, stock_with(stock, stock_with(predprey, {
                 # NB: cons_ss may have dropped more dimensions than we've bargained for, e.g. prey_area, so may not be an exact match
@@ -255,11 +302,8 @@ g3a_predate_fleet <- function (fleet_stock,
             stock__predby_predstock = predstock_var,
             run_f = run_f )))
     }
-
-    return(as.list(out))
+    return(out)
 }
-# NB:
-# * All consumption is in biomass, conversion done in Prey::addNumbersConsumption
 
 # Wrapper for old interface
 g3a_predate_totalfleet <- function (fleet_stock,
