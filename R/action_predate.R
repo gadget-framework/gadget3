@@ -98,6 +98,45 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
     return(out)
 }
 
+g3a_predate_catchability_predator <- function (
+        prey_preferences = 1,
+        energycontent = g3_parameterized('energycontent', value = 1,
+            by_stock = TRUE, optimise = FALSE),
+        half_feeding_f = g3_parameterized('halffeeding',
+            by_predator = TRUE, optimise = FALSE),
+        m0 = g3_parameterized('consumption.m0', value = 1,
+            by_predator = TRUE, optimise = FALSE),
+        m1 = g3_parameterized('consumption.m1', value = 0,
+            by_predator = TRUE, optimise = FALSE),
+        m2 = g3_parameterized('consumption.m2', value = 0,
+            by_predator = TRUE, optimise = FALSE),
+        m3 = g3_parameterized('consumption.m3', value = 0,
+            by_predator = TRUE, optimise = FALSE),
+        temperature = 0 ) {
+    list(
+        suit_unit = "energy content",
+        suit = g3_formula(
+            quote(
+                (suit_f * energycontent * stock_ss(stock__num) * stock_ss(stock__wgt))^prey_preference
+            ),
+            energycontent = energycontent,
+            prey_preference = list_to_stock_switch(prey_preferences) ),
+        cons = g3_formula(
+            quote(
+                (stock_ss(predstock__num, vec = single) * M * psi * stock_ss(predprey__suit)) / (energycontent * total_predsuit)
+            ),
+            energycontent = energycontent,
+            # M_L, maximum possible consumption - eqn 4.22
+            M = f_substitute(quote(
+                # NB: length should be the current predstock__midlen
+                m0 * cur_step_size * exp(m1 * temperature - m2 * temperature^3) * predator_length^m3
+            ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature)),
+            # ψ_L, “feeding level” (fraction of the available food that the predator is consuming) - eqn 4.23
+            psi = f_substitute(quote(
+                total_predsuit / ( H * cur_step_size + total_predsuit)
+            ), list(H = half_feeding_f)) ))
+}
+
 g3a_predate <- function (
         predstock,
         prey_stocks,
