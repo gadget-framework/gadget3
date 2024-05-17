@@ -63,17 +63,19 @@ g3l_tagging_ckmr <- function (
         })))
     }
     for (predstock in fleets) {
-        predstock_var <- as.symbol(paste0('prey_stock__predby_', predstock$name))
-
         for (prey_stock in c(parent_stocks, offspring_stocks)) {
+            # NB: In lockstep with action_predate()
+            predprey <- g3s_stockproduct(prey_stock, pred = predstock)
+            predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
+
             step_f <- f_concatenate(list(step_f, g3_step(f_substitute(~{
-                stock_iterate(prey_stock, stock_intersect(modelhist, {
+                stock_iterate(prey_stock, stock_interact(predstock, stock_intersect(modelhist, stock_with(predprey, {
                     stock_with(predstock, debug_trace("Convert ", predstock, " catch of ", prey_stock, " to numbers, add it to our total"))
                     stock_ss(modelhist__catch) <- stock_ss(modelhist__catch) +
-                        stock_reshape(modelhist, stock_ss(prey_stock__predby_predstock) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
-                }))
+                        stock_reshape(modelhist, stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
+                }))))
             }, list(
-                prey_stock__predby_predstock = predstock_var)))))
+                end = NULL)))))
         }
     }
     out[[step_id(run_at, 'g3l_tagging', nll_name, 1)]] <- step_f
