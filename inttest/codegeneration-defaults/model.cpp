@@ -297,7 +297,7 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
     auto times_cdist_sumofsquares_comm_ldist_model__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values);
-    DATA_ARRAY(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix)
+    DATA_ARRAY(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix)
     int cdist_sumofsquares_comm_ldist_obs__area = 1;
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__keys)
     DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
@@ -609,14 +609,20 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                if ( area == cdist_sumofsquares_comm_ldist_model__area ) {
-                    auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
+                if ( area == comm__area ) {
+                    if ( area == cdist_sumofsquares_comm_ldist_model__area ) {
+                        auto comm__area_idx = 0;
 
-                    auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                        auto predator_area = area;
 
-                    if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
-                        // Take prey_stock__predby_predstock weight, add to our count;
-                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm.col(fish__age_idx).col(fish__area_idx));
+                        auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
+
+                        auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+
+                        if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
+                            // Take predprey__cons weight, add to our count;
+                            cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx));
+                        }
                     }
                 }
             }

@@ -744,14 +744,20 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_imm__area_idx = 0;
 
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
-                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == igfs__area ) {
+                    if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+                        auto igfs__area_idx = 0;
 
-                    {
-                        // Take prey_stock__predby_predstock weight, convert to individuals, add to our count;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm__predby_igfs.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                        auto predator_area = area;
+
+                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                        {
+                            // Take predprey__cons weight, convert to individuals, add to our count;
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                        }
                     }
                 }
             }
@@ -763,14 +769,20 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_mat__area_idx = 0;
 
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
-                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == igfs__area ) {
+                    if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                        auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+                        auto igfs__area_idx = 0;
 
-                    {
-                        // Take prey_stock__predby_predstock weight, convert to individuals, add to our count;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat__predby_igfs.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                        auto predator_area = area;
+
+                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                        {
+                            // Take predprey__cons weight, convert to individuals, add to our count;
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                        }
                     }
                 }
             }

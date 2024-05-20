@@ -626,14 +626,17 @@ structure(function (param)
             {
                 area <- ling_imm__area
                 ling_imm__area_idx <- (1L)
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
-                  ling_imm__age_idx <- age - ling_imm__minage + 1L
-                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
-                  {
-                    comment("Take prey_stock__predby_predstock weight, convert to individuals, add to our count")
-                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_imm__predby_igfs[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (area == igfs__area) 
+                  if (area == cdist_sumofsquares_ldist_lln_model__area) {
+                    ling_imm__age_idx <- age - ling_imm__minage + 1L
+                    igfs__area_idx <- (1L)
+                    predator_area <- area
+                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                    {
+                      comment("Take predprey__cons weight, convert to individuals, add to our count")
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
+                    }
                   }
-                }
             }
         }
         {
@@ -641,14 +644,17 @@ structure(function (param)
             {
                 area <- ling_mat__area
                 ling_mat__area_idx <- (1L)
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
-                  ling_mat__age_idx <- age - ling_mat__minage + 1L
-                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
-                  {
-                    comment("Take prey_stock__predby_predstock weight, convert to individuals, add to our count")
-                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_mat__predby_igfs[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
+                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == igfs__area) 
+                  if (area == cdist_sumofsquares_ldist_lln_model__area) {
+                    ling_mat__age_idx <- age - ling_mat__minage + 1L
+                    igfs__area_idx <- (1L)
+                    predator_area <- area
+                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                    {
+                      comment("Take predprey__cons weight, convert to individuals, add to our count")
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
+                    }
                   }
-                }
             }
         }
         {

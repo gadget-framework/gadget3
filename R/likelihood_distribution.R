@@ -263,6 +263,10 @@ g3l_distribution <- function (
     for (predstock in (if (length(fleets) > 0) fleets else list(NULL))) for (prey_stock in stocks) {
         stock <- prey_stock  # Alias stock == prey_stock
 
+        # NB: In lockstep with action_predate()
+        predprey <- g3s_stockproduct(prey_stock, pred = predstock)
+        predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
+
         # Work out stock index for obs/model variables
         if (!is.null(ld$stock_map)) {
             # Skip over stocks not part of the observation data, map to an index
@@ -281,7 +285,7 @@ g3l_distribution <- function (
             if (is.null(ld$fleet_map[[predstock$name]])) next
             fleetidx_f <- f_substitute(~g3_idx(x), list(x = ld$fleet_map[[predstock$name]]))
         } else {
-            # Not using fleet grouping, __predby_fleet__idx variable not needed
+            # Not using fleet grouping, fleetidx_f not used
             fleetidx_f <- ~-1
         }
 
@@ -305,19 +309,18 @@ g3l_distribution <- function (
         } else {
             collect_f <- f_substitute(~{
                 if (compare_num) {
-                    debug_trace("Take prey_stock__predby_predstock weight, convert to individuals, add to our count")
+                    debug_trace("Take predprey__cons weight, convert to individuals, add to our count")
                     stock_ss(modelstock__num) <- stock_ss(modelstock__num) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(prey_stock__predby_predstock) / avoid_zero_vec(tform_stock_ss(prey_stock__wgt)))
+                        transform_f * tform_stock_ss(predprey__cons) / avoid_zero_vec(tform_stock_ss(prey_stock__wgt)))
                 }
                 if (compare_wgt) {
-                    debug_trace("Take prey_stock__predby_predstock weight, add to our count")
+                    debug_trace("Take predprey__cons weight, add to our count")
                     stock_ss(modelstock__wgt) <- stock_ss(modelstock__wgt) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(prey_stock__predby_predstock))
+                        transform_f * tform_stock_ss(predprey__cons))
                 }
             }, list(
                 compare_num = !is.null(ld$number),
-                compare_wgt = !is.null(ld$weight),
-                prey_stock__predby_predstock = as.symbol(paste0('prey_stock__predby_', predstock$name))))
+                compare_wgt = !is.null(ld$weight) ))
         }
 
         # Wrap with any iteration for transformations
@@ -349,18 +352,22 @@ g3l_distribution <- function (
 
         # Replace tform_stock_ss, adding in the transform subsets required
         collect_f <- call_replace(collect_f, tform_stock_ss = function (x) {
-            as.call(c(
-                list(as.symbol("stock_ss"), x[[2]]),
-                tform_ss))
+            x[[1]] <- as.symbol("stock_ss")
+            x[names(tform_ss)] <- tform_ss
+            return(x)
         })
         # Add in transform_f now we're done adding bits to it.
         collect_f <- f_substitute(collect_f, list(transform_f = transform_f))
 
         # Finally iterate/intersect over stock in question
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_optimize(f_substitute(~{
-            if (compare_fleet) debug_label(prefix, "Collect catch from ", predstock, "/", prey_stock, " for ", nll_name)
-            if (!compare_fleet) debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
-            stock_iterate(prey_stock, stock_intersect(modelstock, collect_f))
+            if (compare_fleet) {
+                debug_label(prefix, "Collect catch from ", predstock, "/", prey_stock, " for ", nll_name)
+                stock_iterate(prey_stock, stock_interact(predstock, stock_with(predprey, stock_intersect(modelstock, collect_f)), prefix = "predator"))
+            } else {
+                debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
+                stock_iterate(prey_stock, stock_intersect(modelstock, collect_f))
+            }
         }, list(compare_fleet = !is.null(predstock), collect_f = collect_f)))
 
         # Fix-up stock intersection, add in stockidx_f
