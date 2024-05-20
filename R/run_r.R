@@ -52,23 +52,33 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 ifmissing <- call_replace(ifmissing,
                     g3_param_table = repl_fn,
                     g3_param = repl_fn)
+                pt_name <- paste0("param.", x[[2]])
 
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
-                # Add stopifnot for each row in table
+                # Buld lookup list, ensure each row is present at runtime
+                init_list = list()
                 for (i in seq_len(nrow(df))) {
-                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), df[i,])
+                    # NB: as.character()ify each item in row, so we get the name in an area factor
+                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), vapply(df[i,], as.character, character(1)))
+                    sub_param_tuple <- paste0(df[i,], collapse = ".")
 
                     scope[[paste0("..param:", sub_param_name)]] <<- structure(
                         substitute(stopifnot(p %in% names(param)), list(p = sub_param_name)),
                         param_template = df_template(sub_param_name))
+                    init_list[[sub_param_tuple]] <- substitute(
+                        param[[name]], list(
+                            name = sub_param_name ))
                 }
+                scope[[pt_name]] <<- substitute(sym <- l, list(
+                    sym = as.symbol(pt_name),
+                    l = as.call(c(as.list(call("list")), init_list)) ))
 
-                # Replace with a  param[["lookup.cur_year.cur_step"]] call
+                # Replace with a param.lookup[["cur_year.cur_step"]] call
                 return(call('nvl',
-                    call('[[', as.symbol("param"), as.call(c(
-                        list(as.symbol("paste"), as.character(x[[2]])),
+                    call('[[', as.symbol(pt_name), as.call(c(
+                        list(as.symbol("paste")),
                         lapply(names(df), as.symbol),
                         list(sep = ".")))),
                     ifmissing))

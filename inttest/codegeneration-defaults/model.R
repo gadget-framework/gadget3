@@ -11,6 +11,7 @@ structure(function (param)
     stopifnot("fish.init.8" %in% names(param))
     stopifnot("fish.init.9" %in% names(param))
     stopifnot("fish.init.10" %in% names(param))
+    param.fish.init <- list(`1` = param[["fish.init.1"]], `2` = param[["fish.init.2"]], `3` = param[["fish.init.3"]], `4` = param[["fish.init.4"]], `5` = param[["fish.init.5"]], `6` = param[["fish.init.6"]], `7` = param[["fish.init.7"]], `8` = param[["fish.init.8"]], `9` = param[["fish.init.9"]], `10` = param[["fish.init.10"]])
     stopifnot("fish.M.1" %in% names(param))
     stopifnot("fish.M.2" %in% names(param))
     stopifnot("fish.M.3" %in% names(param))
@@ -21,6 +22,7 @@ structure(function (param)
     stopifnot("fish.M.8" %in% names(param))
     stopifnot("fish.M.9" %in% names(param))
     stopifnot("fish.M.10" %in% names(param))
+    param.fish.M <- list(`1` = param[["fish.M.1"]], `2` = param[["fish.M.2"]], `3` = param[["fish.M.3"]], `4` = param[["fish.M.4"]], `5` = param[["fish.M.5"]], `6` = param[["fish.M.6"]], `7` = param[["fish.M.7"]], `8` = param[["fish.M.8"]], `9` = param[["fish.M.9"]], `10` = param[["fish.M.10"]])
     stopifnot("init.F" %in% names(param))
     stopifnot("recage" %in% names(param))
     stopifnot("fish.Linf" %in% names(param))
@@ -45,6 +47,7 @@ structure(function (param)
     stopifnot("fish.rec.1998" %in% names(param))
     stopifnot("fish.rec.1999" %in% names(param))
     stopifnot("fish.rec.2000" %in% names(param))
+    param.fish.rec <- list(`1990` = param[["fish.rec.1990"]], `1991` = param[["fish.rec.1991"]], `1992` = param[["fish.rec.1992"]], `1993` = param[["fish.rec.1993"]], `1994` = param[["fish.rec.1994"]], `1995` = param[["fish.rec.1995"]], `1996` = param[["fish.rec.1996"]], `1997` = param[["fish.rec.1997"]], `1998` = param[["fish.rec.1998"]], `1999` = param[["fish.rec.1999"]], `2000` = param[["fish.rec.2000"]])
     stopifnot("fish.rec.scalar" %in% names(param))
     stopifnot("adist_surveyindices_log_acoustic_dist_weight" %in% names(param))
     stopifnot("cdist_sumofsquares_comm_ldist_weight" %in% names(param))
@@ -243,10 +246,10 @@ structure(function (param)
                 {
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  factor <- (param[["fish.init.scalar"]] * nvl(param[[paste("fish.init", age, sep = ".")]], {
+                  factor <- (param[["fish.init.scalar"]] * nvl(param.fish.init[[paste(age, sep = ".")]], {
                     warning("No value found in g3_param_table fish.init, ifmissing not specified")
                     NaN
-                  }) * exp(-1 * (nvl(param[[paste("fish.M", age, sep = ".")]], {
+                  }) * exp(-1 * (nvl(param.fish.M[[paste(age, sep = ".")]], {
                     warning("No value found in g3_param_table fish.M, ifmissing not specified")
                     NaN
                   }) + param[["init.F"]]) * (age - param[["recage"]])))
@@ -378,7 +381,7 @@ structure(function (param)
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(nvl(param[[paste("fish.M", age, sep = ".")]], {
+                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(nvl(param.fish.M[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.M, ifmissing not specified")
                   NaN
                 })) * cur_step_size)
@@ -414,7 +417,7 @@ structure(function (param)
             }
         }
         {
-            factor <- (nvl(param[[paste("fish.rec", cur_year, sep = ".")]], NaN) * param[["fish.rec.scalar"]])
+            factor <- (nvl(param.fish.rec[[paste(cur_year, sep = ".")]], NaN) * param[["fish.rec.scalar"]])
             {
                 comment("g3a_renewal for fish")
                 for (age in seq(fish__minage, fish__maxage, by = 1)) if (age == fish__minage && cur_step == 1 && (!cur_year_projection)) {

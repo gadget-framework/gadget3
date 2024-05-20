@@ -693,7 +693,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
                 # Turn table into parameter-setting definition, adding individual PARAMETERs as we go
                 init_data <- vapply(seq_len(nrow(df)), function (i) {
-                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), df[i,])
+                    # NB: as.character()ify each item in row, so we get the name in an area factor
+                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), vapply(df[i,], as.character, character(1)))
                     sub_param_tuple <- paste0(df[i,], collapse = ",")
 
                     scope[[cpp_escape_varname(sub_param_name)]] <<- structure(

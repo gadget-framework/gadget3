@@ -27,6 +27,7 @@ g3_parameterized <- function(
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
+        by_area = FALSE,
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -36,6 +37,7 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_age))
     stopifnot(is.logical(by_year) || is.numeric(by_year))
     stopifnot(is.logical(by_step))
+    stopifnot(is.logical(by_area))
     stopifnot(is.logical(avoid_zero))
 
     # Define name_part based on input arg
@@ -97,6 +99,16 @@ g3_parameterized <- function(
         }
         stock_extra <- paste(by_stock[[1]]$name_parts[common_part], collapse = ".")
     } else stop('Unknown by_stock parameter, should be FALSE, TRUE, a name_part or list of stocks')
+
+    if (isTRUE(by_area) && (isTRUE(by_stock) || is.character(by_stock))) {
+        # Area by stock
+        table_defn <- c(table_defn, list(area = quote(named_vec_to_factor(stock__areas))))
+    } else if (isTRUE(by_area) && (isTRUE(by_predator) || is.character(by_predator))) {
+        # Area by predator
+        table_defn <- c(table_defn, list(area = quote(named_vec_to_factor(predstock__areas))))
+    } else if (isTRUE(by_area)) {
+        stop("One of by_stock/by_predator should be set if by_area is set")
+    }
 
     # Generate core call
     if (length(table_defn) > 0) {

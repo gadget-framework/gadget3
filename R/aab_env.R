@@ -184,3 +184,14 @@ g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
     }
     return base_ar / (extra_vec.template replicate(base_ar.size() / extra_vec.size(), 1));
 }')
+
+
+# Convert c(a = 1, b = 3, ...) to a factor with appropriate labels/levels.
+# For internal use by g3_parameterized(by_area = TRUE)
+g3_env$named_vec_to_factor <- function (vec) {
+    uniq <- vec[!duplicated(vec)]
+    lvls <- c()
+    # Assign level names that we do know, leave the rest as NA (which are irrelevant anyway)
+    lvls[uniq] <- names(uniq)
+    factor(names(vec), levels = lvls)
+}
