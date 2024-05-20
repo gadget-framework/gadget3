@@ -20,7 +20,7 @@ report_actions <- list(
 
 actions <- local({
     eval(g2to3_mainfile('inttest/understocking'))
-    c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__predby_igfs$")))
+    c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__cons$")))
 })
 environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
 environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
@@ -167,9 +167,9 @@ for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     }
 }
 ok(all.equal(
-    g3_r$hist_lingimm__predby_igfs,
-    g3_r$hist_lingimm__totalpredate,
-    tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm__predby_igfs")
+    g3_r$hist_lingimm_igfs__cons[,area=1,,pred_area=1,],
+    g3_r$hist_lingimm__totalpredate[,area=1,,],
+    tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm_igfs__cons")
 
 ok(all.equal(
     sum(g3_r$nll_report),
