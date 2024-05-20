@@ -46,7 +46,7 @@ g3s_time <- function(inner_stock, times, year = NULL, step = NULL) {
 
     # time -> index lookup
     timelookup <- g3_intlookup(
-        paste0('times_', inner_stock$name),
+        paste0(inner_stock$name, '__times'),
         as.integer(times),
         seq_along(times))
 

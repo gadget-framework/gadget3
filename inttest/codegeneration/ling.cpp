@@ -253,9 +253,9 @@ Type objective_function<Type>::operator() () {
     int igfs__area = 1;
     array<Type> ling_mat_igfs__suit(35,11,1,1);
     array<Type> ling_imm_igfs__cons(35,8,1,1);
-    DATA_IVECTOR(igfs_totaldata__keys)
-    DATA_IVECTOR(igfs_totaldata__values)
-    auto igfs_totaldata__lookup = intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values);
+    DATA_IVECTOR(igfs_totaldata_keys)
+    DATA_IVECTOR(igfs_totaldata_values)
+    auto igfs_totaldata = intlookup_zip(igfs_totaldata_keys, igfs_totaldata_values);
     array<Type> ling_mat_igfs__cons(35,11,1,1);
     array<Type> ling_imm__consratio(35,8,1);
     Type ling_imm__overconsumption = (double)(0);
@@ -282,9 +282,9 @@ Type objective_function<Type>::operator() () {
     int cdist_sumofsquares_ldist_lln_model__area = 1;
     array<Type> cdist_sumofsquares_ldist_lln_model__num(35,1); cdist_sumofsquares_ldist_lln_model__num.setZero();
     int cdist_sumofsquares_ldist_lln_obs__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_ldist_lln_obs__values)
-    auto times_cdist_sumofsquares_ldist_lln_obs__lookup = intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values);
+    DATA_IVECTOR(cdist_sumofsquares_ldist_lln_obs__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_ldist_lln_obs__times_values)
+    auto cdist_sumofsquares_ldist_lln_obs__times = intlookup_zip(cdist_sumofsquares_ldist_lln_obs__times_keys, cdist_sumofsquares_ldist_lln_obs__times_values);
     DATA_ARRAY(cdist_sumofsquares_ldist_lln_obs__num)
     array<Type> nll_cdist_sumofsquares_ldist_lln__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__num.setZero();
     array<Type> nll_cdist_sumofsquares_ldist_lln__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_lln__weight.setZero();
@@ -427,7 +427,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
-                    ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
             }
             {
@@ -455,7 +455,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
 
-                    ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata__lookup, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
             }
             {
@@ -799,7 +799,7 @@ Type objective_function<Type>::operator() () {
 
                     auto cdist_sumofsquares_ldist_lln_obs__area_idx = 0;
 
-                    auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year*100 + cur_step), -1) - 1;
+                    auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year*100 + cur_step), -1) - 1;
 
                     if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
                         auto cdist_sumofsquares_ldist_lln_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum());

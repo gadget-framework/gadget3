@@ -201,7 +201,7 @@ structure(function (param)
         attr(out, "value_var") <- deparse(sys.call()[[3]])
         return(out)
     }
-    igfs_totaldata__lookup <- intlookup_zip(igfs_totaldata__keys, igfs_totaldata__values)
+    igfs_totaldata <- intlookup_zip(igfs_totaldata_keys, igfs_totaldata_values)
     ling_mat_igfs__cons <- array(NA, dim = c(length = 35L, age = 11L, area = 1L, pred_area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", 
         "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1", pred_area = "area1"))
     ling_imm__consratio <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
@@ -243,7 +243,7 @@ structure(function (param)
     cdist_sumofsquares_ldist_lln_model__area <- 1L
     cdist_sumofsquares_ldist_lln_model__num <- array(0, dim = c(length = 35L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), area = "1"))
     cdist_sumofsquares_ldist_lln_obs__area <- 1L
-    times_cdist_sumofsquares_ldist_lln_obs__lookup <- intlookup_zip(times_cdist_sumofsquares_ldist_lln_obs__keys, times_cdist_sumofsquares_ldist_lln_obs__values)
+    cdist_sumofsquares_ldist_lln_obs__times <- intlookup_zip(cdist_sumofsquares_ldist_lln_obs__times_keys, cdist_sumofsquares_ldist_lln_obs__times_values)
     nll_cdist_sumofsquares_ldist_lln__num <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_cdist_sumofsquares_ldist_lln__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     g3l_understocking_total <- 0
@@ -357,7 +357,7 @@ structure(function (param)
                   total_predsuit <- (sum(ling_imm_igfs__suit[, , , igfs__area_idx]) + sum(ling_mat_igfs__suit[, , , igfs__area_idx]))
                   ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx] <- ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/total_predsuit)
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
                 }
             }
             {
@@ -379,7 +379,7 @@ structure(function (param)
                   total_predsuit <- (sum(ling_imm_igfs__suit[, , , igfs__area_idx]) + sum(ling_mat_igfs__suit[, , , igfs__area_idx]))
                   ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx] <- ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata__lookup, (cur_year * 100L + cur_step), 0))/total_predsuit)
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
                 }
             }
             {
@@ -665,7 +665,7 @@ structure(function (param)
                 if (area == cdist_sumofsquares_ldist_lln_obs__area) {
                   cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]))
                   cdist_sumofsquares_ldist_lln_obs__area_idx <- (1L)
-                  cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_ldist_lln_obs__lookup, (cur_year * 100L + cur_step), -1L)
+                  cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year * 100L + cur_step), -1L)
                   if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
                     cdist_sumofsquares_ldist_lln_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]))
                     cur_cdist_nll <- sum((((cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2))

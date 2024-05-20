@@ -273,9 +273,9 @@ Type objective_function<Type>::operator() () {
     array<Type> fish_comm__suit(6,1,10,1);
     int comm__area = 1;
     array<Type> fish_comm__cons(6,1,10,1);
-    DATA_IVECTOR(comm_landings__keys)
-    DATA_VECTOR(comm_landings__values)
-    auto comm_landings__lookup = intlookup_zip(comm_landings__keys, comm_landings__values);
+    DATA_IVECTOR(comm_landings_keys)
+    DATA_VECTOR(comm_landings_values)
+    auto comm_landings = intlookup_zip(comm_landings_keys, comm_landings_values);
     array<Type> fish__consratio(6,1,10);
     Type fish__overconsumption = (double)(0);
     array<Type> fish__consconv(6,1,10);
@@ -288,20 +288,20 @@ Type objective_function<Type>::operator() () {
     array<Type> fish__renewalnum(6,1,10); fish__renewalnum.setZero();
     array<Type> fish__renewalwgt(6,1,10); fish__renewalwgt.setZero();
     int adist_surveyindices_log_acoustic_dist_model__area = 1;
-    DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__keys)
-    DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__values)
-    auto times_adist_surveyindices_log_acoustic_dist_model__lookup = intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values);
+    DATA_IVECTOR(adist_surveyindices_log_acoustic_dist_model__times_keys)
+    DATA_IVECTOR(adist_surveyindices_log_acoustic_dist_model__times_values)
+    auto adist_surveyindices_log_acoustic_dist_model__times = intlookup_zip(adist_surveyindices_log_acoustic_dist_model__times_keys, adist_surveyindices_log_acoustic_dist_model__times_values);
     array<Type> fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix(1,6); fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.setConstant((double)(1));
     int adist_surveyindices_log_acoustic_dist_obs__area = 1;
     int cdist_sumofsquares_comm_ldist_model__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
-    auto times_cdist_sumofsquares_comm_ldist_model__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values);
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_model__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_model__times_values)
+    auto cdist_sumofsquares_comm_ldist_model__times = intlookup_zip(cdist_sumofsquares_comm_ldist_model__times_keys, cdist_sumofsquares_comm_ldist_model__times_values);
     DATA_ARRAY(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix)
     int cdist_sumofsquares_comm_ldist_obs__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
-    auto times_cdist_sumofsquares_comm_ldist_obs__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values);
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_obs__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_obs__times_values)
+    auto cdist_sumofsquares_comm_ldist_obs__times = intlookup_zip(cdist_sumofsquares_comm_ldist_obs__times_keys, cdist_sumofsquares_comm_ldist_obs__times_values);
     Type g3l_understocking_total = (double)(0);
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
 
@@ -439,7 +439,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = (fish_comm__suit.col(comm__area_idx)).sum();
 
-                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
             {
@@ -558,7 +558,7 @@ Type objective_function<Type>::operator() () {
                 if ( area == adist_surveyindices_log_acoustic_dist_model__area ) {
                     auto adist_surveyindices_log_acoustic_dist_model__area_idx = 0;
 
-                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
                         // Take fish total biomass to our count;
@@ -577,7 +577,7 @@ Type objective_function<Type>::operator() () {
 
                     auto adist_surveyindices_log_acoustic_dist_model__area_idx = 0;
 
-                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
                         if ( area == adist_surveyindices_log_acoustic_dist_obs__area ) {
@@ -617,7 +617,7 @@ Type objective_function<Type>::operator() () {
 
                         auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
 
-                        auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                        auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                         if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
                             // Take predprey__cons weight, add to our count;
@@ -634,7 +634,7 @@ Type objective_function<Type>::operator() () {
 
                 auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
 
-                auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                 if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
                     if ( area == cdist_sumofsquares_comm_ldist_obs__area ) {
@@ -642,7 +642,7 @@ Type objective_function<Type>::operator() () {
 
                         auto cdist_sumofsquares_comm_ldist_obs__area_idx = 0;
 
-                        auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_obs__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                        auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                         if ( cdist_sumofsquares_comm_ldist_obs__time_idx >= 0 ) {
                             auto cdist_sumofsquares_comm_ldist_obs__sstotal = avoid_zero((cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx)).sum());

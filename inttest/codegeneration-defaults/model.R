@@ -212,7 +212,7 @@ structure(function (param)
         attr(out, "value_var") <- deparse(sys.call()[[3]])
         return(out)
     }
-    comm_landings__lookup <- intlookup_zip(comm_landings__keys, comm_landings__values)
+    comm_landings <- intlookup_zip(comm_landings_keys, comm_landings_values)
     fish__consratio <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__overconsumption <- structure(0, desc = "Total overconsumption of fish")
     fish__consconv <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
@@ -225,13 +225,13 @@ structure(function (param)
     fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__renewalwgt <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     adist_surveyindices_log_acoustic_dist_model__area <- 1L
-    times_adist_surveyindices_log_acoustic_dist_model__lookup <- intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values)
+    adist_surveyindices_log_acoustic_dist_model__times <- intlookup_zip(adist_surveyindices_log_acoustic_dist_model__times_keys, adist_surveyindices_log_acoustic_dist_model__times_values)
     fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix <- array(1, dim = c(1L, 6L), dimnames = NULL)
     adist_surveyindices_log_acoustic_dist_obs__area <- 1L
     cdist_sumofsquares_comm_ldist_model__area <- 1L
-    times_cdist_sumofsquares_comm_ldist_model__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values)
+    cdist_sumofsquares_comm_ldist_model__times <- intlookup_zip(cdist_sumofsquares_comm_ldist_model__times_keys, cdist_sumofsquares_comm_ldist_model__times_values)
     cdist_sumofsquares_comm_ldist_obs__area <- 1L
-    times_cdist_sumofsquares_comm_ldist_obs__lookup <- intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values)
+    cdist_sumofsquares_comm_ldist_obs__times <- intlookup_zip(cdist_sumofsquares_comm_ldist_obs__times_keys, cdist_sumofsquares_comm_ldist_obs__times_values)
     g3l_understocking_total <- 0
     nll_understocking__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     while (TRUE) {
@@ -340,7 +340,7 @@ structure(function (param)
                   total_predsuit <- sum(fish_comm__suit[, , , comm__area_idx])
                   fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx] <- fish_comm__suit[, fish__area_idx, fish__age_idx, comm__area_idx] * ((if (area != 1L) 
                     0
-                  else intlookup_getdefault(comm_landings__lookup, cur_year, 0))/total_predsuit) * fish__wgt[, fish__area_idx, fish__age_idx]
+                  else intlookup_getdefault(comm_landings, cur_year, 0))/total_predsuit) * fish__wgt[, fish__area_idx, fish__age_idx]
                 }
             }
             {
@@ -440,7 +440,7 @@ structure(function (param)
                 fish__area_idx <- (1L)
                 if (area == adist_surveyindices_log_acoustic_dist_model__area) {
                   adist_surveyindices_log_acoustic_dist_model__area_idx <- (1L)
-                  adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year * 100L + cur_step * 0L), -1L)
+                  adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (adist_surveyindices_log_acoustic_dist_model__time_idx >= (1L)) {
                     comment("Take fish total biomass to our count")
                     adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] <- adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] + g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]))
@@ -455,7 +455,7 @@ structure(function (param)
                 if (cur_step_final) {
                   area <- adist_surveyindices_log_acoustic_dist_model__area
                   adist_surveyindices_log_acoustic_dist_model__area_idx <- (1L)
-                  adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year * 100L + cur_step * 0L), -1L)
+                  adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (adist_surveyindices_log_acoustic_dist_model__time_idx >= (1L)) 
                     if (area == adist_surveyindices_log_acoustic_dist_obs__area) {
                       adist_surveyindices_log_acoustic_dist_obs__area_idx <- (1L)
@@ -489,7 +489,7 @@ structure(function (param)
                     comm__area_idx <- (1L)
                     predator_area <- area
                     cdist_sumofsquares_comm_ldist_model__area_idx <- (1L)
-                    cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year * 100L + cur_step * 0L), -1L)
+                    cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                     if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) {
                       comment("Take predprey__cons weight, add to our count")
                       cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons[, fish__area_idx, fish__age_idx, comm__area_idx])
@@ -502,12 +502,12 @@ structure(function (param)
             if (cur_step_final) {
                 area <- cdist_sumofsquares_comm_ldist_model__area
                 cdist_sumofsquares_comm_ldist_model__area_idx <- (1L)
-                cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year * 100L + cur_step * 0L), -1L)
+                cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                 if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) 
                   if (area == cdist_sumofsquares_comm_ldist_obs__area) {
                     cdist_sumofsquares_comm_ldist_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx]))
                     cdist_sumofsquares_comm_ldist_obs__area_idx <- (1L)
-                    cdist_sumofsquares_comm_ldist_obs__time_idx <- intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_obs__lookup, (cur_year * 100L + cur_step * 0L), -1L)
+                    cdist_sumofsquares_comm_ldist_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
                     if (cdist_sumofsquares_comm_ldist_obs__time_idx >= (1L)) {
                       cdist_sumofsquares_comm_ldist_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]))
                       cur_cdist_nll <- sum((((cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx]/cdist_sumofsquares_comm_ldist_model__sstotal) - (cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]/cdist_sumofsquares_comm_ldist_obs__sstotal))^2))
