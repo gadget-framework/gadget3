@@ -15,6 +15,7 @@ g3_parameterized(
         by_year = FALSE,
         by_step = FALSE,
         by_age = FALSE,
+        by_area = FALSE,
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -64,6 +65,13 @@ g3_parameterized(
     \describe{
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.4"} parameter for each age of the stock(s) in \var{by_stock}}
+    }
+  }
+  \item{by_area}{
+    Should there be individual parameters per stock area?
+    \describe{
+      \item{FALSE}{No}
+      \item{TRUE}{Produce a \code{"name.area"} parameter for each area of the stock(s) in \var{by_stock}}
     }
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}

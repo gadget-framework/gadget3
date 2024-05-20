@@ -56,30 +56,37 @@ g3_to_r <- function(
                 ifmissing <- call_replace(ifmissing,
                     g3_param_table = repl_fn,
                     g3_param = repl_fn)
+                pt_name <- paste0("param.", x[[2]])
 
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
 
-                # Add stopifnot for each row in table
+                # Buld lookup list, ensure each row is present at runtime
+                init_list = list()
                 for (i in seq_len(nrow(df))) {
-                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), df[i,])
+                    # NB: as.character()ify each item in row, so we get the name in an area factor
+                    # NB: gen_param_tbl_name() will remove trailing _exp, so we don't have to worry about it from this point on
+                    sub_param_name <- gen_param_tbl_name(as.character(x[[2]]), vapply(df[i,], as.character, character(1)))
+                    sub_param_tuple <- paste0(df[i,], collapse = ".")
 
                     scope[[paste0("..param:", sub_param_name)]] <<- structure(
                         substitute(stopifnot(p %in% names(param)), list(p = sub_param_name)),
                         param_template = df_template(sub_param_name))
+                    init_list[[sub_param_tuple]] <- substitute(
+                        param[[name]], list(
+                            name = sub_param_name ))
                 }
+                scope[[pt_name]] <<- substitute(sym <- l, list(
+                    sym = as.symbol(pt_name),
+                    l = as.call(c(as.list(call("list")), init_list)) ))
 
-                # Replace with a  param[["lookup.cur_year.cur_step"]] call
-                base_name <- gsub('_exp$', '', as.character(x[[2]]))
+                # Replace with a param.lookup[["cur_year.cur_step"]] call
                 param_name_c <- as.call(c(
-                    list(as.symbol("paste"), base_name),
+                    list(as.symbol("paste")),
                     lapply(names(df), as.symbol),
                     list(sep = ".") ))
-                if (grepl('_exp$', as.character(x[[2]]))) param_name_c <- substitute(
-                    paste0(param_name_c, "_exp"),
-                    list(param_name_c = param_name_c) )
                 return(call('nvl',
-                    call('[[', as.symbol("param"), param_name_c),
+                    call('[[', as.symbol(pt_name), param_name_c),
                     ifmissing))
             }
 

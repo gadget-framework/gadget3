@@ -196,3 +196,14 @@ g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
 
 # Marker to point out we want this value to be cast vector<Type> in TMB, in R ignore
 g3_env$g3_cast_vector <- g3_native(r = function (x) x, cpp = NULL)
+
+# Convert c(a = 1, b = 3, ...) to a factor with appropriate labels/levels.
+# For internal use by g3_parameterized(by_area = TRUE)
+g3_env$named_vec_to_factor <- function (vec) {
+    uniq <- vec[!duplicated(vec)]
+    # Default level name to number (the fallback should be irrelevant, but preserves position in the factor)
+    lvls <- seq_along(names(vec))
+    # Assign level names that we do know
+    lvls[uniq] <- names(uniq)
+    factor(names(vec), levels = lvls)
+}

@@ -7,23 +7,36 @@ library(gadget3)
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
 # Generate parameter template for all given parameters (beginning with "ut.")
-param_tmpl <- function (...) {
+param_model <- function (...) {
+    areas <- g3_areas(c('a', 'b', 'c'))
+    stock <- g3_stock(c(species = 'had', sex = 'm', maturity = 'imm'), 1) %>% g3s_age(1, 5) %>% g3s_livesonareas(areas[c('a', 'c')])
+    predstock <- g3_fleet(c(country = 'is', 'comm')) %>% g3s_age(1, 5) %>% g3s_livesonareas(areas[c('a', 'b', 'c')])
+    predprey <- gadget3:::g3s_stockproduct(stock, pred = predstock)
     actions <- c(
         list(g3a_time(1990, 1994)),
         lapply(list(...), function (p) {
             if (is.null(p)) return(~{})
-            x <- 4
-            stock <- g3_stock(c(species = 'had', sex = 'm', maturity = 'imm'), 1)
-            predstock <- g3_fleet(c(country = 'is', 'comm'))
+            stock <- stock
+            predstock <- predstock
+            predprey <- predprey
+            predprey__num <- g3_stock_instance(predprey)
             gadget3:::g3_step(gadget3:::f_substitute(
-                ~{x <- p},
+                ~stock_iterate(stock, stock_interact(predstock, stock_with(predprey, stock_ss(predprey__num, vec = single) <- p), prefix = "pred")),
                 list(p = p)))
-        }))
+        }),
+        list(gadget3:::g3_step(~{
+            stock_with(predprey, REPORT(predprey__num))
+        })) )
+    return(actions)
+}
+param_tmpl <- function (...) {
+    actions <- param_model(...)
     m <- g3_to_tmb(actions)
     pt <- attr(m, 'parameter_template')
     pt[grepl('paramut', rownames(pt), fixed = TRUE),]
 }
 
+areas <- g3_areas(c('a', 'b', 'c'))
 stock_mimm <- g3_stock(c(species = 'st', sex = 'm', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
 stock_mmat <- g3_stock(c(species = 'st', sex = 'm', maturity = 'mat'), seq(10, 35, 5)) %>% g3s_age(3, 7)
 stock_fimm <- g3_stock(c(species = 'st', sex = 'f', maturity = 'imm'), seq(10, 35, 5)) %>% g3s_age(1, 5)
@@ -187,3 +200,31 @@ ok(ut_cmp_identical(param_tmpl(
     "had_m_imm.is_comm.paramut.stockfleet",
     "had_m_imm.is.paramut.stockfleetcty",
     NULL)), "by_predator: Can combine with by_stock")
+
+ok_group("by_area") ##########
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized('paramut', by_stock = TRUE, by_area = TRUE, by_year = TRUE),
+    NULL)$switch, c(
+        "had_m_imm.paramut.1990.a", "had_m_imm.paramut.1991.a", "had_m_imm.paramut.1992.a",
+        "had_m_imm.paramut.1993.a", "had_m_imm.paramut.1994.a",
+        "had_m_imm.paramut.1990.c", "had_m_imm.paramut.1991.c", "had_m_imm.paramut.1992.c",
+        "had_m_imm.paramut.1993.c", "had_m_imm.paramut.1994.c" )), "by_area: Generate parameters with area name")
+
+actions <- param_model(g3_parameterized('paramut', by_stock = TRUE, by_area = TRUE, by_year = TRUE))
+model_fn <- g3_to_r(actions)
+params <- attr(model_fn, 'parameter_template')
+params[grepl('param', names(params))] <- 100 + seq_along(grep('param', names(params)))
+ok(ut_cmp_equal(attr(model_fn(params), "had_m_imm_is_comm__num")[,age='age1',,pred_age='age1',], array(
+    c(params[["had_m_imm.paramut.1994.a"]], NA, NA, NA, NA, params[["had_m_imm.paramut.1994.c"]]),
+    dim = c(area = 2L, pred_area = 3L),
+    dimnames = list(area = c("a", "c"), pred_area = c("a", "b", "c")) )), "Model used areas by area name")
+
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized('paramut.fleet', by_predator = TRUE, by_area = TRUE),
+    NULL)$switch, c(
+        "is_comm.paramut.fleet.a",
+        "is_comm.paramut.fleet.b",
+        "is_comm.paramut.fleet.c",
+        NULL )), "by_predator/by_area: Used predator areas instead of stock")
+
+########## by_area
