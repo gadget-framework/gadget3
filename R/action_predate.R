@@ -166,16 +166,16 @@ g3a_predate <- function (
         g3_stock_instance(predprey, desc = paste0("Suitable ", predprey$name, " by ", catchability_f$suit_unit)) )
 
     # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
-    if (length(predstock$dim) == 0) {
+    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "pred_" )]
+    if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))
         suit_ss <- quote(stock_ss(predprey__suit, vec = full))
     } else {
-        final_predim <- paste0('pred_', head(names(predstock$dim), 1))
-        cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(final_predim), x = as.symbol('default'))
-        names(cons_ss)[[4]] <- final_predim
-        suit_ss <- call('stock_ss', as.symbol('predprey__suit'), vec = as.symbol(final_predim), x = as.symbol('default'))
-        names(suit_ss)[[4]] <- final_predim
+        cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
+        names(cons_ss)[[4]] <- pred_dims[[1]]
+        suit_ss <- call('stock_ss', as.symbol('predprey__suit'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
+        names(suit_ss)[[4]] <- pred_dims[[1]]
     }
 
     # Build total_predsuit from all prey stocks
@@ -313,13 +313,16 @@ g3a_predate_fleet <- function (fleet_stock,
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
 
     # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
-    if (length(predstock$dim) == 0) {
+    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "pred_" )]
+    if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))
+        suit_ss <- quote(stock_ss(predprey__suit, vec = full))
     } else {
-        final_predim <- paste0('pred_', head(names(predstock$dim), 1))
-        cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(final_predim), x = as.symbol('default'))
-        names(cons_ss)[[4]] <- final_predim
+        cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
+        names(cons_ss)[[4]] <- pred_dims[[1]]
+        suit_ss <- call('stock_ss', as.symbol('predprey__suit'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
+        names(suit_ss)[[4]] <- pred_dims[[1]]
     }
 
     for (stock in prey_stocks) {

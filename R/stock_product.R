@@ -4,7 +4,6 @@ g3s_stockproduct <- function(...) {
     stopifnot(length(stocks) == 2)
 
     add_prefix <- function (l, prefix) {
-        # TODO: But not area
         if (length(l) > 0 && nzchar(prefix)) names(l) <- paste(prefix, names(l), sep = "_")
         return(l)
     }
