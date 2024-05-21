@@ -147,7 +147,7 @@ g3_distribution_preview <- function (
         model_history = "" )
     if (!is.null(ld$number)) return(ld$number)
     if (!is.null(ld$weight)) return(ld$weight)
-    stop('Could not find output array')
+    stop('obs_data should contain either a number column or weight column')
 }
 
 # Compare model state to observation data
