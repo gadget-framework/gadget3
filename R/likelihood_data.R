@@ -137,6 +137,30 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         stock_map <- NULL
     }
 
+    d <- ld_dim_length(data, col_name = 'predator_length')
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]], prefix = 'predator_')
+        obsstock <- copydim(obsstock, d[[1]], prefix = 'predator_')
+        data$predator_length <- d[[2]]
+        handled_columns$predator_length <- NULL
+    }
+
+    d <- ld_dim_age(data, col_name = 'predator_age')
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]], prefix = 'predator_')
+        obsstock <- copydim(obsstock, d[[1]], prefix = 'predator_')
+        data$predator_age <- d[[2]]
+        handled_columns$predator_age <- NULL
+    }
+
+    d <- ld_dim_tag(data, col_name = 'predator_tag')
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]], prefix = 'predator_')
+        obsstock <- copydim(obsstock, d[[1]], prefix = 'predator_')
+        data$predator_tag <- d[[2]]
+        handled_columns$predator_tag <- NULL
+    }
+
     if ('fleet' %in% names(data)) {
         if ('fleet_re' %in% names(data)) stop("Don't support both fleet and fleet_re")
         fleet_groups <- levels(as.factor(data$fleet))
@@ -402,18 +426,96 @@ ld_dim_tag <- function(data, col_name = 'tag') {
     return(list( stock, data_col ))
 }
 
-# Copy a single dimension from (new_stock) atop (old_stock)
-copydim <- function (inner_stock, new_stock) {
-   new_dim <- names(new_stock$dim)[[1]]
+# Copy a single dimension from (new_stock) atop (old_stock), renaming dimension by adding (prefix)
+copydim <- function (inner_stock, new_stock, prefix = '') {
+     old_dim <- names(new_stock$dim)[[1]]
+     new_dim <- paste0(prefix, old_dim)
 
-   inner_stock$dim[[new_dim]] <- new_stock$dim[[new_dim]]
-   inner_stock$dimnames[[new_dim]] <- new_stock$dimnames[[new_dim]]
-   inner_stock$iterate[[new_dim]] <- new_stock$iterate[[new_dim]]
-   inner_stock$iter_ss[[new_dim]] <- new_stock$iter_ss[[new_dim]]
-   inner_stock$intersect[[new_dim]] <- new_stock$intersect[[new_dim]]
-   inner_stock$interact[[new_dim]] <- new_stock$interact[[new_dim]]
-   inner_stock$with[[new_dim]] <- new_stock$with[[new_dim]]
-   inner_stock$env <- as.environment(c(as.list(inner_stock$env), as.list(new_stock$env)))
-   # NB: Leave name_parts, name as-is
-   return(inner_stock)
+     sym_list <- list()
+     # Prefix any instance of symbols (sl) in code / character vector (in_c) with (prefix)
+     add_prefix <- function (in_c, sl) {
+         repl_fn <- function (x) {
+             sym <- as.character(if (is.symbol(x)) x else x[[1]])
+             # Add our prefix to stock__ names
+             sym <- gsub('^stock__', paste0('stock__', prefix), sym)
+             # If something is already renamed, (e.g. x__agegroup), swap in new name
+             sym <- gsub(paste0('^\\Q', new_stock$name, '\\E__'), paste0(inner_stock$name, '__', prefix), sym)
+             # If "old_dim", add to the beginning
+             if (sym == old_dim) sym <- paste0(prefix, sym)
+
+             if (is.character(x)) x[[1]] <- sym  # NB: When renaming environment names
+             else if (is.symbol(x)) x <- as.symbol(sym)
+             else if (is.call(x)) {
+                 for (i in seq_along(x)) {
+                     # Replace function name, recurse into arguments
+                     x[[i]] <- if (i == 1) as.symbol(sym) else add_prefix(x[[i]], sl)
+                 }
+             }
+
+             return(x)
+         }
+
+         if (length(sl) == 0) return(in_c)
+         if (is.character(in_c)) return(vapply(in_c, repl_fn, character(1)))
+
+         # Form call_replace(in_c, sl[[1]] = repl_fn, sl[[2]] = repl_fn, ...)
+         args <- c(
+             list(in_c),
+             rep(list(repl_fn), length(sl)) )
+         names(args) <- c("", sl)
+         do.call(call_replace, args, quote = TRUE)
+     }
+
+     if (nzchar(prefix)) {
+         # Arguments to call_replace to add prefix to everything in repl_fn
+         sym_list <- c(
+             names(new_stock$env),
+             old_dim,
+             new_stock$iter_ss[[old_dim]])
+
+         # Add prefix to references to symbols in (sym_list)
+         repl_env_fn <- function (env) {
+             out <- as.list(env)
+             names(out) <- add_prefix(names(out), sym_list)
+
+             # Recurse into any environments contained by this one
+             for (n in names(out)) {
+                 if (rlang::is_formula(attr(out[[n]], "g3_global_init_val"))) {
+                     # Add things defined here to the list of things we should be prefixing
+                     sym_list <- c(
+                         sym_list,
+                         names(environment(out[[n]])),
+                         names(environment(attr(out[[n]], "g3_global_init_val"))) )
+                     out[[n]] <- structure(
+                         call_to_formula(
+                             add_prefix(rlang::f_rhs(out[[n]]), sym_list),
+                             repl_env_fn(environment(out[[n]])) ),
+                         g3_global_init_val = call_to_formula(
+                             add_prefix(rlang::f_rhs( attr(out[[n]], "g3_global_init_val") ), sym_list),
+                             repl_env_fn(environment(attr(out[[n]], "g3_global_init_val"))) ))
+                 } else if (rlang::is_formula(out[[n]])) {
+                     sym_list <- c(sym_list, names(environment(out[[n]])))
+                     out[[n]] <- call_to_formula(
+                         add_prefix(rlang::f_rhs(out[[n]]), sym_list),
+                         repl_env_fn(environment(out[[n]])) )
+                 }
+             }
+             return(out)
+         }
+         new_env <- repl_env_fn(new_stock$env)
+     } else {
+         # Leave code alone
+         new_env <- as.list(new_stock$env)
+     }
+
+     inner_stock$dim[[new_dim]] <- new_stock$dim[[old_dim]]
+     inner_stock$dimnames[[new_dim]] <- new_stock$dimnames[[old_dim]]
+     inner_stock$iterate[[new_dim]] <- add_prefix(new_stock$iterate[[old_dim]], sym_list)
+     inner_stock$iter_ss[[new_dim]] <- add_prefix(new_stock$iter_ss[[old_dim]], sym_list)
+     inner_stock$intersect[[new_dim]] <- add_prefix(new_stock$intersect[[old_dim]], sym_list)
+     inner_stock$interact[[new_dim]] <- add_prefix(new_stock$interact[[old_dim]], sym_list)
+     inner_stock$with[[new_dim]] <- add_prefix(new_stock$with[[old_dim]], sym_list)
+     inner_stock$env <- as.environment(c(as.list(inner_stock$env), new_env))
+     # NB: Leave name_parts, name as-is
+     return(inner_stock)
 }

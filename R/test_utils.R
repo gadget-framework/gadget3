@@ -70,3 +70,19 @@ ut_tmb_r_compare2 <- function (
             tolerance = 1e-5), paste("TMB and R match", n))
     }
 }
+
+ut_cmp_code <- function(a, b, optimize = FALSE) {
+    if (rlang::is_formula(a)) a <- rlang::f_rhs(a)
+    if (rlang::is_formula(b)) b <- rlang::f_rhs(b)
+    attr(a, "srcref") <- NULL
+    attr(a, "srcfile") <- NULL
+    attr(a, "wholeSrcref") <- NULL
+    attr(b, "srcref") <- NULL
+    attr(b, "srcfile") <- NULL
+    attr(b, "wholeSrcref") <- NULL
+    if (isTRUE(optimize)) {
+        a <- f_optimize(a)
+        b <- f_optimize(b)
+    }
+    unittest::ut_cmp_identical(a, b)
+}

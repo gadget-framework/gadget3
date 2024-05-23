@@ -8,6 +8,8 @@ pred_a <- g3_stock('pred_a', seq(50, 80, by = 10)) |> g3s_age(0, 10)
 
 pred_a_catch_obs <- expand.grid(
     year = 2000:2005,
+    length = c(1,5,10),
+    predator_length = c(50,70),
     number = 0 )
 
 actions <- list(
@@ -27,6 +29,14 @@ actions <- list(
             temperature = g3_parameterized('temp', value = 0, by_year = TRUE, optimise = FALSE)) ),
 
     g3l_understocking(list(prey_a, prey_b)),
+    g3l_catchdistribution(
+        'pred_a_catch',
+        pred_a_catch_obs,
+        fleets = list(pred_a),
+        stocks = list(prey_a, prey_b),
+        g3l_distribution_sumofsquares(),
+        nll_breakdown = TRUE,
+        report = TRUE ),
 
     # NB: Dummy parameter so model will compile in TMB
     ~{nll <- nll + g3_param("x", value = 0)} )

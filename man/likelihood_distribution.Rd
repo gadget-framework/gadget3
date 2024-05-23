@@ -207,6 +207,11 @@ g3_distribution_preview(
         Any missing ages (when there is otherwise data for that
         year/step) will be compared to zero.
       }
+      \item{predator_length / predator_age / predator_tag}{
+        Optional.
+
+        Values are the same as with length/age/tag respectively, but group by the predator rather than the prey.
+      }
       \item{stock}{
         Optional.
         If this and stock_re are missing all stocks in \var{stocks} will be
