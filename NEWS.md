@@ -3,6 +3,9 @@
 ## Bug fixes
 * ``g3a_spawn()`` splits offspring into multiple stocks correctly
 
+## New features
+* Predation support, see ``?g3a_predate`` / ``?g3a_predate_catchability_predator`` #29
+
 # gadget3 0.11-0:
 
 ## Bug fixes
