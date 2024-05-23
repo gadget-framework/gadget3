@@ -455,7 +455,6 @@ copydim <- function (inner_stock, new_stock, prefix = '') {
              return(x)
          }
 
-         if (length(sl) == 0) return(in_c)
          if (is.character(in_c)) return(vapply(in_c, repl_fn, character(1)))
 
          # Form call_replace(in_c, sl[[1]] = repl_fn, sl[[2]] = repl_fn, ...)
@@ -466,47 +465,42 @@ copydim <- function (inner_stock, new_stock, prefix = '') {
          do.call(call_replace, args, quote = TRUE)
      }
 
-     if (nzchar(prefix)) {
-         # Arguments to call_replace to add prefix to everything in repl_fn
-         sym_list <- c(
-             names(new_stock$env),
-             old_dim,
-             new_stock$iter_ss[[old_dim]])
+     # Arguments to call_replace to add prefix to everything in repl_fn
+     sym_list <- c(
+         names(new_stock$env),
+         if (nzchar(prefix)) old_dim else NULL,
+         new_stock$iter_ss[[old_dim]])
 
-         # Add prefix to references to symbols in (sym_list)
-         repl_env_fn <- function (env) {
-             out <- as.list(env)
-             names(out) <- add_prefix(names(out), sym_list)
+     # Add prefix to references to symbols in (sym_list)
+     repl_env_fn <- function (env) {
+         out <- as.list(env)
+         names(out) <- add_prefix(names(out), sym_list)
 
-             # Recurse into any environments contained by this one
-             for (n in names(out)) {
-                 if (rlang::is_formula(attr(out[[n]], "g3_global_init_val"))) {
-                     # Add things defined here to the list of things we should be prefixing
-                     sym_list <- c(
-                         sym_list,
-                         names(environment(out[[n]])),
-                         names(environment(attr(out[[n]], "g3_global_init_val"))) )
-                     out[[n]] <- structure(
-                         call_to_formula(
-                             add_prefix(rlang::f_rhs(out[[n]]), sym_list),
-                             repl_env_fn(environment(out[[n]])) ),
-                         g3_global_init_val = call_to_formula(
-                             add_prefix(rlang::f_rhs( attr(out[[n]], "g3_global_init_val") ), sym_list),
-                             repl_env_fn(environment(attr(out[[n]], "g3_global_init_val"))) ))
-                 } else if (rlang::is_formula(out[[n]])) {
-                     sym_list <- c(sym_list, names(environment(out[[n]])))
-                     out[[n]] <- call_to_formula(
+         # Recurse into any environments contained by this one
+         for (n in names(out)) {
+             if (rlang::is_formula(attr(out[[n]], "g3_global_init_val"))) {
+                 # Add things defined here to the list of things we should be prefixing
+                 sym_list <- c(
+                     sym_list,
+                     names(environment(out[[n]])),
+                     names(environment(attr(out[[n]], "g3_global_init_val"))) )
+                 out[[n]] <- structure(
+                     call_to_formula(
                          add_prefix(rlang::f_rhs(out[[n]]), sym_list),
-                         repl_env_fn(environment(out[[n]])) )
-                 }
+                         repl_env_fn(environment(out[[n]])) ),
+                     g3_global_init_val = call_to_formula(
+                         add_prefix(rlang::f_rhs( attr(out[[n]], "g3_global_init_val") ), sym_list),
+                         repl_env_fn(environment(attr(out[[n]], "g3_global_init_val"))) ))
+             } else if (rlang::is_formula(out[[n]])) {
+                 sym_list <- c(sym_list, names(environment(out[[n]])))
+                 out[[n]] <- call_to_formula(
+                     add_prefix(rlang::f_rhs(out[[n]]), sym_list),
+                     repl_env_fn(environment(out[[n]])) )
              }
-             return(out)
          }
-         new_env <- repl_env_fn(new_stock$env)
-     } else {
-         # Leave code alone
-         new_env <- as.list(new_stock$env)
+         return(out)
      }
+     new_env <- repl_env_fn(new_stock$env)
 
      inner_stock$dim[[new_dim]] <- new_stock$dim[[old_dim]]
      inner_stock$dimnames[[new_dim]] <- new_stock$dimnames[[old_dim]]

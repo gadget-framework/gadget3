@@ -526,6 +526,35 @@ ok_group('g3l_likelihood_data:age', {
         gadget3:::force_vector("1:3" = 1L, "4:6" = 4L, "7:10" = 7L)), "agegroups using minages from attribute")
 })
 
+ok_group('g3l_likelihood_data:agegroup') ###########
+ld <- generate_ld(expand.grid(
+     year = 2000:2005,
+     length = c(1,5,10),
+     age = c("[1,2)", "[3,3)")  )) # ((
+ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_intersect', age = 1, cur_year = 1999, cur_step = 1), quote({
+    ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year *
+        100L + cur_step * 0L), -1L)
+    if (ut_obs__time_idx >= (1L)) {
+        ut_obs__agegroup_idx <- intlookup_getdefault(ut_obs__agegroup,
+            age, -1L)
+        if (ut_obs__agegroup_idx > -1L)
+            for (ut_obs__length_idx in seq_along(ut_obs__minlen)) if (ut_obs__minlen[[ut_obs__length_idx]] <=
+                length && length < ut_obs__maxlen[[ut_obs__length_idx]]) {
+                ut_obs__num[ut_obs__length_idx, ut_obs__agegroup_idx,
+                  ut_obs__time_idx]
+                break
+            }
+    }
+}), optimize = TRUE), "stock_intersect: Renamed all vars, including ut_obs__agegroup")
+
+ok(ut_cmp_equal(
+    g3_eval(attr(ld$obsstock$env$ut_obs__agegroup, "g3_global_init_val")),
+    structure(
+        list(1L, 2L, 2L),
+        key_var = "ut_obs__agegroup_keys",
+        value_var = "ut_obs__agegroup_values" )), "ut_obs__agegroup: Sub-parts also renamed")
+
+########### g3l_likelihood_data:agegroup
 
 ok_group('g3l_likelihood_data:age_factor', {
     df <- data.frame(
