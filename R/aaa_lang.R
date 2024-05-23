@@ -18,7 +18,8 @@ g3_native <- function(r, cpp, depends = c()) {
 # A global formula is one that has an interative formula and an initial value
 # (f) will set the value within the current step, (init_val) will initialize the variable
 # outside the loop
-g3_global_formula <- function(f = ~noop, init_val = NULL) {
+g3_global_formula <- function(f = quote(noop), init_val = NULL) {
+    if (!rlang::is_formula(f)) f <- call_to_formula(f, new.env(parent = emptyenv()))
     attr(f, "g3_global_init_val") <- init_val
     return(f)
 }
