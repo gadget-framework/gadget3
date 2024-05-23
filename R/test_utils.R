@@ -86,3 +86,15 @@ ut_cmp_code <- function(a, b, optimize = FALSE) {
     }
     unittest::ut_cmp_identical(a, b)
 }
+
+# Compare array by turning it back into a table first
+ut_cmp_array <- function (ar, table_text, ...) {
+    df <- as.data.frame.table(ar, stringsAsFactors = FALSE)
+    tbl <- utils::read.table(
+        header = TRUE,
+        stringsAsFactors = FALSE,
+        colClasses = sapply(df, class),
+        text = table_text)
+    rownames(tbl) <- NULL
+    unittest::ut_cmp_equal(df, tbl, ...)
+}
