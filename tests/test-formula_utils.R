@@ -182,95 +182,95 @@ ok(ut_cmp_identical(
     deep_ls(rlang::f_env(out_f)), 
     c("wow", "yay", "woo", "a", "b", "c")), "f_concatenate:parent")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; oink; baa}),
     ~{woo; oink; baa}), "f_optimize: Passed through 3 terms")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; {}; if (TRUE) {oink}; baa}),
     ~{woo; oink; baa}), "f_optimize: Oink's if statement removed")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; {}; if (!FALSE) {oink}; baa}),
     ~{woo; oink; baa}), "f_optimize: Oink's if statement removed")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; {}; if (!TRUE) {oink} else { plonk }; baa}),
     ~{woo; plonk; baa}), "f_optimize: Oink's if statement used else part")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; { x ; {}}; if (TRUE) {oink}; baa}),
     ~{woo; x ; oink; baa}), "f_optimize: Brackets normalised")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x) {woo}),
     ~if (x) woo), "f_optimize: Regular if statement passed through")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 }),
     ~{}), "f_optimize:if: Removed statement with pointless output codepaths")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { }),
     ~{}), "f_optimize:if: Removed statement with pointless output codepaths")
-ok(ut_cmp_identical(
+ok(ut_cmp_equal(
     gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { baa }),
     ~if (x > 3) { } else baa), "f_optimize:if: Don't remove if statment if one codepath is nonempty")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x > 3) { 2 } else { if (FALSE) baa }),
     ~if (x > 3) 2), "f_optimize:if: Remove else condition if codepath is empty")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if ((x > (2 + 0))) { 2 }),
     ~if (x > 2) 2), "f_optimize:if: Remove excess brackets around condition")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{TRUE && y ; FALSE && y ; x && y ; x && FALSE ; x && TRUE ; x && (TRUE || y) ; (TRUE || x) && y}),
     ~{y ; FALSE ; x && y ; FALSE ; x ; x; y}), "f_optimize:&&")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{TRUE || y ; FALSE || y ; x || y ; x || FALSE ; x || TRUE ; x || (FALSE && y) ; (FALSE && x) || y}),
     ~{TRUE ; y ; x || y ; x ; TRUE ; x ; y}), "f_optimize:||")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x * 1 + y),
     ~x + y), "f_optimize: Recurse through arithmetic")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~y * 0 + 0 * z + 99),
     ~y * 0 + 0 * z + 99), "f_optimize: Multiplication by zero *doesn't* cancel out")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~0 + x + 0),
     ~x), "f_optimize: Recurse through arithmetic")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x + 0 + x),
     ~x + x), "f_optimize: Recurse through arithmetic")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~y / 1 + 1 / z),
     ~y + 1/z), "f_optimize: Division only works one way")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~-x),
     ~-x), "f_optimize: Can still negate values")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x + ((x) + (0))),
     ~x + x), "f_optimize: Recurse through brackets, remove from symbols")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x + ((x + 4))),
     ~x + (x + 4)), "f_optimize: Double brackets removed")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x + (x + (f(4))  )),
     ~x + (x + f(4))), "f_optimize: Functions don't need brackets")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~x + (if (y) 2 else 5)),
     ~x + (if (y) 2 else 5)), "f_optimize: If statements do though")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{x <- (2 + 2) ; y <- (4 + 4) * 6}),
     ~{x <- 2 + 2 ; y <- (4 + 4) * 6}), "f_optimize: Remove outer brackets from definition")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~g3_with(x := 4, if (x == 2) moo)),
     ~g3_with(x := 4, if (x == 2) moo)), "f_optimize: No g3_with change when if is dependent")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~g3_with(x := 4, if (y == 2) moo)),
     ~if (y == 2) g3_with(x := 4, moo)), "f_optimize: Swapped g3_with/if when independent")
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~g3_with(x := 4, if (y == 2) moo else oink)),
     ~g3_with(x := 4, if (y == 2) moo else oink)), "f_optimize: Don't bother swapping if/else")
 
-ok(ut_cmp_identical(
+ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x + 0) y / 1),
     ~if (x) y), "f_optimize: Optimize through if condition")
 
