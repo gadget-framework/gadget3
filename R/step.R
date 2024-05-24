@@ -95,42 +95,6 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         f_substitute(f, lapply(interactvars, as.symbol))
     }
 
-    # Add any formula definitions from f into f, if they include depend_vars
-    add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
-        # Repeatedly look for definitions we should be adding (so we add sub-definitions)
-        while(TRUE) {
-            added_defn <- FALSE
-            for (var_name in all_undefined_vars(f)) {  # NB: all_undefined_vars will get rid of definitions from previous loop
-                defn <- environment(f)[[var_name]]
-                if (!is.call(defn)) next
-                if (!isTRUE(depend_vars) && !('stock_ss' %in% all.names(defn)) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
-                    # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
-                    if (!is.null(filter_fn)) {
-                        assign(var_name, filter_fn(defn), envir = environment(f))
-                    }
-                    next
-                }
-
-                if (is.null(attr(defn, 'g3_global_init_val')) ) {
-                    # Non-global, add scoped variable with g3_with()
-                    impl_f <- ~g3_with(var := defn, f)
-                } else if (identical(rlang::f_rhs(defn), as.symbol("noop"))) {
-                    # Global with only a initial definition, do ~nothing
-                    # NB: adf_marker will get removed later with collapse_g3_with()
-                    impl_f <- ~g3_with(var := adf_marker, f)
-                } else {
-                    # Global, add definition and marker to stop repetition
-                    impl_f <- ~g3_with(var := adf_marker, {var <- defn ; f})
-                }
-                f <- f_substitute(impl_f, list(var = as.symbol(var_name), defn = defn, f = f))
-                added_defn <- TRUE
-            }
-            if (!added_defn) break
-        }
-
-        return(f)
-    }
-
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
         stock <- get(as.character(stock_var), envir = orig_env)
