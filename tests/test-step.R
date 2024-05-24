@@ -294,8 +294,8 @@ ok_group("g3_step:dependent_formulas", (function () {
         stock = stock_imm))
     ok(cmp_code(f, g3_formula(quote(
         g3_with(
-            by_age := g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))),
             const := g3_param("ling_imm.const"),
+            by_age := g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))),
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
                 ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
                 (ling_imm__num[, ling_imm__age_idx] + const + by_age)))

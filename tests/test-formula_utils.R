@@ -288,3 +288,27 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::all_undefined_vars(quote( g3_with(`pa-rp` := 1, `pa-rp`) )),
     as.character(c())), "all_undefined_vars: Symbols necessary to escape in R still recognised")
+
+ok_group("add_dependent_formula") ###########
+adf <- function (f, depend_vars = c("block1", "block2")) gadget3:::add_dependent_formula(f, depend_vars)
+
+out <- adf(g3_formula( 4 * x, x = g3_formula(block1**2) ))
+ok(gadget3:::ut_cmp_code(out, quote(
+    g3_with(`:=`(x, (block1^2)), (4 * x))
+), optimize = TRUE), "Included formula mentioning block1")
+
+out <- adf(g3_formula( 4 * x, x = g3_formula(pass1**2) ))
+
+
+out <- adf(g3_formula(
+     4 * total_predsuit + psi,
+     total_predsuit = ~block1 + 2 + 3,
+     psi = ~total_predsuit ** 5 ))
+ok(gadget3:::ut_cmp_code(out, quote(
+    g3_with(
+        total_predsuit := (block1 + 2 + 3),
+        psi := (total_predsuit^5),
+        (4 * total_predsuit + psi) )
+), optimize = TRUE), "Both total_predsuit & psi included, as psi needs total_predsuit")
+
+########### add_dependent_formula

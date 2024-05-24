@@ -438,35 +438,78 @@ all_undefined_vars <- function (code) {
 
 # Add any formula definitions from f into f, if they include depend_vars
 add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
+    extra_defns <- list()
+    wrap_defns <- list()
+
     # Repeatedly look for definitions we should be adding (so we add sub-definitions)
     while(TRUE) {
+        # Find any missing definitions in either f or things we're about to define
+        undefined_vars <- c(
+            do.call(c, lapply(extra_defns, all_undefined_vars)),
+            do.call(c, lapply(wrap_defns, all_undefined_vars)),
+            all_undefined_vars(f) )
+        # Ignore things that are already defined
+        undefined_vars <- setdiff(undefined_vars, names(extra_defns))
+        undefined_vars <- setdiff(undefined_vars, names(wrap_defns))
         added_defn <- FALSE
-        for (var_name in all_undefined_vars(f)) {  # NB: all_undefined_vars will get rid of definitions from previous loop
-            defn <- environment(f)[[var_name]]
+        for (var_name in undefined_vars) {
+            for (sub_f in c(list(f), extra_defns, wrap_defns)) {
+                defn <- environment(sub_f)[[var_name]]
+                if (!is.null(defn)) break
+            }
             if (!is.call(defn)) next
-            if (!isTRUE(depend_vars) && !('stock_ss' %in% all.names(defn)) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
-                # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
+            if (TRUE &&
+                    # We have some depend_vars to check
+                    !isTRUE(depend_vars) &&
+                    # Formula doesn't use a stock_ss() call
+                    !('stock_ss' %in% all.names(defn)) &&
+                    # Formula doesn't mention any of the depend vars or now-added definitions
+                    length(intersect(all_undefined_vars(defn), c(depend_vars, names(extra_defns)))) == 0 &&
+                    TRUE ) {
+                # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and continue
                 if (!is.null(filter_fn)) {
                     assign(var_name, filter_fn(defn), envir = environment(f))
                 }
                 next
             }
 
-            if (is.null(attr(defn, 'g3_global_init_val')) ) {
-                # Non-global, add scoped variable with g3_with()
-                impl_f <- ~g3_with(var := defn, f)
-            } else if (identical(rlang::f_rhs(defn), as.symbol("noop"))) {
-                # Global with only a initial definition, do ~nothing
+            if ( !is.null(attr(defn, 'g3_global_init_val')) ) {
+                if (!identical(rlang::f_rhs(defn), as.symbol("noop"))) {
+                    # Update variable instead of adding to extra_defns
+                    wrap_defns[[var_name]] <- defn
+                }
                 # NB: adf_marker will get removed later with collapse_g3_with()
-                impl_f <- ~g3_with(var := adf_marker, f)
+                extra_defns[[var_name]] <- quote( adf_marker )
             } else {
-                # Global, add definition and marker to stop repetition
-                impl_f <- ~g3_with(var := adf_marker, {var <- defn ; f})
+                extra_defns[[var_name]] <- defn
             }
-            f <- f_substitute(impl_f, list(var = as.symbol(var_name), defn = defn, f = f))
             added_defn <- TRUE
         }
         if (!added_defn) break
+    }
+
+    if (length(extra_defns) > 0) {
+        # Make up call with all vars to define
+        g3_with_call <- as.call(c(
+            quote(g3_with),
+            # List of defn := defn_adf
+            lapply(names(extra_defns), function (n) call(":=", as.symbol(n), as.symbol(paste0(n, "_adf")))),
+            quote(f) ))
+        # Replace the RHS, not the LHS
+        names(extra_defns) <- paste0(names(extra_defns), "_adf")
+        # Wrap f in a g3_call()
+        f <- f_substitute(g3_with_call, c(extra_defns, list(f = f)))
+    }
+
+    for (var_name in names(wrap_defns)) {
+        # Put any g3_global_formula iterations on the outside
+        # NB: This is somewhat abritary, but then the precise positioning of a g3_global_formula is a bit ropey anyway.
+        f <- f_substitute(quote(
+            { var <- defn; f }
+        ), list(
+            var = as.symbol(var_name),
+            defn = wrap_defns[[var_name]],
+            f = f ))
     }
 
     return(f)

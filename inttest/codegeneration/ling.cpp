@@ -39,14 +39,14 @@ template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> 
 template<class Type>
 Type objective_function<Type>::operator() () {
     DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);
-    PARAMETER(lingimm__init__scalar);
-    PARAMETER(lingimm__M);
-    PARAMETER(ling__init__F);
-    PARAMETER_VECTOR(lingimm__init);
     PARAMETER(ling__Linf);
     PARAMETER(ling__K);
     PARAMETER(recage);
     PARAMETER(ling__recl);
+    PARAMETER(lingimm__init__scalar);
+    PARAMETER(lingimm__M);
+    PARAMETER(ling__init__F);
+    PARAMETER_VECTOR(lingimm__init);
     PARAMETER(lingimm__walpha);
     PARAMETER(lingimm__wbeta);
     PARAMETER(lingmat__init__scalar);
@@ -308,9 +308,9 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( as_integer(age) - 3 + 1 - 1 ));
-
                     auto dnorm = ((ling_imm__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 ));
+
+                    auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( as_integer(age) - 3 + 1 - 1 ));
 
                     {
                         ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -329,9 +329,9 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( as_integer(age) - 5 + 1 - 1 ));
-
                     auto dnorm = ((ling_mat__midlen - (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K)))))) / ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 ));
+
+                    auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( as_integer(age) - 5 + 1 - 1 ));
 
                     {
                         ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -839,33 +839,31 @@ Type objective_function<Type>::operator() () {
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
         }
         if ( cur_step_final ) {
+            auto ling_imm_movement__area_idx = 0;
+
             auto ling_imm__area_idx = 0;
 
             {
-                auto ling_imm_movement__area_idx = 0;
+                // g3a_age for ling_imm;
+                for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
+                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                {
-                    // g3a_age for ling_imm;
-                    for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
-                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
-
-                        {
-                            // Check stock has remained finite for this step;
-                            if (age == ling_imm__maxage) {
-                                // Move oldest ling_imm into ling_imm_movement;
-                                ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(0) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(0) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                    {
+                        // Check stock has remained finite for this step;
+                        if (age == ling_imm__maxage) {
+                            // Move oldest ling_imm into ling_imm_movement;
+                            ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(0) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                            ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(0) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                            ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
+                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
+                        } else {
+                            if (age == ling_imm__minage) {
+                                // Empty youngest ling_imm age-group;
+                                ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx).setZero();
+                            } else {
+                                // Move ling_imm age-group to next one up;
                                 ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
                                 ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
-                            } else {
-                                if (age == ling_imm__minage) {
-                                    // Empty youngest ling_imm age-group;
-                                    ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx).setZero();
-                                } else {
-                                    // Move ling_imm age-group to next one up;
-                                    ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
-                                    ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
-                                }
                             }
                         }
                     }
