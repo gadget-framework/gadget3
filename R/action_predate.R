@@ -181,7 +181,6 @@ g3a_predate <- function (
         predprey <- predpreys[[stock$name]]
         predprey__cons <- predprey__conses[[stock$name]]
         predprey__suit <- predprey__suits[[stock$name]]
-        stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", stock$name))
 
         suit_ss <- cons_ss
         suit_ss[[2]] <- quote(predprey__suit)
@@ -199,6 +198,7 @@ g3a_predate <- function (
         stock__totalpredate <- g3_stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
         stock__consratio <- g3_stock_instance(stock, desc = paste0("Proportion of ", stock$name, " biomass to be consumed, capped by overconsumption rule"))
         stock__consconv <- g3_stock_instance(stock, desc = paste0("Conversion factor to apply ", stock$name, " overconsumption to predators"))
+        stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", stock$name))
         predprey <- predpreys[[stock$name]]
         predprey__cons <- predprey__conses[[stock$name]]
         predprey__suit <- predprey__suits[[stock$name]]
