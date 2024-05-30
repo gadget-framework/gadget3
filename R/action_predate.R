@@ -170,12 +170,9 @@ g3a_predate <- function (
     if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))
-        suit_ss <- quote(stock_ss(predprey__suit, vec = full))
     } else {
         cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
         names(cons_ss)[[4]] <- pred_dims[[1]]
-        suit_ss <- call('stock_ss', as.symbol('predprey__suit'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
-        names(suit_ss)[[4]] <- pred_dims[[1]]
     }
 
     # Build total_predsuit from all prey stocks
@@ -185,6 +182,9 @@ g3a_predate <- function (
         predprey__cons <- predprey__conses[[stock$name]]
         predprey__suit <- predprey__suits[[stock$name]]
         stock__overconsumption <- structure(0.0, desc = paste0("Total overconsumption of ", stock$name))
+
+        suit_ss <- cons_ss
+        suit_ss[[2]] <- quote(predprey__suit)
 
         # NB: We're not getting the environment right, later predpreys are overriding previous. OTOH, it's not necessary so strip.
         total_predsuit <- rlang::f_rhs(g3_step(f_substitute(~total_predsuit + stock_with(stock, stock_with(predprey, 
@@ -281,7 +281,6 @@ g3a_predate <- function (
                 predprey__cons <- nonconform_mult(predprey__cons, stock__consconv)
             }))
         }, list(
-            cons_ss = cons_ss,
             run_f = run_f )))
     }
 
@@ -317,12 +316,9 @@ g3a_predate_fleet <- function (fleet_stock,
     if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))
-        suit_ss <- quote(stock_ss(predprey__suit, vec = full))
     } else {
         cons_ss <- call('stock_ss', as.symbol('predprey__cons'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
         names(cons_ss)[[4]] <- pred_dims[[1]]
-        suit_ss <- call('stock_ss', as.symbol('predprey__suit'), vec = as.symbol(pred_dims[[1]]), x = as.symbol('default'))
-        names(suit_ss)[[4]] <- pred_dims[[1]]
     }
 
     for (stock in prey_stocks) {
