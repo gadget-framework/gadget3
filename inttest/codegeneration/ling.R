@@ -173,17 +173,18 @@ structure(function (param)
     cur_year_projection <- FALSE
     cur_step <- 0L
     cur_step_final <- FALSE
+    igfs__totalsuit <- array(NA, dim = c(area = 1L), dimnames = list(area = "area1"))
     ling_imm__totalpredate <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
         "age8", "age9", "age10"), area = "area1"))
     ling_mat__totalpredate <- array(NA, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", 
         "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1"))
-    ling_imm_igfs__suit <- array(NA, dim = c(length = 35L, age = 8L, area = 1L, pred_area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", 
-        "age6", "age7", "age8", "age9", "age10"), area = "area1", pred_area = "area1"))
+    ling_imm_igfs__suit <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
+        "age8", "age9", "age10"), area = "area1"))
     igfs__area <- 1L
-    ling_mat_igfs__suit <- array(NA, dim = c(length = 35L, age = 11L, area = 1L, pred_area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", 
-        "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1", pred_area = "area1"))
-    ling_imm_igfs__cons <- array(NA, dim = c(length = 35L, age = 8L, area = 1L, pred_area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", 
-        "age6", "age7", "age8", "age9", "age10"), area = "area1", pred_area = "area1"))
+    ling_mat_igfs__suit <- array(NA, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", 
+        "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1"))
+    ling_imm_igfs__cons <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
+        "age8", "age9", "age10"), area = "area1"))
     intlookup_zip <- function(keys, values) {
         if (min(keys) > 0 && max(keys) < 1e+05) {
             out <- list()
@@ -199,11 +200,11 @@ structure(function (param)
         return(out)
     }
     igfs_totaldata <- intlookup_zip(igfs_totaldata_keys, igfs_totaldata_values)
-    ling_mat_igfs__cons <- array(NA, dim = c(length = 35L, age = 11L, area = 1L, pred_area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", 
-        "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1", pred_area = "area1"))
+    ling_mat_igfs__cons <- array(NA, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", 
+        "age10", "age11", "age12", "age13", "age14", "age15"), area = "area1"))
     ling_imm__consratio <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
         "age8", "age9", "age10"), area = "area1"))
-    ling_imm__overconsumption <- structure(0, desc = "Total overconsumption of ling_mat")
+    ling_imm__overconsumption <- structure(0, desc = "Total overconsumption of ling_imm")
     ling_imm__consconv <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
         "age8", "age9", "age10"), area = "area1"))
     ling_mat__consratio <- array(NA, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", 
@@ -297,14 +298,9 @@ structure(function (param)
             cur_step <- (cur_time%%step_count) + 1L
             cur_step_final <- cur_step == step_count
         }
-        {
-            comment("Zero total predation counter for ling_imm")
-            ling_imm__totalpredate[] <- 0
-        }
-        {
-            comment("Zero total predation counter for ling_mat")
-            ling_mat__totalpredate[] <- 0
-        }
+        igfs__totalsuit[] <- 0
+        ling_imm__totalpredate[] <- 0
+        ling_mat__totalpredate[] <- 0
         {
             comment("g3a_predate_fleet for ling_imm")
             comment("Zero igfs-ling_imm biomass-consuming counter")
@@ -318,7 +314,8 @@ structure(function (param)
                   predator_area <- area
                   {
                     comment("Collect all suitable ling_imm biomass for igfs")
-                    ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))) * ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]
+                    ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))) * ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]
+                    igfs__totalsuit[igfs__area_idx] <- igfs__totalsuit[igfs__area_idx] + sum(ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx])
                   }
                 }
             }
@@ -336,7 +333,8 @@ structure(function (param)
                   predator_area <- area
                   {
                     comment("Collect all suitable ling_mat biomass for igfs")
-                    ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))) * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]
+                    ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx] <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))) * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]
+                    igfs__totalsuit[igfs__area_idx] <- igfs__totalsuit[igfs__area_idx] + sum(ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx])
                   }
                 }
             }
@@ -351,17 +349,12 @@ structure(function (param)
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   igfs__area_idx <- (1L)
                   predator_area <- area
-                  total_predsuit <- (sum(ling_imm_igfs__suit[, , , igfs__area_idx]) + sum(ling_mat_igfs__suit[, , , igfs__area_idx]))
-                  ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx] <- ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx] * ((if (area != 1) 
+                  ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/igfs__totalsuit[igfs__area_idx])
                 }
             }
-            {
-                area <- igfs__area
-                igfs__area_idx <- (1L)
-                ling_imm__totalpredate[] <- nonconform_add(ling_imm__totalpredate[], ling_imm_igfs__cons[, , , igfs__area_idx])
-            }
+            ling_imm__totalpredate[] <- nonconform_add(ling_imm__totalpredate[], ling_imm_igfs__cons[, , ])
         }
         {
             comment("Scale igfs catch of ling_mat by total expected catch")
@@ -373,17 +366,12 @@ structure(function (param)
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   igfs__area_idx <- (1L)
                   predator_area <- area
-                  total_predsuit <- (sum(ling_imm_igfs__suit[, , , igfs__area_idx]) + sum(ling_mat_igfs__suit[, , , igfs__area_idx]))
-                  ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx] <- ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx] * ((if (area != 1) 
+                  ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/igfs__totalsuit[igfs__area_idx])
                 }
             }
-            {
-                area <- igfs__area
-                igfs__area_idx <- (1L)
-                ling_mat__totalpredate[] <- nonconform_add(ling_mat__totalpredate[], ling_mat_igfs__cons[, , , igfs__area_idx])
-            }
+            ling_mat__totalpredate[] <- nonconform_add(ling_mat__totalpredate[], ling_mat_igfs__cons[, , ])
         }
         {
             comment("Calculate ling_imm overconsumption coefficient")
@@ -417,19 +405,11 @@ structure(function (param)
         }
         {
             ling_imm__predby_igfs[] <- 0
-            {
-                area <- igfs__area
-                igfs__area_idx <- (1L)
-                ling_imm__predby_igfs[] <- nonconform_add(ling_imm__predby_igfs, ling_imm_igfs__cons[, , , igfs__area_idx])
-            }
+            ling_imm__predby_igfs[] <- nonconform_add(ling_imm__predby_igfs, ling_imm_igfs__cons[, , ])
         }
         {
             ling_mat__predby_igfs[] <- 0
-            {
-                area <- igfs__area
-                igfs__area_idx <- (1L)
-                ling_mat__predby_igfs[] <- nonconform_add(ling_mat__predby_igfs, ling_mat_igfs__cons[, , , igfs__area_idx])
-            }
+            ling_mat__predby_igfs[] <- nonconform_add(ling_mat__predby_igfs, ling_mat_igfs__cons[, , ])
         }
         {
             comment("Natural mortality for ling_imm")
@@ -623,17 +603,14 @@ structure(function (param)
             {
                 area <- ling_imm__area
                 ling_imm__area_idx <- (1L)
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (area == igfs__area) 
-                  if (area == cdist_sumofsquares_ldist_lln_model__area) {
-                    ling_imm__age_idx <- age - ling_imm__minage + 1L
-                    igfs__area_idx <- (1L)
-                    predator_area <- area
-                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
-                    {
-                      comment("Take predprey__cons weight, convert to individuals, add to our count")
-                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx, igfs__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
-                    }
+                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
+                  ling_imm__age_idx <- age - ling_imm__minage + 1L
+                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                  {
+                    comment("Take predprey__cons weight, convert to individuals, add to our count")
+                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
                   }
+                }
             }
         }
         {
@@ -641,17 +618,14 @@ structure(function (param)
             {
                 area <- ling_mat__area
                 ling_mat__area_idx <- (1L)
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == igfs__area) 
-                  if (area == cdist_sumofsquares_ldist_lln_model__area) {
-                    ling_mat__age_idx <- age - ling_mat__minage + 1L
-                    igfs__area_idx <- (1L)
-                    predator_area <- area
-                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
-                    {
-                      comment("Take predprey__cons weight, convert to individuals, add to our count")
-                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx, igfs__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
-                    }
+                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
+                  ling_mat__age_idx <- age - ling_mat__minage + 1L
+                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                  {
+                    comment("Take predprey__cons weight, convert to individuals, add to our count")
+                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
                   }
+                }
             }
         }
         {

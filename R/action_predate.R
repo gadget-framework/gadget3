@@ -133,7 +133,8 @@ g3a_predate_catchability_predator <- function (
             ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature)),
             # ψ_L, “feeding level” (fraction of the available food that the predator is consuming) - eqn 4.23
             psi = f_substitute(quote(
-                total_predsuit / ( H * cur_step_size + total_predsuit)
+                # NB: i.e. total_predsuit, but substitution doesn't work here
+                stock_ss(predstock__totalsuit, vec = single) / ( H * cur_step_size + stock_ss(predstock__totalsuit, vec = single))
             ), list(H = half_feeding_f)) ))
 }
 
@@ -154,11 +155,14 @@ g3a_predate <- function (
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Proportion of total prey biomass to be consumed, capped by overconsumption rule
     # stock__overconsumption: Single figure, proportion of total biomass consumed to total biomass hoping to be consumed. Used by g3l_understocking()
+    # predstock__totalsuit: Total prey suitable for consumption by pred
     # predprey__cons: Biomass of prey consumed by pred
     # predprey__suit: Biomass of prey suitable for consumption by pred
 
+    predstock__totalsuit <- g3_stock_instance(predstock, desc = paste0("Total suitable prey by ", catchability_f$suit_unit))
+
     # Build combined arrays for each pred/prey combination
-    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock) )
+    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock, ignore_dims = c('pred_area')) )
     names(predpreys) <- vapply(prey_stocks, function (stock) stock$name, character(1))
     predprey__conses <- lapply(predpreys, function (predprey)
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
@@ -175,24 +179,6 @@ g3a_predate <- function (
         names(cons_ss)[[4]] <- pred_dims[[1]]
     }
 
-    # Build total_predsuit from all prey stocks
-    total_predsuit <- 0
-    for (stock in prey_stocks) {
-        predprey <- predpreys[[stock$name]]
-        predprey__cons <- predprey__conses[[stock$name]]
-        predprey__suit <- predprey__suits[[stock$name]]
-
-        suit_ss <- cons_ss
-        suit_ss[[2]] <- quote(predprey__suit)
-
-        # NB: We're not getting the environment right, later predpreys are overriding previous. OTOH, it's not necessary so strip.
-        total_predsuit <- rlang::f_rhs(g3_step(f_substitute(~total_predsuit + stock_with(stock, stock_with(predprey, 
-                sum(suit_ss) )),
-            list(
-                suit_ss = suit_ss,
-                total_predsuit = total_predsuit )), recursing = TRUE))
-    }
-
     # For each prey stock...
     for (stock in prey_stocks) {
         stock__totalpredate <- g3_stock_instance(stock, desc = paste0("Biomass of total consumed ", stock$name, " (prey matrix)"))
@@ -206,8 +192,11 @@ g3a_predate <- function (
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
         out[[step_id(run_at, 0, stock)]] <- g3_step(~{
-            debug_trace("Zero total predation counter for ", stock)
             stock_with(stock, stock__totalpredate[] <- 0)
+        })
+
+        out[[step_id(run_at, 0, predstock)]] <- g3_step(~{
+            stock_with(predstock, predstock__totalsuit[] <- 0)
         })
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
@@ -219,6 +208,7 @@ g3a_predate <- function (
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", predstock)
                 stock_ss(predprey__suit) <- catchability_suit_f
+                stock_ss(predstock__totalsuit, vec = single) <- stock_ss(predstock__totalsuit, vec = single) + sum(stock_ss(predprey__suit))
             }), prefix = 'predator'))
         }, list(
             catchability_suit_f = f_substitute(catchability_f$suit, list(
@@ -242,7 +232,8 @@ g3a_predate <- function (
                 stock__totalpredate[] <- nonconform_add(stock__totalpredate[], cons_ss)
             })))
         }, list(
-            catchability_cons_f = catchability_f$cons,
+            catchability_cons_f = f_substitute(catchability_f$cons, list(
+                total_predsuit = quote(stock_ss(predstock__totalsuit, vec = single)) )),
             cons_ss = cons_ss,
             run_f = run_f )))
 
@@ -306,7 +297,7 @@ g3a_predate_fleet <- function (fleet_stock,
         run_at = run_at )
 
     # Build combined arrays for each pred/prey combination
-    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock) )
+    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock, ignore_dims = c('pred_area')) )
     names(predpreys) <- vapply(prey_stocks, function (stock) stock$name, character(1))
     predprey__conses <- lapply(predpreys, function (predprey)
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )

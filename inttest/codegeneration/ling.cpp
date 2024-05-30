@@ -239,16 +239,17 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
+    array<Type> igfs__totalsuit(1);
     array<Type> ling_imm__totalpredate(35,8,1);
     array<Type> ling_mat__totalpredate(35,11,1);
-    array<Type> ling_imm_igfs__suit(35,8,1,1);
+    array<Type> ling_imm_igfs__suit(35,8,1);
     int igfs__area = 1;
-    array<Type> ling_mat_igfs__suit(35,11,1,1);
-    array<Type> ling_imm_igfs__cons(35,8,1,1);
+    array<Type> ling_mat_igfs__suit(35,11,1);
+    array<Type> ling_imm_igfs__cons(35,8,1);
     DATA_IVECTOR(igfs_totaldata_keys)
     DATA_IVECTOR(igfs_totaldata_values)
     auto igfs_totaldata = intlookup_zip(igfs_totaldata_keys, igfs_totaldata_values);
-    array<Type> ling_mat_igfs__cons(35,11,1,1);
+    array<Type> ling_mat_igfs__cons(35,11,1);
     array<Type> ling_imm__consratio(35,8,1);
     Type ling_imm__overconsumption = (double)(0);
     array<Type> ling_imm__consconv(35,8,1);
@@ -348,14 +349,9 @@ Type objective_function<Type>::operator() () {
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
         }
-        {
-            // Zero total predation counter for ling_imm;
-            ling_imm__totalpredate.setZero();
-        }
-        {
-            // Zero total predation counter for ling_mat;
-            ling_mat__totalpredate.setZero();
-        }
+        igfs__totalsuit.setZero();
+        ling_imm__totalpredate.setZero();
+        ling_mat__totalpredate.setZero();
         {
             // g3a_predate_fleet for ling_imm;
             // Zero igfs-ling_imm biomass-consuming counter;
@@ -374,7 +370,8 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable ling_imm biomass for igfs;
-                        ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                        ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                        igfs__totalsuit(igfs__area_idx) += (ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
                     }
                 }
             }
@@ -397,7 +394,8 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable ling_mat biomass for igfs;
-                        ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx);
+                        ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx);
+                        igfs__totalsuit(igfs__area_idx) += (ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
                     }
                 }
             }
@@ -417,18 +415,10 @@ Type objective_function<Type>::operator() () {
 
                     auto predator_area = area;
 
-                    auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
-
-                    ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / igfs__totalsuit(igfs__area_idx));
                 }
             }
-            {
-                auto area = igfs__area;
-
-                auto igfs__area_idx = 0;
-
-                ling_imm__totalpredate = nonconform_add(ling_imm__totalpredate, ling_imm_igfs__cons.col(igfs__area_idx));
-            }
+            ling_imm__totalpredate = nonconform_add(ling_imm__totalpredate, ling_imm_igfs__cons);
         }
         {
             // Scale igfs catch of ling_mat by total expected catch;
@@ -445,18 +435,10 @@ Type objective_function<Type>::operator() () {
 
                     auto predator_area = area;
 
-                    auto total_predsuit = ((ling_imm_igfs__suit.col(igfs__area_idx)).sum() + (ling_mat_igfs__suit.col(igfs__area_idx)).sum());
-
-                    ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / igfs__totalsuit(igfs__area_idx));
                 }
             }
-            {
-                auto area = igfs__area;
-
-                auto igfs__area_idx = 0;
-
-                ling_mat__totalpredate = nonconform_add(ling_mat__totalpredate, ling_mat_igfs__cons.col(igfs__area_idx));
-            }
+            ling_mat__totalpredate = nonconform_add(ling_mat__totalpredate, ling_mat_igfs__cons);
         }
         {
             // Calculate ling_imm overconsumption coefficient;
@@ -490,23 +472,11 @@ Type objective_function<Type>::operator() () {
         }
         {
             ling_imm__predby_igfs.setZero();
-            {
-                auto area = igfs__area;
-
-                auto igfs__area_idx = 0;
-
-                ling_imm__predby_igfs = nonconform_add(ling_imm__predby_igfs, ling_imm_igfs__cons.col(igfs__area_idx));
-            }
+            ling_imm__predby_igfs = nonconform_add(ling_imm__predby_igfs, ling_imm_igfs__cons);
         }
         {
             ling_mat__predby_igfs.setZero();
-            {
-                auto area = igfs__area;
-
-                auto igfs__area_idx = 0;
-
-                ling_mat__predby_igfs = nonconform_add(ling_mat__predby_igfs, ling_mat_igfs__cons.col(igfs__area_idx));
-            }
+            ling_mat__predby_igfs = nonconform_add(ling_mat__predby_igfs, ling_mat_igfs__cons);
         }
         {
             // Natural mortality for ling_imm;
@@ -736,20 +706,14 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_imm__area_idx = 0;
 
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == igfs__area ) {
-                    if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
-                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        auto igfs__area_idx = 0;
+                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
-                        auto predator_area = area;
-
-                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
-
-                        {
-                            // Take predprey__cons weight, convert to individuals, add to our count;
-                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm_igfs__cons.col(igfs__area_idx).col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
-                        }
+                    {
+                        // Take predprey__cons weight, convert to individuals, add to our count;
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
                     }
                 }
             }
@@ -761,20 +725,14 @@ Type objective_function<Type>::operator() () {
 
                 auto ling_mat__area_idx = 0;
 
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == igfs__area ) {
-                    if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
-                        auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
+                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                        auto igfs__area_idx = 0;
+                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
-                        auto predator_area = area;
-
-                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
-
-                        {
-                            // Take predprey__cons weight, convert to individuals, add to our count;
-                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat_igfs__cons.col(igfs__area_idx).col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
-                        }
+                    {
+                        // Take predprey__cons weight, convert to individuals, add to our count;
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
                     }
                 }
             }

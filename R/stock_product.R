@@ -1,10 +1,11 @@
-g3s_stockproduct <- function(...) {
+g3s_stockproduct <- function(..., ignore_dims = c()) {
     stocks <- list(...)
     prefixes <- names(stocks)
     stopifnot(length(stocks) == 2)
 
     add_prefix <- function (l, prefix) {
         if (length(l) > 0 && nzchar(prefix)) names(l) <- paste(prefix, names(l), sep = "_")
+        for (n in ignore_dims) l[[n]] <- NULL
         return(l)
     }
 

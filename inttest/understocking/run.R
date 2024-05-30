@@ -167,7 +167,7 @@ for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     }
 }
 ok(all.equal(
-    g3_r$hist_lingimm_igfs__cons[,area=1,,pred_area=1,],
+    g3_r$hist_lingimm_igfs__cons[,area=1,,],
     g3_r$hist_lingimm__totalpredate[,area=1,,],
     tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm_igfs__cons")
 

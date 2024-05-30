@@ -261,10 +261,11 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int cur_step = 0;
     int cur_step_final = false;
+    array<Type> comm__totalsuit(1);
     array<Type> fish__totalpredate(6,1,10);
-    array<Type> fish_comm__suit(6,1,10,1);
+    array<Type> fish_comm__suit(6,1,10);
     int comm__area = 1;
-    array<Type> fish_comm__cons(6,1,10,1);
+    array<Type> fish_comm__cons(6,1,10);
     DATA_IVECTOR(comm_landings_keys)
     DATA_VECTOR(comm_landings_values)
     auto comm_landings = intlookup_zip(comm_landings_keys, comm_landings_values);
@@ -385,10 +386,8 @@ Type objective_function<Type>::operator() () {
             cur_step = (cur_time % step_count) + 1;
             cur_step_final = cur_step == step_count;
         }
-        {
-            // Zero total predation counter for fish;
-            fish__totalpredate.setZero();
-        }
+        comm__totalsuit.setZero();
+        fish__totalpredate.setZero();
         {
             // g3a_predate_fleet for fish;
             // Zero comm-fish biomass-consuming counter;
@@ -407,7 +406,8 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Collect all suitable fish biomass for comm;
-                        fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx);
+                        fish_comm__suit.col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx);
+                        comm__totalsuit(comm__area_idx) += (fish_comm__suit.col(fish__age_idx).col(fish__area_idx)).sum();
                     }
                 }
             }
@@ -427,18 +427,10 @@ Type objective_function<Type>::operator() () {
 
                     auto predator_area = area;
 
-                    auto total_predsuit = (fish_comm__suit.col(comm__area_idx)).sum();
-
-                    fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / comm__totalsuit(comm__area_idx))*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
-            {
-                auto area = comm__area;
-
-                auto comm__area_idx = 0;
-
-                fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons.col(comm__area_idx));
-            }
+            fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons);
         }
         {
             // Calculate fish overconsumption coefficient;
@@ -457,13 +449,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             fish__predby_comm.setZero();
-            {
-                auto area = comm__area;
-
-                auto comm__area_idx = 0;
-
-                fish__predby_comm = nonconform_add(fish__predby_comm, fish_comm__cons.col(comm__area_idx));
-            }
+            fish__predby_comm = nonconform_add(fish__predby_comm, fish_comm__cons);
         }
         {
             // Natural mortality for fish;
@@ -599,20 +585,14 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                if ( area == comm__area ) {
-                    if ( area == cdist_sumofsquares_comm_ldist_model__area ) {
-                        auto comm__area_idx = 0;
+                if ( area == cdist_sumofsquares_comm_ldist_model__area ) {
+                    auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
 
-                        auto predator_area = area;
+                    auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
-                        auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
-
-                        auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
-
-                        if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
-                            // Take predprey__cons weight, add to our count;
-                            cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons.col(comm__area_idx).col(fish__age_idx).col(fish__area_idx));
-                        }
+                    if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
+                        // Take predprey__cons weight, add to our count;
+                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons.col(fish__age_idx).col(fish__area_idx));
                     }
                 }
             }

@@ -29,7 +29,7 @@ g3a_predate_tagrelease <- function (
 
     for (stock in prey_stocks) {
         # NB: Should match definition in action_predate.R
-        predprey <- g3s_stockproduct(stock, pred = predstock)
+        predprey <- g3s_stockproduct(stock, pred = predstock, ignore_dims = c('pred_area'))
         predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
         # Move captured stock back into tagged dimension
