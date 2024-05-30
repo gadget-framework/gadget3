@@ -173,20 +173,12 @@ Type objective_function<Type>::operator() () {
         }
         return out;
     };
-    auto g3a_grow_apply = [](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    auto g3a_grow_apply = [&avoid_zero_vec](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_l = delta_l_ar.matrix();
     matrix<Type> delta_w = delta_w_ar.matrix();
     int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
     int total_lgs = delta_l.rows(); // # Length groups
-
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
 
     matrix<Type> growth_matrix(total_lgs, total_lgs);
     growth_matrix.setZero();

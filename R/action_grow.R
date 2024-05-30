@@ -150,10 +150,6 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     n <- dim(delta_l)[[2]] - 1  # Number of lengthgroup deltas
     # See stockmemberfunctions.cc:121, grow.cc:25
 
-    avoid_zero_vec <- function(a) {
-        ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
-    }
-
     growth.matrix <- array(0,c(na,na))
     wgt.matrix <- array(0,c(na,na))
     for(lg in 1:na){
@@ -177,21 +173,13 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     growth.matrix.sum <- colSums(growth.matrix)
     return(array(c(
         growth.matrix.sum,
-        colSums(wgt.matrix) / avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
-}, cpp = '[](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+        colSums(wgt.matrix) / g3_env$avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
+}, cpp = '[&avoid_zero_vec](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_l = delta_l_ar.matrix();
     matrix<Type> delta_w = delta_w_ar.matrix();
     int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
     int total_lgs = delta_l.rows(); // # Length groups
-
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
 
     matrix<Type> growth_matrix(total_lgs, total_lgs);
     growth_matrix.setZero();
@@ -221,7 +209,7 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-}')
+}', depends = c('avoid_zero_vec'))
 
 # Combined growth / maturity step for a stock
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()

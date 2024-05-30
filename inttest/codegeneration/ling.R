@@ -116,9 +116,6 @@ structure(function (param)
     g3a_grow_apply <- function(delta_l, delta_w, input_num, input_wgt) {
         na <- dim(delta_l)[[1]]
         n <- dim(delta_l)[[2]] - 1
-        avoid_zero_vec <- function(a) {
-            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
-        }
         growth.matrix <- array(0, c(na, na))
         wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
@@ -139,7 +136,7 @@ structure(function (param)
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         growth.matrix.sum <- colSums(growth.matrix)
-        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
+        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/g3_env$avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
     }
     nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
