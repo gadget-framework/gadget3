@@ -22,7 +22,7 @@ g3_suitability_exponentiall50(
     by_stock = TRUE,
     by_predator = TRUE)
 
-g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = ~predstock__midlen)
+g3_suitability_andersen(p0, p1, p2, p3 = p4, p4, p5 = quote( predator_length ))
 
 g3_suitability_andersenfleet(
         p0 = g3_parameterized('andersen.p0', value = 0, optimise = FALSE,
@@ -234,7 +234,7 @@ g3_eval(
 suit_plot <- function (
     fn,
     stock = g3_stock('x', seq(0, 100, 10)),
-    predstock__midlen = 140 ) {
+    predator_length = 140 ) {
   cols <- rainbow(5)
   par(mar = c(2,2,2,2), cex.main = 1)
 
@@ -245,7 +245,7 @@ suit_plot <- function (
     type = "n")
   for (a in seq_along(cols)) lines(
     g3_stock_def(stock, 'midlen'),
-    g3_eval(fn(a), stock = stock, predstock__midlen = predstock__midlen),
+    g3_eval(fn(a), stock = stock, predator_length = predator_length),
     type = "o", col = cols[[a]] )
 }
 

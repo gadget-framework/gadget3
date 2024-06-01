@@ -1,6 +1,6 @@
 # Suitability functions all return a formula containing the following variables
 # * stock__midlen
-# * predstock__midlen
+# * predator_length
 
 g3_suitability_exponentiall50 <- function (
     alpha = g3_parameterized("alpha", by_stock = by_stock, by_predator = by_predator),
@@ -12,7 +12,7 @@ g3_suitability_exponentiall50 <- function (
     l50 = l50))
 }
 
-g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = ~predstock__midlen) {
+g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = quote(predator_length)) {
   f_substitute(~p0 +
                  avoid_zero(p2) * exp(-(log(avoid_zero_vec(p5/stock__midlen)) - p1)**2/avoid_zero(p3)) *
                  bounded_vec(1000*(p1 - log(avoid_zero_vec(p5/stock__midlen))),0,1) +
@@ -65,7 +65,7 @@ g3_suitability_gamma <- function(alpha, beta, gamma){
 }
 
 g3_suitability_exponential <- function (alpha, beta, gamma, delta) {
-  f_substitute(~delta / ( 1 + exp(-alpha - beta * stock__midlen - gamma * predstock__midlen)) , list(
+  f_substitute(~delta / ( 1 + exp(-alpha - beta * stock__midlen - gamma * predator_length)) , list(
     alpha = alpha,
     beta = beta,
     gamma = gamma,
