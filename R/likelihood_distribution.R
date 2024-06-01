@@ -264,7 +264,7 @@ g3l_distribution <- function (
         stock <- prey_stock  # Alias stock == prey_stock
 
         # NB: In lockstep with action_predate()
-        predprey <- g3s_stockproduct(prey_stock, pred = predstock, ignore_dims = c('pred_area'))
+        predprey <- g3s_stockproduct(prey_stock, predator = predstock, ignore_dims = c('predator_area'))
         predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
         # Work out stock index for obs/model variables

@@ -162,7 +162,7 @@ g3a_predate <- function (
     predstock__totalsuit <- g3_stock_instance(predstock, desc = paste0("Total suitable prey by ", catchability_f$suit_unit))
 
     # Build combined arrays for each pred/prey combination
-    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock, ignore_dims = c('pred_area')) )
+    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area')) )
     names(predpreys) <- vapply(prey_stocks, function (stock) stock$name, character(1))
     predprey__conses <- lapply(predpreys, function (predprey)
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
@@ -170,7 +170,7 @@ g3a_predate <- function (
         g3_stock_instance(predprey, desc = paste0("Suitable ", predprey$name, " by ", catchability_f$suit_unit)) )
 
     # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
-    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "pred_" )]
+    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "predator_" )]
     if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))
@@ -297,13 +297,13 @@ g3a_predate_fleet <- function (fleet_stock,
         run_at = run_at )
 
     # Build combined arrays for each pred/prey combination
-    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, pred = predstock, ignore_dims = c('pred_area')) )
+    predpreys <- lapply(prey_stocks, function (stock) g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area')) )
     names(predpreys) <- vapply(prey_stocks, function (stock) stock$name, character(1))
     predprey__conses <- lapply(predpreys, function (predprey)
         g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name)) )
 
     # Work out stock_ss(predprey__cons) call that will return entire stock__* vector
-    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "pred_" )]
+    pred_dims <- names(predpreys[[1]]$dim)[startsWith( names(predpreys[[1]]$dim), "predator_" )]
     if (length(pred_dims) == 0) {
         # Predator has no dimensions, predprey__cons has the same dimensions as prey
         cons_ss <- quote(stock_ss(predprey__cons, vec = full))

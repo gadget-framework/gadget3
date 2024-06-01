@@ -65,7 +65,7 @@ g3l_tagging_ckmr <- function (
     for (predstock in fleets) {
         for (prey_stock in c(parent_stocks, offspring_stocks)) {
             # NB: In lockstep with action_predate()
-            predprey <- g3s_stockproduct(prey_stock, pred = predstock, ignore_dims = c('pred_area'))
+            predprey <- g3s_stockproduct(prey_stock, predator = predstock, ignore_dims = c('predator_area'))
             predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
             step_f <- f_concatenate(list(step_f, g3_step(f_substitute(~{
