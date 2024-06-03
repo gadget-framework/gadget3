@@ -246,8 +246,10 @@ g3a_predate <- function (
                 # NB: See prey.cc::208
                 # stock__consratio == ratio
                 # stock__consratio proportion of prey that we're about to consume
+                stock__consratio <- stock__totalpredate / avoid_zero_vec(stock__num * stock__wgt)
                 stock__consratio <- overconsumption_f
 
+                # stock__overconsumption: biomass over overconsumption limit.  This is used by g3l_understocking()
                 stock__overconsumption <- sum(stock__totalpredate)
 
                 # Apply overconsumption to stock__totalpredate, work out conversion factor for predprey__cons
@@ -260,8 +262,7 @@ g3a_predate <- function (
                 stock__num <- stock__num * (1 - stock__consratio)
             })
         }, list(
-            overconsumption_f = f_substitute(overconsumption_f, list(
-                stock__consratio = quote(stock__totalpredate / avoid_zero_vec(stock__num * stock__wgt)) )),
+            overconsumption_f = overconsumption_f,
             end = NULL)))
 
         # Overconsumption: Scale predprey_cons by the overconsumption rate

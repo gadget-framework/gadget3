@@ -79,11 +79,11 @@ structure(function (param)
     nonconform_add <- function(base_ar, extra_ar) {
         base_ar + as.vector(extra_ar)
     }
-    logspace_add_vec <- function(a, b) {
-        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
-    }
     avoid_zero_vec <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
+    }
+    logspace_add_vec <- function(a, b) {
+        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
     }
     nonconform_mult <- function(base_ar, extra_ar) {
         base_ar * as.vector(extra_ar)
@@ -376,7 +376,8 @@ structure(function (param)
         {
             comment("Calculate ling_imm overconsumption coefficient")
             comment("Apply overconsumption to ling_imm")
-            ling_imm__consratio <- logspace_add_vec((ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)) * -1000, 0.95 * -1000)/-1000
+            ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
+            ling_imm__consratio <- logspace_add_vec(ling_imm__consratio * -1000, 0.95 * -1000)/-1000
             ling_imm__overconsumption <- sum(ling_imm__totalpredate)
             ling_imm__consconv <- 1/avoid_zero_vec(ling_imm__totalpredate)
             ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
@@ -387,7 +388,8 @@ structure(function (param)
         {
             comment("Calculate ling_mat overconsumption coefficient")
             comment("Apply overconsumption to ling_mat")
-            ling_mat__consratio <- logspace_add_vec((ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)) * -1000, 0.95 * -1000)/-1000
+            ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
+            ling_mat__consratio <- logspace_add_vec(ling_mat__consratio * -1000, 0.95 * -1000)/-1000
             ling_mat__overconsumption <- sum(ling_mat__totalpredate)
             ling_mat__consconv <- 1/avoid_zero_vec(ling_mat__totalpredate)
             ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio

@@ -101,17 +101,17 @@ Type objective_function<Type>::operator() () {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
 };
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-};
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
         res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
+    }
+    return res;
+};
+    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
     }
     return res;
 };
@@ -435,7 +435,8 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate fish overconsumption coefficient;
             // Apply overconsumption to fish;
-            fish__consratio = logspace_add_vec((fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish__consratio = fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt);
+            fish__consratio = logspace_add_vec(fish__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             fish__overconsumption = (fish__totalpredate).sum();
             fish__consconv = (double)(1) / avoid_zero_vec(fish__totalpredate);
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;

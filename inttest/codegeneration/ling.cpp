@@ -102,17 +102,17 @@ Type objective_function<Type>::operator() () {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
 };
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-};
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
         res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
+    }
+    return res;
+};
+    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
+    vector<Type> res(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        res[i] = logspace_add(a[i], b);
     }
     return res;
 };
@@ -443,7 +443,8 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_imm overconsumption coefficient;
             // Apply overconsumption to ling_imm;
-            ling_imm__consratio = logspace_add_vec((ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
+            ling_imm__consratio = logspace_add_vec(ling_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
             ling_imm__consconv = (double)(1) / avoid_zero_vec(ling_imm__totalpredate);
             ling_imm__totalpredate = (ling_imm__num*ling_imm__wgt)*ling_imm__consratio;
@@ -454,7 +455,8 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_mat overconsumption coefficient;
             // Apply overconsumption to ling_mat;
-            ling_mat__consratio = logspace_add_vec((ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt))*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
+            ling_mat__consratio = logspace_add_vec(ling_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();
             ling_mat__consconv = (double)(1) / avoid_zero_vec(ling_mat__totalpredate);
             ling_mat__totalpredate = (ling_mat__num*ling_mat__wgt)*ling_mat__consratio;
