@@ -98,10 +98,12 @@ g3a_suitability_report <- function (
   # NB: Should match definition in action_predate.R
   predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
 
+  suit_f <- g3_step(f_substitute(~stock_with(stock, suit_f), list(suit_f = suit_f)), recursing = TRUE)  # Resolve stock_switch
+
   suit_dims <- all.vars(suit_f)
   if ("cur_step" %in% suit_dims) stop("Can't generate a time-varying suitability report")
   # Special case, swap use of stock__midlen with general iterator name
-  suit_dims[suit_dims == "stock__midlen"] <- "length"
+  suit_dims[suit_dims == paste0(stock$name, "__midlen")] <- "length"
 
   # Intersect by everything that's actually a dim (NB: We want to preserve order)
   suit_dims <- names(predprey$dim)[names(predprey$dim) %in% suit_dims]

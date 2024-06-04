@@ -146,6 +146,7 @@ g3a_predate <- function (
         overconsumption_f = quote(
             logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
         ),
+        report_suitability = TRUE,
         run_f = ~TRUE,
         run_at = g3_action_order$predate ) {
     out <- new.env(parent = emptyenv())
@@ -276,6 +277,12 @@ g3a_predate <- function (
             run_f = run_f )))
     }
 
+    if (report_suitability) return(c(
+        as.list(out),
+        do.call(c, lapply(prey_stocks, function (stock) g3a_suitability_report(
+            predstock,
+            stock,
+            list_to_stock_switch(suitabilities) )))))
     return(as.list(out))
 }
 

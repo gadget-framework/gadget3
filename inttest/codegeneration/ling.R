@@ -15,9 +15,9 @@ structure(function (param)
     stopifnot("lingmat.init" %in% names(param))
     stopifnot("lingmat.walpha" %in% names(param))
     stopifnot("lingmat.wbeta" %in% names(param))
-    stopifnot("retro_years" %in% names(param))
     stopifnot("ling.igfs.alpha" %in% names(param))
     stopifnot("ling.igfs.l50" %in% names(param))
+    stopifnot("retro_years" %in% names(param))
     stopifnot("ling.bbin" %in% names(param))
     stopifnot("ling.mat1" %in% names(param))
     stopifnot("ling.mat2" %in% names(param))
@@ -166,6 +166,8 @@ structure(function (param)
     retro_years <- param[["retro_years"]]
     start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - retro_years - start_year + 0L) + length(step_lengths) - 1L
+    suit_ling_imm_igfs__report <- array(NA, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
+    suit_ling_mat_igfs__report <- array(NA, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
     cur_year <- 0L
@@ -284,6 +286,14 @@ structure(function (param)
                   }
                 }
             }
+        }
+        if (reporting_enabled > 0L && cur_time > total_steps) {
+            suit_ling_imm_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))
+            REPORT(suit_ling_imm_igfs__report)
+        }
+        if (reporting_enabled > 0L && cur_time > total_steps) {
+            suit_ling_mat_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))
+            REPORT(suit_ling_mat_igfs__report)
         }
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_understocking__wgt)
@@ -751,5 +761,5 @@ structure(function (param)
             }
         }
     }
-}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, retro_years = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
+}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, retro_years = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
     ling.rec.1997 = 0, ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))
