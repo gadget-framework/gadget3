@@ -39,6 +39,7 @@ template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> 
 template<class Type>
 Type objective_function<Type>::operator() () {
     DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);
+    PARAMETER(retro_years);
     PARAMETER(fish__Linf);
     PARAMETER(fish__K);
     PARAMETER(fish__t0);
@@ -71,7 +72,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__walpha);
     PARAMETER(fish__wbeta);
     PARAMETER(report_detail);
-    PARAMETER(retro_years);
     PARAMETER(fish__comm__alpha);
     PARAMETER(fish__comm__l50);
     PARAMETER(fish__bbin);
@@ -90,12 +90,12 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__scalar);
     PARAMETER(adist_surveyindices_log_acoustic_dist_weight);
     PARAMETER(cdist_sumofsquares_comm_ldist_weight);
-    auto normalize_vec = [](vector<Type> a) -> vector<Type> {
-    return a / a.sum();
-};
     auto assert_msg = [](bool expr, std::string message) -> bool {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
+};
+    auto normalize_vec = [](vector<Type> a) -> vector<Type> {
+    return a / a.sum();
 };
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -226,17 +226,22 @@ Type objective_function<Type>::operator() () {
         return out;
     };
     int cur_time = -1;
+    PARAMETER(project_years);
+    int cur_year = 0;
+    int start_year = 1990;
+    vector<int> step_lengths(1); step_lengths.setConstant(12);
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
+    int end_year = 2000;
+    int cur_step = 0;
+    int cur_step_final = false;
     int fish__minage = 1;
     int fish__maxage = 10;
     int fish__area = 1;
     DATA_VECTOR(fish__midlen)
-    vector<int> step_lengths(1); step_lengths.setConstant(12);
     auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(6,1,10); fish__num.setZero();
     array<Type> fish__wgt(6,1,10); fish__wgt.setConstant((double)(1));
-    int end_year = 2000;
-    int start_year = 1990;
-    PARAMETER(project_years);
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
@@ -256,11 +261,6 @@ Type objective_function<Type>::operator() () {
     array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    int cur_year = 0;
-    auto step_count = (step_lengths).size();
-    int cur_year_projection = false;
-    int cur_step = 0;
-    int cur_step_final = false;
     array<Type> comm__totalsuit(1);
     array<Type> fish__totalpredate(6,1,10);
     array<Type> fish_comm__suit(6,1,10);
@@ -299,7 +299,20 @@ Type objective_function<Type>::operator() () {
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
 
     while (true) {
-        cur_time += 1;
+        {
+            // g3a_time: Start of time period;
+            cur_time += 1;
+            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
+                return NAN;
+            }
+            if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
+                return NAN;
+            }
+            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year > end_year - retro_years;
+            cur_step = (cur_time % step_count) + 1;
+            cur_step_final = cur_step == step_count;
+        }
         {
             // g3a_initialconditions for fish;
             for (auto age = fish__minage; age <= fish__maxage; age++) if ( cur_time == 0 ) {
@@ -371,20 +384,9 @@ Type objective_function<Type>::operator() () {
             REPORT(nll_understocking__wgt);
         }
         {
-            // g3a_time: Start of time period;
-            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
-                return NAN;
-            }
-            if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
-                return NAN;
-            }
             if ( cur_time > total_steps ) {
                 return nll;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
-            cur_year_projection = cur_year > end_year - retro_years;
-            cur_step = (cur_time % step_count) + 1;
-            cur_step_final = cur_step == step_count;
         }
         comm__totalsuit.setZero();
         fish__totalpredate.setZero();

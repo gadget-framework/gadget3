@@ -33,11 +33,9 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn)), c(
         "function (param) ",
         "{",
-        "    cur_time <- -1L",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
-        "        cur_time <- cur_time + 1L",
         "        return(x + sum(y))",
         "    }",
         "}",
@@ -47,11 +45,9 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
         "function (param) ",
         "{",
-        "    cur_time <- -1L",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
-        "        cur_time <- cur_time + 1L",
         "        return(x + sum(y))",
         "    }",
         "}",

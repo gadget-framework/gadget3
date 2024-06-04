@@ -1,5 +1,6 @@
 structure(function (param) 
 {
+    stopifnot("retro_years" %in% names(param))
     stopifnot("ling.Linf" %in% names(param))
     stopifnot("ling.K" %in% names(param))
     stopifnot("recage" %in% names(param))
@@ -15,7 +16,6 @@ structure(function (param)
     stopifnot("lingmat.init" %in% names(param))
     stopifnot("lingmat.walpha" %in% names(param))
     stopifnot("lingmat.wbeta" %in% names(param))
-    stopifnot("retro_years" %in% names(param))
     stopifnot("ling.igfs.alpha" %in% names(param))
     stopifnot("ling.igfs.l50" %in% names(param))
     stopifnot("ling.bbin" %in% names(param))
@@ -48,6 +48,13 @@ structure(function (param)
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
     stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
+    assert_msg <- function(expr, message) {
+        if (isFALSE(expr)) {
+            warning(message)
+            return(TRUE)
+        }
+        return(FALSE)
+    }
     as_integer <- as.integer
     normalize_vec <- function(a) {
         a/sum(a)
@@ -57,13 +64,6 @@ structure(function (param)
         attr(nll, var_name) <<- if (var_name == "nll") 
             as.vector(var)
         else var
-    }
-    assert_msg <- function(expr, message) {
-        if (isFALSE(expr)) {
-            warning(message)
-            return(TRUE)
-        }
-        return(FALSE)
     }
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
@@ -147,6 +147,13 @@ structure(function (param)
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
     }
     cur_time <- -1L
+    cur_year <- 0L
+    start_year <- 1994L
+    step_count <- length(step_lengths)
+    cur_year_projection <- FALSE
+    end_year <- 2018L
+    cur_step <- 0L
+    cur_step_final <- FALSE
     ling_imm__area <- 1L
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
@@ -162,17 +169,10 @@ structure(function (param)
         "age11", "age12", "age13", "age14", "age15"), area = "area1"))
     ling_mat__wgt <- array(1, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", "age10", 
         "age11", "age12", "age13", "age14", "age15"), area = "area1"))
-    end_year <- 2018L
     retro_years <- param[["retro_years"]]
-    start_year <- 1994L
     total_steps <- length(step_lengths) * (end_year - retro_years - start_year + 0L) + length(step_lengths) - 1L
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
-    cur_year <- 0L
-    step_count <- length(step_lengths)
-    cur_year_projection <- FALSE
-    cur_step <- 0L
-    cur_step_final <- FALSE
     igfs__totalsuit <- array(NA, dim = c(area = 1L), dimnames = list(area = "area1"))
     ling_imm__totalpredate <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
         "age8", "age9", "age10"), area = "area1"))
@@ -252,7 +252,16 @@ structure(function (param)
     ling_imm_movement__minage <- 11L
     ling_imm_movement__maxage <- 11L
     while (TRUE) {
-        cur_time <- cur_time + 1L
+        {
+            comment("g3a_time: Start of time period")
+            cur_time <- cur_time + 1L
+            if (cur_time == 0 && assert_msg(param[["retro_years"]] >= 0, "retro_years must be >= 0")) 
+                return(NaN)
+            cur_year <- start_year + (cur_time%/%step_count)
+            cur_year_projection <- cur_year > end_year - param[["retro_years"]]
+            cur_step <- (cur_time%%step_count) + 1L
+            cur_step_final <- cur_step == step_count
+        }
         {
             comment("g3a_initialconditions for ling_imm")
             {
@@ -288,15 +297,8 @@ structure(function (param)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_understocking__wgt)
         {
-            comment("g3a_time: Start of time period")
-            if (cur_time == 0 && assert_msg(param[["retro_years"]] >= 0, "retro_years must be >= 0")) 
-                return(NaN)
             if (cur_time > total_steps) 
                 return(nll)
-            cur_year <- start_year + (cur_time%/%step_count)
-            cur_year_projection <- cur_year > end_year - param[["retro_years"]]
-            cur_step <- (cur_time%%step_count) + 1L
-            cur_step_final <- cur_step == step_count
         }
         igfs__totalsuit[] <- 0
         ling_imm__totalpredate[] <- 0
@@ -751,5 +753,5 @@ structure(function (param)
             }
         }
     }
-}, class = c("g3_r", "function"), parameter_template = list(ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, retro_years = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
     ling.rec.1997 = 0, ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))
