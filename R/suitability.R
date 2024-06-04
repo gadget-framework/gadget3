@@ -87,3 +87,48 @@ g3_suitability_richards <- function(p0,p1,p2,p3,p4){
     suit_exponential = g3_suitability_exponential(p0, p1, p2, p3),
     p4 = p4))
 }
+
+# Generate a report of what a suitability function will do, as used in g3a_predate()
+g3a_suitability_report <- function (
+    predstock,
+    stock,
+    suit_f,
+    run_f = quote( cur_time > total_steps ),
+    run_at = g3_action_order$report_early ) {
+  # NB: Should match definition in action_predate.R
+  predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
+
+  suit_f <- g3_step(f_substitute(~stock_with(stock, suit_f), list(suit_f = suit_f)), recursing = TRUE)  # Resolve stock_switch
+
+  suit_dims <- all.vars(suit_f)
+  if ("cur_step" %in% suit_dims) stop("Can't generate a time-varying suitability report")
+  # Special case, swap use of stock__midlen with general iterator name
+  suit_dims[suit_dims == paste0(stock$name, "__midlen")] <- "length"
+
+  # Intersect by everything that's actually a dim (NB: We want to preserve order)
+  suit_dims <- names(predprey$dim)[names(predprey$dim) %in% suit_dims]
+
+  # Make stock with dimensions we need
+  suitrep <- structure(list(
+      dim = predprey$dim[suit_dims],
+      dimnames = predprey$dimnames[suit_dims],
+      iter_ss = predprey$iter_ss[suit_dims],
+      with = list(),
+      env = predprey$env,
+      name_parts = c('suit', predprey$name_parts),
+      name = paste0('suit_', predprey$name) ), class = c("g3_stock", "list"))
+  suitrep__report <- g3_stock_instance(suitrep, NA, desc = paste0("Suitability of ", stock$name, " for ", predstock$name))
+
+  # Step to populate array
+  out <- list()
+  out[[step_id(run_at, 0, "g3a_suitability_report", predstock, stock)]] <- g3_step(f_substitute(~if (reporting_enabled > 0L && run_f) stock_with(suitrep, {
+      stock_iterate(stock, stock_interact(predstock, {
+          stock_ss(suitrep__report) <- suit_f
+      }, prefix = 'predator'))
+      REPORT(suitrep__report)
+  }), list(
+      suit_f = suit_f,
+      run_f = run_f )))
+
+  return(out)
+}

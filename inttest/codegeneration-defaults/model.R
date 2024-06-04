@@ -30,9 +30,9 @@ structure(function (param)
     stopifnot("fish.walpha" %in% names(param))
     stopifnot("fish.wbeta" %in% names(param))
     stopifnot("report_detail" %in% names(param))
-    stopifnot("retro_years" %in% names(param))
     stopifnot("fish.comm.alpha" %in% names(param))
     stopifnot("fish.comm.l50" %in% names(param))
+    stopifnot("retro_years" %in% names(param))
     stopifnot("fish.bbin" %in% names(param))
     stopifnot("fish.rec.1990" %in% names(param))
     stopifnot("fish.rec.1991" %in% names(param))
@@ -176,6 +176,7 @@ structure(function (param)
     as_integer <- as.integer
     detail_fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
+    suit_fish_comm__report <- array(NA, dim = c(length = 6L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf")))
     adist_surveyindices_log_acoustic_dist_model__wgt <- array(0, dim = c(length = 1L, time = 11L, area = 1L), dimnames = list(length = "0:Inf", time = c("1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000"), area = "all"))
     cdist_sumofsquares_comm_ldist_model__wgt <- array(0, dim = c(length = 5L, time = 11L, area = 1L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:Inf"), time = c("1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000"), area = "all"))
     detail_fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
@@ -258,6 +259,10 @@ structure(function (param)
             detail_fish__num[, , , cur_time + 1] <- fish__num
         if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
             detail_fish__wgt[, , , cur_time + 1] <- fish__wgt
+        if (reporting_enabled > 0L && cur_time > total_steps) {
+            suit_fish_comm__report[] <- 1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))
+            REPORT(suit_fish_comm__report)
+        }
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(adist_surveyindices_log_acoustic_dist_model__params)
         if (reporting_enabled > 0L && cur_time > total_steps) 
@@ -549,4 +554,4 @@ structure(function (param)
         }
     }
 }, class = c("g3_r", "function"), parameter_template = list(fish.Linf = 1, fish.K = 1, fish.t0 = 0, fish.lencv = 0.1, fish.init.scalar = 1, fish.init.1 = 1, fish.init.2 = 1, fish.init.3 = 1, fish.init.4 = 1, fish.init.5 = 1, fish.init.6 = 1, fish.init.7 = 1, fish.init.8 = 1, fish.init.9 = 1, fish.init.10 = 1, fish.M.1 = 0, fish.M.2 = 0, fish.M.3 = 0, fish.M.4 = 0, fish.M.5 = 0, fish.M.6 = 0, fish.M.7 = 0, fish.M.8 = 0, fish.M.9 = 0, fish.M.10 = 0, init.F = 0, recage = 0, fish.walpha = 0, fish.wbeta = 0, 
-    report_detail = 1L, retro_years = 0, fish.comm.alpha = 0, fish.comm.l50 = 0, fish.bbin = 0, fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.scalar = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))
+    report_detail = 1L, fish.comm.alpha = 0, fish.comm.l50 = 0, retro_years = 0, fish.bbin = 0, fish.rec.1990 = 0, fish.rec.1991 = 0, fish.rec.1992 = 0, fish.rec.1993 = 0, fish.rec.1994 = 0, fish.rec.1995 = 0, fish.rec.1996 = 0, fish.rec.1997 = 0, fish.rec.1998 = 0, fish.rec.1999 = 0, fish.rec.2000 = 0, fish.rec.scalar = 0, adist_surveyindices_log_acoustic_dist_weight = 1, cdist_sumofsquares_comm_ldist_weight = 1, project_years = 0))

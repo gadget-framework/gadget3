@@ -54,9 +54,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER_VECTOR(lingmat__init);
     PARAMETER(lingmat__walpha);
     PARAMETER(lingmat__wbeta);
-    PARAMETER(retro_years);
     PARAMETER(ling__igfs__alpha);
     PARAMETER(ling__igfs__l50);
+    PARAMETER(retro_years);
     PARAMETER(ling__bbin);
     PARAMETER(ling__mat1);
     PARAMETER(ling__mat2);
@@ -232,6 +232,8 @@ Type objective_function<Type>::operator() () {
     int end_year = 2018;
     int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
+    array<Type> suit_ling_imm_igfs__report(35);
+    array<Type> suit_ling_mat_igfs__report(35);
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
     int cur_year = 0;
@@ -332,6 +334,14 @@ Type objective_function<Type>::operator() () {
                     }
                 }
             }
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_ling_imm_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
+            REPORT(suit_ling_imm_igfs__report);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_ling_mat_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
+            REPORT(suit_ling_mat_igfs__report);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_understocking__wgt);

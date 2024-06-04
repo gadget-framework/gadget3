@@ -71,9 +71,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__walpha);
     PARAMETER(fish__wbeta);
     PARAMETER(report_detail);
-    PARAMETER(retro_years);
     PARAMETER(fish__comm__alpha);
     PARAMETER(fish__comm__l50);
+    PARAMETER(retro_years);
     PARAMETER(fish__bbin);
     PARAMETER(fish__rec__1990);
     PARAMETER(fish__rec__1991);
@@ -243,6 +243,7 @@ Type objective_function<Type>::operator() () {
 };
     array<Type> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
     array<Type> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    array<Type> suit_fish_comm__report(6);
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
     array<Type> adist_surveyindices_log_acoustic_dist_model__wgt(1,11,1); adist_surveyindices_log_acoustic_dist_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_acoustic_dist_obs__wgt)
@@ -324,6 +325,10 @@ Type objective_function<Type>::operator() () {
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish__wgt.col(cur_time + 1 - 1) = fish__wgt;
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_fish_comm__report = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
+            REPORT(suit_fish_comm__report);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(adist_surveyindices_log_acoustic_dist_model__params);
