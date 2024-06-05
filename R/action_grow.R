@@ -243,9 +243,6 @@ g3a_growmature <- function(stock,
     stock__transitioning_num <- g3_stock_instance(stock, 0)
     stock__transitioning_wgt <- g3_stock_instance(stock)
 
-    # TODO: (gadgetsim) if growth>maxgrowth assume that growth is a bit smaller than maxgrowth
-    # TODO: (gadgetsim) if growth is negative assume no growth
-
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
         # NB: This will ensure all maturity code is thrown away below
