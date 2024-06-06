@@ -489,6 +489,13 @@ add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
     }
 
     if (length(extra_defns) > 0) {
+        ordering <- vapply(extra_defns,
+            # Find earliest var in list that current item depends on
+            function (x) suppressWarnings(min(match(all.vars(x), names(extra_defns)), na.rm = TRUE)),
+            numeric(1) )
+        # Use this as an ordering, so vars without dependencies go first
+        extra_defns <- extra_defns[names(sort(ordering, decreasing = TRUE))]
+
         # Make up call with all vars to define
         g3_with_call <- as.call(c(
             quote(g3_with),
@@ -502,6 +509,13 @@ add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
     }
 
     for (var_name in names(wrap_defns)) {
+        ordering <- vapply(wrap_defns,
+            # Find earliest var in list that current item depends on
+            function (x) suppressWarnings(min(match(all.vars(x), names(wrap_defns)), na.rm = TRUE)),
+            numeric(1) )
+        # Use this as an ordering, so vars without dependencies go first
+        wrap_defns <- wrap_defns[names(sort(ordering, decreasing = TRUE))]
+
         # Put any g3_global_formula iterations on the outside
         # NB: This is somewhat abritary, but then the precise positioning of a g3_global_formula is a bit ropey anyway.
         f <- f_substitute(quote(

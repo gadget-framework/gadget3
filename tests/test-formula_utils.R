@@ -311,4 +311,43 @@ ok(gadget3:::ut_cmp_code(out, quote(
         (4 * total_predsuit + psi) )
 ), optimize = TRUE), "Both total_predsuit & psi included, as psi needs total_predsuit")
 
+out <- adf(g3_formula(
+    10 + dnorm,
+    dnorm = g3_formula(
+        block1 + mean * stddev,
+        mean = g3_formula(block1 + offset, offset = g3_formula(block1)),
+        stddev = g3_formula(block2 + offset, offset = g3_formula(block1)) )))
+ok(gadget3:::ut_cmp_code(
+    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+        block1 <- 1
+        block2 <- 2
+        while (TRUE) {
+            9
+            {
+                offset <- block1
+                mean <- (block1 + offset)
+                stddev <- (block2 + offset)
+                dnorm <- (block1 + mean * stddev)
+                (10 + dnorm)
+            }
+        }
+    }), optimize = TRUE), "dnorm -> mean -> offset -> block1 / dnorm -> stddev -> offset -> block1 dependencies resolved")
+
+out <- adf(g3_formula(
+    10 + glob1,
+    glob2 = g3_global_formula(g3_formula(block2)),
+    glob1 = g3_global_formula(g3_formula(block1 + glob2)),
+    end = NULL))
+ok(gadget3:::ut_cmp_code(
+    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+         block2 <- 2
+         block1 <- 1
+         while (TRUE) {
+             9
+             glob2 <- block2
+             glob1 <- block1 + glob2
+             (10 + glob1)
+         }
+    }), optimize = TRUE), "g3_global_formula() dependencies resolved")
+
 ########### add_dependent_formula
