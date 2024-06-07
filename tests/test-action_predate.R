@@ -98,23 +98,23 @@ actions <- list(
     g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
-    g3a_predate_totalfleet(
+    g3a_predate_fleet(
         fleet_ab,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
-            # TODO: Should be testing we can use prey_l
-            prey_a = ~g3_param_vector("fleet_ab_a"),
-            prey_b = ~g3_param_vector("fleet_ab_b"),
-            prey_c = ~g3_param_vector("fleet_ab_c")),
-        amount_f = ~g3_param('amount_ab') * area),
+            # NB: 0 * stock__midlen hack to get suitability reports to work
+            prey_a = ~g3_param_vector("fleet_ab_a") + 0 * stock__midlen,
+            prey_b = ~g3_param_vector("fleet_ab_b") + 0 * stock__midlen,
+            prey_c = ~g3_param_vector("fleet_ab_c") + 0 * stock__midlen ),
+        catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_ab') * area) ),
     g3a_predate_fleet(
         fleet_bc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
-            # TODO: Should be testing we can use prey_l
-            prey_a = ~g3_param_vector("fleet_bc_a"),
-            prey_b = ~g3_param_vector("fleet_bc_b"),
-            prey_c = ~g3_param_vector("fleet_bc_c")),
+            # NB: 0 * stock__midlen hack to get suitability reports to work
+            prey_a = ~g3_param_vector("fleet_bc_a") + 0 * stock__midlen,
+            prey_b = ~g3_param_vector("fleet_bc_b") + 0 * stock__midlen,
+            prey_c = ~g3_param_vector("fleet_bc_c") + 0 * stock__midlen),
         catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area),
         # NB: Only run on even years
         run_f = ~cur_year %% 2L == 0L),
@@ -192,6 +192,33 @@ ok_group("No overconsumption", {
     result <- model_fn(params)
     r <- attributes(result)
     # str(as.list(r), vec.len = 10000)
+
+    # Suitability reports
+    ok(ut_cmp_equal(r[grepl('^suit.*__report$', names(r))], list(
+        suit_prey_a_fleet_ab__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0, "4:5" = 0.1, "5:6" = 0.2, "6:7" = 0.1, "7:8" = 0, "8:9" = 0, "9:10" = 0, "10:Inf" = 0),
+            dimnames = list(length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ),
+        suit_prey_b_fleet_ab__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0, "4:5" = 0, "5:6" = 0, "6:7" = 0.1, "7:8" = 0.2, "8:9" = 0.1, "9:10" = 0, "10:Inf" = 0),
+            dimnames = list(length = c("1:2",  "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ),
+        suit_prey_c_fleet_ab__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0, "4:5" = 0, "5:6" = 0, "6:7" = 0, "7:8" = 0.1, "8:9" = 0.2, "9:10" = 0.1, "10:Inf" = 0),
+            dimnames = list(length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ),
+        suit_prey_a_fleet_bc__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0, "4:5" = 0, "5:6" = 0.1, "6:7" = 0.2, "7:8" = 0.1, "8:9" = 0, "9:10" = 0,  "10:Inf" = 0),
+            dimnames = list(length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ),
+        suit_prey_b_fleet_bc__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0, "4:5" = 0, "5:6" = 0, "6:7" = 0, "7:8" = 0.1, "8:9" = 0.2, "9:10" = 0.1, "10:Inf" = 0),
+            dimnames = list(length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ),
+        suit_prey_c_fleet_bc__report = structure(
+            c("1:2" = 0, "2:3" = 0, "3:4" = 0,  "4:5" = 0, "5:6" = 0, "6:7" = 0, "7:8" = 0.1, "8:9" = 0.2, "9:10" = 0.1, "10:Inf" = 0),
+            dimnames = list(length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf")),
+            dim = c(length = 10L) ))), "suit_..__report: Reported values of parameters going in")
 
     ok(ut_cmp_equal(unattr(result), 0), "nll: No overconsumption")
     ok(ut_cmp_equal(sum(r$nll_understocking__wgt), 0), "nll_understocking__wgt: Breakdown also 0")
