@@ -290,9 +290,9 @@ base_actions <- list(
         fleet_abc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
-            prey_a = ~g3_param_vector("fleet_abc_a"),
-            prey_b = ~g3_param_vector("fleet_abc_b"),
-            prey_c = ~g3_param_vector("fleet_abc_c")),
+            prey_a = ~g3_param_vector("fleet_abc_a") + 0 * stock__midlen,
+            prey_b = ~g3_param_vector("fleet_abc_b") + 0 * stock__midlen,
+            prey_c = ~g3_param_vector("fleet_abc_c") + 0 * stock__midlen),
         amount_f = ~g3_param('amount_ab', value = 100) * area),
     named_list(
         # Capture data just before final step erases it
