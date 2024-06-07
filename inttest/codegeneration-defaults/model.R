@@ -117,30 +117,50 @@ structure(function (param)
     g3a_grow_weightsimple_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
     }
-    g3a_grow_apply <- function(delta_l, delta_w, input_num, input_wgt) {
-        na <- dim(delta_l)[[1]]
-        n <- dim(delta_l)[[2]] - 1
-        growth.matrix <- array(0, c(na, na))
+    g3a_grow_matrix_wgt <- function(delta_w) {
+        na <- dim(delta_w)[[1]]
+        n <- dim(delta_w)[[2]] - 1
         wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
             if (lg == na) {
-                growth.matrix[na, na] <- sum(delta_l[lg, ])
                 wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
+            }
+            else if (lg + n > na) {
+                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
+            }
+            else {
+                wgt.matrix[lg, lg:(n + lg)] <- delta_w[lg, ]
+            }
+        }
+        return(wgt.matrix)
+    }
+    g3a_grow_matrix_len <- function(delta_l) {
+        na <- dim(delta_l)[[1]]
+        n <- dim(delta_l)[[2]] - 1
+        growth.matrix <- array(0, c(na, na))
+        for (lg in 1:na) {
+            if (lg == na) {
+                growth.matrix[na, na] <- sum(delta_l[lg, ])
             }
             else if (lg + n > na) {
                 growth.matrix[lg, lg:(na - 1)] <- delta_l[lg, 1:(na - lg)]
                 growth.matrix[lg, na] <- sum(delta_l[lg, (na - lg + 1):(n + 1)])
-                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
             }
             else {
                 growth.matrix[lg, lg:(n + lg)] <- delta_l[lg, ]
-                wgt.matrix[lg, lg:(n + lg)] <- delta_w[lg, ]
             }
+        }
+        return(growth.matrix)
+    }
+    g3a_grow_apply <- function(growth.matrix, wgt.matrix, input_num, input_wgt) {
+        na <- dim(growth.matrix)[[1]]
+        avoid_zero_vec <- function(a) {
+            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
         }
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         growth.matrix.sum <- colSums(growth.matrix)
-        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/g3_env$avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
+        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
     }
     ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
@@ -379,32 +399,32 @@ structure(function (param)
             }
         }
         {
-            comment("g3a_grow for fish")
-            for (age in seq(fish__minage, fish__maxage, by = 1)) {
-                fish__age_idx <- age - fish__minage + 1L
-                area <- fish__area
-                fish__area_idx <- (1L)
-                {
-                  if (fish__growth_lastcalc != floor(cur_step_size * 12L)) {
-                    comment("Calculate length/weight delta matrices for current lengthgroups")
-                    fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]]))
-                    fish__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]]
-                    comment("Don't recalculate until cur_step_size changes")
-                    fish__growth_lastcalc <- floor(cur_step_size * 12L)
-                  }
-                  if (FALSE) 
-                    fish__prevtotal <- sum(fish__num[, fish__area_idx, fish__age_idx])
-                  comment("Update fish using delta matrices")
+            growth_delta_l <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
+                fish__growth_l
+            else (fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
+            growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
+                fish__growth_w
+            else (fish__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]])
+            growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
+            growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
+            {
+                comment("g3a_grow for fish")
+                for (age in seq(fish__minage, fish__maxage, by = 1)) {
+                  fish__age_idx <- age - fish__minage + 1L
+                  area <- fish__area
+                  fish__area_idx <- (1L)
+                  growthresult <- g3a_grow_apply(growthmat_l, growthmat_w, fish__num[, fish__area_idx, fish__age_idx], fish__wgt[, fish__area_idx, fish__age_idx])
                   {
-                    growthresult <- g3a_grow_apply(fish__growth_l, fish__growth_w, fish__num[, fish__area_idx, fish__age_idx], fish__wgt[, fish__area_idx, fish__age_idx])
-                    {
-                      fish__num[, fish__area_idx, fish__age_idx] <- growthresult[, (1)]
-                      fish__wgt[, fish__area_idx, fish__age_idx] <- growthresult[, (2)]
-                    }
+                    if (FALSE) 
+                      fish__prevtotal <- sum(fish__num[, fish__area_idx, fish__age_idx])
+                    comment("Update fish using delta matrices")
+                    fish__num[, fish__area_idx, fish__age_idx] <- growthresult[, (1)]
+                    fish__wgt[, fish__area_idx, fish__age_idx] <- growthresult[, (2)]
+                    if (FALSE) 
+                      assert_msg(~abs(fish__prevtotal - sum(fish__num[, fish__area_idx, fish__age_idx])) < 1e-04, "g3a_growmature: fish__num totals are not the same before and after growth")
                   }
-                  if (FALSE) 
-                    assert_msg(~abs(fish__prevtotal - sum(fish__num[, fish__area_idx, fish__age_idx])) < 1e-04, "g3a_growmature: fish__num totals are not the same before and after growth")
                 }
+                fish__growth_lastcalc <- floor(cur_step_size * 12L)
             }
         }
         {

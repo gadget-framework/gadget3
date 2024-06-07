@@ -18,9 +18,9 @@ structure(function (param)
     stopifnot("lingmat.wbeta" %in% names(param))
     stopifnot("ling.igfs.alpha" %in% names(param))
     stopifnot("ling.igfs.l50" %in% names(param))
-    stopifnot("ling.bbin" %in% names(param))
     stopifnot("ling.mat1" %in% names(param))
     stopifnot("ling.mat2" %in% names(param))
+    stopifnot("ling.bbin" %in% names(param))
     stopifnot("ling.rec.scalar" %in% names(param))
     stopifnot("ling.rec.1994" %in% names(param))
     stopifnot("ling.rec.1995" %in% names(param))
@@ -113,30 +113,50 @@ structure(function (param)
     g3a_grow_weightsimple_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
     }
-    g3a_grow_apply <- function(delta_l, delta_w, input_num, input_wgt) {
-        na <- dim(delta_l)[[1]]
-        n <- dim(delta_l)[[2]] - 1
-        growth.matrix <- array(0, c(na, na))
+    g3a_grow_matrix_wgt <- function(delta_w) {
+        na <- dim(delta_w)[[1]]
+        n <- dim(delta_w)[[2]] - 1
         wgt.matrix <- array(0, c(na, na))
         for (lg in 1:na) {
             if (lg == na) {
-                growth.matrix[na, na] <- sum(delta_l[lg, ])
                 wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
+            }
+            else if (lg + n > na) {
+                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
+            }
+            else {
+                wgt.matrix[lg, lg:(n + lg)] <- delta_w[lg, ]
+            }
+        }
+        return(wgt.matrix)
+    }
+    g3a_grow_matrix_len <- function(delta_l) {
+        na <- dim(delta_l)[[1]]
+        n <- dim(delta_l)[[2]] - 1
+        growth.matrix <- array(0, c(na, na))
+        for (lg in 1:na) {
+            if (lg == na) {
+                growth.matrix[na, na] <- sum(delta_l[lg, ])
             }
             else if (lg + n > na) {
                 growth.matrix[lg, lg:(na - 1)] <- delta_l[lg, 1:(na - lg)]
                 growth.matrix[lg, na] <- sum(delta_l[lg, (na - lg + 1):(n + 1)])
-                wgt.matrix[lg, lg:na] <- delta_w[lg, 1:(na - lg + 1)]
             }
             else {
                 growth.matrix[lg, lg:(n + lg)] <- delta_l[lg, ]
-                wgt.matrix[lg, lg:(n + lg)] <- delta_w[lg, ]
             }
+        }
+        return(growth.matrix)
+    }
+    g3a_grow_apply <- function(growth.matrix, wgt.matrix, input_num, input_wgt) {
+        na <- dim(growth.matrix)[[1]]
+        avoid_zero_vec <- function(a) {
+            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
         }
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         growth.matrix.sum <- colSums(growth.matrix)
-        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/g3_env$avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
+        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
     }
     nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
@@ -453,90 +473,80 @@ structure(function (param)
             ling_imm__transitioning_wgt[] <- ling_imm__wgt[]
         }
         {
-            comment("g3a_grow for ling_imm")
+            maturity_ratio <- (1/(1 + exp((0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - param[["ling.mat2"]])))))
+            growth_delta_l <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
+                ling_imm__growth_l
+            else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
+            growth_delta_w <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
+                ling_imm__growth_w
+            else (ling_imm__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]])
+            growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
+            growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
-                area <- ling_imm__area
-                ling_imm__area_idx <- (1L)
-                for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
-                  ling_imm__age_idx <- age - ling_imm__minage + 1L
-                  {
-                    if (ling_imm__growth_lastcalc != floor(cur_step_size * 12L)) {
-                      comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_imm__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_imm__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]]
-                      comment("Don't recalculate until cur_step_size changes")
-                      ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
-                    }
-                    if (TRUE) 
-                      ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx])
-                    if (cur_step_final) {
-                      maturity_ratio <- (1/(1 + exp((0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - param[["ling.mat2"]])))))
-                      {
+                comment("g3a_grow for ling_imm")
+                {
+                  area <- ling_imm__area
+                  ling_imm__area_idx <- (1L)
+                  for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) {
+                    ling_imm__age_idx <- age - ling_imm__minage + 1L
+                    growthmatresult <- g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * maturity_ratio, ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
+                    growthimmresult <- g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * (1 - maturity_ratio), ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
+                    growthresult <- g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
+                    {
+                      if (TRUE) 
+                        ling_imm__prevtotal <- sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx])
+                      if (cur_step_final) {
                         comment("Grow and separate maturing ling_imm")
-                        {
-                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * maturity_ratio, ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
-                          {
-                            ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (1)]
-                            ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (2)]
-                          }
-                        }
+                        ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] <- growthmatresult[, (1)]
+                        ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthmatresult[, (2)]
                         comment("Grow non-maturing ling_imm")
-                        {
-                          growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] * (1 - maturity_ratio), ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
-                          {
-                            ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (1)]
-                            ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (2)]
-                          }
-                        }
+                        ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- growthimmresult[, (1)]
+                        ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthimmresult[, (2)]
                       }
-                    }
-                    else {
-                      comment("Update ling_imm using delta matrices")
-                      {
-                        growthresult <- g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx])
-                        {
-                          ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (1)]
-                          ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (2)]
-                        }
+                      else {
+                        comment("Update ling_imm using delta matrices")
+                        ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (1)]
+                        ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- growthresult[, (2)]
                       }
+                      if (TRUE) 
+                        if (cur_step_final) 
+                          assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx]) - sum(ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth (excluding maturation)")
+                        else assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth")
                     }
-                    if (TRUE) 
-                      if (cur_step_final) 
-                        assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx]) - sum(ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth (excluding maturation)")
-                      else assert_msg(~abs(ling_imm__prevtotal - sum(ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx])) < 1e-04, "g3a_growmature: ling_imm__num totals are not the same before and after growth")
                   }
                 }
+                ling_imm__growth_lastcalc <- floor(cur_step_size * 12L)
             }
         }
         {
-            comment("g3a_grow for ling_mat")
+            growth_delta_l <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
+                ling_mat__growth_l
+            else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
+            growth_delta_w <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
+                ling_mat__growth_w
+            else (ling_mat__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]])
+            growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
+            growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
-                area <- ling_mat__area
-                ling_mat__area_idx <- (1L)
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
-                  ling_mat__age_idx <- age - ling_mat__minage + 1L
-                  {
-                    if (ling_mat__growth_lastcalc != floor(cur_step_size * 12L)) {
-                      comment("Calculate length/weight delta matrices for current lengthgroups")
-                      ling_mat__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10)))
-                      ling_mat__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]]
-                      comment("Don't recalculate until cur_step_size changes")
-                      ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
-                    }
-                    if (TRUE) 
-                      ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
-                    comment("Update ling_mat using delta matrices")
+                comment("g3a_grow for ling_mat")
+                {
+                  area <- ling_mat__area
+                  ling_mat__area_idx <- (1L)
+                  for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) {
+                    ling_mat__age_idx <- age - ling_mat__minage + 1L
+                    growthresult <- g3a_grow_apply(growthmat_l, growthmat_w, ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
                     {
-                      growthresult <- g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx])
-                      {
-                        ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- growthresult[, (1)]
-                        ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- growthresult[, (2)]
-                      }
+                      if (TRUE) 
+                        ling_mat__prevtotal <- sum(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
+                      comment("Update ling_mat using delta matrices")
+                      ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- growthresult[, (1)]
+                      ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- growthresult[, (2)]
+                      if (TRUE) 
+                        assert_msg(~abs(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])) < 1e-04, "g3a_growmature: ling_mat__num totals are not the same before and after growth")
                     }
-                    if (TRUE) 
-                      assert_msg(~abs(ling_mat__prevtotal - sum(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])) < 1e-04, "g3a_growmature: ling_mat__num totals are not the same before and after growth")
                   }
                 }
+                ling_mat__growth_lastcalc <- floor(cur_step_size * 12L)
             }
         }
         {
@@ -763,5 +773,5 @@ structure(function (param)
             }
         }
     }
-}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.bbin = 0, ling.mat1 = 0, ling.mat2 = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
+}, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.mat1 = 0, ling.mat2 = 0, ling.bbin = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
     ling.rec.1997 = 0, ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))

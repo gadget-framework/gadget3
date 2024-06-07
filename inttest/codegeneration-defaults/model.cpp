@@ -172,31 +172,58 @@ Type objective_function<Type>::operator() () {
         }
         return out;
     };
-    auto g3a_grow_apply = [&avoid_zero_vec](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
-    matrix<Type> delta_l = delta_l_ar.matrix();
     matrix<Type> delta_w = delta_w_ar.matrix();
-    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = delta_l.rows(); // # Length groups
+    int total_deltas = delta_w.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_w.rows(); // # Length groups
 
-    matrix<Type> growth_matrix(total_lgs, total_lgs);
-    growth_matrix.setZero();
     matrix<Type> weight_matrix(total_lgs, total_lgs);
     weight_matrix.setZero();
 
     for (int lg = 0; lg < total_lgs; lg++) {
         if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
-            growth_matrix(lg, lg) = delta_l.row(lg).sum();
             weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else if(lg + total_deltas > total_lgs) {
-            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
-            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
             weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else {
-            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
             weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
         }
     }
+    return(weight_matrix);
+};
+    auto g3a_grow_matrix_len = [](array<Type> delta_l_ar) -> matrix<Type> {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_l = delta_l_ar.matrix();
+    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.rows(); // # Length groups
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
+            growth_matrix(lg, lg) = delta_l.row(lg).sum();
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
+            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
+        }
+    }
+    return(growth_matrix);
+};
+    auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    int total_lgs = growth_matrix.cols(); // # Length groups
+
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+        vector<Type> res(a.size());
+        for(int i = 0; i < a.size(); i++) {
+            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
+        }
+        return res;
+    };
+
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -472,38 +499,38 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_grow for fish;
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
-                auto area = fish__area;
+            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
 
-                auto fish__area_idx = 0;
+            auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
-                {
-                    if ( fish__growth_lastcalc != std::floor(cur_step_size*12) ) {
-                        // Calculate length/weight delta matrices for current lengthgroups;
-                        fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin));
-                        fish__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha;
-                        // Don't recalculate until cur_step_size changes;
-                        fish__growth_lastcalc = std::floor(cur_step_size*12);
-                    }
-                    if ( false ) {
-                        fish__prevtotal = (fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
-                    }
-                    // Update fish using delta matrices;
+            auto growthmat_l = g3a_grow_matrix_len(growth_delta_l);
+
+            {
+                // g3a_grow for fish;
+                for (auto age = fish__minage; age <= fish__maxage; age++) {
+                    auto fish__age_idx = age - fish__minage + 1 - 1;
+
+                    auto area = fish__area;
+
+                    auto fish__area_idx = 0;
+
+                    auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, fish__num.col(fish__age_idx).col(fish__area_idx), fish__wgt.col(fish__age_idx).col(fish__area_idx));
+
                     {
-                        auto growthresult = g3a_grow_apply(fish__growth_l, fish__growth_w, fish__num.col(fish__age_idx).col(fish__area_idx), fish__wgt.col(fish__age_idx).col(fish__area_idx));
-
-                        {
-                            fish__num.col(fish__age_idx).col(fish__area_idx) = growthresult.col(0);
-                            fish__wgt.col(fish__age_idx).col(fish__area_idx) = growthresult.col(1);
+                        if ( false ) {
+                            fish__prevtotal = (fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
+                        }
+                        // Update fish using delta matrices;
+                        fish__num.col(fish__age_idx).col(fish__area_idx) = growthresult.col(0);
+                        fish__wgt.col(fish__age_idx).col(fish__area_idx) = growthresult.col(1);
+                        if ( false ) {
+                            assert_msg(CppAD::abs(fish__prevtotal - (fish__num.col(fish__age_idx).col(fish__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish__num totals are not the same before and after growth");
                         }
                     }
-                    if ( false ) {
-                        assert_msg(CppAD::abs(fish__prevtotal - (fish__num.col(fish__age_idx).col(fish__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish__num totals are not the same before and after growth");
-                    }
                 }
+                fish__growth_lastcalc = std::floor(cur_step_size*12);
             }
         }
         {

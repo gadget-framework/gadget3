@@ -17,9 +17,9 @@ lingmat.walpha                                           lingmat.walpha         
 lingmat.wbeta                                             lingmat.wbeta            0     TRUE  FALSE    NA    NA       NA
 ling.igfs.alpha                                         ling.igfs.alpha            0     TRUE  FALSE    NA    NA       NA
 ling.igfs.l50                                             ling.igfs.l50            0     TRUE  FALSE    NA    NA       NA
-ling.bbin                                                     ling.bbin            0     TRUE  FALSE    NA    NA       NA
 ling.mat1                                                     ling.mat1            0     TRUE  FALSE    NA    NA       NA
 ling.mat2                                                     ling.mat2            0     TRUE  FALSE    NA    NA       NA
+ling.bbin                                                     ling.bbin            0     TRUE  FALSE    NA    NA       NA
 ling.rec.scalar                                         ling.rec.scalar            0     TRUE  FALSE    NA    NA       NA
 ling.rec.1994                                             ling.rec.1994            0     TRUE  FALSE    NA    NA       NA
 ling.rec.1995                                             ling.rec.1995            0     TRUE  FALSE    NA    NA       NA

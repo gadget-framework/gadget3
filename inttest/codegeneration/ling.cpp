@@ -57,9 +57,9 @@ Type objective_function<Type>::operator() () {
     PARAMETER(lingmat__wbeta);
     PARAMETER(ling__igfs__alpha);
     PARAMETER(ling__igfs__l50);
-    PARAMETER(ling__bbin);
     PARAMETER(ling__mat1);
     PARAMETER(ling__mat2);
+    PARAMETER(ling__bbin);
     PARAMETER(ling__rec__scalar);
     PARAMETER(ling__rec__1994);
     PARAMETER(ling__rec__1995);
@@ -173,31 +173,58 @@ Type objective_function<Type>::operator() () {
         }
         return out;
     };
-    auto g3a_grow_apply = [&avoid_zero_vec](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
-    matrix<Type> delta_l = delta_l_ar.matrix();
     matrix<Type> delta_w = delta_w_ar.matrix();
-    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = delta_l.rows(); // # Length groups
+    int total_deltas = delta_w.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_w.rows(); // # Length groups
 
-    matrix<Type> growth_matrix(total_lgs, total_lgs);
-    growth_matrix.setZero();
     matrix<Type> weight_matrix(total_lgs, total_lgs);
     weight_matrix.setZero();
 
     for (int lg = 0; lg < total_lgs; lg++) {
         if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
-            growth_matrix(lg, lg) = delta_l.row(lg).sum();
             weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else if(lg + total_deltas > total_lgs) {
-            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
-            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
             weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
         } else {
-            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
             weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
         }
     }
+    return(weight_matrix);
+};
+    auto g3a_grow_matrix_len = [](array<Type> delta_l_ar) -> matrix<Type> {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_l = delta_l_ar.matrix();
+    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.rows(); // # Length groups
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
+            growth_matrix(lg, lg) = delta_l.row(lg).sum();
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
+            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
+        }
+    }
+    return(growth_matrix);
+};
+    auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    int total_lgs = growth_matrix.cols(); // # Length groups
+
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+        vector<Type> res(a.size());
+        for(int i = 0; i < a.size(); i++) {
+            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
+        }
+        return res;
+    };
+
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -526,106 +553,96 @@ Type objective_function<Type>::operator() () {
             ling_imm__transitioning_wgt = ling_imm__wgt;
         }
         {
-            // g3a_grow for ling_imm;
+            auto maturity_ratio = ((double)(1) / ((double)(1) + exp(((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - ling__mat2)))));
+
+            auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
+
+            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
+
+            auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
+
+            auto growthmat_l = g3a_grow_matrix_len(growth_delta_l);
+
             {
-                auto area = ling_imm__area;
+                // g3a_grow for ling_imm;
+                {
+                    auto area = ling_imm__area;
 
-                auto ling_imm__area_idx = 0;
+                    auto ling_imm__area_idx = 0;
 
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
-                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+                    for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) {
+                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    {
-                        if ( ling_imm__growth_lastcalc != std::floor(cur_step_size*12) ) {
-                            // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))));
-                            ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha;
-                            // Don't recalculate until cur_step_size changes;
-                            ling_imm__growth_lastcalc = std::floor(cur_step_size*12);
-                        }
-                        if ( true ) {
-                            ling_imm__prevtotal = (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
-                        }
-                        if (cur_step_final) {
-                            auto maturity_ratio = ((double)(1) / ((double)(1) + exp(((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - ling__mat2)))));
+                        auto growthmatresult = g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*maturity_ratio, ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
 
-                            {
-                                // Grow and separate maturing ling_imm;
-                                {
-                                    auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*maturity_ratio, ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                        auto growthimmresult = g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*((double)(1) - maturity_ratio), ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
 
-                                    {
-                                        ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(0);
-                                        ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(1);
-                                    }
-                                }
-                                // Grow non-maturing ling_imm;
-                                {
-                                    auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*((double)(1) - maturity_ratio), ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                        auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
 
-                                    {
-                                        ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(0);
-                                        ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(1);
-                                    }
-                                }
+                        {
+                            if ( true ) {
+                                ling_imm__prevtotal = (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
                             }
-                        } else {
-                            // Update ling_imm using delta matrices;
-                            {
-                                auto growthresult = g3a_grow_apply(ling_imm__growth_l, ling_imm__growth_w, ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
-
-                                {
-                                    ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(0);
-                                    ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(1);
-                                }
-                            }
-                        }
-                        if ( true ) {
                             if (cur_step_final) {
-                                assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_imm__num totals are not the same before and after growth (excluding maturation)");
+                                // Grow and separate maturing ling_imm;
+                                ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthmatresult.col(0);
+                                ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthmatresult.col(1);
+                                // Grow non-maturing ling_imm;
+                                ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthimmresult.col(0);
+                                ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthimmresult.col(1);
                             } else {
-                                assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_imm__num totals are not the same before and after growth");
+                                // Update ling_imm using delta matrices;
+                                ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(0);
+                                ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = growthresult.col(1);
+                            }
+                            if ( true ) {
+                                if (cur_step_final) {
+                                    assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum() - (ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_imm__num totals are not the same before and after growth (excluding maturation)");
+                                } else {
+                                    assert_msg(CppAD::abs(ling_imm__prevtotal - (ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_imm__num totals are not the same before and after growth");
+                                }
                             }
                         }
                     }
                 }
+                ling_imm__growth_lastcalc = std::floor(cur_step_size*12);
             }
         }
         {
-            // g3a_grow for ling_mat;
+            auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
+
+            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
+
+            auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
+
+            auto growthmat_l = g3a_grow_matrix_len(growth_delta_l);
+
             {
-                auto area = ling_mat__area;
+                // g3a_grow for ling_mat;
+                {
+                    auto area = ling_mat__area;
 
-                auto ling_mat__area_idx = 0;
+                    auto ling_mat__area_idx = 0;
 
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
-                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                    for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) {
+                        auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    {
-                        if ( ling_mat__growth_lastcalc != std::floor(cur_step_size*12) ) {
-                            // Calculate length/weight delta matrices for current lengthgroups;
-                            ling_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))));
-                            ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha;
-                            // Don't recalculate until cur_step_size changes;
-                            ling_mat__growth_lastcalc = std::floor(cur_step_size*12);
-                        }
-                        if ( true ) {
-                            ling_mat__prevtotal = (ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
-                        }
-                        // Update ling_mat using delta matrices;
+                        auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
+
                         {
-                            auto growthresult = g3a_grow_apply(ling_mat__growth_l, ling_mat__growth_w, ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
-
-                            {
-                                ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = growthresult.col(0);
-                                ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = growthresult.col(1);
+                            if ( true ) {
+                                ling_mat__prevtotal = (ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
                             }
-                        }
-                        if ( true ) {
-                            assert_msg(CppAD::abs(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_mat__num totals are not the same before and after growth");
+                            // Update ling_mat using delta matrices;
+                            ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = growthresult.col(0);
+                            ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = growthresult.col(1);
+                            if ( true ) {
+                                assert_msg(CppAD::abs(ling_mat__prevtotal - (ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: ling_mat__num totals are not the same before and after growth");
+                            }
                         }
                     }
                 }
+                ling_mat__growth_lastcalc = std::floor(cur_step_size*12);
             }
         }
         {

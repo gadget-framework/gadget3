@@ -141,30 +141,91 @@ g3a_grow_impl_bbinom <- function (
                 maxlengthgroupgrowth = maxlengthgroupgrowth)))
 }
 
-# Apply a lgroup x lgroup-delta matrix to vector of length groups
-# Rows should sum to 1
-# - delta_l: Proportion of individuals moving +j length groups
-# - delta_w: Weight increase of individuals moving +j length groups
-g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt) {
+
+g3a_grow_matrix_len <- g3_native(r = function (delta_l) {
     na <- dim(delta_l)[[1]]  # Number of length groups
     n <- dim(delta_l)[[2]] - 1  # Number of lengthgroup deltas
     # See stockmemberfunctions.cc:121, grow.cc:25
 
     growth.matrix <- array(0,c(na,na))
-    wgt.matrix <- array(0,c(na,na))
     for(lg in 1:na){
       if(lg == na) { # Maximum length group can't grow any more
         growth.matrix[na,na] <- sum(delta_l[lg,])
-        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
       } else if(lg + n > na){
         growth.matrix[lg,lg:(na-1)] <- delta_l[lg,1:(na - lg )]
         growth.matrix[lg,na] <- sum(delta_l[lg,(na - lg + 1):(n + 1)])
-        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
       } else {
         growth.matrix[lg,lg:(n + lg)] <- delta_l[lg,]
+      }
+    }
+    return(growth.matrix)
+}, cpp = '[](array<Type> delta_l_ar) -> matrix<Type> {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_l = delta_l_ar.matrix();
+    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_l.rows(); // # Length groups
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
+            growth_matrix(lg, lg) = delta_l.row(lg).sum();
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
+            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
+        }
+    }
+    return(growth_matrix);
+}')
+
+g3a_grow_matrix_wgt <- g3_native(r = function (delta_w) {
+    na <- dim(delta_w)[[1]]  # Number of length groups
+    n <- dim(delta_w)[[2]] - 1  # Number of lengthgroup deltas
+    # See stockmemberfunctions.cc:121, grow.cc:25
+
+    wgt.matrix <- array(0,c(na,na))
+    for(lg in 1:na){
+      if(lg == na) { # Maximum length group can't grow any more
+        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
+      } else if(lg + n > na){
+        wgt.matrix[lg,lg:na] <- delta_w[lg,1:(na - lg + 1)]
+      } else {
         wgt.matrix[lg,lg:(n + lg)] <- delta_w[lg,]
       }
     }
+    return(wgt.matrix)
+}, cpp = '[](array<Type> delta_w_ar) {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_w = delta_w_ar.matrix();
+    int total_deltas = delta_w.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_w.rows(); // # Length groups
+
+    matrix<Type> weight_matrix(total_lgs, total_lgs);
+    weight_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
+        } else if(lg + total_deltas > total_lgs) {
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
+        } else {
+            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
+        }
+    }
+    return(weight_matrix);
+}')
+
+g3a_grow_apply <- g3_native(r = function (growth.matrix, wgt.matrix, input_num, input_wgt) {
+    na <- dim(growth.matrix)[[1]]  # Number of length groups
+    # See stockmemberfunctions.cc:121, grow.cc:25
+
+    avoid_zero_vec <- function(a) {
+        ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
+    }
+
     # Apply matrices to stock
     growth.matrix <- growth.matrix * as.vector(input_num)  # NB: Cant matrix-multiply with a 1xn array
     wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
@@ -173,32 +234,18 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     growth.matrix.sum <- colSums(growth.matrix)
     return(array(c(
         growth.matrix.sum,
-        colSums(wgt.matrix) / g3_env$avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
-}, cpp = '[&avoid_zero_vec](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
-    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
-    matrix<Type> delta_l = delta_l_ar.matrix();
-    matrix<Type> delta_w = delta_w_ar.matrix();
-    int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
-    int total_lgs = delta_l.rows(); // # Length groups
+        colSums(wgt.matrix) / avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
+}, cpp = '[](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    int total_lgs = growth_matrix.cols(); // # Length groups
 
-    matrix<Type> growth_matrix(total_lgs, total_lgs);
-    growth_matrix.setZero();
-    matrix<Type> weight_matrix(total_lgs, total_lgs);
-    weight_matrix.setZero();
-
-    for (int lg = 0; lg < total_lgs; lg++) {
-        if (lg == total_lgs - 1) {  // Can\'t grow beyond maximum length group
-            growth_matrix(lg, lg) = delta_l.row(lg).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
-        } else if(lg + total_deltas > total_lgs) {
-            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
-            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
-        } else {
-            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
-            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
+    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
+        vector<Type> res(a.size());
+        for(int i = 0; i < a.size(); i++) {
+            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
         }
-    }
+        return res;
+    };
+
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -209,7 +256,7 @@ g3a_grow_apply <- g3_native(r = function (delta_l, delta_w, input_num, input_wgt
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-}', depends = c('avoid_zero_vec'))
+}')
 
 # Combined growth / maturity step for a stock
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()
@@ -225,6 +272,8 @@ g3a_growmature <- function(stock,
                      transition_at = g3_action_order$mature) {
     # Drag g3a_grow_apply into scope (we only don't include it here to keep source intelligable)
     g3a_grow_apply <- g3a_grow_apply
+    g3a_grow_matrix_len <- g3a_grow_matrix_len
+    g3a_grow_matrix_wgt <- g3a_grow_matrix_wgt
 
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
@@ -257,79 +306,97 @@ g3a_growmature <- function(stock,
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
     }
 
+    # Set local growth_delta_(x) based on global value, recalculating if necessary
+    growth_delta_l <- f_substitute(~stock_with(stock, (stock__growth_l[] <- f)), list(f = impl_f$len))
+    growth_delta_w <- f_substitute(~stock_with(stock, (stock__growth_w[] <- f)), list(f = impl_f$wgt))
+    stock__growth_lastcalc = -1L
+    post_growth_f <- quote({})
+
     # If we can, try and only recalc growth when necessary
-    calcgrowth_f <- f_substitute(~{
-        debug_trace("Calculate length/weight delta matrices for current lengthgroups")
-        stock__growth_l[] <- impl_l_f
-        stock__growth_w[] <- impl_w_f
-    }, list(impl_l_f = impl_f$len, impl_w_f = impl_f$wgt))
-    # Filter out known constants (hacky but conservative, will fail by being slow)
     growth_dependent_vars <- sort(setdiff(
-        all.vars(calcgrowth_f),
+        c(all.vars(growth_delta_l), all.vars(growth_delta_w)),
+        # Filter out known constants (hacky but conservative, will fail by being slow)
         c('stock', 'stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen')))
     if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
-        calcgrowth_f <- f_substitute(~{
-            if (cur_time == 0) {
-                calcgrowth_f
-            }
-        }, list(calcgrowth_f = calcgrowth_f))
+        growth_delta_l <- f_substitute(quote(if (cur_time > 0) stock__growth_l else growth_delta_l), list(growth_delta_l = growth_delta_l))
+        growth_delta_w <- f_substitute(quote(if (cur_time > 0) stock__growth_w else growth_delta_w), list(growth_delta_w = growth_delta_w))
     } else if (identical(growth_dependent_vars, c('cur_step_size'))) {
         # Growth only dependent on timestep, only recalculate when required
-        stock__growth_lastcalc <- -1L
-        calcgrowth_f <- f_substitute(~{
-            if (stock__growth_lastcalc != floor(cur_step_size * 12L)) {
-                calcgrowth_f
-                debug_trace("Don't recalculate until cur_step_size changes")
-                # NB: stock__growth_lastcalc is integer, cur_step_size is fractional
-                stock__growth_lastcalc <- floor(cur_step_size * 12L)
-            }
-        }, list(calcgrowth_f = calcgrowth_f))
+        growth_delta_l <- f_substitute(~stock_with(stock, if (stock__growth_lastcalc == floor(cur_step_size * 12L)) stock__growth_l else growth_delta_l), list(growth_delta_l = growth_delta_l))
+        growth_delta_w <- f_substitute(~stock_with(stock, if (stock__growth_lastcalc == floor(cur_step_size * 12L)) stock__growth_w else growth_delta_w), list(growth_delta_w = growth_delta_w))
+        post_growth_f <- quote( stock_with(stock, stock__growth_lastcalc <- floor(cur_step_size * 12L)) )
     } else if (identical(growth_dependent_vars, c('cur_step_size', 'cur_year'))) {
         # Growth dependent on timestep/year, only recalculate when required
-        stock__growth_lastcalc <- -1L
-        calcgrowth_f <- f_substitute(~{
-            if (stock__growth_lastcalc != floor(cur_step_size * 12L) * 10000L + cur_year) {
-                calcgrowth_f
-                debug_trace("Don't recalculate until cur_step_size changes")
-                # NB: stock__growth_lastcalc is integer, cur_step_size is fractional
-                stock__growth_lastcalc <- floor(cur_step_size * 12L) * 10000L + cur_year
-            }
-        }, list(calcgrowth_f = calcgrowth_f))
+        growth_delta_l <- f_substitute(~stock_with(stock, if (stock__growth_lastcalc == floor(cur_step_size * 12L) * 10000L + cur_year) stock__growth_l else growth_delta_l), list(growth_delta_l = growth_delta_l))
+        growth_delta_w <- f_substitute(~stock_with(stock, if (stock__growth_lastcalc == floor(cur_step_size * 12L) * 10000L + cur_year) stock__growth_w else growth_delta_w), list(growth_delta_w = growth_delta_w))
+        post_growth_f <- quote( stock_with(stock, stock__growth_lastcalc <- floor(cur_step_size * 12L) * 10000L + cur_year) )
+    }
+
+    # Formulae to calculate growth matrices: We're separating these to happen outside age loops if possible
+    growthmat_l <- ~stock_with(stock, g3a_grow_matrix_len(growth_delta_l))
+    growthmat_w <- ~stock_with(stock, g3a_grow_matrix_wgt(growth_delta_w))
+
+    # Rename maturity_f for below
+    maturity_ratio <- maturity_f
+
+    # NB: Apply maturity in different places, depending if stock__growth_l is mentioned in formluae (and thus a len x deltal matrix)
+    if ("growth_delta_l" %in% all.vars(maturity_f)) {
+        growthimmresult <- ~g3a_grow_apply(
+            # Recalculate growth matrix each time, using maturitybygrowth result
+            g3a_grow_matrix_len(growth_delta_l * (1 - maturity_ratio)),
+            growthmat_w,
+            stock_ss(stock__num),
+            stock_ss(stock__wgt) )
+        growthmatresult <- ~g3a_grow_apply(
+            g3a_grow_matrix_len(growth_delta_l * maturity_ratio),
+            growthmat_w,
+            stock_ss(stock__num),
+            stock_ss(stock__wgt) )
+        # i.e. when transition_f is FALSE
+        growthresult <- ~g3a_grow_apply(
+            g3a_grow_matrix_len(growth_delta_l),
+            growthmat_w,
+            stock_ss(stock__num),
+            stock_ss(stock__wgt) )
+    } else {
+        growthimmresult <- ~g3a_grow_apply(
+            # Recalculate growth matrix each time, using maturitybygrowth result
+            growthmat_l,
+            growthmat_w,
+            stock_ss(stock__num) * (1 - maturity_ratio),
+            stock_ss(stock__wgt) )
+        growthmatresult <- ~g3a_grow_apply(
+            growthmat_l,
+            growthmat_w,
+            stock_ss(stock__num) * maturity_ratio,
+            stock_ss(stock__wgt) )
+        # i.e. when transition_f is FALSE
+        growthresult <- ~g3a_grow_apply(
+            # Recalculate growth matrix each time, using maturitybygrowth result
+            growthmat_l,
+            growthmat_w,
+            stock_ss(stock__num),
+            stock_ss(stock__wgt) )
     }
 
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_grow for ", stock)
 
         stock_iterate(stock, if (run_f) {
-            calcgrowth_f
-
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
 
-            if (transition_f) g3_with(maturity_ratio := maturity_f, {
+            if (transition_f) {
                 debug_trace("Grow and separate maturing ", stock)
-                g3_with(growthresult := g3a_grow_apply(
-                        stock__growth_l * maturity_bygrowth, stock__growth_w,
-                        stock_ss(stock__num) * maturity_bylength, stock_ss(stock__wgt)), {
-                    stock_ss(stock__transitioning_num) <- growthresult[,g3_idx(1)]
-                    stock_ss(stock__transitioning_wgt) <- growthresult[,g3_idx(2)]
-                })
-
+                stock_ss(stock__transitioning_num) <- growthmatresult[,g3_idx(1)]
+                stock_ss(stock__transitioning_wgt) <- growthmatresult[,g3_idx(2)]
                 debug_trace("Grow non-maturing ", stock)
-                g3_with(growthresult := g3a_grow_apply(
-                        stock__growth_l * invmaturity_bygrowth, stock__growth_w,
-                        stock_ss(stock__num) * invmaturity_bylength, stock_ss(stock__wgt)), {
-                    stock_ss(stock__num) <- growthresult[,g3_idx(1)]
-                    stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
-                })
-            }) else {
+                stock_ss(stock__num) <- growthimmresult[,g3_idx(1)]
+                stock_ss(stock__wgt) <- growthimmresult[,g3_idx(2)]
+            } else {
                 debug_trace("Update ", stock, " using delta matrices")
-                g3_with(growthresult := g3a_grow_apply(
-                        stock__growth_l, stock__growth_w,
-                        stock_ss(stock__num), stock_ss(stock__wgt)), {
-                    stock_ss(stock__num) <- growthresult[,g3_idx(1)]
-                    stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
-                })
+                stock_ss(stock__num) <- growthresult[,g3_idx(1)]
+                stock_ss(stock__wgt) <- growthresult[,g3_idx(2)]
             }
 
             if (strict_mode) {
@@ -344,15 +411,11 @@ g3a_growmature <- function(stock,
                 }
             }
         })
+        post_growth_f
     }, list(
             run_f = run_f,
-            calcgrowth_f = calcgrowth_f,
+            post_growth_f = post_growth_f,
             maturity_f = maturity_f,
-            # NB: Apply maturity in different places, depending if stock__growth_l is mentioned in formluae (and thus a len x deltal matrix)
-            maturity_bylength = if ("stock__growth_l" %in% all.vars(maturity_f)) 1 else quote(maturity_ratio),
-            maturity_bygrowth = if ("stock__growth_l" %in% all.vars(maturity_f)) quote(maturity_ratio) else 1,
-            invmaturity_bylength = if ("stock__growth_l" %in% all.vars(maturity_f)) 1 else quote((1 - maturity_ratio)),
-            invmaturity_bygrowth = if ("stock__growth_l" %in% all.vars(maturity_f)) quote((1 - maturity_ratio)) else 1,
             transition_f = transition_f)))
     return(as.list(out))
 }
