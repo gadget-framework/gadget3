@@ -6,6 +6,7 @@
 ## New features
 * Split likelihood distribution by predator_length / predator_age / predator_tag #154
 * Predation support, see ``?g3a_predate`` / ``?g3a_predate_catchability_predator`` #29
+* ``g3a_otherfood``, ``g3a_otherfood_normalparam``, ``g3a_otherfood_normalcv`` #155
 
 # gadget3 0.11-0:
 
