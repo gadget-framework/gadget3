@@ -12,6 +12,7 @@
 \alias{lgamma_vec}
 \alias{logspace_add}
 \alias{logspace_add_vec}
+\alias{logspace_minmax_vec}
 \alias{normalize_vec}
 \alias{nvl}
 \alias{pow_vec}
@@ -73,6 +74,14 @@
   TMB's \code{logspace_add}, essentially a differentiable version of \code{\link{pmax}}.
 }
 
+\section{logspace_minmax_vec}{
+  Differentiable equivalent of \code{pmax(pmin(vec, upper), lower)}.
+  \var{scale} influences the sharpness of inflection points at \var{lower} & \var{upper},
+  should be ~1e5, depending on ranges of input values.
+
+  \preformatted{logspace_minmax_vec(vec, lower, upper, scale)}
+}
+
 \section{normalize_vec}{
   Divide vector \var{a} by it's sum, i.e. so it now sums to 1
 }
@@ -122,6 +131,9 @@ curve(g3_eval(quote( bounded(x, 100, 200) ), x = x), -100, 100)
 
 ## logspace_add
 curve(g3_eval(quote( logspace_add(x, 10) ), x = x), 0, 40)
+
+## logspace_minmax_vec
+curve(g3_eval(quote( logspace_minmax_vec(x, 30, 60, scale = 1e5)), x = x), 0, 100)
 
 ## normalize_vec
 g3_eval(quote( normalize_vec(c( 4, 4, 8, 2 )) ))

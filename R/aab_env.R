@@ -40,6 +40,17 @@ g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
     return res;
 }')
 
+# differentiable equivalent of pmax(pmin(vec, upper), lower)
+g3_env$logspace_minmax_vec <- g3_native(r = function(vec, lower, upper, scale) {
+    vec <- -(g3_env$logspace_add(-vec * scale, -upper * scale) / scale)
+    vec <- g3_env$logspace_add(vec * scale, lower * scale) / scale
+    return(vec)
+}, cpp = '[&logspace_add_vec](vector<Type> vec, Type lower, Type upper, double scale) -> vector<Type> {
+    vec = -(logspace_add_vec(-vec * scale, -upper * scale) / scale);
+    vec = logspace_add_vec(vec * scale, lower * scale) / scale;
+    return(vec);
+}', depends = c("logspace_add_vec"))
+
 # NB: We have to have avoid_zero in our namespace so CMD check doesn't complain about it's use
 #     in surveyindices_linreg(). Maybe g3_env should just go away and use the package
 #     namespace instead?
