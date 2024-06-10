@@ -102,7 +102,7 @@ structure(function (param)
     avoid_zero <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
-    g3a_grow_weightsimple_vec_rotate <- function(vec, a) {
+    g3a_grow_vec_rotate <- function(vec, a) {
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
         out[is.na(out)] <- vec[length(vec)]
         out
@@ -110,7 +110,7 @@ structure(function (param)
     pow_vec <- function(a, b) {
         a^b
     }
-    g3a_grow_weightsimple_vec_extrude <- function(vec, a) {
+    g3a_grow_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
     }
     g3a_grow_matrix_wgt <- function(delta_w) {
@@ -479,7 +479,7 @@ structure(function (param)
             else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_imm__growth_w
-            else (ling_imm__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]])
+            else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
@@ -524,7 +524,7 @@ structure(function (param)
             else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_mat__growth_w
-            else (ling_mat__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]])
+            else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

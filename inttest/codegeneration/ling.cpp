@@ -155,24 +155,20 @@ Type objective_function<Type>::operator() () {
     auto avoid_zero = [](Type a) -> Type {
     return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
 };
-    auto g3a_grow_weightsimple_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-            }
+    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
         }
-        return out;
-    };
-    auto g3a_grow_weightsimple_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec[i];
-            }
-        }
-        return out;
-    };
+    }
+    return out;
+};
+    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    out = vec.template replicate(a, 1);
+    return out;
+};
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_w = delta_w_ar.matrix();
@@ -557,7 +553,7 @@ Type objective_function<Type>::operator() () {
 
             auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
+            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -611,7 +607,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
+            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 

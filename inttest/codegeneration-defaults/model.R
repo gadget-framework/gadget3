@@ -106,7 +106,7 @@ structure(function (param)
     avoid_zero <- function(a) {
         (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
-    g3a_grow_weightsimple_vec_rotate <- function(vec, a) {
+    g3a_grow_vec_rotate <- function(vec, a) {
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
         out[is.na(out)] <- vec[length(vec)]
         out
@@ -114,7 +114,7 @@ structure(function (param)
     pow_vec <- function(a, b) {
         a^b
     }
-    g3a_grow_weightsimple_vec_extrude <- function(vec, a) {
+    g3a_grow_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
     }
     g3a_grow_matrix_wgt <- function(delta_w) {
@@ -404,7 +404,7 @@ structure(function (param)
             else (fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
             growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_w
-            else (fish__growth_w[] <- (g3a_grow_weightsimple_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_weightsimple_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]])
+            else (fish__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

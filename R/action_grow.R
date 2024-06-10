@@ -1,3 +1,27 @@
+g3a_grow_vec_rotate <- g3_native(r = function (vec, a) {
+    out <- vapply(
+        seq_len(a),  # 0..maxlengthgrouplen increases
+        function (i) vec[i:(i+length(vec) - 1)],
+        numeric(length(vec)))
+    out[is.na(out)] <- vec[length(vec)]  # Overflowed entries should be capped at the final one
+    out
+}, cpp = '[](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+        }
+    }
+    return out;
+}')
+g3a_grow_vec_extrude <- g3_native(r = function (vec, a) {
+    array(vec, dim = c(length(vec), a))
+}, cpp = '[](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    out = vec.template replicate(a, 1);
+    return out;
+}')
+
 # Returns formula for lengthvbsimple growth function
 g3a_grow_lengthvbsimple <- function (
         linf_f = g3_parameterized('Linf', by_stock = by_stock),
@@ -17,39 +41,14 @@ g3a_grow_weightsimple <- function (
         alpha_f = g3_parameterized('walpha', by_stock = by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = by_stock),
         by_stock = TRUE) {
-    g3a_grow_weightsimple_vec_rotate <- g3_native(r = function (vec, a) {
-        out <- vapply(
-            seq_len(a),  # 0..maxlengthgrouplen increases
-            function (i) vec[i:(i+length(vec) - 1)],
-            numeric(length(vec)))
-        out[is.na(out)] <- vec[length(vec)]  # Overflowed entries should be capped at the final one
-        out
-    }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-            }
-        }
-        return out;
-    }')
-    g3a_grow_weightsimple_vec_extrude <- g3_native(r = function (vec, a) {
-        array(vec, dim = c(length(vec), a))
-    }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec[i];
-            }
-        }
-        return out;
-    }')
+    g3a_grow_vec_rotate <- g3a_grow_vec_rotate
+    g3a_grow_vec_extrude <- g3a_grow_vec_extrude
 
     # growmemberfunctions.cc:61 - Make a l --> l' matrix of weight increases,
     # NB: Have to multiply by alpha_f last, otherwise TMB thinks the result should be scalar
     f_substitute(~(
-        g3a_grow_weightsimple_vec_rotate(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1) -
-        g3a_grow_weightsimple_vec_extrude(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1)
+        g3a_grow_vec_rotate(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1) -
+        g3a_grow_vec_extrude(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1)
     ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 

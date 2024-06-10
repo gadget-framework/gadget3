@@ -154,24 +154,20 @@ Type objective_function<Type>::operator() () {
     auto avoid_zero = [](Type a) -> Type {
     return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
 };
-    auto g3a_grow_weightsimple_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-            }
+    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
         }
-        return out;
-    };
-    auto g3a_grow_weightsimple_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec[i];
-            }
-        }
-        return out;
-    };
+    }
+    return out;
+};
+    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    out = vec.template replicate(a, 1);
+    return out;
+};
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_w = delta_w_ar.matrix();
@@ -501,7 +497,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
-            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
+            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
