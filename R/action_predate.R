@@ -121,21 +121,22 @@ g3a_predate_catchability_predator <- function (
             ),
             energycontent = energycontent,
             prey_preference = list_to_stock_switch(prey_preferences) ),
+        feeding_level = g3_formula(
+            # ψ_L, “feeding level” (fraction of the available food that the predator is consuming) - eqn 4.23
+            quote(
+                total_predsuit / ( half_feeding * cur_step_size + total_predsuit )
+            ),
+            half_feeding = half_feeding_f ),
         cons = g3_formula(
             quote(
-                (stock_ss(predstock__num, vec = single) * M * psi * stock_ss(predprey__suit)) / (energycontent * total_predsuit)
+                (stock_ss(predstock__num, vec = single) * M * feeding_level * stock_ss(predprey__suit)) / (energycontent * total_predsuit)
             ),
             energycontent = energycontent,
             # M_L, maximum possible consumption - eqn 4.22
             M = f_substitute(quote(
                 # NB: length should be the current predstock__midlen
                 m0 * cur_step_size * exp(m1 * temperature - m2 * temperature^3) * predator_length^m3
-            ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature)),
-            # ψ_L, “feeding level” (fraction of the available food that the predator is consuming) - eqn 4.23
-            psi = f_substitute(quote(
-                # NB: i.e. total_predsuit, but substitution doesn't work here
-                stock_ss(predstock__totalsuit, vec = single) / ( H * cur_step_size + stock_ss(predstock__totalsuit, vec = single))
-            ), list(H = half_feeding_f)) ))
+            ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature)) ))
 }
 
 g3a_predate <- function (
@@ -160,6 +161,7 @@ g3a_predate <- function (
     # predprey__cons: Biomass of prey consumed by pred
     # predprey__suit: Biomass of prey suitable for consumption by pred
 
+    predstock__feedinglevel <- g3_stock_instance(predstock, desc = "Fraction of the available food that the predator is consuming")
     predstock__totalsuit <- g3_stock_instance(predstock, desc = paste0("Total suitable prey by ", catchability_f$suit_unit))
 
     # Build combined arrays for each pred/prey combination
@@ -216,6 +218,18 @@ g3a_predate <- function (
                 suit_f = list_to_stock_switch(suitabilities) )),
             run_f = run_f )))
 
+        # Add dependent formulas to catchability, let g3_step work out where they go
+        environment(catchability_f$cons)$total_predsuit <- quote( stock_ss(predstock__totalsuit, vec = single) )
+        if (!is.null(catchability_f$feeding_level)) {
+            environment(catchability_f$cons)$feeding_level <- f_substitute(quote(
+                stock_ss(predstock__feedinglevel, vec = single) <- feeding_level_f
+            ), list(
+                # NB: Dependency mismatch, bodge around for now
+                feeding_level_f = f_substitute(
+                    catchability_f$feeding_level,
+                    list(total_predsuit = quote( stock_ss(predstock__totalsuit, vec = single))) )))
+        }
+
         # After all prey is collected (not just this stock), scale by total expected, update catch params
         out[[step_id(run_at, 2, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", predstock, " catch of ", stock, " by total expected catch")
@@ -233,8 +247,7 @@ g3a_predate <- function (
                 stock__totalpredate[] <- nonconform_add(stock__totalpredate[], cons_ss)
             })))
         }, list(
-            catchability_cons_f = f_substitute(catchability_f$cons, list(
-                total_predsuit = quote(stock_ss(predstock__totalsuit, vec = single)) )),
+            catchability_cons_f = catchability_f$cons,
             cons_ss = cons_ss,
             run_f = run_f )))
 

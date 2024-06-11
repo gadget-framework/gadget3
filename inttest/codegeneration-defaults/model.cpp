@@ -457,7 +457,9 @@ Type objective_function<Type>::operator() () {
 
                     auto predator_area = area;
 
-                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / comm__totalsuit(comm__area_idx))*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                    auto total_predsuit = comm__totalsuit(comm__area_idx);
+
+                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
             fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons);

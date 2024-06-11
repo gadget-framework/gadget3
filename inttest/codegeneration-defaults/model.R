@@ -359,9 +359,10 @@ structure(function (param)
                 if (area == comm__area) {
                   comm__area_idx <- (1L)
                   predator_area <- area
+                  total_predsuit <- comm__totalsuit[comm__area_idx]
                   fish_comm__cons[, fish__area_idx, fish__age_idx] <- fish_comm__suit[, fish__area_idx, fish__age_idx] * ((if (area != 1L) 
                     0
-                  else intlookup_getdefault(comm_landings, cur_year, 0))/comm__totalsuit[comm__area_idx]) * fish__wgt[, fish__area_idx, fish__age_idx]
+                  else intlookup_getdefault(comm_landings, cur_year, 0))/total_predsuit) * fish__wgt[, fish__area_idx, fish__age_idx]
                 }
             }
             fish__totalpredate[] <- nonconform_add(fish__totalpredate[], fish_comm__cons[, , ])

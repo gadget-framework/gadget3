@@ -381,9 +381,10 @@ structure(function (param)
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   igfs__area_idx <- (1L)
                   predator_area <- area
+                  total_predsuit <- igfs__totalsuit[igfs__area_idx]
                   ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm_igfs__suit[, ling_imm__age_idx, ling_imm__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/igfs__totalsuit[igfs__area_idx])
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
                 }
             }
             ling_imm__totalpredate[] <- nonconform_add(ling_imm__totalpredate[], ling_imm_igfs__cons[, , ])
@@ -398,9 +399,10 @@ structure(function (param)
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   igfs__area_idx <- (1L)
                   predator_area <- area
+                  total_predsuit <- igfs__totalsuit[igfs__area_idx]
                   ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat_igfs__suit[, ling_mat__age_idx, ling_mat__area_idx] * ((if (area != 1) 
                     0
-                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/igfs__totalsuit[igfs__area_idx])
+                  else intlookup_getdefault(igfs_totaldata, (cur_year * 100L + cur_step), 0))/total_predsuit)
                 }
             }
             ling_mat__totalpredate[] <- nonconform_add(ling_mat__totalpredate[], ling_mat_igfs__cons[, , ])
