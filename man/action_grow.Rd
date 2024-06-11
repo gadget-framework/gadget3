@@ -1,6 +1,8 @@
 \name{action_grow}
 \alias{g3a_grow_lengthvbsimple}
 \alias{g3a_grow_weightsimple}
+\alias{g3a_grow_length_multspec}
+\alias{g3a_grow_weight_multspec}
 \alias{g3a_grow_impl_bbinom}
 \alias{g3a_growmature}
 \concept{G3 action}
@@ -28,6 +30,23 @@ g3a_grow_impl_bbinom(
         maxlengthgroupgrowth,
         by_stock = TRUE)
 
+g3a_grow_length_multspec(
+        p0 = g3_parameterized('multispec.p0', value = 1, by_stock = by_stock),
+        p1 = g3_parameterized('multispec.p1', value = 1, by_stock = by_stock),
+        p2 = g3_parameterized('multispec.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('multispec.p3', value = 0, by_stock = by_stock),
+        temperature = 0,
+        by_stock = TRUE)
+
+g3a_grow_weight_multspec(
+        p4 = g3_parameterized('multispec.p4', value = 1, by_stock = by_stock),
+        p5 = g3_parameterized('multispec.p5', value = 1, by_stock = by_stock),
+        p6 = g3_parameterized('multispec.p6', value = 0, by_stock = by_stock),
+        p7 = g3_parameterized('multispec.p7', value = 1, by_stock = by_stock),
+        p8 = g3_parameterized('multispec.p8', value = 0, by_stock = by_stock),
+        temperature = 0,
+        by_stock = TRUE)
+
 g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(), 
     output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
     transition_f = ~cur_step_final, run_f = ~TRUE,
@@ -48,6 +67,13 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   }
   \item{beta_f}{
     A \link{formula} to substitute for \eqn{\beta}.
+  }
+  \item{p0, p1, p2, p3, p4, p5, p6, p7, p8}{
+    A \link{formula} to substitute for the equivalent value.
+  }
+  \item{temperature}{
+    A \link{formula} providing values for the current temperature,
+    likely implemented with \code{\link{g3_timeareadata}}.
   }
   \item{maxlengthgroupgrowth}{
     An integer with the maximum length groups an individual can jump in one step.
@@ -119,6 +145,29 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   Where \eqn{ \Delta{t} } is the length of the current timestep,
   \eqn{ {{\Delta}L} } is all possible length group increases i.e \code{0..maxlengthgroupgrowth}.
   }
+
+  \subsection{g3a_grow_length_multspec}{Returns a \link{formula} for use as \var{delta_len_f}:
+    \deqn{ {{\Delta}L}_i = {\Delta}t p_0 L_i^{p_1} \psi_i (p_2 T + p_3) }
+    \describe{
+      \item{\eqn{p_x}}{Supplied parameters}
+      \item{\eqn{{\Delta}t}}{Length of the current timestep}
+      \item{\eqn{L_i}}{Current length}
+      \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
+      \item{\eqn{T}}{Temperature of current region}
+    }
+  }
+  \subsection{g3a_grow_weight_multspec}{Returns a \link{formula} for use as \var{delta_wgt_f}:
+    \deqn{ {{\Delta}W}_{i,j} = {\Delta}t p_4 {W_i}^p_5 (\psi_i - p_6) (p_7 T + p_8) }
+    \describe{
+      \item{\eqn{p_x}}{Supplied parameters}
+      \item{\eqn{{\Delta}t}}{Length of the current timestep}
+      \item{\eqn{W_i}}{Current mean weight}
+      \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
+      \item{\eqn{T}}{Temperature of current region}
+    }
+    Note that the equation is not dependent on the change in length, the value will be the same for each \eqn{j}.
+  }
+
   \subsection{g3a_grow_impl_bbinom}{\link{formula} object converting mean growths using beta-binomia distribution. See \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#beta-binomial}}
 
   \subsection{g3a_growmature}{An action (i.e. list of formula objects) that will, for the given \var{stock}...\enumerate{
@@ -149,4 +198,17 @@ growth_action <- g3a_growmature(ling_imm,
         alpha = g3_parameterized('ling.mat1', scale = 0.001),
         l50 = g3_parameterized('ling.mat2')),
         output_stocks = list(ling_mat))
+
+# Multspec growth - define a data frame with temperature
+temperature <- g3_timeareadata(
+    'temp',
+    data.frame(year = 2000, step=c(1,2), temp=c(10, 14)),
+    value_field = "temp" )
+
+ms_growth_actions <- list(
+  g3a_growmature(ling_imm, g3a_grow_impl_bbinom(
+    g3a_grow_length_multspec(temperature = temperature),
+    g3a_grow_weight_multspec(temperature = temperature),
+    maxlengthgroupgrowth = 8 )),
+  NULL)
 }

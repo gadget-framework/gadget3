@@ -52,6 +52,34 @@ g3a_grow_weightsimple <- function (
     ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 
+g3a_grow_length_multspec <- function(
+        p0 = g3_parameterized('multispec.p0', value = 1, by_stock = by_stock),
+        p1 = g3_parameterized('multispec.p1', value = 1, by_stock = by_stock),
+        p2 = g3_parameterized('multispec.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('multispec.p3', value = 0, by_stock = by_stock),
+        temperature = 0,
+        by_stock = TRUE) {
+    ~cur_step_size * p0 * stock__midlen^p1 * stock_ss(stock__feedinglevel) * (p2 * temperature + p3)
+}
+
+g3a_grow_weight_multspec <- function(
+        p4 = g3_parameterized('multispec.p4', value = 1, by_stock = by_stock),
+        p5 = g3_parameterized('multispec.p5', value = 1, by_stock = by_stock),
+        p6 = g3_parameterized('multispec.p6', value = 0, by_stock = by_stock),
+        p7 = g3_parameterized('multispec.p7', value = 1, by_stock = by_stock),
+        p8 = g3_parameterized('multispec.p8', value = 0, by_stock = by_stock),
+        temperature = 0,
+        by_stock = TRUE) {
+    g3a_grow_vec_extrude <- g3a_grow_vec_extrude
+
+    ~g3a_grow_vec_extrude(
+        cur_step_size *
+        p4 *
+        (stock_ss(stock__wgt))^p5 *
+        (stock_ss(stock__feedinglevel) - p6) *
+        (p7 * temperature + p8), maxlengthgroupgrowth + 1)
+}
+
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (
         delta_len_f = g3a_grow_lengthvbsimple(by_stock = by_stock),
@@ -333,8 +361,8 @@ g3a_growmature <- function(stock,
     }
 
     # Formulae to calculate growth matrices: We're separating these to happen outside age loops if possible
-    growthmat_l <- ~stock_with(stock, g3a_grow_matrix_len(growth_delta_l))
-    growthmat_w <- ~stock_with(stock, g3a_grow_matrix_wgt(growth_delta_w))
+    growthmat_l <- ~g3a_grow_matrix_len(growth_delta_l)
+    growthmat_w <- ~g3a_grow_matrix_wgt(growth_delta_w)
 
     # Rename maturity_f for below
     maturity_ratio <- maturity_f
