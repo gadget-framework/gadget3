@@ -425,21 +425,41 @@ f_eval <- function (f, env_extras = list(), env_parent = g3_env) {
 }
 
 # Find all vars, minus vars that are defined within (e.g. iterators)
-all_undefined_vars <- function (code) {
+all_undefined_vars <- function (code, recursive = FALSE) {
     g3_with_extract_term_syms <- function (x) {
         lapply(g3_with_extract_terms(x), function (c) as.character(c[[2]]))
     }
 
-    setdiff(all.vars(code), c(
+    out <- setdiff(all.vars(code), c(
         lapply(f_find(code, as.symbol("for")), function (x) { as.character(x[[2]]) }),
         do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
         NULL))
+    if (recursive) {
+        expanded <- lapply(out, function (n) {
+            # Get undefined vars from anything defined locally
+            defn <- environment(code)[[n]]
+            if (is.call(defn)) all_undefined_vars(defn, recursive = TRUE) else c()
+        })
+        out <- c(out, unlist(expanded))
+    }
+    return(out)
 }
 
 # Add any formula definitions from f into f, if they include depend_vars
 add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
     extra_defns <- list()
     wrap_defns <- list()
+
+    # Search recursively for a formula mentioning stock_ss()
+    search_stock_ss <- function (defn) {
+        if ('stock_ss' %in% all.names(defn)) return(TRUE)
+        if (!is.null(environment(defn))) {
+            for (n in all.vars(defn)) {
+                if (search_stock_ss(environment(defn)[[n]])) return(TRUE)
+            }
+        }
+        return(FALSE)
+    }
 
     # Repeatedly look for definitions we should be adding (so we add sub-definitions)
     while(TRUE) {
@@ -462,9 +482,9 @@ add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
                     # We have some depend_vars to check
                     !isTRUE(depend_vars) &&
                     # Formula doesn't use a stock_ss() call
-                    !('stock_ss' %in% all.names(defn)) &&
+                    !search_stock_ss(defn) &&
                     # Formula doesn't mention any of the depend vars or now-added definitions
-                    length(intersect(all_undefined_vars(defn), c(depend_vars, names(extra_defns)))) == 0 &&
+                    length(intersect(all_undefined_vars(defn, recursive = TRUE), c(depend_vars, names(extra_defns)))) == 0 &&
                     TRUE ) {
                 # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and continue
                 if (!is.null(filter_fn)) {

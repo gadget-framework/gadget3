@@ -288,6 +288,12 @@ ok(ut_cmp_identical(
 ok(ut_cmp_identical(
     gadget3:::all_undefined_vars(quote( g3_with(`pa-rp` := 1, `pa-rp`) )),
     as.character(c())), "all_undefined_vars: Symbols necessary to escape in R still recognised")
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(g3_formula(f2 + f3, f2 = quote(block1 + 2), f3 = 4)),
+    as.character(c("f2", "f3"))), "all_undefined_vars: Without recursive only get surface dependencies")
+ok(ut_cmp_identical(
+    gadget3:::all_undefined_vars(g3_formula(f2 + f3, f2 = quote(block1 + 2), f3 = 4), recursive = TRUE),
+    as.character(c("f2", "f3", "block1"))), "all_undefined_vars: Recursive reaches within")
 
 ok_group("add_dependent_formula") ###########
 adf <- function (f, depend_vars = c("block1", "block2")) gadget3:::add_dependent_formula(f, depend_vars)
@@ -349,5 +355,37 @@ ok(gadget3:::ut_cmp_code(
              (10 + glob1)
          }
     }), optimize = TRUE), "g3_global_formula() dependencies resolved")
+
+out <- adf(g3_formula(
+    10 + f1,
+    f1 = g3_formula(f2 + f3, f2 = quote(block1 + 2), f3 = 4),
+    end = NULL))
+ok(gadget3:::ut_cmp_code(
+    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+        block1 <- 1
+        f3 <- 4
+        while (TRUE) {
+            9
+            f2 <- block1 + 2
+            f1 <- f2 + f3
+            (10 + f1)
+        }
+    }), optimize = TRUE), "g3_global_formula() recursively looked for dependencies, nesting f1 as f2 required it")
+
+out <- adf(g3_formula(
+    10 + f1,
+    f1 = g3_formula(f2 + f3, f2 = 2, f3 = quote( stock_ss(thing__wgt) )),
+    end = NULL))
+ok(gadget3:::ut_cmp_code(
+    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2, thing__wgt = 9), out))), quote({
+        thing__wgt <- 9
+        f2 <- 2
+        while (TRUE) {
+            9
+            f3 <- stock_ss(thing__wgt)
+            f1 <- f2 + f3
+            (10 + f1)
+        }
+    }), optimize = TRUE), "g3_global_formula() recursively looked for stock_ss, causing a nest")
 
 ########### add_dependent_formula
