@@ -98,3 +98,19 @@ ut_cmp_array <- function (ar, table_text, ...) {
     rownames(tbl) <- NULL
     unittest::ut_cmp_equal(df, tbl, ...)
 }
+
+ut_cmp_df <- function (df, table_text, ...) {
+    df <- as.data.frame(df, stringsAsFactors = FALSE)
+    if (nzchar(trimws(table_text))) {
+        expected <- utils::read.table(
+            header = TRUE,
+            check.names = FALSE,
+            stringsAsFactors = FALSE,
+            colClasses = sapply(df, class),
+            text = table_text)
+    } else {
+        # Empty data frame, so we can copy expected values
+        expected <- df[c(),, drop = FALSE]
+    }
+    unittest::ut_cmp_equal(df, expected, ...)
+}
