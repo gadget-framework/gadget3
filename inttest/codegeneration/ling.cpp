@@ -39,6 +39,7 @@ template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> 
 template<class Type>
 Type objective_function<Type>::operator() () {
     DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);
+    PARAMETER(retro_years);
     PARAMETER(ling__Linf);
     PARAMETER(ling__K);
     PARAMETER(recage);
@@ -56,7 +57,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(lingmat__wbeta);
     PARAMETER(ling__igfs__alpha);
     PARAMETER(ling__igfs__l50);
-    PARAMETER(retro_years);
     PARAMETER(ling__bbin);
     PARAMETER(ling__mat1);
     PARAMETER(ling__mat2);
@@ -88,15 +88,15 @@ Type objective_function<Type>::operator() () {
     PARAMETER(ling__rec__2018);
     std::map<std::tuple<int>, Type*> ling__rec = {{std::make_tuple(1994), &ling__rec__1994}, {std::make_tuple(1995), &ling__rec__1995}, {std::make_tuple(1996), &ling__rec__1996}, {std::make_tuple(1997), &ling__rec__1997}, {std::make_tuple(1998), &ling__rec__1998}, {std::make_tuple(1999), &ling__rec__1999}, {std::make_tuple(2000), &ling__rec__2000}, {std::make_tuple(2001), &ling__rec__2001}, {std::make_tuple(2002), &ling__rec__2002}, {std::make_tuple(2003), &ling__rec__2003}, {std::make_tuple(2004), &ling__rec__2004}, {std::make_tuple(2005), &ling__rec__2005}, {std::make_tuple(2006), &ling__rec__2006}, {std::make_tuple(2007), &ling__rec__2007}, {std::make_tuple(2008), &ling__rec__2008}, {std::make_tuple(2009), &ling__rec__2009}, {std::make_tuple(2010), &ling__rec__2010}, {std::make_tuple(2011), &ling__rec__2011}, {std::make_tuple(2012), &ling__rec__2012}, {std::make_tuple(2013), &ling__rec__2013}, {std::make_tuple(2014), &ling__rec__2014}, {std::make_tuple(2015), &ling__rec__2015}, {std::make_tuple(2016), &ling__rec__2016}, {std::make_tuple(2017), &ling__rec__2017}, {std::make_tuple(2018), &ling__rec__2018}};
     PARAMETER(cdist_sumofsquares_ldist_lln_weight);
+    auto assert_msg = [](bool expr, std::string message) -> bool {
+    if (!expr) { Rf_warning(message.c_str()); return TRUE; }
+    return FALSE;
+};
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / a.sum();
-};
-    auto assert_msg = [](bool expr, std::string message) -> bool {
-    if (!expr) { Rf_warning(message.c_str()); return TRUE; }
-    return FALSE;
 };
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -213,11 +213,18 @@ Type objective_function<Type>::operator() () {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 };
     int cur_time = -1;
+    int cur_year = 0;
+    int start_year = 1994;
+    vector<int> step_lengths(4); step_lengths.setConstant(3);
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
+    int end_year = 2018;
+    int cur_step = 0;
+    int cur_step_final = false;
     int ling_imm__area = 1;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
     DATA_VECTOR(ling_imm__midlen)
-    vector<int> step_lengths(4); step_lengths.setConstant(3);
     auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     DATA_VECTOR(ling_imm_stddev)
     array<Type> ling_imm__num(35,8,1); ling_imm__num.setZero();
@@ -229,18 +236,11 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(ling_mat_stddev)
     array<Type> ling_mat__num(35,11,1); ling_mat__num.setZero();
     array<Type> ling_mat__wgt(35,11,1); ling_mat__wgt.setConstant((double)(1));
-    int end_year = 2018;
-    int start_year = 1994;
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
     array<Type> suit_ling_imm_igfs__report(35);
     array<Type> suit_ling_mat_igfs__report(35);
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
-    int cur_year = 0;
-    auto step_count = (step_lengths).size();
-    int cur_year_projection = false;
-    int cur_step = 0;
-    int cur_step_final = false;
     array<Type> igfs__totalsuit(1);
     array<Type> ling_imm__totalpredate(35,8,1);
     array<Type> ling_mat__totalpredate(35,11,1);
@@ -292,7 +292,17 @@ Type objective_function<Type>::operator() () {
     int ling_imm_movement__maxage = 11;
 
     while (true) {
-        cur_time += 1;
+        {
+            // g3a_time: Start of time period;
+            cur_time += 1;
+            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
+                return NAN;
+            }
+            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year > end_year - retro_years;
+            cur_step = (cur_time % step_count) + 1;
+            cur_step_final = cur_step == step_count;
+        }
         {
             // g3a_initialconditions for ling_imm;
             {
@@ -347,17 +357,9 @@ Type objective_function<Type>::operator() () {
             REPORT(nll_understocking__wgt);
         }
         {
-            // g3a_time: Start of time period;
-            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
-                return NAN;
-            }
             if ( cur_time > total_steps ) {
                 return nll;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
-            cur_year_projection = cur_year > end_year - retro_years;
-            cur_step = (cur_time % step_count) + 1;
-            cur_step_final = cur_step == step_count;
         }
         igfs__totalsuit.setZero();
         ling_imm__totalpredate.setZero();

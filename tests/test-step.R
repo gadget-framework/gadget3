@@ -54,6 +54,7 @@ ok_group("g3_step:stock_reshape", {
 
     nll <- 0.0
     actions <- list(
+        g3a_time(1999, 1999),
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 
         list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
@@ -88,17 +89,15 @@ ok_group("g3_step:stock_reshape", {
         })))),
 
         list('999' = ~{
-            nll <- nll + g3_param('x')
-            return(nll)
+            nll <- nll + g3_param('x', value = 1.0)
         }))
 
     # Compile model
-    params <- list(
-        source_num = c(11, 22, 33, 44),
-        source_wgt = c(11, 22, 33, 44),
-        x = 1.0)
     model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
+    params <- attr(model_fn, 'parameter_template')
+    params[["source_num"]] <- c(11, 22, 33, 44)
+    params[["source_wgt"]] <- c(11, 22, 33, 44)
     result <- model_fn(params)
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

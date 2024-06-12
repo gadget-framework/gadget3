@@ -25,14 +25,20 @@ ok_group("MFDB compatibility", {
         table_name = "temp_wntki",
         class = c("mfdb_group", "mfdb_aggregate"))
 
-    a <- g3a_time(1990, 1997, step_lengths = timestep_quarterly)
+    a <- gadget3:::f_concatenate(
+        g3a_time(1990, 1997, step_lengths = timestep_quarterly),
+        parent = g3_env,
+        wrap_call = call("while", TRUE))
     ok(ut_cmp_identical(
-        as.vector(environment(a[[1]])$step_lengths),
+        as.vector(environment(a)$step_lengths),
         c(3L,3L,3L,3L)), "mfdb::mfdb_timestep_quarterly converted")
 
-    a <- g3a_time(1990, 1997, step_lengths = timestep_biannually)
+    a <- gadget3:::f_concatenate(
+        g3a_time(1990, 1997, step_lengths = timestep_biannually),
+        parent = g3_env,
+        wrap_call = call("while", TRUE))
     ok(ut_cmp_identical(
-        as.vector(environment(a[[1]])$step_lengths),
+        as.vector(environment(a)$step_lengths),
         c(6L,6L)), "mfdb::mfdb_timestep_biannually converted")
 })
 

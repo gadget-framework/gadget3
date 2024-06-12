@@ -70,6 +70,7 @@ stock_bcd__interacttotals <- g3_stock_instance(stock_bcd, 0)
 stock_bcd_a_interactions <- 0L
 stock_bcd_ac_interactions <- 0L
 actions <- list(
+    g3a_time(1999, 1999),
     # NB: livesonareas will add area names to environment, so this works
     g3a_initialconditions(stock_a, ~(if (area == area_a) 1 else if (area == area_b) 2 else if (area == area_c) 3  else if (area == area_d) 4 else 0) * 100 + stock_a__minlen, ~0),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),

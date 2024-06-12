@@ -16,6 +16,7 @@ stock_interact_young_old <- 0.0
 stock_interact_young_old_vars <- 0.0
 nll <- 0.0
 actions <- list(
+    g3a_time(1999, 1999),
     g3a_initialconditions(stock_young, ~age * 100 + stock_young__minlen, ~0),
     g3a_initialconditions(stock_old, ~age * 1000 + stock_old__minlen, ~0),
     g3a_initialconditions(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),

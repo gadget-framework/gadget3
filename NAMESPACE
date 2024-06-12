@@ -52,6 +52,9 @@ export(g3a_renewal_normalcv)
 export(g3a_initialconditions)
 export(g3a_initialconditions_normalparam)
 export(g3a_initialconditions_normalcv)
+export(g3a_otherfood)
+export(g3a_otherfood_normalparam)
+export(g3a_otherfood_normalcv)
 
 # R/action_report.R
 export(g3a_report_stock)

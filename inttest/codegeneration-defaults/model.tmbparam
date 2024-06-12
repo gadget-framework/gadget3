@@ -1,4 +1,5 @@
                                                                                    switch type value optimise random lower upper parscale
+retro_years                                                                   retro_years          0    FALSE  FALSE    NA    NA       NA
 fish.Linf                                                                       fish.Linf          1     TRUE  FALSE    NA    NA       NA
 fish.K                                                                             fish.K          1     TRUE  FALSE    NA    NA       NA
 fish.t0                                                                           fish.t0          0     TRUE  FALSE    NA    NA       NA
@@ -31,7 +32,6 @@ fish.wbeta                                                                     f
 report_detail                                                               report_detail          0    FALSE  FALSE    NA    NA       NA
 fish.comm.alpha                                                           fish.comm.alpha          0     TRUE  FALSE    NA    NA       NA
 fish.comm.l50                                                               fish.comm.l50          0     TRUE  FALSE    NA    NA       NA
-retro_years                                                                   retro_years          0    FALSE  FALSE    NA    NA       NA
 fish.bbin                                                                       fish.bbin          0     TRUE  FALSE    NA    NA       NA
 fish.rec.1990                                                               fish.rec.1990          0     TRUE  FALSE    NA    NA       NA
 fish.rec.1991                                                               fish.rec.1991          0     TRUE  FALSE    NA    NA       NA
