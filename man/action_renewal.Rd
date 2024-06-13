@@ -130,8 +130,10 @@ g3a_renewal_normalcv(
 
 g3a_otherfood(
         stock,
-        num_f,
-        wgt_f,
+        num_f = g3_parameterized('of_abund', by_year = TRUE, by_step = TRUE,
+                                 by_stock = by_stock),
+        wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
+        by_stock = TRUE,
         run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial)
 
@@ -341,11 +343,8 @@ other_wgt <- g3_stock('other_wgt', 0)
 other_cv <- g3_stock('other_cv', seq(50, 100, by = 10)) \%>\% g3s_age(5,10)
 
 otherfood_actions <- list(
-    # Parameterized amount / mean-weight of otherfood
-    g3a_otherfood(
-       other_wgt,
-       g3_parameterized('of_abund', by_year = TRUE, by_stock = TRUE),
-       g3_parameterized('of_meanwgt', by_stock = TRUE)),
+    # Will get other_wgt.of_abund.1998.1, other_wgt.of_meanwgt parameters
+    g3a_otherfood(other_wgt),
     # Use standard vonB parameters (Linf/K/t0) to define abundance
     g3a_otherfood_normalcv(other_cv) )
 }

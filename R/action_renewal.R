@@ -274,8 +274,10 @@ g3a_renewal_normalcv <- function (
 # Assign number / mean weight based on formulae
 g3a_otherfood <- function (
         stock,
-        num_f,
-        wgt_f,
+        num_f = g3_parameterized('of_abund', by_year = TRUE, by_step = TRUE,
+                                 by_stock = by_stock),
+        wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
+        by_stock = TRUE,
         run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
     stock__num <- g3_stock_instance(stock, 0)
