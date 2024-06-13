@@ -219,15 +219,15 @@ g3a_predate <- function (
             run_f = run_f )))
 
         # Add dependent formulas to catchability, let g3_step work out where they go
-        environment(catchability_f$cons)$total_predsuit <- quote( stock_ss(predstock__totalsuit, vec = single) )
+        environment(catchability_f$cons)$total_predsuit <- ~stock_with(predstock, stock_ss(predstock__totalsuit, vec = single))
         if (!is.null(catchability_f$feeding_level)) {
             environment(catchability_f$cons)$feeding_level <- f_substitute(quote(
                 stock_ss(predstock__feedinglevel, vec = single) <- feeding_level_f
             ), list(
                 # NB: Dependency mismatch, bodge around for now
-                feeding_level_f = f_substitute(
-                    catchability_f$feeding_level,
-                    list(total_predsuit = quote( stock_ss(predstock__totalsuit, vec = single))) )))
+                feeding_level_f = catchability_f$feeding_level,
+                end = NULL ))
+            environment(environment(catchability_f$cons)$feeding_level)$predstock__feedinglevel <- predstock__feedinglevel
         }
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params

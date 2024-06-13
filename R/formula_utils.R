@@ -425,7 +425,7 @@ f_eval <- function (f, env_extras = list(), env_parent = g3_env) {
 }
 
 # Find all vars, minus vars that are defined within (e.g. iterators)
-all_undefined_vars <- function (code, recursive = FALSE) {
+all_undefined_vars <- function (code, recursive = FALSE, filter_fn = NULL) {
     g3_with_extract_term_syms <- function (x) {
         lapply(g3_with_extract_terms(x), function (c) as.character(c[[2]]))
     }
@@ -438,7 +438,11 @@ all_undefined_vars <- function (code, recursive = FALSE) {
         expanded <- lapply(out, function (n) {
             # Get undefined vars from anything defined locally
             defn <- environment(code)[[n]]
-            if (is.call(defn)) all_undefined_vars(defn, recursive = TRUE) else c()
+            if (!is.null(filter_fn)) {
+                # Apply filter_fn, which will e.g. resolve stock_ss() and do renames
+                defn <- filter_fn(defn)
+            }
+            if (is.call(defn)) all_undefined_vars(defn, recursive = TRUE, filter_fn = filter_fn) else c()
         })
         out <- c(out, unlist(expanded))
     }
@@ -449,17 +453,6 @@ all_undefined_vars <- function (code, recursive = FALSE) {
 add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
     extra_defns <- list()
     wrap_defns <- list()
-
-    # Search recursively for a formula mentioning stock_ss()
-    search_stock_ss <- function (defn) {
-        if ('stock_ss' %in% all.names(defn)) return(TRUE)
-        if (!is.null(environment(defn))) {
-            for (n in all.vars(defn)) {
-                if (search_stock_ss(environment(defn)[[n]])) return(TRUE)
-            }
-        }
-        return(FALSE)
-    }
 
     # Repeatedly look for definitions we should be adding (so we add sub-definitions)
     while(TRUE) {
@@ -478,18 +471,17 @@ add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
                 if (!is.null(defn)) break
             }
             if (!is.call(defn)) next
+            if (!is.null(filter_fn)) {
+                # Apply filter_fn, which will e.g. resolve stock_ss() and do renames
+                defn <- filter_fn(defn)
+                assign(var_name, defn, envir = environment(sub_f))
+            }
             if (TRUE &&
                     # We have some depend_vars to check
                     !isTRUE(depend_vars) &&
-                    # Formula doesn't use a stock_ss() call
-                    !search_stock_ss(defn) &&
                     # Formula doesn't mention any of the depend vars or now-added definitions
-                    length(intersect(all_undefined_vars(defn, recursive = TRUE), c(depend_vars, names(extra_defns)))) == 0 &&
+                    length(intersect(all_undefined_vars(defn, recursive = TRUE, filter_fn = filter_fn), c(depend_vars, names(extra_defns)))) == 0 &&
                     TRUE ) {
-                # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and continue
-                if (!is.null(filter_fn)) {
-                    assign(var_name, filter_fn(defn), envir = environment(f))
-                }
                 next
             }
 

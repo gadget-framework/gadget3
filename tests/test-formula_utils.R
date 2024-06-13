@@ -296,7 +296,7 @@ ok(ut_cmp_identical(
     as.character(c("f2", "f3", "block1"))), "all_undefined_vars: Recursive reaches within")
 
 ok_group("add_dependent_formula") ###########
-adf <- function (f, depend_vars = c("block1", "block2")) gadget3:::add_dependent_formula(f, depend_vars)
+adf <- function (f, depend_vars = c("block1", "block2"), filter_fn = NULL) gadget3:::add_dependent_formula(f, depend_vars, filter_fn)
 
 out <- adf(g3_formula( 4 * x, x = g3_formula(block1**2) ))
 ok(gadget3:::ut_cmp_code(out, quote(
@@ -374,18 +374,66 @@ ok(gadget3:::ut_cmp_code(
 
 out <- adf(g3_formula(
     10 + f1,
-    f1 = g3_formula(f2 + f3, f2 = 2, f3 = quote( stock_ss(thing__wgt) )),
-    end = NULL))
-ok(gadget3:::ut_cmp_code(
-    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2, thing__wgt = 9), out))), quote({
-        thing__wgt <- 9
-        f2 <- 2
-        while (TRUE) {
-            9
-            f3 <- stock_ss(thing__wgt)
-            f1 <- f2 + f3
+    f1 = g3_formula(f2 + f3, f2 = quote(secret_block + 2), f3 = 4),
+    end = NULL) )
+ok(gadget3:::ut_cmp_code(body(suppressWarnings(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out)))), quote({
+    secret_block <- stop("Incomplete model: No definition for ",
+        "secret_block")
+    f2 <- secret_block + 2
+    f3 <- 4
+    f1 <- f2 + f3
+    while (TRUE) {
+        9
+        10 + f1
+    }
+}), optimize = TRUE), "Without a filter_fn, secret_block in dependent is ignored")
+out <- adf(g3_formula(
+    10 + f1,
+    f1 = g3_formula(f2 + f3, f2 = quote(secret_block + 2), f3 = 4),
+    end = NULL), filter_fn = function (f) gadget3:::call_replace(f, secret_block = function (y) quote(block1)) )
+ok(gadget3:::ut_cmp_code(body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+    block1 <- 1
+    f3 <- 4
+    while (TRUE) {
+        9
+        {
+            f2 <- (block1 + 2)
+            f1 <- (f2 + f3)
             (10 + f1)
         }
-    }), optimize = TRUE), "g3_global_formula() recursively looked for stock_ss, causing a nest")
+    }
+}), optimize = TRUE), "filter_fn caused secret_block to be turned into block1, and get included")
+
+out <- adf(g3_formula(
+    10 + f1,
+    f1 = g3_formula(f2 + 1, f2 = g3_formula(f3 + 2, f3 = g3_formula(secret_block))),
+    end = NULL) )
+ok(gadget3:::ut_cmp_code(body(suppressWarnings(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out)))), quote({
+    secret_block <- stop("Incomplete model: No definition for ",
+        "secret_block")
+    f3 <- secret_block
+    f2 <- f3 + 2
+    f1 <- f2 + 1
+    while (TRUE) {
+        9
+        10 + f1
+    }
+}), optimize = TRUE), "Without a filter_fn, secret_block is passed through, double-nesting")
+out <- adf(g3_formula(
+    10 + f1,
+    f1 = g3_formula(f2 + 1, f2 = g3_formula(f3 + 2, f3 = g3_formula(secret_block))),
+    end = NULL), filter_fn = function (f) gadget3:::call_replace(f, secret_block = function (y) quote(block1)) )
+ok(gadget3:::ut_cmp_code(body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+    block1 <- 1
+    while (TRUE) {
+        9
+        {
+            f3 <- block1
+            f2 <- (f3 + 2)
+            f1 <- (f2 + 1)
+            (10 + f1)
+        }
+    }
+}), optimize = TRUE), "filter_fn caused secret_block to be turned into block1, and get included, double-nesting")
 
 ########### add_dependent_formula

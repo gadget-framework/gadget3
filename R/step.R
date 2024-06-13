@@ -109,7 +109,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         if (is.list(stock[[to_replace]])) {
             repl_list <- stock[[to_replace]]
             out_f <- quote(extension_point)
-            inner_vars <- all.vars(inner_f)
+            inner_vars <- all_undefined_vars(inner_f, recursive = TRUE)
             # List of formulas, select the relevant ones and combine
             for (i in seq_along(repl_list)) {
                 if (!is.symbol(stock$iter_ss[[i]])) next
@@ -409,7 +409,19 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
         if (!recursing) {
             # Add anything that's not a global_formula to this level
-            rv <- add_dependent_formula(rv, TRUE)
+            rv <- add_dependent_formula(rv, TRUE, function (f) {
+                # Attach outer environment so items resolve
+                if (rlang::is_formula(f)) {
+                    environment(f) <- rlang::env_clone(
+                        environment(f),
+                        parent = environment(step_f))
+                } else {
+                    f <- call_to_formula(f, rlang::f_env(step_f))
+                }
+                f <- g3_step(f, recursing = TRUE, orig_env = orig_env)
+                return(f)
+            })
+
             # Run g3_step again to fix up dependents that got added
             rv <- g3_step(rv, recursing = TRUE, orig_env = orig_env)
             # Neaten output code by collapsing the stack of g3_with()s we made
