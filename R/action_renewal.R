@@ -281,6 +281,10 @@ g3a_otherfood <- function (
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
 
+    if (!any(grepl("__midlen$", all.vars(num_f)))) {
+        # num_f doesn't mention stock__midlen, we should add it
+        num_f <- f_substitute(quote(n + 0 * stock__midlen), list(n = num_f))
+    }
     out <- list()
     action_name <- unique_action_name()
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
