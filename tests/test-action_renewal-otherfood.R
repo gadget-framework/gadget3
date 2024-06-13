@@ -27,8 +27,7 @@ actions <- list(
 
     g3a_otherfood(
        other_wgt,
-       # NB: We have to keep working in "2006", as we will run once more before model end, so specify ismissing
-       g3_parameterized('of_abund', by_year = TRUE, by_stock = TRUE, ifmissing = 0, offset = quote(0 * other_wgt__midlen)),
+       g3_parameterized('of_abund', by_year = TRUE, by_stock = TRUE, offset = quote(0 * other_wgt__midlen)),
        g3_parameterized('of_meanwgt', by_stock = TRUE)),
     g3a_otherfood_normalparam(other_np),
     g3a_otherfood_normalcv(other_cv),

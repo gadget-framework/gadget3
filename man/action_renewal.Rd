@@ -132,7 +132,7 @@ g3a_otherfood(
         stock,
         num_f,
         wgt_f,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial)
 
 g3a_otherfood_normalparam(
@@ -147,7 +147,7 @@ g3a_otherfood_normalparam(
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial)
 
 g3a_otherfood_normalcv(
@@ -162,7 +162,7 @@ g3a_otherfood_normalcv(
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial)
 
 }
@@ -196,6 +196,7 @@ g3a_otherfood_normalcv(
     \link{formula} specifying a condition for running this action,
     For initialconditions defaults to first timestep.
     For renewal, the default is a combination of \var{run_age}, \var{run_step} & \var{run_projection}.
+    For otherfood, the default is to always run, apart from when the model is ending.
   }
   \item{Linf,K,t0,recl}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recage}{\link{formula} substituted into initial abundance and vonb calcuations, see below.}
@@ -343,8 +344,7 @@ otherfood_actions <- list(
     # Parameterized amount / mean-weight of otherfood
     g3a_otherfood(
        other_wgt,
-       # NB: Specify ifmissing, as we will try to work out abundance past the final year
-       g3_parameterized('of_abund', by_year = TRUE, by_stock = TRUE, ifmissing = 0),
+       g3_parameterized('of_abund', by_year = TRUE, by_stock = TRUE),
        g3_parameterized('of_meanwgt', by_stock = TRUE)),
     # Use standard vonB parameters (Linf/K/t0) to define abundance
     g3a_otherfood_normalcv(other_cv) )

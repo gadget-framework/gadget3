@@ -276,7 +276,7 @@ g3a_otherfood <- function (
         stock,
         num_f,
         wgt_f,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
@@ -310,7 +310,7 @@ g3a_otherfood_normalparam <- function (
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
 
     # Replace "age" with "age - cur_step_size", i.e. pretending this is happening at time "-1"
@@ -345,7 +345,7 @@ g3a_otherfood_normalcv <- function (
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
-        run_f = quote( TRUE ),
+        run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
     g3a_otherfood_normalparam(
         stock = stock,
