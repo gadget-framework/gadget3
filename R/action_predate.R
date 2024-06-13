@@ -98,12 +98,7 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
     return(out)
 }
 
-g3a_predate_catchability_predator <- function (
-        prey_preferences = 1,
-        energycontent = g3_parameterized('energycontent', value = 1,
-            by_stock = TRUE, optimise = FALSE),
-        half_feeding_f = g3_parameterized('halffeeding',
-            by_predator = TRUE, optimise = FALSE),
+g3a_predate_maxconsumption <- function (
         m0 = g3_parameterized('consumption.m0', value = 1,
             by_predator = TRUE, optimise = FALSE),
         m1 = g3_parameterized('consumption.m1', value = 0,
@@ -113,6 +108,21 @@ g3a_predate_catchability_predator <- function (
         m3 = g3_parameterized('consumption.m3', value = 0,
             by_predator = TRUE, optimise = FALSE),
         temperature = 0 ) {
+    # M_L, maximum possible consumption - eqn 4.22
+    f_substitute(quote(
+        # NB: length should be the current predstock__midlen
+        m0 * cur_step_size * exp(m1 * temperature - m2 * temperature^3) * predator_length^m3
+    ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature))
+}
+
+g3a_predate_catchability_predator <- function (
+        prey_preferences = 1,
+        energycontent = g3_parameterized('energycontent', value = 1,
+            by_stock = TRUE, optimise = FALSE),
+        half_feeding_f = g3_parameterized('halffeeding',
+            by_predator = TRUE, optimise = FALSE),
+        max_consumption = g3a_predate_maxconsumption(temperature = temperature),
+        temperature = 0) {
     list(
         suit_unit = "energy content",
         suit = g3_formula(
@@ -129,14 +139,10 @@ g3a_predate_catchability_predator <- function (
             half_feeding = half_feeding_f ),
         cons = g3_formula(
             quote(
-                (stock_ss(predstock__num, vec = single) * M * feeding_level * stock_ss(predprey__suit)) / (energycontent * total_predsuit)
+                (stock_ss(predstock__num, vec = single) * max_consumption * feeding_level * stock_ss(predprey__suit)) / (energycontent * total_predsuit)
             ),
             energycontent = energycontent,
-            # M_L, maximum possible consumption - eqn 4.22
-            M = f_substitute(quote(
-                # NB: length should be the current predstock__midlen
-                m0 * cur_step_size * exp(m1 * temperature - m2 * temperature^3) * predator_length^m3
-            ), list(m0 = m0, m1 = m1, m2 = m2, m3 = m3, temperature = temperature)) ))
+            max_consumption = max_consumption ))
 }
 
 g3a_predate <- function (
