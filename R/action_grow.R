@@ -80,6 +80,49 @@ g3a_grow_weight_multspec <- function(
         (p7 * temperature + p8), maxlengthgroupgrowth + 1)
 }
 
+g3a_grow_length_weightjones <- function(
+        p0 = g3_parameterized('weightjones.p0', value = 0, by_stock = by_stock),
+        p1 = g3_parameterized('weightjones.p1', value = 0, by_stock = by_stock),
+        p2 = g3_parameterized('weightjones.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('weightjones.p3', value = 0, by_stock = by_stock),
+        p4 = g3_parameterized('weightjones.p4', value = 1, by_stock = by_stock),
+        p5 = g3_parameterized('weightjones.p5', value = 100, by_stock = by_stock),
+        p6 = g3_parameterized('weightjones.p6', value = 1, by_stock = by_stock),
+        p7 = g3_parameterized('weightjones.p7', value = 1, by_stock = by_stock),
+        reference_weight = 0,
+        temperature = 0,
+        by_stock = TRUE) {
+    # https://github.com/gadget-framework/gadget2/blob/master/src/growthcalc.cc#L311
+    r <- ~(
+              stock_ss(stock__wgt) -
+              (p0 + stock_ss(stock__feedinglevel) * (p1 + p2 * stock_ss(stock__feedinglevel))) * reference_weight
+          ) / stock_ss(stock__wgt)  # No, this is not a regex /
+    # NB: All of growth_delta_w is equal, as it doesn't depend on length
+    ~logspace_minmax_vec(p3 + p4 * r, 0, p5, 1e5) * growth_delta_w[,1] / (p6 * p7 * stock__midlen^(p7 - 1))
+}
+
+g3a_grow_weight_weightjones <- function(
+        q0 = g3_parameterized('weightjones.q0', value = 1, by_stock = by_stock),
+        q1 = g3_parameterized('weightjones.q1', value = 1, by_stock = by_stock),
+        q2 = g3_parameterized('weightjones.q2', value = 1, by_stock = by_stock),
+        q3 = g3_parameterized('weightjones.q3', value = 1, by_stock = by_stock),
+        q4 = g3_parameterized('weightjones.q4', value = 1, by_stock = by_stock),
+        q5 = g3_parameterized('weightjones.q5', value = 0, by_stock = by_stock),
+        max_consumption = g3a_predate_maxconsumption(temperature = temperature),
+        temperature = 0,
+        by_stock = TRUE) {
+    # Convert max_consumption formula to use stock__midlen
+    max_consumption <- call_replace(
+        max_consumption,
+        predator_length = function(x) quote( stock__midlen ),
+        predstock = function(x) quote( stock ),
+        end = NULL )
+    # NB: Pretty easy to have negative growth with nonsense parameters, thus avoid_zero_vec()
+    ~g3a_grow_vec_extrude(avoid_zero_vec(cur_step_size * (
+        (max_consumption / (q0 * (stock_ss(stock__wgt))^q1)) -
+        q2 * (stock_ss(stock__wgt))^q3 * exp(q4 * temperature + q5) )), maxlengthgroupgrowth + 1)
+}
+
 # Returns bbinom growth implementation formulae
 g3a_grow_impl_bbinom <- function (
         delta_len_f = g3a_grow_lengthvbsimple(by_stock = by_stock),

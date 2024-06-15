@@ -3,6 +3,8 @@
 \alias{g3a_grow_weightsimple}
 \alias{g3a_grow_length_multspec}
 \alias{g3a_grow_weight_multspec}
+\alias{g3a_grow_length_weightjones}
+\alias{g3a_grow_weight_weightjones}
 \alias{g3a_grow_impl_bbinom}
 \alias{g3a_growmature}
 \concept{G3 action}
@@ -47,6 +49,30 @@ g3a_grow_weight_multspec(
         temperature = 0,
         by_stock = TRUE)
 
+g3a_grow_length_weightjones(
+        p0 = g3_parameterized('weightjones.p0', value = 0, by_stock = by_stock),
+        p1 = g3_parameterized('weightjones.p1', value = 0, by_stock = by_stock),
+        p2 = g3_parameterized('weightjones.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('weightjones.p3', value = 0, by_stock = by_stock),
+        p4 = g3_parameterized('weightjones.p4', value = 1, by_stock = by_stock),
+        p5 = g3_parameterized('weightjones.p5', value = 100, by_stock = by_stock),
+        p6 = g3_parameterized('weightjones.p6', value = 1, by_stock = by_stock),
+        p7 = g3_parameterized('weightjones.p7', value = 1, by_stock = by_stock),
+        reference_weight = 0,
+        temperature = 0,
+        by_stock = TRUE)
+
+g3a_grow_weight_weightjones(
+        q0 = g3_parameterized('weightjones.q0', value = 1, by_stock = by_stock),
+        q1 = g3_parameterized('weightjones.q1', value = 1, by_stock = by_stock),
+        q2 = g3_parameterized('weightjones.q2', value = 1, by_stock = by_stock),
+        q3 = g3_parameterized('weightjones.q3', value = 1, by_stock = by_stock),
+        q4 = g3_parameterized('weightjones.q4', value = 1, by_stock = by_stock),
+        q5 = g3_parameterized('weightjones.q5', value = 0, by_stock = by_stock),
+        max_consumption = g3a_predate_maxconsumption(temperature = temperature),
+        temperature = 0,
+        by_stock = TRUE)
+
 g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(), 
     output_ratios = rep(1/length(output_stocks), times = length(output_stocks)), 
     transition_f = ~cur_step_final, run_f = ~TRUE,
@@ -68,8 +94,11 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   \item{beta_f}{
     A \link{formula} to substitute for \eqn{\beta}.
   }
-  \item{p0, p1, p2, p3, p4, p5, p6, p7, p8}{
+  \item{p0, p1, p2, p3, p4, p5, p6, p7, p8, q0, q1, q2, q3, q4, q5}{
     A \link{formula} to substitute for the equivalent value.
+  }
+  \item{max_consumption}{
+    Maximum predator consumption, see \code{\link{g3a_predate_maxconsumption}}.
   }
   \item{temperature}{
     A \link{formula} providing values for the current temperature,
