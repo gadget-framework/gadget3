@@ -594,6 +594,24 @@ actions <- c(actions, ~{
 expecteds$as_vector_result1 <- pnorm(as_vector_array[,1], as_vector_mean, as_vector_sigma)
 expecteds$as_vector_result2 <- pnorm(as_vector_array[,2], as_vector_mean, as_vector_sigma)
 
+# pow() / .pow()
+pow_scalar <- 99
+pow_scalar_result <- 0
+pow_vector <- c("50:60" = 55, "60:70" = 65, "70:80" = 75, "80:90" = 85, "90:100" = 95, "100:Inf" = 105)
+pow_vector_result <- array(0, dim = c(6, 5))
+actions <- c(actions, ~{
+    comment('pow_vector')
+    pow_scalar_result <- pow_scalar^3
+    REPORT(pow_scalar_result)
+    # NB: This has to use pow_vector.pow(), pow(pow_vector, 2) fails
+    g3_with(pv := 5 * pow_vector^2, for (a in seq(1, 5, by = 1)) {
+        pow_vector_result[,g3_idx(a)] <- pv
+    })
+    REPORT(pow_vector_result)
+})
+expecteds$pow_scalar_result <- pow_scalar^3
+expecteds$pow_vector_result <- array(5 * pow_vector^2, dim = c(6, 5))
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0

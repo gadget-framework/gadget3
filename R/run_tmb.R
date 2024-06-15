@@ -16,9 +16,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     # Does this call produce a scalar value?
-    value_is_scalar <- function (c_val) {
-        # Single numeric values are constants
-        if (is.numeric(c_val)) return(length(c_val) == 1)
+    value_is_scalar <- function (c_val, fallback = FALSE) {
+        # Scalar numeric values are constants
+        if (is.numeric(c_val)) return(!is.array(c_val) && !is_force_vector(c_val))
 
         # Single parameters are constants
         if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
@@ -30,13 +30,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 # When considering a global formula, consider the init condition
                 env_defn <- attr(env_defn, "g3_global_init_val")
             }
-            return(is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1)
+            return(is.numeric(env_defn) && !is.array(env_defn) && !is_force_vector(env_defn))
         }
-
         # TODO: Obviously not exhaustive, but ideally one would consider setConstant() a TMB bug.
 
-        # Dunno. Assume not.
-        return(FALSE)
+        # Dunno.
+        return(fallback)
     }
 
     if (!is.call(in_call)) {
@@ -354,11 +353,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "^") {
         # Power operator
+        if ( value_is_scalar(in_call[[2]], fallback = TRUE) ) {
+            return(paste0(
+                "pow(",
+                cpp_code(in_call[[2]], in_envir, next_indent), ", ",
+                # NB: exponent needs to be (Type), regular (int) isn't allowed
+                "(Type)", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+        }
+        # Use .pow(), as "auto x = 10 * pow(vec, (Type)2)" does odd things
         return(paste0(
-            "pow(",
-            cpp_code(in_call[[2]], in_envir, next_indent), ", ",
-            # NB: exponent needs to be (Type), regular (int) isn't allowed
-            "(Type)", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+            "(", cpp_code(in_call[[2]], in_envir, next_indent), ").pow(",
+            cpp_code(in_call[[3]], in_envir, next_indent), ")" ))
     }
 
     if (call_name == "%*%") {

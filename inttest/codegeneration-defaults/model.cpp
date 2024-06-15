@@ -351,8 +351,8 @@ Type objective_function<Type>::operator() () {
                 auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                 {
-                    fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
-                    fish__wgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*pow(fish__midlen, (Type)fish__wbeta);
+                    fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                    fish__wgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                 }
             }
         }
@@ -546,8 +546,8 @@ Type objective_function<Type>::operator() () {
                     auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv));
 
                     {
-                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
-                        fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*pow(fish__midlen, (Type)fish__wbeta);
+                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                        fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                         // Add result to fish;
                         fish__wgt.col(fish__age_idx).col(fish__area_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx), fish__num.col(fish__age_idx).col(fish__area_idx), fish__renewalwgt.col(fish__age_idx).col(fish__area_idx), fish__renewalnum.col(fish__age_idx).col(fish__area_idx));
                         fish__num.col(fish__age_idx).col(fish__area_idx) += fish__renewalnum.col(fish__age_idx).col(fish__area_idx);
