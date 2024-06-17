@@ -612,6 +612,17 @@ actions <- c(actions, ~{
 expecteds$pow_scalar_result <- pow_scalar^3
 expecteds$pow_vector_result <- array(5 * pow_vector^2, dim = c(6, 5))
 
+# Matrix multiplication / %*%
+mmult_matrix <- matrix(runif(9), nrow = 3)
+mmult_vec <- runif(3)
+mmult_result <- array(rep(0, 3), dim = c(3, 1))
+actions <- c(actions, ~{
+    comment('matrix multiplication')
+    mmult_result <- mmult_matrix %*% mmult_vec
+    REPORT(mmult_result)
+})
+expecteds$mmult_result <- mmult_matrix %*% mmult_vec
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0
