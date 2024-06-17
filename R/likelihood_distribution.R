@@ -25,7 +25,8 @@ dist_prop <- function (var_name, over) {
     return(out)
 }
 
-g3l_distribution_sumofsquares <- function (over = c('area')) {
+g3l_distribution_sumofsquares <- function (
+        over = c('area', 'predator_tag', 'predator_age', 'predator_length')) {
     out <- f_substitute( quote((modelstock_prop - obsstock_prop) ** 2), list(
         modelstock_prop = dist_prop("modelstock__x", c('time', over)),
         obsstock_prop = dist_prop("obsstock__x", c('time', over))))

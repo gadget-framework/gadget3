@@ -15,6 +15,18 @@ pred_a_catch_obs <- expand.grid(
     predator_age = c("[0,5)", "[6,10)"), # ((
     number = 0 )
 
+pred_a_preypref_obs <- expand.grid(
+    year = 2000:2005,
+    predator_length = c(50,70),
+    stock = c('prey_a', 'prey_b', 'otherfood'),
+    number = 0 )
+
+pred_a_sizepref_obs <- expand.grid(
+    year = 2000:2005,
+    predator_age = c("[0,5)", "[6,10)"), # ((
+    length = seq(1, 10),  # i.e. the union of prey_a / prey_b lengths
+    number = 0 )
+
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
     g3a_age(prey_a),
@@ -38,6 +50,24 @@ actions <- list(
         pred_a_catch_obs,
         fleets = list(pred_a),
         stocks = list(prey_a, prey_b, otherfood),
+        g3l_distribution_sumofsquares(),
+        nll_breakdown = TRUE,
+        report = TRUE ),
+
+    g3l_catchdistribution(
+        'pred_a_preypref',
+        pred_a_preypref_obs,
+        fleets = list(pred_a),
+        stocks = list(prey_a, prey_b, otherfood),
+        g3l_distribution_sumofsquares(),
+        nll_breakdown = TRUE,
+        report = TRUE ),
+
+    g3l_catchdistribution(
+        'pred_a_sizepref',
+        pred_a_sizepref_obs,
+        fleets = list(pred_a),
+        stocks = list(prey_a, prey_b),  # NB: otherfood missing
         g3l_distribution_sumofsquares(),
         nll_breakdown = TRUE,
         report = TRUE ),
@@ -344,6 +374,17 @@ ok(ut_cmp_equal(r$hist_pred_a__feedinglevel[1,1,], c(
     "2005-01" = 0.029144458171575,
     "2005-02" = 0.0291443974749498,
     NULL ), tolerance = 1e-8), "r$hist_pred_a__feedinglevel[1,1,]: Gentrly dropping as predators age out")
+
+ok(ut_cmp_identical(dimnames(r$cdist_sumofsquares_pred_a_sizepref_model__num), list(
+    length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf"),
+    predator_age = c("0:4", "6:9"),
+    time = c("2000", "2001", "2002", "2003", "2004", "2005") )), "r$cdist_sumofsquares_pred_a_sizepref_model__num: expected dimensions")
+
+ok(ut_cmp_identical(dimnames(r$cdist_sumofsquares_pred_a_preypref_model__num), list(
+    length = "0:Inf",
+    stock = c("prey_a", "prey_b", "otherfood"),
+    predator_length = c("50:70", "70:Inf"),
+    time = c("2000", "2001", "2002", "2003", "2004", "2005") )), "r$cdist_sumofsquares_pred_a_preypref_model__num: expected dimensions")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## consumption.m3
