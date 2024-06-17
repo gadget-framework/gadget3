@@ -184,7 +184,7 @@ g3l_distribution <- function (
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
-    stopifnot(is.list(transform_fs) && all(sapply(transform_fs, rlang::is_formula)))
+    stopifnot(is.list(transform_fs))
 
     if ("modelstock__time_idx" %in% all.vars(function_f)) {
         # g3l_distribution_surveyindices needs to generate time vectors, so needs time early in dimension list
@@ -331,7 +331,7 @@ g3l_distribution <- function (
             tf_name <- names(transform_fs)[[tf_index]]
             transform_f <- f_substitute(quote(transform_f * extra_tf), list(
                 transform_f = transform_f,
-                extra_tf = transform_fs[[tf_index]]))
+                extra_tf = list_to_stock_switch(transform_fs[[tf_index]]) ))
 
             if (tf_name == 'age') {
                 # NB: This is nearly interact$age, but not quite. We need a different _idx name

@@ -149,9 +149,8 @@ ok_group("g3l_distribution:transform_fs", {
             obsdata,
             function_f = g3l_distribution_sumofsquares(),
             stocks = list(prey_a),
-            transform_fs = list(age = g3_formula( stock_switch(stock,
-                prey_a = g3_param_array('reader1matrix', value = diag(prey_a__maxage - prey_a__minage + 1)),
-                x = 0)[prey_a__preage_idx, prey_a__age_idx] )),
+            transform_fs = list(age = list(
+                prey_a = g3_formula(g3_param_array('reader1matrix', value = diag(prey_a__maxage - prey_a__minage + 1))[prey_a__preage_idx, prey_a__age_idx] ))),
             report = TRUE),
         g3l_abundancedistribution("nt",
             obsdata,
