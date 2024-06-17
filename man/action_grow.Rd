@@ -107,6 +107,9 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
   \item{maxlengthgroupgrowth}{
     An integer with the maximum length groups an individual can jump in one step.
   }
+  \item{reference_weight}{
+    Reference weight. see formula for \code{\link{g3a_grow_length_weightjones}}.
+  }
   \item{stock}{
     \code{\link{g3_stock}} to grow.
   }
