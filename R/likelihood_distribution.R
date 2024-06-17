@@ -334,18 +334,21 @@ g3l_distribution <- function (
                 extra_tf = list_to_stock_switch(transform_fs[[tf_index]]) ))
 
             if (tf_name == 'age') {
-                # NB: This is nearly interact$age, but not quite. We need a different _idx name
-                collect_f <- f_substitute(quote({
+                collect_f <- f_substitute(stock$interact$age, list(
+                    # NB: Rename iterators so we can loop twice over age
+                    interactvar_age = quote( preage ),
+                    stock__age_idx = quote( stock__preage_idx ),
+                    extension_point = collect_f ))
+                collect_f <- f_substitute(~{
                     # NB: By setting the iterator to preage, we may remove mentions of __age_idx,
                     #     which will cause stock_iterate() to not loop over age. Force this by
                     #     explicitly mentioning the index.
                     comment(prey_stock__age_idx)
-                    for (preage in seq(prey_stock__minage, prey_stock__maxage, by = 1)) g3_with(
-                        prey_stock__preage_idx := g3_idx(preage - prey_stock__minage + 1L),
-                        collect_f)
-                }), list(collect_f = collect_f))
+                    # NB: stock$interact$age needs stock__ renaming, we use prey_stock__ elsewhere
+                    stock_with(stock, collect_f)
+                }, list(collect_f = collect_f))
                 # Add extra subset for injection below
-                tform_ss$age <- quote( stock__preage_idx )
+                tform_ss$age <- quote( prey_stock__preage_idx )
             } else {
                 stop("Transforms for dimensions other than age not supported yet")
             }
