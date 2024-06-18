@@ -38,6 +38,15 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(fallback)
     }
 
+    # Ensure (x) is transformed into a matrix
+    to_matrix <- function (x) {
+        inner <- cpp_code(x, in_envir, next_indent)
+        if (is.symbol(x)) {
+            return(paste0(inner, '.matrix()'))
+        }
+        return(paste0('(', inner, ').matrix()'))
+    }
+
     if (!is.call(in_call)) {
         # Literals
         if (length(in_call) == 1) {
@@ -368,14 +377,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "%*%") {
         # (matrix) multiplication - cast what should be arrays into matrices
-        to_matrix <- function (x) {
-            inner <- cpp_code(x, in_envir, next_indent)
-            if (is.symbol(x)) {
-                return(paste0(inner, '.matrix()'))
-            }
-            return(paste0('(', inner, ').matrix()'))
-        }
-        return(paste0(to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]])))
+        # NB: We have to cast back to TMB matrix<Type> for .vec() to be available
+        return(paste0("(matrix<Type>)(", to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]]), ")"))
     }
 
     if (call_name == "*") {
@@ -533,13 +536,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("colSums")) {
-        # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum()"))
+        # NB: colwise/rowwise only works on matrices, TMB arrays are 1-dimensional as far as eigen is concerned, so colwise/rowwise produce useless answers
+        return(paste0(to_matrix(in_call[[2]]), ".colwise().sum()"))
     }
 
     if (call_name %in% c("rowSums")) {
-        # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().rowwise().sum()"))
+        # NB: colwise/rowwise only works on matrices, TMB arrays are 1-dimensional as far as eigen is concerned, so colwise/rowwise produce useless answers
+        return(paste0(to_matrix(in_call[[2]]), ".rowwise().sum()"))
     }
 
     if (call_name == "rep" && (is.null(names(in_call)[[3]]) || names(in_call)[[3]] == 'times')) {

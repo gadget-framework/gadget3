@@ -8,17 +8,6 @@ actions <- list()
 expecteds <- new.env(parent = emptyenv())
 tolerances <- new.env(parent = emptyenv())
 
-# matrix_vec
-matrix_vec_tf <- matrix(c(0,1,0,1,0,0,0,0,1), nrow = 3)
-matrix_vec_vec <- c(10, 100, 1000)
-matrix_vec_out <- rep(0, 5)
-actions <- c(actions, ~{
-    comment('matrix_vec')
-    matrix_vec_out <- g3_matrix_vec(matrix_vec_tf, matrix_vec_vec)
-    REPORT(matrix_vec_out)
-})
-expecteds$matrix_vec_out <- c(100, 10, 1000)
-
 # logspace_add()
 logspace_add_1 <- 0.0
 logspace_add_0 <- 0.0

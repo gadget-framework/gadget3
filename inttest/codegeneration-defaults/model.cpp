@@ -234,9 +234,6 @@ Type objective_function<Type>::operator() () {
     auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 };
-    auto g3_matrix_vec = [](array<Type>tf, vector<Type> vec) -> vector<Type> {
-       return (tf.matrix() * vec.matrix()).array();
-   };
     auto surveyindices_linreg = [&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 
@@ -571,7 +568,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
                         // Take fish total biomass to our count;
-                        adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx)));
+                        adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += ((matrix<Type>)(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.matrix() * ((fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx))).matrix())).vec();
                     }
                 }
             }
@@ -625,7 +622,7 @@ Type objective_function<Type>::operator() () {
 
                     if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
                         // Take predprey__cons weight, add to our count;
-                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons.col(fish__age_idx).col(fish__area_idx));
+                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += ((matrix<Type>)(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix.matrix() * (fish_comm__cons.col(fish__age_idx).col(fish__area_idx)).matrix())).vec();
                     }
                 }
             }

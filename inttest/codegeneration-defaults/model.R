@@ -165,9 +165,6 @@ structure(function (param)
     ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
     }
-    g3_matrix_vec <- function(tf, vec) {
-        return((tf %*% vec)[, 1])
-    }
     surveyindices_linreg <- function(N, I, fixed_alpha, fixed_beta) {
         meanI <- mean(I)
         meanN <- mean(N)
@@ -458,7 +455,7 @@ structure(function (param)
                   adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (adist_surveyindices_log_acoustic_dist_model__time_idx >= (1L)) {
                     comment("Take fish total biomass to our count")
-                    adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] <- adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] + g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]))
+                    adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] <- adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] + as.vector(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix %*% (fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]))
                   }
                 }
             }
@@ -504,7 +501,7 @@ structure(function (param)
                   cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) {
                     comment("Take predprey__cons weight, add to our count")
-                    cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + g3_matrix_vec(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish_comm__cons[, fish__area_idx, fish__age_idx])
+                    cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + as.vector(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix %*% fish_comm__cons[, fish__area_idx, fish__age_idx])
                   }
                 }
             }

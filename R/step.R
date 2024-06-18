@@ -239,7 +239,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
 
                 # Formulae to apply matrix
-                out_f <- f_substitute(quote( g3_matrix_vec(lg_matrix, inner_f) ), list(
+                out_f <- f_substitute(quote( as.vector(lg_matrix %*% inner_f) ), list(
                     lg_matrix = as.symbol(matrix_name),
                     inner_f = inner_f))
 
