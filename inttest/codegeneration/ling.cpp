@@ -744,7 +744,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Take predprey__cons weight, convert to individuals, add to our count;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
                     }
                 }
             }
@@ -763,7 +763,7 @@ Type objective_function<Type>::operator() () {
 
                     {
                         // Take predprey__cons weight, convert to individuals, add to our count;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
                     }
                 }
             }

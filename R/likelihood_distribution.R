@@ -290,78 +290,77 @@ g3l_distribution <- function (
             fleetidx_f <- ~-1
         }
 
-        # Inner formula to do collection
-        if (is.null(predstock)) {
-            # No fleet -> Compare to abundance
-            collect_f <- f_substitute(~{
-                if (compare_num) {
-                    debug_trace("Add ", prey_stock, " individuals to our count")
-                    stock_ss(modelstock__num) <- stock_ss(modelstock__num) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(prey_stock__num))
-                }
-                if (compare_wgt) {
-                    debug_trace("Take ", prey_stock, " total biomass to our count")
-                    stock_ss(modelstock__wgt) <- stock_ss(modelstock__wgt) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(prey_stock__num) * tform_stock_ss(prey_stock__wgt))
-                }
-            }, list(
-                compare_num = !is.null(ld$number),
-                compare_wgt = !is.null(ld$weight)))
-        } else {
-            collect_f <- f_substitute(~{
-                if (compare_num) {
-                    debug_trace("Take predprey__cons weight, convert to individuals, add to our count")
-                    stock_ss(modelstock__num) <- stock_ss(modelstock__num) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(predprey__cons) / avoid_zero_vec(tform_stock_ss(prey_stock__wgt)))
-                }
-                if (compare_wgt) {
-                    debug_trace("Take predprey__cons weight, add to our count")
-                    stock_ss(modelstock__wgt) <- stock_ss(modelstock__wgt) + stock_reshape(modelstock,
-                        transform_f * tform_stock_ss(predprey__cons))
-                }
-            }, list(
-                compare_num = !is.null(ld$number),
-                compare_wgt = !is.null(ld$weight) ))
-        }
+        collect_fs <- list()
+        for (cf_name in c('number', 'weight')) {
+            # If not collecting by this variable, skip
+            if (is.null(ld[[cf_name]])) next
 
-        # Wrap with any iteration for transformations
-        transform_f <- quote(1)
-        tform_ss <- list()
-        for (tf_index in seq_along(transform_fs)) {
-            tf_name <- names(transform_fs)[[tf_index]]
-            transform_f <- f_substitute(quote(transform_f * extra_tf), list(
-                transform_f = transform_f,
-                extra_tf = list_to_stock_switch(transform_fs[[tf_index]]) ))
-
-            if (tf_name == 'age') {
-                collect_f <- f_substitute(stock$interact$age, list(
-                    # NB: Rename iterators so we can loop twice over age
-                    interactvar_age = quote( preage ),
-                    stock__age_idx = quote( stock__preage_idx ),
-                    extension_point = collect_f ))
-                collect_f <- f_substitute(~{
-                    # NB: By setting the iterator to preage, we may remove mentions of __age_idx,
-                    #     which will cause stock_iterate() to not loop over age. Force this by
-                    #     explicitly mentioning the index.
-                    comment(prey_stock__age_idx)
-                    # NB: stock$interact$age needs stock__ renaming, we use prey_stock__ elsewhere
-                    stock_with(stock, collect_f)
-                }, list(collect_f = collect_f))
-                # Add extra subset for injection below
-                tform_ss$age <- quote( prey_stock__preage_idx )
+            # Find appropriate formula to start with
+            if (is.null(predstock)) {
+                collect_fs[[cf_name]] <- list(
+                    number = quote( stock_ss(prey_stock__num) ),
+                    weight = quote( stock_ss(prey_stock__num) * stock_ss(prey_stock__wgt) ))[[cf_name]]
             } else {
-                stop("Transforms for dimensions other than age not supported yet")
+                collect_fs[[cf_name]] <- list(
+                    number = quote( stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)) ),
+                    weight = quote( stock_ss(predprey__cons) ))[[cf_name]]
+            }
+
+            # Wrap collection in any transformations
+            for (tf_index in seq_along(transform_fs)) {
+                tf_name <- names(transform_fs)[[tf_index]]
+                transform_f <- list_to_stock_switch(transform_fs[[tf_index]])
+
+                if (tf_name == 'age') {
+                    collect_fs[[cf_name]] <- call_replace(collect_fs[[cf_name]], stock_ss = function (x) {
+                        # Modify age subset to use previous value
+                        # NB: By setting the iterator to preage, we may remove mentions of __age_idx,
+                        #     which will cause stock_iterate() to not loop over age. Force this by
+                        #     explicitly mentioning the index.
+                        x[['age']] <- quote( prey_stock__preage_idx + 0 * prey_stock__age_idx )
+                        return(x)
+                    })
+                    collect_fs[[cf_name]] <- f_substitute(quote(transform_f * collect_f), list(
+                        transform_f = transform_f,
+                        collect_f = collect_fs[[cf_name]] ))
+                } else {
+                    stop("Transforms for ", tf_name, " dimensions not supported yet")
+                }
+            }
+
+            # Collect into modelstock__x
+            if (is.null(predstock)) {
+                collect_comment_f <- list(
+                    number = quote( debug_trace("Add ", prey_stock, " individuals to our count") ),
+                    weight = quote( debug_trace("Take ", prey_stock, " total biomass to our count") ) )[[cf_name]]
+            } else {
+                collect_comment_f <- list(
+                    number = quote( debug_trace("Take predprey__cons weight, convert to individuals, add to our count") ),
+                    weight = quote( debug_trace("Take predprey__cons weight, add to our count") ) )[[cf_name]]
+            }
+            collect_fs[[cf_name]] <- f_substitute(~{
+                collect_comment_f
+                stock_ss(modelstock__x) <- stock_ss(modelstock__x) + stock_reshape(modelstock, collect_f)
+            }, list(
+                modelstock__x = list(number = quote(modelstock__num), weight = quote(modelstock__wgt))[[cf_name]],
+                collect_comment_f = collect_comment_f,
+                collect_f = collect_fs[[cf_name]] ))
+
+            # Surround with any extra loops
+            for (tf_index in seq_along(transform_fs)) {
+                tf_name <- names(transform_fs)[[tf_index]]
+
+                if (tf_name == 'age') {
+                    collect_fs[[cf_name]] <- f_substitute(stock$interact$age, list(
+                        # NB: Rename iterators so we can loop twice over age
+                        interactvar_age = quote( preage ),
+                        stock__age_idx = quote( stock__preage_idx ),
+                        extension_point = collect_fs[[cf_name]] ))
+                    collect_fs[[cf_name]] <- f_substitute(quote( stock_with(stock, collect_f) ), list(
+                        collect_f = collect_fs[[cf_name]] ))
+                }
             }
         }
-
-        # Replace tform_stock_ss, adding in the transform subsets required
-        collect_f <- call_replace(collect_f, tform_stock_ss = function (x) {
-            x[[1]] <- as.symbol("stock_ss")
-            x[names(tform_ss)] <- tform_ss
-            return(x)
-        })
-        # Add in transform_f now we're done adding bits to it.
-        collect_f <- f_substitute(collect_f, list(transform_f = transform_f))
 
         # Finally iterate/intersect over stock in question
         out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_optimize(f_substitute(~{
@@ -372,13 +371,14 @@ g3l_distribution <- function (
                 debug_label(prefix, "Collect abundance from ", stock, " for ", nll_name)
                 stock_iterate(prey_stock, stock_intersect(modelstock, collect_f))
             }
-        }, list(compare_fleet = !is.null(predstock), collect_f = collect_f)))
+        }, list(
+            compare_fleet = !is.null(predstock),
+            collect_f = f_concatenate(collect_fs) )))
 
         # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]], list(
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- g3_step(f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]], list(
             fleetidx_f = fleetidx_f,
-            stockidx_f = stockidx_f))
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- g3_step(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]])
+            stockidx_f = stockidx_f )))
     }
 
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
