@@ -548,6 +548,12 @@ actions <- list(
         # NB: Only referenceing stocks included in observation data
         stocks = list(prey_a),
         g3l_distribution_sumofsquares(),
+        # Use transform_fs to apply digestioncoefficients
+        transform_fs = list(length = list(prey_a = g3_formula(
+            quote( diag(d0 + d1 * prey_a__midlen^d2) ),
+            d0 = g3_parameterized('d0', by_stock = TRUE),
+            d1 = g3_parameterized('d1', by_stock = TRUE),
+            d2 = g3_parameterized('d2', by_stock = TRUE) ))),
         nll_breakdown = TRUE,
         report = TRUE ),
     NULL)

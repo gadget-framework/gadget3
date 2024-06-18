@@ -311,7 +311,12 @@ g3l_distribution <- function (
                 tf_name <- names(transform_fs)[[tf_index]]
                 transform_f <- list_to_stock_switch(transform_fs[[tf_index]])
 
-                if (tf_name == 'age') {
+                if (tf_name == 'length') {
+                    # Matrix-multiply length
+                    collect_fs[[cf_name]] <- f_substitute(quote(as.vector(transform_f %*% collect_f)), list(
+                        transform_f = transform_f,
+                        collect_f = collect_fs[[cf_name]] ))
+                } else if (tf_name == 'age') {
                     collect_fs[[cf_name]] <- call_replace(collect_fs[[cf_name]], stock_ss = function (x) {
                         # Modify age subset to use previous value
                         # NB: By setting the iterator to preage, we may remove mentions of __age_idx,
