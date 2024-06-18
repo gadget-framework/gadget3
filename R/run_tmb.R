@@ -44,6 +44,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         if (is.symbol(x)) {
             return(paste0(inner, '.matrix()'))
         }
+        if (is.call(x) && x[[1]] == "diag") {
+            # diag() returns a matrix already
+            return(inner)
+        }
         return(paste0('(', inner, ').matrix()'))
     }
 
@@ -379,6 +383,15 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # (matrix) multiplication - cast what should be arrays into matrices
         # NB: We have to cast back to TMB matrix<Type> for .vec() to be available
         return(paste0("(matrix<Type>)(", to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]]), ")"))
+    }
+
+    if (call_name == "diag") {
+        # diag(vec) - generate diagonal matrix
+        return(paste0(
+            # NB: asDiagonal returns an eigen construction, not a real matrix<Type> we can multiply
+            "(matrix<Type>)(",
+            to_matrix(in_call[[2]]),
+            ".asDiagonal())" ))
     }
 
     if (call_name == "*") {

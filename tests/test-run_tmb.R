@@ -623,6 +623,17 @@ actions <- c(actions, ~{
 })
 expecteds$mmult_result <- mmult_matrix %*% mmult_vec
 
+# Diagonal matrices
+diag_v1 <- runif(10)
+diag_v2 <- runif(10)
+diag_result <- rep(0, 10)
+actions <- c(actions, ~{
+    comment('diagonal matrices')
+    diag_result <- as.vector(diag(diag_v1) %*% diag_v2)
+    REPORT(diag_result)
+})
+expecteds$diag_result <- as.vector(diag(diag_v1) %*% diag_v2)
+
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
 mean_vector_result <- 0
