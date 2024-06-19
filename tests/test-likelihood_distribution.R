@@ -145,6 +145,13 @@ ok_group("g3l_distribution:transform_fs", {
             transform_fs = list(
                 age = g3_formula( g3_param_array('reader1matrix', value = diag(5))[g3_idx(preage), g3_idx(age)] )),
             report = TRUE),
+        g3l_abundancedistribution("len",
+            obsdata,
+            function_f = g3l_distribution_sumofsquares(),
+            stocks = list(prey_a),
+            transform_fs = list(
+                length = quote(diag(10 * prey_a__midlen)) ),
+            report = TRUE),
         g3l_abundancedistribution("wtperstock",
             obsdata,
             function_f = g3l_distribution_sumofsquares(),
@@ -192,6 +199,12 @@ ok_group("g3l_distribution:transform_fs", {
     r <- model_fn(params)
     do_test(r, params, "Identity matrix")
     if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+
+    # Length vector applied for len
+    ok(ut_cmp_equal(
+        attr(r, "adist_sumofsquares_len_model__num"),
+        attr(r, "adist_sumofsquares_nt_model__num") * (10 * g3_stock_def(prey_a, 'midlen')),
+        unused = NULL), "r$adist_sumofsquares_len_model__num: Length vector applied")
 
     params <- attr(model_fn, 'parameter_template')
     # Age 1 smeared over bottom 3 groups
