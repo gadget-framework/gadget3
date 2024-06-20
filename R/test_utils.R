@@ -143,13 +143,13 @@ vignette_test_output <- function (vign_name, model_code, params.out) {
         params.out$value,
         tolerance = 1.5e-5 )
 
-    tbl <- read.table(paste0(out_base, ".params"))
+    tbl <- utils::read.table(paste0(out_base, ".params"))
     params.baseline <- params.out
     params.baseline[rownames(tbl), 'value'] <- tbl$value
 
     r <- attributes(model_fn(params.baseline$value))
     for (n in grep('^detail_.*__(num|wgt)$', names(r), value = TRUE)) {
-        ok(all(!is.na(r[[n]])), paste0(n, ": No NaN values"))
+        unittest::ok(all(!is.na(r[[n]])), paste0(n, ": No NaN values"))
 
         capture.output(
             print(signif(drop(r[[n]]), 4)),
