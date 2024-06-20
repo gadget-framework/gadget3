@@ -16,12 +16,15 @@
 \usage{
 g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
-g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
-    compile_flags =
-        if (.Platform$OS.type == "windows") c("-O1", "-march=native")
-        else c("-O3", "-flto", "-march=native"),
-    work_dir = tempdir(),
-    output_script = FALSE, ...)
+g3_tmb_adfun(
+        cpp_code,
+        parameters = attr(cpp_code, 'parameter_template'),
+        compile_flags =
+            if (.Platform$OS.type == "windows") c("-O1", "-march=native")
+            else c("-O3", "-flto", "-march=native"),
+        work_dir = tempdir(),
+        output_script = FALSE,
+        ...)
 
 g3_tmb_par(parameters, include_random = TRUE)
 
