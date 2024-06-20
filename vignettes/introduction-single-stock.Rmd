@@ -753,3 +753,7 @@ document.write(
     Array.from(document.querySelectorAll('.modelScript pre')).map((x) => x.innerHTML).join("\n\n") +
     '</pre></div></div>');
 ```
+
+```{r, echo=FALSE, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+gadget3:::vignette_test_output("introduction-single-stock", model_code, params.out)
+```

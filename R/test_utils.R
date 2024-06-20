@@ -37,7 +37,8 @@ ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, model_cpp = N
 ut_tmb_r_compare2 <- function (
         model_fn,
         model_cpp,
-        params ) {
+        params,
+        tolerance = 1e-5 ) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
         if (is.logical(x)) {
@@ -67,7 +68,7 @@ ut_tmb_r_compare2 <- function (
         unittest::ok(unittest::ut_cmp_equal(
             dearray(model_tmb_report[[n]]),
             dearray(attr(r_result, n)),
-            tolerance = 1e-5), paste("TMB and R match", n))
+            tolerance = tolerance), paste("TMB and R match", n))
     }
 }
 
@@ -113,4 +114,45 @@ ut_cmp_df <- function (df, table_text, ...) {
         expected <- df[c(),, drop = FALSE]
     }
     unittest::ut_cmp_equal(df, expected, ...)
+}
+
+vignette_test_output <- function (vign_name, model_code, params.out) {
+    if (basename(getwd()) == "vignettes") {
+        out_base <- file.path("..", "baseline", vign_name)
+    } else if (basename(getwd()) == "gadget3") {
+        out_base <- file.path("baseline", vign_name)
+    } else {
+        out_base <- file.path("gadget3", "baseline", vign_name)
+    }
+
+    writeLines(model_code, con = paste0(out_base, ".cpp"))
+
+    if (!file.exists(paste0(out_base, '.params'))) {
+        # Set baseline optimised params
+        # NB: These are too likely to change over g3 versions, so can't store them, and rounding may introduce div0's
+        param_df <- as.data.frame(unlist(params.out$value))
+        colnames(param_df) <- "value"
+        param_df <- param_df[order(rownames(param_df)),,drop = F]
+        capture.output(print.data.frame(param_df, digits = 20), file = paste0(out_base, '.params'))
+    }
+
+    model_fn <- g3_to_r(attr(model_code, "actions"))
+    ut_tmb_r_compare2(
+        model_fn,
+        model_code,
+        params.out$value,
+        tolerance = 1.5e-5 )
+
+    tbl <- read.table(paste0(out_base, ".params"))
+    params.baseline <- params.out
+    params.baseline[rownames(tbl), 'value'] <- tbl$value
+
+    r <- attributes(model_fn(params.baseline$value))
+    for (n in grep('^detail_.*__(num|wgt)$', names(r), value = TRUE)) {
+        ok(all(!is.na(r[[n]])), paste0(n, ": No NaN values"))
+
+        capture.output(
+            print(signif(drop(r[[n]]), 4)),
+            file = paste0(out_base, '.', n))
+    }
 }

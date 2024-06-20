@@ -23,6 +23,7 @@
 
 ^vignettes/WGTS/
 ^vignettes/figs/
+^baseline/
 ^WGTS/
 ^figs/
 
