@@ -160,19 +160,19 @@ g3_env$nonconform_add <- g3_native(r = function (base_ar, extra_ar) {
     base_ar + as.vector(extra_ar)
 }, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
-    return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+    return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 }')
 g3_env$nonconform_mult <- g3_native(r = function (base_ar, extra_ar) {
     base_ar * as.vector(extra_ar)
 }, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
-    return base_ar * (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+    return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 }')
 g3_env$nonconform_div <- g3_native(r = function (base_ar, extra_ar) {
     base_ar / as.vector(extra_ar)
 }, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
-    return base_ar / (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+    return base_ar / (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 }')
 g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
     extra_ar <- ( pmax(extra_ar * 1000, 0) + log1p(exp(pmin(extra_ar * 1000, 0) - pmax(extra_ar * 1000, 0))) ) / 1000
@@ -184,5 +184,5 @@ g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
     for(int i = 0; i < extra_vec.size(); i++) {
         extra_vec[i] = logspace_add(extra_vec[i] * 1000.0, (Type)0.0) / 1000.0;
     }
-    return base_ar / (extra_vec.template replicate(base_ar.size() / extra_vec.size(), 1));
+    return base_ar / (extra_vec.replicate(base_ar.size() / extra_vec.size(), 1));
 }')

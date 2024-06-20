@@ -100,7 +100,7 @@ Type objective_function<Type>::operator() () {
 };
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
-    return base_ar + (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+    return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
@@ -118,7 +118,7 @@ Type objective_function<Type>::operator() () {
 };
     auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
-    return base_ar * (extra_ar.template replicate(base_ar.size() / extra_ar.size(), 1));
+    return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto growth_bbinom = [](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
@@ -166,7 +166,7 @@ Type objective_function<Type>::operator() () {
 };
     auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
     array<Type> out(vec.size(), a);
-    out = vec.template replicate(a, 1);
+    out = vec.replicate(a, 1);
     return out;
 };
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {

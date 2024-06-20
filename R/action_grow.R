@@ -18,7 +18,7 @@ g3a_grow_vec_extrude <- g3_native(r = function (vec, a) {
     array(vec, dim = c(length(vec), a))
 }, cpp = '[](vector<Type> vec, int a) -> array<Type> {
     array<Type> out(vec.size(), a);
-    out = vec.template replicate(a, 1);
+    out = vec.replicate(a, 1);
     return out;
 }')
 
