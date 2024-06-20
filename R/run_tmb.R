@@ -996,10 +996,10 @@ print.g3_cpp <- function(x, ...) {
 g3_tmb_adfun <- function(
         cpp_code,
         parameters = attr(cpp_code, 'parameter_template'),
-        compile_flags =
+        compile_flags = getOption('gadget3.tmb.compile_flags', default =
             if (.Platform$OS.type == "windows") c("-O1", "-march=native")
-            else c("-O3", "-flto", "-march=native"),
-        work_dir = tempdir(),
+            else c("-O3", "-flto", "-march=native") ),
+        work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
         output_script = FALSE,
         ...) {
     model_params <- attr(cpp_code, 'parameter_template')
