@@ -66,7 +66,6 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     ~{nll <- nll + g3_param("x", value = 0)} )
 actions <- c(actions, list(
-    g3a_report_history(actions, var_re = "__cons|__suit$", out_prefix = "catchhist"),
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions)

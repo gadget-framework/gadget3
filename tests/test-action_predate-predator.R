@@ -75,7 +75,7 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     ~{nll <- nll + g3_param("x", value = 0)} )
 actions <- c(actions, list(
-    g3a_report_history(actions, var_re = "__cons|__suit$", out_prefix = "catchhist"),
+    g3a_report_history(actions, var_re = "__suit$", out_prefix = "catchhist"),
     g3a_report_history(actions, var_re = "__feedinglevel$|__totalsuit$"),
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(actions)
@@ -107,9 +107,9 @@ gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ok_group("consumption.m3") ########
 
 ok(ut_cmp_equal(
-    diff(def_r$catchhistprey_a_pred_a__cons[1,1,,1,1]),
+    diff(def_r$detail_prey_a_pred_a__cons[1,1,,1,1]),
     c("60:70" = 0, "70:80" = 0, "80:Inf" = 0),
-    tolerance = 1e-8 ), "def_r$catchhistprey_a_pred_a__cons: No difference in pred.length consumption")
+    tolerance = 1e-8 ), "def_r$detail_prey_a_pred_a__cons: No difference in pred.length consumption")
 
 params <- attr(model_fn, 'parameter_template')
 params$pred_a.consumption.m3 <- 2
@@ -122,17 +122,17 @@ ok(all.equal(
     tolerance = 1e-3 ), "r$catchhistprey_a_pred_a__suit: consumption.m3 results in approximately equal __suit")
 
 ok(ut_cmp_equal(
-    r$catchhistprey_a_pred_a__cons[1,1,2,1,1],
-    r$catchhistprey_a_pred_a__cons[1,1,1,1,1] / 55^2 * 65^2,
-    tolerance = 1e-8 ), "r$catchhistprey_a_pred_a__cons: Jump in consumption 55 -> 65")
+    r$detail_prey_a_pred_a__cons[1,1,2,1,1],
+    r$detail_prey_a_pred_a__cons[1,1,1,1,1] / 55^2 * 65^2,
+    tolerance = 1e-8 ), "r$detail_prey_a_pred_a__cons: Jump in consumption 55 -> 65")
 ok(ut_cmp_equal(
-    r$catchhistprey_a_pred_a__cons[1,1,3,1,1],
-    r$catchhistprey_a_pred_a__cons[1,1,2,1,1] / 65^2 * 75^2,
-    tolerance = 1e-8 ), "r$catchhistprey_a_pred_a__cons: Jump in consumption 65 -> 75")
+    r$detail_prey_a_pred_a__cons[1,1,3,1,1],
+    r$detail_prey_a_pred_a__cons[1,1,2,1,1] / 65^2 * 75^2,
+    tolerance = 1e-8 ), "r$detail_prey_a_pred_a__cons: Jump in consumption 65 -> 75")
 ok(ut_cmp_equal(
-    r$catchhistprey_a_pred_a__cons[1,1,4,1,1],
-    r$catchhistprey_a_pred_a__cons[1,1,3,1,1] / 75^2 * 85^2,
-    tolerance = 1e-8 ), "r$catchhistprey_a_pred_a__cons: Jump in consumption 75 -> 85")
+    r$detail_prey_a_pred_a__cons[1,1,4,1,1],
+    r$detail_prey_a_pred_a__cons[1,1,3,1,1] / 75^2 * 85^2,
+    tolerance = 1e-8 ), "r$detail_prey_a_pred_a__cons: Jump in consumption 75 -> 85")
 
 ok(gadget3:::ut_cmp_array(r$cdist_sumofsquares_pred_a_catch_model__num, '
     length     stock predator_length predator_age time        Freq

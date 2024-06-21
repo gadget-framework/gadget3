@@ -47,7 +47,6 @@ actions <- list(
             recalc_f = ~cur_step == 1)),
     list())
 actions <- c(actions, list(
-    g3a_report_history(actions, var_re = "__cons$", out_prefix = "catchhist"),
     g3a_report_detail(actions) ))
 
 # Compile model
@@ -75,57 +74,57 @@ ok_group("Catchability", {
         time_lbl <- dimnames(r$detail_prey_b__num)$time[[time_idx]]
         ok(ut_cmp_equal(
              r$detail_prey_a__num[,time = time_idx] * r$detail_prey_a__wgt[,time = time_idx] - 
-                 r$catchhistprey_a_fleet_totalfleet__cons[,time = time_idx] -
-                 r$catchhistprey_a_fleet_numberfleet__cons[,time = time_idx] -
-                 r$catchhistprey_a_fleet_linearfleet__cons[,time = time_idx] -
-                 r$catchhistprey_a_fleet_effortfleet__cons[,time = time_idx] -
-                 r$catchhistprey_a_fleet_quotafleet__cons[,time = time_idx],
+                 r$detail_prey_a_fleet_totalfleet__cons[,time = time_idx] -
+                 r$detail_prey_a_fleet_numberfleet__cons[,time = time_idx] -
+                 r$detail_prey_a_fleet_linearfleet__cons[,time = time_idx] -
+                 r$detail_prey_a_fleet_effortfleet__cons[,time = time_idx] -
+                 r$detail_prey_a_fleet_quotafleet__cons[,time = time_idx],
              r$detail_prey_a__num[,time = time_idx + 1] * r$detail_prey_a__wgt[,time = time_idx + 1],
              tolerance = 1e-6), paste0(time_lbl, "/prey_a: Consumption and abundance consistent"))
         ok(ut_cmp_equal(
              r$detail_prey_b__num[,time = time_idx] * r$detail_prey_b__wgt[,time = time_idx] - 
-                 r$catchhistprey_b_fleet_totalfleet__cons[,time = time_idx] -
-                 r$catchhistprey_b_fleet_numberfleet__cons[,time = time_idx] -
-                 r$catchhistprey_b_fleet_linearfleet__cons[,time = time_idx] -
-                 r$catchhistprey_b_fleet_effortfleet__cons[,time = time_idx] -
-                 r$catchhistprey_b_fleet_quotafleet__cons[,time = time_idx],
+                 r$detail_prey_b_fleet_totalfleet__cons[,time = time_idx] -
+                 r$detail_prey_b_fleet_numberfleet__cons[,time = time_idx] -
+                 r$detail_prey_b_fleet_linearfleet__cons[,time = time_idx] -
+                 r$detail_prey_b_fleet_effortfleet__cons[,time = time_idx] -
+                 r$detail_prey_b_fleet_quotafleet__cons[,time = time_idx],
              r$detail_prey_b__num[,time = time_idx + 1] * r$detail_prey_b__wgt[,time = time_idx + 1],
              tolerance = 1e-6), paste0(time_lbl, "/prey_b: Consumption and abundance consistent"))
 
         ok(ut_cmp_equal(
-            colSums(r$catchhistprey_a_fleet_totalfleet__cons + r$catchhistprey_b_fleet_totalfleet__cons)[[time_idx]],
+            colSums(r$detail_prey_a_fleet_totalfleet__cons + r$detail_prey_b_fleet_totalfleet__cons)[[time_idx]],
             10,
             tolerance = 1e6), paste0(time_lbl, "/totalfleet: Total consumption adds to 10"))
         ok(ut_cmp_equal(
-            colSums(r$catchhistprey_a_fleet_numberfleet__cons / r$detail_prey_a__wgt + r$catchhistprey_b_fleet_numberfleet__cons / r$detail_prey_b__wgt)[[time_idx]],
+            colSums(r$detail_prey_a_fleet_numberfleet__cons / r$detail_prey_a__wgt + r$detail_prey_b_fleet_numberfleet__cons / r$detail_prey_b__wgt)[[time_idx]],
             10,
             tolerance = 1e6), paste0(time_lbl, "/numberfleet: Total consumption in numbers adds to 10"))
 
         ok(ut_cmp_equal(
-            r$catchhistprey_a_fleet_linearfleet__cons[,time_idx],
+            r$detail_prey_a_fleet_linearfleet__cons[,time_idx],
             (r$detail_prey_a__num * r$detail_prey_a__wgt * 0.5 * 0.1 * 1e-5)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_a/linearfleet: Total consumption proportion of overall stock"))
 
         ok(ut_cmp_equal(
-            r$catchhistprey_b_fleet_linearfleet__cons[,time_idx],
+            r$detail_prey_b_fleet_linearfleet__cons[,time_idx],
             (r$detail_prey_b__num * r$detail_prey_b__wgt * 0.5 * 0.1 * 1e-5)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_b/linearfleet: Total consumption proportion of overall stock"))
 
         ok(ut_cmp_equal(
-            r$catchhistprey_a_fleet_effortfleet__cons[,time_idx],
+            r$detail_prey_a_fleet_effortfleet__cons[,time_idx],
             (r$detail_prey_a__num * r$detail_prey_a__wgt * 0.5 * 0.1 * 1e-3 * 10)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_a/effortfleet: Total consumption proportion of overall stock (using prey catchability)"))
         ok(ut_cmp_equal(
-            r$catchhistprey_b_fleet_effortfleet__cons[,time_idx],
+            r$detail_prey_b_fleet_effortfleet__cons[,time_idx],
             (r$detail_prey_b__num * r$detail_prey_b__wgt * 0.5 * 0.1 * 1e-4 * 10)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_b/effortfleet: Total consumption proportion of overall stock (using prey catchability)"))
 
         ok(ut_cmp_equal(
-            r$catchhistprey_a_fleet_quotafleet__cons[,time_idx],
+            r$detail_prey_a_fleet_quotafleet__cons[,time_idx],
             (r$detail_prey_a__num * r$detail_prey_a__wgt * 0.5 * 0.1 * 1e-5 * 2)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_a/quotafleet: Total consumption proportion of overall stock (high quota)"))
         ok(ut_cmp_equal(
-            r$catchhistprey_b_fleet_quotafleet__cons[,time_idx],
+            r$detail_prey_b_fleet_quotafleet__cons[,time_idx],
             (r$detail_prey_b__num * r$detail_prey_b__wgt * 0.5 * 0.1 * 1e-5 * 2)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_b/quotafleet: Total consumption proportion of overall stock (high quota)"))
     }

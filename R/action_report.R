@@ -178,7 +178,8 @@ g3a_report_detail <- function (actions,
             run_at = abundance_run_at),
         g3a_report_history(
             actions = actions,
-            var_re = c('__renewalnum$', '__spawnednum$', '__suit_', '__predby_'),
+            # NB: __predby_ is the old name for __cons$, and could eventually be removed
+            var_re = c('__renewalnum$', '__spawnednum$', '__cons$', '__suit_', '__predby_'),
             out_prefix = "detail_",
             run_f = run_f,
             run_at = run_at),
