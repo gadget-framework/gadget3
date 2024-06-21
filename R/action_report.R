@@ -165,6 +165,7 @@ g3a_report_detail <- function (actions,
             actions = actions,
             var_re = paste(c(
                 '^.+_surveyindices_.+__params$',
+                '^step_lengths$',
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,

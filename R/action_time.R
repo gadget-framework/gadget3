@@ -73,14 +73,13 @@ g3a_time <- function(
         cur_year <- start_year + (cur_time %/% step_count)
         cur_year_projection <- (cur_year > end_year - retro_years)
         cur_step <- (cur_time %% step_count) + 1L
-        # Don't bother changing step size if it's always the same
-        if (uneven_steps) cur_step_size <- step_lengths[[cur_step]] / 12.0
+        cur_step_size <- step_lengths[[cur_step]] / 12.0
         cur_step_final <- cur_step == step_count
     }, list(
         retro_years = retro_years,
         have_projection_years = have_projection_years,
         have_retro_years = have_retro_years,
-        uneven_steps = if(is.numeric(step_lengths)) any(diff(step_lengths) > 0) else TRUE)))
+        end = NULL )))
 
     # Once any initial work has been performed, stop the model.
     out[[step_id(run_stop_at)]] <- ~{ if (cur_time > total_steps) return(nll) }
