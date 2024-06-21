@@ -1054,11 +1054,15 @@ g3_tmb_adfun <- function(
     }
 
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
-    # NB: as.character() strips attributes, so only use the code to define our digest
-    base_name <- paste0('g3_tmb_', digest::sha1(paste0(
-        as.character(cpp_code),
-        as.character(compile_flags),
-        collapse = "")))
+    base_name <- paste0(
+        # NB: We can't allow "." separators in our library name
+        "g3", paste(unlist(utils::packageVersion('gadget3')), collapse = "_"), "_",
+        "tmb", paste(unlist(utils::packageVersion('TMB')), collapse = "_"), "_",
+        digest::sha1(paste0(
+            # NB: as.character() strips attributes, so only use the code to define our digest
+            as.character(cpp_code),
+            as.character(compile_flags),
+            collapse = "" )))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
 
@@ -1076,7 +1080,7 @@ g3_tmb_adfun <- function(
 
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
-        TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
+        if (!file.exists(so_path)) TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
             "-std=gnu++11",
             "-Wno-ignored-attributes",
             "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
