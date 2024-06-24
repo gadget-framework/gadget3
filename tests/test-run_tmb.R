@@ -13,6 +13,37 @@ capture_warnings <- function(x, full_object = FALSE) {
     return(list(rv = rv, warnings = all_warnings))
 }
 
+# Mock (fn) in namespace with (replacement) whilst (block) is being evaluated
+mock <- function (fn, replacement, block) {
+    # Get the name of the function from the unevaluated argument,
+    # assuming it's of the form package::name
+    fn_name <- as.character(as.list(sys.call()[[2]])[[3]])
+    ns <- environment(fn)
+
+    orig_fn <- get(fn_name, env = ns)
+    unlockBinding(fn_name, env = ns)
+    assign(fn_name, replacement, envir = ns)
+    on.exit(assign(fn_name, orig_fn, envir = ns), add = TRUE)
+
+    block
+}
+
+ok_group("g3_tmb_adfun:compile_args") ##########
+last_compile_call <- list()
+mock(TMB::compile, function (...) {
+    # NB: as.list(...) is only returning the first argument, for some reason
+    args <- lapply(seq_along(...names()), function (i) ...elt(i))
+    names(args) <- ...names()
+    last_compile_call <<- args
+
+    ok(grepl(paste0(tempdir(), ".*\\.cpp$"), last_compile_call[[1]]), "First argument cpp file")
+}, {
+    # NB: This should fail since there'll be no .so to load
+    tryCatch(g3_tmb_adfun(g3_to_tmb(list(~{g3_param("x")}))), error = function (e) NULL)
+    ok(grepl("-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS", last_compile_call$flags, fixed = TRUE), "compile_flags: Internal flags set")
+})
+########## g3_tmb_adfun:compile_args
+
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2,2))
     g3_to_tmb(list(~{invalid_subset[,g3_idx(1),]}))

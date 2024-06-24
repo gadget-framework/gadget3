@@ -1001,8 +1001,17 @@ g3_tmb_adfun <- function(
             else c("-O3", "-flto", "-march=native") ),
         work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
         output_script = FALSE,
+        compile_args = list(),
         ...) {
     model_params <- attr(cpp_code, 'parameter_template')
+
+    # Combine defaults, compile_args$flags & compile_flags together
+    compile_args$flags <- paste(c(
+        "-std=gnu++11",
+        "-Wno-ignored-attributes",
+        "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
+        compile_args$flags,
+        compile_flags), collapse = " ")
 
     # If parameters is a list, merge into our data.frames
     if (!is.data.frame(parameters) && is.list(parameters)) {
@@ -1061,7 +1070,11 @@ g3_tmb_adfun <- function(
         digest::sha1(paste0(
             # NB: as.character() strips attributes, so only use the code to define our digest
             as.character(cpp_code),
-            as.character(compile_flags),
+            vapply(
+                # NB: We shouldn't care about argument order
+                sort(names(compile_args)),
+                function (n) paste0(n, "=", as.character(compile_args[[n]])),
+                character(1) ),
             collapse = "" )))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
@@ -1080,11 +1093,7 @@ g3_tmb_adfun <- function(
 
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
-        if (!file.exists(so_path)) TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
-            "-std=gnu++11",
-            "-Wno-ignored-attributes",
-            "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
-            compile_flags), collapse = " "))
+        if (!file.exists(so_path)) do.call(TMB::compile, c(list(gsub("\\\\", "/", cpp_path)), compile_args ))
         dyn.load(so_path)
     }
 

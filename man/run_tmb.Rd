@@ -24,6 +24,7 @@ g3_tmb_adfun(
             else c("-O3", "-flto", "-march=native") ),
         work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
         output_script = FALSE,
+        compile_args = list(),
         ...)
 
 g3_tmb_par(parameters, include_random = TRUE)
@@ -72,6 +73,9 @@ g3_tmb_relist(parameters, par)
   \item{compile_flags}{
     List of extra flags to compile with, use e.g. "-g" to enable debugging output.
     Can be set with an option, e.g. \code{options(gadget3.tmb.compile_flags = c('-O0', '-g'))}
+  }
+  \item{compile_args}{
+    Any other arguments to pass to \link[TMB:compile]{TMB::compile}
   }
   \item{work_dir}{
     Directory to write and compile .cpp files in. Defaults to R's current temporary directory
