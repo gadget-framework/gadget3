@@ -186,11 +186,11 @@ structure(function (param)
     cur_year_projection <- FALSE
     end_year <- 2000L
     cur_step <- 0L
+    cur_step_size <- step_lengths[[1]]/12
     cur_step_final <- FALSE
     fish__minage <- 1L
     fish__maxage <- 10L
     fish__area <- 1L
-    cur_step_size <- step_lengths[[1]]/12
     fish__num <- array(0, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     fish__wgt <- array(1, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     retro_years <- param[["retro_years"]]
@@ -203,6 +203,7 @@ structure(function (param)
     cdist_sumofsquares_comm_ldist_model__wgt <- array(0, dim = c(length = 5L, time = 11L, area = 1L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:Inf"), time = c("1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000"), area = "all"))
     detail_fish__predby_comm <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     detail_fish__renewalnum <- array(0, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
+    detail_fish_comm__cons <- array(NA, dim = c(length = 6L, area = 1L, age = 10L, time = as_integer(total_steps + 1)), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10"), time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
     nll_adist_surveyindices_log_acoustic_dist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_adist_surveyindices_log_acoustic_dist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
@@ -261,6 +262,7 @@ structure(function (param)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_year_projection <- cur_year > end_year - param[["retro_years"]]
             cur_step <- (cur_time%%step_count) + 1L
+            cur_step_size <- step_lengths[[cur_step]]/12
             cur_step_final <- cur_step == step_count
         }
         {
@@ -310,6 +312,8 @@ structure(function (param)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(detail_fish__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(detail_fish_comm__cons)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_adist_surveyindices_log_acoustic_dist__weight)
@@ -321,6 +325,8 @@ structure(function (param)
             REPORT(nll_cdist_sumofsquares_comm_ldist__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) 
             REPORT(nll_understocking__wgt)
+        if (reporting_enabled > 0L && cur_time > total_steps) 
+            REPORT(step_lengths)
         {
             if (cur_time > total_steps) 
                 return(nll)
@@ -549,6 +555,8 @@ structure(function (param)
             detail_fish__predby_comm[, , , cur_time + 1] <- fish__predby_comm
         if (param[["report_detail"]] == 1) 
             detail_fish__renewalnum[, , , cur_time + 1] <- fish__renewalnum
+        if (param[["report_detail"]] == 1) 
+            detail_fish_comm__cons[, , , cur_time + 1] <- fish_comm__cons
         if (cur_step_final) {
             comment("g3a_age for fish")
             for (age in seq(fish__maxage, fish__minage, by = -1)) {

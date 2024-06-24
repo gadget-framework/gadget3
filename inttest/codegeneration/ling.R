@@ -173,11 +173,11 @@ structure(function (param)
     cur_year_projection <- FALSE
     end_year <- 2018L
     cur_step <- 0L
+    cur_step_size <- step_lengths[[1]]/12
     cur_step_final <- FALSE
     ling_imm__area <- 1L
     ling_imm__minage <- 3L
     ling_imm__maxage <- 10L
-    cur_step_size <- step_lengths[[1]]/12
     ling_imm__num <- array(0, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", "age8", 
         "age9", "age10"), area = "area1"))
     ling_imm__wgt <- array(1, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", "age8", 
@@ -282,6 +282,7 @@ structure(function (param)
             cur_year <- start_year + (cur_time%/%step_count)
             cur_year_projection <- cur_year > end_year - param[["retro_years"]]
             cur_step <- (cur_time%%step_count) + 1L
+            cur_step_size <- step_lengths[[cur_step]]/12
             cur_step_final <- cur_step == step_count
         }
         {

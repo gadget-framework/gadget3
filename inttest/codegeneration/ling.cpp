@@ -243,12 +243,12 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int end_year = 2018;
     int cur_step = 0;
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     int cur_step_final = false;
     int ling_imm__area = 1;
     int ling_imm__minage = 3;
     int ling_imm__maxage = 10;
     DATA_VECTOR(ling_imm__midlen)
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     DATA_VECTOR(ling_imm_stddev)
     array<Type> ling_imm__num(35,8,1); ling_imm__num.setZero();
     array<Type> ling_imm__wgt(35,8,1); ling_imm__wgt.setConstant((double)(1));
@@ -324,6 +324,7 @@ Type objective_function<Type>::operator() () {
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
+            cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
             cur_step_final = cur_step == step_count;
         }
         {

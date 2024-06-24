@@ -428,12 +428,12 @@ Type objective_function<Type>::operator() () {
     int cur_year_projection = false;
     int end_year = 2023;
     int cur_step = 0;
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     int cur_step_final = false;
     int fish__minage = 1;
     int fish__maxage = 5;
     int fish__area = 1;
     DATA_VECTOR(fish__midlen)
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(10,1,5); fish__num.setZero();
     array<Type> fish__wgt(10,1,5); fish__wgt.setConstant((double)(1));
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
@@ -452,6 +452,7 @@ Type objective_function<Type>::operator() () {
     DATA_ARRAY(cdist_sumofsquares_ldist_f_surv_obs__num)
     array<Type> detail_fish__predby_f_surv(10,1,5,as_integer(total_steps + (double)(1)));
     array<Type> detail_fish__renewalnum(10,1,5,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
+    array<Type> detail_fish_f_surv__cons(10,1,5,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__weight.setZero();
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__wgt.setZero();
@@ -519,6 +520,7 @@ Type objective_function<Type>::operator() () {
             cur_year = start_year + (((int) cur_time) / ((int) step_count));
             cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
+            cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
             cur_step_final = cur_step == step_count;
         }
         {
@@ -584,6 +586,9 @@ Type objective_function<Type>::operator() () {
             REPORT(detail_fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(detail_fish_f_surv__cons);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
@@ -606,6 +611,9 @@ Type objective_function<Type>::operator() () {
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_understocking__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(step_lengths);
         }
         {
             if ( cur_time > total_steps ) {
@@ -1366,6 +1374,9 @@ Type objective_function<Type>::operator() () {
         }
         if ( report_detail == 1 ) {
             detail_fish__renewalnum.col(cur_time + 1 - 1) = fish__renewalnum;
+        }
+        if ( report_detail == 1 ) {
+            detail_fish_f_surv__cons.col(cur_time + 1 - 1) = fish_f_surv__cons;
         }
         if ( cur_step_final ) {
             // g3a_age for fish;
