@@ -163,10 +163,10 @@ ok_group("adreport", {
         ok(ut_cmp_equal(
             summary(sdrep, 'report'),
             array(
-              c(rep(0, 15), rep(NaN, 15)),
-              dim = c(15, 2),
+              c(as.vector(r$agg_report__num), rep(NaN, length(r$agg_report__num))),
+              dim = c(length(r$agg_report__num), 2),
               dimnames = list(
-                  rep("report_stock__num", 15),
+                  rep("agg_report__num", length(r$agg_report__num)),
                   c("Estimate", "Std. Error")))), "TMB included report_stock__num in adreport")
     }
 })

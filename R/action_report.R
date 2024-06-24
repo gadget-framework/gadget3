@@ -24,7 +24,7 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, include_adrep
                 stock_ss(report_instance) <- stock_ss(report_instance) + (report_f)
             }))
             if (include_adreport && cur_time == total_steps) {
-                ADREPORT(report_instance)
+                stock_with(report_stock, ADREPORT(report_instance))
             }
         }
     }, list(
