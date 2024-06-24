@@ -99,8 +99,8 @@ g3a_report_var <- function (
                 # "cur_time", which is zero-based, needs converting into an index
                 list(quote( g3_idx(cur_time + 1) )))),
             run_f = run_f,
-            var = as.symbol(var_name)))
-        environment(x)[[hist_var_name]] <- defn
+            var = if (is.integer(defn)) as.symbol(var_name) else call("as_numeric_arr", as.symbol(var_name))))
+        environment(x)[[hist_var_name]] <- if (is.integer(defn)) defn else as_force_numeric(defn)
 
         out[[step_id(run_at, 0, 'g3a_report_var', hist_var_name)]] <- x
         var_name <- hist_var_name

@@ -831,6 +831,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 # Decide base type
                 if (all(is.integer(var_val))) {
                     cpp_type <- 'int'
+                } else if (is_force_numeric(var_val)) {
+                    cpp_type <- 'double'
                 } else if (all(is.numeric(var_val)) || all(is.na(var_val))) {
                     # NB: array(NA) isn't numeric, but that's what we probably want
                     cpp_type <- 'Type'

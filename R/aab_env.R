@@ -147,6 +147,13 @@ g3_env$as_integer <- g3_native(r = "as.integer", cpp = '[](Type v) -> int {
     return std::floor(asDouble(v));
 }')
 
+g3_env$as_numeric_arr <- g3_native(r = function (x) x, cpp = '[](array<Type> x) -> array<double> {
+  array<double> out(x.size());
+  for(int i=0; i<x.size(); i++)
+    out(i) = asDouble(x(i));
+  return out;
+}')
+
 
 # Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
 g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {

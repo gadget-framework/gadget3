@@ -13,11 +13,19 @@ force_vector <- function (...) as_force_vector(c(...))
 hide_force_vector <- function (x) {
     # NB: Doing this indiscrimitely upsets array classes & makes them more matrix-ish(?)
     if (inherits(x, "force_vector")) class(x) <- class(x)[class(x) != "force_vector"]
+    if (inherits(x, "force_numeric")) class(x) <- class(x)[class(x) != "force_numeric"]
     return(x)
 }
 
 # Should (x) be treated as a vector?
 is_force_vector <- function (x) length(x) > 1 || inherits(x, "force_vector")
+
+# Add force_numeric marker to (x), so we define as array<double>, e.g.
+as_force_numeric <- function (x) {
+    class(x) <- c("force_numeric", class(x))
+    return(x)
+}
+is_force_numeric <- function (x) inherits(x, "force_numeric")
 
 # Combine all provided action lists into one action list, throwing away duplicates
 g3_collate <- function(action_list) {

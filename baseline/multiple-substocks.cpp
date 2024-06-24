@@ -351,6 +351,12 @@ Type objective_function<Type>::operator() () {
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / a.sum();
 };
+    auto as_numeric_arr = [](array<Type> x) -> array<double> {
+  array<double> out(x.size());
+  for(int i=0; i<x.size(); i++)
+    out(i) = asDouble(x(i));
+  return out;
+};
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
@@ -538,10 +544,10 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<Type> detail_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__num.setZero();
-    array<Type> detail_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__wgt.setConstant((double)(1));
-    array<Type> detail_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__num.setZero();
-    array<Type> detail_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__wgt.setConstant((double)(1));
+    array<double> detail_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__num.setZero();
+    array<double> detail_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__wgt.setConstant((double)(1));
+    array<double> detail_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__num.setZero();
+    array<double> detail_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__wgt.setConstant((double)(1));
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
     array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,5,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_dist_si_cpue_obs__wgt)
@@ -549,11 +555,11 @@ Type objective_function<Type>::operator() () {
     DATA_ARRAY(cdist_sumofsquares_aldist_f_surv_obs__num)
     array<Type> cdist_sumofsquares_ldist_f_surv_model__num(5,5); cdist_sumofsquares_ldist_f_surv_model__num.setZero();
     DATA_ARRAY(cdist_sumofsquares_ldist_f_surv_obs__num)
-    array<Type> detail_fish_imm__predby_f_surv(5,1,5,as_integer(total_steps + (double)(1)));
-    array<Type> detail_fish_imm__renewalnum(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__renewalnum.setZero();
-    array<Type> detail_fish_imm_f_surv__cons(5,1,5,as_integer(total_steps + (double)(1)));
-    array<Type> detail_fish_mat__predby_f_surv(5,1,8,as_integer(total_steps + (double)(1)));
-    array<Type> detail_fish_mat_f_surv__cons(5,1,8,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_imm__predby_f_surv(5,1,5,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_imm__renewalnum(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__renewalnum.setZero();
+    array<double> detail_fish_imm_f_surv__cons(5,1,5,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_mat__predby_f_surv(5,1,8,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_mat_f_surv__cons(5,1,8,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__weight.setZero();
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__wgt.setZero();
@@ -687,16 +693,16 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_imm__num.col(cur_time + 1 - 1) = fish_imm__num;
+            detail_fish_imm__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_imm__wgt.col(cur_time + 1 - 1) = fish_imm__wgt;
+            detail_fish_imm__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__wgt);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_mat__num.col(cur_time + 1 - 1) = fish_mat__num;
+            detail_fish_mat__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_mat__wgt.col(cur_time + 1 - 1) = fish_mat__wgt;
+            detail_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(adist_surveyindices_log_dist_si_cpue_model__params);
@@ -1899,19 +1905,19 @@ Type objective_function<Type>::operator() () {
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
         }
         if ( report_detail == 1 ) {
-            detail_fish_imm__predby_f_surv.col(cur_time + 1 - 1) = fish_imm__predby_f_surv;
+            detail_fish_imm__predby_f_surv.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__predby_f_surv);
         }
         if ( report_detail == 1 ) {
-            detail_fish_imm__renewalnum.col(cur_time + 1 - 1) = fish_imm__renewalnum;
+            detail_fish_imm__renewalnum.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__renewalnum);
         }
         if ( report_detail == 1 ) {
-            detail_fish_imm_f_surv__cons.col(cur_time + 1 - 1) = fish_imm_f_surv__cons;
+            detail_fish_imm_f_surv__cons.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm_f_surv__cons);
         }
         if ( report_detail == 1 ) {
-            detail_fish_mat__predby_f_surv.col(cur_time + 1 - 1) = fish_mat__predby_f_surv;
+            detail_fish_mat__predby_f_surv.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__predby_f_surv);
         }
         if ( report_detail == 1 ) {
-            detail_fish_mat_f_surv__cons.col(cur_time + 1 - 1) = fish_mat_f_surv__cons;
+            detail_fish_mat_f_surv__cons.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat_f_surv__cons);
         }
         if ( cur_step_final ) {
             // g3a_age for fish_imm;

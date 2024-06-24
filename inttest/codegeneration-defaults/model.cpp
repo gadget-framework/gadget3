@@ -97,6 +97,12 @@ Type objective_function<Type>::operator() () {
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / a.sum();
 };
+    auto as_numeric_arr = [](array<Type> x) -> array<double> {
+  array<double> out(x.size());
+  for(int i=0; i<x.size(); i++)
+    out(i) = asDouble(x(i));
+  return out;
+};
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
@@ -266,17 +272,17 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<Type> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
-    array<Type> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    array<double> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
+    array<double> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
     array<Type> suit_fish_comm__report(6);
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
     array<Type> adist_surveyindices_log_acoustic_dist_model__wgt(1,11,1); adist_surveyindices_log_acoustic_dist_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_acoustic_dist_obs__wgt)
     array<Type> cdist_sumofsquares_comm_ldist_model__wgt(5,11,1); cdist_sumofsquares_comm_ldist_model__wgt.setZero();
     DATA_ARRAY(cdist_sumofsquares_comm_ldist_obs__wgt)
-    array<Type> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
-    array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
-    array<Type> detail_fish_comm__cons(6,1,10,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
+    array<double> detail_fish_comm__cons(6,1,10,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
@@ -356,10 +362,10 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__num.col(cur_time + 1 - 1) = fish__num;
+            detail_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__wgt.col(cur_time + 1 - 1) = fish__wgt;
+            detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             suit_fish_comm__report = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
@@ -684,13 +690,13 @@ Type objective_function<Type>::operator() () {
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
         }
         if ( report_detail == 1 ) {
-            detail_fish__predby_comm.col(cur_time + 1 - 1) = fish__predby_comm;
+            detail_fish__predby_comm.col(cur_time + 1 - 1) = as_numeric_arr(fish__predby_comm);
         }
         if ( report_detail == 1 ) {
-            detail_fish__renewalnum.col(cur_time + 1 - 1) = fish__renewalnum;
+            detail_fish__renewalnum.col(cur_time + 1 - 1) = as_numeric_arr(fish__renewalnum);
         }
         if ( report_detail == 1 ) {
-            detail_fish_comm__cons.col(cur_time + 1 - 1) = fish_comm__cons;
+            detail_fish_comm__cons.col(cur_time + 1 - 1) = as_numeric_arr(fish_comm__cons);
         }
         if ( cur_step_final ) {
             // g3a_age for fish;

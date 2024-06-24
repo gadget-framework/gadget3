@@ -63,6 +63,7 @@ structure(function (param)
     normalize_vec <- function(a) {
         a/sum(a)
     }
+    as_numeric_arr <- function(x) x
     REPORT <- function(var) {
         var_name <- as.character(sys.call()[[2]])
         attr(nll, var_name) <<- if (var_name == "nll") 
@@ -286,9 +287,9 @@ structure(function (param)
             }
         }
         if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
-            detail_fish__num[, , , cur_time + 1] <- fish__num
+            detail_fish__num[, , , cur_time + 1] <- as_numeric_arr(fish__num)
         if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
-            detail_fish__wgt[, , , cur_time + 1] <- fish__wgt
+            detail_fish__wgt[, , , cur_time + 1] <- as_numeric_arr(fish__wgt)
         if (reporting_enabled > 0L && cur_time > total_steps) {
             suit_fish_comm__report[] <- 1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))
             REPORT(suit_fish_comm__report)
@@ -552,11 +553,11 @@ structure(function (param)
             nll_understocking__weight[cur_time + 1L] <- 1e+08
         }
         if (param[["report_detail"]] == 1) 
-            detail_fish__predby_comm[, , , cur_time + 1] <- fish__predby_comm
+            detail_fish__predby_comm[, , , cur_time + 1] <- as_numeric_arr(fish__predby_comm)
         if (param[["report_detail"]] == 1) 
-            detail_fish__renewalnum[, , , cur_time + 1] <- fish__renewalnum
+            detail_fish__renewalnum[, , , cur_time + 1] <- as_numeric_arr(fish__renewalnum)
         if (param[["report_detail"]] == 1) 
-            detail_fish_comm__cons[, , , cur_time + 1] <- fish_comm__cons
+            detail_fish_comm__cons[, , , cur_time + 1] <- as_numeric_arr(fish_comm__cons)
         if (cur_step_final) {
             comment("g3a_age for fish")
             for (age in seq(fish__maxage, fish__minage, by = -1)) {
