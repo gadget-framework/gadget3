@@ -394,7 +394,9 @@ actions <- c(base_actions, list(
         g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0))),
     NULL))
 actions <- c(actions, list(
-    g3a_report_detail(actions) ))
+    # NB: Don't use _detail, since it doesn't play well with report_step()
+    #     Ideally we'd remove report_step, but we have to time it exactly between data-collect and reset
+    g3a_report_history(actions, '__cons$', out_prefix = "detail_") ))
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -782,7 +784,7 @@ ok_group("Likelihood per year", {
             report = TRUE,
             g3l_distribution_surveyindices_log(alpha = ~g3_param("si_alpha", value = 0), beta = ~g3_param("si_beta", value = 0)))))
     actions <- c(actions, list(
-        g3a_report_detail(actions) ))
+        g3a_report_history(actions, '__cons$', out_prefix = "detail_") ))
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)
