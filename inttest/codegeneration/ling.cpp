@@ -389,49 +389,61 @@ Type objective_function<Type>::operator() () {
         ling_imm__totalpredate.setZero();
         ling_mat__totalpredate.setZero();
         {
-            // g3a_predate_fleet for ling_imm;
-            // Zero igfs-ling_imm biomass-consuming counter;
-            ling_imm_igfs__suit.setZero();
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
+
             {
-                auto area = ling_imm__area;
+                // g3a_predate_fleet for ling_imm;
+                // Zero igfs-ling_imm biomass-consuming counter;
+                ling_imm_igfs__suit.setZero();
+                {
+                    auto area = ling_imm__area;
 
-                auto ling_imm__area_idx = 0;
+                    auto ling_imm__area_idx = 0;
 
-                for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == igfs__area ) {
-                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+                    for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == igfs__area ) {
+                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto igfs__area_idx = 0;
+                        auto catchability = (suitability*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx));
 
-                    auto predator_area = area;
+                        auto igfs__area_idx = 0;
 
-                    {
-                        // Collect all suitable ling_imm biomass for igfs;
-                        ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))))*ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                        igfs__totalsuit(igfs__area_idx) += (ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
+                        auto predator_area = area;
+
+                        {
+                            // Collect all suitable ling_imm biomass for igfs;
+                            ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx) = catchability;
+                            igfs__totalsuit(igfs__area_idx) += (ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx)).sum();
+                        }
                     }
                 }
             }
         }
         {
-            // g3a_predate_fleet for ling_mat;
-            // Zero igfs-ling_mat biomass-consuming counter;
-            ling_mat_igfs__suit.setZero();
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))));
+
             {
-                auto area = ling_mat__area;
+                // g3a_predate_fleet for ling_mat;
+                // Zero igfs-ling_mat biomass-consuming counter;
+                ling_mat_igfs__suit.setZero();
+                {
+                    auto area = ling_mat__area;
 
-                auto ling_mat__area_idx = 0;
+                    auto ling_mat__area_idx = 0;
 
-                for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == igfs__area ) {
-                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                    for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == igfs__area ) {
+                        auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto igfs__area_idx = 0;
+                        auto catchability = (suitability*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx));
 
-                    auto predator_area = area;
+                        auto igfs__area_idx = 0;
 
-                    {
-                        // Collect all suitable ling_mat biomass for igfs;
-                        ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx) = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))))*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx);
-                        igfs__totalsuit(igfs__area_idx) += (ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
+                        auto predator_area = area;
+
+                        {
+                            // Collect all suitable ling_mat biomass for igfs;
+                            ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx) = catchability;
+                            igfs__totalsuit(igfs__area_idx) += (ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx)).sum();
+                        }
                     }
                 }
             }

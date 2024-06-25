@@ -430,25 +430,31 @@ Type objective_function<Type>::operator() () {
         comm__totalsuit.setZero();
         fish__totalpredate.setZero();
         {
-            // g3a_predate_fleet for fish;
-            // Zero comm-fish biomass-consuming counter;
-            fish_comm__suit.setZero();
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))));
 
-                auto area = fish__area;
+            {
+                // g3a_predate_fleet for fish;
+                // Zero comm-fish biomass-consuming counter;
+                fish_comm__suit.setZero();
+                for (auto age = fish__minage; age <= fish__maxage; age++) {
+                    auto fish__age_idx = age - fish__minage + 1 - 1;
 
-                auto fish__area_idx = 0;
+                    auto area = fish__area;
 
-                if ( area == comm__area ) {
-                    auto comm__area_idx = 0;
+                    auto fish__area_idx = 0;
 
-                    auto predator_area = area;
+                    if ( area == comm__area ) {
+                        auto catchability = (suitability*fish__num.col(fish__age_idx).col(fish__area_idx));
 
-                    {
-                        // Collect all suitable fish biomass for comm;
-                        fish_comm__suit.col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx);
-                        comm__totalsuit(comm__area_idx) += (fish_comm__suit.col(fish__age_idx).col(fish__area_idx)).sum();
+                        auto comm__area_idx = 0;
+
+                        auto predator_area = area;
+
+                        {
+                            // Collect all suitable fish biomass for comm;
+                            fish_comm__suit.col(fish__age_idx).col(fish__area_idx) = catchability;
+                            comm__totalsuit(comm__area_idx) += (fish_comm__suit.col(fish__age_idx).col(fish__area_idx)).sum();
+                        }
                     }
                 }
             }

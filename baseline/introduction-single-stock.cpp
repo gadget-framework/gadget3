@@ -629,25 +629,31 @@ Type objective_function<Type>::operator() () {
         f_surv__totalsuit.setZero();
         fish__totalpredate.setZero();
         {
-            // g3a_predate_fleet for fish;
-            // Zero f_surv-fish biomass-consuming counter;
-            fish_f_surv__suit.setZero();
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish__midlen - fish__f_surv__l50))));
 
-                auto area = fish__area;
+            {
+                // g3a_predate_fleet for fish;
+                // Zero f_surv-fish biomass-consuming counter;
+                fish_f_surv__suit.setZero();
+                for (auto age = fish__minage; age <= fish__maxage; age++) {
+                    auto fish__age_idx = age - fish__minage + 1 - 1;
 
-                auto fish__area_idx = 0;
+                    auto area = fish__area;
 
-                if ( area == f_surv__area ) {
-                    auto f_surv__area_idx = 0;
+                    auto fish__area_idx = 0;
 
-                    auto predator_area = area;
+                    if ( area == f_surv__area ) {
+                        auto catchability = (suitability*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx));
 
-                    {
-                        // Collect all suitable fish biomass for f_surv;
-                        fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx) = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish__midlen - fish__f_surv__l50))))*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
-                        f_surv__totalsuit(f_surv__area_idx) += (fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx)).sum();
+                        auto f_surv__area_idx = 0;
+
+                        auto predator_area = area;
+
+                        {
+                            // Collect all suitable fish biomass for f_surv;
+                            fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx) = catchability;
+                            f_surv__totalsuit(f_surv__area_idx) += (fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx)).sum();
+                        }
                     }
                 }
             }

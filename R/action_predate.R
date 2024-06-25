@@ -209,6 +209,8 @@ g3a_predate <- function (
         })
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
+        catchability <- f_substitute(catchability_f$suit, list(suit_f = quote(suitability)))
+        environment(catchability)$suitability <- list_to_stock_switch(suitabilities)
         out[[step_id(run_at, 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate_fleet for ", stock)
             debug_trace("Zero ", predstock, "-", stock, " biomass-consuming counter")
@@ -216,12 +218,10 @@ g3a_predate <- function (
 
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", predstock)
-                stock_ss(predprey__suit) <- catchability_suit_f
+                stock_ss(predprey__suit) <- catchability
                 stock_ss(predstock__totalsuit, vec = single) <- stock_ss(predstock__totalsuit, vec = single) + sum(stock_ss(predprey__suit))
             }), prefix = 'predator'))
         }, list(
-            catchability_suit_f = f_substitute(catchability_f$suit, list(
-                suit_f = list_to_stock_switch(suitabilities) )),
             run_f = run_f )))
 
         # Add dependent formulas to catchability, let g3_step work out where they go

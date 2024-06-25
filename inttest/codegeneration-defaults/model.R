@@ -335,20 +335,24 @@ structure(function (param)
         comm__totalsuit[] <- 0
         fish__totalpredate[] <- 0
         {
-            comment("g3a_predate_fleet for fish")
-            comment("Zero comm-fish biomass-consuming counter")
-            fish_comm__suit[] <- 0
-            for (age in seq(fish__minage, fish__maxage, by = 1)) {
-                fish__age_idx <- age - fish__minage + 1L
-                area <- fish__area
-                fish__area_idx <- (1L)
-                if (area == comm__area) {
-                  comm__area_idx <- (1L)
-                  predator_area <- area
-                  {
-                    comment("Collect all suitable fish biomass for comm")
-                    fish_comm__suit[, fish__area_idx, fish__age_idx] <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))) * fish__num[, fish__area_idx, fish__age_idx]
-                    comm__totalsuit[comm__area_idx] <- comm__totalsuit[comm__area_idx] + sum(fish_comm__suit[, fish__area_idx, fish__age_idx])
+            suitability <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]]))))
+            {
+                comment("g3a_predate_fleet for fish")
+                comment("Zero comm-fish biomass-consuming counter")
+                fish_comm__suit[] <- 0
+                for (age in seq(fish__minage, fish__maxage, by = 1)) {
+                  fish__age_idx <- age - fish__minage + 1L
+                  area <- fish__area
+                  fish__area_idx <- (1L)
+                  if (area == comm__area) {
+                    catchability <- (suitability * fish__num[, fish__area_idx, fish__age_idx])
+                    comm__area_idx <- (1L)
+                    predator_area <- area
+                    {
+                      comment("Collect all suitable fish biomass for comm")
+                      fish_comm__suit[, fish__area_idx, fish__age_idx] <- catchability
+                      comm__totalsuit[comm__area_idx] <- comm__totalsuit[comm__area_idx] + sum(fish_comm__suit[, fish__area_idx, fish__age_idx])
+                    }
                   }
                 }
             }
