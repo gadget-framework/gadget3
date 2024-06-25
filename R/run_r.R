@@ -228,12 +228,14 @@ g3_r_compile <- function (model, work_dir = tempdir(), cmp_options = list(optimi
     source(r_path)
 
     # Restore model data and attributes
-    environment(out) <- environment(model)
     # NB: We need to do this since the environment pointers will be broken in the serialised version
-    attr(out, 'actions') <- attr(model, 'actions')
+    environment(out) <- environment(model)
 
     # Optimize model function
     if (!is.null(cmp_options)) out <- compiler::cmpfun(out, options = cmp_options)
+
+    # Restore actions attribute
+    attr(out, 'actions') <- attr(model, 'actions')
 
     return(out)
 }
