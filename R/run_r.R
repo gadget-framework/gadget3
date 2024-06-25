@@ -2,7 +2,12 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 
 # Compile actions together into a single R function,
 # The attached environment contains model_data, i.e. fixed values refered to within function
-g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
+g3_to_r <- function(
+        actions,
+        work_dir = getOption('gadget3.r.work_dir', default = tempdir()),
+        trace = FALSE,
+        strict = FALSE,
+        cmp_options = list(optimize = 3) ) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(c(
         collated_actions,
@@ -207,11 +212,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
-    return(g3_r_compile(out))
+    return(g3_r_compile(out, work_dir = work_dir, cmp_options = cmp_options))
 }
 
 # Generate a srcRef'ed, optimized function
-g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
+g3_r_compile <- function (model, work_dir = tempdir(), cmp_options = list(optimize = 3)) {
     model_string <- deparse(model)
     base_name <- paste0('g3_r_', digest::sha1(model_string))
     r_path <- paste0(file.path(work_dir, base_name), '.R')
@@ -228,7 +233,7 @@ g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
     attr(out, 'actions') <- attr(model, 'actions')
 
     # Optimize model function
-    out <- compiler::cmpfun(out, options = list(optimize = optimize))
+    if (!is.null(cmp_options)) out <- compiler::cmpfun(out, options = cmp_options)
 
     return(out)
 }
