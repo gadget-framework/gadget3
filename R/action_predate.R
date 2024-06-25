@@ -200,11 +200,12 @@ g3a_predate <- function (
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
-        out[[step_id(run_at, 0, stock)]] <- g3_step(~{
+        out[[step_id(run_at, 0, 0, stock)]] <- g3_step(~{
             stock_with(stock, stock__totalpredate[] <- 0)
         })
 
-        out[[step_id(run_at, 0, predstock)]] <- g3_step(~{
+        # NB: A stock might be a predstock elsewhere, so give this a separate ID.
+        out[[step_id(run_at, 0, 1, predstock)]] <- g3_step(~{
             stock_with(predstock, predstock__totalsuit[] <- 0)
         })
 
