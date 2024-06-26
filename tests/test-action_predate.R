@@ -100,7 +100,8 @@ actions <- list(
     g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
     g3a_predate_fleet(
         fleet_ab,
-        list(prey_a, prey_b, prey_c),
+        # NB: Add names to ensure they don't leak into suitability report naming
+        list(a = prey_a, b = prey_b, c = prey_c),
         suitabilities = list(
             # NB: 0 * stock__midlen hack to get suitability reports to work
             prey_a = ~g3_param_vector("fleet_ab_a") + 0 * stock__midlen,

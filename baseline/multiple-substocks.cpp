@@ -548,6 +548,8 @@ Type objective_function<Type>::operator() () {
     array<double> detail_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__wgt.setConstant((double)(1));
     array<double> detail_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__num.setZero();
     array<double> detail_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__wgt.setConstant((double)(1));
+    array<Type> suit_fish_imm_f_surv__report(5);
+    array<Type> suit_fish_mat_f_surv__report(5);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
     array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,5,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_dist_si_cpue_obs__wgt)
@@ -635,8 +637,6 @@ Type objective_function<Type>::operator() () {
     int fish_imm_movement__minage = 6;
     int fish_imm_movement__maxage = 6;
     int fish_imm_movement__area = 1;
-    array<Type> suit_fish_imm_f_surv__report(5);
-    array<Type> suit_fish_mat_f_surv__report(5);
 
     while (true) {
         {
@@ -703,6 +703,14 @@ Type objective_function<Type>::operator() () {
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_fish_imm_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50)));
+            REPORT(suit_fish_imm_f_surv__report);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_fish_mat_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_mat__midlen - fish__f_surv__l50)));
+            REPORT(suit_fish_mat_f_surv__report);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(adist_surveyindices_log_dist_si_cpue_model__params);
@@ -2006,14 +2014,6 @@ Type objective_function<Type>::operator() () {
                     }
                 }
             }
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            suit_fish_imm_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50)));
-            REPORT(suit_fish_imm_f_surv__report);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            suit_fish_mat_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_mat__midlen - fish__f_surv__l50)));
-            REPORT(suit_fish_mat_f_surv__report);
         }
     }
 }

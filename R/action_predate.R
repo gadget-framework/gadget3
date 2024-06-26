@@ -299,7 +299,8 @@ g3a_predate <- function (
 
     if (report_suitability) return(c(
         as.list(out),
-        do.call(c, lapply(prey_stocks, function (stock) g3a_suitability_report(
+        # NB: Without unname(), any prey_stocks names leak into action names
+        do.call(c, lapply(unname(prey_stocks), function (stock) g3a_suitability_report(
             predstock,
             stock,
             list_to_stock_switch(suitabilities) )))))
