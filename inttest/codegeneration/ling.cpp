@@ -264,9 +264,9 @@ Type objective_function<Type>::operator() () {
     array<Type> suit_ling_mat_igfs__report(35);
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
-    array<Type> igfs__totalsuit(1);
     array<Type> ling_imm__totalpredate(35,8,1);
     array<Type> ling_mat__totalpredate(35,11,1);
+    array<Type> igfs__totalsuit(1);
     array<Type> ling_imm_igfs__suit(35,8,1);
     int igfs__area = 1;
     array<Type> ling_mat_igfs__suit(35,11,1);
@@ -385,9 +385,9 @@ Type objective_function<Type>::operator() () {
                 return nll;
             }
         }
-        igfs__totalsuit.setZero();
         ling_imm__totalpredate.setZero();
         ling_mat__totalpredate.setZero();
+        igfs__totalsuit.setZero();
         {
             auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
 

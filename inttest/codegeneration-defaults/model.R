@@ -211,8 +211,8 @@ structure(function (param)
     nll_cdist_sumofsquares_comm_ldist__weight <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_cdist_sumofsquares_comm_ldist__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
-    comm__totalsuit <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
     fish__totalpredate <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
+    comm__totalsuit <- array(NA, dim = c(area = 1L), dimnames = list(area = "all"))
     fish_comm__suit <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
     comm__area <- 1L
     fish_comm__cons <- array(NA, dim = c(length = 6L, area = 1L, age = 10L), dimnames = list(length = c("50:60", "60:70", "70:80", "80:90", "90:100", "100:Inf"), area = "all", age = c("age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10")))
@@ -332,8 +332,8 @@ structure(function (param)
             if (cur_time > total_steps) 
                 return(nll)
         }
-        comm__totalsuit[] <- 0
         fish__totalpredate[] <- 0
+        comm__totalsuit[] <- 0
         {
             suitability <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]]))))
             {

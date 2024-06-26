@@ -289,8 +289,8 @@ Type objective_function<Type>::operator() () {
     array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    array<Type> comm__totalsuit(1);
     array<Type> fish__totalpredate(6,1,10);
+    array<Type> comm__totalsuit(1);
     array<Type> fish_comm__suit(6,1,10);
     int comm__area = 1;
     array<Type> fish_comm__cons(6,1,10);
@@ -427,8 +427,8 @@ Type objective_function<Type>::operator() () {
                 return nll;
             }
         }
-        comm__totalsuit.setZero();
         fish__totalpredate.setZero();
+        comm__totalsuit.setZero();
         {
             auto suitability = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))));
 
