@@ -1011,7 +1011,8 @@ g3_tmb_adfun <- function(
             else c("-O3", "-flto=auto", "-march=native") ),
         work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
         output_script = FALSE,
-        compile_args = list(),
+        compile_args = list(
+            framework = getOption("gadget3.tmb.framework", default = "TMBad") ),
         ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
