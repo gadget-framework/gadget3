@@ -328,7 +328,7 @@ ld_dim_length <- function(data, col_name = 'length') {
         # Force length to be a factor if not already
         if (!is.factor(data_col)) {
             # Make sure levels are ordered according to cut strings
-            lvls <- parse_levels(unique(data_col))
+            lvls <- parse_levels(unique(data_col), col_name)
             lvls <- lvls[with(lvls, order(lower_bound, upper_bound)), 'names']
             data_col <- factor(data_col, levels = lvls)
         }
