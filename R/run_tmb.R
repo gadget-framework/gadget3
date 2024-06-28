@@ -91,6 +91,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(out)
     }
 
+    if (call_name %in% c("g3_cast_vector")) {
+        # Ensure expression is vector type, invariably a bodge somewhere
+        return(paste0(
+            "(vector<Type>)(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ")"))
+    }
+
     if (call_name %in% c("g3_cpp_asis")) {
         # Pass through C++ generated elsewhere
         return(in_call[[2]])

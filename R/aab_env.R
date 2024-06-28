@@ -193,3 +193,6 @@ g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
     }
     return base_ar / (extra_vec.replicate(base_ar.size() / extra_vec.size(), 1));
 }')
+
+# Marker to point out we want this value to be cast vector<Type> in TMB, in R ignore
+g3_env$g3_cast_vector <- g3_native(r = function (x) x, cpp = NULL)

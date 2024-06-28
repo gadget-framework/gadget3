@@ -13,11 +13,13 @@ g3_suitability_exponentiall50 <- function (
 }
 
 g3_suitability_andersen <- function (p0, p1, p2, p3 = p4, p4, p5 = quote(predator_length)) {
-  f_substitute(~p0 +
+  # NB: We need to cast this to vector<Type>, otherwise TMBad fails when trying to form the tape:
+  #     https://github.com/gadget-framework/gadget3/issues/161
+  f_substitute(~g3_cast_vector(p0 +
                  avoid_zero(p2) * exp(-(log(avoid_zero_vec(p5/stock__midlen)) - p1)**2/avoid_zero(p3)) *
                  bounded_vec(1000*(p1 - log(avoid_zero_vec(p5/stock__midlen))),0,1) +
                  avoid_zero(p2) * exp(-(log(avoid_zero_vec(p5/stock__midlen)) - p1)**2/avoid_zero(p4)) *
-                 bounded_vec(1000*(log(avoid_zero_vec(p5/stock__midlen)) - p1),0,1),
+                 bounded_vec(1000*(log(avoid_zero_vec(p5/stock__midlen)) - p1),0,1)),
                list(
                  p0 = p0,
                  p1 = p1,
