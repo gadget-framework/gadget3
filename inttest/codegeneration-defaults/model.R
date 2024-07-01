@@ -455,7 +455,7 @@ structure(function (param)
                 }
             }
         }
-        {
+        if (param[["adist_surveyindices_log_acoustic_dist_weight"]] > 0) {
             comment("g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
@@ -475,7 +475,7 @@ structure(function (param)
             adist_surveyindices_log_acoustic_dist_model__max_time_idx <- (11L)
             {
                 comment("g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs")
-                if (cur_step_final) {
+                if (param[["adist_surveyindices_log_acoustic_dist_weight"]] > 0 && cur_step_final) {
                   area <- adist_surveyindices_log_acoustic_dist_model__area
                   adist_surveyindices_log_acoustic_dist_model__area_idx <- (1L)
                   adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
@@ -501,7 +501,7 @@ structure(function (param)
                 }
             }
         }
-        {
+        if (param[["cdist_sumofsquares_comm_ldist_weight"]] > 0) {
             comment("g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist")
             for (age in seq(fish__minage, fish__maxage, by = 1)) {
                 fish__age_idx <- age - fish__minage + 1L
@@ -519,7 +519,7 @@ structure(function (param)
         }
         {
             comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs")
-            if (cur_step_final) {
+            if (param[["cdist_sumofsquares_comm_ldist_weight"]] > 0 && cur_step_final) {
                 area <- cdist_sumofsquares_comm_ldist_model__area
                 cdist_sumofsquares_comm_ldist_model__area_idx <- (1L)
                 cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year * 100L + cur_step * 0L), -1L)

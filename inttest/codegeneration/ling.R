@@ -633,7 +633,7 @@ structure(function (param)
                 }
             }
         }
-        {
+        if (param[["cdist_sumofsquares_ldist_lln_weight"]] > 0) {
             comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_imm for cdist_sumofsquares_ldist_lln")
             {
                 area <- ling_imm__area
@@ -648,7 +648,7 @@ structure(function (param)
                 }
             }
         }
-        {
+        if (param[["cdist_sumofsquares_ldist_lln_weight"]] > 0) {
             comment("g3l_catchdistribution_sumofsquares: Collect catch from igfs/ling_mat for cdist_sumofsquares_ldist_lln")
             {
                 area <- ling_mat__area
@@ -665,26 +665,28 @@ structure(function (param)
         }
         {
             comment("g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_lln_model to cdist_sumofsquares_ldist_lln_obs")
-            {
-                area <- cdist_sumofsquares_ldist_lln_model__area
-                cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
-                if (area == cdist_sumofsquares_ldist_lln_obs__area) {
-                  cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]))
-                  cdist_sumofsquares_ldist_lln_obs__area_idx <- (1L)
-                  cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year * 100L + cur_step), -1L)
-                  if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
-                    cdist_sumofsquares_ldist_lln_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]))
-                    cur_cdist_nll <- sum((((cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2))
-                    {
-                      nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
-                      nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
-                      nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
+            if (param[["cdist_sumofsquares_ldist_lln_weight"]] > 0) {
+                {
+                  area <- cdist_sumofsquares_ldist_lln_model__area
+                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                  if (area == cdist_sumofsquares_ldist_lln_obs__area) {
+                    cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]))
+                    cdist_sumofsquares_ldist_lln_obs__area_idx <- (1L)
+                    cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year * 100L + cur_step), -1L)
+                    if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
+                      cdist_sumofsquares_ldist_lln_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]))
+                      cur_cdist_nll <- sum((((cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]/cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num[, cdist_sumofsquares_ldist_lln_obs__time_idx, cdist_sumofsquares_ldist_lln_obs__area_idx]/cdist_sumofsquares_ldist_lln_obs__sstotal))^2))
+                      {
+                        nll <- nll + param[["cdist_sumofsquares_ldist_lln_weight"]] * cur_cdist_nll
+                        nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] <- nll_cdist_sumofsquares_ldist_lln__num[cur_time + 1L] + cur_cdist_nll
+                        nll_cdist_sumofsquares_ldist_lln__weight[cur_time + 1L] <- param[["cdist_sumofsquares_ldist_lln_weight"]]
+                      }
                     }
                   }
                 }
+                comment("Zero counters for next reporting period")
+                cdist_sumofsquares_ldist_lln_model__num[] <- 0
             }
-            comment("Zero counters for next reporting period")
-            cdist_sumofsquares_ldist_lln_model__num[] <- 0
         }
         {
             comment("Reset understocking total")

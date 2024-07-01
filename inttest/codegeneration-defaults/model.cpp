@@ -572,7 +572,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( adist_surveyindices_log_acoustic_dist_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -598,7 +598,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs;
-                if ( cur_step_final ) {
+                if ( adist_surveyindices_log_acoustic_dist_weight > (double)(0) && cur_step_final ) {
                     auto area = adist_surveyindices_log_acoustic_dist_model__area;
 
                     auto adist_surveyindices_log_acoustic_dist_model__area_idx = 0;
@@ -626,7 +626,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_comm_ldist_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -649,7 +649,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs;
-            if ( cur_step_final ) {
+            if ( cdist_sumofsquares_comm_ldist_weight > (double)(0) && cur_step_final ) {
                 auto area = cdist_sumofsquares_comm_ldist_model__area;
 
                 auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;

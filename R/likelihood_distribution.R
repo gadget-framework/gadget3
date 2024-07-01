@@ -368,7 +368,7 @@ g3l_distribution <- function (
         }
 
         # Finally iterate/intersect over stock in question
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_optimize(f_substitute(~{
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_optimize(f_substitute(~if (weight > 0) {
             if (compare_fleet) {
                 debug_label(prefix, "Collect catch from ", predstock, "/", prey_stock, " for ", nll_name)
                 stock_iterate(prey_stock, stock_interact(predstock, stock_with(predprey, stock_intersect(modelstock, collect_f)), prefix = "predator"))
@@ -377,6 +377,7 @@ g3l_distribution <- function (
                 stock_iterate(prey_stock, stock_intersect(modelstock, collect_f))
             }
         }, list(
+            weight = weight,
             compare_fleet = !is.null(predstock),
             collect_f = f_concatenate(collect_fs) )))
 
@@ -396,7 +397,7 @@ g3l_distribution <- function (
     # Generic comparison step with __x instead of __num or __wgt
     compare_f <- g3_step(f_substitute(~{
         debug_label(prefix, "Compare ", modelstock, " to ", obsstock)
-        if (done_aggregating_f) {
+        if (weight > 0 && done_aggregating_f) {
             stock_iterate(modelstock, stock_intersect(obsstock, stock_intersect(nllstock, if (function_comare_f) g3_with(
                 cur_cdist_nll := function_f, {
                 nll <- nll + (weight) * cur_cdist_nll
