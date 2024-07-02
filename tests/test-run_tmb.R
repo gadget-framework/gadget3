@@ -87,15 +87,6 @@ ok(ut_cmp_error({
     g3_to_tmb(list(~g3_param("camel", optimize = FALSE)))
 }, "optimise"), "Optimise is spelt with an s in g3_param()")
 
-ok_group("Exponentiate params")
-params.in <- attr(g3_to_tmb(list( g3a_time(1990, 2000), g3_formula(
-    quote(d),
-    d = g3_parameterized('par.years', value = 0, by_year = TRUE, exponentiate = TRUE),
-    x = NA) )), 'parameter_template')
-ok(ut_cmp_identical(params.in[grep('^par', params.in$switch), 'switch'], c(
-    paste0('par.years.', 1990:2000, '_exp'),
-    NULL)), "exponentiate prefix ends up at the end of parameters")
-
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
         g3_param('param.b')
@@ -454,11 +445,14 @@ ok_group("cpp_code", {
 
 
 ###############################################################################
-actions <- list()
+actions <- list(g3a_time(1990, 1991))
 expecteds <- new.env(parent = emptyenv())
 expected_warnings_r <- c()
 expected_warnings_tmb <- c()
-params <- list(rv=0)
+params <- list(
+     retro_years = 0,
+     project_years = 0,
+     rv = 0 )
 
 # Check constants can pass through cleanly
 constants_integer <- 999
@@ -886,6 +880,18 @@ expecteds$param_table_ifmpartab_out <- array(c(
     params[['param_table_ifmpartab.3']],
     params[['param_table_ifmpartab.3']],
     NULL))
+
+# g3_param_table(by_year, exponentiate)
+param_table_byyrexp_out <- 0.0
+params[["byyrexp.1990_exp"]] <- 19
+params[["byyrexp.1991_exp"]] <- 20
+actions <- c(actions, gadget3:::f_substitute(~{
+    param_table_byyrexp_out <- x
+    REPORT(param_table_byyrexp_out)
+}, list(
+    x = g3_parameterized("byyrexp", by_year = TRUE, exponentiate = TRUE),
+    end = NULL )))
+expecteds$param_table_byyrexp_out <- exp(19)
 
 ###############################################################################
 

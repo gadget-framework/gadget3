@@ -70,11 +70,16 @@ g3_to_r <- function(
                 }
 
                 # Replace with a  param[["lookup.cur_year.cur_step"]] call
+                base_name <- gsub('_exp$', '', as.character(x[[2]]))
+                param_name_c <- as.call(c(
+                    list(as.symbol("paste"), base_name),
+                    lapply(names(df), as.symbol),
+                    list(sep = ".") ))
+                if (grepl('_exp$', as.character(x[[2]]))) param_name_c <- substitute(
+                    paste0(param_name_c, "_exp"),
+                    list(param_name_c = param_name_c) )
                 return(call('nvl',
-                    call('[[', as.symbol("param"), as.call(c(
-                        list(as.symbol("paste"), as.character(x[[2]])),
-                        lapply(names(df), as.symbol),
-                        list(sep = ".")))),
+                    call('[[', as.symbol("param"), param_name_c),
                     ifmissing))
             }
 
