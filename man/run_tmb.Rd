@@ -77,7 +77,7 @@ g3_tmb_relist(parameters, par)
     This can then be directly used with \link[TMB:gdbsource]{gdbsource} or \code{callr::rscript}.
   }
   \item{...}{
-    Any other options handed directly to \link{MakeADFun}
+    Any other options handed directly to \link[TMB:MakeADFun]{MakeADFun}
   }
 }
 
@@ -102,7 +102,7 @@ g3_tmb_relist(parameters, par)
     }
     Use e.g. \code{attr(cpp_code, 'parameter_template')} to retrieve them.
   }
-  \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
+  \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link[TMB:MakeADFun]{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
