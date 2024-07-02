@@ -1,5 +1,26 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.12-0
+
+New release of existing package.
+
+> Please see the problems shown on
+> <https://cran.r-project.org/web/checks/check_results_gadget3.html>.
+> 
+> Please correct before 2024-07-12 to safely retain your package on CRAN.
+
+The "donttest" CRAN test failure was caused by an example triggering a bug in TMB.
+This is now fixed in TMB 1.9.13, and gadget3 tests are already passing.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.12-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.11-1...v0.12-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/9765012824
+
 ==== 0.11-1
 
 Bugfix release to fix pretest NOTE:
