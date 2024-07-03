@@ -81,7 +81,7 @@ ok_group('g3a_spawn', {
             stddev_f = 0.9,
             alpha_f = 1,
             beta_f = 1,
-            run_f = ~cur_step==1),
+            run_step = 1 ),
         list())
 
     report_actions <- list(

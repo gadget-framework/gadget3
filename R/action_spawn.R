@@ -63,6 +63,7 @@ g3a_spawn <- function(
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
         wgt_by_stock = TRUE,
+        run_step = NULL,
         run_f = ~TRUE,
         run_at = g3_action_order$spawn,
         recruit_at = g3_action_order$renewal) {
@@ -78,6 +79,10 @@ g3a_spawn <- function(
     stock__offspringnum <- g3_stock_instance(stock, desc = "Total number of offspring these parents produce")
     out <- list()
     action_name <- unique_action_name()
+
+    if (!is.null(run_step)) run_f <- f_substitute(quote(cur_step == x && run_f), list(
+        run_f = run_f,
+        x = run_step ))
 
     # See SpawnData::Spawn line 286
     out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
