@@ -545,7 +545,7 @@ actions <- list(
         'pred_a_sizepref',
         pred_a_sizepref_obs,
         fleets = list(pred_a),
-        # NB: Only referenceing stocks included in observation data
+        # NB: Only referencing stocks included in observation data
         stocks = list(prey_a),
         g3l_distribution_sumofsquares(),
         # Use transform_fs to apply digestioncoefficients
