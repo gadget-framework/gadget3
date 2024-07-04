@@ -86,7 +86,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_to_r</span><span class="op">(</span><span class="va">actions</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, strict <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_to_r</span><span class="op">(</span></span>
+<span>        <span class="va">actions</span>,</span>
+<span>        work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">'gadget3.r.work_dir'</span>, default <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        trace <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        cmp_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>optimize <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for g3_r</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span>, with_environment <span class="op">=</span> <span class="cn">FALSE</span>, with_template <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -96,6 +101,13 @@
     <h2>Arguments</h2>
     <dl><dt>actions</dt>
 <dd><p>A list of actions (i.e. list of formula objects), as produced by <var>g3a_</var>* functions.</p></dd>
+
+  <dt>work_dir</dt>
+<dd><p>Where to write the temporary R script containing your function</p></dd>
+
+  <dt>cmp_options</dt>
+<dd><p>options to pass through to <code><a href="https://rdrr.io/r/compiler/compile.html" class="external-link">compiler::cmpfun()</a></code>.
+    If <code>NULL</code>, then don't run the model through the byte-code compiler</p></dd>
 
   <dt>trace</dt>
 <dd><p>If TRUE, turn all comments into print statements.</p></dd>

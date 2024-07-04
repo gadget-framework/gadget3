@@ -86,7 +86,8 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span>over <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"area"</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span></span>
+<span>        over <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'area'</span>, <span class="st">'predator_tag'</span>, <span class="st">'predator_age'</span>, <span class="st">'predator_length'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3l_distribution_multinomial</span><span class="op">(</span>epsilon <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
@@ -142,7 +143,11 @@
     <dl><dt>over</dt>
 <dd><p>When comparing proportions of lengthgroups, specifies the dimensions that define the total.
     For example the default "area" means the proprtion of the current lengthgroup to all individuals
-    in that area.</p></dd>
+    in that area.</p>
+<p><code>c('area', 'predator_tag', 'predator_age', 'predator_length'))</code> will compare the current lengthgroup
+    to all individuals consumed by that predator.</p>
+<p>Note that any unknown dimensions will be ignored; for example a fleet does not have a tag/age/length,
+    so only area will have an effect here.</p></dd>
 
   <dt>rho_f,sigma_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into multivariate calcuations, see below.</p></dd>
@@ -163,7 +168,7 @@
 
   <dt>obs_data</dt>
 <dd><p>Data.frame of observation data, for example the results of
-    mfdb_sample_count.</p>
+    <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
@@ -182,13 +187,14 @@
     depending on what columns <var>obs_data</var> has.</p></dd>
 
   <dt>transform_fs</dt>
-<dd><p>A list of dimension name to formula to apply to model data before collating. See examples.</p></dd>
+<dd><p>A list of dimension names to either formula objects or list of stock names to formula objects
+    (where the transform differs between stocks). See examples.</p></dd>
 
   <dt>missing_val</dt>
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
 
   <dt>area_group</dt>
-<dd><p>mfdb_group or list mapping area names used in
+<dd><p><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb_group</a> or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
 
@@ -228,7 +234,7 @@
 <p>The <var>obs_data</var> data.frame, as well as providing the observation data to
     compare the model data against, controls the grouping of model data to
     compare to the observation data, by inspecting the MFDB column attributes
-    produced by e.g. mfdb_sample_count.</p>
+    produced by e.g. <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
 <p>Metadata columns describe the observation datapoint in that row. The
     columns should be from this list:</p><dl><dt>year</dt>
 <dd><p>Required.
@@ -265,6 +271,10 @@
         old = 4:5)</code>, then the model data will similarly have 2 groups in it.</p>
 <p>Any missing ages (when there is otherwise data for that
         year/step) will be compared to zero.</p></dd>
+
+      <dt>predator_length / predator_age / predator_tag</dt>
+<dd><p>Optional.</p>
+<p>Values are the same as with length/age/tag respectively, but group by the predator rather than the prey.</p></dd>
 
       <dt>stock</dt>
 <dd><p>Optional.
@@ -625,15 +635,73 @@
 <span class="r-in"><span>    <span class="va">ldist.lln</span>,</span></span>
 <span class="r-in"><span>    fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">lln</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span>, <span class="va">ling_mat</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span><span class="fu"><a href="step.html">stock_switch</a></span><span class="op">(</span><span class="va">stock</span>,</span></span>
-<span class="r-in"><span>      ling_imm <span class="op">=</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'imm_readermatrix'</span>,</span></span>
+<span class="r-in"><span>    transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      ling_imm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'imm_readermatrix'</span>,</span></span>
 <span class="r-in"><span>          value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">ling_imm__maxage</span> <span class="op">-</span> <span class="va">ling_imm__minage</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_imm__preage_idx</span>, <span class="va">ling_imm__age_idx</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>      ling_mat <span class="op">=</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'mat_readermatrix'</span>,</span></span>
+<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_imm__preage_idx</span>, <span class="va">ling_imm__age_idx</span><span class="op">]</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>      ling_mat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">g3_param_array</span><span class="op">(</span><span class="st">'mat_readermatrix'</span>,</span></span>
 <span class="r-in"><span>          value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">ling_mat__maxage</span> <span class="op">-</span> <span class="va">ling_mat__minage</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_mat__preage_idx</span>, <span class="va">ling_mat__age_idx</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>      unused <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>          <span class="op">)</span><span class="op">[</span><span class="va">ling_mat__preage_idx</span>, <span class="va">ling_mat__age_idx</span><span class="op">]</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>      unused <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Stomach content: predator-prey species preference</span></span></span>
+<span class="r-in"><span><span class="va">prey_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'prey_a'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prey_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'prey_b'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pred_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'pred_a'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">80</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">otherfood</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'otherfood'</span>, <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Produce data.frame with columns:</span></span></span>
+<span class="r-in"><span><span class="co"># * predator_length or predator_age</span></span></span>
+<span class="r-in"><span><span class="co"># * stock</span></span></span>
+<span class="r-in"><span><span class="co"># * number or weight</span></span></span>
+<span class="r-in"><span><span class="va">pred_a_preypref_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    year <span class="op">=</span> <span class="fl">2000</span><span class="op">:</span><span class="fl">2005</span>,</span></span>
+<span class="r-in"><span>    predator_length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>,<span class="fl">70</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'prey_a'</span>, <span class="st">'prey_b'</span>, <span class="st">'otherfood'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    number <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create catchdistribution likelihood component</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3l_catchdistribution</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="st">'pred_a_preypref'</span>,</span></span>
+<span class="r-in"><span>        <span class="va">pred_a_preypref_obs</span>,</span></span>
+<span class="r-in"><span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pred_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span>, <span class="va">prey_b</span>, <span class="va">otherfood</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        nll_breakdown <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>        report <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Stomach content: predator-prey size preference</span></span></span>
+<span class="r-in"><span><span class="co"># Produce data.frame with columns:</span></span></span>
+<span class="r-in"><span><span class="co"># * predator_length or predator_age</span></span></span>
+<span class="r-in"><span><span class="co"># * (prey) length</span></span></span>
+<span class="r-in"><span><span class="co"># * number or weight</span></span></span>
+<span class="r-in"><span><span class="va">pred_a_sizepref_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    year <span class="op">=</span> <span class="fl">2000</span><span class="op">:</span><span class="fl">2005</span>,</span></span>
+<span class="r-in"><span>    predator_length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>,<span class="fl">70</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    number <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create catchdistribution likelihood component</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3l_catchdistribution</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="st">'pred_a_sizepref'</span>,</span></span>
+<span class="r-in"><span>        <span class="va">pred_a_sizepref_obs</span>,</span></span>
+<span class="r-in"><span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pred_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># NB: Only referencing stocks included in observation data</span></span></span>
+<span class="r-in"><span>        stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Use transform_fs to apply digestioncoefficients</span></span></span>
+<span class="r-in"><span>        transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>prey_a <span class="op">=</span> <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">d0</span> <span class="op">+</span> <span class="va">d1</span> <span class="op">*</span> <span class="va">prey_a__midlen</span><span class="op">^</span><span class="va">d2</span><span class="op">)</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>            d0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'d0'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            d1 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'d1'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            d2 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'d2'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        nll_breakdown <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>        report <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

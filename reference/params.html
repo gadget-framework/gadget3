@@ -208,33 +208,121 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">stock_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'stock'</span>, <span class="st">'aaa'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">35</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">stock_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'stock'</span>, <span class="st">'bbb'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">35</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stock_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'stock'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">35</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stock_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'stock'</span>, <span class="st">'mat'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">35</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Not by anything, so just a regular parameter</span></span></span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3_param("K")</span>
+<span class="r-in"><span><span class="co"># Helper function that shows the parameter template for the given parameter</span></span></span>
+<span class="r-in"><span><span class="va">param_template_for</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">g3_param</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="co"># g3a_naturalmortality() isn't important, it is a place to add our parameter</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">stock_imm</span>, <span class="va">g3_param</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      <span class="co"># We also need stock_mat in the model at least once</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">stock_mat</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># by_stock, so will use stock_prepend() to rename variables</span></span></span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param("K"), name_part = NULL)</span>
+<span class="r-in"><span>      <span class="co"># Set a year range to use for parameters where relevant</span></span></span>
+<span class="r-in"><span>      <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Adding by_year or by_age turns it into a table</span></span></span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param_table("K", expand.grid(cur_year = seq(start_year, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year), age = seq(stock__minage, stock__maxage))), name_part = NULL)</span>
+<span class="r-in"><span>  <span class="co"># Extract template, throw away default parameters from g3a_time()</span></span></span>
+<span class="r-in"><span>  <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">params</span> <span class="op">&lt;-</span> <span class="va">params</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'retro_years'</span>, <span class="st">'project_years'</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Can specify the name parts you want</span></span></span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="st">'species'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend(stock, g3_param_table("K", expand.grid(cur_year = seq(start_year, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     end_year))), name_part = "species")</span>
+<span class="r-in"><span><span class="co"># Not 'by' anything, so we add a single parameter value</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> K      K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Can set defaults for the parameter template when defining a parameter</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, value <span class="op">=</span> <span class="fl">5</span>, lower <span class="op">=</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>    upper <span class="op">=</span> <span class="fl">8</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> K      K          5    FALSE  FALSE     2     8       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># by_stock, so the parameters will have the stock name prepended</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K stock_imm.K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Similarly, we can prepend year &amp; age</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                switch type value optimise random lower upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.1 stock_imm.K.1990.1          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.1 stock_imm.K.1991.1          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.1 stock_imm.K.1992.1          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.1 stock_imm.K.1993.1          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.1 stock_imm.K.1994.1          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.2 stock_imm.K.1990.2          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.2 stock_imm.K.1991.2          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.2 stock_imm.K.1992.2          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.2 stock_imm.K.1993.2          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.2 stock_imm.K.1994.2          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.3 stock_imm.K.1990.3          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.3 stock_imm.K.1991.3          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.3 stock_imm.K.1992.3          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.3 stock_imm.K.1993.3          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.3 stock_imm.K.1994.3          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.4 stock_imm.K.1990.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.4 stock_imm.K.1991.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.4 stock_imm.K.1992.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.4 stock_imm.K.1993.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.4 stock_imm.K.1994.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.1       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.1       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.1       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.1       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.1       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.2       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.2       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.2       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.2       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.2       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.3       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.3       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.3       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.3       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.3       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.4       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.4       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.4       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.4       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.4       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can specify the name part to use,</span></span></span>
+<span class="r-in"><span><span class="co"># e.g. if a parameter should be shared between mature and immature:</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="st">'species'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1990 stock.K.1990          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1991 stock.K.1991          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1992 stock.K.1992          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1993 stock.K.1993          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1994 stock.K.1994          0     TRUE  FALSE    NA    NA       NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Can give a list of stocks, in which case it works out name parts for you</span></span></span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_a</span>, <span class="va">stock_b</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend("stock", g3_param("K"))</span>
-<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_a</span>, <span class="va">stock_b</span><span class="op">)</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_prepend("stock", g3_param_table("K", expand.grid(age = seq(min(stock_aaa__minage, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stock_bbb__minage), max(stock_aaa__maxage, stock_bbb__maxage)))))</span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_imm</span>, <span class="va">stock_mat</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K stock.K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_imm</span>, <span class="va">stock_mat</span><span class="op">)</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1 stock.K.1          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.2 stock.K.2          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.3 stock.K.3          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.4 stock.K.4          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.5 stock.K.5          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.6 stock.K.6          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can set fixed scale/offset for the parameter</span></span></span>
+<span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, scale <span class="op">=</span> <span class="fl">5</span>, offset <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g3_param("K") * 5 + 9</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ...or give names and they will also be parameters, sharing the by_stock setting</span></span></span>
+<span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="st">"sc"</span>, offset <span class="op">=</span> <span class="st">"offs"</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                        switch type value optimise random lower upper parscale</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K       stock_imm.K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.sc     stock_imm.sc          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.offs stock_imm.offs          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

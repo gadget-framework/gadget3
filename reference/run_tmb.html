@@ -88,12 +88,17 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3_to_tmb</span><span class="op">(</span><span class="va">actions</span>, trace <span class="op">=</span> <span class="cn">FALSE</span>, strict <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp_code</span>, parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span>,</span>
-<span>    compile_flags <span class="op">=</span></span>
-<span>        <span class="kw">if</span> <span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O1"</span>, <span class="st">"-march=native"</span><span class="op">)</span></span>
-<span>        <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-flto"</span>, <span class="st">"-march=native"</span><span class="op">)</span>,</span>
-<span>    work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>    output_script <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">g3_tmb_adfun</span><span class="op">(</span></span>
+<span>        <span class="va">cpp_code</span>,</span>
+<span>        parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">'parameter_template'</span><span class="op">)</span>,</span>
+<span>        compile_flags <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">'gadget3.tmb.compile_flags'</span>, default <span class="op">=</span></span>
+<span>            <span class="kw">if</span> <span class="op">(</span><span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O1"</span>, <span class="st">"-march=native"</span><span class="op">)</span></span>
+<span>            <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-O3"</span>, <span class="st">"-flto=auto"</span>, <span class="st">"-march=native"</span><span class="op">)</span> <span class="op">)</span>,</span>
+<span>        work_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">'gadget3.tmb.work_dir'</span>, default <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        output_script <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        compile_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>            framework <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"gadget3.tmb.framework"</span>, default <span class="op">=</span> <span class="st">"TMBad"</span><span class="op">)</span> <span class="op">)</span>,</span>
+<span>        <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -137,10 +142,16 @@
     <code>obj.fun$fn(g3_tmb_par(param_tbl))</code>. In other cases, <code>FALSE</code>.</p></dd>
 
   <dt>compile_flags</dt>
-<dd><p>List of extra flags to compile with, use e.g. "-g" to enable debugging output.</p></dd>
+<dd><p>List of extra flags to compile with, use e.g. "-g" to enable debugging output.
+    Can be set with an option, e.g. <code>options(gadget3.tmb.compile_flags = c('-O0', '-g'))</code></p></dd>
+
+  <dt>compile_args</dt>
+<dd><p>Any other arguments to pass to <a href="https://rdrr.io/pkg/TMB/man/compile.html" class="external-link">TMB::compile</a></p></dd>
 
   <dt>work_dir</dt>
-<dd><p>Directory to write and compile .cpp files in. Defaults to R's current temporary directory</p></dd>
+<dd><p>Directory to write and compile .cpp files in. Defaults to R's current temporary directory
+    Set this to preserve compiled output and re-use between R sessions if possible.
+    Can be set with an option, e.g. <code>options(gadget3.tmb.work_dir = fs::path_abs('tmb-workdir'))</code></p></dd>
 
   <dt>output_script</dt>
 <dd><p>If <code>TRUE</code>, create a temporary R script that runs <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a>, and return the location.
@@ -277,16 +288,6 @@
 <span class="r-in"><span>  <span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> using C++ compiler: ‘g++ (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0’</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic set_dependent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic envir_lookup_by_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic list_lookup_by_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic sexp_to_vector</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic logspace_add</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic set_dependent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic envir_lookup_by_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic list_lookup_by_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic sexp_to_vector</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Constructing atomic logspace_add</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># NB: TMB::gdbsource() requires both "R" and "gdb" to be available</span></span></span>
 <span class="r-in"><span><span class="co"># NB: gdbsource hangs on windows - https://github.com/kaskr/adcomp/issues/385</span></span></span>

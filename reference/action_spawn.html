@@ -110,6 +110,7 @@
 <span>        beta_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'wbeta'</span>, by_stock <span class="op">=</span> <span class="va">wgt_by_stock</span><span class="op">)</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        wgt_by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_step <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">spawn</span>,</span>
 <span>        recruit_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">renewal</span><span class="op">)</span></span></code></pre></div>
@@ -156,6 +157,10 @@
 
   <dt>mean_f,stddev_f,alpha_f,beta_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> substituted into stock structure calculations, see <a href="action_renewal.html">g3a_renewal_normalparam</a> for details.</p></dd>
+
+  <dt>run_step</dt>
+<dd><p>Which step to perform renewal in, or <code>NULL</code> for continuous spawning.
+    Adds <code>cur_step == (run_step)</code> into default <var>run_f</var>.</p></dd>
 
   <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
@@ -320,7 +325,7 @@
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort</a>,
+    <div class="dont-index"><p><a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn</a>,
   <code><a href="action_naturalmortality.html">g3a_naturalmortality</a></code>,
   <code><a href="stock.html">g3_stock</a></code></p></div>
     </div>

@@ -431,12 +431,13 @@ iterative reweighting</p>
 <span></span>
 <span><span class="co">#obj.fn$env$tracepar &lt;- TRUE</span></span>
 <span><span class="co">#obj.fn$env$tracemgc &lt;- TRUE</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">obj.fn</span><span class="op">$</span><span class="va">par</span>, fn <span class="op">=</span> <span class="va">obj.fn</span><span class="op">$</span><span class="va">fn</span>, gr <span class="op">=</span> <span class="va">obj.fn</span><span class="op">$</span><span class="va">gr</span>, method <span class="op">=</span> <span class="st">'BFGS'</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    maxit <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>    trace <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>    reltol <span class="op">=</span> <span class="va">.Machine</span><span class="op">$</span><span class="va">double.eps</span><span class="op">^</span><span class="fl">2</span> <span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">params.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_relist</a></span><span class="op">(</span><span class="va">params.in</span>, <span class="va">out</span><span class="op">$</span><span class="va">par</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_fit</span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># TODO:</span></span>
+<span><span class="co">#out &lt;- optim(par = obj.fn$par, fn = obj.fn$fn, gr = obj.fn$gr, method = 'BFGS', control = list(</span></span>
+<span><span class="co">#    maxit = 1000,</span></span>
+<span><span class="co">#    trace = 1,</span></span>
+<span><span class="co">#    reltol = .Machine$double.eps^2 ))</span></span>
+<span><span class="co">#params.out &lt;- g3_tmb_relist(params.in, out$par)</span></span>
+<span><span class="co">#fit &lt;- gadgetutils::g3_fit(model_code, params.out)</span></span></code></pre></div>
 </div>
 </div>
 </div>

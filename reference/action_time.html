@@ -93,7 +93,8 @@
 <span>        final_year_steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">step_lengths</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>        project_years <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"project_years"</span>, value <span class="op">=</span> <span class="fl">0</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>        retro_years <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"retro_years"</span>, value <span class="op">=</span> <span class="fl">0</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
-<span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span></code></pre></div>
+<span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">initial</span>,</span>
+<span>        run_stop_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -105,7 +106,7 @@
 <dd><p>After this year, model run will stop.</p></dd>
 
   <dt>step_lengths</dt>
-<dd><p>Either an MFDB time grouping, e.g. <code>mfdb::mfdb_timestep_quarterly</code>, or a
+<dd><p>Either an MFDB time grouping, e.g. <code><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb::mfdb_timestep_quarterly</a></code>, or a
     vector of step lengths which should should sum to 12,
     for example, <code>c(3,3,3,3)</code> for quarterly steps within a year.</p></dd>
 
@@ -136,8 +137,10 @@
 <p>Defaults to an unoptimized <code>retro_years</code> parameter, set to 0.
     Generally, you would change this parameter in the parameter template, rather than changing here.</p></dd>
 
-  <dt>run_at</dt>
-<dd><p>Integer order that actions will be run within model, see <code><a href="action_order.html">g3_action_order</a></code>.</p></dd>
+  <dt>run_at, run_stop_at</dt>
+<dd><p>Integer order that actions will be run within model, see <code><a href="action_order.html">g3_action_order</a></code>.
+    <var>run_at</var> does year variable accounting,
+    <var>run_stop_at</var> is when the model will finish if past the final step in the model.</p></dd>
 
 </dl></div>
     <div id="details">

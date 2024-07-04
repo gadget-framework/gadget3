@@ -352,19 +352,105 @@ then we get parameters for both <code>fish_imm.f_surv.l50</code> &amp;
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
 <span>    suitabilities <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span>by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__num &lt;- fish_imm__num * (1 - fish_imm__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__num &lt;- fish_mat__num * (1 - fish_mat__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"           "fish_imm.f_surv.alpha" "fish_imm.f_surv.l50"  </span></span>
 <span><span class="co">## [4] "fish_mat.f_surv.alpha" "fish_mat.f_surv.l50"   "project_years"</span></span></code></pre>
 <p>If <code>by_stock = 'species'</code>, then there is a single, shared
 <code>fish.f_surv.l50</code> parameter:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
 <span>    suitabilities <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span>by_stock <span class="op">=</span> <span class="st">'species'</span><span class="op">)</span>,</span>
-<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__num &lt;- fish_imm__num * (1 - fish_imm__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__num &lt;- fish_mat__num * (1 - fish_mat__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"       "fish.f_surv.alpha" "fish.f_surv.l50"  </span></span>
 <span><span class="co">## [4] "project_years"</span></span></code></pre>
 <p>The <code>by_stock</code> parameter is just a convenient shortcut to
@@ -372,14 +458,57 @@ change the default settings, if we specify
 <code><a href="../reference/params.html">g3_parameterized()</a></code> ourselves we can change the
 parameterization in other ways, for example <code>by_year = TRUE</code>
 gives us per-year <code>l50</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
 <span>    suitabilities <span class="op">=</span> <span class="fu"><a href="../reference/suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span></span>
 <span>        l50 <span class="op">=</span> <span class="fu"><a href="../reference/params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"l50"</span>, by_stock <span class="op">=</span> <span class="st">'species'</span>, by_predator <span class="op">=</span> <span class="cn">TRUE</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__num &lt;- fish_imm__num * (1 - fish_imm__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_imm__num[, fish_imm__area_idx, fish_imm__age_idx] * fish_imm__wgt[, fish_imm__area_idx, fish_imm__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__consratio &lt;- fish_imm__totalpredate/avoid_zero_vec(fish_imm__num * fish_imm__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_imm__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_imm__totalpredate &lt;- (fish_imm__num * fish_imm__wgt) * fish_imm__consratio</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__num' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__num &lt;- fish_mat__num * (1 - fish_mat__consratio)</span></span></code></pre>
+<pre><code><span><span class="co">## Warning in value[[3L]](cond): Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## g3_with(`:=`(catchability, (suitability * fish_mat__num[, fish_mat__area_idx, fish_mat__age_idx] * fish_mat__wgt[, fish_mat__area_idx, fish_mat__age_idx])), `:=`(f_surv__area_idx, g3_idx(1L)), `:=`(predator_area, area), {</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__consratio &lt;- fish_mat__totalpredate/avoid_zero_vec(fish_mat__num * fish_mat__wgt)</span></span>
+<span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
+<span><span class="co">## Used in expression(s):</span></span>
+<span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"           "fish_imm.f_surv.alpha" "fish.f_surv.l50.1990" </span></span>
 <span><span class="co">## [4] "fish.f_surv.l50.1991"  "fish.f_surv.l50.1992"  "fish.f_surv.l50.1993" </span></span>
 <span><span class="co">## [7] "fish.f_surv.l50.1994"  "fish_mat.f_surv.alpha" "project_years"</span></span></code></pre>
@@ -396,7 +525,7 @@ observation data could contain a <em>stock</em> column with
 <p>Survey indices should be handed the full <code>stocks</code> list,
 instead of a single stock, but are otherwise the same as before:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create abundance index for si_cpue ########################</span></span>
 <span></span>
 <span><span class="co"># Generate random data</span></span>
@@ -426,7 +555,7 @@ instead of a single stock, but are otherwise the same as before:</p>
 </h3>
 <p>At this point, we are ready to convert our model into code:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
 <span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -439,7 +568,7 @@ lot of the parameter settings will work regardless of the model being
 single- or multi-stock, so we don’t need to change the initial values
 from the previous model:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guess l50 / linf based on stock sizes</span></span>
 <span><span class="va">estimate_l50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">estimate_linf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span></span>
@@ -469,7 +598,7 @@ TMB <em>objective function</em>.
 <code>gadgetutils::g3_iterative()</code> then optimises based on
 iterative reweighting</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
 <span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span><span class="op">)</span></span>
 <span></span>
@@ -487,14 +616,14 @@ iterative reweighting</p>
 <p>Once this has finished, we can view the output using
 <code>gadgetplots::gadget_plots()</code>.</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate detailed report ######################</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_fit</span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span>
 <span><span class="fu">gadgetplots</span><span class="fu">::</span><span class="fu">gadget_plots</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"figs"</span>, file_type <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Once finished, you can view the output in your web browser:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="st">"figs/model_output_figures.html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>

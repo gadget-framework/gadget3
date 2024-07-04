@@ -119,12 +119,12 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Evaluate suitiability function for given stocks</span></span></span>
 <span class="r-in"><span><span class="fu">g3_eval</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="suitability.html">g3_suitability_andersen</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    predstock <span class="op">=</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'pred'</span>, <span class="fl">11</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    predator_length <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>    stock <span class="op">=</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'prey'</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    11:12    12:13    13:14    14:15    15:16    16:17    17:18    18:19 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.397622 1.767104 1.920011 1.980810 1.999132 1.997659 1.988375 1.975444 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    19:20   20:Inf </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.960940 1.945979 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1:2        2:3        3:4        4:5        5:6        6:7        7:8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.06590394 0.17962624 0.31617501 0.45914780 0.60006286 0.73464024 0.86084911 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        8:9       9:10     10:Inf </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.97788544 1.08562040 1.18429375 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "force_vector" "numeric"     </span>
 <span class="r-in"><span></span></span>

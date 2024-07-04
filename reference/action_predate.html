@@ -98,12 +98,45 @@
 <span>                                    sum_stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>                                    recalc_f <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3a_predate_maxconsumption</span><span class="op">(</span></span>
+<span>        m0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'consumption.m0'</span>, value <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        m1 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'consumption.m1'</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        m2 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'consumption.m2'</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        m3 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'consumption.m3'</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        temperature <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_predate_catchability_predator</span><span class="op">(</span></span>
+<span>        prey_preferences <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        energycontent <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'energycontent'</span>, value <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        half_feeding_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'halffeeding'</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>        max_consumption <span class="op">=</span> <span class="fu">g3a_predate_maxconsumption</span><span class="op">(</span>temperature <span class="op">=</span> <span class="va">temperature</span><span class="op">)</span>,</span>
+<span>        temperature <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_predate</span><span class="op">(</span></span>
+<span>        <span class="va">predstock</span>,</span>
+<span>        <span class="va">prey_stocks</span>,</span>
+<span>        <span class="va">suitabilities</span>,</span>
+<span>        <span class="va">catchability_f</span>,</span>
+<span>        overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
+<span>            <span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span><span class="op">)</span> <span class="op">/</span> <span class="op">-</span><span class="fl">1e3</span></span>
+<span>        <span class="op">)</span>,</span>
+<span>        report_suitability <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>,</span>
+<span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">predate</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># NB: Deprecated interface, use g3a_predate()</span></span>
 <span><span class="fu">g3a_predate_fleet</span><span class="op">(</span><span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">catchability_f</span>,</span>
 <span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span><span class="op">)</span> <span class="op">/</span> <span class="op">-</span><span class="fl">1e3</span> <span class="op">)</span>,</span>
 <span>    run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">predate</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># NB: Deprecated interface, use g3a_predate_fleet with g3a_predate_catchability_totalfleet</span></span>
+<span><span class="co"># NB: Deprecated interface, use g3a_predate() with g3a_predate_catchability_totalfleet</span></span>
 <span><span class="fu">g3a_predate_totalfleet</span><span class="op">(</span><span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">amount_f</span>,</span>
 <span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span><span class="op">)</span> <span class="op">/</span> <span class="op">-</span><span class="fl">1e3</span> <span class="op">)</span>,</span>
@@ -112,8 +145,8 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>fleet_stock</dt>
-<dd><p><code><a href="stock.html">g3_stock</a></code> that describes the harvesting fleet.</p></dd>
+    <dl><dt>predstock, fleet_stock</dt>
+<dd><p><code><a href="stock.html">g3_stock</a></code> that describes the harvesting predators/fleet.</p></dd>
 
   <dt>prey_stocks</dt>
 <dd><p>List of <code><a href="stock.html">g3_stock</a></code>s that maturing <var>stock</var> should move into.</p></dd>
@@ -125,7 +158,7 @@
     by using <code><a href="suitability.html">g3_suitability_exponentiall50</a></code>.</p></dd>
 
   <dt>catchability_f</dt>
-<dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> generated by one of the <code>g3a_predate_catchability_*</code> functions,
+<dd><p>A list of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a>s generated by one of the <code>g3a_predate_catchability_*</code> functions,
     which define the total biomass a fleet is able to catch.</p></dd>
 
   <dt>E</dt>
@@ -152,8 +185,34 @@
   <dt>amount_f</dt>
 <dd><p>Equivalent to <var>E</var> passed to g3a_predate_catchability_totalfleet.</p></dd>
 
+  <dt>prey_preferences</dt>
+<dd><p>Either 1, indicating a Type II functional response, or &gt;1 for a Type III functional response.
+    Either a list of stock names to numbers, with an optional unnamed
+    default option, or a single number to be used for all stocks.</p></dd>
+
+  <dt>energycontent</dt>
+<dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object for the energy content of the current prey, in in kilojoules per kilogram.</p></dd>
+
+  <dt>half_feeding_f</dt>
+<dd><p>The biomass of prey required to allow the predator to consume prey at half the maximum consumption level.</p></dd>
+
+  <dt>max_consumption</dt>
+<dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for maximum consumption of the predator, in kilojoules per month.
+    Generally generated by <code>g3a_predate_maxconsumption</code></p></dd>
+
+  <dt>m0, m1, m2, m3</dt>
+<dd><p>Parameters for maximum possible consumption formula, see below.</p></dd>
+
+  <dt>temperature</dt>
+<dd><p>A  <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object for the current temperature, probably generated by <code><a href="timedata.html">g3_timeareadata</a></code>.</p></dd>
+
   <dt>overconsumption_f</dt>
 <dd><p>Overconsumption rule, a formula that should cap all values in <var>stock__consratio</var> to &lt;= 95<!-- %. --></p></dd>
+
+  <dt>report_suitability</dt>
+<dd><p>If TRUE, Generate a <code>suit_(prey)_(predator)__report</code> suitability array in the model report.
+    The dimensions in the report will vary depending on what the suitability function is dependent on, e.g. <code>predator_length</code>.</p>
+<p>NB: Currently cannot generate arrays for time-varying suitabilities.</p></dd>
 
   <dt>run_f</dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> specifying a condition for running this action, default always runs.</p></dd>
@@ -164,7 +223,7 @@
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p><code>g3a_predate_fleet</code> will, given a <code><a href="stock.html">g3_fleet</a></code> "predator" and <code><a href="stock.html">g3_stock</a></code> prey,
+    <p><code>g3a_predate</code> will, given a <code><a href="stock.html">g3_fleet</a></code> "predator" and a set of <code><a href="stock.html">g3_stock</a></code> preys,
   add predation into a model. The behaviour is driven by 2 parameters:</p>
 <p></p><dl><dt><var>suitabilities</var></dt>
 <dd><p>Defines a predator's preference within a prey stock, normally one of the suitability functions, e.g. <code><a href="suitability.html">g3_suitability_exponentiall50</a></code></p></dd>
@@ -176,15 +235,14 @@
 </dl><p>For the definition of each catchability function, see the values section below.</p>
 <p></p><div class="section">
 <h3 id="details-for-custom-actions">Details for custom actions<a class="anchor" aria-label="anchor" href="#details-for-custom-actions"></a></h3>
-<p>The actions will define the following stock instance variables for each given <var>fleet_stock</var> and <var>prey_stock</var>:</p><dl><dt><var>prey_stock__suit_fleet_stock</var></dt>
-<dd><p>Suitability of (prey_stock) for (fleet_stock), in a prey array.
-          i.e. the result of calculating the formula in <var>suitabilities</var> for the current state of the prey</p></dd>
+<p>The actions will define the following stock instance variables for each given <var>fleet_stock</var> and <var>prey_stock</var>:</p><dl><dt><var>(predstock)__totalsuit</var></dt>
+<dd><p>Total suitable prey for (predstock), i.e. \( \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl}\)</p></dd>
 
-      <dt><var>prey_stock__predby_predstock</var></dt>
-<dd><p>Biomass of (prey_stock) caught by (fleet_stock), in a prey array</p></dd>
+      <dt><var>prey_stock__suit_fleet_stock</var></dt>
+<dd><p>Suitability of (prey_stock) for (fleet_stock), i.e. \( F_{pl} \)</p></dd>
 
-      <dt><var>fleet_stock__catch</var></dt>
-<dd><p>Biomass of all prey caught by (fleet stock), in a fleet array</p></dd>
+      <dt><var>(predstock)_(prey_stock)__cons</var></dt>
+<dd><p>Biomass of (prey_stock) caught by (predstock), by predator &amp; prey dimensions</p></dd>
 
       <dt><var>prey_stock__totalpredate</var></dt>
 <dd><p>Biomass of total consumed (prey_stock), in a prey array</p></dd>
@@ -193,7 +251,9 @@
 <dd><p>Ratio of prey_stock__totalpredate / (current biomass), capped by <var>overconsumption_f</var></p></dd>
 
     
-</dl><p>A model can have any number of <code>g3a_predate_*</code> actions, so long as the
+</dl><p>In addition, <code>g3a_predate_fleet will generate</code> <var>prey_stock__predby_predstock</var>, Biomass of (prey_stock) caught by (fleet_stock), in a prey array,
+    for compatibility with older models. It is otherwise identical to <code>g3a_predate</code>.</p>
+<p>A model can have any number of <code>g3a_predate_*</code> actions, so long as the
     calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
     <code>run_f = ~age == 7</code>.</p>
 </div>
@@ -204,15 +264,19 @@
     <p></p>
 <div class="section">
 <h3 id="g-a-predate-catchability-totalfleet">g3a_predate_catchability_totalfleet<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-totalfleet"></a></h3>
-<p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> that defines a fleet's desired catch by total biomass (e.g. landings data):
-    $$ \frac{E N_{sl} W_{sl}}{\displaystyle \sum_{\it stocks} \sum_{\it lengths} N_{sl} W_{sl}} $$</p><dl><dt>\(E\)</dt>
+<p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects that define a fleet's desired catch by total biomass (e.g. landings data):
+    $$ F_{pl} = S N_{pl} W_{pl} $$
+    $$ C_{pl} = \frac{E F_{pl}}{\displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl}} $$</p><dl><dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
+
+      <dt>\(E\)</dt>
 <dd><p><var>E</var> argument, biomass caught by fleet. Generally a <code><a href="timedata.html">g3_timeareadata</a></code> table containing landings data, with year/step/area/weight columns</p></dd>
 
-      <dt>\(N\)</dt>
-<dd><p>Number of stock in length cell</p></dd>
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
-      <dt>\(W\)</dt>
-<dd><p>Mean weight of stock in length cell</p></dd>
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
     
 </dl><p></p>
@@ -222,12 +286,19 @@
 <p></p>
 <div class="section">
 <h3 id="g-a-predate-catchability-numberfleet">g3a_predate_catchability_numberfleet<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-numberfleet"></a></h3>
-<p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> that defines a fleet's desired catch by total number of stock landed (not the biomass):
-    $$ \frac{E N_{sl}}{\displaystyle \sum_{\it stocks} \sum_{\it lengths} N_{sl}} $$</p><dl><dt>\(E\)</dt>
+<p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects that define a fleet's desired catch by total number of stock landed (individuals, not biomass):
+    $$ F_{pl} = S N_{pl} $$
+    $$ C_{pl} = \frac{E F_{pl} W_{pl}}{\displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl}} $$</p><dl><dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
+
+      <dt>\(E\)</dt>
 <dd><p><var>E</var> argument, numbers caught by fleet. Generally a <code><a href="timedata.html">g3_timeareadata</a></code> table containing landings data, or a constant quota</p></dd>
 
-      <dt>\(N\)</dt>
-<dd><p>Number of stock in length cell</p></dd>
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
+
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
     
 </dl><p></p>
@@ -237,18 +308,22 @@
 <p></p>
 <div class="section">
 <h3 id="g-a-predate-catchability-linearfleet">g3a_predate_catchability_linearfleet<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-linearfleet"></a></h3>
-<p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object that defines a linear relationship between desired catch and available biomass:
-    $$ E \Delta t N_{sl} W_{sl} $$</p><dl><dt>\(E\)</dt>
+<p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects that define a linear relationship between desired catch and available biomass:
+    $$ F_{pl} = S N_{pl} W_{pl} $$
+    $$ C_{pl} = E \Delta t F_{pl} $$</p><dl><dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
+
+      <dt>\(E\)</dt>
 <dd><p><var>E</var> argument, scaling factor for the stock that is to be caught, per month</p></dd>
 
       <dt>\(\Delta t\)</dt>
 <dd><p>length of current timestep in months</p></dd>
 
-      <dt>\(N\)</dt>
-<dd><p>Number of stock in length cell</p></dd>
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
-      <dt>\(W\)</dt>
-<dd><p>Mean weight of stock in length cell</p></dd>
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
     
 </dl><p></p>
@@ -258,9 +333,12 @@
 <p></p>
 <div class="section">
 <h3 id="g-a-predate-catchability-effortfleet">g3a_predate_catchability_effortfleet<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-effortfleet"></a></h3>
-<p>This is a multi-species extension to linearfleet, allowing differently-parameterized catchability per-stock.
-    Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object that defines:
-    $$ c_{s} E \Delta t N_{sl} W_{sl} $$</p><dl><dt>\(c_{s}\)</dt>
+<p>This is a multi-species extension to linearfleet, allowing differently-parameterized catchability per-stock:
+    $$ F_{pl} = S N_{pl} W_{pl} $$
+    $$ C_{pl} = c_{s} E \Delta t F_{pl} $$</p><dl><dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
+
+      <dt>\(c_{s}\)</dt>
 <dd><p><var>catchability_fs</var> argument for the current stock</p></dd>
 
       <dt>\(E\)</dt>
@@ -269,11 +347,11 @@
       <dt>\(\Delta t\)</dt>
 <dd><p>length of current timestep in months</p></dd>
 
-      <dt>\(N\)</dt>
-<dd><p>Number of stock in length cell</p></dd>
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
-      <dt>\(W\)</dt>
-<dd><p>Mean weight of stock in length cell</p></dd>
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
     
 </dl><p></p>
@@ -284,10 +362,14 @@
 <div class="section">
 <h3 id="g-a-predate-catchability-quotafleet">g3a_predate_catchability_quotafleet<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-quotafleet"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> onject that defines catch based on the available biomass of the stock multiplied by a scaling factor set according to a simple harvest control rule:
-    $$ q E \Delta t N_{sl} W_{sl} $$</p><dl><dt>\(q\)</dt>
+    $$ F_{pl} = S N_{pl} W_{pl} $$
+    $$ C_{pl} = q E \Delta t F_{pl} $$</p><dl><dt>\(q\)</dt>
 <dd><p>quota selected from <var>quota_table</var>, corresponding to the total biomass of <var>sum_stocks</var>.
         For example, given <code>data.frame(biomass = c(10000, Inf), quota = I(list(g3_parameterized('quota.low'), g3_parameterized('quota.high'))))</code>,
         'quota.low' will be chosen when total biomass is less than 10000, otherwise 'quota.high' will be used.</p></dd>
+
+      <dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
 
       <dt>\(E\)</dt>
 <dd><p><var>E</var> argument, scaling factor for the stock that is to be caught, per month</p></dd>
@@ -295,11 +377,11 @@
       <dt>\(\Delta t\)</dt>
 <dd><p>length of current timestep</p></dd>
 
-      <dt>\(N\)</dt>
-<dd><p>Number of stock in length cell</p></dd>
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
-      <dt>\(W\)</dt>
-<dd><p>Mean weight of stock in length cell</p></dd>
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
 
     
 </dl><p>...if <var>recalc_f</var> is set, this will only be recaculated when true. Any other step
@@ -309,13 +391,67 @@
 
 <p></p>
 <div class="section">
-<h3 id="g-a-predate-fleet">g3a_predate_fleet<a class="anchor" aria-label="anchor" href="#g-a-predate-fleet"></a></h3>
-<p>An action (i.e. list of formula objects) that will...</p><ol><li><p>Zero fleet and prey catch counters</p></li>
-<li><p>For each prey, collect maximum desired by fleet for all prey, into a <var>prey_stock__predby_predstock</var> variable</p></li>
-<li><p>After all fleet consumption is done, scale consumption using <var>catchability_f</var>, sum into <var>prey_stock__totalpredate</var></p></li>
-<li><p>After all consumption is done, temporarily convert <var>prey_stock__predby_predstock</var> to a proprotion of <var>prey_stock__totalpredate</var></p></li>
+<h3 id="g-a-predate-maxconsumption">g3a_predate_maxconsumption<a class="anchor" aria-label="anchor" href="#g-a-predate-maxconsumption"></a></h3>
+<p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects that define a predator's maximum consumption:
+    $$ M_{L} = m_0 \Delta t e^{(m_1T-m_2T^3)} L^{m_3}  $$</p><dl><dt>\(m_x\)</dt>
+<dd><p><var>mx</var> parameter, for \(M_L\), maximum possible consumption for the predator on the current timestep</p></dd>
+
+      <dt>\(\Delta t\)</dt>
+<dd><p>length of current timestep in months</p></dd>
+
+      <dt>\(T\)</dt>
+<dd><p><var>temperature</var> parameter, formula representing current temperature</p></dd>
+
+    
+</dl><p></p>
+</div>
+
+
+<p></p>
+<div class="section">
+<h3 id="g-a-predate-catchability-predator">g3a_predate_catchability_predator<a class="anchor" aria-label="anchor" href="#g-a-predate-catchability-predator"></a></h3>
+<p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects that define the predator/prey relationship:
+    $$ F_{pl} = (S E_{p} N_{pl} W_{pl})^{d_p} $$
+    $$ C_{pl} = \frac{ N_{L} M_{L} \psi_L F_{pl} }{ E_{p} \displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl} } $$
+    $$ \psi_{L} = \frac{ \displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl} }{ H \Delta t + \displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl} } $$</p><dl><dt>\(S\)</dt>
+<dd><p>Suitability form <var>suitabilities</var> argument</p></dd>
+
+      <dt>\(\Delta t\)</dt>
+<dd><p>length of current timestep in months</p></dd>
+
+      <dt>\(N_{pl}\)</dt>
+<dd><p>Number of prey in length cell for prey \(p\), length \(l\)</p></dd>
+
+      <dt>\(W_{pl}\)</dt>
+<dd><p>Mean weight of prey in length cell for prey \(p\), length \(l\)</p></dd>
+
+      <dt>\(M_L\)</dt>
+<dd><p>Maximum possible consumption for the predator on the current timestep, in in kilojoules per month. See <code>g3a_predate_maxconsumption</code></p></dd>
+
+      <dt>\(L\)</dt>
+<dd><p>Length of the current predator</p></dd>
+
+      <dt>\(E_p\)</dt>
+<dd><p><var>energycontent</var> parameter, the energy content of prey</p></dd>
+
+      <dt>\(H\)</dt>
+<dd><p><var>half_feeding_f</var> parameter, the biomass of prey required to allow the predator to consume prey at half the maximum consumption level</p></dd>
+
+      <dt>\(T\)</dt>
+<dd><p><var>temperature</var> parameter, formula representing current temperature</p></dd>
+
+    
+</dl><p></p>
+</div>
+
+
+<p></p>
+<div class="section">
+<h3 id="g-a-predate">g3a_predate<a class="anchor" aria-label="anchor" href="#g-a-predate"></a></h3>
+<p>An action (i.e. list of formula objects) that will...</p><ol><li><p>For each prey, collect all suitable stock into a <var>predstock_prey_stock__suit</var> variable, using the <var>catchability_f</var> \(F_pl\) formula. The units here will depend on the <var>catchability_f</var> method used.</p></li>
+<li><p>After all predator consumption is done, scale consumption using the <var>catchability_f</var> \(C_pl\) formula into <var>predstock_prey_stock__cons</var>, summed into <var>prey_stock__totalpredate</var></p></li>
 <li><p>Calculate <var>prey_stock__consratio</var> (ratio of consumed to available), capping using <var>overconsumption_f</var>. Update <var>prey_stock__num</var></p></li>
-<li><p>Recalculate <var>prey_stock__predby_predstock</var>, <var>fleet_stock__catch</var>, post-overconsumption</p></li>
+<li><p>Recalculate <var>predstock_prey_stock__cons</var>, <var>predstock_prey_stock__suit</var>, post-overconsumption</p></li>
 </ol></div>
 
 
