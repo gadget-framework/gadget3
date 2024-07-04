@@ -21,7 +21,7 @@ vignette: >
 library(unittest)
 # Redirect ok() output to stderr
 options(unittest.output = stderr())
-options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
 
 library(gadget3)
 set.seed(123)

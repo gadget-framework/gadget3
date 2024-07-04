@@ -117,6 +117,7 @@ ut_cmp_df <- function (df, table_text, ...) {
 }
 
 vignette_base_dir <- function (extra) {
+    writeLines(c("Vignette current directory:", getwd()), con = stderr())
     if (basename(getwd()) == "vignettes") {
         out <- file.path("..", "baseline")
     } else if (basename(getwd()) == "gadget3") {
