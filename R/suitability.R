@@ -123,7 +123,7 @@ g3a_suitability_report <- function (
 
   # Step to populate array
   out <- list()
-  out[[step_id(run_at, 0, "g3a_suitability_report", predstock, stock)]] <- g3_step(f_substitute(~if (reporting_enabled > 0L && run_f) stock_with(suitrep, {
+  out[[step_id(run_at, 0, "g3a_suitability_report", predstock, stock)]] <- g3_step(f_substitute(~if (cur_step == 1) stock_with(suitrep, {
       stock_iterate(stock, stock_interact(predstock, {
           stock_ss(suitrep__report) <- suit_f
       }, prefix = 'predator'))

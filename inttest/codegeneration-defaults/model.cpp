@@ -367,7 +367,7 @@ Type objective_function<Type>::operator() () {
         if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
         }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+        if ( cur_step == 1 ) {
             suit_fish_comm__report = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
             REPORT(suit_fish_comm__report);
         }
@@ -430,7 +430,7 @@ Type objective_function<Type>::operator() () {
         fish__totalpredate.setZero();
         comm__totalsuit.setZero();
         {
-            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))));
+            auto suitability = suit_fish_comm__report;
 
             {
                 // g3a_predate_fleet for fish;

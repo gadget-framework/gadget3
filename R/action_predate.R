@@ -209,9 +209,19 @@ g3a_predate <- function (
             stock_with(predstock, predstock__totalsuit[] <- 0)
         })
 
+        # NB: Without unname(), any prey_stocks names leak into action names
+        suitrep_step <- g3a_suitability_report(
+            predstock,
+            stock,
+            list_to_stock_switch(suitabilities) )
+        for (i in seq_along(suitrep_step)) out[[names(suitrep_step)[[i]]]] <- suitrep_step[[i]]
+        suitrep <- environment(suitrep_step[[1]])$suitrep
+        suitrep__report <- environment(suitrep_step[[1]])$suitrep__report
+        report_suitability <- FALSE
+
         # Main predation step, iterate over prey and pull out everything this fleet needs
         catchability <- f_substitute(catchability_f$suit, list(suit_f = quote(suitability)))
-        environment(catchability)$suitability <- list_to_stock_switch(suitabilities)
+        environment(catchability)$suitability <- g3_step(~stock_with(suitrep, stock_ss(suitrep__report)), recursing = TRUE)
         out[[step_id(run_at, 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate_fleet for ", stock)
             debug_trace("Zero ", predstock, "-", stock, " biomass-consuming counter")

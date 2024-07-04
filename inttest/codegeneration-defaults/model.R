@@ -290,7 +290,7 @@ structure(function (param)
             detail_fish__num[, , , cur_time + 1] <- as_numeric_arr(fish__num)
         if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
             detail_fish__wgt[, , , cur_time + 1] <- as_numeric_arr(fish__wgt)
-        if (reporting_enabled > 0L && cur_time > total_steps) {
+        if (cur_step == 1) {
             suit_fish_comm__report[] <- 1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))
             REPORT(suit_fish_comm__report)
         }
@@ -335,7 +335,7 @@ structure(function (param)
         fish__totalpredate[] <- 0
         comm__totalsuit[] <- 0
         {
-            suitability <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]]))))
+            suitability <- suit_fish_comm__report[]
             {
                 comment("g3a_predate_fleet for fish")
                 comment("Zero comm-fish biomass-consuming counter")

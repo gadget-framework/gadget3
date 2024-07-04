@@ -259,9 +259,9 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(ling_mat_stddev)
     array<Type> ling_mat__num(35,11,1); ling_mat__num.setZero();
     array<Type> ling_mat__wgt(35,11,1); ling_mat__wgt.setConstant((double)(1));
-    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
     array<Type> suit_ling_imm_igfs__report(35);
     array<Type> suit_ling_mat_igfs__report(35);
+    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
     array<Type> ling_imm__totalpredate(35,8,1);
@@ -369,11 +369,11 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+        if ( cur_step == 1 ) {
             suit_ling_imm_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
             REPORT(suit_ling_imm_igfs__report);
         }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+        if ( cur_step == 1 ) {
             suit_ling_mat_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
             REPORT(suit_ling_mat_igfs__report);
         }
@@ -389,7 +389,7 @@ Type objective_function<Type>::operator() () {
         ling_mat__totalpredate.setZero();
         igfs__totalsuit.setZero();
         {
-            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
+            auto suitability = suit_ling_imm_igfs__report;
 
             {
                 // g3a_predate_fleet for ling_imm;
@@ -419,7 +419,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))));
+            auto suitability = suit_ling_mat_igfs__report;
 
             {
                 // g3a_predate_fleet for ling_mat;

@@ -189,10 +189,10 @@ structure(function (param)
         "age11", "age12", "age13", "age14", "age15"), area = "area1"))
     ling_mat__wgt <- array(1, dim = c(length = 35L, age = 11L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age5", "age6", "age7", "age8", "age9", "age10", 
         "age11", "age12", "age13", "age14", "age15"), area = "area1"))
-    retro_years <- param[["retro_years"]]
-    total_steps <- length(step_lengths) * (end_year - retro_years - start_year + 0L) + length(step_lengths) - 1L
     suit_ling_imm_igfs__report <- array(NA, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
     suit_ling_mat_igfs__report <- array(NA, dim = c(length = 35L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf")))
+    retro_years <- param[["retro_years"]]
+    total_steps <- length(step_lengths) * (end_year - retro_years - start_year + 0L) + length(step_lengths) - 1L
     nll_understocking__wgt <- array(0, dim = c(time = as_integer(total_steps + 1L)), dimnames = list(time = attributes(gen_dimnames(param))[["time"]]))
     nll <- 0
     ling_imm__totalpredate <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
@@ -317,11 +317,11 @@ structure(function (param)
                 }
             }
         }
-        if (reporting_enabled > 0L && cur_time > total_steps) {
+        if (cur_step == 1) {
             suit_ling_imm_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))
             REPORT(suit_ling_imm_igfs__report)
         }
-        if (reporting_enabled > 0L && cur_time > total_steps) {
+        if (cur_step == 1) {
             suit_ling_mat_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))
             REPORT(suit_ling_mat_igfs__report)
         }
@@ -335,7 +335,7 @@ structure(function (param)
         ling_mat__totalpredate[] <- 0
         igfs__totalsuit[] <- 0
         {
-            suitability <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))))
+            suitability <- suit_ling_imm_igfs__report[]
             {
                 comment("g3a_predate_fleet for ling_imm")
                 comment("Zero igfs-ling_imm biomass-consuming counter")
@@ -358,7 +358,7 @@ structure(function (param)
             }
         }
         {
-            suitability <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))))
+            suitability <- suit_ling_mat_igfs__report[]
             {
                 comment("g3a_predate_fleet for ling_mat")
                 comment("Zero igfs-ling_mat biomass-consuming counter")
