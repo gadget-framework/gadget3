@@ -4,6 +4,7 @@
 /*_*.tar.gz
 ^cran-comments$
 /docs
+core
 /vignettes/.*
 /vignettes/*.R
 /vignettes/*.html

@@ -10,6 +10,7 @@
 ^[^/]+\.R$
 \.so$
 \.o$
+core
 
 ^scratch$
 ^inttest$
