@@ -221,7 +221,13 @@ g3a_predate <- function (
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
         catchability <- f_substitute(catchability_f$suit, list(suit_f = quote(suitability)))
-        environment(catchability)$suitability <- g3_step(~stock_with(suitrep, stock_ss(suitrep__report)), recursing = TRUE)
+        if (length(suitrep$iter_ss) == 0) {
+            # suitrep is a constant
+            environment(catchability)$suitability <- g3_step(~stock_with(suitrep, stock_ss(suitrep__report, vec = single)), recursing = TRUE)
+        } else {
+            # suitrep is a length vector
+            environment(catchability)$suitability <- g3_step(~stock_with(suitrep, g3_cast_vector(stock_ss(suitrep__report))), recursing = TRUE)
+        }
         out[[step_id(run_at, 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate_fleet for ", stock)
             debug_trace("Zero ", predstock, "-", stock, " biomass-consuming counter")
