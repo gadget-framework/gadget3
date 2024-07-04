@@ -9,6 +9,7 @@
 /vignettes/*.html
 /vignettes/WGTS/
 /vignettes/figs/
+/vignettes/*_files/
 /WGTS/
 /figs/
 
@@ -16,3 +17,5 @@
 /inttest/*/*.out
 /inttest/*/*.log
 /demo-ling_TEST/
+
+work_dir

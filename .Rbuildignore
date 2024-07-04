@@ -23,9 +23,11 @@
 
 ^vignettes/WGTS/
 ^vignettes/figs/
+^vignettes/.*_files/
 ^baseline/
 ^WGTS/
 ^figs/
+work_dir
 
 ^_pkgdown.yml$
 ^pkgdown/

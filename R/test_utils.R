@@ -116,15 +116,19 @@ ut_cmp_df <- function (df, table_text, ...) {
     unittest::ut_cmp_equal(df, expected, ...)
 }
 
-vignette_test_output <- function (vign_name, model_code, params.out) {
+vignette_base_dir <- function (extra) {
     if (basename(getwd()) == "vignettes") {
-        out_base <- file.path("..", "baseline", vign_name)
+        out <- file.path("..", "baseline")
     } else if (basename(getwd()) == "gadget3") {
-        out_base <- file.path("baseline", vign_name)
+        out <- file.path("baseline")
     } else {
-        out_base <- file.path("gadget3", "baseline", vign_name)
+        out <- file.path("gadget3", "baseline")
     }
+    return(file.path(tools::file_path_as_absolute(out), extra))
+}
 
+vignette_test_output <- function (vign_name, model_code, params.out) {
+    out_base <- vignette_base_dir(vign_name)
     writeLines(model_code, con = paste0(out_base, ".cpp"))
 
     if (!file.exists(paste0(out_base, '.params'))) {

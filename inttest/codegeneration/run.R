@@ -3,6 +3,7 @@ library(magrittr)
 library(unittest)
 
 library(gadget3)
+options(gadget3.tmb.work_dir = 'work_dir')
 
 unattr <- function (x) {
     attributes(x) <- NULL

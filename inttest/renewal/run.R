@@ -3,6 +3,7 @@ library(gadget3)
 library(gadget2to3)
 library(Rgadget)
 library(unittest)
+options(gadget3.tmb.work_dir = 'work_dir')
 
 year_range <- 1982:1990
 

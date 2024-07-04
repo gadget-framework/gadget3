@@ -1016,6 +1016,8 @@ g3_tmb_adfun <- function(
         ...) {
     model_params <- attr(cpp_code, 'parameter_template')
 
+    if (!dir.exists(work_dir)) dir.create(work_dir, showWarnings = FALSE, recursive = TRUE)
+
     # Combine defaults, compile_args$flags & compile_flags together
     compile_args$flags <- paste(c(
         "-std=gnu++11",
