@@ -175,7 +175,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
       \item{\var{prey_stock__consratio}}{Ratio of prey_stock__totalpredate / (current biomass), capped by \var{overconsumption_f}}
     }
 
-    In addition, \code{g3a_predate_fleet will generate} \var{prey_stock__predby_predstock}, {Biomass of (prey_stock) caught by (fleet_stock), in a prey array},
+    In addition, \code{g3a_predate_fleet} will generate \var{prey_stock__predby_predstock}, Biomass of (prey_stock) caught by (fleet_stock), in a prey array,
     for compatibility with older models. It is otherwise identical to \code{g3a_predate}.
 
     A model can have any number of \code{g3a_predate_*} actions, so long as the
