@@ -1065,7 +1065,13 @@ g3_tmb_adfun <- function(
     names(tmb_map) <- cpp_escape_varname(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'])
 
     # optimise=F & random=T are added to list of random effects
-    tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
+    tmb_extras <- list(...)
+    if (identical(tmb_extras$type, "Fun")) {
+        # retape() assumes that ADFun has been generated if any parameters are random, so force them off
+        tmb_random <- NULL
+    } else {
+        tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
+    }
 
     if (any(parameters$random & parameters$optimise)) {
         stop("Parameters with random=TRUE & optimise=TRUE doesn't make sense: ", paste(
@@ -1185,6 +1191,9 @@ g3_tmb_adfun <- function(
         }
         return(out)
     }
+
+    # With Type = "Fun", fn$par sometimes isn't set. Bodge around it
+    if (is.null(fn$par)) fn$par <- g3_tmb_par(parameters)
     return(fn)
 }
 
