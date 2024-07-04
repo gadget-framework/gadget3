@@ -16,12 +16,17 @@
 \usage{
 g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
-g3_tmb_adfun(cpp_code, parameters = attr(cpp_code, "parameter_template"),
-    compile_flags =
-        if (.Platform$OS.type == "windows") c("-O1", "-march=native")
-        else c("-O3", "-flto", "-march=native"),
-    work_dir = tempdir(),
-    output_script = FALSE, ...)
+g3_tmb_adfun(
+        cpp_code,
+        parameters = attr(cpp_code, 'parameter_template'),
+        compile_flags = getOption('gadget3.tmb.compile_flags', default =
+            if (.Platform$OS.type == "windows") c("-O1", "-march=native")
+            else c("-O3", "-flto=auto", "-march=native") ),
+        work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
+        output_script = FALSE,
+        compile_args = list(
+            framework = getOption("gadget3.tmb.framework", default = "TMBad") ),
+        ...)
 
 g3_tmb_par(parameters, include_random = TRUE)
 
@@ -68,9 +73,15 @@ g3_tmb_relist(parameters, par)
   }
   \item{compile_flags}{
     List of extra flags to compile with, use e.g. "-g" to enable debugging output.
+    Can be set with an option, e.g. \code{options(gadget3.tmb.compile_flags = c('-O0', '-g'))}
+  }
+  \item{compile_args}{
+    Any other arguments to pass to \link[TMB:compile]{TMB::compile}
   }
   \item{work_dir}{
     Directory to write and compile .cpp files in. Defaults to R's current temporary directory
+    Set this to preserve compiled output and re-use between R sessions if possible.
+    Can be set with an option, e.g. \code{options(gadget3.tmb.work_dir = fs::path_abs('tmb-workdir'))}
   }
   \item{output_script}{
     If \code{TRUE}, create a temporary R script that runs \link[TMB:MakeADFun]{MakeADFun}, and return the location.

@@ -16,9 +16,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     # Does this call produce a scalar value?
-    value_is_scalar <- function (c_val) {
-        # Single numeric values are constants
-        if (is.numeric(c_val)) return(length(c_val) == 1)
+    value_is_scalar <- function (c_val, fallback = FALSE) {
+        # Scalar numeric values are constants
+        if (is.numeric(c_val)) return(!is.array(c_val) && !is_force_vector(c_val))
 
         # Single parameters are constants
         if (is.call(c_val) && c_val[[1]] == 'g3_cpp_asis' && isTRUE(c_val$scalar)) return(TRUE)
@@ -30,13 +30,25 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 # When considering a global formula, consider the init condition
                 env_defn <- attr(env_defn, "g3_global_init_val")
             }
-            return(is.numeric(env_defn) && !is.array(env_defn) && length(env_defn) == 1)
+            return(is.numeric(env_defn) && !is.array(env_defn) && !is_force_vector(env_defn))
         }
-
         # TODO: Obviously not exhaustive, but ideally one would consider setConstant() a TMB bug.
 
-        # Dunno. Assume not.
-        return(FALSE)
+        # Dunno.
+        return(fallback)
+    }
+
+    # Ensure (x) is transformed into a matrix
+    to_matrix <- function (x) {
+        inner <- cpp_code(x, in_envir, next_indent)
+        if (is.symbol(x)) {
+            return(paste0(inner, '.matrix()'))
+        }
+        if (is.call(x) && x[[1]] == "diag") {
+            # diag() returns a matrix already
+            return(inner)
+        }
+        return(paste0('(', inner, ').matrix()'))
     }
 
     if (!is.call(in_call)) {
@@ -77,6 +89,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Join the result together
         out <- sprintf("{%s%s%s}", next_indent, paste0(lines, collapse = next_indent), indent)
         return(out)
+    }
+
+    if (call_name %in% c("g3_cast_vector")) {
+        # Ensure expression is vector type, invariably a bodge somewhere
+        return(paste0(
+            "(vector<Type>)(",
+            cpp_code(in_call[[2]], in_envir, next_indent),
+            ")"))
     }
 
     if (call_name %in% c("g3_cpp_asis")) {
@@ -354,23 +374,32 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "^") {
         # Power operator
+        if ( value_is_scalar(in_call[[2]], fallback = TRUE) ) {
+            return(paste0(
+                "pow(",
+                cpp_code(in_call[[2]], in_envir, next_indent), ", ",
+                # NB: exponent needs to be (Type), regular (int) isn't allowed
+                "(Type)", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+        }
+        # Use .pow(), as "auto x = 10 * pow(vec, (Type)2)" does odd things
         return(paste0(
-            "pow(",
-            cpp_code(in_call[[2]], in_envir, next_indent), ", ",
-            # NB: exponent needs to be (Type), regular (int) isn't allowed
-            "(Type)", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+            "(", cpp_code(in_call[[2]], in_envir, next_indent), ").pow(",
+            cpp_code(in_call[[3]], in_envir, next_indent), ")" ))
     }
 
     if (call_name == "%*%") {
         # (matrix) multiplication - cast what should be arrays into matrices
-        to_matrix <- function (x) {
-            inner <- cpp_code(x, in_envir, next_indent)
-            if (is.symbol(x)) {
-                return(paste0(inner, '.matrix()'))
-            }
-            return(paste0('(', inner, ').matrix()'))
-        }
-        return(paste0(to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]])))
+        # NB: We have to cast back to TMB matrix<Type> for .vec() to be available
+        return(paste0("(matrix<Type>)(", to_matrix(in_call[[2]]), " * ", to_matrix(in_call[[3]]), ")"))
+    }
+
+    if (call_name == "diag") {
+        # diag(vec) - generate diagonal matrix
+        return(paste0(
+            # NB: asDiagonal returns an eigen construction, not a real matrix<Type> we can multiply
+            "(matrix<Type>)(",
+            to_matrix(in_call[[2]]),
+            ".asDiagonal())" ))
     }
 
     if (call_name == "*") {
@@ -528,13 +557,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name %in% c("colSums")) {
-        # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().colwise().sum()"))
+        # NB: colwise/rowwise only works on matrices, TMB arrays are 1-dimensional as far as eigen is concerned, so colwise/rowwise produce useless answers
+        return(paste0(to_matrix(in_call[[2]]), ".colwise().sum()"))
     }
 
     if (call_name %in% c("rowSums")) {
-        # NB: colwise/rowwise only works on matrices, working directly on TMB::arrays would work on 1-dimensional array, which is useless
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").matrix().rowwise().sum()"))
+        # NB: colwise/rowwise only works on matrices, TMB arrays are 1-dimensional as far as eigen is concerned, so colwise/rowwise produce useless answers
+        return(paste0(to_matrix(in_call[[2]]), ".rowwise().sum()"))
     }
 
     if (call_name == "rep" && (is.null(names(in_call)[[3]]) || names(in_call)[[3]] == 'times')) {
@@ -593,7 +622,6 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(c(
-        g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
         collated_actions,
         NULL), parent = g3_env, wrap_call = call("while", TRUE))
     model_data <- new.env(parent = emptyenv())
@@ -811,6 +839,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 # Decide base type
                 if (all(is.integer(var_val))) {
                     cpp_type <- 'int'
+                } else if (is_force_numeric(var_val)) {
+                    cpp_type <- 'double'
                 } else if (all(is.numeric(var_val)) || all(is.na(var_val))) {
                     # NB: array(NA) isn't numeric, but that's what we probably want
                     cpp_type <- 'Type'
@@ -970,17 +1000,29 @@ print.g3_cpp <- function(x, ...) {
 }
 
 # Turn a g3 TMB bit of code into an adfun
-g3_tmb_adfun <- function(cpp_code,
-                         parameters = attr(cpp_code, 'parameter_template'),
-                         compile_flags =
-                             # No -flto since it won't(?) work out of the box
-                             # https://stackoverflow.com/questions/43152633/invalid-register-for-seh-savexmm-in-cygwin
-                             # -O1, since -O3 is causing unscruitable problems linking as C++
-                             if (.Platform$OS.type == "windows") c("-O1", "-march=native")
-                             else c("-O3", "-flto", "-march=native"),
-                         work_dir = tempdir(),
-                         output_script = FALSE, ...) {
+# NB: No -flto for windows since it won't(?) work out of the box
+#     https://stackoverflow.com/questions/43152633/invalid-register-for-seh-savexmm-in-cygwin
+#     -O1, since -O3 is causing unscruitable problems linking as C++
+g3_tmb_adfun <- function(
+        cpp_code,
+        parameters = attr(cpp_code, 'parameter_template'),
+        compile_flags = getOption('gadget3.tmb.compile_flags', default =
+            if (.Platform$OS.type == "windows") c("-O1", "-march=native")
+            else c("-O3", "-flto=auto", "-march=native") ),
+        work_dir = getOption('gadget3.tmb.work_dir', default = tempdir()),
+        output_script = FALSE,
+        compile_args = list(
+            framework = getOption("gadget3.tmb.framework", default = "TMBad") ),
+        ...) {
     model_params <- attr(cpp_code, 'parameter_template')
+
+    # Combine defaults, compile_args$flags & compile_flags together
+    compile_args$flags <- paste(c(
+        "-std=gnu++11",
+        "-Wno-ignored-attributes",
+        "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
+        compile_args$flags,
+        compile_flags), collapse = " ")
 
     # If parameters is a list, merge into our data.frames
     if (!is.data.frame(parameters) && is.list(parameters)) {
@@ -1008,6 +1050,10 @@ g3_tmb_adfun <- function(cpp_code,
         if (parameters[i, 'type'] == "" && length(val) != 1) stop("Parameter ", parameters[i, 'switch'], " should be a single value")
     }
 
+    if (!any(parameters$optimise) && !any(parameters$random)) {
+        stop("No parameters with optimise=TRUE or random=TRUE. Set at least one optimisable parameter to run under TMB")
+    }
+
     tmb_parameters <- structure(
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
@@ -1019,7 +1065,13 @@ g3_tmb_adfun <- function(cpp_code,
     names(tmb_map) <- cpp_escape_varname(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'])
 
     # optimise=F & random=T are added to list of random effects
-    tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
+    tmb_extras <- list(...)
+    if (identical(tmb_extras$type, "Fun")) {
+        # retape() assumes that ADFun has been generated if any parameters are random, so force them off
+        tmb_random <- NULL
+    } else {
+        tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
+    }
 
     if (any(parameters$random & parameters$optimise)) {
         stop("Parameters with random=TRUE & optimise=TRUE doesn't make sense: ", paste(
@@ -1028,11 +1080,19 @@ g3_tmb_adfun <- function(cpp_code,
     }
 
     # Name cpp code based on content, so we will recompile/reload if code edit()ed
-    # NB: as.character() strips attributes, so only use the code to define our digest
-    base_name <- paste0('g3_tmb_', digest::sha1(paste0(
-        as.character(cpp_code),
-        as.character(compile_flags),
-        collapse = "")))
+    base_name <- paste0(
+        # NB: We can't allow "." separators in our library name
+        "g3", paste(unlist(utils::packageVersion('gadget3')), collapse = "_"), "_",
+        "tmb", paste(unlist(utils::packageVersion('TMB')), collapse = "_"), "_",
+        digest::sha1(paste0(
+            # NB: as.character() strips attributes, so only use the code to define our digest
+            as.character(cpp_code),
+            vapply(
+                # NB: We shouldn't care about argument order
+                sort(names(compile_args)),
+                function (n) paste0(n, "=", as.character(compile_args[[n]])),
+                character(1) ),
+            collapse = "" )))
     cpp_path <- paste0(file.path(work_dir, base_name), '.cpp')
     so_path <- TMB::dynlib(file.path(work_dir, base_name))
 
@@ -1050,11 +1110,7 @@ g3_tmb_adfun <- function(cpp_code,
 
         # Compile this to an equivalently-named .so
         # NB: Mixed slashes seems to result in g++.exe not finding the file(?)
-        TMB::compile(gsub("\\\\", "/", cpp_path), flags = paste(c(
-            "-std=gnu++11",
-            "-Wno-ignored-attributes",
-            "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
-            compile_flags), collapse = " "))
+        if (!file.exists(so_path)) do.call(TMB::compile, c(list(gsub("\\\\", "/", cpp_path)), compile_args ))
         dyn.load(so_path)
     }
 
@@ -1135,6 +1191,9 @@ g3_tmb_adfun <- function(cpp_code,
         }
         return(out)
     }
+
+    # With Type = "Fun", fn$par sometimes isn't set. Bodge around it
+    if (is.null(fn$par)) fn$par <- g3_tmb_par(parameters)
     return(fn)
 }
 

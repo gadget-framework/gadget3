@@ -4,6 +4,8 @@
 /*_*.tar.gz
 ^cran-comments$
 /docs
+/vignettes/.*
+/vignettes/*.R
 /vignettes/*.html
 /vignettes/WGTS/
 /vignettes/figs/

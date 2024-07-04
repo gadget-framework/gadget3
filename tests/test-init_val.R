@@ -208,6 +208,16 @@ out <- captureWarning(g3_init_val(pt, "neigh.#", value = 9))
 ok(ut_cmp_identical(pt, out[[1]]), "Non-matching g3_init_val makes no modification")
 ok(cmp_contains("neigh.#", out$warning), "name_spec in warning output")
 
+out <- captureWarning( g3_init_val(pt, "moo|oink.#", value = c(5, 15, 15, 5), lower = 10, upper = 20) )
+ok(cmp_contains("below lower bound: moo.1, oink.1_exp", out$warning), "Params below lower bound")
+out <- captureWarning( g3_init_val(pt, "moo|oink.#", value = c(5, 15, 5, 15), lower = 10, upper = 20) )
+ok(cmp_contains("below lower bound: moo.1, oink.1", out$warning), "Params below lower bound")
+
+out <- captureWarning( g3_init_val(pt, "moo|oink.#", value = c(25, 15, 15, 25), lower = 10, upper = 20) )
+ok(cmp_contains("above upper bound: moo.1, oink.1_exp", out$warning), "Params above upper bound")
+out <- captureWarning( g3_init_val(pt, "moo|oink.#", value = c(25, 15, 25, 15), lower = 10, upper = 20) )
+ok(cmp_contains("above upper bound: moo.1, oink.1", out$warning), "Params above upper bound")
+
 #### test with a real parameter template
 
 actions <- list( g3a_time(1980L, 2000L), g3_formula(

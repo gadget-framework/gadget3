@@ -41,7 +41,7 @@ g3_eval(f, ...)
 # Evaluate suitiability function for given stocks
 g3_eval(
     g3_suitability_andersen(0,1,2,3,4),
-    predstock = g3_stock('pred', 11:20),
+    predator_length = 100,
     stock = g3_stock('prey', 1:10))
 
 # Parameters can be filled in with "param." items in environment

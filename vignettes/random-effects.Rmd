@@ -363,12 +363,13 @@ obj.fn <- g3_tmb_adfun(model_code, params.in, inner.control = list(trace = 3, ma
 
 #obj.fn$env$tracepar <- TRUE
 #obj.fn$env$tracemgc <- TRUE
-out <- optim(par = obj.fn$par, fn = obj.fn$fn, gr = obj.fn$gr, method = 'BFGS', control = list(
-    maxit = 1000,
-    trace = 1,
-    reltol = .Machine$double.eps^2 ))
-params.out <- g3_tmb_relist(params.in, out$par)
-fit <- gadgetutils::g3_fit(model_code, params.out)
+# TODO:
+#out <- optim(par = obj.fn$par, fn = obj.fn$fn, gr = obj.fn$gr, method = 'BFGS', control = list(
+#    maxit = 1000,
+#    trace = 1,
+#    reltol = .Machine$double.eps^2 ))
+#params.out <- g3_tmb_relist(params.in, out$par)
+#fit <- gadgetutils::g3_fit(model_code, params.out)
 ```
 </div>
 
@@ -381,4 +382,9 @@ document.write(
     '<div class="modelScript"><div class="sourceCode hasCopyButton"><pre class="downlit sourceCode r">' +
     Array.from(document.querySelectorAll('.modelScript pre')).map((x) => x.innerHTML).join("\n\n") +
     '</pre></div></div>');
+```
+
+```{r, echo=FALSE, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+# TODO:
+# gadget3:::vignette_test_output("random-effects", model_code, params.out)
 ```

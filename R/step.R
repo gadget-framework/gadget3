@@ -95,42 +95,6 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         f_substitute(f, lapply(interactvars, as.symbol))
     }
 
-    # Add any formula definitions from f into f, if they include depend_vars
-    add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
-        # Repeatedly look for definitions we should be adding (so we add sub-definitions)
-        while(TRUE) {
-            added_defn <- FALSE
-            for (var_name in all_undefined_vars(f)) {  # NB: all_undefined_vars will get rid of definitions from previous loop
-                defn <- environment(f)[[var_name]]
-                if (!is.call(defn)) next
-                if (!isTRUE(depend_vars) && !('stock_ss' %in% all.names(defn)) && length(intersect(all_undefined_vars(defn), depend_vars)) == 0) {
-                    # There's a depend vars, but this formula doesn't depend on any of them, optionally modify and return
-                    if (!is.null(filter_fn)) {
-                        assign(var_name, filter_fn(defn), envir = environment(f))
-                    }
-                    next
-                }
-
-                if (is.null(attr(defn, 'g3_global_init_val')) ) {
-                    # Non-global, add scoped variable with g3_with()
-                    impl_f <- ~g3_with(var := defn, f)
-                } else if (identical(rlang::f_rhs(defn), as.symbol("noop"))) {
-                    # Global with only a initial definition, do ~nothing
-                    # NB: adf_marker will get removed later with collapse_g3_with()
-                    impl_f <- ~g3_with(var := adf_marker, f)
-                } else {
-                    # Global, add definition and marker to stop repetition
-                    impl_f <- ~g3_with(var := adf_marker, {var <- defn ; f})
-                }
-                f <- f_substitute(impl_f, list(var = as.symbol(var_name), defn = defn, f = f))
-                added_defn <- TRUE
-            }
-            if (!added_defn) break
-        }
-
-        return(f)
-    }
-
     repl_stock_fn <- function (x, to_replace) {
         stock_var <- x[[2]]
         stock <- get(as.character(stock_var), envir = orig_env)
@@ -145,7 +109,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         if (is.list(stock[[to_replace]])) {
             repl_list <- stock[[to_replace]]
             out_f <- quote(extension_point)
-            inner_vars <- all.vars(inner_f)
+            inner_vars <- all_undefined_vars(inner_f, recursive = TRUE)
             # List of formulas, select the relevant ones and combine
             for (i in seq_along(repl_list)) {
                 if (!is.symbol(stock$iter_ss[[i]])) next
@@ -161,12 +125,18 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             # Add in stock environment
             out_f <- call_to_formula(out_f, stock$env)
         } else {
-            stop("Unknown stock_fn type: ", out_f)
+            stop("Unknown stock_fn type: ", deparse1(stock[[to_replace]]))
         }
         out_f <- stock_interactvar_prefix(out_f, prefix)
         out_f <- stock_rename(out_f, "stock", stock_var)
         # Make sure formulas are defined if they need anything the stock code defines
-        inner_f <- add_dependent_formula(inner_f, setdiff(all.vars(out_f), all_undefined_vars(out_f)), function (f) {
+        defines <- setdiff(all.vars(out_f), all_undefined_vars(out_f))
+        # Also try the renamed equivalents of each of the defines
+        defines <- c(defines, vapply(
+            defines,
+            function (x) gsub(paste0('^', stock_var, '__'), paste0(stock$name, '__'), x),
+            character(1) ))
+        inner_f <- add_dependent_formula(inner_f, defines, function (f) {
             # Attach outer environment so items resolve
             if (rlang::is_formula(f)) {
                 environment(f) <- rlang::env_clone(
@@ -269,7 +239,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
 
                 # Formulae to apply matrix
-                out_f <- f_substitute(quote( g3_matrix_vec(lg_matrix, inner_f) ), list(
+                out_f <- f_substitute(quote( as.vector(lg_matrix %*% inner_f) ), list(
                     lg_matrix = as.symbol(matrix_name),
                     inner_f = inner_f))
 
@@ -321,6 +291,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             } else {
                 stop("Unknown vec argument: ", deparse1(vec))
             }
+
+            # Remove overrides that don't exist in stock_var
+            ss_overrides[setdiff(names(ss_overrides), names(stock$dim))] <- NULL
 
             # Apply overrides
             ss[names(ss_overrides)] <- ss_overrides
@@ -436,7 +409,19 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
         if (!recursing) {
             # Add anything that's not a global_formula to this level
-            rv <- add_dependent_formula(rv, TRUE)
+            rv <- add_dependent_formula(rv, TRUE, function (f) {
+                # Attach outer environment so items resolve
+                if (rlang::is_formula(f)) {
+                    environment(f) <- rlang::env_clone(
+                        environment(f),
+                        parent = environment(step_f))
+                } else {
+                    f <- call_to_formula(f, rlang::f_env(step_f))
+                }
+                f <- g3_step(f, recursing = TRUE, orig_env = orig_env)
+                return(f)
+            })
+
             # Run g3_step again to fix up dependents that got added
             rv <- g3_step(rv, recursing = TRUE, orig_env = orig_env)
             # Neaten output code by collapsing the stack of g3_with()s we made

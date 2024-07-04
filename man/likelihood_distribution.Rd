@@ -16,7 +16,8 @@
 }
 
 \usage{
-g3l_distribution_sumofsquares(over = c("area"))
+g3l_distribution_sumofsquares(
+        over = c('area', 'predator_tag', 'predator_age', 'predator_length'))
 
 g3l_distribution_multinomial(epsilon = 10)
 
@@ -72,6 +73,12 @@ g3_distribution_preview(
     When comparing proportions of lengthgroups, specifies the dimensions that define the total.
     For example the default "area" means the proprtion of the current lengthgroup to all individuals
     in that area.
+
+    \code{c('area', 'predator_tag', 'predator_age', 'predator_length'))} will compare the current lengthgroup
+    to all individuals consumed by that predator.
+
+    Note that any unknown dimensions will be ignored; for example a fleet does not have a tag/age/length,
+    so only area will have an effect here.
   }
   \item{rho_f,sigma_f}{
     \link{formula} substituted into multivariate calcuations, see below.
@@ -113,7 +120,8 @@ g3_distribution_preview(
     depending on what columns \var{obs_data} has.
   }
   \item{transform_fs}{
-    A list of dimension name to formula to apply to model data before collating. See examples.
+    A list of dimension names to either formula objects or list of stock names to formula objects
+    (where the transform differs between stocks). See examples.
   }
   \item{missing_val}{
     Where there are missing values in the incoming data, value to replace them with.
@@ -206,6 +214,11 @@ g3_distribution_preview(
 
         Any missing ages (when there is otherwise data for that
         year/step) will be compared to zero.
+      }
+      \item{predator_length / predator_age / predator_tag}{
+        Optional.
+
+        Values are the same as with length/age/tag respectively, but group by the predator rather than the prey.
       }
       \item{stock}{
         Optional.
@@ -477,13 +490,71 @@ more_likelihood_actions <- list(
     ldist.lln,
     fleets = list(lln),
     stocks = list(ling_imm, ling_mat),
-    transform_fs = list(age = g3_formula(stock_switch(stock,
-      ling_imm = g3_param_array('imm_readermatrix',
+    transform_fs = list(age = list(
+      ling_imm = quote( g3_param_array('imm_readermatrix',
           value = diag(ling_imm__maxage - ling_imm__minage + 1)
-          )[ling_imm__preage_idx, ling_imm__age_idx],
-      ling_mat = g3_param_array('mat_readermatrix',
+          )[ling_imm__preage_idx, ling_imm__age_idx] ),
+      ling_mat = quote( g3_param_array('mat_readermatrix',
           value = diag(ling_mat__maxage - ling_mat__minage + 1)
-          )[ling_mat__preage_idx, ling_mat__age_idx],
-      unused = 0))),
+          )[ling_mat__preage_idx, ling_mat__age_idx] ),
+      unused = 0)),
     g3l_distribution_sumofsquares()))
+
+## Stomach content: predator-prey species preference
+prey_a <- g3_stock('prey_a', seq(1, 10)) |> g3s_age(1,3)
+prey_b <- g3_stock('prey_b', seq(1, 10)) |> g3s_age(1,3)
+pred_a <- g3_stock('pred_a', seq(50, 80, by = 10)) |> g3s_age(0, 10)
+otherfood <- g3_stock('otherfood', 0)
+
+# Produce data.frame with columns:
+# * predator_length or predator_age
+# * stock
+# * number or weight
+pred_a_preypref_obs <- expand.grid(
+    year = 2000:2005,
+    predator_length = c(50,70),
+    stock = c('prey_a', 'prey_b', 'otherfood'),
+    number = 0 )
+
+# Create catchdistribution likelihood component
+actions <- list(
+    g3l_catchdistribution(
+        'pred_a_preypref',
+        pred_a_preypref_obs,
+        fleets = list(pred_a),
+        stocks = list(prey_a, prey_b, otherfood),
+        g3l_distribution_sumofsquares(),
+        nll_breakdown = TRUE,
+        report = TRUE ),
+    NULL)
+
+## Stomach content: predator-prey size preference
+# Produce data.frame with columns:
+# * predator_length or predator_age
+# * (prey) length
+# * number or weight
+pred_a_sizepref_obs <- expand.grid(
+    year = 2000:2005,
+    predator_length = c(50,70),
+    length = seq(1, 10),
+    number = 0 )
+
+# Create catchdistribution likelihood component
+actions <- list(
+    g3l_catchdistribution(
+        'pred_a_sizepref',
+        pred_a_sizepref_obs,
+        fleets = list(pred_a),
+        # NB: Only referencing stocks included in observation data
+        stocks = list(prey_a),
+        g3l_distribution_sumofsquares(),
+        # Use transform_fs to apply digestioncoefficients
+        transform_fs = list(length = list(prey_a = g3_formula(
+            quote( diag(d0 + d1 * prey_a__midlen^d2) ),
+            d0 = g3_parameterized('d0', by_stock = TRUE),
+            d1 = g3_parameterized('d1', by_stock = TRUE),
+            d2 = g3_parameterized('d2', by_stock = TRUE) ))),
+        nll_breakdown = TRUE,
+        report = TRUE ),
+    NULL)
 }

@@ -1,3 +1,4 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 library(magrittr)
 library(unittest)
 
@@ -24,6 +25,19 @@ generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), use_prev
         sort(as.numeric(tbl$number)),
         deparse_frame = -2), "number array has all of source data")
     return(out)
+}
+
+# Generate example of ld being stock_iterate()d or stock_intersect()ed
+generate_code <- function(ld, repl_fn, ...) {
+    model_fn <- g3_to_r(list(gadget3:::g3_step(gadget3:::call_to_formula(
+        substitute(
+            extractme(repl_fn_sym(st, stock_ss(st__num, vec = single))),
+            list(repl_fn_sym = as.symbol(repl_fn)) ),
+        list(
+            st = ld$obsstock,
+            st__num = ld$number,
+            ... )))))
+    gadget3:::f_find(body(model_fn), quote(extractme))[[1]][[2]]
 }
 
 # Dig minlen out of modelstock
@@ -512,6 +526,35 @@ ok_group('g3l_likelihood_data:age', {
         gadget3:::force_vector("1:3" = 1L, "4:6" = 4L, "7:10" = 7L)), "agegroups using minages from attribute")
 })
 
+ok_group('g3l_likelihood_data:agegroup') ###########
+ld <- generate_ld(expand.grid(
+     year = 2000:2005,
+     length = c(1,5,10),
+     age = c("[1,2)", "[3,3)")  )) # ((
+ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_intersect', age = 1, cur_year = 1999, cur_step = 1), quote({
+    ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year *
+        100L + cur_step * 0L), -1L)
+    if (ut_obs__time_idx >= (1L)) {
+        ut_obs__agegroup_idx <- intlookup_getdefault(ut_obs__agegroup,
+            age, -1L)
+        if (ut_obs__agegroup_idx > -1L)
+            for (ut_obs__length_idx in seq_along(ut_obs__minlen)) if (ut_obs__minlen[[ut_obs__length_idx]] <=
+                length && length < ut_obs__maxlen[[ut_obs__length_idx]]) {
+                ut_obs__num[ut_obs__length_idx, ut_obs__agegroup_idx,
+                  ut_obs__time_idx]
+                break
+            }
+    }
+}), optimize = TRUE), "stock_intersect: Renamed all vars, including ut_obs__agegroup")
+
+ok(ut_cmp_equal(
+    g3_eval(attr(ld$obsstock$env$ut_obs__agegroup, "g3_global_init_val")),
+    structure(
+        list(1L, 2L, 2L),
+        key_var = "ut_obs__agegroup_keys",
+        value_var = "ut_obs__agegroup_values" )), "ut_obs__agegroup: Sub-parts also renamed")
+
+########### g3l_likelihood_data:agegroup
 
 ok_group('g3l_likelihood_data:age_factor', {
     df <- data.frame(
@@ -849,3 +892,69 @@ ok_group('g3l_likelihood_data:fleet', {
             fleet_gil_is = 1L,
             fleet_gil_no = NULL)), "fleet map ignored unused fleets")
 })
+
+ok_group('g3l_likelihood_data:predator') ##########
+ld <- generate_ld(expand.grid(
+    length = 5:10,
+    predator_length = c(10, 50, 100),
+    predator_age = c('[0,5)', '[5,10)'), # ((
+    predator_tag = c('a', 'b'),
+    year = 1999:2000 ))
+
+ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_iterate', cur_year = 1999, cur_step = 1), quote({
+    ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
+    if (ut_obs__time_idx >= (1L)) {
+        for (ut_obs__predator_tag_idx in seq_along(ut_obs__predator_tag_ids)) {
+            predator_tag <- ut_obs__predator_tag_ids[[ut_obs__predator_tag_idx]]
+            for (ut_obs__predator_agegroup_idx in seq_along(ut_obs__predator_minages)) {
+                predator_age <- ut_obs__predator_minages[[ut_obs__predator_agegroup_idx]]
+                for (ut_obs__predator_length_idx in seq_along(ut_obs__predator_midlen)) {
+                  predator_length <- ut_obs__predator_midlen[[ut_obs__predator_length_idx]]
+                  for (ut_obs__length_idx in seq_along(ut_obs__midlen)) {
+                    length <- ut_obs__midlen[[ut_obs__length_idx]]
+                    ut_obs__num[ut_obs__length_idx, ut_obs__predator_length_idx,
+                      ut_obs__predator_agegroup_idx, ut_obs__predator_tag_idx,
+                      ut_obs__time_idx]
+                  }
+                }
+            }
+        }
+    }
+}), optimize = TRUE), "stock_iterate: All predator dimensions included, with prefixed variables")
+
+ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_intersect', cur_year = 1999, cur_step = 1, predator_tag = 1, predator_length = 1, predator_age = 1), quote({
+    ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
+    if (ut_obs__time_idx >= 1L) {
+        for (ut_obs__predator_tag_idx in seq_along(ut_obs__predator_tag_ids)) if (ut_obs__predator_tag_ids[[ut_obs__predator_tag_idx]] == predator_tag) {
+            ut_obs__predator_agegroup_idx <- intlookup_getdefault(ut_obs__predator_agegroup, predator_age, -1L)
+            if (ut_obs__predator_agegroup_idx > -1L) {
+                for (ut_obs__predator_length_idx in seq_along(ut_obs__predator_minlen)) if (ut_obs__predator_minlen[[ut_obs__predator_length_idx]] <= 
+                  predator_length && predator_length < ut_obs__predator_maxlen[[ut_obs__predator_length_idx]]) {
+                  for (ut_obs__length_idx in seq_along(ut_obs__minlen)) if (ut_obs__minlen[[ut_obs__length_idx]] <= length && length < ut_obs__maxlen[[ut_obs__length_idx]]) {
+                    ut_obs__num[ut_obs__length_idx, ut_obs__predator_length_idx,
+                      ut_obs__predator_agegroup_idx, ut_obs__predator_tag_idx,
+                      ut_obs__time_idx]
+                    break
+                  }
+                  break
+                }
+            }
+            break
+        }
+    }
+}), optimize = TRUE), "stock_intersect: All predator dimensions included, with prefixed variables")
+
+ok(ut_cmp_equal(
+    ld$obsstock$env$stock__midlen,
+    gadget3:::force_vector(c("5:6" = 5.5, "6:7" = 6.5, "7:8" = 7.5, "8:9" = 8.5, "9:10" = 9.5, "10:Inf" = 10.5)) ), "stock__midlen: prey vars set")
+ok(ut_cmp_equal(
+    ld$obsstock$env$stock__predator_midlen,
+    gadget3:::force_vector(c("10:50" = 30, "50:100" = 75, "100:Inf" = 120)) ), "stock__predator_midlen: predator vars prefixed")
+ok(ut_cmp_equal(
+    environment(attr(ld$obsstock$env$ut_obs__predator_agegroup, "g3_global_init_val"))$ut_obs__predator_agegroup_keys,
+    gadget3:::force_vector(0:9)), "ut_obs__predator_agegroup_keys: initval keys got renamed")
+ok(ut_cmp_equal(
+    environment(attr(ld$obsstock$env$ut_obs__predator_agegroup, "g3_global_init_val"))$ut_obs__predator_agegroup_values,
+    gadget3:::force_vector( rep(1:2, each = 5) )), "ut_obs__predator_agegroup_values: initval values got renamed")
+
+########## g3l_likelihood_data:predator

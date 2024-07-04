@@ -8,7 +8,7 @@ year_range <- 1982:1990
 
 actions <- local({
     eval(g2to3_mainfile('inttest/maturity-continuous'))
-    c(actions, list(g3a_report_history(actions)))
+    c(actions, list(g3a_report_history(actions), g3a_report_history(actions, "__growth_[lw]$|stock__transitioning_(num|wgt)$", "growthinternals_")))
 })
 environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
 environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")

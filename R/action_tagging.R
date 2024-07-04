@@ -14,6 +14,9 @@ g3a_predate_tagrelease <- function (
     if (is.numeric(output_tag_f)) output_tag_f <- as.integer(output_tag_f)
     predstock <- fleet_stock   # Preserve historical function signature
 
+    if (!( length(fleet_stock$dim) == 0 ||
+        (length(fleet_stock$dim) == 1 && fleet_stock$dim$area == 1) )) stop("Don't support multi-area fleets")
+
     # Start with a regular predation function
     out <- g3a_predate_fleet(
         fleet_stock = predstock,
@@ -25,22 +28,25 @@ g3a_predate_tagrelease <- function (
         ...)
 
     for (stock in prey_stocks) {
+        # NB: Should match definition in action_predate.R
+        predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
+        predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
+
         # Move captured stock back into tagged dimension
         out[[step_id(run_at, 11, stock, predstock)]] <- g3_step(f_substitute(~{
             debug_label("Release ", stock, " caught by ", predstock, " with tags")
 
-            stock_iterate(stock, if (run_f) g3_with(
-                    # Numbers caught (stock__predby_predstock is total weight)
+            stock_iterate(stock, stock_intersect(fleet_stock, stock_with(predprey, if (run_f) g3_with(
+                    # Numbers caught (predstock_stock__cons is total weight)
                     output_tag_idx := tag_idx_f,
-                    tagged_num := stock_ss(stock__predby_predstock) / avoid_zero_vec(stock_ss(stock__wgt)), {
+                    tagged_num := stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(stock__wgt)), {
                 stock_ss(stock__wgt, tag = output_tag_idx) <- ratio_add_vec(
                     stock_ss(stock__wgt, tag = output_tag_idx), stock_ss(stock__num, tag = output_tag_idx),
                     stock_ss(stock__wgt), (1.0 - mortality_f) * tagged_num)
                 stock_ss(stock__num, tag = output_tag_idx) <-
                     stock_ss(stock__num, tag = output_tag_idx) + (1.0 - mortality_f) * tagged_num
-            }))
+            }))))
         }, list(
-            stock__predby_predstock = as.symbol(paste0('stock__predby_', predstock$name)),
             mortality_f = if (identical(mortality_f, 0)) 0 else g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
             tag_idx_f = g3s_tag_reverse_lookup(stock, output_tag_f),
             run_f = run_f)))

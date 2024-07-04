@@ -15,7 +15,8 @@ g3a_time(
         final_year_steps = quote( length(step_lengths) ),
         project_years = g3_parameterized("project_years", value = 0, optimise = FALSE),
         retro_years = g3_parameterized("retro_years", value = 0, optimise = FALSE),
-        run_at = g3_action_order$time)
+        run_at = g3_action_order$initial,
+        run_stop_at = g3_action_order$time)
 
 }
 
@@ -56,8 +57,10 @@ g3a_time(
     Defaults to an unoptimized \code{retro_years} parameter, set to 0.
     Generally, you would change this parameter in the parameter template, rather than changing here.
   }
-  \item{run_at}{
+  \item{run_at, run_stop_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
+    \var{run_at} does year variable accounting,
+    \var{run_stop_at} is when the model will finish if past the final step in the model.
   }
 }
 

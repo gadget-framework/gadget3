@@ -5,6 +5,12 @@
 ## Bug fixes
 * ``g3a_spawn()`` splits offspring into multiple stocks correctly
 
+## New features
+* Split likelihood distribution by predator_length / predator_age / predator_tag #154
+* Predation support, see ``?g3a_predate`` / ``?g3a_predate_catchability_predator`` #29
+* ``g3a_otherfood``, ``g3a_otherfood_normalparam``, ``g3a_otherfood_normalcv`` #155
+* Support length transform_fs in ``g3l_catchdistribution`` #95
+
 # gadget3 0.11-0:
 
 ## Bug fixes

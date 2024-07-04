@@ -9,7 +9,12 @@
 }
 
 \usage{
-g3_to_r(actions, trace = FALSE, strict = FALSE)
+g3_to_r(
+        actions,
+        work_dir = getOption('gadget3.r.work_dir', default = tempdir()),
+        trace = FALSE,
+        strict = FALSE,
+        cmp_options = list(optimize = 3) )
 
 \method{print}{g3_r}(x, ..., with_environment = FALSE, with_template = FALSE)
 
@@ -18,6 +23,13 @@ g3_to_r(actions, trace = FALSE, strict = FALSE)
 \arguments{
   \item{actions}{
     A list of actions (i.e. list of formula objects), as produced by \var{g3a_}* functions.
+  }
+  \item{work_dir}{
+    Where to write the temporary R script containing your function
+  }
+  \item{cmp_options}{
+    options to pass through to \code{\link[compiler:cmpfun]{compiler::cmpfun()}}.
+    If \code{NULL}, then don't run the model through the byte-code compiler
   }
   \item{trace}{
     If TRUE, turn all comments into print statements.

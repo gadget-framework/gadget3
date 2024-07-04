@@ -10,7 +10,7 @@
 
 \usage{
 g3_native(r, cpp, depends = c())
-g3_global_formula(f = ~noop, init_val = NULL)
+g3_global_formula(f = quote(noop), init_val = NULL)
 }
 
 \arguments{

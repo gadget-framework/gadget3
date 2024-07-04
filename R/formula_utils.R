@@ -425,13 +425,118 @@ f_eval <- function (f, env_extras = list(), env_parent = g3_env) {
 }
 
 # Find all vars, minus vars that are defined within (e.g. iterators)
-all_undefined_vars <- function (code) {
+all_undefined_vars <- function (code, recursive = FALSE, filter_fn = NULL) {
     g3_with_extract_term_syms <- function (x) {
         lapply(g3_with_extract_terms(x), function (c) as.character(c[[2]]))
     }
 
-    setdiff(all.vars(code), c(
+    out <- setdiff(all.vars(code), c(
         lapply(f_find(code, as.symbol("for")), function (x) { as.character(x[[2]]) }),
         do.call(c, lapply(f_find(code, as.symbol("g3_with")), g3_with_extract_term_syms)),
         NULL))
+    if (recursive) {
+        expanded <- lapply(out, function (n) {
+            # Get undefined vars from anything defined locally
+            defn <- environment(code)[[n]]
+            if (!is.null(filter_fn)) {
+                # Apply filter_fn, which will e.g. resolve stock_ss() and do renames
+                defn <- filter_fn(defn)
+            }
+            if (is.call(defn)) all_undefined_vars(defn, recursive = TRUE, filter_fn = filter_fn) else c()
+        })
+        out <- c(out, unlist(expanded))
+    }
+    return(out)
+}
+
+# Add any formula definitions from f into f, if they include depend_vars
+add_dependent_formula <- function (f, depend_vars, filter_fn = NULL) {
+    extra_defns <- list()
+    wrap_defns <- list()
+
+    # Repeatedly look for definitions we should be adding (so we add sub-definitions)
+    while(TRUE) {
+        # Find any missing definitions in either f or things we're about to define
+        undefined_vars <- c(
+            do.call(c, lapply(extra_defns, all_undefined_vars)),
+            do.call(c, lapply(wrap_defns, all_undefined_vars)),
+            all_undefined_vars(f) )
+        # Ignore things that are already defined
+        undefined_vars <- setdiff(undefined_vars, names(extra_defns))
+        undefined_vars <- setdiff(undefined_vars, names(wrap_defns))
+        added_defn <- FALSE
+        for (var_name in undefined_vars) {
+            for (sub_f in c(list(f), extra_defns, wrap_defns)) {
+                defn <- environment(sub_f)[[var_name]]
+                if (!is.null(defn)) break
+            }
+            if (!is.call(defn)) next
+            if (!is.null(filter_fn)) {
+                # Apply filter_fn, which will e.g. resolve stock_ss() and do renames
+                defn <- filter_fn(defn)
+                assign(var_name, defn, envir = environment(sub_f))
+            }
+            if (TRUE &&
+                    # We have some depend_vars to check
+                    !isTRUE(depend_vars) &&
+                    # Formula doesn't mention any of the depend vars or now-added definitions
+                    length(intersect(all_undefined_vars(defn, recursive = TRUE, filter_fn = filter_fn), c(depend_vars, names(extra_defns)))) == 0 &&
+                    TRUE ) {
+                next
+            }
+
+            if ( !is.null(attr(defn, 'g3_global_init_val')) ) {
+                if (!identical(rlang::f_rhs(defn), as.symbol("noop"))) {
+                    # Update variable instead of adding to extra_defns
+                    wrap_defns[[var_name]] <- defn
+                }
+                # NB: adf_marker will get removed later with collapse_g3_with()
+                extra_defns[[var_name]] <- quote( adf_marker )
+            } else {
+                extra_defns[[var_name]] <- defn
+            }
+            added_defn <- TRUE
+        }
+        if (!added_defn) break
+    }
+
+    if (length(extra_defns) > 0) {
+        ordering <- vapply(extra_defns,
+            # Find earliest var in list that current item depends on
+            function (x) suppressWarnings(min(match(all.vars(x), names(extra_defns)), na.rm = TRUE)),
+            numeric(1) )
+        # Use this as an ordering, so vars without dependencies go first
+        extra_defns <- extra_defns[names(sort(ordering, decreasing = TRUE))]
+
+        # Make up call with all vars to define
+        g3_with_call <- as.call(c(
+            quote(g3_with),
+            # List of defn := defn_adf
+            lapply(names(extra_defns), function (n) call(":=", as.symbol(n), as.symbol(paste0(n, "_adf")))),
+            quote(f) ))
+        # Replace the RHS, not the LHS
+        names(extra_defns) <- paste0(names(extra_defns), "_adf")
+        # Wrap f in a g3_call()
+        f <- f_substitute(g3_with_call, c(extra_defns, list(f = f)))
+    }
+
+    for (var_name in names(wrap_defns)) {
+        ordering <- vapply(wrap_defns,
+            # Find earliest var in list that current item depends on
+            function (x) suppressWarnings(min(match(all.vars(x), names(wrap_defns)), na.rm = TRUE)),
+            numeric(1) )
+        # Use this as an ordering, so vars without dependencies go first
+        wrap_defns <- wrap_defns[names(sort(ordering, decreasing = TRUE))]
+
+        # Put any g3_global_formula iterations on the outside
+        # NB: This is somewhat abritary, but then the precise positioning of a g3_global_formula is a bit ropey anyway.
+        f <- f_substitute(quote(
+            { var <- defn; f }
+        ), list(
+            var = as.symbol(var_name),
+            defn = wrap_defns[[var_name]],
+            f = f ))
+    }
+
+    return(f)
 }

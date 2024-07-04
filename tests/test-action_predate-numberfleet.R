@@ -15,7 +15,7 @@ time_actions <- list(
   list())
 
 stock <-
-  g3_stock('stock', seq(10, 20, 5)) %>%
+  g3_stock('st', seq(10, 20, 5)) %>%
   g3s_livesonareas(areas[c('1')]) %>%
   g3s_age(minage = 0, maxage = 1)
 
@@ -61,9 +61,9 @@ ok_group("g3a_predate_catchability_numberfleet", {
     
     r <- model_fn(params)
  
-    # stock__wgt was being zero'ed by g3a_age(), check this doesn't break again.
-    ok(all(!is.nan(attr(r, 'stock__num'))), "stock__num: Hasn't gone NaN")
-    ok(all(!is.nan(attr(r, 'stock__wgt'))), "stock__wgt: Hasn't gone NaN")
+    # st__wgt was being zero'ed by g3a_age(), check this doesn't break again.
+    ok(all(!is.nan(attr(r, 'st__num'))), "st__num: Hasn't gone NaN")
+    ok(all(!is.nan(attr(r, 'st__wgt'))), "st__wgt: Hasn't gone NaN")
 
     if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
 })

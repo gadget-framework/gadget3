@@ -124,11 +124,11 @@ r <- attributes(model_fn(params$value))
 ok(all(is.finite(r$detail_fish__num)), "detail_fish__num: finite")
 ok(all(is.finite(r$detail_fish__renewalnum)), "detail_fish__renewalnum: finite")
 ok(all(is.finite(r$detail_fish__wgt)), "detail_fish__wgt: finite")
-# TODO: detail_fish__predby_comm still NA
+# TODO: detail_fish_comm__cons still NA
 ok(all(is.finite(r$detail_fish__suit_comm)), "detail_fish__suit_comm: finite")
 
 
-# TODO: detail_fish__predby_comm needs fixing before this will pass
+# TODO: detail_fish_comm__cons needs fixing before this will pass
 #if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 #    print(system.time({model_tmb <- g3_tmb_adfun(model_cpp, params)}))
 #    print(system.time(tmb_result <- model_tmb$fn()))

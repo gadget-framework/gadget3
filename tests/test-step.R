@@ -54,6 +54,7 @@ ok_group("g3_step:stock_reshape", {
 
     nll <- 0.0
     actions <- list(
+        g3a_time(1999, 1999),
         g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
 
         list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
@@ -88,17 +89,15 @@ ok_group("g3_step:stock_reshape", {
         })))),
 
         list('999' = ~{
-            nll <- nll + g3_param('x')
-            return(nll)
+            nll <- nll + g3_param('x', value = 1.0)
         }))
 
     # Compile model
-    params <- list(
-        source_num = c(11, 22, 33, 44),
-        source_wgt = c(11, 22, 33, 44),
-        x = 1.0)
     model_fn <- g3_to_r(actions)
     # model_fn <- edit(model_fn)
+    params <- attr(model_fn, 'parameter_template')
+    params[["source_num"]] <- c(11, 22, 33, 44)
+    params[["source_wgt"]] <- c(11, 22, 33, 44)
     result <- model_fn(params)
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
@@ -157,6 +156,10 @@ ok_group("g3_step:stock_ss", {
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, area = , age = j)),
          ~stock__num[, j, ]), "Missing values are honoured too")
+
+     ok(cmp_code(
+         gadget3:::g3_step(~stock_ss(stock__num, camels = 42)),
+         ~stock__num[, stock__age_idx, stock__area_idx]), "Overrides for non-existant dimensions are ignored")
 
      ok(cmp_code(
          gadget3:::g3_step(~stock_ss(stock__num, length = 0L)),
@@ -290,8 +293,8 @@ ok_group("g3_step:dependent_formulas", (function () {
         stock = stock_imm))
     ok(cmp_code(f, g3_formula(quote(
         g3_with(
-            by_age := g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))),
             const := g3_param("ling_imm.const"),
+            by_age := g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))),
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
                 ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
                 (ling_imm__num[, ling_imm__age_idx] + const + by_age)))

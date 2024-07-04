@@ -37,6 +37,7 @@ g3a_spawn(
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
         by_stock = TRUE,
         wgt_by_stock = TRUE,
+        run_step = NULL,
         run_f = ~TRUE,
         run_at = g3_action_order$spawn,
         recruit_at = g3_action_order$renewal)
@@ -75,6 +76,10 @@ g3a_spawn(
   }
   \item{mean_f,stddev_f,alpha_f,beta_f}{
     \link{formula} substituted into stock structure calculations, see \link{g3a_renewal_normalparam} for details.
+  }
+  \item{run_step}{
+    Which step to perform renewal in, or \code{NULL} for continuous spawning.
+    Adds \code{cur_step == (run_step)} into default \var{run_f}.
   }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
@@ -172,7 +177,7 @@ g3a_spawn(
 }
 
 \seealso{
-  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stocknatmort},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn},
   \code{\link{g3a_naturalmortality}},
   \code{\link{g3_stock}}
 }

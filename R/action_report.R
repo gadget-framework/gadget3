@@ -24,7 +24,7 @@ g3a_report_stock <- function (report_stock, input_stock, report_f, include_adrep
                 stock_ss(report_instance) <- stock_ss(report_instance) + (report_f)
             }))
             if (include_adreport && cur_time == total_steps) {
-                ADREPORT(report_instance)
+                stock_with(report_stock, ADREPORT(report_instance))
             }
         }
     }, list(
@@ -99,8 +99,8 @@ g3a_report_var <- function (
                 # "cur_time", which is zero-based, needs converting into an index
                 list(quote( g3_idx(cur_time + 1) )))),
             run_f = run_f,
-            var = as.symbol(var_name)))
-        environment(x)[[hist_var_name]] <- defn
+            var = if (is.integer(defn)) as.symbol(var_name) else call("as_numeric_arr", as.symbol(var_name))))
+        environment(x)[[hist_var_name]] <- if (is.integer(defn)) defn else as_force_numeric(defn)
 
         out[[step_id(run_at, 0, 'g3a_report_var', hist_var_name)]] <- x
         var_name <- hist_var_name
@@ -165,6 +165,7 @@ g3a_report_detail <- function (actions,
             actions = actions,
             var_re = paste(c(
                 '^.+_surveyindices_.+__params$',
+                '^step_lengths$',
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,
@@ -177,7 +178,8 @@ g3a_report_detail <- function (actions,
             run_at = abundance_run_at),
         g3a_report_history(
             actions = actions,
-            var_re = c('__renewalnum$', '__spawnednum$', '__suit_', '__predby_'),
+            # NB: __predby_ is the old name for __cons$, and could eventually be removed
+            var_re = c('__renewalnum$', '__spawnednum$', '__cons$', '__suit_', '__predby_'),
             out_prefix = "detail_",
             run_f = run_f,
             run_at = run_at),

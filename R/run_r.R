@@ -2,10 +2,14 @@ open_curly_bracket <- intToUtf8(123) # Don't mention the bracket, so code editor
 
 # Compile actions together into a single R function,
 # The attached environment contains model_data, i.e. fixed values refered to within function
-g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
+g3_to_r <- function(
+        actions,
+        work_dir = getOption('gadget3.r.work_dir', default = tempdir()),
+        trace = FALSE,
+        strict = FALSE,
+        cmp_options = list(optimize = 3) ) {
     collated_actions <- g3_collate(actions)
     all_actions <- f_concatenate(c(
-        g3_formula(quote(cur_time <- cur_time + 1L), cur_time = -1L),
         collated_actions,
         NULL), parent = g3_env, wrap_call = call("while", TRUE))
     # NB: Needs to be globalenv() to evaluate core R
@@ -66,11 +70,16 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
                 }
 
                 # Replace with a  param[["lookup.cur_year.cur_step"]] call
+                base_name <- gsub('_exp$', '', as.character(x[[2]]))
+                param_name_c <- as.call(c(
+                    list(as.symbol("paste"), base_name),
+                    lapply(names(df), as.symbol),
+                    list(sep = ".") ))
+                if (grepl('_exp$', as.character(x[[2]]))) param_name_c <- substitute(
+                    paste0(param_name_c, "_exp"),
+                    list(param_name_c = param_name_c) )
                 return(call('nvl',
-                    call('[[', as.symbol("param"), as.call(c(
-                        list(as.symbol("paste"), as.character(x[[2]])),
-                        lapply(names(df), as.symbol),
-                        list(sep = ".")))),
+                    call('[[', as.symbol("param"), param_name_c),
                     ifmissing))
             }
 
@@ -208,11 +217,11 @@ g3_to_r <- function(actions, trace = FALSE, strict = FALSE) {
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
-    return(g3_r_compile(out))
+    return(g3_r_compile(out, work_dir = work_dir, cmp_options = cmp_options))
 }
 
 # Generate a srcRef'ed, optimized function
-g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
+g3_r_compile <- function (model, work_dir = tempdir(), cmp_options = list(optimize = 3)) {
     model_string <- deparse(model)
     base_name <- paste0('g3_r_', digest::sha1(model_string))
     r_path <- paste0(file.path(work_dir, base_name), '.R')
@@ -224,12 +233,14 @@ g3_r_compile <- function (model, work_dir = tempdir(), optimize = 3) {
     source(r_path)
 
     # Restore model data and attributes
-    environment(out) <- environment(model)
     # NB: We need to do this since the environment pointers will be broken in the serialised version
-    attr(out, 'actions') <- attr(model, 'actions')
+    environment(out) <- environment(model)
 
     # Optimize model function
-    out <- compiler::cmpfun(out, options = list(optimize = optimize))
+    if (!is.null(cmp_options)) out <- compiler::cmpfun(out, options = cmp_options)
+
+    # Restore actions attribute
+    attr(out, 'actions') <- attr(model, 'actions')
 
     return(out)
 }

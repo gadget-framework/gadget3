@@ -2,15 +2,6 @@
 # NB: baseenv() is above this to allow evaluating of g3_param_table expressions
 g3_env <- new.env(parent = baseenv())
 
-# Transform a vector using matrix, return vec again
-g3_env$g3_matrix_vec <- g3_native(r = function(tf, vec) {
-    return((tf %*% vec)[,1])
-}, cpp = '
-   [](array<Type>tf, vector<Type> vec) -> vector<Type> {
-       return (tf.matrix() * vec.matrix()).array();
-   }
-')
-
 # Redefine lgamma for vectors with stricter types
 # NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
 #     an expression). Eigen evaluates lazily, and any expression needs
@@ -39,6 +30,17 @@ g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
     }
     return res;
 }')
+
+# differentiable equivalent of pmax(pmin(vec, upper), lower)
+g3_env$logspace_minmax_vec <- g3_native(r = function(vec, lower, upper, scale) {
+    vec <- -(g3_env$logspace_add(-vec * scale, -upper * scale) / scale)
+    vec <- g3_env$logspace_add(vec * scale, lower * scale) / scale
+    return(vec)
+}, cpp = '[&logspace_add_vec](vector<Type> vec, Type lower, Type upper, double scale) -> vector<Type> {
+    vec = -(logspace_add_vec(-vec * scale, -upper * scale) / scale);
+    vec = logspace_add_vec(vec * scale, lower * scale) / scale;
+    return(vec);
+}', depends = c("logspace_add_vec"))
 
 # NB: We have to have avoid_zero in our namespace so CMD check doesn't complain about it's use
 #     in surveyindices_linreg(). Maybe g3_env should just go away and use the package
@@ -145,6 +147,13 @@ g3_env$as_integer <- g3_native(r = "as.integer", cpp = '[](Type v) -> int {
     return std::floor(asDouble(v));
 }')
 
+g3_env$as_numeric_arr <- g3_native(r = function (x) x, cpp = '[](array<Type> x) -> array<double> {
+  array<double> out(x.size());
+  for(int i=0; i<x.size(); i++)
+    out(i) = asDouble(x(i));
+  return out;
+}')
+
 
 # Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
 g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {
@@ -152,3 +161,38 @@ g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, n
 }, cpp = '[&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 }', depends = c('avoid_zero_vec'))
+
+
+g3_env$nonconform_add <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar + as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
+}')
+g3_env$nonconform_mult <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar * as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
+}')
+g3_env$nonconform_div <- g3_native(r = function (base_ar, extra_ar) {
+    base_ar / as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar / (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
+}')
+g3_env$nonconform_div_avz <- g3_native(r = function (base_ar, extra_ar) {
+    extra_ar <- ( pmax(extra_ar * 1000, 0) + log1p(exp(pmin(extra_ar * 1000, 0) - pmax(extra_ar * 1000, 0))) ) / 1000
+    base_ar / as.vector(extra_ar)
+}, cpp = '[](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    vector<Type> extra_vec = extra_ar.vec();
+    assert(base_ar.size() % extra_ar.size() == 0);
+
+    for(int i = 0; i < extra_vec.size(); i++) {
+        extra_vec[i] = logspace_add(extra_vec[i] * 1000.0, (Type)0.0) / 1000.0;
+    }
+    return base_ar / (extra_vec.replicate(base_ar.size() / extra_vec.size(), 1));
+}')
+
+# Marker to point out we want this value to be cast vector<Type> in TMB, in R ignore
+g3_env$g3_cast_vector <- g3_native(r = function (x) x, cpp = NULL)

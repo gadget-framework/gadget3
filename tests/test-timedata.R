@@ -12,7 +12,7 @@ do_lookup <- function(df, cur_vals) {
     df$total_weight <- do.call(paste, df)
     lookup_f <- g3_timeareadata('l', df)
     # Bodge g3_global first
-    environment(lookup_f)$l__lookup <- g3_eval(attr(environment(lookup_f)$l__lookup, 'g3_global_init_val'))
+    environment(lookup_f)$l <- g3_eval(attr(environment(lookup_f)$l, 'g3_global_init_val'))
     g3_eval(lookup_f, cur_vals)
 }
 
@@ -68,7 +68,7 @@ expecteds$tad_lookup_2 <- 198421
 expecteds$tad_lookup_3 <- 0
 
 # Check a lookup with a single value in it still works
-single_lookup <- gadget3:::g3_intlookup('single_lookup', c(1), c(100))
+single_lookup_gen <- gadget3:::g3_intlookup('single_lookup', c(1), c(100))
 single_lookup_rv_1 <- 0
 single_lookup_rv_2 <- 0
 actions <- c(actions, gadget3:::f_substitute(~{
@@ -78,13 +78,13 @@ actions <- c(actions, gadget3:::f_substitute(~{
     REPORT(single_lookup_rv_1)
     REPORT(single_lookup_rv_2)
 }, list(
-    lookup_rv_1_f = single_lookup('getdefault', ~1, 99),
-    lookup_rv_2_f = single_lookup('getdefault', ~2, 99))))
+    lookup_rv_1_f = single_lookup_gen('getdefault', ~1, 99),
+    lookup_rv_2_f = single_lookup_gen('getdefault', ~2, 99))))
 expecteds$single_lookup_rv_1 <- 100
 expecteds$single_lookup_rv_2 <- 99
 
 # Single-area form works as expected
-single_area_lookup <- g3_timeareadata('single_area_lookup', read.table(header = TRUE, text = "
+single_area_lookup_tad <- g3_timeareadata('single_area_lookup', read.table(header = TRUE, text = "
 year	step	area	total_weight
 1983	1	1	198311
 1983	2	1	198321
@@ -101,12 +101,12 @@ actions <- c(actions, gadget3:::f_substitute(~{
     cur_year <- 1983 ; cur_step <- 1 ; area <- 2
     single_area_2 <- lookup_f
     REPORT(single_area_2)
-}, list(lookup_f = single_area_lookup)))
+}, list(lookup_f = single_area_lookup_tad)))
 expecteds$single_area_1 <- 198311
 expecteds$single_area_2 <- 0
 
 # Single-area lookup form works as expected
-single_named_area_lookup <- g3_timeareadata('single_named_area_lookup', read.table(header = TRUE, text = "
+single_named_area_lookup_gen <- g3_timeareadata('single_named_area_lookup', read.table(header = TRUE, text = "
 year	step	area	total_weight
 1983	1	b	198311
 1983	2	b	198321
@@ -123,12 +123,12 @@ actions <- c(actions, gadget3:::f_substitute(~{
     cur_year <- 1983 ; cur_step <- 2 ; area <- 2
     single_named_area_2 <- lookup_f
     REPORT(single_named_area_2)
-}, list(lookup_f = single_named_area_lookup)))
+}, list(lookup_f = single_named_area_lookup_gen)))
 expecteds$single_named_area_1 <- 0
 expecteds$single_named_area_2 <- 198321
 
 # no-area form works as expected
-no_area_lookup <- g3_timeareadata('no_area_lookup', read.table(header = TRUE, text = "
+no_area_lookup_gen <- g3_timeareadata('no_area_lookup', read.table(header = TRUE, text = "
 year	step	total_weight
 1983	1	198311
 1983	2	198321
@@ -145,12 +145,12 @@ actions <- c(actions, gadget3:::f_substitute(~{
     cur_year <- 1983 ; cur_step <- 2 ; area <- 2
     no_area_2 <- lookup_f
     REPORT(no_area_2)
-}, list(lookup_f = no_area_lookup)))
+}, list(lookup_f = no_area_lookup_gen)))
 expecteds$no_area_1 <- 198311
 expecteds$no_area_2 <- 198321
 
 # no-step
-no_step_lookup <- g3_timeareadata('no_step_lookup', read.table(header = TRUE, text = "
+no_step_lookup_gen <- g3_timeareadata('no_step_lookup', read.table(header = TRUE, text = "
 year	area	total_weight
 1983	1	19831
 1983	2	19832
@@ -171,14 +171,14 @@ actions <- c(actions, gadget3:::f_substitute(~{
     cur_year <- 1984 ; cur_step <- 3 ; area <- 2
     no_step_2 <- lookup_f
     REPORT(no_step_3)
-}, list(lookup_f = no_step_lookup)))
+}, list(lookup_f = no_step_lookup_gen)))
 expecteds$no_step_1 <- 19843
 expecteds$no_step_2 <- 19843
 expecteds$no_step_3 <- 0
 
 # "Simple" (i.e. mapping to a vector) lookups should return defaults
 simple_vec_idx <- 0L
-simple_vec_lookup <- gadget3:::g3_intlookup('simple_vec_lookup', c(1, 2, 3), c(2, 3, 4))('getdefault', ~simple_vec_idx, -1L)
+simple_vec_lookup_gen <- gadget3:::g3_intlookup('simple_vec_lookup', c(1, 2, 3), c(2, 3, 4))
 simple_vec_1 <- 0
 simple_vec_2 <- 0
 simple_vec_3 <- 0
@@ -196,14 +196,14 @@ actions <- c(actions, gadget3:::f_substitute(~{
     simple_vec_idx <- 4L
     simple_vec_3 <- lookup_f
     REPORT(simple_vec_3)
-}, list(lookup_f = simple_vec_lookup)))
+}, list(lookup_f = simple_vec_lookup_gen('getdefault', ~simple_vec_idx, -1L))))
 expecteds$simple_vec_1 <- -1
 expecteds$simple_vec_2 <- 4
 expecteds$simple_vec_3 <- -1
 
 # Make sure we can have zero / negative values in a lookup
 zero_key_idx <- 0L
-zero_key_lookup <- gadget3:::g3_intlookup('zero_key_lookup', c(0, -1, 1), c(2, 3, 4))('getdefault', ~zero_key_idx, -1L)
+zero_key_lookup_gen <- gadget3:::g3_intlookup('zero_key_lookup', c(0, -1, 1), c(2, 3, 4))
 zero_key_1 <- 0
 zero_key_2 <- 0
 zero_key_3 <- 0
@@ -221,7 +221,7 @@ actions <- c(actions, gadget3:::f_substitute(~{
     zero_key_idx <- 2L
     zero_key_3 <- lookup_f
     REPORT(zero_key_3)
-}, list(lookup_f = zero_key_lookup)))
+}, list(lookup_f = zero_key_lookup_gen('getdefault', ~zero_key_idx, -1L))))
 expecteds$zero_key_1 <- 2
 expecteds$zero_key_2 <- 3
 expecteds$zero_key_3 <- -1

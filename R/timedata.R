@@ -57,11 +57,11 @@ g3_intlookup <- function (lookup_name, keys, values) {
 
         # TODO: Make a 1-item optimisation, then the as_force_vector() stops being necessary
         lookup <- f_substitute(quote( intlookup_zip(l__keys, l__values) ), list(
-            l__keys = as.symbol(paste0(lookup_name, '__keys')),
-            l__values = as.symbol(paste0(lookup_name, '__values'))))
+            l__keys = as.symbol(paste0(lookup_name, '_keys')),
+            l__values = as.symbol(paste0(lookup_name, '_values'))))
         assign('intlookup_zip', intlookup_zip, , envir = environment(lookup))
-        assign(paste0(lookup_name, '__keys'), as_force_vector(as.integer(keys)), envir = environment(lookup))
-        assign(paste0(lookup_name, '__values'), as_force_vector(values), envir = environment(lookup))
+        assign(paste0(lookup_name, '_keys'), as_force_vector(as.integer(keys)), envir = environment(lookup))
+        assign(paste0(lookup_name, '_values'), as_force_vector(values), envir = environment(lookup))
 
         # Lookup should be defined outside the main model loop
         lookup <- g3_global_formula(init_val = lookup)
@@ -69,17 +69,17 @@ g3_intlookup <- function (lookup_name, keys, values) {
         if (!is.null(extra_arg)) {
             rv <- f_substitute(quote( fn(l, inner_f, extra_arg) ), list(
                 fn = as.symbol(paste0('intlookup_', req_type)),
-                l = as.symbol(paste0(lookup_name, '__lookup')),
+                l = as.symbol(lookup_name),
                 inner_f = inner_f,
                 extra_arg = extra_arg))
         } else {
             rv <- f_substitute(quote( fn(l, inner_f) ), list(
                 fn = as.symbol(paste0('intlookup_', req_type)),
-                l = as.symbol(paste0(lookup_name, '__lookup')),
+                l = as.symbol(lookup_name),
                 inner_f = inner_f))
         }
         assign(paste0('intlookup_', req_type), get(paste0('intlookup_', req_type)), envir = environment(rv))
-        assign(paste0(lookup_name, '__lookup'), lookup, envir = environment(rv))
+        assign(lookup_name, lookup, envir = environment(rv))
 
         return(rv)
     })

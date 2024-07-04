@@ -46,6 +46,7 @@ test: install
 
 inttest: install
 	for f in inttest/*/run.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
+	make vignettes G3_TEST_TMB=1
 
 coverage:
 	# NB: TMB transpiling and covr clash badly

@@ -9,6 +9,9 @@
 \alias{g3a_renewal}
 \alias{g3a_renewal_normalparam}
 \alias{g3a_renewal_normalcv}
+\alias{g3a_otherfood}
+\alias{g3a_otherfood_normalparam}
+\alias{g3a_otherfood_normalcv}
 \concept{G3 action}
 
 \title{Gadget3 renewal actions}
@@ -39,6 +42,8 @@ g3a_renewal_initabund(
     proportion_f = ~1,
     by_stock = TRUE,
     by_stock_f = FALSE)
+
+############################# g3a_initialconditions
 
 g3a_initialconditions(stock, num_f, wgt_f, run_f = ~cur_time == 0L,
         run_at = g3_action_order$initial)
@@ -72,6 +77,8 @@ g3a_initialconditions_normalcv(
         wgt_by_stock = TRUE,
         run_f = ~cur_time == 0L,
         run_at = g3_action_order$initial)
+
+############################# g3a_renewal
 
 g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE,
         run_at = g3_action_order$renewal)
@@ -118,6 +125,48 @@ g3a_renewal_normalcv(
         run_step = 1,
         run_f = NULL,
         run_at = g3_action_order$renewal)
+
+############################# g3a_otherfood
+
+g3a_otherfood(
+        stock,
+        num_f = g3_parameterized('of_abund', by_year = TRUE, by_step = TRUE,
+                                 by_stock = by_stock),
+        wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
+        by_stock = TRUE,
+        run_f = quote( cur_time <= total_steps ),
+        run_at = g3_action_order$initial)
+
+g3a_otherfood_normalparam(
+        stock,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        stddev_f = g3_parameterized('init.sd', value = 10,
+            by_stock = by_stock, by_age = by_age),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = quote( cur_time <= total_steps ),
+        run_at = g3_action_order$initial)
+
+g3a_otherfood_normalcv(
+        stock,
+        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
+        cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
+            optimise = FALSE),
+        alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
+        beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
+        age_offset = quote( cur_step_size ),
+        by_stock = TRUE,
+        by_age = FALSE,
+        wgt_by_stock = TRUE,
+        run_f = quote( cur_time <= total_steps ),
+        run_at = g3_action_order$initial)
+
 }
 
 \arguments{
@@ -149,6 +198,7 @@ g3a_renewal_normalcv(
     \link{formula} specifying a condition for running this action,
     For initialconditions defaults to first timestep.
     For renewal, the default is a combination of \var{run_age}, \var{run_step} & \var{run_projection}.
+    For otherfood, the default is to always run, apart from when the model is ending.
   }
   \item{Linf,K,t0,recl}{\link{formula} substituted into vonb calcuations, see below.}
   \item{recage}{\link{formula} substituted into initial abundance and vonb calcuations, see below.}
@@ -157,6 +207,16 @@ g3a_renewal_normalcv(
 }
 
 \details{
+  All of the following actions will renew stock in a model. The differences are when and what they apply to by default:
+
+  \describe{
+    \item{\code{g3a_initialconditions_*}}{Will run at the start of the model, building an inital state of all ages}
+    \item{\code{g3a_renewal_*}}{Will run at every step but only for the minimal age, adding new recruits as an alternative to \code{\link{g3a_spawn}()}}
+    \item{\code{g3a_otherfood_*}}{Will run at every step, replacing the previous state, creating a non-dynamic stock for predators to consume}
+  }
+
+  Specifying the quantities and mean-weights in each case works identically.
+
   A model can have any number of \code{g3a_renewal_*} actions, so long as the
   calling arguments are different. For instance, \code{run_f = ~age == 5} and
   \code{run_f = ~age == 7}.
@@ -200,14 +260,15 @@ g3a_renewal_normalcv(
       \item{proportion}{Substituted for \var{proportion}}
     }
   }
-  \subsection{g3a_initialconditions / g3a_renewal}{
+  \subsection{g3a_initialconditions / g3a_renewal / g3a_otherfood}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
   area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using
   \var{num_f} and \var{wgt_f}.
 
-  renewal will add fish to the existing collection, whereas initialconditions will assume the stock is currently empty.
+  renewal will add fish to the existing stock,
+  whereas initialconditions & otherfood will replace any previous values.
   }
-  \subsection{g3a_initialconditions_normalparam / g3a_renewal_normalparam}{
+  \subsection{g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam}{
     As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
 
     \deqn{n = e^{-(\frac{L - \mu}{\sigma})^2 / 2}}
@@ -222,7 +283,7 @@ g3a_renewal_normalcv(
       \item{\eqn{\beta}}{Substituted for \var{beta_f}}
     }
   }
-  \subsection{g3a_initialconditions_normalcv / g3a_renewal_normalcv}{
+  \subsection{g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv}{
     As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
 
     \deqn{n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}}
@@ -242,6 +303,7 @@ g3a_renewal_normalcv(
 \seealso{
   \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockinitial},
   \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec:stockrenew},
+  \url{https://gadget-framework.github.io/gadget2/userguide/chap-other.html#chap-other},
   \code{\link{g3_stock}}
 }
 
@@ -274,4 +336,15 @@ curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.2, t0 = 0), age = x),
 curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.4, t0 = 0), age = x),
     0, 10, col = 4, add = TRUE)
 
+## Otherfood
+# "Otherfood" stocks are defined in a similar manner to any other stock
+# Note that _normalparam & _normalcv need both length & age dimensions
+other_wgt <- g3_stock('other_wgt', 0)
+other_cv <- g3_stock('other_cv', seq(50, 100, by = 10)) \%>\% g3s_age(5,10)
+
+otherfood_actions <- list(
+    # Will get other_wgt.of_abund.1998.1, other_wgt.of_meanwgt parameters
+    g3a_otherfood(other_wgt),
+    # Use standard vonB parameters (Linf/K/t0) to define abundance
+    g3a_otherfood_normalcv(other_cv) )
 }

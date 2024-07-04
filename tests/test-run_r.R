@@ -23,7 +23,7 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
 ok_group('print.g3_r', {
     cap <- function (x) {
         out <- capture.output(x)
-        out[grepl("^<", out)] <- "<>"
+        out <- gsub('^<(\\w+): .*>$', '<\\1: xxx>', out)
         return(out)
     }
     model_fn <- g3_to_r(list( g3_formula(
@@ -33,30 +33,26 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn)), c(
         "function (param) ",
         "{",
-        "    cur_time <- -1L",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
-        "        cur_time <- cur_time + 1L",
         "        return(x + sum(y))",
         "    }",
         "}",
-        "<>",
-        "<>",
+        "<bytecode: xxx>",
+        "<environment: xxx>",
         NULL)), "Default print output has code, no attributes")
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
         "function (param) ",
         "{",
-        "    cur_time <- -1L",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
-        "        cur_time <- cur_time + 1L",
         "        return(x + sum(y))",
         "    }",
         "}",
-        "<>",
-        "<>",
+        "<bytecode: xxx>",
+        "<environment: xxx>",
         "Environment:",
         " $ y                : num [1:2] 4 5",
         " $ reporting_enabled: int 1",

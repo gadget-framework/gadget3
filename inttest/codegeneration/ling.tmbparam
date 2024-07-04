@@ -1,12 +1,13 @@
                                                                  switch   type value optimise random lower upper parscale
-lingimm.init.scalar                                 lingimm.init.scalar            0     TRUE  FALSE    NA    NA       NA
-lingimm.M                                                     lingimm.M            0     TRUE  FALSE    NA    NA       NA
-ling.init.F                                                 ling.init.F            0     TRUE  FALSE    NA    NA       NA
-lingimm.init                                               lingimm.init VECTOR     0     TRUE  FALSE    NA    NA       NA
+retro_years                                                 retro_years            0    FALSE  FALSE    NA    NA       NA
 ling.Linf                                                     ling.Linf            1     TRUE  FALSE    NA    NA       NA
 ling.K                                                           ling.K            1     TRUE  FALSE    NA    NA       NA
 recage                                                           recage            0    FALSE  FALSE    NA    NA       NA
 ling.recl                                                     ling.recl            0     TRUE  FALSE    NA    NA       NA
+lingimm.init.scalar                                 lingimm.init.scalar            0     TRUE  FALSE    NA    NA       NA
+lingimm.M                                                     lingimm.M            0     TRUE  FALSE    NA    NA       NA
+ling.init.F                                                 ling.init.F            0     TRUE  FALSE    NA    NA       NA
+lingimm.init                                               lingimm.init VECTOR     0     TRUE  FALSE    NA    NA       NA
 lingimm.walpha                                           lingimm.walpha            0     TRUE  FALSE    NA    NA       NA
 lingimm.wbeta                                             lingimm.wbeta            0     TRUE  FALSE    NA    NA       NA
 lingmat.init.scalar                                 lingmat.init.scalar            0     TRUE  FALSE    NA    NA       NA
@@ -14,12 +15,11 @@ lingmat.M                                                     lingmat.M         
 lingmat.init                                               lingmat.init VECTOR     0     TRUE  FALSE    NA    NA       NA
 lingmat.walpha                                           lingmat.walpha            0     TRUE  FALSE    NA    NA       NA
 lingmat.wbeta                                             lingmat.wbeta            0     TRUE  FALSE    NA    NA       NA
-retro_years                                                 retro_years            0    FALSE  FALSE    NA    NA       NA
 ling.igfs.alpha                                         ling.igfs.alpha            0     TRUE  FALSE    NA    NA       NA
 ling.igfs.l50                                             ling.igfs.l50            0     TRUE  FALSE    NA    NA       NA
-ling.bbin                                                     ling.bbin            0     TRUE  FALSE    NA    NA       NA
 ling.mat1                                                     ling.mat1            0     TRUE  FALSE    NA    NA       NA
 ling.mat2                                                     ling.mat2            0     TRUE  FALSE    NA    NA       NA
+ling.bbin                                                     ling.bbin            0     TRUE  FALSE    NA    NA       NA
 ling.rec.scalar                                         ling.rec.scalar            0     TRUE  FALSE    NA    NA       NA
 ling.rec.1994                                             ling.rec.1994            0     TRUE  FALSE    NA    NA       NA
 ling.rec.1995                                             ling.rec.1995            0     TRUE  FALSE    NA    NA       NA

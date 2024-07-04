@@ -105,7 +105,7 @@ g3s_areagroup <- function(inner_stock, areagroups) {
     }
 
     stock__areagroup_lookup <- g3_intlookup(
-        inner_stock$name,
+        paste0(inner_stock$name, "__areagroup"),
         keys = as.integer(unlist(areagroups)),
         values = unlist(lapply(seq_along(areagroups),
         function (i) rep(i, times = length(areagroups[[i]])))))

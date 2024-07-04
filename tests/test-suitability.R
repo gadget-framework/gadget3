@@ -9,6 +9,8 @@ suit_report_action <- function (predstock, stock, suit_f, run_at = 99) {
     suit_fn_name <- as.character(sys.call()[[4]][[1]])
     suit_var_name <- paste0('stock__', suit_fn_name)
     assign(suit_var_name, g3_stock_instance(stock))
+    # NB: Make sure the parameter has a different name to variable, otherwise we'll upset TMB
+    predator_length <- g3_parameterized('pred_length', value = 0)
     
     out[[gadget3:::step_id(run_at, suit_fn_name)]] <- gadget3:::g3_step(gadget3:::f_substitute(~{
         debug_label("Testing ", suit_fn_name)

@@ -13,6 +13,37 @@ capture_warnings <- function(x, full_object = FALSE) {
     return(list(rv = rv, warnings = all_warnings))
 }
 
+# Mock (fn) in namespace with (replacement) whilst (block) is being evaluated
+mock <- function (fn, replacement, block) {
+    # Get the name of the function from the unevaluated argument,
+    # assuming it's of the form package::name
+    fn_name <- as.character(as.list(sys.call()[[2]])[[3]])
+    ns <- environment(fn)
+
+    orig_fn <- get(fn_name, env = ns)
+    unlockBinding(fn_name, env = ns)
+    assign(fn_name, replacement, envir = ns)
+    on.exit(assign(fn_name, orig_fn, envir = ns), add = TRUE)
+
+    block
+}
+
+ok_group("g3_tmb_adfun:compile_args") ##########
+last_compile_call <- list()
+mock(TMB::compile, function (...) {
+    # NB: as.list(...) is only returning the first argument, for some reason
+    args <- lapply(seq_along(...names()), function (i) ...elt(i))
+    names(args) <- ...names()
+    last_compile_call <<- args
+
+    ok(grepl(paste0(tempdir(), ".*\\.cpp$"), last_compile_call[[1]]), "First argument cpp file")
+}, {
+    # NB: This should fail since there'll be no .so to load
+    tryCatch(g3_tmb_adfun(g3_to_tmb(list(~{g3_param("x")}))), error = function (e) NULL)
+    ok(grepl("-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS", last_compile_call$flags, fixed = TRUE), "compile_flags: Internal flags set")
+})
+########## g3_tmb_adfun:compile_args
+
 ok(ut_cmp_error({
     invalid_subset <- array(dim = c(2,2,2))
     g3_to_tmb(list(~{invalid_subset[,g3_idx(1),]}))
@@ -55,15 +86,6 @@ ok(ut_cmp_error({
 ok(ut_cmp_error({
     g3_to_tmb(list(~g3_param("camel", optimize = FALSE)))
 }, "optimise"), "Optimise is spelt with an s in g3_param()")
-
-ok_group("Exponentiate params")
-params.in <- attr(g3_to_tmb(list( g3a_time(1990, 2000), g3_formula(
-    quote(d),
-    d = g3_parameterized('par.years', value = 0, by_year = TRUE, exponentiate = TRUE),
-    x = NA) )), 'parameter_template')
-ok(ut_cmp_identical(params.in[grep('^par', params.in$switch), 'switch'], c(
-    paste0('par.years.', 1990:2000, '_exp'),
-    NULL)), "exponentiate prefix ends up at the end of parameters")
 
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
@@ -423,11 +445,14 @@ ok_group("cpp_code", {
 
 
 ###############################################################################
-actions <- list()
+actions <- list(g3a_time(1990, 1991))
 expecteds <- new.env(parent = emptyenv())
 expected_warnings_r <- c()
 expected_warnings_tmb <- c()
-params <- list(rv=0)
+params <- list(
+     retro_years = 0,
+     project_years = 0,
+     rv = 0 )
 
 # Check constants can pass through cleanly
 constants_integer <- 999
@@ -593,6 +618,46 @@ actions <- c(actions, ~{
 })
 expecteds$as_vector_result1 <- pnorm(as_vector_array[,1], as_vector_mean, as_vector_sigma)
 expecteds$as_vector_result2 <- pnorm(as_vector_array[,2], as_vector_mean, as_vector_sigma)
+
+# pow() / .pow()
+pow_scalar <- 99
+pow_scalar_result <- 0
+pow_vector <- c("50:60" = 55, "60:70" = 65, "70:80" = 75, "80:90" = 85, "90:100" = 95, "100:Inf" = 105)
+pow_vector_result <- array(0, dim = c(6, 5))
+actions <- c(actions, ~{
+    comment('pow_vector')
+    pow_scalar_result <- pow_scalar^3
+    REPORT(pow_scalar_result)
+    # NB: This has to use pow_vector.pow(), pow(pow_vector, 2) fails
+    g3_with(pv := 5 * pow_vector^2, for (a in seq(1, 5, by = 1)) {
+        pow_vector_result[,g3_idx(a)] <- pv
+    })
+    REPORT(pow_vector_result)
+})
+expecteds$pow_scalar_result <- pow_scalar^3
+expecteds$pow_vector_result <- array(5 * pow_vector^2, dim = c(6, 5))
+
+# Matrix multiplication / %*%
+mmult_matrix <- matrix(runif(9), nrow = 3)
+mmult_vec <- runif(3)
+mmult_result <- array(rep(0, 3), dim = c(3, 1))
+actions <- c(actions, ~{
+    comment('matrix multiplication')
+    mmult_result <- mmult_matrix %*% mmult_vec
+    REPORT(mmult_result)
+})
+expecteds$mmult_result <- mmult_matrix %*% mmult_vec
+
+# Diagonal matrices
+diag_v1 <- runif(10)
+diag_v2 <- runif(10)
+diag_result <- rep(0, 10)
+actions <- c(actions, ~{
+    comment('diagonal matrices')
+    diag_result <- as.vector(diag(diag_v1) %*% diag_v2)
+    REPORT(diag_result)
+})
+expecteds$diag_result <- as.vector(diag(diag_v1) %*% diag_v2)
 
 # mean() --> .mean()
 mean_vector <- array(c(1, 2, 88, 99))
@@ -815,6 +880,18 @@ expecteds$param_table_ifmpartab_out <- array(c(
     params[['param_table_ifmpartab.3']],
     params[['param_table_ifmpartab.3']],
     NULL))
+
+# g3_param_table(by_year, exponentiate)
+param_table_byyrexp_out <- 0.0
+params[["byyrexp.1990_exp"]] <- 19
+params[["byyrexp.1991_exp"]] <- 20
+actions <- c(actions, gadget3:::f_substitute(~{
+    param_table_byyrexp_out <- x
+    REPORT(param_table_byyrexp_out)
+}, list(
+    x = g3_parameterized("byyrexp", by_year = TRUE, exponentiate = TRUE),
+    end = NULL )))
+expecteds$param_table_byyrexp_out <- exp(19)
 
 ###############################################################################
 

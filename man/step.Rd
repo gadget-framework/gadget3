@@ -87,6 +87,7 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
   If \var{dimname}s are supplied, then the code supplied will override the above.
   This code can include \code{default}, which will be substituted for the default subset,
   or \code{missing} to represent an empty position in the subset.
+  If a \var{dimname} is not present in \var{stock_var}, it will be ignored.
 }
 
 \section{stock_ssinv}{

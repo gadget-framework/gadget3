@@ -39,6 +39,11 @@ template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> 
 template<class Type>
 Type objective_function<Type>::operator() () {
     DATA_SCALAR(reporting_enabled); DATA_UPDATE(reporting_enabled);
+    PARAMETER(retro_years);
+    PARAMETER(fish__Linf);
+    PARAMETER(fish__K);
+    PARAMETER(fish__t0);
+    PARAMETER(fish__lencv);
     PARAMETER(fish__init__scalar);
     PARAMETER(fish__init__1);
     PARAMETER(fish__init__2);
@@ -64,14 +69,9 @@ Type objective_function<Type>::operator() () {
     std::map<std::tuple<int>, Type*> fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}, {std::make_tuple(6), &fish__M__6}, {std::make_tuple(7), &fish__M__7}, {std::make_tuple(8), &fish__M__8}, {std::make_tuple(9), &fish__M__9}, {std::make_tuple(10), &fish__M__10}};
     PARAMETER(init__F);
     PARAMETER(recage);
-    PARAMETER(fish__Linf);
-    PARAMETER(fish__K);
-    PARAMETER(fish__t0);
-    PARAMETER(fish__lencv);
     PARAMETER(fish__walpha);
     PARAMETER(fish__wbeta);
     PARAMETER(report_detail);
-    PARAMETER(retro_years);
     PARAMETER(fish__comm__alpha);
     PARAMETER(fish__comm__l50);
     PARAMETER(fish__bbin);
@@ -90,12 +90,22 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__scalar);
     PARAMETER(adist_surveyindices_log_acoustic_dist_weight);
     PARAMETER(cdist_sumofsquares_comm_ldist_weight);
-    auto normalize_vec = [](vector<Type> a) -> vector<Type> {
-    return a / a.sum();
-};
     auto assert_msg = [](bool expr, std::string message) -> bool {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
+};
+    auto normalize_vec = [](vector<Type> a) -> vector<Type> {
+    return a / a.sum();
+};
+    auto as_numeric_arr = [](array<Type> x) -> array<double> {
+  array<double> out(x.size());
+  for(int i=0; i<x.size(); i++)
+    out(i) = asDouble(x(i));
+  return out;
+};
+    auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
     vector<Type> res(a.size());
@@ -110,6 +120,10 @@ Type objective_function<Type>::operator() () {
         res[i] = logspace_add(a[i], b);
     }
     return res;
+};
+    auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
+    assert(base_ar.size() % extra_ar.size() == 0);
+    return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
     auto growth_bbinom = [](vector<Type> delt_l, int binn, Type beta) -> array<Type> {
         using namespace Eigen;
@@ -146,30 +160,63 @@ Type objective_function<Type>::operator() () {
     auto avoid_zero = [](Type a) -> Type {
     return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
 };
-    auto g3a_grow_weightsimple_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-            }
+    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
         }
-        return out;
-    };
-    auto g3a_grow_weightsimple_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-        array<Type> out(vec.size(), a);
-        for (int i = 0 ; i < vec.size(); i++) {
-            for (int j = 0 ; j < a; j++) {
-                out(i, j) = vec[i];
-            }
+    }
+    return out;
+};
+    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
+    array<Type> out(vec.size(), a);
+    out = vec.replicate(a, 1);
+    return out;
+};
+    auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
+    // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
+    matrix<Type> delta_w = delta_w_ar.matrix();
+    int total_deltas = delta_w.cols();  // # Length group increases (should be +1 for the no-change group)
+    int total_lgs = delta_w.rows(); // # Length groups
+
+    matrix<Type> weight_matrix(total_lgs, total_lgs);
+    weight_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
+        } else if(lg + total_deltas > total_lgs) {
+            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
+        } else {
+            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
         }
-        return out;
-    };
-    auto g3a_grow_apply = [](array<Type> delta_l_ar, array<Type> delta_w_ar, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    }
+    return(weight_matrix);
+};
+    auto g3a_grow_matrix_len = [](array<Type> delta_l_ar) -> matrix<Type> {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_l = delta_l_ar.matrix();
-    matrix<Type> delta_w = delta_w_ar.matrix();
     int total_deltas = delta_l.cols();  // # Length group increases (should be +1 for the no-change group)
     int total_lgs = delta_l.rows(); // # Length groups
+
+    matrix<Type> growth_matrix(total_lgs, total_lgs);
+    growth_matrix.setZero();
+
+    for (int lg = 0; lg < total_lgs; lg++) {
+        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
+            growth_matrix(lg, lg) = delta_l.row(lg).sum();
+        } else if(lg + total_deltas > total_lgs) {
+            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
+            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
+        } else {
+            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
+        }
+    }
+    return(growth_matrix);
+};
+    auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
+    int total_lgs = growth_matrix.cols(); // # Length groups
 
     auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
         vector<Type> res(a.size());
@@ -179,24 +226,6 @@ Type objective_function<Type>::operator() () {
         return res;
     };
 
-    matrix<Type> growth_matrix(total_lgs, total_lgs);
-    growth_matrix.setZero();
-    matrix<Type> weight_matrix(total_lgs, total_lgs);
-    weight_matrix.setZero();
-
-    for (int lg = 0; lg < total_lgs; lg++) {
-        if (lg == total_lgs - 1) {  // Can't grow beyond maximum length group
-            growth_matrix(lg, lg) = delta_l.row(lg).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
-        } else if(lg + total_deltas > total_lgs) {
-            growth_matrix.block(lg, lg, 1, total_lgs - lg) = delta_l.block(lg, 0, 1, total_lgs - lg);
-            growth_matrix(lg, total_lgs - 1) = delta_l.row(lg).tail(total_deltas - (total_lgs - lg) + 1).sum();
-            weight_matrix.block(lg, lg, 1, total_lgs - lg) = delta_w.block(lg, 0, 1, total_lgs - lg);
-        } else {
-            growth_matrix.block(lg, lg, 1, total_deltas) = delta_l.block(lg, 0, 1, total_deltas);
-            weight_matrix.block(lg, lg, 1, total_deltas) = delta_w.block(lg, 0, 1, total_deltas);
-        }
-    }
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -211,9 +240,6 @@ Type objective_function<Type>::operator() () {
     auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
 };
-    auto g3_matrix_vec = [](array<Type>tf, vector<Type> vec) -> vector<Type> {
-       return (tf.matrix() * vec.matrix()).array();
-   };
     auto surveyindices_linreg = [&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 
@@ -226,53 +252,55 @@ Type objective_function<Type>::operator() () {
         return out;
     };
     int cur_time = -1;
+    PARAMETER(project_years);
+    int cur_year = 0;
+    int start_year = 1990;
+    vector<int> step_lengths(1); step_lengths.setConstant(12);
+    auto step_count = (step_lengths).size();
+    int cur_year_projection = false;
+    int end_year = 2000;
+    int cur_step = 0;
+    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
+    int cur_step_final = false;
     int fish__minage = 1;
     int fish__maxage = 10;
     int fish__area = 1;
     DATA_VECTOR(fish__midlen)
-    vector<int> step_lengths(1); step_lengths.setConstant(12);
-    auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     array<Type> fish__num(6,1,10); fish__num.setZero();
     array<Type> fish__wgt(6,1,10); fish__wgt.setConstant((double)(1));
-    int end_year = 2000;
-    int start_year = 1990;
-    PARAMETER(project_years);
     auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<Type> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
-    array<Type> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    array<double> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
+    array<double> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    array<Type> suit_fish_comm__report(6);
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
     array<Type> adist_surveyindices_log_acoustic_dist_model__wgt(1,11,1); adist_surveyindices_log_acoustic_dist_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_acoustic_dist_obs__wgt)
     array<Type> cdist_sumofsquares_comm_ldist_model__wgt(5,11,1); cdist_sumofsquares_comm_ldist_model__wgt.setZero();
     DATA_ARRAY(cdist_sumofsquares_comm_ldist_obs__wgt)
-    array<Type> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
-    array<Type> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
-    array<Type> detail_fish__suit_comm(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__suit_comm.setZero();
+    array<double> detail_fish__predby_comm(6,1,10,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish__renewalnum(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
+    array<double> detail_fish_comm__cons(6,1,10,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_acoustic_dist__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__weight.setZero();
     array<Type> nll_adist_surveyindices_log_acoustic_dist__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_acoustic_dist__wgt.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__weight.setZero();
     array<Type> nll_cdist_sumofsquares_comm_ldist__wgt(as_integer(total_steps + 1)); nll_cdist_sumofsquares_comm_ldist__wgt.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    int cur_year = 0;
-    auto step_count = (step_lengths).size();
-    int cur_year_projection = false;
-    int cur_step = 0;
-    int cur_step_final = false;
-    array<Type> comm__catch(1);
-    array<Type> comm__catchnum(1);
     array<Type> fish__totalpredate(6,1,10);
-    array<Type> fish__predby_comm(6,1,10);
+    array<Type> comm__totalsuit(1);
+    array<Type> fish_comm__suit(6,1,10);
     int comm__area = 1;
-    array<Type> fish__suit_comm(6,1,10); fish__suit_comm.setZero();
-    DATA_IVECTOR(comm_landings__keys)
-    DATA_VECTOR(comm_landings__values)
-    auto comm_landings__lookup = intlookup_zip(comm_landings__keys, comm_landings__values);
+    array<Type> fish_comm__cons(6,1,10);
+    DATA_IVECTOR(comm_landings_keys)
+    DATA_VECTOR(comm_landings_values)
+    auto comm_landings = intlookup_zip(comm_landings_keys, comm_landings_values);
     array<Type> fish__consratio(6,1,10);
     Type fish__overconsumption = (double)(0);
+    array<Type> fish__consconv(6,1,10);
+    array<Type> fish__predby_comm(6,1,10);
     int fish__growth_lastcalc = -1;
     array<Type> fish__growth_l(6,6);
     Type fish__plusdl = (double)(10);
@@ -281,51 +309,67 @@ Type objective_function<Type>::operator() () {
     array<Type> fish__renewalnum(6,1,10); fish__renewalnum.setZero();
     array<Type> fish__renewalwgt(6,1,10); fish__renewalwgt.setZero();
     int adist_surveyindices_log_acoustic_dist_model__area = 1;
-    DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__keys)
-    DATA_IVECTOR(times_adist_surveyindices_log_acoustic_dist_model__values)
-    auto times_adist_surveyindices_log_acoustic_dist_model__lookup = intlookup_zip(times_adist_surveyindices_log_acoustic_dist_model__keys, times_adist_surveyindices_log_acoustic_dist_model__values);
+    DATA_IVECTOR(adist_surveyindices_log_acoustic_dist_model__times_keys)
+    DATA_IVECTOR(adist_surveyindices_log_acoustic_dist_model__times_values)
+    auto adist_surveyindices_log_acoustic_dist_model__times = intlookup_zip(adist_surveyindices_log_acoustic_dist_model__times_keys, adist_surveyindices_log_acoustic_dist_model__times_values);
     array<Type> fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix(1,6); fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.setConstant((double)(1));
     int adist_surveyindices_log_acoustic_dist_obs__area = 1;
     int cdist_sumofsquares_comm_ldist_model__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_model__values)
-    auto times_cdist_sumofsquares_comm_ldist_model__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_model__keys, times_cdist_sumofsquares_comm_ldist_model__values);
-    DATA_ARRAY(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix)
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_model__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_model__times_values)
+    auto cdist_sumofsquares_comm_ldist_model__times = intlookup_zip(cdist_sumofsquares_comm_ldist_model__times_keys, cdist_sumofsquares_comm_ldist_model__times_values);
+    DATA_ARRAY(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix)
     int cdist_sumofsquares_comm_ldist_obs__area = 1;
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__keys)
-    DATA_IVECTOR(times_cdist_sumofsquares_comm_ldist_obs__values)
-    auto times_cdist_sumofsquares_comm_ldist_obs__lookup = intlookup_zip(times_cdist_sumofsquares_comm_ldist_obs__keys, times_cdist_sumofsquares_comm_ldist_obs__values);
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_obs__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_comm_ldist_obs__times_values)
+    auto cdist_sumofsquares_comm_ldist_obs__times = intlookup_zip(cdist_sumofsquares_comm_ldist_obs__times_keys, cdist_sumofsquares_comm_ldist_obs__times_values);
     Type g3l_understocking_total = (double)(0);
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
 
     while (true) {
-        cur_time += 1;
+        {
+            // g3a_time: Start of time period;
+            cur_time += 1;
+            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
+                return NAN;
+            }
+            if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
+                return NAN;
+            }
+            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year_projection = cur_year > end_year - retro_years;
+            cur_step = (cur_time % step_count) + 1;
+            cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
+            cur_step_final = cur_step == step_count;
+        }
         {
             // g3a_initialconditions for fish;
             for (auto age = fish__minage; age <= fish__maxage; age++) if ( cur_time == 0 ) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
 
+                auto area = fish__area;
+
+                auto fish__area_idx = 0;
+
+                auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
+
+                auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
+
                 {
-                    auto area = fish__area;
-
-                    auto fish__area_idx = 0;
-
-                    auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
-
-                    auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
-
-                    {
-                        fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
-                        fish__wgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*pow(fish__midlen, (Type)fish__wbeta);
-                    }
+                    fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                    fish__wgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                 }
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__num.col(cur_time + 1 - 1) = fish__num;
+            detail_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__wgt.col(cur_time + 1 - 1) = fish__wgt;
+            detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            suit_fish_comm__report = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
+            REPORT(suit_fish_comm__report);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(adist_surveyindices_log_acoustic_dist_model__params);
@@ -352,10 +396,10 @@ Type objective_function<Type>::operator() () {
             REPORT(detail_fish__renewalnum);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__suit_comm);
+            REPORT(detail_fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__wgt);
+            REPORT(detail_fish_comm__cons);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
@@ -375,59 +419,49 @@ Type objective_function<Type>::operator() () {
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_understocking__wgt);
         }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(step_lengths);
+        }
         {
-            // g3a_time: Start of time period;
-            if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
-                return NAN;
-            }
-            if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
-                return NAN;
-            }
             if ( cur_time > total_steps ) {
                 return nll;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
-            cur_year_projection = cur_year > end_year - retro_years;
-            cur_step = (cur_time % step_count) + 1;
-            cur_step_final = cur_step == step_count;
         }
+        fish__totalpredate.setZero();
+        comm__totalsuit.setZero();
         {
-            // Zero biomass-caught counter for comm;
-            comm__catch.setZero();
-            comm__catchnum.setZero();
-        }
-        {
-            // Zero total predation counter for fish;
-            fish__totalpredate.setZero();
-        }
-        {
-            // g3a_predate_fleet for fish;
-            // Zero comm-fish biomass-consuming counter;
-            fish__predby_comm.setZero();
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))));
 
-                auto area = fish__area;
+            {
+                // g3a_predate_fleet for fish;
+                // Zero comm-fish biomass-consuming counter;
+                fish_comm__suit.setZero();
+                for (auto age = fish__minage; age <= fish__maxage; age++) {
+                    auto fish__age_idx = age - fish__minage + 1 - 1;
 
-                auto fish__area_idx = 0;
+                    auto area = fish__area;
 
-                if ( area == comm__area ) {
-                    auto comm__area_idx = 0;
+                    auto fish__area_idx = 0;
 
-                    auto fleet_area = area;
+                    if ( area == comm__area ) {
+                        auto catchability = (suitability*fish__num.col(fish__age_idx).col(fish__area_idx));
 
-                    {
-                        // Collect all suitable fish biomass for comm;
-                        fish__suit_comm.col(fish__age_idx).col(fish__area_idx) = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
-                        fish__predby_comm.col(fish__age_idx).col(fish__area_idx) = fish__suit_comm.col(fish__age_idx).col(fish__area_idx)*fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
-                        comm__catch(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx)).sum();
-                        comm__catchnum(comm__area_idx) += (fish__suit_comm.col(fish__age_idx).col(fish__area_idx)*fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
+                        auto comm__area_idx = 0;
+
+                        auto predator_area = area;
+
+                        {
+                            // Collect all suitable fish biomass for comm;
+                            fish_comm__suit.col(fish__age_idx).col(fish__area_idx) = catchability;
+                            comm__totalsuit(comm__area_idx) += (fish_comm__suit.col(fish__age_idx).col(fish__area_idx)).sum();
+                        }
                     }
                 }
             }
         }
         {
             // Scale comm catch of fish by total expected catch;
+            fish_comm__cons.setZero();
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
 
@@ -438,59 +472,34 @@ Type objective_function<Type>::operator() () {
                 if ( area == comm__area ) {
                     auto comm__area_idx = 0;
 
-                    auto fleet_area = area;
+                    auto predator_area = area;
 
-                    {
-                        fish__predby_comm.col(fish__age_idx).col(fish__area_idx) = (fish__predby_comm.col(fish__age_idx).col(fish__area_idx) / avoid_zero_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx)))*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings__lookup, cur_year, (double)(0))) / comm__catchnum(comm__area_idx));
-                        fish__totalpredate.col(fish__age_idx).col(fish__area_idx) += fish__predby_comm.col(fish__age_idx).col(fish__area_idx);
-                    }
+                    auto total_predsuit = comm__totalsuit(comm__area_idx);
+
+                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
-        }
-        {
-            // Temporarily convert to being proportion of totalpredate;
-            fish__predby_comm /= avoid_zero_vec(fish__totalpredate);
+            fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons);
         }
         {
             // Calculate fish overconsumption coefficient;
+            // Apply overconsumption to fish;
             fish__consratio = fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt);
             fish__consratio = logspace_add_vec(fish__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
-            if ( false ) {
-                assert_msg((fish__consratio <= (double)(1)).all(), "g3a_predate_fleet: fish__consratio <= 1, can't consume more fish than currently exist");
-            }
-            // Apply overconsumption to prey;
             fish__overconsumption = (fish__totalpredate).sum();
+            fish__consconv = (double)(1) / avoid_zero_vec(fish__totalpredate);
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;
             fish__overconsumption -= (fish__totalpredate).sum();
+            fish__consconv *= fish__totalpredate;
             fish__num *= ((double)(1) - fish__consratio);
         }
         {
-            // Zero comm catch before working out post-adjustment value;
-            comm__catch.setZero();
-            comm__catchnum.setZero();
+            // Apply overconsumption to fish_comm__cons;
+            fish_comm__cons = nonconform_mult(fish_comm__cons, fish__consconv);
         }
         {
-            // Revert to being total biomass (applying overconsumption in process);
-            fish__predby_comm *= fish__totalpredate;
-            // Update total catch;
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
-
-                auto area = fish__area;
-
-                auto fish__area_idx = 0;
-
-                if ( area == comm__area ) {
-                    auto comm__area_idx = 0;
-
-                    auto fleet_area = area;
-
-                    {
-                        comm__catch(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx)).sum();
-                        comm__catchnum(comm__area_idx) += (fish__predby_comm.col(fish__age_idx).col(fish__area_idx) / fish__wgt.col(fish__age_idx).col(fish__area_idx)).sum();
-                    }
-                }
-            }
+            fish__predby_comm.setZero();
+            fish__predby_comm = nonconform_add(fish__predby_comm, fish_comm__cons);
         }
         {
             // Natural mortality for fish;
@@ -505,38 +514,38 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3a_grow for fish;
-            for (auto age = fish__minage; age <= fish__maxage; age++) {
-                auto fish__age_idx = age - fish__minage + 1 - 1;
+            auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
-                auto area = fish__area;
+            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
 
-                auto fish__area_idx = 0;
+            auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
-                {
-                    if ( fish__growth_lastcalc != std::floor(cur_step_size*12) ) {
-                        // Calculate length/weight delta matrices for current lengthgroups;
-                        fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin));
-                        fish__growth_w = (g3a_grow_weightsimple_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_weightsimple_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha;
-                        // Don't recalculate until cur_step_size changes;
-                        fish__growth_lastcalc = std::floor(cur_step_size*12);
-                    }
-                    if ( false ) {
-                        fish__prevtotal = (fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
-                    }
-                    // Update fish using delta matrices;
+            auto growthmat_l = g3a_grow_matrix_len(growth_delta_l);
+
+            {
+                // g3a_grow for fish;
+                for (auto age = fish__minage; age <= fish__maxage; age++) {
+                    auto fish__age_idx = age - fish__minage + 1 - 1;
+
+                    auto area = fish__area;
+
+                    auto fish__area_idx = 0;
+
+                    auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, fish__num.col(fish__age_idx).col(fish__area_idx), fish__wgt.col(fish__age_idx).col(fish__area_idx));
+
                     {
-                        auto growthresult = g3a_grow_apply(fish__growth_l, fish__growth_w, fish__num.col(fish__age_idx).col(fish__area_idx), fish__wgt.col(fish__age_idx).col(fish__area_idx));
-
-                        {
-                            fish__num.col(fish__age_idx).col(fish__area_idx) = growthresult.col(0);
-                            fish__wgt.col(fish__age_idx).col(fish__area_idx) = growthresult.col(1);
+                        if ( false ) {
+                            fish__prevtotal = (fish__num.col(fish__age_idx).col(fish__area_idx)).sum();
+                        }
+                        // Update fish using delta matrices;
+                        fish__num.col(fish__age_idx).col(fish__area_idx) = growthresult.col(0);
+                        fish__wgt.col(fish__age_idx).col(fish__area_idx) = growthresult.col(1);
+                        if ( false ) {
+                            assert_msg(CppAD::abs(fish__prevtotal - (fish__num.col(fish__age_idx).col(fish__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish__num totals are not the same before and after growth");
                         }
                     }
-                    if ( false ) {
-                        assert_msg(CppAD::abs(fish__prevtotal - (fish__num.col(fish__age_idx).col(fish__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish__num totals are not the same before and after growth");
-                    }
                 }
+                fish__growth_lastcalc = std::floor(cur_step_size*12);
             }
         }
         {
@@ -554,8 +563,8 @@ Type objective_function<Type>::operator() () {
                     auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv));
 
                     {
-                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-(pow(dnorm, (Type)(double)(2)))*(double)(0.5)))*(double)(10000)*factor;
-                        fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*pow(fish__midlen, (Type)fish__wbeta);
+                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                        fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                         // Add result to fish;
                         fish__wgt.col(fish__age_idx).col(fish__area_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx), fish__num.col(fish__age_idx).col(fish__area_idx), fish__renewalwgt.col(fish__age_idx).col(fish__area_idx), fish__renewalnum.col(fish__age_idx).col(fish__area_idx));
                         fish__num.col(fish__age_idx).col(fish__area_idx) += fish__renewalnum.col(fish__age_idx).col(fish__area_idx);
@@ -563,7 +572,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( adist_surveyindices_log_acoustic_dist_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish for adist_surveyindices_log_acoustic_dist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -575,11 +584,11 @@ Type objective_function<Type>::operator() () {
                 if ( area == adist_surveyindices_log_acoustic_dist_model__area ) {
                     auto adist_surveyindices_log_acoustic_dist_model__area_idx = 0;
 
-                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
                         // Take fish total biomass to our count;
-                        adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += g3_matrix_vec(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix, (fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx)));
+                        adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += ((matrix<Type>)(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.matrix() * ((fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx))).matrix())).vec();
                     }
                 }
             }
@@ -589,12 +598,12 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_acoustic_dist_model to adist_surveyindices_log_acoustic_dist_obs;
-                if ( cur_step_final ) {
+                if ( adist_surveyindices_log_acoustic_dist_weight > (double)(0) && cur_step_final ) {
                     auto area = adist_surveyindices_log_acoustic_dist_model__area;
 
                     auto adist_surveyindices_log_acoustic_dist_model__area_idx = 0;
 
-                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(times_adist_surveyindices_log_acoustic_dist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                    auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
                         if ( area == adist_surveyindices_log_acoustic_dist_obs__area ) {
@@ -617,7 +626,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_comm_ldist_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from comm/fish for cdist_sumofsquares_comm_ldist;
             for (auto age = fish__minage; age <= fish__maxage; age++) {
                 auto fish__age_idx = age - fish__minage + 1 - 1;
@@ -629,23 +638,23 @@ Type objective_function<Type>::operator() () {
                 if ( area == cdist_sumofsquares_comm_ldist_model__area ) {
                     auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
 
-                    auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                    auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
-                        // Take prey_stock__predby_predstock weight, add to our count;
-                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += g3_matrix_vec(fish_cdist_sumofsquares_comm_ldist_model_lgmatrix, fish__predby_comm.col(fish__age_idx).col(fish__area_idx));
+                        // Take predprey__cons weight, add to our count;
+                        cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += ((matrix<Type>)(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix.matrix() * (fish_comm__cons.col(fish__age_idx).col(fish__area_idx)).matrix())).vec();
                     }
                 }
             }
         }
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_comm_ldist_model to cdist_sumofsquares_comm_ldist_obs;
-            if ( cur_step_final ) {
+            if ( cdist_sumofsquares_comm_ldist_weight > (double)(0) && cur_step_final ) {
                 auto area = cdist_sumofsquares_comm_ldist_model__area;
 
                 auto cdist_sumofsquares_comm_ldist_model__area_idx = 0;
 
-                auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_model__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                 if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
                     if ( area == cdist_sumofsquares_comm_ldist_obs__area ) {
@@ -653,7 +662,7 @@ Type objective_function<Type>::operator() () {
 
                         auto cdist_sumofsquares_comm_ldist_obs__area_idx = 0;
 
-                        auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(times_cdist_sumofsquares_comm_ldist_obs__lookup, (cur_year*100 + cur_step*0), -1) - 1;
+                        auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                         if ( cdist_sumofsquares_comm_ldist_obs__time_idx >= 0 ) {
                             auto cdist_sumofsquares_comm_ldist_obs__sstotal = avoid_zero((cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx)).sum());
@@ -687,13 +696,13 @@ Type objective_function<Type>::operator() () {
             nll_understocking__weight(cur_time + 1 - 1) = (double)(1e+08);
         }
         if ( report_detail == 1 ) {
-            detail_fish__predby_comm.col(cur_time + 1 - 1) = fish__predby_comm;
+            detail_fish__predby_comm.col(cur_time + 1 - 1) = as_numeric_arr(fish__predby_comm);
         }
         if ( report_detail == 1 ) {
-            detail_fish__renewalnum.col(cur_time + 1 - 1) = fish__renewalnum;
+            detail_fish__renewalnum.col(cur_time + 1 - 1) = as_numeric_arr(fish__renewalnum);
         }
         if ( report_detail == 1 ) {
-            detail_fish__suit_comm.col(cur_time + 1 - 1) = fish__suit_comm;
+            detail_fish_comm__cons.col(cur_time + 1 - 1) = as_numeric_arr(fish_comm__cons);
         }
         if ( cur_step_final ) {
             // g3a_age for fish;

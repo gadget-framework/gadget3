@@ -91,6 +91,15 @@ g3_init_val <- function (
             param_template[matches, 'parscale'] <- parscale
             if (any(auto_exp)) param_template[auto_exp, 'parscale'] <- log(param_template[auto_exp, 'parscale'])
         }
+
+        m <- is.finite(unlist(param_template[matches, 'value'])) & is.finite(param_template[matches, 'lower']) &
+            unlist(param_template[matches, 'value']) < param_template[matches, 'lower']
+        if (any(m)) warning("Initial parameter values below lower bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        m <- is.finite(unlist(param_template[matches, 'value'])) & is.finite(param_template[matches, 'upper']) &
+            param_template[matches, 'upper'] < unlist(param_template[matches, 'value'])
+        if (any(m)) {
+            warning("Initial parameter values above upper bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
     } else {  # is.list
         if (!is.null(value)) {
             param_template[matches] <- value
