@@ -1692,7 +1692,7 @@ Type objective_function<Type>::operator() () {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(retro_years - retro_years__upper) / (retro_years__upper - retro_years__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(retro_years__lower - retro_years) / (retro_years__upper - retro_years__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
-        {
+        if ( adist_surveyindices_log_dist_si_cpue_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish_imm for adist_surveyindices_log_dist_si_cpue;
             for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
                 auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
@@ -1713,7 +1713,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( adist_surveyindices_log_dist_si_cpue_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish_mat for adist_surveyindices_log_dist_si_cpue;
             for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
                 auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
@@ -1739,7 +1739,7 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_dist_si_cpue_model to adist_surveyindices_log_dist_si_cpue_obs;
-                {
+                if ( adist_surveyindices_log_dist_si_cpue_weight > (double)(0) ) {
                     auto area = adist_surveyindices_log_dist_si_cpue_model__area;
 
                     auto adist_surveyindices_log_dist_si_cpue_model__area_idx = 0;
@@ -1767,7 +1767,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_aldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_imm for cdist_sumofsquares_aldist_f_surv;
             for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
                 auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
@@ -1790,7 +1790,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_aldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_mat for cdist_sumofsquares_aldist_f_surv;
             for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
                 auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
@@ -1815,7 +1815,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_aldist_f_surv_model to cdist_sumofsquares_aldist_f_surv_obs;
-            {
+            if ( cdist_sumofsquares_aldist_f_surv_weight > (double)(0) ) {
                 auto cdist_sumofsquares_aldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_aldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_aldist_f_surv_model__time_idx >= 0 ) {
@@ -1845,7 +1845,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_ldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_imm for cdist_sumofsquares_ldist_f_surv;
             for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
                 auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
@@ -1862,7 +1862,7 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        {
+        if ( cdist_sumofsquares_ldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_mat for cdist_sumofsquares_ldist_f_surv;
             for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
                 auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
@@ -1881,7 +1881,7 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_ldist_f_surv_model to cdist_sumofsquares_ldist_f_surv_obs;
-            {
+            if ( cdist_sumofsquares_ldist_f_surv_weight > (double)(0) ) {
                 auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
