@@ -43,7 +43,7 @@ mock(TMB::compile, function (...) {
 
     ok(cmp_contains(
         last_compile_call[[1]],
-        paste0(tempdir(), ".*\\.cpp$") ), "First argument is the cpp file")
+        paste0(gsub("\\\\", "/", tempdir()), ".*\\.cpp$") ), "First argument is the cpp file")
 }, {
     # NB: This should fail since there'll be no .so to load
     tryCatch(g3_tmb_adfun(g3_to_tmb(list(~{g3_param("x")}))), error = function (e) NULL)
