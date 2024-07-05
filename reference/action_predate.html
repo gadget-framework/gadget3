@@ -251,7 +251,7 @@
 <dd><p>Ratio of prey_stock__totalpredate / (current biomass), capped by <var>overconsumption_f</var></p></dd>
 
     
-</dl><p>In addition, <code>g3a_predate_fleet will generate</code> <var>prey_stock__predby_predstock</var>, Biomass of (prey_stock) caught by (fleet_stock), in a prey array,
+</dl><p>In addition, <code>g3a_predate_fleet</code> will generate <var>prey_stock__predby_predstock</var>, Biomass of (prey_stock) caught by (fleet_stock), in a prey array,
     for compatibility with older models. It is otherwise identical to <code>g3a_predate</code>.</p>
 <p>A model can have any number of <code>g3a_predate_*</code> actions, so long as the
     calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
