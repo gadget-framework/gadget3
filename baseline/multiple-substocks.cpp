@@ -704,11 +704,11 @@ Type objective_function<Type>::operator() () {
         if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
         }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+        if ( cur_step == 1 ) {
             suit_fish_imm_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50)));
             REPORT(suit_fish_imm_f_surv__report);
         }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+        if ( cur_step == 1 ) {
             suit_fish_mat_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_mat__midlen - fish__f_surv__l50)));
             REPORT(suit_fish_mat_f_surv__report);
         }
