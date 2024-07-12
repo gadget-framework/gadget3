@@ -29,32 +29,42 @@ is_force_numeric <- function (x) inherits(x, "force_numeric")
 
 # Combine all provided action lists into one action list, throwing away duplicates
 g3_collate <- function(action_list) {
-    # Combine all lists into an environment, later lists win over previous
-    # TODO: Just concatenate the lists backwards?
-    actions <- new.env(parent = emptyenv())
+    # Collapse lists / sub-lists into a single list, preserving order
+    unnest <- function (l) {
+        # No sub-lists, nothing to do
+        if (!any( vapply(l, is.list, logical(1)) )) return(l)
 
-    # For any lone formulas without names, assume they just go on the end
-    # This will mostly be test case convenince, not general use
-    if (is.null(names(action_list))) {
-        names(action_list) <- vapply(seq_along(action_list), function (i) step_id(999, i), character(1))
-    }
-
-    for (n in names(action_list)) {
-        l <- action_list[[n]]
-        if (rlang::is_formula(l)) {
-            # One level of list, add this formula
-            actions[[n]] <- l
-        } else {
-            # 2 levels, recurse over inner list too
-            for (sub_n in names(l)) {
-                actions[[sub_n]] <- l[[sub_n]]
+        # Flatten sub-lists, then concatenate the lot
+        do.call(c, lapply(seq_along(l), function (i) {
+            if (is.list(l[[i]])) {
+                # Flattern sub-lists by recursing
+                unnest(l[[i]])
+            } else {
+                # Convert non-lists into a single-item list
+                structure(
+                    list(l[[i]]),
+                    names = names(l)[[i]] )
             }
-        }
+        }))
     }
-    actions <- as.list(actions)
+    actions <- unnest(action_list)
 
-    # Order items in alphanumeric order
-    return(actions[order(names(actions), method = 'radix')])
+    # Filter NULL
+    actions <- actions[vapply(actions, Negate(is.null), logical(1))]
+
+    # If no names (probably a test), nothing else to do
+    if (is.null(names(actions))) return(actions)
+
+    # If name is missing, assume it goes on the end
+    names(actions) <- vapply(seq_along(actions), function (i) {
+        if (nzchar(names(actions)[[i]])) names(actions)[[i]] else step_id(999, "g3_collate", i)
+    }, character(1))
+
+    # De-duplicate by action-order, then sort by name
+    actions <- actions[!duplicated(names(actions), fromLast = TRUE)]
+    actions <- actions[order(names(actions), method = 'radix')]
+
+    return(actions)
 }
 
 scope_to_parameter_template <- function (scope, return_type) {
