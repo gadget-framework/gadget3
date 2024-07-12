@@ -58,6 +58,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 return(toString(in_call))
             } else if (is.numeric(in_call) && is.nan(in_call)) {
                 return("NAN")
+            } else if (is.numeric(in_call) && is.infinite(in_call)) {
+                return(if (in_call > 0) "R_PosInf" else "R_NegInf")
             } else if (is.numeric(in_call) && !expecting_int) {
                 # Force anything numeric to be double, to avoid accidental integer division
                 return(paste0("(double)(", toString(in_call) ,")"))

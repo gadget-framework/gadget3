@@ -550,6 +550,18 @@ actions <- c(actions, ~{
 expecteds$assign_right <- assign_subset[,2,2]
 expecteds$assign_leftright <- assign_subset[4,,2]
 
+cmp_inf <- array(c(5, Inf), dim = c(2))
+cmp_inf_out <- array(0, dim = c(4))
+actions <- c(actions, ~{
+    comment('cmp_infinity')
+    if (cmp_inf[[1]] < Inf) cmp_inf_out[[1]] <- 1 else cmp_inf_out[[1]] <- -1
+    if (cmp_inf[[2]] < Inf) cmp_inf_out[[2]] <- 2 else cmp_inf_out[[2]] <- -2
+    cmp_inf_out[[3]] <- Inf
+    cmp_inf_out[[4]] <- -Inf
+    REPORT(cmp_inf_out)
+})
+expecteds$cmp_inf_out <- array(c(1, -2, Inf, -Inf), dim = c(4))
+
 # Arrays with dynamic dimensions
 dynamic_dim_array <- array(0, dim = c(2,1))
 dynamic_dim_array_na <- array(NA, dim = c(2,1))
