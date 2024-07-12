@@ -65,6 +65,7 @@ structure(function (param)
             as.vector(var)
         else var
     }
+    g3_cast_vector <- function(x) x
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -335,7 +336,7 @@ structure(function (param)
         ling_mat__totalpredate[] <- 0
         igfs__totalsuit[] <- 0
         {
-            suitability <- suit_ling_imm_igfs__report[]
+            suitability <- g3_cast_vector(suit_ling_imm_igfs__report[])
             {
                 comment("g3a_predate_fleet for ling_imm")
                 comment("Zero igfs-ling_imm biomass-consuming counter")
@@ -358,7 +359,7 @@ structure(function (param)
             }
         }
         {
-            suitability <- suit_ling_mat_igfs__report[]
+            suitability <- g3_cast_vector(suit_ling_mat_igfs__report[])
             {
                 comment("g3a_predate_fleet for ling_mat")
                 comment("Zero igfs-ling_mat biomass-consuming counter")

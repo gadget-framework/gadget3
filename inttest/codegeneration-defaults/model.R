@@ -70,6 +70,7 @@ structure(function (param)
             as.vector(var)
         else var
     }
+    g3_cast_vector <- function(x) x
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -335,7 +336,7 @@ structure(function (param)
         fish__totalpredate[] <- 0
         comm__totalsuit[] <- 0
         {
-            suitability <- suit_fish_comm__report[]
+            suitability <- g3_cast_vector(suit_fish_comm__report[])
             {
                 comment("g3a_predate_fleet for fish")
                 comment("Zero comm-fish biomass-consuming counter")

@@ -430,7 +430,7 @@ Type objective_function<Type>::operator() () {
         fish__totalpredate.setZero();
         comm__totalsuit.setZero();
         {
-            auto suitability = suit_fish_comm__report;
+            auto suitability = (vector<Type>)(suit_fish_comm__report);
 
             {
                 // g3a_predate_fleet for fish;
