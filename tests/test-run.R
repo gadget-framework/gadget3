@@ -45,3 +45,21 @@ ok_group("action_reports", {
         r_rep(q_r)
     })), "Can generate multiple report functions with filters")
 })
+
+
+ok_group("g3_collate") ##########
+
+out <- g3_to_r(list(
+    ~"fu1",
+    quote("fu2"),
+    list("004" = ~"fa", "005" = ~"fb"),
+    list("005" = ~"fc", NULL),
+    NULL ))
+ok(cmp_code(body(out)[[2]][[3]], quote({
+        "fa"
+        "fc"
+        "fu1"
+        "fu2"
+})), "g3_to_r: unnamed at end, later beat former, NULLs removed, code included")
+
+########## g3_collate

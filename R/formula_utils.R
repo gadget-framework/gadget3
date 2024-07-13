@@ -154,7 +154,9 @@ f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
 
     orig_e <- e <- parent
     for (f in list_of_f) {
-        if (is.null(orig_e)) {
+        if (is.null(environment(f))) {
+            # f is a call, so has no environment to add
+        } else if (is.null(orig_e)) {
             # At top, keeping previous environment, no need to change env.
             orig_e <- e <- environment(f)
         } else if (identical(environment(f), orig_e)) {
@@ -169,8 +171,10 @@ f_concatenate <- function (list_of_f, parent = NULL, wrap_call = NULL) {
         }
     }
 
-    # Combine all functions into one expression
-    out_call <- as.call(c(list(as.symbol("{")), lapply(unname(list_of_f), rlang::f_rhs)))
+    # Convert all formulas into code, combine into one expression
+    list_of_c <- lapply(list_of_f, function (f) if (rlang::is_formula(f)) rlang::f_rhs(f) else f)
+    out_call <- as.call(c( list(as.symbol("{")), unname(list_of_c) ))
+
     if (!is.null(wrap_call)) {
         # Wrap inner call with outer
         out_call <- as.call(c(

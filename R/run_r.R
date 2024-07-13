@@ -212,12 +212,14 @@ g3_to_r <- function(
     # Turn call structure into an actual function
     out <- eval(out)
 
-    # Attach data to model as closure
+    # Attach data to model as closure, compile
     environment(out) <- model_env
+    out <- g3_r_compile(out, work_dir = work_dir, cmp_options = cmp_options)
+
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
     attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
-    return(g3_r_compile(out, work_dir = work_dir, cmp_options = cmp_options))
+    return(out)
 }
 
 # Generate a srcRef'ed, optimized function
@@ -232,15 +234,11 @@ g3_r_compile <- function (model, work_dir = tempdir(), cmp_options = list(optimi
         NULL), r_path)
     source(r_path)
 
-    # Restore model data and attributes
-    # NB: We need to do this since the environment pointers will be broken in the serialised version
+    # Restore closure from previous version
     environment(out) <- environment(model)
 
     # Optimize model function
     if (!is.null(cmp_options)) out <- compiler::cmpfun(out, options = cmp_options)
-
-    # Restore actions attribute
-    attr(out, 'actions') <- attr(model, 'actions')
 
     return(out)
 }

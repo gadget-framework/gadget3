@@ -182,6 +182,16 @@ ok(ut_cmp_identical(
     deep_ls(rlang::f_env(out_f)), 
     c("wow", "yay", "woo", "a", "b", "c")), "f_concatenate:parent")
 
+out_f <- gadget3:::f_concatenate(list(
+    g3_formula(x <- y + 4, y = 9),
+    quote( print(x) ) ))
+ok(gadget3:::ut_cmp_code(out_f, quote({
+    x <- y + 4
+    print(x)
+}), optimize = TRUE), "f_concatenate: Formula & code together")
+ok(ut_cmp_identical(as.list(environment(out_f)), list(
+    y = 9 )), "f_concatenate: code has no effect on environment")
+
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; oink; baa}),
     ~{woo; oink; baa}), "f_optimize: Passed through 3 terms")
