@@ -378,6 +378,17 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
     })
     model_fn <- g3_to_r(actions)
 
+    # Test we can build / report with type = "Fun" first
+    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_cpp <- g3_to_tmb(actions)
+        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), inner.control = list(fnscale = -1), type = "Fun")
+        ok(ut_cmp_equal(model_tmb$report(g3_tmb_par(param_tbl)), list(
+            nll_random_dnorm_a__dnorm = as.array(0.9189385),
+            nll_random_dnorm_x__dnorm = as.array(147.3886),
+            nll_random_dnorm_b__dnorm = as.array(0.9189385) ),
+            tolerance = 1e6), "$report: Can build and run $report with random effects & type='Fun'")
+    }
+
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         model_cpp <- g3_to_tmb(actions)
         model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), inner.control = list(fnscale = -1))
