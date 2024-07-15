@@ -88,12 +88,12 @@ update_data_bounds <- function (model_data, param_tmpl) {
         # User didn't supply extra parameters, nothing to do
     } else if (is.data.frame(param_tmpl)) {
         for (param_type in c('lower', 'upper')) {
-            for (i in which(is.finite(param_tmpl[[param_type]])) ) {
+            for (i in seq_len(nrow(param_tmpl))) {
                 data_var <- cpp_escape_varname(paste0(param_tmpl[i, 'switch'], '__', param_type))
                 if (!exists(data_var, envir = model_data)) next
 
                 data_val <- param_tmpl[i, param_type]
-                model_data[[data_var]] <- if (is.finite(data_val)) data_val else NaN
+                model_data[[data_var]] <- if (is.na(data_val)) NaN else data_val
             }
         }
     } else {

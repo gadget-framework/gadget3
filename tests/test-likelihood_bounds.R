@@ -79,6 +79,7 @@ actions <- list(g3a_time(2000, 2000), list("555" = g3_formula({
     nll <- nll + g3_param('pa')
     nll <- nll + g3_param('pb')
     nll <- nll + g3_param('pc')
+    nll <- nll + g3_param('pd', value = 0, lower = -10, upper = 10)
 })))
 model_code <- g3_to_tmb(c(actions, list( g3l_bounds_penalty(actions) )))
 fn <- g3_to_r(c(actions, list( g3l_bounds_penalty(actions) )))
@@ -140,6 +141,24 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         obj.fn$fn(),
         2e12,
         tolerance=1e1), "nll: TMB version, 2 parameters outside bounds")
+
+    suppressWarnings(attr(model_code, 'parameter_template') |>
+        g3_init_val('pd', 100) |>
+        identity() -> params.in)
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        2e12,
+        tolerance = 1e1 ), "nll: Outside initial bounds")
+
+    suppressWarnings(attr(model_code, 'parameter_template') |>
+        g3_init_val('pd', 100, lower = NA, upper = NA) |>
+        identity() -> params.in)
+    obj.fn <- g3_tmb_adfun(model_code, params.in)
+    ok(ut_cmp_equal(
+        obj.fn$fn(),
+        sum(unlist(params.in$value)) ), "nll: Outside initial bounds, but we cleared them")
+
 } else {
     writeLines("# skip: not compiling TMB model")
 }
