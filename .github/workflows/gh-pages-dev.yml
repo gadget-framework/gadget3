@@ -3,11 +3,11 @@
 # * https://github.com/peaceiris/actions-gh-pages
 on:
   push:
-    tags:
-      - 'v*'
+     branches:
+       - master
   workflow_dispatch:
 
-name: Render release documentation
+name: Render development documentation
 
 jobs:
   documentation:
@@ -27,10 +27,13 @@ jobs:
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
+        env:
+          PKGDOWN_DEV_MODE: devel
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
-          publish_dir: ./docs
+          publish_dir: ./docs/dev
+          destination_dir: ./${{ github.ref_name }}
