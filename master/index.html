@@ -141,15 +141,21 @@
 <div class="section level2">
 <h2 id="development-of-gadget3">Development of gadget3<a class="anchor" aria-label="anchor" href="#development-of-gadget3"></a>
 </h2>
-<p>Tests can be run with <code>R CMD check</code>. By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with:</p>
+<p>The documentation for the latest development version is <a href="https://gadget-framework.github.io/gadget3/master/" class="external-link">published online</a>.</p>
+<p>You can install it with:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"gadget-framework/gadget3"</span><span class="op">)</span></span></code></pre></div>
+<p>Tests can be run with <code>R CMD check</code>. By default, tests are only run against the R backend for speed. To run against the TMB backend, set the <code>G3_TEST_TMB</code> environment variable, with one of:</p>
 <ol style="list-style-type: decimal">
 <li><code>Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')</code></li>
 <li>
 <code>make</code>, which runs both test &amp; integration tests with G3_TEST_TMB</li>
+<li>
+<code>make test G3_TEST_TMB="2"</code>, which runs all TMB tests</li>
 </ol>
 <p>Releases are made with:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>make release NEW_VERSION<span class="ot">=</span><span class="fl">0.9</span><span class="dv">-0</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>git push <span class="sc">--</span>tags <span class="sc">&amp;&amp;</span> git push</span></code></pre></div>
 <p>On success, upload the tarball to <a href="https://cran.r-project.org/submit.html" class="external-link uri">https://cran.r-project.org/submit.html</a></p>
 </div>
 </div>
