@@ -44,6 +44,3 @@ articles:
   contents:
   - model-structure
   - writing_actions
-
-template:
-  bootstrap: 5
