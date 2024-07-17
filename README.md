@@ -42,12 +42,21 @@ look in the [gadget-models](https://github.com/gadget-framework/gadget-models/) 
 
 ## Development of gadget3
 
+The documentation for the latest development version is [published online](https://gadget-framework.github.io/gadget3/master/).
+
+You can install it with:
+
+```r
+remotes::install_github("gadget-framework/gadget3")
+```
+
 Tests can be run with ``R CMD check``.
 By default, tests are only run against the R backend for speed.
-To run against the TMB backend, set the ``G3_TEST_TMB`` environment variable, with:
+To run against the TMB backend, set the ``G3_TEST_TMB`` environment variable, with one of:
 
 1. ``Sys.setenv(G3_TEST_TMB = 1) ; source('tests/test-action_grow.R')``
 2. ``make``, which runs both test & integration tests with G3_TEST_TMB
+3. ``make test G3_TEST_TMB="2"``, which runs all TMB tests
 
 Releases are made with:
 
