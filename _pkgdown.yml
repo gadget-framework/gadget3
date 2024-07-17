@@ -1,3 +1,5 @@
+url: https://gadget-framework.github.io/gadget3
+
 reference:
 - title: "G3 stock functions"
   desc: "Create stock objects, or add additional dimensions to a stock object"

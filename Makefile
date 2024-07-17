@@ -39,7 +39,7 @@ vignettes: install
 
 serve-docs:
 	[ -d docs ] && rm -r docs || true
-	Rscript -e "pkgdown::build_site() ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
+	Rscript -e "options(pkgdown.internet = FALSE) ; pkgdown::build_site(override=list(url='http://localhost:8000/')) ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
 
 test: install
 	for f in tests/test*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
