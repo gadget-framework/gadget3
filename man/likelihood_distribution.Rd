@@ -222,12 +222,18 @@ g3_distribution_preview(
       }
       \item{stock}{
         Optional.
-        If this and stock_re are missing all stocks in \var{stocks} will be
-        summed to compare to the data.
+        If tmissing all stocks in \var{stocks} will be summed to compare to the data.
 
         The values in the stocks column should match the names of the stocks
         given in the \var{stocks} parameter. This column can be factor or
         character.
+
+        The values can also some of the stock name parts, e.g. \code{"st_f"} or \code{"f"}
+        which would then aggregate \code{"st_imm_f"}, \code{"st_mat_f"} together.
+
+        However, note that a stock can only be included in one grouping,
+        so given columns \code{"f"} & \code{"imm"}, \code{"st_imm_f"} would only be included in the former group.
+        If you want to do something along these lines, 2 separate likelihood actions would be more appropriate.
 
         Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.

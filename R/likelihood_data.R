@@ -96,14 +96,36 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     if ('stock' %in% names(data)) {
         if ('stock_re' %in% names(data)) stop("Don't support both stock and stock_re")
-        stock_groups <- levels(as.factor(data$stock))
-        stock_map <- structure(as.list(seq_along(stock_groups)), names = stock_groups)
+        # Unique stock string groupings, in order
+        stock_groups <- as.character(data$stock[!duplicated(data$stock)])
 
-        unknown_stocks <- setdiff(
-            stock_groups,
-            vapply(all_stocks, function (s) s$name, character(1)) )
-        if (length(unknown_stocks) > 0) {
-            stop("Unknown stock names in likelihood data: ", paste(unknown_stocks, collapse = ", "))
+        # stock_map: list of stock$name --> index of stock_groups it should be added to
+        # Start off with everything mapping to NULL
+        stock_map <- structure(
+            rep(list(NULL), length(all_stocks)),
+            names = vapply(all_stocks, function (s) s$name, character(1)))
+
+        # For 1..(max name parts) and all stocks...
+        for (n in seq_len(max(vapply(all_stocks, function (s) length(s$name_parts), integer(1))))) {
+            for (i in seq_along(all_stocks)) {
+                s <- all_stocks[[i]]
+
+                # Get all (n)-long combinations of (s)' name parts. fish_imm_f --> c("fish_f", "imm_f", ...)
+                if (n > length(s$name_parts)) next
+                name_combn <- apply(utils::combn(s$name_parts, n), 2, function (x) paste(x, collapse = "_"))
+
+                # If any one of these matches a stock_group, assign this stock to that string
+                # NB: We do shortest first, so longer matches will override shorter ones
+                matches <- which(stock_groups %in% name_combn)
+                if (length(matches) > 0) stock_map[[i]] <- head(matches, 1)
+            }
+        }
+
+        unused_groups <- setdiff(
+            seq_along(stock_groups),
+            unique(unlist(stock_map)) )
+        if (length(unused_groups) > 0) {
+            stop("stock groups matched no stocks in likelihood data: ", paste(stock_groups[unused_groups], collapse = ", "))
         }
 
         # NB: We have to replace stockidx_f later whenever we intersect over these
@@ -163,8 +185,37 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     if ('fleet' %in% names(data)) {
         if ('fleet_re' %in% names(data)) stop("Don't support both fleet and fleet_re")
-        fleet_groups <- levels(as.factor(data$fleet))
-        fleet_map <- structure(as.list(seq_along(fleet_groups)), names = fleet_groups)
+        # Unique fleet string groupings, in order
+        fleet_groups <- as.character(data$fleet[!duplicated(data$fleet)])
+
+        # fleet_map: list of fleet$name --> index of fleet_groups it should be added to
+        # Start off with everything mapping to NULL
+        fleet_map <- structure(
+            rep(list(NULL), length(all_fleets)),
+            names = vapply(all_fleets, function (s) s$name, character(1)))
+
+        # For 1..(max name parts) and all fleets...
+        for (n in seq_len(max(vapply(all_fleets, function (s) length(s$name_parts), integer(1))))) {
+            for (i in seq_along(all_fleets)) {
+                s <- all_fleets[[i]]
+
+                # Get all (n)-long combinations of (s)' name parts. fish_imm_f --> c("fish_f", "imm_f", ...)
+                if (n > length(s$name_parts)) next
+                name_combn <- apply(utils::combn(s$name_parts, n), 2, function (x) paste(x, collapse = "_"))
+
+                # If any one of these matches a fleet_group, assign this fleet to that string
+                # NB: We do shortest first, so longer matches will override shorter ones
+                matches <- which(fleet_groups %in% name_combn)
+                if (length(matches) > 0) fleet_map[[i]] <- head(matches, 1)
+            }
+        }
+
+        unused_groups <- setdiff(
+            seq_along(fleet_groups),
+            unique(unlist(fleet_map)) )
+        if (length(unused_groups) > 0) {
+            stop("fleet groups matched no fleets in likelihood data: ", paste(fleet_groups[unused_groups], collapse = ", "))
+        }
 
         # NB: We have to replace fleetidx_f later whenever we intersect over these
         modelstock <- g3s_manual(modelstock, 'fleet', fleet_groups, ~fleetidx_f)

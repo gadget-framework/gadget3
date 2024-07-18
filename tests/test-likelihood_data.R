@@ -807,6 +807,61 @@ ok_group('g3l_likelihood_data:stock', {
             stock_mat_m = NULL)), "Stock map ignored unused stocks")
 })
 
+ok_group('g3l_likelihood_data:stock:name_parts', {
+    stock_groupings <- function (stock_names, stock_cols) {
+        tbl <- expand.grid(number = 0, stock = stock_cols, age = 3:6, year = 1999:2001)
+        tbl$number <- seq_len(nrow(tbl))
+        ld <- generate_ld(tbl, all_stocks = stock_names)
+        return(ld$stock_map)
+    }
+    out <- stock_groupings(
+        list(c('fish', 'imm'), c('fish', 'mat'), c('fish', 'sen')),
+        c('fish'))
+    ok(ut_cmp_equal(out, list(
+        fish_imm = 1,
+        fish_mat = 1,
+        fish_sen = 1 )), '"fish": Groups both maturity groups together')
+
+    out <- stock_groupings(
+        list(c('fish', 'imm'), c('fish', 'mat'), c('fish', 'sen')),
+        c('fish_mat', 'fish'))
+    ok(ut_cmp_equal(out, list(
+        fish_imm = 2,
+        fish_mat = 1,
+        fish_sen = 2 )), '"fish_mat": Overrides "fish" group due to longer length')
+
+    out <- stock_groupings(
+        list(c('a', 'imm'), c('a', 'mat'), c('b', 'imm'), c('b', 'mat'), c('c', 'mat')),
+        c('a', 'b', 'mat'))
+    ok(ut_cmp_equal(out, list(
+        a_imm = 1,
+        a_mat = 1,
+        b_imm = 2,
+        b_mat = 2,
+        c_mat = 3 )), "'b' wins over 'mat' because it comes first")
+
+    out <- stock_groupings(
+        list(c('a', 'imm'), c('a', 'mat'), c('b', 'imm'), c('b', 'mat'), c('c', 'mat')),
+        c('a', 'mat', 'b'))
+    ok(ut_cmp_equal(out, list(
+        a_imm = 1,
+        a_mat = 1,
+        b_imm = 3,
+        b_mat = 2,
+        c_mat = 2 )), "'mat' wins over 'b' because it comes first")
+
+    out <- stock_groupings(
+        list(c('a', 'imm', 'f'), c('a', 'mat', 'f'), c('a', 'imm', 'm'), c('a', 'mat', 'm'), c('c', 'mat')),
+        c('a_f', 'a_m', 'c'))
+    ok(ut_cmp_equal(out, list(
+        a_imm_f = 1,
+        a_mat_f = 1,
+        a_imm_m = 2,
+        a_mat_m = 2,
+        c_mat = 3 )), "Name part groupings don't have to be sequential")
+})
+
+
 ok_group('g3l_likelihood_data:fleet', {
     ld <- generate_ld("
         age year number
@@ -834,7 +889,7 @@ ok_group('g3l_likelihood_data:fleet', {
           6 2000    b  2000.6
           4 2001    b  2001.4
           6 2001    b  2001.6
-        ")
+        ", all_fleets = list(g3_fleet('a'), g3_fleet('b')))
     ok(ut_cmp_identical(dimnames(ld$number)[['fleet']], c("a", "b")), "Array has fleets a & b")
     ok(ut_cmp_identical(ld$fleet_map, list(a = 1L, b = 2L)), "fleet_map is 1:1 mapping")
 

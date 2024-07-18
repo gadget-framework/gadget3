@@ -1,5 +1,8 @@
 # gadget3 0.12-1-999:
 
+## New features
+* The `stock` column in likelihood data can now contain name parts as well as full stock names
+
 # gadget3 0.12-0:
 
 ## Bug fixes

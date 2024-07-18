@@ -311,24 +311,74 @@ year    stock    number
 
 The stock names have to match what gadget3 uses, or an error will be generated.
 
+You can also use partial stock names, for example:
+
+```{r}
+stocks <- list(
+   g3_stock(c(species = 'fish', 'imm', 'f'), 1:10),
+   g3_stock(c(species = 'fish', 'imm', 'm'), 1:10),
+   g3_stock(c(species = 'fish', 'mat', 'f'), 1:10),
+   g3_stock(c(species = 'fish', 'mat', 'm'), 1:10) )
+
+drop(g3_distribution_preview(read.table(header = TRUE, text="
+year    stock    number
+1999   imm   1000
+1999   mat   4305
+2000   imm   7034
+2000   mat   2381
+"), stocks = stocks))
+```
+
+The `imm` columns will compare to the sum of `fish_imm_f` & `fish_mat_f`.
+
+The parts do not have to be in order, the following is also valid:
+
+```{r}
+drop(g3_distribution_preview(read.table(header = TRUE, text="
+year    stock    number
+1999   fish_f   1000
+1999   fish_m   4305
+2000   fish_f   7034
+2000   fish_m   2381
+"), stocks = stocks))
+```
+
+*NB:* A stock can only appear in one grouping:
+
+```{r}
+# NB: Wrong!
+drop(g3_distribution_preview(read.table(header = TRUE, text="
+year    stock    number
+1999   f         1000
+1999   imm       4305
+2000   f         7034
+2000   imm       2381
+"), stocks = stocks))
+```
+
+`fish_imm_f` will only appear in the `f` rows, not `imm` rows.
+In this case, multiple likelhood components would be a better approach.
+
 As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
 
 ### *fleet* column
 
 ```{r}
-f_comm <- g3_fleet('comm')
-f_surv <- g3_fleet('surv')
+fleets <- list(
+    g3_fleet(c('comm', country = 'se')),
+    g3_fleet(c('comm', country = 'fi')),
+    g3_fleet(c('surv', country = 'se')) )
 
 g3_distribution_preview(read.table(header = TRUE, text="
 year    fleet    number
-1999   f_comm   1000
-1999   f_surv   4305
-2000   f_comm   7034
-2000   f_surv   2381
-2001   f_surv   3913
-"), fleets = list(f_comm, f_surv))[length = '0:Inf',,]
+1999   comm      1000
+1999   surv_se   4305
+2000   comm      7034
+2000   surv_se   2381
+2001   surv_se   3913
+"), fleets = fleets)[length = '0:Inf',,]
 ```
 
-The stock names have to match what gadget3 uses, or an error will be generated.
+The name matching works in the same way as stocks above, and should be either the name gadget3 uses or parts of it.
 
 As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
