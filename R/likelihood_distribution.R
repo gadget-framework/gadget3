@@ -146,9 +146,34 @@ g3_distribution_preview <- function (
         all_fleets = fleets,
         area_group = area_group,
         model_history = "" )
-    if (!is.null(ld$number)) return(ld$number)
-    if (!is.null(ld$weight)) return(ld$weight)
-    stop('obs_data should contain either a number column or weight column')
+
+    if (!is.null(ld$number)) {
+        out <- ld$number
+    } else if (!is.null(ld$weight)) {
+        out <- ld$weight
+    } else {
+        stop('obs_data should contain either a number column or weight column')
+    }
+
+    # If the output has a stock_map, show the user
+    if (!is.null(ld$stock_map) && 'stock' %in% names(obs_data)) {
+        stock_groups <- as.character(obs_data$stock[!duplicated(obs_data$stock)])
+        attr(out, "stock_map") <- vapply(
+            ld$stock_map,
+            function (i) if (is.null(i)) as.character(NA) else stock_groups[[i]],
+            character(1) )
+    }
+
+    # If the output has a fleet_map, show the user
+    if (!is.null(ld$fleet_map) && 'fleet' %in% names(obs_data)) {
+        fleet_groups <- as.character(obs_data$fleet[!duplicated(obs_data$fleet)])
+        attr(out, "fleet_map") <- vapply(
+            ld$fleet_map,
+            function (i) if (is.null(i)) as.character(NA) else fleet_groups[[i]],
+            character(1) )
+    }
+
+    return(out)
 }
 
 # Compare model state to observation data
