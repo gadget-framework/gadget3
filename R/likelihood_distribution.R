@@ -293,28 +293,6 @@ g3l_distribution <- function (
         predprey <- g3s_stockproduct(prey_stock, predator = predstock, ignore_dims = c('predator_area'))
         predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
-        # Work out stock index for obs/model variables
-        if (!is.null(ld$stock_map)) {
-            # Skip over stocks not part of the observation data, map to an index
-            # NB: This is what stock_iterate() would do for us
-            if (is.null(ld$stock_map[[prey_stock$name]])) next
-            stockidx_f <- f_substitute(~g3_idx(x), list(x = ld$stock_map[[prey_stock$name]]))
-        } else {
-            # Not using stock grouping, __stock_idx variable not needed
-            stockidx_f <- ~-1
-        }
-
-        # Work out fleet index for obs/model variables
-        if (!is.null(ld$fleet_map)) {
-            # Skip over fleets not part of the observation data, map to an index
-            # NB: This is what stock_iterate() would do for us
-            if (is.null(ld$fleet_map[[predstock$name]])) next
-            fleetidx_f <- f_substitute(~g3_idx(x), list(x = ld$fleet_map[[predstock$name]]))
-        } else {
-            # Not using fleet grouping, fleetidx_f not used
-            fleetidx_f <- ~-1
-        }
-
         collect_fs <- list()
         for (cf_name in c('number', 'weight')) {
             # If not collecting by this variable, skip
@@ -393,7 +371,7 @@ g3l_distribution <- function (
         }
 
         # Finally iterate/intersect over stock in question
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- f_optimize(f_substitute(~if (weight > 0) {
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- g3_step(f_optimize(f_substitute(~if (weight > 0) {
             if (compare_fleet) {
                 debug_label(prefix, "Collect catch from ", predstock, "/", prey_stock, " for ", nll_name)
                 stock_iterate(prey_stock, stock_interact(predstock, stock_with(predprey, stock_intersect(modelstock, collect_f)), prefix = "predator"))
@@ -404,12 +382,7 @@ g3l_distribution <- function (
         }, list(
             weight = weight,
             compare_fleet = !is.null(predstock),
-            collect_f = f_concatenate(collect_fs) )))
-
-        # Fix-up stock intersection, add in stockidx_f
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]] <- g3_step(f_substitute(out[[step_id(run_at, 'g3l_distribution', nll_name, 1, predstock, prey_stock)]], list(
-            fleetidx_f = fleetidx_f,
-            stockidx_f = stockidx_f )))
+            collect_f = f_concatenate(collect_fs) ))))
     }
 
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
@@ -440,7 +413,6 @@ g3l_distribution <- function (
         function_f = function_f,
         report = report,
         weight = weight)))
-    compare_f <- f_substitute(compare_f, list(stockidx_f = as.symbol(paste0(modelstock$name, "__stock_idx"))))
 
     if (!is.null(ld$number)) {
         out[[step_id(run_at, 'g3l_distribution', nll_name, 3, 'num')]] <-

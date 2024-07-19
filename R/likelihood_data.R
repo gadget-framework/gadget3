@@ -52,6 +52,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
 
     modelstock <- g3_storage(paste(nll_name, "model", sep = "_"))
     obsstock <- g3_storage(paste(nll_name, "obs", sep = "_"))
+    maps <- list()
 
     # Turn incoming data into stocks with correct dimensions
     d <- ld_dim_length(data)
@@ -94,69 +95,14 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         handled_columns$tag <- NULL
     }
 
-    if ('stock' %in% names(data)) {
-        if ('stock_re' %in% names(data)) stop("Don't support both stock and stock_re")
-        # Unique stock string groupings, in order
-        stock_groups <- as.character(data$stock[!duplicated(data$stock)])
-
-        # stock_map: list of stock$name --> index of stock_groups it should be added to
-        # Start off with everything mapping to NULL
-        stock_map <- structure(
-            rep(list(NULL), length(all_stocks)),
-            names = vapply(all_stocks, function (s) s$name, character(1)))
-
-        # For 1..(max name parts) and all stocks...
-        for (n in seq_len(max(vapply(all_stocks, function (s) length(s$name_parts), integer(1))))) {
-            for (i in seq_along(all_stocks)) {
-                s <- all_stocks[[i]]
-
-                # Get all (n)-long combinations of (s)' name parts. fish_imm_f --> c("fish_f", "imm_f", ...)
-                if (n > length(s$name_parts)) next
-                name_combn <- apply(utils::combn(s$name_parts, n), 2, function (x) paste(x, collapse = "_"))
-
-                # If any one of these matches a stock_group, assign this stock to that string
-                # NB: We do shortest first, so longer matches will override shorter ones
-                matches <- which(stock_groups %in% name_combn)
-                if (length(matches) > 0) stock_map[[i]] <- head(matches, 1)
-            }
-        }
-
-        unused_groups <- setdiff(
-            seq_along(stock_groups),
-            unique(unlist(stock_map)) )
-        if (length(unused_groups) > 0) {
-            stop("stock groups matched no stocks in likelihood data: ", paste(stock_groups[unused_groups], collapse = ", "))
-        }
-
-        # NB: We have to replace stockidx_f later whenever we intersect over these
-        modelstock <- g3s_manual(modelstock, 'stock', stock_groups, ~stockidx_f)
-        obsstock <- g3s_manual(obsstock, 'stock', stock_groups, ~stockidx_f)
-        handled_columns$stock <- NULL
-    } else if ('stock_re' %in% names(data)) {
-        # Start off with everything mapping to NULL
-        stock_map <- structure(
-            rep(list(NULL), length(all_stocks)),
-            names = vapply(all_stocks, function (s) s$name, character(1)))
-
-        # For each regex, find all matches and map to that index
-        stock_regexes <- as.character(data$stock_re[!duplicated(data$stock_re)])
-        for (i in rev(seq_along(stock_regexes))) {  # NB: Reverse so first ones have precedence
-            stock_map[grep(stock_regexes[[i]], names(stock_map))] <- i
-        }
-
-        unused_regexes <- setdiff(
-            seq_along(stock_regexes),
-            unique(unlist(stock_map)) )
-        if (length(unused_regexes) > 0) {
-            stop("stock_re regexes matched no stocks in likelihood data: ", paste(stock_regexes[unused_regexes], collapse = ", "))
-        }
-
-        # NB: We have to replace stockidx_f later whenever we intersect over these
-        modelstock <- g3s_manual(modelstock, 'stock_re', stock_regexes, ~stockidx_f)
-        obsstock <- g3s_manual(obsstock, 'stock_re', stock_regexes, ~stockidx_f)
-        handled_columns$stock_re <- NULL
-    } else {
-        stock_map <- NULL
+    d <- ld_dim_g3stock(data, "stock", all_stocks)
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]])
+        # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
+        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__stock_idx") ))
+        # NB: g3stock doesn't modify data, so don't bother with d[[2]]
+        handled_columns[[names(d[[1]]$dim)]] <- NULL
+        maps[["stock"]] <- d$map
     }
 
     d <- ld_dim_length(data, col_name = 'predator_length')
@@ -183,62 +129,14 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         handled_columns$predator_tag <- NULL
     }
 
-    if ('fleet' %in% names(data)) {
-        if ('fleet_re' %in% names(data)) stop("Don't support both fleet and fleet_re")
-        # Unique fleet string groupings, in order
-        fleet_groups <- as.character(data$fleet[!duplicated(data$fleet)])
-
-        # fleet_map: list of fleet$name --> index of fleet_groups it should be added to
-        # Start off with everything mapping to NULL
-        fleet_map <- structure(
-            rep(list(NULL), length(all_fleets)),
-            names = vapply(all_fleets, function (s) s$name, character(1)))
-
-        # For 1..(max name parts) and all fleets...
-        for (n in seq_len(max(vapply(all_fleets, function (s) length(s$name_parts), integer(1))))) {
-            for (i in seq_along(all_fleets)) {
-                s <- all_fleets[[i]]
-
-                # Get all (n)-long combinations of (s)' name parts. fish_imm_f --> c("fish_f", "imm_f", ...)
-                if (n > length(s$name_parts)) next
-                name_combn <- apply(utils::combn(s$name_parts, n), 2, function (x) paste(x, collapse = "_"))
-
-                # If any one of these matches a fleet_group, assign this fleet to that string
-                # NB: We do shortest first, so longer matches will override shorter ones
-                matches <- which(fleet_groups %in% name_combn)
-                if (length(matches) > 0) fleet_map[[i]] <- head(matches, 1)
-            }
-        }
-
-        unused_groups <- setdiff(
-            seq_along(fleet_groups),
-            unique(unlist(fleet_map)) )
-        if (length(unused_groups) > 0) {
-            stop("fleet groups matched no fleets in likelihood data: ", paste(fleet_groups[unused_groups], collapse = ", "))
-        }
-
-        # NB: We have to replace fleetidx_f later whenever we intersect over these
-        modelstock <- g3s_manual(modelstock, 'fleet', fleet_groups, ~fleetidx_f)
-        obsstock <- g3s_manual(obsstock, 'fleet', fleet_groups, ~fleetidx_f)
-        handled_columns$fleet <- NULL
-    } else if ('fleet_re' %in% names(data)) {
-        # Start off with everything mapping to NULL
-        fleet_map <- structure(
-            rep(list(NULL), length(all_fleets)),
-            names = vapply(all_fleets, function (s) s$name, character(1)))
-
-        # For each regex, find all matches and map to that index
-        fleet_regexes <- as.character(data$fleet_re[!duplicated(data$fleet_re)])
-        for (i in rev(seq_along(fleet_regexes))) {  # NB: Reverse so first ones have precedence
-            fleet_map[grep(fleet_regexes[[i]], names(fleet_map))] <- i
-        }
-
-        # NB: We have to replace fleetidx_f later whenever we intersect over these
-        modelstock <- g3s_manual(modelstock, 'fleet_re', fleet_regexes, ~fleetidx_f)
-        obsstock <- g3s_manual(obsstock, 'fleet_re', fleet_regexes, ~fleetidx_f)
-        handled_columns$fleet_re <- NULL
-    } else {
-        fleet_map <- NULL
+    d <- ld_dim_g3stock(data, "fleet", all_fleets)
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]])
+        # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
+        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__fleet_idx") ))
+        # NB: g3stock doesn't modify data, so don't bother with d[[2]]
+        handled_columns[[names(d[[1]]$dim)]] <- NULL
+        maps[["fleet"]] <- d$map
     }
 
     # Add time dimension if it's supposed to be last
@@ -327,8 +225,8 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         modelstock = modelstock,
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
-        stock_map = stock_map,
-        fleet_map = fleet_map,
+        stock_map = maps[["stock"]],
+        fleet_map = maps[["fleet"]],
         number = number_array,
         weight = weight_array,
         nll_name = nll_name))
@@ -475,6 +373,84 @@ ld_dim_tag <- function(data, col_name = 'tag') {
         stock <- g3s_tag(g3_storage("x"), tag_ids, force_untagged = FALSE)
     }
     return(list( stock, data_col ))
+}
+
+ld_dim_g3stock <- function(data, col_name = "stock", all_stocks) {
+    col_name_re <- paste0(col_name, "_re")
+    if (col_name %in% names(data) && col_name_re %in% names(data)) {
+        stop("Don't support both ", col_name, " and ", col_name_re)
+    }
+
+    if (col_name %in% names(data)) {
+        actual_col <- col_name
+        # Unique stock string groupings, in order
+        stock_groups <- as.character(data[[col_name]][!duplicated(data[[col_name]])])
+
+        # stock_map: list of stock$name --> index of stock_groups it should be added to
+        # Start off with everything mapping to NULL
+        stock_map <- structure(
+            rep(list(NULL), length(all_stocks)),
+            names = vapply(all_stocks, function (s) s$name, character(1)))
+
+        # For 1..(max name parts) and all stocks...
+        for (n in seq_len(max(vapply(all_stocks, function (s) length(s$name_parts), integer(1))))) {
+            for (i in seq_along(all_stocks)) {
+                s <- all_stocks[[i]]
+
+                # Get all (n)-long combinations of (s)' name parts. fish_imm_f --> c("fish_f", "imm_f", ...)
+                if (n > length(s$name_parts)) next
+                name_combn <- apply(utils::combn(s$name_parts, n), 2, function (x) paste(x, collapse = "_"))
+
+                # If any one of these matches a stock_group, assign this stock to that string
+                # NB: We do shortest first, so longer matches will override shorter ones
+                matches <- which(stock_groups %in% name_combn)
+                if (length(matches) > 0) stock_map[[i]] <- head(matches, 1)
+            }
+        }
+
+        unused_groups <- setdiff(
+            seq_along(stock_groups),
+            unique(unlist(stock_map)) )
+        if (length(unused_groups) > 0) {
+            stop(col_name, " groups matched no ", col_name, " in likelihood data: ", paste(stock_groups[unused_groups], collapse = ", "))
+        }
+    } else if (col_name_re %in% names(data)) {
+        actual_col <- col_name_re
+        # Start off with everything mapping to NULL
+        stock_map <- structure(
+            rep(list(NULL), length(all_stocks)),
+            names = vapply(all_stocks, function (s) s$name, character(1)))
+
+        # For each regex, find all matches and map to that index
+        stock_groups <- as.character(data[[col_name_re]][!duplicated(data[[col_name_re]])])
+        for (i in rev(seq_along(stock_groups))) {  # NB: Reverse so first ones have precedence
+            stock_map[grep(stock_groups[[i]], names(stock_map))] <- i
+        }
+
+        unused_regexes <- setdiff(
+            seq_along(stock_groups),
+            unique(unlist(stock_map)) )
+        if (length(unused_regexes) > 0) {
+            stop("stock_re regexes matched no stocks in likelihood data: ", paste(stock_groups[unused_regexes], collapse = ", "))
+        }
+    } else {
+        # No relevant column --> nothing to do
+        return(list(NULL))
+    }
+
+    # Turn stock_map mapping into formula
+    intersect_idx_f <- list_to_stock_switch(
+        # Wrap each value of stock_map with g3_idx(i)
+        # NB: -1 will cause g3s_manual() to ignore this intersect
+        sapply(stock_map, function (i) substitute(g3_idx(i), list(i = if (is.null(i)) -1L else i)) ),
+        # Variable in g3l_distribution() this should be looking for
+       if (col_name == "stock") "stock" else "predstock" )
+
+    return(list(
+        g3s_manual(g3_storage("x"), actual_col, stock_groups, intersect_idx_f),
+        NULL,  # This is data_col in other methods
+        groups = stock_groups,
+        map = stock_map ))
 }
 
 # Copy a single dimension from (new_stock) atop (old_stock), renaming dimension by adding (prefix)
