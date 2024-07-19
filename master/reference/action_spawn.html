@@ -94,6 +94,19 @@
 <span></span>
 <span><span class="fu">g3a_spawn_recruitment_bevertonholt</span><span class="op">(</span><span class="va">mu</span>, <span class="va">lambda</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3a_spawn_recruitment_bevertonholt_ss3</span><span class="op">(</span></span>
+<span>        <span class="co"># Steepness parameter</span></span>
+<span>        h <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'srr_h'</span>, lower <span class="op">=</span> <span class="fl">0.1</span>, upper <span class="op">=</span> <span class="fl">1</span>, value <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span> <span class="op">)</span>,</span>
+<span>        <span class="co"># Recruitment deviates</span></span>
+<span>        R <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'R'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, exponentiate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            <span class="co"># Unfished equilibrium recruitment</span></span>
+<span>            scale <span class="op">=</span> <span class="st">"R0"</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        <span class="co"># Unfished equilibrium spawning biomass (corresponding to R0)</span></span>
+<span>        B0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'B0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
+<span></span>
 <span><span class="fu">g3a_spawn_recruitment_hockeystick</span><span class="op">(</span><span class="va">r0</span>, <span class="va">blim</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_spawn</span><span class="op">(</span></span>
@@ -122,7 +135,7 @@
 <dl><dt id="arg-p-p-p-p-p-">p0,p1,p2,p3,p4<a class="anchor" aria-label="anchor" href="#arg-p-p-p-p-p-"></a></dt>
 <dd><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></dd>
 
-  <dt id="arg-mu-lambda-r-blim">mu,lambda,r0,blim<a class="anchor" aria-label="anchor" href="#arg-mu-lambda-r-blim"></a></dt>
+  <dt id="arg-mu-lambda-h-r-b-r-blim">mu,lambda,h,R,B0,r0,blim<a class="anchor" aria-label="anchor" href="#arg-mu-lambda-h-r-b-r-blim"></a></dt>
 <dd><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></dd>
 
   <dt id="arg-stock">stock<a class="anchor" aria-label="anchor" href="#arg-stock"></a></dt>
@@ -281,6 +294,37 @@
 
 </dl><p></p>
 </div><p></p><div class="section">
+<h3 id="g-a-spawn-recruitment-bevertonholt-ss-">g3a_spawn_recruitment_bevertonholt_ss3<a class="anchor" aria-label="anchor" href="#g-a-spawn-recruitment-bevertonholt-ss-"></a></h3>
+<p>A <a href="https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt" class="external-link">modified beverton-holt implementation from SS3</a>
+    returning a pair of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects:
+    $$ S = N_{al} p  W_{al} $$
+    $$ R = \frac{ 4 h R_0 s R }{ B_0 (1 - h) + S (5 h - 1) } $$</p><dl><dt>\(N_{al}\)</dt>
+<dd><p>Number of parent stock</p></dd>
+
+      <dt>\(W_{al}\)</dt>
+<dd><p>Weight of parent stock</p></dd>
+
+      <dt>\(p\)</dt>
+<dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+
+      <dt>\(h\)</dt>
+<dd><p>Steepness parameter, by default provided by the <code>srr_h</code> parameter</p></dd>
+
+      <dt>\(R_0\)</dt>
+<dd><p>Unfished equilibrium recruitment, by default provided by the <code>R0</code> parameter</p></dd>
+
+      <dt>\(R\)</dt>
+<dd><p>Recruitment deviates, by default provided by the <code>R</code> parameter table</p></dd>
+
+      <dt>\(B_0\)</dt>
+<dd><p>Unfished equilibrium spawning biomass (corresponding to R0), by default provided by the <code>B0</code> parameter</p></dd>
+
+      <dt>λ</dt>
+<dd><p>Argument provided to function</p></dd>
+
+
+</dl><p></p>
+</div><p></p><div class="section">
 <h3 id="g-a-spawn-recruitment-hockeystick">g3a_spawn_recruitment_hockeystick<a class="anchor" aria-label="anchor" href="#g-a-spawn-recruitment-hockeystick"></a></h3>
 <p>A pair of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects:
     $$ S = N_{al} p  W_{al} $$
@@ -315,6 +359,7 @@
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn</a>,
+  <a href="https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt" class="external-link">https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt</a>,
   <code><a href="action_naturalmortality.html">g3a_naturalmortality</a></code>,
   <code><a href="stock.html">g3_stock</a></code></p></div>
     </div>
