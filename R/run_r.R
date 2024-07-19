@@ -56,7 +56,7 @@ g3_to_r <- function(
                 ifmissing <- call_replace(ifmissing,
                     g3_param_table = repl_fn,
                     g3_param = repl_fn)
-                pt_name <- paste0("param.", x[[2]])
+                pt_name <- paste0("pt.", x[[2]])
 
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)

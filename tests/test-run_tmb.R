@@ -924,6 +924,22 @@ actions <- c(actions, gadget3:::f_substitute(~{
     end = NULL )))
 expecteds$param_table_byyrexp_out <- exp(19)
 
+# g3_param_table w/clashing names
+# NB: This isn't a great situation to be in, but should at least work to make it easier to unpick
+param_table_nameclash_out <- 0.0
+params[["param_table_nameclash.1990"]] <- runif(1, 100, 200)
+params[["param_table_nameclash.1991"]] <- runif(1, 100, 200)
+params[["param_table_nameclash"]] <- runif(1, 100, 200)
+
+actions <- c(actions, gadget3:::f_substitute(~{
+    param_table_nameclash_out <- x * y
+    REPORT(param_table_nameclash_out)
+}, list(
+    x = g3_parameterized("param_table_nameclash", by_year = TRUE),
+    y = g3_parameterized("param_table_nameclash"),
+    end = NULL )))
+expecteds$param_table_nameclash_out <- params[["param_table_nameclash.1990"]] * params[["param_table_nameclash"]]
+
 ###############################################################################
 
 nll <- 0.0

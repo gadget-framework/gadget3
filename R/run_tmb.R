@@ -717,6 +717,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 ifmissing <- call_replace(ifmissing,
                     g3_param_table = repl_fn,
                     g3_param = repl_fn)
+                pt_name <- cpp_escape_varname(paste0("pt.", x[[2]]))
 
                 # NB: We eval, so they can be defined in-formulae
                 df <- eval(x[[3]], envir = env)
@@ -734,15 +735,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 }, character(1))
 
                 # Add definition for overall lookup
-                scope[[param_name]] <<- cpp_definition(
+                scope[[pt_name]] <<- cpp_definition(
                     paste0('std::map<std::tuple<', paste(rep('int', times = ncol(df)), collapse=","), '>, Type*>'),
-                    param_name,
+                    pt_name,
                     paste0("{", paste0(init_data, collapse=", "), "}"))
 
                 if (!is.null(ifmissing)) {
                     return(call("g3_cpp_asis", paste0(
                         "map_extras::at_def(",
-                        cpp_escape_varname(x[[2]]), ", ",
+                        pt_name, ", ",
                         "std::make_tuple(", paste(names(df), collapse = ","), "), ",
                         "(Type)(", cpp_code(ifmissing, env), ")",
                         ")")))
@@ -750,7 +751,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     # Replace function call to dereference list
                     return(call("g3_cpp_asis", paste0(
                         "map_extras::at_throw(",
-                        cpp_escape_varname(x[[2]]), ", ",
+                        pt_name, ", ",
                         "std::make_tuple(", paste(names(df), collapse = ","), "), ",
                         '"', x[[2]], '"',
                         ")")))
