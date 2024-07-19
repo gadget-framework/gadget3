@@ -58,6 +58,26 @@ ok_group("g3_distribution_preview", {
             time = c("1990-02", "1991-02", "1992-02", "1993-02", "1994-02"),
             area = "IXa") )), "Number array wins if both present")
 
+    stocks <- list(
+       g3_stock(c(species = 'fish', 'imm', 'f'), 1:10),
+       g3_stock(c(species = 'fish', 'imm', 'm'), 1:10),
+       g3_stock(c(species = 'fish', 'mat', 'f'), 1:10),
+       g3_stock(c(species = 'fish', 'mat', 'm'), 1:10) )
+    dat <- expand.grid(year = 1990:1994, stock = c("imm", "mat"), number = 0)
+    out <- drop(g3_distribution_preview(dat, stocks = stocks, area_group = c(IXa = 1)))
+    ok(ut_cmp_identical(out, structure(
+        array(0, dim = c(stock = 2L, time = 5L), dimnames = list(stock = c("imm", "mat"), time = c("1990", "1991", "1992", "1993", "1994"))),
+        stock_map = c(fish_imm_f = "imm", fish_imm_m = "imm", fish_mat_f = "mat", fish_mat_m = "mat") )), "Included stock map for stock column")
+
+    fleets <- list(
+       g3_fleet(c('comm', 'se')),
+       g3_fleet(c('comm', 'no')),
+       g3_fleet(c('surv')) )
+    dat <- expand.grid(year = 1990:1994, fleet = c("comm", "surv"), number = 0)
+    out <- drop(g3_distribution_preview(dat, fleets = fleets, area_group = c(IXa = 1)))
+    ok(ut_cmp_identical(out, structure(
+        array(0, dim = c(fleet = 2L, time = 5L), dimnames = list(fleet = c("comm", "surv"), time = c("1990", "1991", "1992", "1993", "1994"))),
+        fleet_map = c(comm_se = "comm", comm_no = "comm", surv = "surv") )), "Included fleet map for fleet column")
 })
 
 ok_group("g3l_distribution_sumofsquares", {
@@ -257,14 +277,14 @@ ok(ut_cmp_error(g3l_catchdistribution(
     fleets = list(),
     stocks = list(prey_a, prey_b, prey_c),
     area_group = areas,
-    g3l_distribution_sumofsquares()), "Fleets must be supplied"), "g3l_catchdistribution: Invalid without fleets")
+    g3l_distribution_sumofsquares()), "fleets/predators must be supplied"), "g3l_catchdistribution: Invalid without fleets")
 ok(ut_cmp_error(g3l_abundancedistribution(
     'utcd',
     cd_data,
     fleets = list(fleet_abc),
     stocks = list(prey_a, prey_b, prey_c),
     area_group = areas,
-    g3l_distribution_sumofsquares()), "Fleets must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
+    g3l_distribution_sumofsquares()), "fleets/predators must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
 
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
