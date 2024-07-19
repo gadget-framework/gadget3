@@ -44,17 +44,17 @@ g3a_spawn_recruitment_bevertonholt_ss3 <- function (
         # Steepness parameter
         h = g3_parameterized('srr_h', lower = 0.1, upper = 1, value = 0.5,
             by_stock = by_stock ),
-        # Unfished equilibrium recruitment
-        R0 = g3_parameterized('R0', by_stock = by_stock),
         # Recruitment deviates
         R = g3_parameterized('R', by_year = TRUE, exponentiate = TRUE,
+            # Unfished equilibrium recruitment
+            scale = "R0",
             by_stock = by_stock),
         # Unfished equilibrium spawning biomass (corresponding to R0)
         B0 = g3_parameterized('B0', by_stock = by_stock),
         by_stock = TRUE ) {
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
-        r = ~ 4 * h * R0 * s * R / (B0 * (1 - h) + s * (5 * h - 1)) )
+        r = ~ 4 * h * s * R / (B0 * (1 - h) + s * (5 * h - 1)) )
 }
 
 g3a_spawn_recruitment_hockeystick <- function (r0, blim) {

@@ -26,10 +26,10 @@ g3a_spawn_recruitment_bevertonholt_ss3(
         # Steepness parameter
         h = g3_parameterized('srr_h', lower = 0.1, upper = 1, value = 0.5,
             by_stock = by_stock ),
-        # Unfished equilibrium recruitment
-        R0 = g3_parameterized('R0', by_stock = by_stock),
         # Recruitment deviates
         R = g3_parameterized('R', by_year = TRUE, exponentiate = TRUE,
+            # Unfished equilibrium recruitment
+            scale = "R0",
             by_stock = by_stock),
         # Unfished equilibrium spawning biomass (corresponding to R0)
         B0 = g3_parameterized('B0', by_stock = by_stock),
@@ -59,7 +59,7 @@ g3a_spawn(
 
 \arguments{
   \item{p0,p1,p2,p3,p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{mu,lambda,h,R0,R,B0,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{mu,lambda,h,R,B0,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{stock}{
      The mature \code{\link{g3_stock}} that will spawn in this action.
   }
