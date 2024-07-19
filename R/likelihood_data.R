@@ -32,7 +32,7 @@ parse_levels <- function (lvls, var_name) {
     stop("Unknown form of ", var_name, " levels, see ?cut for formatting: ", paste(lvls, collapse = ", "))
 }
 
-g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = "", all_stocks = list(), all_fleets = list()) {
+g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = NULL, model_history = "", all_stocks = list(), all_fleets = list(), all_predators = list()) {
     # vector of col names, will cross them off as we go
     handled_columns <- structure(as.list(seq_along(names(data))), names = names(data))
 
@@ -127,6 +127,16 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         obsstock <- copydim(obsstock, d[[1]], prefix = 'predator_')
         data$predator_tag <- d[[2]]
         handled_columns$predator_tag <- NULL
+    }
+
+    d <- ld_dim_g3stock(data, "predator", all_predators)
+    if (!is.null(d[[1]])) {
+        modelstock <- copydim(modelstock, d[[1]])
+        # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
+        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__predator_idx") ))
+        # NB: g3stock doesn't modify data, so don't bother with d[[2]]
+        handled_columns[[names(d[[1]]$dim)]] <- NULL
+        maps[["predator"]] <- d$map
     }
 
     d <- ld_dim_g3stock(data, "fleet", all_fleets)

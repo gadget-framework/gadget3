@@ -17,7 +17,7 @@
 
 \usage{
 g3l_distribution_sumofsquares(
-        over = c('area', 'predator_tag', 'predator_age', 'predator_length'))
+        over = c('area', 'predator', 'predator_tag', 'predator_age', 'predator_length'))
 
 g3l_distribution_multinomial(epsilon = 10)
 
@@ -35,6 +35,7 @@ g3l_abundancedistribution(
         fleets = list(),
         stocks,
         function_f,
+        predators = list(),
         transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
@@ -51,6 +52,7 @@ g3l_catchdistribution(
         fleets = list(),
         stocks,
         function_f,
+        predators = list(),
         transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
@@ -63,6 +65,7 @@ g3l_catchdistribution(
 
 g3_distribution_preview(
         obs_data,
+        predators = list(),
         fleets = list(),
         stocks = list(),
         area_group = NULL)
@@ -104,7 +107,7 @@ g3_distribution_preview(
     Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.
   }
-  \item{fleets}{
+  \item{fleets, predators}{
     A list of \code{\link{g3_stock}} objects to collect catch data for.
     If empty, will collect abundance data for \var{stocks} instead.
   }
@@ -550,10 +553,10 @@ actions <- list(
     g3l_catchdistribution(
         'pred_a_sizepref',
         pred_a_sizepref_obs,
-        fleets = list(pred_a),
+        predators = list(pred_a),
         # NB: Only referencing stocks included in observation data
         stocks = list(prey_a),
-        g3l_distribution_sumofsquares(),
+        function_f = g3l_distribution_sumofsquares(),
         # Use transform_fs to apply digestioncoefficients
         transform_fs = list(length = list(prey_a = g3_formula(
             quote( diag(d0 + d1 * prey_a__midlen^d2) ),

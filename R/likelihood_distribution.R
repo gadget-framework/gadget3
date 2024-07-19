@@ -26,7 +26,7 @@ dist_prop <- function (var_name, over) {
 }
 
 g3l_distribution_sumofsquares <- function (
-        over = c('area', 'predator_tag', 'predator_age', 'predator_length')) {
+        over = c('area', 'predator', 'predator_tag', 'predator_age', 'predator_length')) {
     out <- f_substitute( quote((modelstock_prop - obsstock_prop) ** 2), list(
         modelstock_prop = dist_prop("modelstock__x", c('time', over)),
         obsstock_prop = dist_prop("obsstock__x", c('time', over))))
@@ -135,6 +135,7 @@ g3l_distribution_sumofsquaredlogratios <- function (epsilon = 10) {
 
 g3_distribution_preview <- function (
         obs_data,
+        predators = list(),
         fleets = list(),
         stocks = list(),
         area_group = NULL) {
@@ -142,6 +143,7 @@ g3_distribution_preview <- function (
         'preview',
         obs_data,
         missing_val = NA,
+        all_predators = predators,
         all_stocks = stocks,
         all_fleets = fleets,
         area_group = area_group,
@@ -182,6 +184,7 @@ g3l_distribution <- function (
         fleets = list(),
         stocks,
         function_f,
+        predators = list(),
         transform_fs = list(),
         missing_val = 0,
         area_group = NULL,
@@ -194,9 +197,12 @@ g3l_distribution <- function (
     stopifnot(is.character(nll_name) && length(nll_name) == 1)
     stopifnot(is.data.frame(obs_data))
     stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
+    stopifnot(is.list(predators) && all(sapply(predators, g3_is_stock)))
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(rlang::is_formula(function_f))
     stopifnot(is.list(transform_fs))
+
+    fleetpreds <- c(fleets, predators)
 
     if ("modelstock__time_idx" %in% all.vars(function_f)) {
         # g3l_distribution_surveyindices needs to generate time vectors, so needs time early in dimension list
@@ -242,10 +248,10 @@ g3l_distribution <- function (
 
     out <- new.env(parent = emptyenv())
 
-    # Find name of function user called, error if it was catchdistribution but with missing fleets
+    # Find name of function user called, error if it was catchdistribution but with missing predators
     this_name <- as.character(sys.call()[[1]])
-    if (this_name == "g3l_catchdistribution" && length(fleets) == 0) stop("Fleets must be supplied for g3l_catchdistribution")
-    if (this_name == "g3l_abundancedistribution" && length(fleets) > 0) stop("Fleets must not be supplied for g3l_abundancedistribution")
+    if (this_name == "g3l_catchdistribution" && length(fleetpreds) == 0) stop("fleets/predators must be supplied for g3l_catchdistribution")
+    if (this_name == "g3l_abundancedistribution" && length(fleetpreds) > 0) stop("fleets/predators must not be supplied for g3l_abundancedistribution")
 
     # Find name of function user called, and g3l_substitution function used
     function_f_name <- if (is.call(substitute(function_f))) as.character(substitute(function_f)[[1]]) else "custom"
@@ -254,13 +260,13 @@ g3l_distribution <- function (
     # Add our called name / function name to labels & nll_name
     prefix <- paste0(this_name, "_", function_f_name, ": ")
     nll_name <- paste(
-        if (length(fleets) > 0) 'cdist' else 'adist',
+        if (length(fleetpreds) > 0) 'cdist' else 'adist',
         function_f_name,
         nll_name,
         sep = "_")
 
     # Convert data to stocks
-    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = model_history, all_stocks = stocks, all_fleets = fleets)
+    ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = model_history, all_stocks = stocks, all_fleets = fleets, all_predators = predators)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
     if (!is.null(ld$number)) {
@@ -272,8 +278,8 @@ g3l_distribution <- function (
         obsstock__wgt <- g3_stock_instance(obsstock, ld$weight)
     }
 
-    # If no fleets, set predstock = NULL, otherwise iterate over fleets
-    for (predstock in (if (length(fleets) > 0) fleets else list(NULL))) for (prey_stock in stocks) {
+    # If no fleets/predators, set predstock = NULL, otherwise iterate over fleets
+    for (predstock in (if (length(fleetpreds) > 0) fleetpreds else list(NULL))) for (prey_stock in stocks) {
         stock <- prey_stock  # Alias stock == prey_stock
 
         # NB: In lockstep with action_predate()

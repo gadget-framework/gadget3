@@ -6,17 +6,17 @@ library(gadget3)
 
 
 # Helper to generate ld from table string and attributes
-generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), use_preview = FALSE, ...) {
+generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), all_predators = list(), use_preview = FALSE, ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
     all_stocks <- lapply(all_stocks, function (x) g3_stock(x, 1))
     if (use_preview) {
         # Use new public preview function
         out <- list(
-            number = g3_distribution_preview(structure(tbl, ...), stocks = all_stocks, fleets = all_fleets) )
+            number = g3_distribution_preview(structure(tbl, ...), stocks = all_stocks, fleets = all_fleets, predators = all_predators) )
     } else {
         # Fall back to old behaviour
-        out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets)
+        out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets, all_predators = all_predators)
     }
 
     # NB: A failed merge would result in repeated instances
@@ -859,6 +859,92 @@ ok_group('g3l_likelihood_data:stock:name_parts', {
         a_imm_m = 'a_m',
         a_mat_m = 'a_m',
         c_mat = 'c' )), "Name part groupings don't have to be sequential")
+})
+
+ok_group('g3l_likelihood_data:predator', {
+    ld <- generate_ld("
+        age year number
+          3 1999      1999.3
+          4 1999      1999.4
+          6 1999      1999.6
+          3 2000      2000.3
+          6 2000      2000.6
+          4 2001      2001.4
+          6 2001      2001.6
+        ")
+    ok(is.null(ld$maps$predator), "No predator column, so no predator map")
+
+    ok(ut_cmp_error(generate_ld("
+        age year predator predator_re number
+          3 1999    a  a$       1999.3
+        "), "predator.*predator_re"), "Can't have both predator & predator_re")
+
+    ld <- generate_ld("
+        age year predator number
+          3 1999    a  1999.3
+          4 1999    b  1999.4
+          6 1999    a  1999.6
+          3 2000    a  2000.3
+          6 2000    b  2000.6
+          4 2001    b  2001.4
+          6 2001    b  2001.6
+        ", all_predators = list(g3_stock('a', c(0, 10)), g3_stock('b', c(0, 10)) ))
+    ok(ut_cmp_identical(dimnames(ld$number)[['predator']], c("a", "b")), "Array has predators a & b")
+    ok(ut_cmp_identical(ld$maps$predator, c(a = 'a', b = 'b')), "predator_map is 1:1 mapping")
+
+    # Generate a list of predators "predator_(trawl|gil)_(f|m)"
+    predators <- lapply(paste(
+        'predator',
+        rep(c('trawl', 'gil'), each = 2),
+        c('is', 'no'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year predator_re number
+          3 1999    _is$  1999.3
+          4 1999    ^predator_trawl  1999.4
+          6 1999    ^predator_gil  1999.6
+          3 2000    ^predator_trawl  2000.3
+          6 2000    ^predator_gil  2000.6
+          4 2001    ^predator_gil  2001.4
+          6 2001    ^predator_trawl  2001.6
+        ", all_predators = predators)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)[['predator_re']],
+        c("_is$", "^predator_trawl", "^predator_gil")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$maps$predator,
+        c(
+            predator_trawl_is = '_is$',
+            predator_trawl_no = '^predator_trawl',
+            predator_gil_is = '_is$',
+            predator_gil_no = '^predator_gil' )), "predator map used first regexes first")
+
+    # Generate a list of predators "predator_(trawl|gil)_(f|m)"
+    predators <- lapply(paste(
+        'predator',
+        rep(c('trawl', 'gil'), each = 2),
+        c('is', 'no'),
+        sep = "_"), function (x) g3_stock(x, 1))
+    ld <- generate_ld("
+        age year predator_re number
+          3 1999    _gil_is$  1999.3
+          4 1999    _gil_is$  1999.4
+          6 1999    _trawl_is$  1999.6
+          3 2000    _gil_is$  2000.3
+          6 2000    _trawl_is$  2000.6
+          4 2001    _trawl_is$  2001.4
+          6 2001    _gil_is$  2001.6
+        ", all_predators = predators)
+    ok(ut_cmp_identical(
+        dimnames(ld$number)[['predator_re']],
+        c("_gil_is$", "_trawl_is$")), "Array names are regexes")
+    ok(ut_cmp_identical(
+        ld$maps$predator,
+        c(
+            predator_trawl_is = '_trawl_is$',
+            predator_trawl_no = NA,
+            predator_gil_is = '_gil_is$',
+            predator_gil_no = NA )), "predator map ignored unused predators")
 })
 
 

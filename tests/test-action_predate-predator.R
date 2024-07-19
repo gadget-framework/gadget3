@@ -11,6 +11,7 @@ pred_a_catch_obs <- expand.grid(
     year = 2000:2005,
     length = c(0,5,10),
     stock = c('prey_a', 'prey_b', 'otherfood'),
+    predator = c('pred_a'),  # NB: Not essential if there's only one predator, only for testing
     predator_length = c(50,70),
     predator_age = c("[0,5)", "[6,10)"), # ((
     number = 0 )
@@ -48,27 +49,27 @@ actions <- list(
     g3l_catchdistribution(
         'pred_a_catch',
         pred_a_catch_obs,
-        fleets = list(pred_a),
+        predators = list(pred_a),
         stocks = list(prey_a, prey_b, otherfood),
-        g3l_distribution_sumofsquares(),
+        function_f = g3l_distribution_sumofsquares(),
         nll_breakdown = TRUE,
         report = TRUE ),
 
     g3l_catchdistribution(
         'pred_a_preypref',
         pred_a_preypref_obs,
-        fleets = list(pred_a),
+        predators = list(pred_a),
         stocks = list(prey_a, prey_b, otherfood),
-        g3l_distribution_sumofsquares(),
+        function_f = g3l_distribution_sumofsquares(),
         nll_breakdown = TRUE,
         report = TRUE ),
 
     g3l_catchdistribution(
         'pred_a_sizepref',
         pred_a_sizepref_obs,
-        fleets = list(pred_a),
+        predators = list(pred_a),
         stocks = list(prey_a, prey_b),  # NB: otherfood missing
-        g3l_distribution_sumofsquares(),
+        function_f = g3l_distribution_sumofsquares(),
         nll_breakdown = TRUE,
         report = TRUE ),
 
@@ -134,7 +135,11 @@ ok(ut_cmp_equal(
     r$detail_prey_a_pred_a__cons[1,1,3,1,1] / 75^2 * 85^2,
     tolerance = 1e-8 ), "r$detail_prey_a_pred_a__cons: Jump in consumption 75 -> 85")
 
-ok(gadget3:::ut_cmp_array(r$cdist_sumofsquares_pred_a_catch_model__num, '
+ok(ut_cmp_identical(
+    dimnames(r$cdist_sumofsquares_pred_a_catch_model__num)$predator,
+    c("pred_a") ), "cdist_sumofsquares_pred_a_catch_model__num: Single predator dimension for our one predator")
+
+ok(gadget3:::ut_cmp_array(drop(r$cdist_sumofsquares_pred_a_catch_model__num), '
     length     stock predator_length predator_age time        Freq
 1      0:5    prey_a           50:70          0:4 2000  84464.2913
 2     5:10    prey_a           50:70          0:4 2000 105580.3641

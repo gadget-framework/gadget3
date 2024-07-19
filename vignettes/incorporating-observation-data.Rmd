@@ -32,7 +32,7 @@ Each run of a model will generate a likelihood score, by summing the result of a
 To fit a model to observation data, we need to add a *likelihood action* that will compare observation data to the model.
 
 To do this you either need `g3l_catchdistribution()` or `g3l_abundancedistribution()`.
-As the names suggest, `g3l_catchdistribution()` will compare catch data of stocks from the provided fleets,
+As the names suggest, `g3l_catchdistribution()` will compare catch data of stocks from the provided fleets/predators,
 `g3l_abundancedistribution()` will compare total abundance of stocks.
 Otherwise they are identical.
 
@@ -377,6 +377,28 @@ year    fleet    number
 2000   surv_se   2381
 2001   surv_se   3913
 "), fleets = fleets)[length = '0:Inf',,]
+```
+
+The name matching works in the same way as stocks above, and should be either the name gadget3 uses or parts of it.
+
+As before, gaps in data are preserved, and ``missing_val`` is used to decide what to do with them.
+
+### *predator* column
+
+```{r}
+predators <- list(
+    g3_stock(c('seal', 'imm', 'f'), 10:20),
+    g3_stock(c('seal', 'mat', 'f'), 10:20),
+    g3_stock(c('seal', 'imm', 'm'), 10:20),
+    g3_stock(c('seal', 'mat', 'm'), 10:20) )
+
+drop(g3_distribution_preview(read.table(header = TRUE, text="
+year    predator    number
+1999   seal_f   1000
+1999   seal_m   4305
+2000   seal_f   7034
+2000   seal_m   2381
+"), predators = predators))
 ```
 
 The name matching works in the same way as stocks above, and should be either the name gadget3 uses or parts of it.

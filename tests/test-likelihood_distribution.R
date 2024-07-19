@@ -277,14 +277,14 @@ ok(ut_cmp_error(g3l_catchdistribution(
     fleets = list(),
     stocks = list(prey_a, prey_b, prey_c),
     area_group = areas,
-    g3l_distribution_sumofsquares()), "Fleets must be supplied"), "g3l_catchdistribution: Invalid without fleets")
+    g3l_distribution_sumofsquares()), "fleets/predators must be supplied"), "g3l_catchdistribution: Invalid without fleets")
 ok(ut_cmp_error(g3l_abundancedistribution(
     'utcd',
     cd_data,
     fleets = list(fleet_abc),
     stocks = list(prey_a, prey_b, prey_c),
     area_group = areas,
-    g3l_distribution_sumofsquares()), "Fleets must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
+    g3l_distribution_sumofsquares()), "fleets/predators must not be supplied"), "g3l_abundancedistribution: Invalid with fleets")
 
 # Generate a step that reports the value of (var_name) into separate variable (steps) times
 # (initial_val) provides a definition to use to set variable type
