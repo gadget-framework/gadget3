@@ -717,7 +717,7 @@ ok_group('g3l_likelihood_data:stock', {
           4 2001      2001.4
           6 2001      2001.6
         ")
-    ok(is.null(ld$stock_map), "No stock column, so no stock map")
+    ok(is.null(ld$maps$stock), "No stock column, so no stock map")
 
     ok(ut_cmp_error(generate_ld("
         age year stock stock_re number
@@ -735,7 +735,7 @@ ok_group('g3l_likelihood_data:stock', {
           6 2001    b  2001.6
         ", all_stocks = c('a', 'b'))
     ok(ut_cmp_identical(dimnames(ld$number)[['stock']], c("a", "b")), "Array has stocks a & b")
-    ok(ut_cmp_identical(ld$stock_map, list(a = 1L, b = 2L)), "stock_map is 1:1 mapping")
+    ok(ut_cmp_identical(ld$maps$stock, c(a = 'a', b = 'b')), "stock_map is 1:1 mapping")
 
     ok(ut_cmp_error(generate_ld("
         age year stock number
@@ -765,12 +765,12 @@ ok_group('g3l_likelihood_data:stock', {
         dimnames(ld$number)[['stock_re']],
         c("_f$", "^stock_mat", "^stock_imm")), "Array names are regexes")
     ok(ut_cmp_identical(
-        ld$stock_map,
-        list(
-            stock_imm_f = 1L,
-            stock_imm_m = 3L,
-            stock_mat_f = 1L,
-            stock_mat_m = 2L)), "Stock map used first regexes first")
+        ld$maps$stock,
+        c(
+            stock_imm_f = '_f$',
+            stock_imm_m = '^stock_imm',
+            stock_mat_f = '_f$',
+            stock_mat_m = '^stock_mat')), "Stock map used first regexes first")
 
     ok(ut_cmp_error(generate_ld("
         age year stock_re number
@@ -799,12 +799,12 @@ ok_group('g3l_likelihood_data:stock', {
         dimnames(ld$number)[['stock_re']],
         c("_mat_f$", "_imm_f$")), "Array names are regexes")
     ok(ut_cmp_identical(
-        ld$stock_map,
-        list(
-            stock_imm_f = 2L,
-            stock_imm_m = NULL,
-            stock_mat_f = 1L,
-            stock_mat_m = NULL)), "Stock map ignored unused stocks")
+        ld$maps$stock,
+        c(
+            stock_imm_f = '_imm_f$',
+            stock_imm_m = NA,
+            stock_mat_f = '_mat_f$',
+            stock_mat_m = NA )), "Stock map ignored unused stocks")
 })
 
 ok_group('g3l_likelihood_data:stock:name_parts', {
@@ -812,53 +812,53 @@ ok_group('g3l_likelihood_data:stock:name_parts', {
         tbl <- expand.grid(number = 0, stock = stock_cols, age = 3:6, year = 1999:2001)
         tbl$number <- seq_len(nrow(tbl))
         ld <- generate_ld(tbl, all_stocks = stock_names)
-        return(ld$stock_map)
+        return(ld$maps$stock)
     }
     out <- stock_groupings(
         list(c('fish', 'imm'), c('fish', 'mat'), c('fish', 'sen')),
         c('fish'))
-    ok(ut_cmp_equal(out, list(
-        fish_imm = 1,
-        fish_mat = 1,
-        fish_sen = 1 )), '"fish": Groups both maturity groups together')
+    ok(ut_cmp_equal(out, c(
+        fish_imm = 'fish',
+        fish_mat = 'fish',
+        fish_sen = 'fish' )), '"fish": Groups both maturity groups together')
 
     out <- stock_groupings(
         list(c('fish', 'imm'), c('fish', 'mat'), c('fish', 'sen')),
         c('fish_mat', 'fish'))
-    ok(ut_cmp_equal(out, list(
-        fish_imm = 2,
-        fish_mat = 1,
-        fish_sen = 2 )), '"fish_mat": Overrides "fish" group due to longer length')
+    ok(ut_cmp_equal(out, c(
+        fish_imm = 'fish',
+        fish_mat = 'fish_mat',
+        fish_sen = 'fish' )), '"fish_mat": Overrides "fish" group due to longer length')
 
     out <- stock_groupings(
         list(c('a', 'imm'), c('a', 'mat'), c('b', 'imm'), c('b', 'mat'), c('c', 'mat')),
         c('a', 'b', 'mat'))
-    ok(ut_cmp_equal(out, list(
-        a_imm = 1,
-        a_mat = 1,
-        b_imm = 2,
-        b_mat = 2,
-        c_mat = 3 )), "'b' wins over 'mat' because it comes first")
+    ok(ut_cmp_equal(out, c(
+        a_imm = 'a',
+        a_mat = 'a',
+        b_imm = 'b',
+        b_mat = 'b',
+        c_mat = 'mat' )), "'b' wins over 'mat' because it comes first")
 
     out <- stock_groupings(
         list(c('a', 'imm'), c('a', 'mat'), c('b', 'imm'), c('b', 'mat'), c('c', 'mat')),
         c('a', 'mat', 'b'))
-    ok(ut_cmp_equal(out, list(
-        a_imm = 1,
-        a_mat = 1,
-        b_imm = 3,
-        b_mat = 2,
-        c_mat = 2 )), "'mat' wins over 'b' because it comes first")
+    ok(ut_cmp_equal(out, c(
+        a_imm = 'a',
+        a_mat = 'a',
+        b_imm = 'b',
+        b_mat = 'mat',
+        c_mat = 'mat' )), "'mat' wins over 'b' because it comes first")
 
     out <- stock_groupings(
         list(c('a', 'imm', 'f'), c('a', 'mat', 'f'), c('a', 'imm', 'm'), c('a', 'mat', 'm'), c('c', 'mat')),
         c('a_f', 'a_m', 'c'))
-    ok(ut_cmp_equal(out, list(
-        a_imm_f = 1,
-        a_mat_f = 1,
-        a_imm_m = 2,
-        a_mat_m = 2,
-        c_mat = 3 )), "Name part groupings don't have to be sequential")
+    ok(ut_cmp_equal(out, c(
+        a_imm_f = 'a_f',
+        a_mat_f = 'a_f',
+        a_imm_m = 'a_m',
+        a_mat_m = 'a_m',
+        c_mat = 'c' )), "Name part groupings don't have to be sequential")
 })
 
 
@@ -873,7 +873,7 @@ ok_group('g3l_likelihood_data:fleet', {
           4 2001      2001.4
           6 2001      2001.6
         ")
-    ok(is.null(ld$fleet_map), "No fleet column, so no fleet map")
+    ok(is.null(ld$maps$fleet), "No fleet column, so no fleet map")
 
     ok(ut_cmp_error(generate_ld("
         age year fleet fleet_re number
@@ -891,7 +891,7 @@ ok_group('g3l_likelihood_data:fleet', {
           6 2001    b  2001.6
         ", all_fleets = list(g3_fleet('a'), g3_fleet('b')))
     ok(ut_cmp_identical(dimnames(ld$number)[['fleet']], c("a", "b")), "Array has fleets a & b")
-    ok(ut_cmp_identical(ld$fleet_map, list(a = 1L, b = 2L)), "fleet_map is 1:1 mapping")
+    ok(ut_cmp_identical(ld$maps$fleet, c(a = 'a', b = 'b')), "fleet_map is 1:1 mapping")
 
     # Generate a list of fleets "fleet_(trawl|gil)_(f|m)"
     fleets <- lapply(paste(
@@ -913,12 +913,12 @@ ok_group('g3l_likelihood_data:fleet', {
         dimnames(ld$number)[['fleet_re']],
         c("_is$", "^fleet_trawl", "^fleet_gil")), "Array names are regexes")
     ok(ut_cmp_identical(
-        ld$fleet_map,
-        list(
-            fleet_trawl_is = 1L,
-            fleet_trawl_no = 2L,
-            fleet_gil_is = 1L,
-            fleet_gil_no = 3L)), "fleet map used first regexes first")
+        ld$maps$fleet,
+        c(
+            fleet_trawl_is = '_is$',
+            fleet_trawl_no = '^fleet_trawl',
+            fleet_gil_is = '_is$',
+            fleet_gil_no = '^fleet_gil' )), "fleet map used first regexes first")
 
     # Generate a list of fleets "fleet_(trawl|gil)_(f|m)"
     fleets <- lapply(paste(
@@ -940,12 +940,12 @@ ok_group('g3l_likelihood_data:fleet', {
         dimnames(ld$number)[['fleet_re']],
         c("_gil_is$", "_trawl_is$")), "Array names are regexes")
     ok(ut_cmp_identical(
-        ld$fleet_map,
-        list(
-            fleet_trawl_is = 2L,
-            fleet_trawl_no = NULL,
-            fleet_gil_is = 1L,
-            fleet_gil_no = NULL)), "fleet map ignored unused fleets")
+        ld$maps$fleet,
+        c(
+            fleet_trawl_is = '_trawl_is$',
+            fleet_trawl_no = NA,
+            fleet_gil_is = '_gil_is$',
+            fleet_gil_no = NA )), "fleet map ignored unused fleets")
 })
 
 ok_group('g3l_likelihood_data:predator') ##########

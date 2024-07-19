@@ -225,8 +225,7 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
         modelstock = modelstock,
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
-        stock_map = maps[["stock"]],
-        fleet_map = maps[["fleet"]],
+        maps = maps,
         number = number_array,
         weight = weight_array,
         nll_name = nll_name))
@@ -446,11 +445,17 @@ ld_dim_g3stock <- function(data, col_name = "stock", all_stocks) {
         # Variable in g3l_distribution() this should be looking for
        if (col_name == "stock") "stock" else "predstock" )
 
+    # Make diagnostic fleet map with names for g3_distribution_preview()
+    map <- vapply(
+        stock_map,
+        function (i) if (is.null(i)) as.character(NA) else stock_groups[[i]],
+        character(1) )
+
     return(list(
         g3s_manual(g3_storage("x"), actual_col, stock_groups, intersect_idx_f),
         NULL,  # This is data_col in other methods
         groups = stock_groups,
-        map = stock_map ))
+        map = map ))
 }
 
 # Copy a single dimension from (new_stock) atop (old_stock), renaming dimension by adding (prefix)
