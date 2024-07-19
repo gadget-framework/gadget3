@@ -71,6 +71,7 @@ export(g3a_spawn_recruitment_fecundity)
 export(g3a_spawn_recruitment_simplessb)
 export(g3a_spawn_recruitment_ricker)
 export(g3a_spawn_recruitment_bevertonholt)
+export(g3a_spawn_recruitment_bevertonholt_ss3)
 export(g3a_spawn_recruitment_hockeystick)
 export(g3a_spawn)
 

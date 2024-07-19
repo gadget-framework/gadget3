@@ -3,6 +3,7 @@
 \alias{g3a_spawn_recruitment_simplessb}
 \alias{g3a_spawn_recruitment_ricker}
 \alias{g3a_spawn_recruitment_bevertonholt}
+\alias{g3a_spawn_recruitment_bevertonholt_ss3}
 \alias{g3a_spawn_recruitment_hockeystick}
 \alias{g3a_spawn}
 \concept{G3 action}
@@ -20,6 +21,19 @@ g3a_spawn_recruitment_simplessb(mu)
 g3a_spawn_recruitment_ricker(mu, lambda)
 
 g3a_spawn_recruitment_bevertonholt(mu, lambda)
+
+g3a_spawn_recruitment_bevertonholt_ss3(
+        # Steepness parameter
+        h = g3_parameterized('srr_h', lower = 0.1, upper = 1, value = 0.5,
+            by_stock = by_stock ),
+        # Recruitment deviates
+        R = g3_parameterized('R', by_year = TRUE, exponentiate = TRUE,
+            # Unfished equilibrium recruitment
+            scale = "R0",
+            by_stock = by_stock),
+        # Unfished equilibrium spawning biomass (corresponding to R0)
+        B0 = g3_parameterized('B0', by_stock = by_stock),
+        by_stock = TRUE )
 
 g3a_spawn_recruitment_hockeystick(r0, blim)
 
@@ -45,7 +59,7 @@ g3a_spawn(
 
 \arguments{
   \item{p0,p1,p2,p3,p4}{Substituted into \code{g3a_spawn_recruitment_fecundity} formula, see below.}
-  \item{mu,lambda,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
+  \item{mu,lambda,h,R,B0,r0,blim}{Substituted into \code{g3a_spawn_recruitment_*} formula, see below.}
   \item{stock}{
      The mature \code{\link{g3_stock}} that will spawn in this action.
   }
@@ -153,6 +167,22 @@ g3a_spawn(
       \item{\lambda}{Argument provided to function}
     }
   }
+  \subsection{g3a_spawn_recruitment_bevertonholt_ss3}{
+    A \href{https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt}{modified beverton-holt implementation from SS3}
+    returning a pair of \link{formula} objects:
+    \deqn{ S = N_{al} p  W_{al} }
+    \deqn{ R = \frac{ 4 h R_0 s R }{ B_0 (1 - h) + S (5 h - 1) } }
+    \describe{
+      \item{\eqn{N_{al}}}{Number of parent stock}
+      \item{\eqn{W_{al}}}{Weight of parent stock}
+      \item{\eqn{p}}{Proportion of parent stock spawning, from \var{proportion_f}}
+      \item{\eqn{h}}{Steepness parameter, by default provided by the \code{srr_h} parameter}
+      \item{\eqn{R_0}}{Unfished equilibrium recruitment, by default provided by the \code{R0} parameter}
+      \item{\eqn{R}}{Recruitment deviates, by default provided by the \code{R} parameter table}
+      \item{\eqn{B_0}}{Unfished equilibrium spawning biomass (corresponding to R0), by default provided by the \code{B0} parameter}
+      \item{\lambda}{Argument provided to function}
+    }
+  }
   \subsection{g3a_spawn_recruitment_hockeystick}{A pair of \link{formula} objects:
     \deqn{ S = N_{al} p  W_{al} }
     \deqn{ R = R_0 \min{( S / B_{lim}, 1)} }
@@ -178,6 +208,7 @@ g3a_spawn(
 
 \seealso{
   \url{https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn},
+  \url{https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt},
   \code{\link{g3a_naturalmortality}},
   \code{\link{g3_stock}}
 }
