@@ -178,9 +178,9 @@ tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
 # parscale gives optim() a relative scale of parameters
 tmb_param['parscale'] <- 1
 
-\donttest{\dontshow{# NB: Making / optimising a TMB function is slow}
+\donttest{\dontshow{comment("NB: Making / optimising a TMB function is slow")}
 
-\dontshow{# NB: Github windows CI can't compile a model}
+\dontshow{comment("NB: Github windows CI can't compile a model")}
 if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
   # Compile to a TMB ADFun
   tmb <- g3_tmb_adfun(cpp, tmb_param)
