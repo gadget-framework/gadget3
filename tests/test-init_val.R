@@ -169,6 +169,24 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, random = TRUE),
     optimise = FALSE,
     random = TRUE)), "random = TRUE --> optimise = FALSE (as you can't have both)")
 
+ok(ut_cmp_equal(iv_options('x', value = 10, spread = 0.5), list(
+    switch = "x",
+    value = I(list(10)),
+    lower = 5,
+    upper = 15,
+    parscale = 10,
+    optimise = TRUE,
+    random = FALSE)), "spread sets lower/upper bounds")
+
+ok(ut_cmp_equal(iv_options('x', value = -1, spread = 0.2), list(
+    switch = "x",
+    value = I(list(-1)),
+    lower = -1.2,
+    upper = -0.8,
+    parscale = 0.4,
+    optimise = TRUE,
+    random = FALSE)), "spread on a negative number still sets lower/upper bounds correctly")
+
 #### auto_exp
 
 pt <- default_pt(c('moo.1', 'moo.1_exp', 'baa.2', 'baa.2_exp', 'oink.1', 'oink.1_exp'))
