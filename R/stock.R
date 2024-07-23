@@ -1,5 +1,7 @@
 # Pull the definition of the stock variable out of the stock object
 g3_stock_def <- function(stock, name) {
+    # If a list is given, sapply each member
+    if (!g3_is_stock(stock) && is.list(stock)) return(lapply(stock, function (s) g3_stock_def(s, name)))
     if (!startsWith(name, 'stock__')) name <- paste0('stock__', name)
     get(name, envir = stock$env)
 }

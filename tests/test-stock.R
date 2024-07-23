@@ -18,6 +18,13 @@ ok_group("g3_stock_def", {
     ok(ut_cmp_identical(suppressWarnings(gadget3:::stock_definition(stock_a, 'maxage')), 20L), "Fetched maxage with old gadget3:::stock_definition")
 })
 
+ok_group("g3_stock_def:list", {
+    stocks <- list(
+        imm = g3_stock(c('st', 'imm'), 1:10) |> g3s_age(1, 5),
+        mat = g3_stock(c('st', 'mat'), 1:10) |> g3s_age(3, 7) )
+    ok(ut_cmp_identical(g3_stock_def(stocks, 'minage'), list(imm = 1L, mat = 3L)), "minage: Pulled out values from both stocks")
+})
+
 ok(ut_cmp_error(
     g3_stock('stock_a', c()),
     "lengthgroups"), "Can't create stock with 0 length groups")

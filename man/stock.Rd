@@ -45,6 +45,7 @@ g3_is_stock(stock)
   }
   \item{stock}{
     A \code{\link{g3_stock}} or \code{\link{g3_fleet}}.
+    For \code{g3_stock_def}, can also be a list of stock objects.
   }
   \item{init_value}{
     Intially the array will be filled with this constant, e.g. \code{1}, \code{0} or \code{NaN}
@@ -66,6 +67,10 @@ g3_is_stock(stock)
   }
   \subsection{g3_fleet}{
     A \code{\link{g3_stock}} without length groups
+  }
+  \subsection{g3_stock_def}{
+    The definition of the given variable in the stock.
+    If \var{stock} is a list, then a list with the definition of each will be returned.
   }
   \subsection{g3s_clone}{
     A \code{\link{g3_stock}} with identical dimensions to \var{inner_stock} but with a new name.
@@ -89,6 +94,12 @@ stopifnot( stock$name_parts[['species']] == 'ling' )
 # Use stock_instance define storage for mean weight of stock,
 # has dimensions matching what was defined above.
 g3_stock_instance(stock, 1, "Mean weight")
+
+# Can get definitions for multiple stocks in one go
+stocks <- list(
+  imm = g3_stock(c('st', 'imm'), 1:10),
+  mat = g3_stock(c('st', 'mat'), 1:10) )
+g3_stock_def(stocks, 'minlen')
 
 # Retrieve the upperlen for the stock
 g3_stock_def(stock, 'upperlen')
