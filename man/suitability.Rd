@@ -46,14 +46,17 @@ g3_suitability_exponential(alpha, beta, gamma, delta)
 
 g3_suitability_straightline(alpha, beta)
 
-g3_suitability_constant(alpha)
+g3_suitability_constant(
+    suit = g3_parameterized("suit", by_stock = by_stock, by_predator = by_predator),
+    by_stock = TRUE,
+    by_predator = TRUE )
 
 g3_suitability_richards(p0, p1, p2, p3, p4)
 
 }
 
 \arguments{
-  \item{alpha,beta,gamma,delta,l50,p0,p1,p2,p3,p4,p5}{
+  \item{suit,alpha,beta,gamma,delta,l50,p0,p1,p2,p3,p4,p5}{
     \link{formula} substituted into calcuations, see below.
   }
   \item{by_stock}{
@@ -178,7 +181,7 @@ will refer to the prey midlength.
       \alpha
     }
     \describe{
-      \item{\eqn{\alpha}}{Function parameter \var{alpha}}
+      \item{\eqn{\alpha}}{Function parameter \var{suit}, i.e. the "prey.predator.suit" model parameter by default}
     }
   }
 
@@ -232,30 +235,33 @@ g3_eval(
 
 ## Plots
 suit_plot <- function (
-    fn,
-    stock = g3_stock('x', seq(0, 100, 10)),
-    predator_length = 140 ) {
-  cols <- rainbow(5)
+    suit_f,
+    stock = g3_stock('x', seq(0, 100, 5)),
+    predator_length = 140,
+    cols = rainbow(5) ) {
   par(mar = c(2,2,2,2), cex.main = 1)
 
-  plot(
-    g3_stock_def(stock, 'midlen'),
-    seq(0, 1, length.out = length(g3_stock_def(stock, 'midlen'))),
-    main=deparse1(body(fn)),
-    type = "n")
-  for (a in seq_along(cols)) lines(
-    g3_stock_def(stock, 'midlen'),
-    g3_eval(fn(a), stock = stock, predator_length = predator_length),
-    type = "o", col = cols[[a]] )
+  for (a in seq_along(cols)) curve(
+    g3_eval(
+      suit_f,
+      a = a,
+      stock = stock,
+      predator_length = predator_length )[x \%/\% g3_stock_def(stock, 'dl')[[1]] + 1],
+    from = min(g3_stock_def(stock, 'minlen')),
+    to = max(g3_stock_def(stock, 'minlen')),
+
+    col = cols[[a]],
+    main = deparse1(sys.call()[[2]]), xlab = "", ylab = "",
+    add = (a != 1) )
 }
 
-suit_plot(function (a) g3_suitability_exponentiall50(alpha = a * 0.1, l50 = 50))
-suit_plot(function (a) g3_suitability_andersen(0, log(2), 1, p3 = a * 0.1, 0.1, 140))
-suit_plot(function (a) g3_suitability_andersen(0, log(2), 1, 0.1, p4 = a * 0.1, 140))
-suit_plot(function (a) g3_suitability_gamma(alpha = 2 + a * 0.1, beta = 1, gamma = 40))
-suit_plot(function (a) g3_suitability_exponential(0, 0.01 * a, 0, 1))
-suit_plot(function (a) g3_suitability_straightline(alpha = 0.1, beta = 0.01 * a))
-suit_plot(function (a) g3_suitability_constant(a * 0.1))
-suit_plot(function (a) g3_suitability_richards(0, 0.05, 0, 1, 0.1 * a))
+suit_plot(g3_suitability_exponentiall50(alpha = ~a * 0.1, l50 = 50))
+suit_plot(g3_suitability_andersen(0, log(2), 1, p3 = ~a * 0.1, 0.1, 140))
+suit_plot(g3_suitability_andersen(0, log(2), 1, 0.1, p4 = ~a * 0.1, 140))
+suit_plot(g3_suitability_gamma(alpha = ~2 + a * 0.1, beta = 1, gamma = 40))
+suit_plot(g3_suitability_exponential(0, ~0.01 * a, 0, 1))
+suit_plot(g3_suitability_straightline(alpha = 0.1, beta = ~0.01 * a))
+suit_plot(g3_suitability_constant(~a * 0.1))
+suit_plot(g3_suitability_richards(0, 0.05, 0, 1, ~0.1 * a))
 
 }

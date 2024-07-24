@@ -79,8 +79,11 @@ g3_suitability_straightline <- function(alpha, beta){
 }
 
 
-g3_suitability_constant <- function(alpha){
-  g3_suitability_straightline(alpha, 0)
+g3_suitability_constant <- function(
+    suit = g3_parameterized("suit", by_stock = by_stock, by_predator = by_predator),
+    by_stock = TRUE,
+    by_predator = TRUE ) {
+  f_substitute(~suit, list(suit = suit))
 }
 
 
