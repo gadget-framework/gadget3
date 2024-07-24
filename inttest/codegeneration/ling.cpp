@@ -392,8 +392,7 @@ Type objective_function<Type>::operator() () {
             auto suitability = (vector<Type>)(suit_ling_imm_igfs__report);
 
             {
-                // g3a_predate_fleet for ling_imm;
-                // Zero igfs-ling_imm biomass-consuming counter;
+                // g3a_predate for igfs predating ling_imm;
                 ling_imm_igfs__suit.setZero();
                 {
                     auto area = ling_imm__area;
@@ -422,8 +421,7 @@ Type objective_function<Type>::operator() () {
             auto suitability = (vector<Type>)(suit_ling_mat_igfs__report);
 
             {
-                // g3a_predate_fleet for ling_mat;
-                // Zero igfs-ling_mat biomass-consuming counter;
+                // g3a_predate for igfs predating ling_mat;
                 ling_mat_igfs__suit.setZero();
                 {
                     auto area = ling_mat__area;

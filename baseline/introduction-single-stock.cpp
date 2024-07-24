@@ -632,8 +632,7 @@ Type objective_function<Type>::operator() () {
             auto suitability = (vector<Type>)(suit_fish_f_surv__report);
 
             {
-                // g3a_predate_fleet for fish;
-                // Zero f_surv-fish biomass-consuming counter;
+                // g3a_predate for f_surv predating fish;
                 fish_f_surv__suit.setZero();
                 for (auto age = fish__minage; age <= fish__maxage; age++) {
                     auto fish__age_idx = age - fish__minage + 1 - 1;

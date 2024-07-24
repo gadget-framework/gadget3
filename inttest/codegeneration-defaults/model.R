@@ -341,8 +341,7 @@ structure(function (param)
         {
             suitability <- g3_cast_vector(suit_fish_comm__report[])
             {
-                comment("g3a_predate_fleet for fish")
-                comment("Zero comm-fish biomass-consuming counter")
+                comment("g3a_predate for comm predating fish")
                 fish_comm__suit[] <- 0
                 for (age in seq(fish__minage, fish__maxage, by = 1)) {
                   fish__age_idx <- age - fish__minage + 1L

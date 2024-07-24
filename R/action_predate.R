@@ -229,8 +229,7 @@ g3a_predate <- function (
             environment(catchability)$suitability <- g3_step(~stock_with(suitrep, stock_ss(suitrep__report, vec = single)), recursing = TRUE)
         }
         out[[step_id(run_at, 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
-            debug_label("g3a_predate_fleet for ", stock)
-            debug_trace("Zero ", predstock, "-", stock, " biomass-consuming counter")
+            debug_label("g3a_predate for ", predstock, " predating ", stock)
             stock_with(predprey, predprey__suit[] <- 0)
 
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {

@@ -340,8 +340,7 @@ structure(function (param)
         {
             suitability <- g3_cast_vector(suit_ling_imm_igfs__report[])
             {
-                comment("g3a_predate_fleet for ling_imm")
-                comment("Zero igfs-ling_imm biomass-consuming counter")
+                comment("g3a_predate for igfs predating ling_imm")
                 ling_imm_igfs__suit[] <- 0
                 {
                   area <- ling_imm__area
@@ -363,8 +362,7 @@ structure(function (param)
         {
             suitability <- g3_cast_vector(suit_ling_mat_igfs__report[])
             {
-                comment("g3a_predate_fleet for ling_mat")
-                comment("Zero igfs-ling_mat biomass-consuming counter")
+                comment("g3a_predate for igfs predating ling_mat")
                 ling_mat_igfs__suit[] <- 0
                 {
                   area <- ling_mat__area
