@@ -55,7 +55,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__init__8);
     PARAMETER(fish__init__9);
     PARAMETER(fish__init__10);
-    std::map<std::tuple<int>, Type*> fish__init = {{std::make_tuple(1), &fish__init__1}, {std::make_tuple(2), &fish__init__2}, {std::make_tuple(3), &fish__init__3}, {std::make_tuple(4), &fish__init__4}, {std::make_tuple(5), &fish__init__5}, {std::make_tuple(6), &fish__init__6}, {std::make_tuple(7), &fish__init__7}, {std::make_tuple(8), &fish__init__8}, {std::make_tuple(9), &fish__init__9}, {std::make_tuple(10), &fish__init__10}};
+    std::map<std::tuple<int>, Type*> pt__fish__init = {{std::make_tuple(1), &fish__init__1}, {std::make_tuple(2), &fish__init__2}, {std::make_tuple(3), &fish__init__3}, {std::make_tuple(4), &fish__init__4}, {std::make_tuple(5), &fish__init__5}, {std::make_tuple(6), &fish__init__6}, {std::make_tuple(7), &fish__init__7}, {std::make_tuple(8), &fish__init__8}, {std::make_tuple(9), &fish__init__9}, {std::make_tuple(10), &fish__init__10}};
     PARAMETER(fish__M__1);
     PARAMETER(fish__M__2);
     PARAMETER(fish__M__3);
@@ -66,7 +66,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__M__8);
     PARAMETER(fish__M__9);
     PARAMETER(fish__M__10);
-    std::map<std::tuple<int>, Type*> fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}, {std::make_tuple(6), &fish__M__6}, {std::make_tuple(7), &fish__M__7}, {std::make_tuple(8), &fish__M__8}, {std::make_tuple(9), &fish__M__9}, {std::make_tuple(10), &fish__M__10}};
+    std::map<std::tuple<int>, Type*> pt__fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}, {std::make_tuple(6), &fish__M__6}, {std::make_tuple(7), &fish__M__7}, {std::make_tuple(8), &fish__M__8}, {std::make_tuple(9), &fish__M__9}, {std::make_tuple(10), &fish__M__10}};
     PARAMETER(init__F);
     PARAMETER(recage);
     PARAMETER(fish__walpha);
@@ -86,7 +86,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__1998);
     PARAMETER(fish__rec__1999);
     PARAMETER(fish__rec__2000);
-    std::map<std::tuple<int>, Type*> fish__rec = {{std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}};
+    std::map<std::tuple<int>, Type*> pt__fish__rec = {{std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}};
     PARAMETER(fish__rec__scalar);
     PARAMETER(adist_surveyindices_log_acoustic_dist_weight);
     PARAMETER(cdist_sumofsquares_comm_ldist_weight);
@@ -353,7 +353,7 @@ Type objective_function<Type>::operator() () {
 
                 auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
 
-                auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
+                auto factor = (fish__init__scalar*map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                 {
                     fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -510,7 +510,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
+                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
             }
         }
         {
@@ -549,7 +549,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (map_extras::at_def(fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
+            auto factor = (map_extras::at_def(pt__fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
 
             {
                 // g3a_renewal for fish;

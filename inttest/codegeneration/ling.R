@@ -47,7 +47,7 @@ structure(function (param)
     stopifnot("ling.rec.2016" %in% names(param))
     stopifnot("ling.rec.2017" %in% names(param))
     stopifnot("ling.rec.2018" %in% names(param))
-    param.ling.rec <- list(`1994` = param[["ling.rec.1994"]], `1995` = param[["ling.rec.1995"]], `1996` = param[["ling.rec.1996"]], `1997` = param[["ling.rec.1997"]], `1998` = param[["ling.rec.1998"]], `1999` = param[["ling.rec.1999"]], `2000` = param[["ling.rec.2000"]], `2001` = param[["ling.rec.2001"]], `2002` = param[["ling.rec.2002"]], `2003` = param[["ling.rec.2003"]], `2004` = param[["ling.rec.2004"]], `2005` = param[["ling.rec.2005"]], `2006` = param[["ling.rec.2006"]], `2007` = param[["ling.rec.2007"]], 
+    pt.ling.rec <- list(`1994` = param[["ling.rec.1994"]], `1995` = param[["ling.rec.1995"]], `1996` = param[["ling.rec.1996"]], `1997` = param[["ling.rec.1997"]], `1998` = param[["ling.rec.1998"]], `1999` = param[["ling.rec.1999"]], `2000` = param[["ling.rec.2000"]], `2001` = param[["ling.rec.2001"]], `2002` = param[["ling.rec.2002"]], `2003` = param[["ling.rec.2003"]], `2004` = param[["ling.rec.2004"]], `2005` = param[["ling.rec.2005"]], `2006` = param[["ling.rec.2006"]], `2007` = param[["ling.rec.2007"]], 
         `2008` = param[["ling.rec.2008"]], `2009` = param[["ling.rec.2009"]], `2010` = param[["ling.rec.2010"]], `2011` = param[["ling.rec.2011"]], `2012` = param[["ling.rec.2012"]], `2013` = param[["ling.rec.2013"]], `2014` = param[["ling.rec.2014"]], `2015` = param[["ling.rec.2015"]], `2016` = param[["ling.rec.2016"]], `2017` = param[["ling.rec.2017"]], `2018` = param[["ling.rec.2018"]])
     stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
     assert_msg <- function(expr, message) {
@@ -589,7 +589,7 @@ structure(function (param)
                 ling_imm__num <- ling_imm__num + ling_imm__transitioning_num
         }
         {
-            factor <- (param[["ling.rec.scalar"]] * nvl(param.ling.rec[[paste(cur_year, sep = ".")]], {
+            factor <- (param[["ling.rec.scalar"]] * nvl(pt.ling.rec[[paste(cur_year, sep = ".")]], {
                 warning("No value found in g3_param_table ling.rec, ifmissing not specified")
                 NaN
             }))
@@ -613,7 +613,7 @@ structure(function (param)
             }
         }
         {
-            factor <- (param[["ling.rec.scalar"]] * nvl(param.ling.rec[[paste(cur_year, sep = ".")]], {
+            factor <- (param[["ling.rec.scalar"]] * nvl(pt.ling.rec[[paste(cur_year, sep = ".")]], {
                 warning("No value found in g3_param_table ling.rec, ifmissing not specified")
                 NaN
             }))

@@ -50,13 +50,13 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__init__3);
     PARAMETER(fish__init__4);
     PARAMETER(fish__init__5);
-    std::map<std::tuple<int>, Type*> fish__init = {{std::make_tuple(1), &fish__init__1}, {std::make_tuple(2), &fish__init__2}, {std::make_tuple(3), &fish__init__3}, {std::make_tuple(4), &fish__init__4}, {std::make_tuple(5), &fish__init__5}};
+    std::map<std::tuple<int>, Type*> pt__fish__init = {{std::make_tuple(1), &fish__init__1}, {std::make_tuple(2), &fish__init__2}, {std::make_tuple(3), &fish__init__3}, {std::make_tuple(4), &fish__init__4}, {std::make_tuple(5), &fish__init__5}};
     PARAMETER(fish__M__1);
     PARAMETER(fish__M__2);
     PARAMETER(fish__M__3);
     PARAMETER(fish__M__4);
     PARAMETER(fish__M__5);
-    std::map<std::tuple<int>, Type*> fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}};
+    std::map<std::tuple<int>, Type*> pt__fish__M = {{std::make_tuple(1), &fish__M__1}, {std::make_tuple(2), &fish__M__2}, {std::make_tuple(3), &fish__M__3}, {std::make_tuple(4), &fish__M__4}, {std::make_tuple(5), &fish__M__5}};
     PARAMETER(init__F);
     PARAMETER(recage);
     PARAMETER(fish__walpha);
@@ -110,7 +110,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__2021);
     PARAMETER(fish__rec__2022);
     PARAMETER(fish__rec__2023);
-    std::map<std::tuple<int>, Type*> fish__rec = {{std::make_tuple(1979), &fish__rec__1979}, {std::make_tuple(1980), &fish__rec__1980}, {std::make_tuple(1981), &fish__rec__1981}, {std::make_tuple(1982), &fish__rec__1982}, {std::make_tuple(1983), &fish__rec__1983}, {std::make_tuple(1984), &fish__rec__1984}, {std::make_tuple(1985), &fish__rec__1985}, {std::make_tuple(1986), &fish__rec__1986}, {std::make_tuple(1987), &fish__rec__1987}, {std::make_tuple(1988), &fish__rec__1988}, {std::make_tuple(1989), &fish__rec__1989}, {std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}, {std::make_tuple(2001), &fish__rec__2001}, {std::make_tuple(2002), &fish__rec__2002}, {std::make_tuple(2003), &fish__rec__2003}, {std::make_tuple(2004), &fish__rec__2004}, {std::make_tuple(2005), &fish__rec__2005}, {std::make_tuple(2006), &fish__rec__2006}, {std::make_tuple(2007), &fish__rec__2007}, {std::make_tuple(2008), &fish__rec__2008}, {std::make_tuple(2009), &fish__rec__2009}, {std::make_tuple(2010), &fish__rec__2010}, {std::make_tuple(2011), &fish__rec__2011}, {std::make_tuple(2012), &fish__rec__2012}, {std::make_tuple(2013), &fish__rec__2013}, {std::make_tuple(2014), &fish__rec__2014}, {std::make_tuple(2015), &fish__rec__2015}, {std::make_tuple(2016), &fish__rec__2016}, {std::make_tuple(2017), &fish__rec__2017}, {std::make_tuple(2018), &fish__rec__2018}, {std::make_tuple(2019), &fish__rec__2019}, {std::make_tuple(2020), &fish__rec__2020}, {std::make_tuple(2021), &fish__rec__2021}, {std::make_tuple(2022), &fish__rec__2022}, {std::make_tuple(2023), &fish__rec__2023}};
+    std::map<std::tuple<int>, Type*> pt__fish__rec = {{std::make_tuple(1979), &fish__rec__1979}, {std::make_tuple(1980), &fish__rec__1980}, {std::make_tuple(1981), &fish__rec__1981}, {std::make_tuple(1982), &fish__rec__1982}, {std::make_tuple(1983), &fish__rec__1983}, {std::make_tuple(1984), &fish__rec__1984}, {std::make_tuple(1985), &fish__rec__1985}, {std::make_tuple(1986), &fish__rec__1986}, {std::make_tuple(1987), &fish__rec__1987}, {std::make_tuple(1988), &fish__rec__1988}, {std::make_tuple(1989), &fish__rec__1989}, {std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}, {std::make_tuple(2001), &fish__rec__2001}, {std::make_tuple(2002), &fish__rec__2002}, {std::make_tuple(2003), &fish__rec__2003}, {std::make_tuple(2004), &fish__rec__2004}, {std::make_tuple(2005), &fish__rec__2005}, {std::make_tuple(2006), &fish__rec__2006}, {std::make_tuple(2007), &fish__rec__2007}, {std::make_tuple(2008), &fish__rec__2008}, {std::make_tuple(2009), &fish__rec__2009}, {std::make_tuple(2010), &fish__rec__2010}, {std::make_tuple(2011), &fish__rec__2011}, {std::make_tuple(2012), &fish__rec__2012}, {std::make_tuple(2013), &fish__rec__2013}, {std::make_tuple(2014), &fish__rec__2014}, {std::make_tuple(2015), &fish__rec__2015}, {std::make_tuple(2016), &fish__rec__2016}, {std::make_tuple(2017), &fish__rec__2017}, {std::make_tuple(2018), &fish__rec__2018}, {std::make_tuple(2019), &fish__rec__2019}, {std::make_tuple(2020), &fish__rec__2020}, {std::make_tuple(2021), &fish__rec__2021}, {std::make_tuple(2022), &fish__rec__2022}, {std::make_tuple(2023), &fish__rec__2023}};
     PARAMETER(fish__rec__scalar);
     PARAMETER(fish__rec__sd);
     DATA_SCALAR(adist_surveyindices_log_dist_si_cpue_weight__lower);
@@ -540,7 +540,7 @@ Type objective_function<Type>::operator() () {
 
                 auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
 
-                auto factor = (fish__init__scalar*map_extras::at_throw(fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
+                auto factor = (fish__init__scalar*map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                 {
                     fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -709,7 +709,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
+                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
             }
         }
         {
@@ -748,7 +748,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (map_extras::at_def(fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
+            auto factor = (map_extras::at_def(pt__fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
 
             {
                 // g3a_renewal for fish;
