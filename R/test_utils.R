@@ -157,7 +157,7 @@ vignette_test_output <- function (vign_name, model_code, params.out, tolerance =
         unittest::ok(all(!is.na(r[[n]])), paste0(n, ": No NaN values"))
 
         capture.output(
-            print(signif(drop(r[[n]]), 4)),
+            print(signif(drop(r[[n]]), 4), width = 1e4),
             file = paste0(out_base, '.', n))
     }
 }
