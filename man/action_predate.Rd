@@ -149,6 +149,12 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 
     NB: Currently cannot generate arrays for time-varying suitabilities.
   }
+  \item{by_stock}{
+    Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.
+  }
+  \item{by_predator}{
+    Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.
+  }
   \item{run_f}{
     \link{formula} specifying a condition for running this action, default always runs.
   }
