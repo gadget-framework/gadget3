@@ -43,11 +43,13 @@ g3a_predate_maxconsumption(
 g3a_predate_catchability_predator(
         prey_preferences = 1,
         energycontent = g3_parameterized('energycontent', value = 1,
-            by_stock = TRUE, optimise = FALSE),
+            by_stock = by_stock, optimise = FALSE),
         half_feeding_f = g3_parameterized('halffeeding',
-            by_predator = TRUE, optimise = FALSE),
+            by_predator = by_predator, optimise = FALSE),
         max_consumption = g3a_predate_maxconsumption(temperature = temperature),
-        temperature = 0 )
+        temperature = 0,
+        by_predator = TRUE,
+        by_stock = TRUE )
 
 g3a_predate(
         predstock,

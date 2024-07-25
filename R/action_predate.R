@@ -118,11 +118,13 @@ g3a_predate_maxconsumption <- function (
 g3a_predate_catchability_predator <- function (
         prey_preferences = 1,
         energycontent = g3_parameterized('energycontent', value = 1,
-            by_stock = TRUE, optimise = FALSE),
+            by_stock = by_stock, optimise = FALSE),
         half_feeding_f = g3_parameterized('halffeeding',
-            by_predator = TRUE, optimise = FALSE),
+            by_predator = by_predator, optimise = FALSE),
         max_consumption = g3a_predate_maxconsumption(temperature = temperature),
-        temperature = 0) {
+        temperature = 0,
+        by_predator = TRUE,
+        by_stock = TRUE ) {
     list(
         suit_unit = "energy content",
         suit = g3_formula(
