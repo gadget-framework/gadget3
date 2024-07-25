@@ -128,7 +128,7 @@ vignette_base_dir <- function (extra) {
     return(file.path(tools::file_path_as_absolute(out), extra))
 }
 
-vignette_test_output <- function (vign_name, model_code, params.out) {
+vignette_test_output <- function (vign_name, model_code, params.out, tolerance = 1.5e-5) {
     out_base <- vignette_base_dir(vign_name)
     writeLines(model_code, con = paste0(out_base, ".cpp"))
 
@@ -146,7 +146,7 @@ vignette_test_output <- function (vign_name, model_code, params.out) {
         model_fn,
         model_code,
         params.out$value,
-        tolerance = 1.5e-5 )
+        tolerance = tolerance )
 
     tbl <- utils::read.table(paste0(out_base, ".params"))
     params.baseline <- params.out
