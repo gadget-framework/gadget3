@@ -200,12 +200,12 @@ g3a_predate <- function (
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
-        out[[step_id(run_at, 0, 0, stock)]] <- g3_step(~{
+        out[[step_id(run_at, "g3a_predate", 0, 0, stock)]] <- g3_step(~{
             stock_with(stock, stock__totalpredate[] <- 0)
         })
 
         # NB: A stock might be a predstock elsewhere, so give this a separate ID.
-        out[[step_id(run_at, 0, 1, predstock)]] <- g3_step(~{
+        out[[step_id(run_at, "g3a_predate", 0, 1, predstock)]] <- g3_step(~{
             stock_with(predstock, predstock__totalsuit[] <- 0)
         })
 
@@ -228,7 +228,7 @@ g3a_predate <- function (
             # suitrep is a constant
             environment(catchability)$suitability <- g3_step(~stock_with(suitrep, stock_ss(suitrep__report, vec = single)), recursing = TRUE)
         }
-        out[[step_id(run_at, 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate", 1, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_label("g3a_predate for ", predstock, " predating ", stock)
             stock_with(predprey, predprey__suit[] <- 0)
 
@@ -253,7 +253,7 @@ g3a_predate <- function (
         }
 
         # After all prey is collected (not just this stock), scale by total expected, update catch params
-        out[[step_id(run_at, 2, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate", 2, predstock, stock, action_name)]] <- g3_step(f_substitute(~{
             debug_trace("Scale ", predstock, " catch of ", stock, " by total expected catch")
             stock_with(predprey, predprey__cons[] <- 0)
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
@@ -274,7 +274,7 @@ g3a_predate <- function (
             run_f = run_f )))
 
         # Overconsumption: Prey adjustments
-        out[[step_id(run_at, 4, stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate", 4, stock)]] <- g3_step(f_substitute(~{
             debug_trace("Calculate ", stock, " overconsumption coefficient")
             stock_with(stock, {
                 debug_trace("Apply overconsumption to ", stock)
@@ -302,7 +302,7 @@ g3a_predate <- function (
             end = NULL)))
 
         # Overconsumption: Scale predprey_cons by the overconsumption rate
-        out[[step_id(run_at, 5, predstock, stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate", 5, predstock, stock)]] <- g3_step(f_substitute(~{
             stock_with(stock, stock_with(predprey, if (run_f) {
                 debug_trace("Apply overconsumption to ", predprey, "__cons")
                 # Rough equivalent fleetpreyaggregator.cc:109
@@ -364,7 +364,7 @@ g3a_predate_fleet <- function (fleet_stock,
         predstock_var <- as.symbol(paste0('stock__predby_', predstock$name))
         assign(as.character(predstock_var), g3_stock_instance(stock, desc = paste0("Total biomass of ", stock$name, " captured by ", predstock$name)))
 
-        out[[step_id(run_at, 99, predstock, stock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate", 99, predstock, stock)]] <- g3_step(f_substitute(~{
             stock_with(stock, stock__predby_predstock[] <- 0)
             stock_iterate(predstock, stock_with(stock, stock_with(predprey, {
                 # NB: cons_ss may have dropped more dimensions than we've bargained for, e.g. prey_area, so may not be an exact match

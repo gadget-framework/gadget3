@@ -33,7 +33,7 @@ g3a_predate_tagrelease <- function (
         predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
         # Move captured stock back into tagged dimension
-        out[[step_id(run_at, 11, stock, predstock)]] <- g3_step(f_substitute(~{
+        out[[step_id(run_at, "g3a_predate_tagrelease", 11, stock, predstock)]] <- g3_step(f_substitute(~{
             debug_label("Release ", stock, " caught by ", predstock, " with tags")
 
             stock_iterate(stock, stock_intersect(fleet_stock, stock_with(predprey, if (run_f) g3_with(
