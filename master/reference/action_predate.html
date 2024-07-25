@@ -112,11 +112,13 @@
 <span><span class="fu">g3a_predate_catchability_predator</span><span class="op">(</span></span>
 <span>        prey_preferences <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        energycontent <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'energycontent'</span>, value <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>            by_stock <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>        half_feeding_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'halffeeding'</span>,</span>
-<span>            by_predator <span class="op">=</span> <span class="cn">TRUE</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>            by_predator <span class="op">=</span> <span class="va">by_predator</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>        max_consumption <span class="op">=</span> <span class="fu">g3a_predate_maxconsumption</span><span class="op">(</span>temperature <span class="op">=</span> <span class="va">temperature</span><span class="op">)</span>,</span>
-<span>        temperature <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span>
+<span>        temperature <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        by_predator <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_predate</span><span class="op">(</span></span>
 <span>        <span class="va">predstock</span>,</span>
