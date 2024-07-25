@@ -141,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x5577518498f0&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x557d5b4d4de8&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -178,8 +178,8 @@ an R function:</p>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x557752e5cf48&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5577526727d0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557d5cae66e0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d5c2fa2b8&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -237,14 +237,14 @@ reached. For example:</p>
 <span><span class="co">##     cur_step_size &lt;- step_lengths[[cur_step]]/12</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55774ec084a8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d588777f0&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $`001`</span></span>
 <span><span class="co">## ~{</span></span>
 <span><span class="co">##     if (cur_time &gt; total_steps) </span></span>
 <span><span class="co">##         return(nll)</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55775341f5b0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x557d5d0a6e28&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -299,8 +299,8 @@ code.</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55774d1db070&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5577516915f0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557d56652888&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d5b313d38&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
@@ -355,8 +355,8 @@ model. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55775182ff00&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55774ecec7a8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557d5b4a9740&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d589687a0&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -583,8 +583,8 @@ example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x557750838a98&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55774c105298&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557d59cb8a70&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d55d89188&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -753,8 +753,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55775282eca8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55774feb0f08&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557d5c46d150&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557d597d12c8&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>
@@ -835,14 +835,14 @@ for example:</p>
 <span>                <span class="op">~</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">'ling.lln.l50'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>        catchability_f <span class="op">=</span> <span class="fu"><a href="../reference/action_predate.html">g3a_predate_catchability_totalfleet</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">action</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "003:002:lln                 :ling_imm            :be1c9cb11c841a862f53"  </span></span>
-<span><span class="co">## [2] "003:004:ling_imm            "                                            </span></span>
-<span><span class="co">## [3] "000:000:g3a_suitability_report:lln                 :ling_imm            "</span></span>
-<span><span class="co">## [4] "003:005:lln                 :ling_imm            "                       </span></span>
-<span><span class="co">## [5] "003:000:000:ling_imm            "                                        </span></span>
-<span><span class="co">## [6] "003:000:001:lln                 "                                        </span></span>
-<span><span class="co">## [7] "003:001:lln                 :ling_imm            :be1c9cb11c841a862f53"  </span></span>
-<span><span class="co">## [8] "003:099:lln                 :ling_imm            "</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "000:000:g3a_suitability_report:lln                 :ling_imm            "                   </span></span>
+<span><span class="co">## [2] "003:g3a_predate         :005:lln                 :ling_imm            "                     </span></span>
+<span><span class="co">## [3] "003:g3a_predate         :004:ling_imm            "                                          </span></span>
+<span><span class="co">## [4] "003:g3a_predate         :000:000:ling_imm            "                                      </span></span>
+<span><span class="co">## [5] "003:g3a_predate         :000:001:lln                 "                                      </span></span>
+<span><span class="co">## [6] "003:g3a_predate         :001:lln                 :ling_imm            :be1c9cb11c841a862f53"</span></span>
+<span><span class="co">## [7] "003:g3a_predate         :002:lln                 :ling_imm            :be1c9cb11c841a862f53"</span></span>
+<span><span class="co">## [8] "003:g3a_predate         :099:lln                 :ling_imm            "</span></span></code></pre>
 <p>We see each step has a colon-separated name, including the following
 parts:</p>
 <ul>
