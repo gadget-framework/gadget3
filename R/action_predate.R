@@ -159,6 +159,20 @@ g3a_predate <- function (
     out <- new.env(parent = emptyenv())
     action_name <- unique_action_name()
 
+    # If predstock is a list, run g3a_predate against everything in turn
+    if (!g3_is_stock(predstock) && is.list(predstock)) {
+        attributes(predstock) <- NULL  # Can't have names polluting the ordering
+        return(g3_collate(lapply(predstock, function (s) g3a_predate(
+            s,
+            prey_stocks,
+            suitabilities,
+            catchability_f,
+            overconsumption_f = overconsumption_f,
+            report_suitability = report_suitability,
+            run_f = run_f,
+            run_at = run_at ))))
+    }
+
     # Variables used:
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Proportion of total prey biomass to be consumed, capped by overconsumption rule

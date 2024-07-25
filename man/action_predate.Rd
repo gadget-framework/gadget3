@@ -76,7 +76,8 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
 
 \arguments{
   \item{predstock, fleet_stock}{
-    \code{\link{g3_stock}} that describes the harvesting predators/fleet.
+    \code{\link{g3_stock}} that describes the harvesting predators/fleet,
+    or a list of \code{\link{g3_stock}} objects, in which case \code{\link{g3a_predate}} will be run for each in turn.
   }
   \item{prey_stocks}{
     List of \code{\link{g3_stock}}s that maturing \var{stock} should move into.

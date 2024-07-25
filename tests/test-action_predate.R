@@ -27,7 +27,7 @@ predate_action <- g3a_predate_fleet(
     1,
     g3a_predate_catchability_totalfleet(10) )
 ok(ut_cmp_identical(
-    attr(environment(predate_action[[1]])$prey_a_fleet_ab__suit, 'desc'),
+    attr(environment(gadget3:::g3_collate(predate_action)[[4]])$prey_a_fleet_ab__suit, 'desc'),
     "Suitable prey_a_fleet_ab by total biomass"), "prey_a_fleet_ab__suit: Got a sensible description")
 predate_action <- g3a_predate_fleet(
     fleet_ab,
@@ -35,7 +35,7 @@ predate_action <- g3a_predate_fleet(
     1,
     g3a_predate_catchability_numberfleet(10) )
 ok(ut_cmp_identical(
-    attr(environment(predate_action[[1]])$prey_a_fleet_ab__suit, 'desc'),
+    attr(environment(gadget3:::g3_collate(predate_action)[[4]])$prey_a_fleet_ab__suit, 'desc'),
     "Suitable prey_a_fleet_ab by number of individuals"), "prey_a_fleet_ab__suit: Got a sensible description")
 ############ g3a_predate_fleet __suit description
 
@@ -151,6 +151,29 @@ actions <- list(
             REPORT(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
 actions <- c(actions, list(g3a_report_history(actions, ".*__cons$")))
+
+ok_group("g3a_predate:predstock_list", {
+    stocks_rin <- list(
+        male = g3_stock(c(species = "rin", sex = "m"), seq(3, 18, 3)),
+        female = g3_stock(c(species = "rin", sex = "f"), seq(3, 18, 3)) )
+    stocks_ven <- list(
+        imm = g3_stock(c(species = "ven", "imm"), seq(3, 18, 3)),
+        mat = g3_stock(c(species = "ven", "mat"), seq(3, 18, 3)) )
+
+    ok(ut_cmp_identical(
+        unattr(g3_to_desc(
+            g3a_predate(
+                stocks_rin,
+                stocks_ven,
+                suitabilities = g3_suitability_constant(),
+                catchability_f = g3a_predate_catchability_predator() ))),
+        c(
+            "g3a_predate for rin_f predating ven_imm",
+            "g3a_predate for rin_f predating ven_mat",
+            "g3a_predate for rin_m predating ven_imm",
+            "g3a_predate for rin_m predating ven_mat",
+            NULL)), "g3_to_desc: Generated actions for both rim_m & rin_f")
+})
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
