@@ -85,6 +85,9 @@ export(g3_action_order)
 # R/action_time.R
 export(g3a_time)
 
+# R/action_weightloss.R
+export(g3a_weightloss)
+
 # R/eval.R
 export(g3_eval)
 
