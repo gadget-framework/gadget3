@@ -754,7 +754,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
                     {
-                        // Take predprey__cons weight, convert to individuals, add to our count;
+                        // Convert ling_imm_igfs to num;
                         cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
                     }
                 }
@@ -773,7 +773,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
                     {
-                        // Take predprey__cons weight, convert to individuals, add to our count;
+                        // Convert ling_mat_igfs to num;
                         cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
                     }
                 }

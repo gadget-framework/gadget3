@@ -586,7 +586,7 @@ Type objective_function<Type>::operator() () {
                     auto adist_surveyindices_log_acoustic_dist_model__time_idx = intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( adist_surveyindices_log_acoustic_dist_model__time_idx >= 0 ) {
-                        // Take fish total biomass to our count;
+                        // Convert fish to wgt;
                         adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx).col(adist_surveyindices_log_acoustic_dist_model__time_idx) += ((matrix<Type>)(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix.matrix() * ((fish__num.col(fish__age_idx).col(fish__area_idx)*fish__wgt.col(fish__age_idx).col(fish__area_idx))).matrix())).vec();
                     }
                 }
@@ -640,7 +640,7 @@ Type objective_function<Type>::operator() () {
                     auto cdist_sumofsquares_comm_ldist_model__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year*100 + cur_step*0), -1) - 1;
 
                     if ( cdist_sumofsquares_comm_ldist_model__time_idx >= 0 ) {
-                        // Take predprey__cons weight, add to our count;
+                        // Convert fish_comm to wgt;
                         cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) += ((matrix<Type>)(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix.matrix() * (fish_comm__cons.col(fish__age_idx).col(fish__area_idx)).matrix())).vec();
                     }
                 }

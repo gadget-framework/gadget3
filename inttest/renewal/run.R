@@ -42,6 +42,7 @@ setwd(oldwd)
 g2_lingimm <- Rgadget::read.gadget.file('inttest/renewal', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
+g2_lingimm <- list(number = g2_lingimm$obs_array$num, weight = g2_lingimm$obs_array$wgt)
 
 for (t in seq_len(dim(g3_r$hist_lingimm__num)['time'])) {
     ok(all.equal(

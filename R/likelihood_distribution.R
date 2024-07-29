@@ -149,13 +149,7 @@ g3_distribution_preview <- function (
         area_group = area_group,
         model_history = "" )
 
-    if (!is.null(ld$number)) {
-        out <- ld$number
-    } else if (!is.null(ld$weight)) {
-        out <- ld$weight
-    } else {
-        stop('obs_data should contain either a number column or weight column')
-    }
+    out <- ld$obs_arrays[[1]]
 
     # Attach any maps present in output
     for (i in seq_along(ld$maps)) {
@@ -269,13 +263,11 @@ g3l_distribution <- function (
     ld <- g3l_likelihood_data(nll_name, obs_data, missing_val = missing_val, area_group = area_group, model_history = model_history, all_stocks = stocks, all_fleets = fleets, all_predators = predators)
     modelstock <- ld$modelstock
     obsstock <- ld$obsstock
-    if (!is.null(ld$number)) {
-        modelstock__num <- g3_stock_instance(modelstock, 0)
-        obsstock__num <- g3_stock_instance(obsstock, ld$number)
-    }
-    if (!is.null(ld$weight)) {
-        modelstock__wgt <- g3_stock_instance(modelstock, 0)
-        obsstock__wgt <- g3_stock_instance(obsstock, ld$weight)
+
+    # Add arrays we'll be saving into to environment
+    for (obs_name in names(ld$obs_arrays)) {
+        assign(paste0("modelstock__", obs_name), g3_stock_instance(modelstock, 0))
+        assign(paste0("obsstock__", obs_name), g3_stock_instance(obsstock, ld$obs_arrays[[obs_name]]))
     }
 
     # If no fleets/predators, set predstock = NULL, otherwise iterate over fleets
@@ -287,20 +279,20 @@ g3l_distribution <- function (
         predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
 
         collect_fs <- list()
-        for (cf_name in c('number', 'weight')) {
-            # If not collecting by this variable, skip
-            if (is.null(ld[[cf_name]])) next
-
+        for (obs_name in names(ld$obs_arrays)) {
             # Find appropriate formula to start with
             if (is.null(predstock)) {
-                collect_fs[[cf_name]] <- list(
-                    number = quote( stock_ss(prey_stock__num) ),
-                    weight = quote( stock_ss(prey_stock__num) * stock_ss(prey_stock__wgt) ))[[cf_name]]
+                collect_fs[[obs_name]] <- list(
+                    num = quote( stock_ss(prey_stock__num) ),
+                    wgt = quote( stock_ss(prey_stock__num) * stock_ss(prey_stock__wgt) ),
+                    end = NULL )[[obs_name]]
             } else {
-                collect_fs[[cf_name]] <- list(
-                    number = quote( stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)) ),
-                    weight = quote( stock_ss(predprey__cons) ))[[cf_name]]
+                collect_fs[[obs_name]] <- list(
+                    num = quote( stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)) ),
+                    wgt = quote( stock_ss(predprey__cons) ),
+                    end = NULL )[[obs_name]]
             }
+            if (is.null(collect_fs[[obs_name]])) stop("Unknown column in likelihood data ", obs_name)
 
             # Wrap collection in any transformations
             for (tf_index in seq_along(transform_fs)) {
@@ -309,11 +301,11 @@ g3l_distribution <- function (
 
                 if (tf_name == 'length') {
                     # Matrix-multiply length
-                    collect_fs[[cf_name]] <- f_substitute(quote(as.vector(transform_f %*% collect_f)), list(
+                    collect_fs[[obs_name]] <- f_substitute(quote(as.vector(transform_f %*% collect_f)), list(
                         transform_f = transform_f,
-                        collect_f = collect_fs[[cf_name]] ))
+                        collect_f = collect_fs[[obs_name]] ))
                 } else if (tf_name == 'age') {
-                    collect_fs[[cf_name]] <- call_replace(collect_fs[[cf_name]], stock_ss = function (x) {
+                    collect_fs[[obs_name]] <- call_replace(collect_fs[[obs_name]], stock_ss = function (x) {
                         # Modify age subset to use previous value
                         # NB: By setting the iterator to preage, we may remove mentions of __age_idx,
                         #     which will cause stock_iterate() to not loop over age. Force this by
@@ -321,44 +313,36 @@ g3l_distribution <- function (
                         x[['age']] <- quote( prey_stock__preage_idx + 0 * prey_stock__age_idx )
                         return(x)
                     })
-                    collect_fs[[cf_name]] <- f_substitute(quote(transform_f * collect_f), list(
+                    collect_fs[[obs_name]] <- f_substitute(quote(transform_f * collect_f), list(
                         transform_f = transform_f,
-                        collect_f = collect_fs[[cf_name]] ))
+                        collect_f = collect_fs[[obs_name]] ))
                 } else {
                     stop("Transforms for ", tf_name, " dimensions not supported yet")
                 }
             }
 
             # Collect into modelstock__x
-            if (is.null(predstock)) {
-                collect_comment_f <- list(
-                    number = quote( debug_trace("Add ", prey_stock, " individuals to our count") ),
-                    weight = quote( debug_trace("Take ", prey_stock, " total biomass to our count") ) )[[cf_name]]
-            } else {
-                collect_comment_f <- list(
-                    number = quote( debug_trace("Take predprey__cons weight, convert to individuals, add to our count") ),
-                    weight = quote( debug_trace("Take predprey__cons weight, add to our count") ) )[[cf_name]]
-            }
-            collect_fs[[cf_name]] <- f_substitute(~{
-                collect_comment_f
+            collect_fs[[obs_name]] <- f_substitute(~{
+                debug_trace("Convert ", input_stock, " to ", obs_name)
                 stock_ss(modelstock__x) <- stock_ss(modelstock__x) + stock_reshape(modelstock, collect_f)
             }, list(
-                modelstock__x = list(number = quote(modelstock__num), weight = quote(modelstock__wgt))[[cf_name]],
-                collect_comment_f = collect_comment_f,
-                collect_f = collect_fs[[cf_name]] ))
+                input_stock = if (is.null(predstock)) quote(prey_stock) else quote(predprey),
+                obs_name = obs_name,
+                modelstock__x = as.symbol(paste0("modelstock__", obs_name)),
+                collect_f = collect_fs[[obs_name]] ))
 
             # Surround with any extra loops
             for (tf_index in seq_along(transform_fs)) {
                 tf_name <- names(transform_fs)[[tf_index]]
 
                 if (tf_name == 'age') {
-                    collect_fs[[cf_name]] <- f_substitute(stock$interact$age, list(
+                    collect_fs[[obs_name]] <- f_substitute(stock$interact$age, list(
                         # NB: Rename iterators so we can loop twice over age
                         interactvar_age = quote( preage ),
                         stock__age_idx = quote( stock__preage_idx ),
-                        extension_point = collect_fs[[cf_name]] ))
-                    collect_fs[[cf_name]] <- f_substitute(quote( stock_with(stock, collect_f) ), list(
-                        collect_f = collect_fs[[cf_name]] ))
+                        extension_point = collect_fs[[obs_name]] ))
+                    collect_fs[[obs_name]] <- f_substitute(quote( stock_with(stock, collect_f) ), list(
+                        collect_f = collect_fs[[obs_name]] ))
                 }
             }
         }
@@ -380,8 +364,9 @@ g3l_distribution <- function (
 
     nllstock <- g3_storage(paste("nll", nll_name, sep = "_"))
     if (nll_breakdown) nllstock <- g3s_modeltime(nllstock)
-    if (!is.null(ld$number)) nllstock__num <- g3_stock_instance(nllstock, 0)
-    if (!is.null(ld$weight)) nllstock__wgt <- g3_stock_instance(nllstock, 0)
+    for (obs_name in names(ld$obs_arrays)) {
+        assign(paste0("nllstock__", obs_name), g3_stock_instance(nllstock, 0))
+    }
     nllstock__weight <- g3_stock_instance(nllstock, 0)
     nll <- 0.0
 
@@ -407,59 +392,47 @@ g3l_distribution <- function (
         report = report,
         weight = weight)))
 
-    if (!is.null(ld$number)) {
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 3, 'num')]] <-
-            generic_var_replace(compare_f, 'num')
-    }
-
-    if (!is.null(ld$weight)) {
-        out[[step_id(run_at, 'g3l_distribution', nll_name, 3, 'wgt')]] <-
-            generic_var_replace(compare_f, 'wgt')
+    for (obs_name in names(ld$obs_arrays)) {
+        out[[step_id(run_at, 'g3l_distribution', nll_name, 3, obs_name)]] <- generic_var_replace(compare_f, obs_name)
     }
 
     if (!report) return(as.list(out))
 
-    return(c(as.list(out),
-        if (!('modelstock__params' %in% names(environment(function_f)))) NULL else g3a_report_var(
-            "modelstock__params",
-            environment(function_f)$modelstock__params,
-            stock = modelstock,
-            out_prefix = NULL ),
-        if (is.null(ld$number)) NULL else g3a_report_var(
-            "obsstock__num",
-            obsstock__num,
-            stock = obsstock,
-            out_prefix = NULL ),
-        if (is.null(ld$number)) NULL else g3a_report_var(
-            "modelstock__num",
-            modelstock__num,
-            stock = modelstock,
-            out_prefix = NULL ),
-        if (is.null(ld$number)) NULL else g3a_report_var(
-            "nllstock__num",
-            nllstock__num,
-            stock = nllstock,
-            out_prefix = NULL ),
-        if (is.null(ld$weight)) NULL else g3a_report_var(
-            "obsstock__wgt",
-            obsstock__wgt,
-            stock = obsstock,
-            out_prefix = NULL ),
-        if (is.null(ld$weight)) NULL else g3a_report_var(
-            "modelstock__wgt",
-            modelstock__wgt,
-            stock = modelstock,
-            out_prefix = NULL ),
-        if (is.null(ld$weight)) NULL else g3a_report_var(
-            "nllstock__wgt",
-            nllstock__wgt,
-            stock = nllstock,
-            out_prefix = NULL ),
-        g3a_report_var(
-            "nllstock__weight",
-            nllstock__weight,
-            stock = nllstock,
-            out_prefix = NULL ),
+    return(c(
+        as.list(out),
+        lapply(names(ld$obs_arrays), function (obs_name) {
+            g3a_report_var(
+                paste0("obsstock__", obs_name),
+                get(paste0("obsstock__", obs_name)),
+                stock = obsstock,
+                out_prefix = NULL )
+        }),
+        lapply(names(ld$obs_arrays), function (obs_name) {
+            g3a_report_var(
+                paste0("modelstock__", obs_name),
+                get(paste0("modelstock__", obs_name)),
+                stock = modelstock,
+                out_prefix = NULL )
+        }),
+        lapply(names(ld$obs_arrays), function (obs_name) {
+            g3a_report_var(
+                paste0("nllstock__", obs_name),
+                get(paste0("nllstock__", obs_name)),
+                stock = nllstock,
+                out_prefix = NULL )
+        }),
+        list(
+            if (!('modelstock__params' %in% names(environment(function_f)))) NULL else g3a_report_var(
+                "modelstock__params",
+                environment(function_f)$modelstock__params,
+                stock = modelstock,
+                out_prefix = NULL ),
+            g3a_report_var(
+                "nllstock__weight",
+                nllstock__weight,
+                stock = nllstock,
+                out_prefix = NULL ),
+            NULL ),
         NULL))
 }
 g3l_catchdistribution <- g3l_distribution

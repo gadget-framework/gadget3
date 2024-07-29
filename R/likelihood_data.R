@@ -193,51 +193,29 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     full_table$Freq <- seq_len(nrow(full_table))
     full_table <- merge(full_table, data, all.x = TRUE)
 
-    if ('number' %in% names(full_table)) {
-        # TODO: More fancy NA-handling (i.e. random effects) goes here
+    # Assume everything other column is an observation
+    obs_arrays <- lapply(names(handled_columns), function (col_name) {
         if (identical(missing_val, 'stop')) {
-            if (any(is.na(full_table$number))) stop("Missing values in data")
+            if (any(is.na(full_table[[col_name]]))) stop("Missing values in data")
         } else {
             # Fill in missing values with given value
-            full_table$number[is.na(full_table$number)] <- missing_val
+            full_table[[col_name]][is.na(full_table[[col_name]])] <- missing_val
         }
-        # TODO: Stock_instance instead?
-        number_array <- array(full_table$number[order(full_table$Freq)],
+        return(array(full_table[[col_name]][order(full_table$Freq)],
             dim = obsstock$dim,
-            dimnames = obsstock$dimnames)
-        handled_columns$number <- NULL
-    } else {
-        number_array <- NULL
-    }
+            dimnames = obsstock$dimnames ))
+    })
+    if (length(obs_arrays) == 0) stop("Should be at least one observation in likelihood data")
 
-    if ('weight' %in% names(full_table)) {
-        # TODO: More fancy NA-handling (i.e. random effects) goes here
-        if (identical(missing_val, 'stop')) {
-            if (any(is.na(full_table$weight))) stop("Missing values in data")
-        } else {
-            # Fill in missing values with given value
-            full_table$weight[is.na(full_table$weight)] <- missing_val
-        }
-        # TODO: Stock_instance instead?
-        weight_array <- array(full_table$weight[order(full_table$Freq)],
-            dim = obsstock$dim,
-            dimnames = obsstock$dimnames)
-        handled_columns$weight <- NULL
-    } else {
-        weight_array <- NULL
-    }
+    # Rename old names to instance names we expect later
+    names(obs_arrays) <- gsub("^weight$", "wgt", gsub("^number$", "num", names(handled_columns)))
 
-    if (length(handled_columns) > 0) {
-        stop("Unrecognised columns in likelihood data: ", paste(names(handled_columns), collapse = ", "))
-    }
-    
     return(list(
         modelstock = modelstock,
         obsstock = obsstock,
         done_aggregating_f = if ('step' %in% names(data)) ~TRUE else ~cur_step_final,
         maps = maps,
-        number = number_array,
-        weight = weight_array,
+        obs_arrays = obs_arrays,
         nll_name = nll_name))
 }
 

@@ -53,15 +53,18 @@ setwd(oldwd)
 g2_lingimm <- Rgadget::read.gadget.file('inttest/understocking', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
+g2_lingimm <- list(number = g2_lingimm$obs_array$num, weight = g2_lingimm$obs_array$wgt)
 g2_lingmat <- Rgadget::read.gadget.file('inttest/understocking', 'lingmat.out')[[1]]
 names(g2_lingmat) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingmat <- gadget3:::g3l_likelihood_data('x', g2_lingmat)
+g2_lingmat <- list(number = g2_lingmat$obs_array$num, weight = g2_lingmat$obs_array$wgt)
 
 g2_igfs_imm <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingimm.predprey.out')[[1]][,1:7]
 names(g2_igfs_imm) <- c("year", "step", "area", "age", "length", "number", "weight")
 attr(g2_igfs_imm, 'age') <- list(all3 = 3:5)
 attr(g2_igfs_imm, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs_imm <- gadget3:::g3l_likelihood_data('x', g2_igfs_imm)
+g2_igfs_imm <- list(number = g2_igfs_imm$obs_array$num, weight = g2_igfs_imm$obs_array$wgt)
 dimnames(g2_igfs_imm$weight)$length[dim(g2_igfs_imm$weight)['length']] <- '156:Inf'
 
 g2_igfs_mat <- Rgadget::read.gadget.file('inttest/understocking', 'igfs.lingmat.predprey.out')[[1]][,1:7]
@@ -69,6 +72,7 @@ names(g2_igfs_mat) <- c("year", "step", "area", "age", "length", "number", "weig
 attr(g2_igfs_mat, 'age') <- list(all3 = 3:5)
 attr(g2_igfs_mat, 'length') <- Rgadget::read.gadget.file('inttest/understocking','Aggfiles/catchdistribution.ldist.igfs.len.agg')[[1]]
 g2_igfs_mat <- gadget3:::g3l_likelihood_data('x', g2_igfs_mat)
+g2_igfs_mat <- list(number = g2_igfs_mat$obs_array$num, weight = g2_igfs_mat$obs_array$wgt)
 dimnames(g2_igfs_mat$weight)$length[dim(g2_igfs_mat$weight)['length']] <- '156:Inf'
 
 g3_imm_biomass <- g3_r$hist_lingimm__num[,,,] * g3_r$hist_lingimm__wgt[,,,]

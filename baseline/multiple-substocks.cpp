@@ -1705,7 +1705,7 @@ Type objective_function<Type>::operator() () {
                     auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                     if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
-                        // Take fish_imm total biomass to our count;
+                        // Convert fish_imm to wgt;
                         adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx))).matrix())).vec();
                     }
                 }
@@ -1726,7 +1726,7 @@ Type objective_function<Type>::operator() () {
                     auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                     if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
-                        // Take fish_mat total biomass to our count;
+                        // Convert fish_mat to wgt;
                         adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx))).matrix())).vec();
                     }
                 }
@@ -1781,7 +1781,7 @@ Type objective_function<Type>::operator() () {
                         auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
 
                         {
-                            // Take predprey__cons weight, convert to individuals, add to our count;
+                            // Convert fish_imm_f_surv to num;
                             cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
                         }
                     }
@@ -1804,7 +1804,7 @@ Type objective_function<Type>::operator() () {
                         auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
 
                         {
-                            // Take predprey__cons weight, convert to individuals, add to our count;
+                            // Convert fish_mat_f_surv to num;
                             cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero_vec(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
                         }
                     }
@@ -1855,7 +1855,7 @@ Type objective_function<Type>::operator() () {
                 auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
-                    // Take predprey__cons weight, convert to individuals, add to our count;
+                    // Convert fish_imm_f_surv to num;
                     cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
                 }
             }
@@ -1872,7 +1872,7 @@ Type objective_function<Type>::operator() () {
                 auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
                 if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
-                    // Take predprey__cons weight, convert to individuals, add to our count;
+                    // Convert fish_mat_f_surv to num;
                     cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero_vec(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
                 }
             }

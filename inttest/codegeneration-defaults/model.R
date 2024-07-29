@@ -468,7 +468,7 @@ structure(function (param)
                   adist_surveyindices_log_acoustic_dist_model__area_idx <- (1L)
                   adist_surveyindices_log_acoustic_dist_model__time_idx <- intlookup_getdefault(adist_surveyindices_log_acoustic_dist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (adist_surveyindices_log_acoustic_dist_model__time_idx >= (1L)) {
-                    comment("Take fish total biomass to our count")
+                    comment("Convert fish to wgt")
                     adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] <- adist_surveyindices_log_acoustic_dist_model__wgt[, adist_surveyindices_log_acoustic_dist_model__time_idx, adist_surveyindices_log_acoustic_dist_model__area_idx] + as.vector(fish_adist_surveyindices_log_acoustic_dist_model_lgmatrix %*% (fish__num[, fish__area_idx, fish__age_idx] * fish__wgt[, fish__area_idx, fish__age_idx]))
                   }
                 }
@@ -514,7 +514,7 @@ structure(function (param)
                   cdist_sumofsquares_comm_ldist_model__area_idx <- (1L)
                   cdist_sumofsquares_comm_ldist_model__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_model__times, (cur_year * 100L + cur_step * 0L), -1L)
                   if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) {
-                    comment("Take predprey__cons weight, add to our count")
+                    comment("Convert fish_comm to wgt")
                     cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] <- cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx] + as.vector(fish_comm_cdist_sumofsquares_comm_ldist_model_lgmatrix %*% fish_comm__cons[, fish__area_idx, fish__age_idx])
                   }
                 }

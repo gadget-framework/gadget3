@@ -643,7 +643,7 @@ structure(function (param)
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
                   cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                   {
-                    comment("Take predprey__cons weight, convert to individuals, add to our count")
+                    comment("Convert ling_imm_igfs to num")
                     cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]))
                   }
                 }
@@ -658,7 +658,7 @@ structure(function (param)
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                   {
-                    comment("Take predprey__cons weight, convert to individuals, add to our count")
+                    comment("Convert ling_mat_igfs to num")
                     cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]))
                   }
                 }

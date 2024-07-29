@@ -42,9 +42,11 @@ setwd(oldwd)
 g2_lingimm <- Rgadget::read.gadget.file('inttest/maturity-continuous', 'lingimm.out')[[1]]
 names(g2_lingimm) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingimm <- gadget3:::g3l_likelihood_data('x', g2_lingimm)
+g2_lingimm <- list(number = g2_lingimm$obs_array$num, weight = g2_lingimm$obs_array$wgt)
 g2_lingmat <- Rgadget::read.gadget.file('inttest/maturity-continuous', 'lingmat.out')[[1]]
 names(g2_lingmat) <- c("year", "step", "area", "age", "length", "number", "weight")
 g2_lingmat <- gadget3:::g3l_likelihood_data('x', g2_lingmat)
+g2_lingmat <- list(number = g2_lingmat$obs_array$num, weight = g2_lingmat$obs_array$wgt)
 
 ok_group("Total numbers preserved", {
     g3_num_total <- colSums(colSums(g3_r$hist_lingimm__num[,1,,])) + colSums(colSums(g3_r$hist_lingmat__num[,1,,]))
