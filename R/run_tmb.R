@@ -904,6 +904,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         c('vector<Type>' = 'DATA_VECTOR', 'vector<int>' = 'DATA_IVECTOR',
                           'array<Type>' = 'DATA_ARRAY', 'array<int>' = 'DATA_IARRAY')[[cpp_type]],
                         '(', cpp_escape_varname(var_name) , ')')
+                    attr(var_val, "desc") <- NULL  # The desc break's TMB's type detection
                     assign(cpp_escape_varname(var_name), hide_force_vector(var_val), envir = model_data)
                 } else if (is.numeric(var_val[[1]]) && var_val[[1]] == 0) {  # NB: FALSE == 0
                     defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")
