@@ -7,9 +7,33 @@
 #       interact here means intersect over physical dimensions (area / time), and consider combinatoral explosion of rest (e.g. age)
 #       (prefix) is a string to distinguish between variables, e.g. if prefix = "prey", there will be age and prey_age variables.
 # - stock_with(stock, block) - Make sure any references to (stock) in (block) uses the right name
+# - stock_isdefined(var) - Make sure variable var is defined at this point (e.g. an iterator)
 # References to the stock will also be renamed to their final name
 g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
     stopifnot(rlang::is_formula(step_f))
+
+    # Traverse (in_c), converting stock_isdefined() to TRUE/FALSE, depending if it's var was found
+    resolve_stock_isdefined <- function (in_c, sym_names = c()) {
+        call_replace(in_c,
+            g3_with = function (x) {
+                # Find all assignments in g3_with(), add to list of things we're looking for
+                new_syms <- unlist(lapply(x, function (y) {
+                    if (is.call(y) && identical(y[[1]], as.symbol(":="))) as.character(y[[2]]) else NULL
+                }))
+                x[[length(x)]] <- resolve_stock_isdefined(x[[length(x)]], c(sym_names, new_syms))
+                return(x)
+            },
+            "for" = function (x) {
+                # Add iterator from for loop to things we're looking for
+                new_syms <- as.character(x[[2]])
+                x[[length(x)]] <- resolve_stock_isdefined(x[[length(x)]], c(sym_names, new_syms))
+                return(x)
+            },
+            stock_isdefined = function (x) {
+                # Replace with TRUE iff argument is in sym_names
+                return(as.character(x[[2]]) %in% sym_names)
+            })
+    }
 
     # For formula (f), rename all (old_name)__var variables to (new_name)__var, mangling environment to match
     stock_rename <- function(f, old_name, new_name) {
@@ -408,6 +432,9 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         }))
 
         if (!recursing) {
+            # Resolve stock_isdefined() calls to TRUE / FALSE
+            rv <- resolve_stock_isdefined(rv)
+
             # Add anything that's not a global_formula to this level
             rv <- add_dependent_formula(rv, TRUE, function (f) {
                 # Attach outer environment so items resolve

@@ -123,10 +123,14 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
         intersect = c(inner_stock$intersect, length = quote(
                 for (stock__length_idx in seq_along(stock__minlen)) {
-                    if (stock__minlen[[stock__length_idx]] <= length &&
-                            length < stock__maxlen[[stock__length_idx]]) {
-                        extension_point
-                        break
+                    if (stock_isdefined(length)) {
+                        if (stock__minlen[[stock__length_idx]] <= length &&
+                                length < stock__maxlen[[stock__length_idx]]) {
+                            extension_point
+                            break
+                        }
+                    } else {
+                        g3_with(length := stock__midlen[[stock__length_idx]], extension_point)
                     }
                 }
             )),

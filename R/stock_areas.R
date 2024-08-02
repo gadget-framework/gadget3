@@ -37,9 +37,16 @@ g3s_livesonareas <- function(inner_stock, areas) {
                     extension_point)
             )),
             intersect = c(inner_stock$intersect, area = quote(
-                 if (area == stock__area) g3_with(
-                     stock__area_idx := g3_idx(1L),
-                     extension_point)
+                if (stock_isdefined(area)) {
+                     if (area == stock__area) g3_with(
+                         stock__area_idx := g3_idx(1L),
+                         extension_point)
+                } else {
+                    g3_with(
+                        area := stock__area,
+                        stock__area_idx := g3_idx(1L),
+                        extension_point)
+                }
             )),
             interact = c(inner_stock$interact, area = quote(
                 if (area == stock__area) g3_with(
@@ -68,11 +75,17 @@ g3s_livesonareas <- function(inner_stock, areas) {
                     extension_point)
             )),
             intersect = c(inner_stock$intersect, area = quote(
-                for (stock__area_idx in seq_along(stock__areas)) {
-                    if (stock__areas[[stock__area_idx]] == area) {
-                        extension_point
-                        break
+                if (stock_isdefined(area)) {
+                    for (stock__area_idx in seq_along(stock__areas)) {
+                        if (stock__areas[[stock__area_idx]] == area) {
+                            extension_point
+                            break
+                        }
                     }
+                } else {
+                    for (stock__area_idx in seq_along(stock__areas)) g3_with(
+                        area := stock__areas[[stock__area_idx]],
+                        extension_point)
                 }
             )),
             interact = c(inner_stock$interact, area = quote(
@@ -123,9 +136,14 @@ g3s_areagroup <- function(inner_stock, areagroups) {
         )),
         iter_ss = c(inner_stock$iter_ss, area = as.symbol("stock__areagroup_idx")),
         intersect = c(inner_stock$intersect, area = substitute(
-            g3_with(
-                stock__areagroup_idx := g3_idx(lookup_code),
-                if (stock__areagroup_idx > g3_idx(-1L)) extension_point),
+            if (stock_isdefined(area)) {
+                g3_with(
+                    stock__areagroup_idx := g3_idx(lookup_code),
+                    if (stock__areagroup_idx > g3_idx(-1L)) extension_point)
+            } else {
+                for (stock__areagroup_idx in seq_along(stock__minareas)) g3_with(
+                    area := stock__minareas[[stock__areagroup_idx]], extension_point)
+            },
             list(lookup_code = rlang::f_rhs(lookup_f)))),
         interact = c(inner_stock$interact, area = substitute(
             g3_with(

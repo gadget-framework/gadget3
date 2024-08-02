@@ -465,3 +465,24 @@ ok_group("g3_step:stock_iterate", {
                             stock[halibut__length_idx, halibut__age_idx, halibut__area_idx])))
     )), "Can turn length back on & iterate over all dimensions")
 })
+
+ok_group("g3_step:stock_isdefined", {
+    ok(gadget3:::ut_cmp_code(gadget3:::g3_step(~{
+        if (stock_isdefined(gerald)) print("woo")
+    }), quote({
+    }), optimize = FALSE), "stock_isdefined alone")
+
+    ok(gadget3:::ut_cmp_code(gadget3:::g3_step(~{
+        for(gerald in 1:10) if (stock_isdefined(gerald)) print("woo")
+    }), quote(
+        for(gerald in 1:10) print("woo")
+    ), optimize = FALSE), "stock_isdefined nested in for")
+
+    ok(gadget3:::ut_cmp_code(gadget3:::g3_step(~{
+        g3_with(gerald := 1, archibald := 2, garibaldi := 3, if (stock_isdefined(gerald)) print("woo") else print("aw"))
+        g3_with(archibald := 2, garibaldi := 3, if (stock_isdefined(gerald)) print("woo") else print("aw"))
+    }), quote({
+        g3_with(gerald := 1, archibald := 2, garibaldi := 3, print("woo"))
+        g3_with(archibald := 2, garibaldi := 3, print("aw"))
+    }), optimize = FALSE), "stock_isdefined nested in g3_with, defines don't leak")
+})

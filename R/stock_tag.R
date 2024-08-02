@@ -31,11 +31,16 @@ g3s_tag <- function(inner_stock, tag_ids, force_untagged = TRUE) {
         iter_ss = c(inner_stock$iter_ss,
             tag = as.symbol("stock__tag_idx")),
         intersect = c(inner_stock$intersect, tag = quote(
-            for (stock__tag_idx in seq_along(stock__tag_ids)) {
-                if (stock__tag_ids[[stock__tag_idx]] == tag) {
-                    extension_point
-                    break
+            if (stock_isdefined(tag)) {
+                for (stock__tag_idx in seq_along(stock__tag_ids)) {
+                    if (stock__tag_ids[[stock__tag_idx]] == tag) {
+                        extension_point
+                        break
+                    }
                 }
+            } else {
+                for (stock__tag_idx in seq_along(stock__tag_ids)) g3_with(
+                    tag := stock__tag_ids[[stock__tag_idx]], extension_point)
             }
         )),
         interact = c(inner_stock$interact, tag = quote(
