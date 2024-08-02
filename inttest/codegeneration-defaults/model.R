@@ -529,15 +529,17 @@ structure(function (param)
                 if (cdist_sumofsquares_comm_ldist_model__time_idx >= (1L)) 
                   if (area == cdist_sumofsquares_comm_ldist_obs__area) {
                     cdist_sumofsquares_comm_ldist_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx]))
-                    cdist_sumofsquares_comm_ldist_obs__area_idx <- (1L)
-                    cdist_sumofsquares_comm_ldist_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
-                    if (cdist_sumofsquares_comm_ldist_obs__time_idx >= (1L)) {
-                      cdist_sumofsquares_comm_ldist_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]))
-                      cur_cdist_nll <- sum((((cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx]/cdist_sumofsquares_comm_ldist_model__sstotal) - (cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]/cdist_sumofsquares_comm_ldist_obs__sstotal))^2))
-                      {
-                        nll <- nll + param[["cdist_sumofsquares_comm_ldist_weight"]] * cur_cdist_nll
-                        nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] <- nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] + cur_cdist_nll
-                        nll_cdist_sumofsquares_comm_ldist__weight[cur_time + 1L] <- param[["cdist_sumofsquares_comm_ldist_weight"]]
+                    {
+                      cdist_sumofsquares_comm_ldist_obs__area_idx <- (1L)
+                      cdist_sumofsquares_comm_ldist_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
+                      if (cdist_sumofsquares_comm_ldist_obs__time_idx >= (1L)) {
+                        cdist_sumofsquares_comm_ldist_obs__sstotal <- avoid_zero(sum(cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]))
+                        cur_cdist_nll <- sum((((cdist_sumofsquares_comm_ldist_model__wgt[, cdist_sumofsquares_comm_ldist_model__time_idx, cdist_sumofsquares_comm_ldist_model__area_idx]/cdist_sumofsquares_comm_ldist_model__sstotal) - (cdist_sumofsquares_comm_ldist_obs__wgt[, cdist_sumofsquares_comm_ldist_obs__time_idx, cdist_sumofsquares_comm_ldist_obs__area_idx]/cdist_sumofsquares_comm_ldist_obs__sstotal))^2))
+                        {
+                          nll <- nll + param[["cdist_sumofsquares_comm_ldist_weight"]] * cur_cdist_nll
+                          nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] <- nll_cdist_sumofsquares_comm_ldist__wgt[cur_time + 1L] + cur_cdist_nll
+                          nll_cdist_sumofsquares_comm_ldist__weight[cur_time + 1L] <- param[["cdist_sumofsquares_comm_ldist_weight"]]
+                        }
                       }
                     }
                   }

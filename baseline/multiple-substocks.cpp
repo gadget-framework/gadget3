@@ -1050,16 +1050,18 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_mat__area_idx = 0;
 
-                if ( area == fish_imm__area ) {
+                {
                     auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                    auto fish_imm__area_idx = 0;
+                    if ( area == fish_imm__area ) {
+                        auto fish_imm__area_idx = 0;
 
-                    {
-                        fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm__transitioning_wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                        fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                        fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx) -= fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                        fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero_vec(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                        {
+                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm__transitioning_wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
+                            fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
+                            fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx) -= fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
+                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero_vec(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                        }
                     }
                 }
             }
@@ -1996,11 +1998,11 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_mat__area_idx = 0;
 
-                if ( area == fish_imm_movement__area ) {
-                    if ( cur_step_final ) {
-                        auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
+                {
+                    auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
 
-                        {
+                    if ( area == fish_imm_movement__area ) {
+                        if ( cur_step_final ) {
                             auto fish_imm_movement__area_idx = 0;
 
                             {

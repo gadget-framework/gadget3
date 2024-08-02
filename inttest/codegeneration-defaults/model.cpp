@@ -659,19 +659,21 @@ Type objective_function<Type>::operator() () {
                     if ( area == cdist_sumofsquares_comm_ldist_obs__area ) {
                         auto cdist_sumofsquares_comm_ldist_model__sstotal = avoid_zero((cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx)).sum());
 
-                        auto cdist_sumofsquares_comm_ldist_obs__area_idx = 0;
+                        {
+                            auto cdist_sumofsquares_comm_ldist_obs__area_idx = 0;
 
-                        auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year*100 + cur_step*0), -1) - 1;
+                            auto cdist_sumofsquares_comm_ldist_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_comm_ldist_obs__times, (cur_year*100 + cur_step*0), -1) - 1;
 
-                        if ( cdist_sumofsquares_comm_ldist_obs__time_idx >= 0 ) {
-                            auto cdist_sumofsquares_comm_ldist_obs__sstotal = avoid_zero((cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx)).sum());
+                            if ( cdist_sumofsquares_comm_ldist_obs__time_idx >= 0 ) {
+                                auto cdist_sumofsquares_comm_ldist_obs__sstotal = avoid_zero((cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx)).sum());
 
-                            auto cur_cdist_nll = ((pow(((cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) / cdist_sumofsquares_comm_ldist_model__sstotal) - (cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx) / cdist_sumofsquares_comm_ldist_obs__sstotal)), (Type)(double)(2)))).sum();
+                                auto cur_cdist_nll = ((pow(((cdist_sumofsquares_comm_ldist_model__wgt.col(cdist_sumofsquares_comm_ldist_model__area_idx).col(cdist_sumofsquares_comm_ldist_model__time_idx) / cdist_sumofsquares_comm_ldist_model__sstotal) - (cdist_sumofsquares_comm_ldist_obs__wgt.col(cdist_sumofsquares_comm_ldist_obs__area_idx).col(cdist_sumofsquares_comm_ldist_obs__time_idx) / cdist_sumofsquares_comm_ldist_obs__sstotal)), (Type)(double)(2)))).sum();
 
-                            {
-                                nll += cdist_sumofsquares_comm_ldist_weight*cur_cdist_nll;
-                                nll_cdist_sumofsquares_comm_ldist__wgt(cur_time + 1 - 1) += cur_cdist_nll;
-                                nll_cdist_sumofsquares_comm_ldist__weight(cur_time + 1 - 1) = cdist_sumofsquares_comm_ldist_weight;
+                                {
+                                    nll += cdist_sumofsquares_comm_ldist_weight*cur_cdist_nll;
+                                    nll_cdist_sumofsquares_comm_ldist__wgt(cur_time + 1 - 1) += cur_cdist_nll;
+                                    nll_cdist_sumofsquares_comm_ldist__weight(cur_time + 1 - 1) = cdist_sumofsquares_comm_ldist_weight;
+                                }
                             }
                         }
                     }

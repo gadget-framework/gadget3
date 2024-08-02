@@ -566,12 +566,12 @@ structure(function (param)
             {
                 area <- ling_mat__area
                 ling_mat__area_idx <- (1L)
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == ling_imm__area) 
-                  if (age >= ling_imm__minage && age <= ling_imm__maxage) 
-                    if (cur_step_final) {
-                      ling_mat__age_idx <- age - ling_mat__minage + 1L
-                      ling_imm__area_idx <- (1L)
-                      {
+                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == ling_imm__area) {
+                  ling_mat__age_idx <- age - ling_mat__minage + 1L
+                  {
+                    ling_imm__area_idx <- (1L)
+                    if (age >= ling_imm__minage && age <= ling_imm__maxage) 
+                      if (cur_step_final) {
                         ling_imm__age_idx <- age - ling_imm__minage + 1L
                         {
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx] * ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
@@ -580,7 +580,8 @@ structure(function (param)
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
                         }
                       }
-                    }
+                  }
+                }
             }
             comment("Move any unclaimed stock back to ling_imm")
             if (cur_step_final) 
@@ -641,10 +642,12 @@ structure(function (param)
                 ling_imm__area_idx <- (1L)
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
-                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                   {
-                    comment("Convert ling_imm_igfs to num")
-                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]))
+                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                    {
+                      comment("Convert ling_imm_igfs to num")
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]))
+                    }
                   }
                 }
             }
@@ -656,10 +659,12 @@ structure(function (param)
                 ling_mat__area_idx <- (1L)
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == cdist_sumofsquares_ldist_lln_model__area) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
-                  cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                   {
-                    comment("Convert ling_mat_igfs to num")
-                    cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]))
+                    cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                    {
+                      comment("Convert ling_mat_igfs to num")
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]))
+                    }
                   }
                 }
             }
@@ -670,8 +675,8 @@ structure(function (param)
                 {
                   area <- cdist_sumofsquares_ldist_lln_model__area
                   cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
+                  cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]))
                   if (area == cdist_sumofsquares_ldist_lln_obs__area) {
-                    cdist_sumofsquares_ldist_lln_model__sstotal <- avoid_zero(sum(cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx]))
                     cdist_sumofsquares_ldist_lln_obs__area_idx <- (1L)
                     cdist_sumofsquares_ldist_lln_obs__time_idx <- intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year * 100L + cur_step), -1L)
                     if (cdist_sumofsquares_ldist_lln_obs__time_idx >= (1L)) {
@@ -770,12 +775,12 @@ structure(function (param)
             {
                 area <- ling_mat__area
                 ling_mat__area_idx <- (1L)
-                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == ling_imm_movement__area) 
-                  if (age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage) 
-                    if (cur_step_final) {
-                      ling_mat__age_idx <- age - ling_mat__minage + 1L
-                      ling_imm_movement__area_idx <- (1L)
-                      {
+                for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (area == ling_imm_movement__area) {
+                  ling_mat__age_idx <- age - ling_mat__minage + 1L
+                  {
+                    ling_imm_movement__area_idx <- (1L)
+                    if (age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage) 
+                      if (cur_step_final) {
                         ling_imm_movement__age_idx <- age - ling_imm_movement__minage + 1L
                         {
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__age_idx, ling_imm_movement__area_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
@@ -783,7 +788,8 @@ structure(function (param)
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
                         }
                       }
-                    }
+                  }
+                }
             }
         }
     }
