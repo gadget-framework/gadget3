@@ -349,9 +349,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             "(", paste(inds, collapse=","), ")"))
     }
 
-    if (call_name %in% c('break', 'next')) {
+    if (call_name %in% c('break')) {
         # Flow-control
         return(call_name)
+    }
+
+    if (call_name %in% c('next')) {
+        # Flow-control
+        return("continue")
     }
 
     if (call_name %in% c('return')) {
