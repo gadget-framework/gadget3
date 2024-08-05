@@ -66,10 +66,22 @@ g3a_report_var <- function (
         # Array with time, we don't need to modify it
     } else if (is.null(out_prefix)) {
         # out_prefix turned off, don't add history
-    } else if (is.array(defn)) {
-        # Array without time, add time dimension to dims
-        dimnames <- dimnames(defn)
-        if (is.null(dimnames)) dimnames <- lapply(dim(defn), function (x) NULL)
+    } else if (is.array(defn) || is.numeric(defn)) {
+        # Numeric vector / array without time
+        if (is.array(defn)) {
+            inp_var_c <- if (!is.integer(defn)) call("as_numeric_arr", as.symbol(var_name)) else as.symbol(var_name)
+            dimnames <- dimnames(defn)
+            if (is.null(dimnames)) dimnames <- lapply(dim(defn), function (x) NULL)
+        } else {
+            inp_var_c <- if (!is.integer(defn)) call("as_numeric_vec", as.symbol(var_name)) else as.symbol(var_name)
+            # Make a vector of 0 the same size as the incoming vector
+            defn <- array(
+                if (is.integer(defn)) 0L else 0,
+                dim = c(vec = length(defn)) )
+            dimnames <- list(vec = names(defn))
+        }
+
+        # Add time dimension to dims
         dim(defn) <- c(dim(defn), time = 1)
         dimnames(defn) <- c(dimnames, list(time = NULL))
 
@@ -89,7 +101,7 @@ g3a_report_var <- function (
         # Generate code/env to define history report
         hist_var_name <- paste0(out_prefix, var_name)
         x <- f_substitute(quote(
-            if (run_f) hist_var_ss <- var
+            if (run_f) hist_var_ss <- inp_var_c
         ), list(
             hist_var_ss = as.call(c(
                 # "hist_var["
@@ -98,8 +110,8 @@ g3a_report_var <- function (
                 rep(list(quote(x[])[[3]]), length(dim(defn)) - 1),
                 # "cur_time", which is zero-based, needs converting into an index
                 list(quote( g3_idx(cur_time + 1) )))),
-            run_f = run_f,
-            var = if (is.integer(defn)) as.symbol(var_name) else call("as_numeric_arr", as.symbol(var_name))))
+            inp_var_c = inp_var_c,
+            run_f = run_f ))
         environment(x)[[hist_var_name]] <- if (is.integer(defn)) defn else as_force_numeric(defn)
 
         out[[step_id(run_at, 0, 'g3a_report_var', hist_var_name)]] <- x
