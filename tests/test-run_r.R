@@ -9,6 +9,8 @@ ok_group('edit.g3_r - Round-trip through an editor results in working code', {
         return(nll)
     }))
     model_fn_n <- edit(model_fn, editor = '/bin/true')
+    attr(model_fn, 'srcref') <- NULL
+    attr(model_fn, 'srcfile') <- NULL
     attr(model_fn_n, 'srcref') <- NULL
     attr(model_fn_n, 'srcfile') <- NULL
     ok(ut_cmp_identical(
@@ -31,7 +33,7 @@ ok_group('print.g3_r', {
         y = c(4, 5),
         x = g3_parameterized('parp') )))
     ok(ut_cmp_identical(cap(print(model_fn)), c(
-        "function (param) ",
+        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
@@ -43,7 +45,7 @@ ok_group('print.g3_r', {
         "<environment: xxx>",
         NULL)), "Default print output has code, no attributes")
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
-        "function (param) ",
+        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
@@ -128,4 +130,11 @@ ok_group('g3_param_table', {
     ok(ut_cmp_identical(grep('^par', names(params.in), value = TRUE), c(
         paste0('par.years.', 1990:2000, '_exp'),
         NULL)), "exponentiate prefix ends up at the end of parameters")
+})
+
+ok_group('parameter_template default', {
+    # By default we read arguments from the parameter_template
+    model_fn <- g3_to_r(~return(g3_param("archibald", value = 45)))
+    ok(ut_cmp_equal(model_fn(), 45), "Used default from parameter_template")
+    ok(ut_cmp_equal(model_fn(list(archibald = 99)), 99), "Override default")
 })

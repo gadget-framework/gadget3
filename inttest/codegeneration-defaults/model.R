@@ -1,4 +1,4 @@
-structure(function (param) 
+structure(function (param = attr(get(sys.call()[[1]]), "parameter_template")) 
 {
     stopifnot("retro_years" %in% names(param))
     stopifnot("fish.Linf" %in% names(param))
