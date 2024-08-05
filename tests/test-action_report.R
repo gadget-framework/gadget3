@@ -51,10 +51,14 @@ actions <- list(
     g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
     g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_age(prey_a),
+    "5:testreport_vec" = g3_formula({
+        testreport_vec <- testreport_vec + cur_time
+    }, testreport_vec = 1:4),
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num), include_adreport = TRUE),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
     list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
-actions <- c(actions, list(g3a_report_history(actions, '^prey_a__(num|wgt)')))
+actions <- c(actions, list(
+    g3a_report_history(actions, '^prey_a__(num|wgt|midlen)|^testreport_') ))
             
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
@@ -105,9 +109,12 @@ ok_group("report", {
          1:Inf   old 2002  280
     "), "agg_report__num: Aggregated report only has young/old")
 
-    ok(ut_cmp_identical(
-        grep('^hist_', names(r), value = TRUE),
-        c("hist_prey_a__num", "hist_prey_a__wgt")), "Logged history of numbers / weight (ignored reports though)")
+    ok(ut_cmp_identical(grep('^hist_', names(r), value = TRUE), c(
+        "hist_prey_a__midlen",
+        "hist_prey_a__num",
+        "hist_prey_a__wgt",
+        "hist_testreport_vec",
+        NULL )), "Logged history of numbers / weight (ignored reports though)")
     ok(cmp_array(r$hist_prey_a__num, "
         length   age    time Freq
          1:Inf  age1 2000-01   10
@@ -141,6 +148,17 @@ ok_group("report", {
          1:Inf  age4 2002-02   20
          1:Inf  age5 2002-02  120
   "), "hist_prey_a__num: Full history")
+  ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_prey_a__midlen), '
+         2000-01 2000-02 2001-01 2001-02 2002-01 2002-02
+             1.5     1.5     1.5     1.5     1.5     1.5
+  '), "hist_prey_a__midlen: History of single value")
+  ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_testreport_vec), '
+         2000-01 2000-02 2001-01 2001-02 2002-01 2002-02
+               1       1       2       4       7      11
+               2       2       3       5       8      12
+               3       3       4       6       9      13
+               4       4       5       7      10      14
+  '), "hist_testreport_vec: History of vector")
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
         param_template <- attr(model_cpp, "parameter_template")
