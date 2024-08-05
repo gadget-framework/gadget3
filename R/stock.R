@@ -13,7 +13,15 @@ stock_definition <- function(...) {
 
 # Define an array that matches stock
 g3_stock_instance <- function (stock, init_value = NA, desc = "") {
-    if (length(stock$dim) == 0) {
+    if (inherits(stock, "g3_sparsedata")) {
+        if (length(init_value) == 1) {
+            x <- as_force_vector(rep(init_value, stock$dim$row))
+        } else if (length(init_value) == stock$dim$row) {
+            x <- as_force_vector(init_value)
+        } else {
+            stop("Length of init_value ", length(init_value), " doesn't match stock rows ", stock$dim$row)
+        }
+    } else if (length(stock$dim) == 0) {
         # No dimensions mean a 1-entry array
         x <- array(init_value, dim = (1))
     } else if (all(is.numeric(stock$dim))) {
