@@ -158,25 +158,19 @@ if (interactive()) {
 }
 
 # Set initial conditions for parameters
-tmb_param <- attr(cpp, 'parameter_template')
-tmb_param$value$project_years <- 0
-tmb_param$value$ling.init.F <- 0.4
-tmb_param$value$ling.Linf <- 160
-tmb_param$value$ling.K <- 90
-tmb_param$value$ling.t0 <- 0
-tmb_param[grepl('^ling.init.sd.', rownames(tmb_param)), 'value'] <- 50.527220
-tmb_param[grepl('^ling_imm.init.\\\\d+', rownames(tmb_param)), 'value'] <- 1
-tmb_param$value$ling_imm.init.scalar <- 200
-tmb_param$value$ling_imm.walpha <- 2.27567436711055e-06
-tmb_param$value$ling_imm.wbeta <- 3.20200445996187
-tmb_param[grepl('\\\\.M$', rownames(tmb_param)), 'value'] <- 0.15
-
-# We can set lower/upper bounds for multiple properties at once with grepl()
-tmb_param[grepl('.', rownames(tmb_param)), 'lower'] <- -1000
-tmb_param[grepl('.', rownames(tmb_param)), 'upper'] <- 1000
-
-# parscale gives optim() a relative scale of parameters
-tmb_param['parscale'] <- 1
+attr(cpp, 'parameter_template') |>
+    g3_init_val("project_years", 0) |>
+    g3_init_val("ling.init.F", 0.4) |>
+    g3_init_val("ling.Linf", 160) |>
+    g3_init_val("ling.K", 90) |>
+    g3_init_val("ling.t0", 0) |>
+    g3_init_val("ling.init.sd.#", 50.527220) |>
+    g3_init_val("ling_imm.init.#", 1, lower = 0, upper = 1000) |>
+    g3_init_val("ling_imm.init.scalar", 200) |>
+    g3_init_val("ling_imm.walpha", 2.275e-06) |>
+    g3_init_val("ling_imm.wbeta", 3.2020) |>
+    g3_init_val("ling_*.M.#", 0.15) |>
+    identity() -> tmb_param
 
 \donttest{\dontshow{comment("NB: Making / optimising a TMB function is slow")}
 
