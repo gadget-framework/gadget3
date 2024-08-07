@@ -14,28 +14,45 @@
 }
 
 \usage{
-g3a_spawn_recruitment_fecundity(p0, p1, p2, p3, p4)
+g3a_spawn_recruitment_fecundity(
+        p0 = g3_parameterized('spawn.p0', value = 1, by_stock = by_stock),
+        p1 = g3_parameterized('spawn.p1', value = 1, by_stock = by_stock),
+        p2 = g3_parameterized('spawn.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('spawn.p3', value = 1, by_stock = by_stock),
+        p4 = g3_parameterized('spawn.p4', value = 1, by_stock = by_stock),
+        by_stock = TRUE )
 
-g3a_spawn_recruitment_simplessb(mu)
+g3a_spawn_recruitment_simplessb(
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        by_stock = TRUE )
 
-g3a_spawn_recruitment_ricker(mu, lambda)
+g3a_spawn_recruitment_ricker(
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        lambda = g3_parameterized('spawn.lambda', by_stock = by_stock),
+        by_stock = TRUE )
 
-g3a_spawn_recruitment_bevertonholt(mu, lambda)
+g3a_spawn_recruitment_bevertonholt(
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        lambda = g3_parameterized('spawn.lambda', by_stock = by_stock),
+        by_stock = TRUE )
 
 g3a_spawn_recruitment_bevertonholt_ss3(
         # Steepness parameter
-        h = g3_parameterized('srr_h', lower = 0.1, upper = 1, value = 0.5,
+        h = g3_parameterized('spawn.h', lower = 0.1, upper = 1, value = 0.5,
             by_stock = by_stock ),
         # Recruitment deviates
-        R = g3_parameterized('R', by_year = TRUE, exponentiate = TRUE,
+        R = g3_parameterized('spawn.R', by_year = TRUE, exponentiate = TRUE,
             # Unfished equilibrium recruitment
-            scale = "R0",
+            scale = "spawn.R0",
             by_stock = by_stock),
         # Unfished equilibrium spawning biomass (corresponding to R0)
-        B0 = g3_parameterized('B0', by_stock = by_stock),
+        B0 = g3_parameterized('spawn.B0', by_stock = by_stock),
         by_stock = TRUE )
 
-g3a_spawn_recruitment_hockeystick(r0, blim)
+g3a_spawn_recruitment_hockeystick(
+        r0 = g3_parameterized('spawn.r0', by_stock = by_stock),
+        blim = g3_parameterized('spawn.blim', value = 1, by_stock = by_stock),
+        by_stock = TRUE )
 
 g3a_spawn(
         stock,

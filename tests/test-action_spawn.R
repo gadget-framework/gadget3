@@ -101,11 +101,11 @@ ok_group('g3a_spawn', {
     params <- attr(model_fn, 'parameter_template')
 
     # g3a_spawn_recruitment_bevertonholt_ss3
-    params <- g3_init_val(params, 'mat_*.srr_h', runif(1, 1.4, 1.5))
-    params <- g3_init_val(params, 'mat_*.R0', runif(1, 1e4 - 10, 1e4 + 10))
+    params <- g3_init_val(params, 'mat_*.spawn.h', runif(1, 1.4, 1.5))
+    params <- g3_init_val(params, 'mat_*.spawn.R0', runif(1, 1e4 - 10, 1e4 + 10))
     bholt_ss3_R <- runif(length(year_range), 1e2 - 10, 1e2 + 10)
-    params <- g3_init_val(params, 'mat_*.R.#', bholt_ss3_R)
-    params <- g3_init_val(params, 'mat_*.B0', runif(1, 1e3 - 10, 1e3 + 10))
+    params <- g3_init_val(params, 'mat_*.spawn.R.#', bholt_ss3_R)
+    params <- g3_init_val(params, 'mat_*.spawn.B0', runif(1, 1e3 - 10, 1e3 + 10))
 
     r <- lapply(attributes(model_fn(params)), drop)  # NB: Drop all redundant dimensions,
     age <- 5
@@ -170,15 +170,15 @@ ok_group('g3a_spawn', {
         c(FALSE, rep(TRUE, 36 - 1)) ), "hist_mat_g3a_spawn_recruitment_bevertonholt_ss3__offspringnum: Some recruitment happened")
     ok(ut_cmp_equal(
         colSums(r$hist_mat_g3a_spawn_recruitment_bevertonholt_ss3__offspringnum),
-        4 * params$mat_g3a_spawn_recruitment_bevertonholt_ss3.srr_h *
-        params$mat_g3a_spawn_recruitment_bevertonholt_ss3.R0 *
+        4 * params$mat_g3a_spawn_recruitment_bevertonholt_ss3.spawn.h *
+        params$mat_g3a_spawn_recruitment_bevertonholt_ss3.spawn.R0 *
         hist_biomass *
         rep(bholt_ss3_R, each = 4) / (
-            params$mat_g3a_spawn_recruitment_bevertonholt_ss3.B0 *
-            (1 - params$mat_g3a_spawn_recruitment_bevertonholt_ss3.srr_h)
+            params$mat_g3a_spawn_recruitment_bevertonholt_ss3.spawn.B0 *
+            (1 - params$mat_g3a_spawn_recruitment_bevertonholt_ss3.spawn.h)
           +
             hist_biomass *
-            (5 * params$mat_g3a_spawn_recruitment_bevertonholt_ss3.srr_h - 1)),
+            (5 * params$mat_g3a_spawn_recruitment_bevertonholt_ss3.spawn.h - 1)),
         end = NULL ), "hist_mat_g3a_spawn_recruitment_bevertonholt_ss3__offspringnum: Matches formula")
 
     ok(ut_cmp_equal(

@@ -1,7 +1,12 @@
-g3a_spawn_recruitment_fecundity <- function (p0, p1, p2, p3, p4) {
+g3a_spawn_recruitment_fecundity <- function (
+        p0 = g3_parameterized('spawn.p0', value = 1, by_stock = by_stock),
+        p1 = g3_parameterized('spawn.p1', value = 1, by_stock = by_stock),
+        p2 = g3_parameterized('spawn.p2', value = 1, by_stock = by_stock),
+        p3 = g3_parameterized('spawn.p3', value = 1, by_stock = by_stock),
+        p4 = g3_parameterized('spawn.p4', value = 1, by_stock = by_stock),
+        by_stock = TRUE ) {
     subs <- list(p0 = p0, p1 = p1, p2 = p2, p3 = p3, p4 = p4)
 
-    # NB: ricker is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = f_substitute(~sum(
                 stock__midlen ^ p1 *
@@ -11,7 +16,9 @@ g3a_spawn_recruitment_fecundity <- function (p0, p1, p2, p3, p4) {
         r = f_substitute(~p0 * s, subs))
 }
 
-g3a_spawn_recruitment_simplessb <- function (mu) {
+g3a_spawn_recruitment_simplessb <- function (
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        by_stock = TRUE ) {
     # NB: simplessb is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
@@ -21,7 +28,10 @@ g3a_spawn_recruitment_simplessb <- function (mu) {
 
 # https://github.com/gadget-framework/gadget-course/blob/master/stock_interactions.Rmd#L81
 # SpawnData::calcRecruitNumber() line 466
-g3a_spawn_recruitment_ricker <- function (mu, lambda) {
+g3a_spawn_recruitment_ricker <- function (
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        lambda = g3_parameterized('spawn.lambda', by_stock = by_stock),
+        by_stock = TRUE ) {
     # NB: ricker is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
@@ -30,7 +40,10 @@ g3a_spawn_recruitment_ricker <- function (mu, lambda) {
             lambda = lambda)))
 }
 
-g3a_spawn_recruitment_bevertonholt <- function (mu, lambda) {
+g3a_spawn_recruitment_bevertonholt <- function (
+        mu = g3_parameterized('spawn.mu', by_stock = by_stock),
+        lambda = g3_parameterized('spawn.lambda', by_stock = by_stock),
+        by_stock = TRUE ) {
     # NB: bevertonholt is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
@@ -42,22 +55,25 @@ g3a_spawn_recruitment_bevertonholt <- function (mu, lambda) {
 # https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt
 g3a_spawn_recruitment_bevertonholt_ss3 <- function (
         # Steepness parameter
-        h = g3_parameterized('srr_h', lower = 0.1, upper = 1, value = 0.5,
+        h = g3_parameterized('spawn.h', lower = 0.1, upper = 1, value = 0.5,
             by_stock = by_stock ),
         # Recruitment deviates
-        R = g3_parameterized('R', by_year = TRUE, exponentiate = TRUE,
+        R = g3_parameterized('spawn.R', by_year = TRUE, exponentiate = TRUE,
             # Unfished equilibrium recruitment
-            scale = "R0",
+            scale = "spawn.R0",
             by_stock = by_stock),
         # Unfished equilibrium spawning biomass (corresponding to R0)
-        B0 = g3_parameterized('B0', by_stock = by_stock),
+        B0 = g3_parameterized('spawn.B0', by_stock = by_stock),
         by_stock = TRUE ) {
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
         r = ~ 4 * h * s * R / (B0 * (1 - h) + s * (5 * h - 1)) )
 }
 
-g3a_spawn_recruitment_hockeystick <- function (r0, blim) {
+g3a_spawn_recruitment_hockeystick <- function (
+        r0 = g3_parameterized('spawn.r0', by_stock = by_stock),
+        blim = g3_parameterized('spawn.blim', value = 1, by_stock = by_stock),
+        by_stock = TRUE ) {
     # NB: hockeystick is calculated over an entire area, so divide up so each age/length spawn equally.
     list(
         s = ~sum(stock_ss(stock__wgt) * stock_ss(stock__spawningnum)),
