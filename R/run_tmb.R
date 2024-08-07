@@ -698,6 +698,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 lower <- as.numeric(find_arg('lower', NA))
                 upper <- as.numeric(find_arg('upper', NA))
                 parscale <- as.numeric(find_arg('parscale', NA))
+                source <- as.character(find_arg('source', as.character(NA)))
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -711,6 +712,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     lower = if (dims[[1]] > 0) lower else numeric(0),
                     upper = if (dims[[1]] > 0) upper else numeric(0),
                     parscale = if (dims[[1]] > 0) parscale else numeric(0),
+                    source = if (dims[[1]] > 0) source else as.character(NA),
                     row.names = name,
                     stringsAsFactors = FALSE)
             }

@@ -293,6 +293,7 @@ ok_group('g3_param', {
             lower = c(NA, 5),
             upper = c(NA, 10),
             parscale = as.numeric(c(NA, NA)),  # NB: Not derived yet, only when calling g3_tmb_parscale()
+            source = as.character(NA),
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
@@ -330,6 +331,7 @@ ok_group('g3_param_table', {
             upper = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 10, 10),
             # NB: Not derived yet, only when calling g3_tmb_parscale()
             parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
+            source = as.character(NA),
             stringsAsFactors = FALSE)), "Param table included custom values")
     ok(ut_cmp_identical(
         attr(g3_to_tmb(list(~{

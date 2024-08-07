@@ -23,7 +23,8 @@ g3a_report_history(
         run_at = g3_action_order$report)
 
 g3a_report_detail(actions,
-    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 1L) == 1 ),
+    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 1L,
+        source = "g3a_report_detail") == 1 ),
     abundance_run_at = g3_action_order$report_early,
     run_at = g3_action_order$report)
 }

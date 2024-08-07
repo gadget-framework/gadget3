@@ -7,8 +7,14 @@ cmp_formula <- function (a, b) {
         # NB: Can't order an empty list
         if (length(x) > 0) x[order(names(x))] else x
     }
+    # strip source option from g3_param(), so we don't have to add it to everything below
+    strip_source <- function (in_c) gadget3:::call_replace(in_c,
+        g3_param = function (x) {
+            x$source <- NULL
+            return(x)
+        })
 
-    out <- ut_cmp_identical(rlang::f_rhs(a), rlang::f_rhs(b))
+    out <- ut_cmp_identical(strip_source(rlang::f_rhs(a)), strip_source(rlang::f_rhs(b)))
     if (!identical(out, TRUE)) return(out)
     out <- ut_cmp_identical(ordered_list(environment(a)), ordered_list(environment(b)))
     return(out)

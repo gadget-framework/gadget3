@@ -202,7 +202,7 @@ writeLines(model_cpp, con = 'inttest/codegeneration/ling.cpp')
 
 # model_cpp <- edit(model_cpp)
 tmb_param <- attr(model_cpp, 'parameter_template')
-capture.output(print(tmb_param), file = 'inttest/codegeneration/ling.tmbparam')
+capture.output(print(tmb_param, width = 500), file = 'inttest/codegeneration/ling.tmbparam')
 # Fill parameters - Map original list into data.frame format
 tmb_param$value <- I(params[tmb_param$switch])
 # Random parameters with: tmb_param["ling.Linf", "random"] <- TRUE

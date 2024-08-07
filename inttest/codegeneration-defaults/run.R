@@ -118,7 +118,7 @@ params <- attr(model_cpp, 'parameter_template')
 params <- g3_init_val(params, 'report_detail', 0)
 oldWidth <- getOption("width")
 options(width=1000)
-capture.output(print(params), file = 'inttest/codegeneration-defaults/model.tmbparam')
+capture.output(print(params, width = 500), file = 'inttest/codegeneration-defaults/model.tmbparam')
 options(width=oldWidth)
 
 r <- attributes(model_fn(params$value))
