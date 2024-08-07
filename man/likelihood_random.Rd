@@ -17,9 +17,8 @@ g3l_random_dnorm(
         log_f = TRUE,
         period = 'auto',
         nll_breakdown = FALSE,
-        weight = substitute(
-            g3_param(n, optimise = FALSE, value = 1),
-            list(n = paste0(nll_name, "_weight"))),
+        weight = g3_parameterized(paste0(nll_name, "_weight"),
+            optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood)
 
 g3l_random_walk(
@@ -29,9 +28,8 @@ g3l_random_walk(
         log_f = TRUE,
         period = 'auto',
         nll_breakdown = FALSE,
-        weight = substitute(
-            g3_param(n, optimise = FALSE, value = 1),
-            list(n = paste0(nll_name, "_weight"))),
+        weight = g3_parameterized(paste0(nll_name, "_weight"),
+            optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood)
 }
 

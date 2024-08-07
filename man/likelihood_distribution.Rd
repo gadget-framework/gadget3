@@ -41,9 +41,8 @@ g3l_abundancedistribution(
         area_group = NULL,
         report = FALSE,
         nll_breakdown = FALSE,
-        weight = substitute(
-            g3_param(n, optimise = FALSE, value = 1),
-            list(n = paste0(nll_name, "_weight"))),
+        weight = g3_parameterized(paste0(nll_name, "_weight"),
+            optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood)
 
 g3l_catchdistribution(
@@ -58,9 +57,8 @@ g3l_catchdistribution(
         area_group = NULL,
         report = FALSE,
         nll_breakdown = FALSE,
-        weight = substitute(
-            g3_param(n, optimise = FALSE, value = 1),
-            list(n = paste0(nll_name, "_weight"))),
+        weight = g3_parameterized(paste0(nll_name, "_weight"),
+            optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood)
 
 g3_distribution_preview(
