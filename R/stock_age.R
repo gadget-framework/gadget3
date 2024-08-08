@@ -26,9 +26,13 @@ g3s_age <- function(inner_stock, minage, maxage) {
             )),
         iter_ss = c(inner_stock$iter_ss, age = as.symbol("stock__age_idx")),
         intersect = c(inner_stock$intersect, age = quote(
-            if (age >= stock__minage && age <= stock__maxage) g3_with(
-                stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
-            )),
+            if (stock_isdefined(age)) {
+                if (age >= stock__minage && age <= stock__maxage) g3_with(
+                    stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
+            } else {
+                for (age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
+                    stock__age_idx := g3_idx(age - stock__minage + 1L), extension_point)
+            } )),
         interact = c(inner_stock$interact, age = quote(
                 for (interactvar_age in seq(stock__minage, stock__maxage, by = 1)) g3_with(
                     stock__age_idx := g3_idx(interactvar_age - stock__minage + 1L), extension_point)
@@ -73,10 +77,14 @@ g3s_agegroup <- function(inner_stock, agegroups) {
         )),
         iter_ss = c(inner_stock$iter_ss, age = as.symbol("stock__agegroup_idx")),
         intersect = c(inner_stock$intersect, age = substitute(
-            g3_with(
-                stock__agegroup_idx := g3_idx(lookup_code),
-                if (stock__agegroup_idx > g3_idx(-1L)) extension_point),
-            list(lookup_code = rlang::f_rhs(lookup_f)))),
+            if (stock_isdefined(age)) {
+                g3_with(
+                    stock__agegroup_idx := g3_idx(lookup_code),
+                    if (stock__agegroup_idx > g3_idx(-1L)) extension_point)
+            } else {
+                for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
+                    interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point)
+            }, list(lookup_code = rlang::f_rhs(lookup_f)) )),
         interact = c(inner_stock$interact, age = quote(
             for (stock__agegroup_idx in seq_along(stock__minages)) g3_with(
                 interactvar_age := stock__minages[[stock__agegroup_idx]], extension_point)

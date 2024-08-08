@@ -15,21 +15,24 @@ stock_definition <- function(...) {
 g3_stock_instance <- function (stock, init_value = NA, desc = "") {
     if (length(stock$dim) == 0) {
         # No dimensions mean a 1-entry array
-        return(array(init_value, dim = (1)))
-    }
-    # TODO: Don't make it yet, defer until g3 needs it
-    if (all(is.numeric(stock$dim))) {
-        return(array(init_value, dim = stock$dim, dimnames = stock$dimnames))
-    }
-
-    # Filter any dynamic dimensions, and set them to 1 initially
-    use_dynamic_dim <- FALSE
-    init_dim <- vapply(stock$dim, function (x) if (is.call(x) || is.symbol(x)) {use_dynamic_dim <<- TRUE; 1L} else as.integer(x), integer(1))
-    init_dimnames <- lapply(stock$dimnames, function (x) if (is.call(x) || is.symbol(x)) {use_dynamic_dim <<- TRUE; NULL} else x)
-    x <- array(init_value, dim = init_dim, dimnames = init_dimnames)
-    if (use_dynamic_dim) {
-        attr(x, 'dynamic_dim') <- stock$dim
-        attr(x, 'dynamic_dimnames') <- stock$dimnames
+        x <- array(init_value, dim = (1))
+    } else if (all(is.numeric(stock$dim))) {
+        # TODO: Don't make it yet, defer until g3 needs it
+        x <- array(init_value, dim = stock$dim, dimnames = stock$dimnames)
+    } else {
+        # Filter any dynamic dimensions, and set them to 1 initially
+        use_dynamic_dim <- FALSE
+        init_dim <- vapply(stock$dim, function (x) {
+            if (is.call(x) || is.symbol(x)) { use_dynamic_dim <<- TRUE; 1L } else as.integer(x)
+        }, integer(1))
+        init_dimnames <- lapply(stock$dimnames, function (x) {
+            if (is.call(x) || is.symbol(x)) { use_dynamic_dim <<- TRUE; NULL } else x
+        })
+        x <- array(init_value, dim = init_dim, dimnames = init_dimnames)
+        if (use_dynamic_dim) {
+            attr(x, 'dynamic_dim') <- stock$dim
+            attr(x, 'dynamic_dimnames') <- stock$dimnames
+        }
     }
     if (nzchar(desc)) {
         attr(x, 'desc') <- desc
@@ -120,10 +123,14 @@ g3s_length <- function(inner_stock, lengthgroups, open_ended = TRUE, plus_dl = N
         iter_ss = c(inner_stock$iter_ss, length = as.symbol("stock__length_idx")),
         intersect = c(inner_stock$intersect, length = quote(
                 for (stock__length_idx in seq_along(stock__minlen)) {
-                    if (stock__minlen[[stock__length_idx]] <= length &&
-                            length < stock__maxlen[[stock__length_idx]]) {
-                        extension_point
-                        break
+                    if (stock_isdefined(length)) {
+                        if (stock__minlen[[stock__length_idx]] <= length &&
+                                length < stock__maxlen[[stock__length_idx]]) {
+                            extension_point
+                            break
+                        }
+                    } else {
+                        g3_with(length := stock__midlen[[stock__length_idx]], extension_point)
                     }
                 }
             )),

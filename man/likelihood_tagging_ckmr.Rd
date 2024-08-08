@@ -14,9 +14,8 @@ g3l_tagging_ckmr(
         fleets,
         parent_stocks,
         offspring_stocks,
-        weight = substitute(
-            g3_param(n, optimise = FALSE, value = 1),
-            list(n = paste0(nll_name, "_weight"))),
+        weight = g3_parameterized(paste0(nll_name, "_weight"),
+            optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood)
 }
 

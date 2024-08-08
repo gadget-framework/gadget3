@@ -14,6 +14,7 @@ cmp_environment <- function (a, b) {
 }
 
 areas <- list(a=1, b=2, c=3, d=4)
+stock_noarea <- g3_stock('stock_noarea', c(10))
 stock_a <- g3_stock('stock_a', c(10)) %>% g3s_livesonareas(areas[c('a')])
 stock_ac <- g3_stock('stock_ac', c(10)) %>% g3s_livesonareas(unname(areas[c('a', 'c')]))  # NB: Remove names so we generate defaults
 stock_bcd <- g3_stock('stock_bcd', c(10)) %>% g3s_livesonareas(areas[c('b', 'c', 'd')])
@@ -71,6 +72,7 @@ stock_bcd_a_interactions <- 0L
 stock_bcd_ac_interactions <- 0L
 actions <- list(
     g3a_time(1999, 1999),
+    g3a_initialconditions(stock_noarea, ~1 + stock_ac__minlen, ~0),
     # NB: livesonareas will add area names to environment, so this works
     g3a_initialconditions(stock_a, ~(if (area == area_a) 1 else if (area == area_b) 2 else if (area == area_c) 3  else if (area == area_d) 4 else 0) * 100 + stock_a__minlen, ~0),
     g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
@@ -78,6 +80,22 @@ actions <- list(
     g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
     g3a_initialconditions(stock_1agg, ~area * 1 + stock_bcd__minlen, ~0),
     list(
+        '5:stock_sum_ac_noarea' = gadget3:::g3_step(g3_formula({
+            comment("stock_sum_ac_noarea")
+            stock_iterate(stock_ac, stock_intersect(stock_noarea, {
+                stock_sum_ac_noarea <- stock_sum_ac_noarea +
+                    sum(stock_ss(stock_ac__num)) + sum(stock_ss(stock_noarea__num))
+            }))
+            REPORT(stock_sum_ac_noarea)
+        }, stock_sum_ac_noarea = 0.0, stock_ac = stock_ac, stock_noarea = stock_noarea) ),
+        '5:stock_sum_noarea_bcd' = gadget3:::g3_step(g3_formula({
+            comment("stock_sum_noarea_bcd")
+            stock_iterate(stock_noarea, stock_intersect(stock_bcd, {
+                stock_sum_noarea_bcd <- stock_sum_noarea_bcd +
+                    sum(stock_ss(stock_noarea__num)) + sum(stock_ss(stock_bcd__num))
+            }))
+            REPORT(stock_sum_noarea_bcd)
+        }, stock_sum_noarea_bcd = 0.0, stock_bcd = stock_bcd, stock_noarea = stock_noarea) ),
         '5' = gadget3:::g3_step(~{
             comment("stock_sum_a_ac")
             stock_iterate(stock_a, stock_intersect(stock_ac, {
@@ -151,6 +169,7 @@ actions <- list(
             }, prefix = "sub"))
         }),
         '999' = ~{
+            REPORT(stock_noarea__num)
             REPORT(stock_a__num)
             REPORT(stock_ac__num)
             REPORT(stock_bcd__num)
@@ -168,6 +187,14 @@ model_fn <- g3_to_r(actions)
 params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
 r <- attributes(result)
+
+# Intersection between stocks without area means we iterate over all areas
+ok(ut_cmp_identical(
+    r$stock_sum_noarea_bcd,
+    sum(r$stock_bcd__num) + as.vector(r$stock_noarea__num) * 3 ), "stock_sum_noarea_bcd: summed noarea for each of the bcd areas")
+ok(ut_cmp_identical(
+    r$stock_sum_ac_noarea,
+    as.vector(r$stock_noarea__num) * 2 + sum(r$stock_ac__num) ), "stock_sum_ac_noarea: summed noarea for each of the ac areas")
 
 # We iterated over the stock and populated using the area variable
 ok(ut_cmp_identical(

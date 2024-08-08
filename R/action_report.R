@@ -157,7 +157,8 @@ g3a_report_history <- function (
 
 g3a_report_detail <- function (actions,
     # NB: We could in theory remove report_detail, but g3_fit looks for it in params
-    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 1L) == 1 ),
+    run_f = quote( g3_param('report_detail', optimise = FALSE, value = 1L,
+        source = "g3a_report_detail") == 1 ),
     abundance_run_at = g3_action_order$report_early,
     run_at = g3_action_order$report) {
     c(

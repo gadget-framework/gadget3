@@ -293,6 +293,7 @@ ok_group('g3_param', {
             lower = c(NA, 5),
             upper = c(NA, 10),
             parscale = as.numeric(c(NA, NA)),  # NB: Not derived yet, only when calling g3_tmb_parscale()
+            source = as.character(NA),
             stringsAsFactors = FALSE)), "Param table included custom values")
 })
 
@@ -330,6 +331,7 @@ ok_group('g3_param_table', {
             upper = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 10, 10),
             # NB: Not derived yet, only when calling g3_tmb_parscale()
             parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
+            source = as.character(NA),
             stringsAsFactors = FALSE)), "Param table included custom values")
     ok(ut_cmp_identical(
         attr(g3_to_tmb(list(~{
@@ -649,6 +651,26 @@ actions <- c(actions, ~{
 })
 expecteds$as_vector_result1 <- pnorm(as_vector_array[,1], as_vector_mean, as_vector_sigma)
 expecteds$as_vector_result2 <- pnorm(as_vector_array[,2], as_vector_mean, as_vector_sigma)
+
+# Flow control
+flow_control_vec <- runif(10)
+flow_control_break_sum <- 0.0
+flow_control_next_sum <- 0.0
+actions <- c(actions, ~{
+    comment('Flow control')
+    for (flow_control_idx in seq_along(flow_control_vec)) {
+        if (flow_control_idx == g3_idx(5)) break
+        flow_control_break_sum <- flow_control_break_sum + flow_control_vec[[flow_control_idx]]
+    }
+    REPORT(flow_control_break_sum)
+    for (flow_control_idx in seq_along(flow_control_vec)) {
+        if (flow_control_idx == g3_idx(5)) next
+        flow_control_next_sum <- flow_control_next_sum + flow_control_vec[[flow_control_idx]]
+    }
+    REPORT(flow_control_next_sum)
+})
+expecteds$flow_control_break_sum <- sum(flow_control_vec[1:4])
+expecteds$flow_control_next_sum <- sum(flow_control_vec[-5])
 
 # pow() / .pow()
 pow_scalar <- 99

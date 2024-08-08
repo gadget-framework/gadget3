@@ -40,6 +40,41 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_area))
     stopifnot(is.logical(avoid_zero))
 
+    find_public_call <- function (calls) {
+        for (in_c in rev(calls)) {
+            if (is.symbol(in_c)) {
+                # Raw symbol
+                in_c <- as.character(in_c)
+            } else if (is.call(in_c) && length(in_c[[1]]) == 3 && as.character(in_c[[1]][[1]]) == "::") {
+                # Ignore explicit non-gadget imports
+                if (!identical(in_c[[1]][[2]], "gadget3")) next
+
+                in_c <- as.character(in_c[[1]][[3]])
+            } else if (is.call(in_c) && is.symbol(in_c[[1]])) {
+                # Unprefixed function call
+                in_c <- as.character(in_c[[1]])
+            } else {
+                # Probably an anonymous function, ignore
+                next
+            }
+
+            # Ignore anything not starting with g3
+            if (!startsWith(in_c, "g3")) next
+
+            # Ignore ourself & ~internal g3 commands
+            if (in_c %in% c("g3_parameterized", "g3_formula", "g3_step", "g3_is_stock", "g3l_distribution")) next
+
+            # Suitability functions are used everywhere, not very meaningful
+            if (startsWith(in_c, "g3_suitability_")) next
+
+            # Ignore anything that isn't publicly exported by ourself
+            if (!exists(in_c, envir = asNamespace("gadget3"), inherits = FALSE)) next
+
+            return(in_c)
+        }
+        return(NULL)
+    }
+
     # Define name_part based on input arg
     name_part <- function (arg) {
         if (isTRUE(arg)) {
@@ -120,6 +155,10 @@ g3_parameterized <- function(
 
     # Pass through standard g3_param arguments
     out <- as.call(c(as.list(out), list(...)))
+
+    # Add source if we found one
+    source <- find_public_call(sys.calls())
+    if (length(source) > 0) out$source <- source
 
     if (isTRUE(by_predator) || is.character(by_predator)) {
         # Use stock_prepend() to do stock substitutions

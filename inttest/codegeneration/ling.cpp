@@ -664,13 +664,13 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__area_idx = 0;
 
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == ling_imm__area ) {
-                    if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
-                        if ( cur_step_final ) {
-                            auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                            auto ling_imm__area_idx = 0;
+                    {
+                        auto ling_imm__area_idx = 0;
 
-                            {
+                        if ( age >= ling_imm__minage && age <= ling_imm__maxage ) {
+                            if ( cur_step_final ) {
                                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                                 {
@@ -751,11 +751,13 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
-
                     {
-                        // Convert ling_imm_igfs to num;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
+                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                        {
+                            // Convert ling_imm_igfs to num;
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
+                        }
                     }
                 }
             }
@@ -770,11 +772,13 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == cdist_sumofsquares_ldist_lln_model__area ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
-
                     {
-                        // Convert ling_mat_igfs to num;
-                        cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
+                        auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
+
+                        {
+                            // Convert ling_mat_igfs to num;
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
+                        }
                     }
                 }
             }
@@ -787,9 +791,9 @@ Type objective_function<Type>::operator() () {
 
                     auto cdist_sumofsquares_ldist_lln_model__area_idx = 0;
 
-                    if ( area == cdist_sumofsquares_ldist_lln_obs__area ) {
-                        auto cdist_sumofsquares_ldist_lln_model__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx)).sum());
+                    auto cdist_sumofsquares_ldist_lln_model__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx)).sum());
 
+                    if ( area == cdist_sumofsquares_ldist_lln_obs__area ) {
                         auto cdist_sumofsquares_ldist_lln_obs__area_idx = 0;
 
                         auto cdist_sumofsquares_ldist_lln_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_lln_obs__times, (cur_year*100 + cur_step), -1) - 1;
@@ -900,13 +904,13 @@ Type objective_function<Type>::operator() () {
                 auto ling_mat__area_idx = 0;
 
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( area == ling_imm_movement__area ) {
-                    if ( age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage ) {
-                        if ( cur_step_final ) {
-                            auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
+                    auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                            auto ling_imm_movement__area_idx = 0;
+                    {
+                        auto ling_imm_movement__area_idx = 0;
 
-                            {
+                        if ( age >= ling_imm_movement__minage && age <= ling_imm_movement__maxage ) {
+                            if ( cur_step_final ) {
                                 auto ling_imm_movement__age_idx = age - ling_imm_movement__minage + 1 - 1;
 
                                 {

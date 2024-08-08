@@ -3,6 +3,7 @@ library(unittest)
 
 library(gadget3)
 
+stock_noage <- g3_stock('stock_noage', c(10))
 stock_young <- g3_stock('stock_young', c(10)) %>% g3s_age(1, 3)
 stock_old <- g3_stock('stock_old', c(10)) %>% g3s_age(4, 6)
 stock_inbetween <- g3_stock('stock_inbetween', c(10)) %>% g3s_age(2, 5)
@@ -17,12 +18,29 @@ stock_interact_young_old_vars <- 0.0
 nll <- 0.0
 actions <- list(
     g3a_time(1999, 1999),
+    g3a_initialconditions(stock_noage, ~100 + stock_young__minlen, ~0),
     g3a_initialconditions(stock_young, ~age * 100 + stock_young__minlen, ~0),
     g3a_initialconditions(stock_old, ~age * 1000 + stock_old__minlen, ~0),
     g3a_initialconditions(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),
     g3a_initialconditions(stock_aggregated, ~age * 1000000 + stock_inbetween__minlen, ~0),
     g3a_initialconditions(stock_inbetween_old_aggregated, ~0 * stock_inbetween__minlen, ~0),
     list(
+        '5:stock_sum_young_noage' = gadget3:::g3_step(g3_formula({
+            comment("stock_sum_young_noage")
+            stock_iterate(stock_young, stock_intersect(stock_noage, {
+                stock_sum_young_noage <- stock_sum_young_noage +
+                    sum(stock_ss(stock_young__num)) + sum(stock_ss(stock_noage__num))
+            }))
+            REPORT(stock_sum_young_noage)
+        }, stock_sum_young_noage = 0.0, stock_young = stock_young, stock_noage = stock_noage)),
+        '5:stock_sum_noage_old' = gadget3:::g3_step(g3_formula({
+            comment("stock_sum_noage_old")
+            stock_iterate(stock_noage, stock_intersect(stock_old, {
+                stock_sum_noage_old <- stock_sum_noage_old +
+                    sum(stock_ss(stock_noage__num)) + sum(stock_ss(stock_old__num))
+            }))
+            REPORT(stock_sum_noage_old)
+        }, stock_sum_noage_old = 0.0, stock_noage = stock_noage, stock_old = stock_old)),
         '5' = gadget3:::g3_step(~{
             comment("stock_sum_young_inbetween")
             stock_iterate(stock_young, stock_intersect(stock_inbetween, {
@@ -62,6 +80,7 @@ actions <- list(
             REPORT(stock_inbetween_old_aggregated__num)
         }),
         '999' = ~{
+            REPORT(stock_noage__num)
             REPORT(stock_young__num)
             REPORT(stock_old__num)
             REPORT(stock_inbetween__num)
@@ -107,6 +126,14 @@ ok(ut_cmp_identical(
         c(20010, 50010 + 5010 + 6010),
         dim = c(length = 1, age = 2),
         dimnames = list(length = "10:Inf", age = c("1:2","5:6")))), "stock_inbetween_old_aggregated__num populated")
+
+# Intersection between stocks without age means we iterate over
+ok(ut_cmp_identical(
+    r$stock_sum_noage_old,
+    sum(r$stock_old__num) + as.vector(r$stock_noage__num) * 3 ), "stock_sum_noage_old: summed noage for each of the old ages")
+ok(ut_cmp_identical(
+    r$stock_sum_young_noage,
+    as.vector(r$stock_noage__num) * 3 + sum(r$stock_young__num) ), "stock_sum_young_noage: summed noage for each of the young ages")
 
 # Intersection works with any combination of single-area stock and multi-area stock
 ok(ut_cmp_identical(

@@ -37,6 +37,7 @@ ok(ut_cmp_identical(
     multipart$name_parts[['species']],
     "ling"), "multipart$name_parts: Can dig out just species name from multipart name")
 
+fleet <- g3_fleet('fleet_a')
 stock_a <- g3_stock('stock_a', seq(10, 10, 5))
 stock_b <- g3_stock('stock_b', seq(50, 54, 1))
 stock_wonky <- g3_stock('stock_wonky', c(0, 10, 100, 200, 1000))
@@ -44,6 +45,14 @@ nll <- 0.0
 
 actions <- list(
     list(
+        g3a_time(1999, 1999),
+        g3a_initialconditions(stock_a, ~100 + stock_a__minlen, ~0),
+        '5:sum_fleet_stock_a' = gadget3:::g3_step(g3_formula({
+            stock_iterate(fleet, stock_intersect(stock_a, {
+                sum_fleet_stock_a <- sum_fleet_stock_a + stock_ss(stock_a__num, vec = single)
+            }))
+            REPORT(sum_fleet_stock_a)
+        }, sum_fleet_stock_a = as.array(c(x = 0.0)), fleet = fleet, stock_a = stock_a)),
         '999' = gadget3:::g3_step(~{
             # NB: stock_with also includes the stock environment, which is why we need it
             stock_with(stock_a, {
@@ -91,6 +100,9 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
 r <- attributes(result)
+
+# sum_fleet_stock_a
+ok(ut_cmp_equal(r$sum_fleet_stock_a, as.array(c(x = 110))), "sum_fleet_stock_a: Intersected over a fleet (without length)")
 
 # We populated min/mean/dl
 ok(ut_cmp_identical(

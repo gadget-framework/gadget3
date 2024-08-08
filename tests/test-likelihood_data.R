@@ -534,15 +534,14 @@ ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_intersect', age = 1, cur_year 
     ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year *
         100L + cur_step * 0L), -1L)
     if (ut_obs__time_idx >= (1L)) {
-        ut_obs__agegroup_idx <- intlookup_getdefault(ut_obs__agegroup,
-            age, -1L)
-        if (ut_obs__agegroup_idx > -1L)
-            for (ut_obs__length_idx in seq_along(ut_obs__minlen)) if (ut_obs__minlen[[ut_obs__length_idx]] <=
-                length && length < ut_obs__maxlen[[ut_obs__length_idx]]) {
+        for (ut_obs__agegroup_idx in seq_along(ut_obs__minages)) {
+            `_age` <- ut_obs__minages[[ut_obs__agegroup_idx]]
+            for (ut_obs__length_idx in seq_along(ut_obs__minlen)) {
+                length <- ut_obs__midlen[[ut_obs__length_idx]]
                 ut_obs__num[ut_obs__length_idx, ut_obs__agegroup_idx,
                   ut_obs__time_idx]
-                break
             }
+        }
     }
 }), optimize = TRUE), "stock_intersect: Renamed all vars, including ut_obs__agegroup")
 
@@ -1065,21 +1064,20 @@ ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_iterate', cur_year = 1999, cur
 ok(gadget3:::ut_cmp_code(generate_code(ld, 'stock_intersect', cur_year = 1999, cur_step = 1, predator_tag = 1, predator_length = 1, predator_age = 1), quote({
     ut_obs__time_idx <- intlookup_getdefault(ut_obs__times, (cur_year * 100L + cur_step * 0L), -1L)
     if (ut_obs__time_idx >= 1L) {
-        for (ut_obs__predator_tag_idx in seq_along(ut_obs__predator_tag_ids)) if (ut_obs__predator_tag_ids[[ut_obs__predator_tag_idx]] == predator_tag) {
-            ut_obs__predator_agegroup_idx <- intlookup_getdefault(ut_obs__predator_agegroup, predator_age, -1L)
-            if (ut_obs__predator_agegroup_idx > -1L) {
-                for (ut_obs__predator_length_idx in seq_along(ut_obs__predator_minlen)) if (ut_obs__predator_minlen[[ut_obs__predator_length_idx]] <= 
-                  predator_length && predator_length < ut_obs__predator_maxlen[[ut_obs__predator_length_idx]]) {
-                  for (ut_obs__length_idx in seq_along(ut_obs__minlen)) if (ut_obs__minlen[[ut_obs__length_idx]] <= length && length < ut_obs__maxlen[[ut_obs__length_idx]]) {
+        for (ut_obs__predator_tag_idx in seq_along(ut_obs__predator_tag_ids)) {
+            predator_tag <- ut_obs__predator_tag_ids[[ut_obs__predator_tag_idx]]
+            for (ut_obs__predator_agegroup_idx in seq_along(ut_obs__predator_minages)) {
+                `_age` <- ut_obs__predator_minages[[ut_obs__predator_agegroup_idx]]
+                for (ut_obs__predator_length_idx in seq_along(ut_obs__predator_minlen)) {
+                  predator_length <- ut_obs__predator_midlen[[ut_obs__predator_length_idx]]
+                  for (ut_obs__length_idx in seq_along(ut_obs__minlen)) {
+                    length <- ut_obs__midlen[[ut_obs__length_idx]]
                     ut_obs__num[ut_obs__length_idx, ut_obs__predator_length_idx,
                       ut_obs__predator_agegroup_idx, ut_obs__predator_tag_idx,
                       ut_obs__time_idx]
-                    break
                   }
-                  break
                 }
             }
-            break
         }
     }
 }), optimize = TRUE), "stock_intersect: All predator dimensions included, with prefixed variables")

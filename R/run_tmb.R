@@ -349,9 +349,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             "(", paste(inds, collapse=","), ")"))
     }
 
-    if (call_name %in% c('break', 'next')) {
+    if (call_name %in% c('break')) {
         # Flow-control
         return(call_name)
+    }
+
+    if (call_name %in% c('next')) {
+        # Flow-control
+        return("continue")
     }
 
     if (call_name %in% c('return')) {
@@ -693,6 +698,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 lower <- as.numeric(find_arg('lower', NA))
                 upper <- as.numeric(find_arg('upper', NA))
                 parscale <- as.numeric(find_arg('parscale', NA))
+                source <- as.character(find_arg('source', as.character(NA)))
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
@@ -706,6 +712,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     lower = if (dims[[1]] > 0) lower else numeric(0),
                     upper = if (dims[[1]] > 0) upper else numeric(0),
                     parscale = if (dims[[1]] > 0) parscale else numeric(0),
+                    source = if (dims[[1]] > 0) source else as.character(NA),
                     row.names = name,
                     stringsAsFactors = FALSE)
             }
@@ -904,6 +911,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         c('vector<Type>' = 'DATA_VECTOR', 'vector<int>' = 'DATA_IVECTOR',
                           'array<Type>' = 'DATA_ARRAY', 'array<int>' = 'DATA_IARRAY')[[cpp_type]],
                         '(', cpp_escape_varname(var_name) , ')')
+                    attr(var_val, "desc") <- NULL  # The desc break's TMB's type detection
                     assign(cpp_escape_varname(var_name), hide_force_vector(var_val), envir = model_data)
                 } else if (is.numeric(var_val[[1]]) && var_val[[1]] == 0) {  # NB: FALSE == 0
                     defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")

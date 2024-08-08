@@ -200,7 +200,7 @@ g3_to_r <- function(
     }
 
     # Wrap all steps in a function call
-    out <- call("function", pairlist(param = alist(y=)$y), as.call(c(
+    out <- call("function", pairlist(param = quote( attr(get(sys.call()[[1]]), "parameter_template") )), as.call(c(
         list(as.symbol(open_curly_bracket)),
         scope,
         all_actions_code )))

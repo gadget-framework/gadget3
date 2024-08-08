@@ -630,6 +630,7 @@ The TMB parameter template has the following columns:
 * *lower*: A lower bound for this parameter
 * *upper*: An upper bound for this parameter
 * *parscale*: Relative scale for this parameter vs. others
+* *source*: The action in which the parameter was defined. Look at the help for this function for more information on what the parameter does
 
 The model is expecting 5 parameters, ``fish.M.1`` to ``fish.M.5``, for each age group.
 We can either fix these to known values, or configure bounds to optimise within.
