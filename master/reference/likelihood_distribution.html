@@ -111,9 +111,8 @@
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        report <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3l_catchdistribution</span><span class="op">(</span></span>
@@ -128,9 +127,8 @@
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        report <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_distribution_preview</span><span class="op">(</span></span>
@@ -172,7 +170,7 @@
 
   <dt id="arg-obs-data">obs_data<a class="anchor" aria-label="anchor" href="#arg-obs-data"></a></dt>
 <dd><p>Data.frame of observation data, for example the results of
-    <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    mfdb_sample_count.</p>
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
@@ -198,7 +196,7 @@
 <dd><p>Where there are missing values in the incoming data, value to replace them with.</p></dd>
 
   <dt id="arg-area-group">area_group<a class="anchor" aria-label="anchor" href="#arg-area-group"></a></dt>
-<dd><p><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_group.html" class="external-link">mfdb_group</a> or list mapping area names used in
+<dd><p>mfdb_group or list mapping area names used in
     <var>obs_data</var> to integer model areas, see "obs_data and data aggregation"
     below.</p></dd>
 
@@ -238,7 +236,7 @@
 <p>The <var>obs_data</var> data.frame, as well as providing the observation data to
     compare the model data against, controls the grouping of model data to
     compare to the observation data, by inspecting the MFDB column attributes
-    produced by e.g. <a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a>.</p>
+    produced by e.g. mfdb_sample_count.</p>
 <p>Metadata columns describe the observation datapoint in that row. The
     columns should be from this list:</p><dl><dt>year</dt>
 <dd><p>Required.

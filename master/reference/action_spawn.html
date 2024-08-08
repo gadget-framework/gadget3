@@ -86,28 +86,45 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_spawn_recruitment_fecundity</span><span class="op">(</span><span class="va">p0</span>, <span class="va">p1</span>, <span class="va">p2</span>, <span class="va">p3</span>, <span class="va">p4</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_spawn_recruitment_fecundity</span><span class="op">(</span></span>
+<span>        p0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p0'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p1 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p1'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p2 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p2'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p3 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p3'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p4 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p4'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_simplessb</span><span class="op">(</span><span class="va">mu</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_simplessb</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span><span class="va">mu</span>, <span class="va">lambda</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        lambda <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.lambda'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_bevertonholt</span><span class="op">(</span><span class="va">mu</span>, <span class="va">lambda</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_bevertonholt</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        lambda <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.lambda'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_spawn_recruitment_bevertonholt_ss3</span><span class="op">(</span></span>
 <span>        <span class="co"># Steepness parameter</span></span>
-<span>        h <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'srr_h'</span>, lower <span class="op">=</span> <span class="fl">0.1</span>, upper <span class="op">=</span> <span class="fl">1</span>, value <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>        h <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.h'</span>, lower <span class="op">=</span> <span class="fl">0.1</span>, upper <span class="op">=</span> <span class="fl">1</span>, value <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>            by_stock <span class="op">=</span> <span class="va">by_stock</span> <span class="op">)</span>,</span>
 <span>        <span class="co"># Recruitment deviates</span></span>
-<span>        R <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'R'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, exponentiate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        R <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.R'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, exponentiate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            <span class="co"># Unfished equilibrium recruitment</span></span>
-<span>            scale <span class="op">=</span> <span class="st">"R0"</span>,</span>
+<span>            scale <span class="op">=</span> <span class="st">"spawn.R0"</span>,</span>
 <span>            by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        <span class="co"># Unfished equilibrium spawning biomass (corresponding to R0)</span></span>
-<span>        B0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'B0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        B0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.B0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_hockeystick</span><span class="op">(</span><span class="va">r0</span>, <span class="va">blim</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_hockeystick</span><span class="op">(</span></span>
+<span>        r0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.r0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        blim <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.blim'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_spawn</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>

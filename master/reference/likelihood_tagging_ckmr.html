@@ -92,9 +92,8 @@
 <span>        <span class="va">fleets</span>,</span>
 <span>        <span class="va">parent_stocks</span>,</span>
 <span>        <span class="va">offspring_stocks</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span></code></pre></div>
     </div>
 

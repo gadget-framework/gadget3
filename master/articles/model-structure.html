@@ -141,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x5610aa68f000&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x557853fcc670&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -170,7 +170,7 @@ model. We can even use Gadget3 to compile our simple example above into
 an R function:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## function (param) </span></span>
+<pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
 <span><span class="co">##     cows &lt;- 16</span></span>
 <span><span class="co">##     pigs &lt;- 32</span></span>
@@ -178,8 +178,8 @@ an R function:</p>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5610abc9c458&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5610ab4ae590&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x5578555e9e08&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557854dee850&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -226,31 +226,31 @@ reached. For example:</p>
 <span><span class="co">##     debug_label("g3a_time: Start of time period")</span></span>
 <span><span class="co">##     cur_time &lt;- cur_time + 1L</span></span>
 <span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(g3_param("retro_years", value = 0, </span></span>
-<span><span class="co">##         optimise = FALSE) &gt;= 0, "retro_years must be &gt;= 0")) </span></span>
+<span><span class="co">##         optimise = FALSE, source = "g3a_time") &gt;= 0, "retro_years must be &gt;= 0")) </span></span>
 <span><span class="co">##         return(NaN)</span></span>
 <span><span class="co">##     if (cur_time == 0 &amp;&amp; assert_msg(project_years &gt;= 0, "project_years must be &gt;= 0")) </span></span>
 <span><span class="co">##         return(NaN)</span></span>
 <span><span class="co">##     cur_year &lt;- start_year + (cur_time%/%step_count)</span></span>
 <span><span class="co">##     cur_year_projection &lt;- cur_year &gt; end_year - g3_param("retro_years", </span></span>
-<span><span class="co">##         value = 0, optimise = FALSE)</span></span>
+<span><span class="co">##         value = 0, optimise = FALSE, source = "g3a_time")</span></span>
 <span><span class="co">##     cur_step &lt;- (cur_time%%step_count) + 1L</span></span>
 <span><span class="co">##     cur_step_size &lt;- step_lengths[[cur_step]]/12</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x5610a7a0bb08&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55784ff43970&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $`001`</span></span>
 <span><span class="co">## ~{</span></span>
 <span><span class="co">##     if (cur_time &gt; total_steps) </span></span>
 <span><span class="co">##         return(nll)</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x5610ac25eac0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x557855baa998&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## function (param) </span></span>
+<pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
 <span><span class="co">##     stopifnot("retro_years" %in% names(param))</span></span>
 <span><span class="co">##     assert_msg &lt;- function(expr, message) {</span></span>
@@ -299,14 +299,14 @@ code.</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5610a5337548&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5610aa4c53a0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557852b75e30&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557854b863d0&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## function (param) </span></span>
+<pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
 <span><span class="co">##     stopifnot("retro_years" %in% names(param))</span></span>
 <span><span class="co">##     assert_msg &lt;- function(expr, message) {</span></span>
@@ -355,8 +355,8 @@ model. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5610aa62cd38&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5610a7b14188&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557854ec8d70&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55784e2325b8&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -438,7 +438,7 @@ example:</p>
 <span>        maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span>
 <span>    transition_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fn</span></span></code></pre></div>
-<pre><code><span><span class="co">## function (param) </span></span>
+<pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
 <span><span class="co">##     stopifnot("ling.bbin" %in% names(param))</span></span>
 <span><span class="co">##     growth_bbinom &lt;- function(delt_l, binn, beta) {</span></span>
@@ -583,8 +583,8 @@ example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5610a8ceadc0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5610a4f77a98&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x557852a1f4c8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x5578534b96d8&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -603,7 +603,7 @@ definitions into the code where appropriate. For example:</p>
 <span>        maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>,</span>
 <span>    transition_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fn</span></span></code></pre></div>
-<pre><code><span><span class="co">## function (param) </span></span>
+<pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
 <span><span class="co">##     stopifnot("ling.bbin" %in% names(param))</span></span>
 <span><span class="co">##     growth_bbinom &lt;- function(delt_l, binn, beta) {</span></span>
@@ -753,8 +753,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5610abd50ae8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5610a9606458&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x5578529498f8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x557852dbc4e0&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>
