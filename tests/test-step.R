@@ -486,3 +486,46 @@ ok_group("g3_step:stock_isdefined", {
         g3_with(archibald := 2, garibaldi := 3, print("aw"))
     }), optimize = FALSE), "stock_isdefined nested in g3_with, defines don't leak")
 })
+
+ok_group("g3_step:resolve_stock_list", local({
+    st_a  <- g3_stock(c("st", "a"), 0)
+    st_b  <- g3_stock(c("st", "b"), 0)
+    st_c  <- g3_stock(c("st", "c"), 0)
+
+    ok(ut_cmp_error({
+        stock_list <- list(
+            st_a = g3_formula(quote( a + 1 ), a = 99),
+            st_b = g3_formula(quote( a + 1 ), a = 88) )
+        gadget3:::resolve_stock_list(stock_list, st_c)
+    }, "st_c"), "Missing option and no default an error")
+
+    ok(ut_cmp_error({
+        stock_list <- list(
+            st_a = g3_formula(quote( a + 1 ), a = 99),
+            st_b = g3_formula(quote( a + 1 ), a = 88),
+            1,
+            2 )
+        gadget3:::resolve_stock_list(stock_list, st_c)
+    }, "Only one default", ignore.case = TRUE), "Multiple defaults an error")
+
+    stock_list <- list(
+        st_a = g3_formula(quote( a + 1 ), a = 99),
+        st_b = g3_formula(quote( a + 1 ), a = 88),
+        g3_formula(quote( a + 1 ), a = 77) )
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(stock_list, st_a),
+        g3_formula(quote( a + 1 ), a = 99) ), "stock_list / st_a")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(stock_list, st_b),
+        g3_formula(quote( a + 1 ), a = 88) ), "stock_list / st_b")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(stock_list, st_c),
+        g3_formula(quote( a + 1 ), a = 77) ), "stock_list / st_c (the default)")
+
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(g3_formula(1 + 1), st_b),
+        g3_formula(1 + 1) ), "Single item / st_b (return regardless)")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(g3_formula(1 + 1), st_c),
+        g3_formula(1 + 1) ), "Single item / st_c (return regardless)")
+}))

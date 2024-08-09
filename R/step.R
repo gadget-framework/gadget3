@@ -528,3 +528,18 @@ list_to_stock_switch <- function(l, stock_var = "stock") {
     # Use input list as our substitutions
     f_substitute(out_call, l)
 }
+
+# Resolve stock_list (e.g. suitability) ahead of time, unlike list_to_stock_switch
+resolve_stock_list <- function (l, stock) {
+    # Only one option, return it
+    if (!is.list(l)) return(l)
+
+    # If the one we want is present, return that
+    if (stock$name %in% names(l)) return(l[[stock$name]])
+
+    # Find a default and return it
+    defaults <- l[!nzchar(names(l))]
+    if (length(defaults) == 0) stop("Missing option for ", stock$name)
+    if (length(defaults) > 1) stop("Only one default option allowed")
+    return(defaults[[1]])
+}

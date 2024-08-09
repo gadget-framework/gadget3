@@ -227,7 +227,7 @@ g3a_predate <- function (
         suitrep_step <- g3a_suitability_report(
             predstock,
             stock,
-            list_to_stock_switch(suitabilities) )
+            resolve_stock_list(suitabilities, stock) )
         # Add suitability report steps to our list
         for (i in seq_along(suitrep_step)) out[[names(suitrep_step)[[i]]]] <- suitrep_step[[i]]
         # Find the suitability report definition
