@@ -98,7 +98,6 @@ g3a_suitability_report <- function (
     predstock,
     stock,
     suit_f,
-    run_f = quote( cur_time > total_steps ),
     run_at = g3_action_order$report_early ) {
   # NB: Should match definition in action_predate.R
   predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
@@ -106,7 +105,16 @@ g3a_suitability_report <- function (
   suit_f <- g3_step(f_substitute(~stock_with(stock, suit_f), list(suit_f = suit_f)), recursing = TRUE)  # Resolve stock_switch
 
   suit_dims <- all.vars(suit_f)
-  if ("cur_step" %in% suit_dims) stop("Can't generate a time-varying suitability report")
+
+  # Work out when to refresh, by mentions of time
+  run_f <- quote( cur_time == 0L )
+  if ("cur_step" %in% suit_dims || "cur_time" %in% suit_dims) {
+      run_f <- quote( TRUE )
+  } else if ("cur_year" %in% suit_dims) {
+      run_f <- quote( cur_step == 1 )
+  }
+  suit_dims <- suit_dims[!(suit_dims %in% c("cur_time", "cur_step", "cur_year"))]
+
   # Special case, swap use of stock__midlen with general iterator name
   suit_dims[suit_dims == paste0(stock$name, "__midlen")] <- "length"
 
@@ -126,7 +134,7 @@ g3a_suitability_report <- function (
 
   # Step to populate array
   out <- list()
-  out[[step_id(run_at, 0, "g3a_suitability_report", predstock, stock)]] <- g3_step(f_substitute(~if (cur_step == 1) stock_with(suitrep, {
+  out[[step_id(run_at, 0, "g3a_suitability_report", predstock, stock)]] <- g3_step(f_substitute(~if (run_f) stock_with(suitrep, {
       stock_iterate(stock, stock_interact(predstock, {
           stock_ss(suitrep__report) <- suit_f
       }, prefix = 'predator'))

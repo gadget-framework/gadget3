@@ -294,7 +294,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             detail_fish__num[, , , cur_time + 1] <- as_numeric_arr(fish__num)
         if ((cur_time <= total_steps && param[["report_detail"]] == 1)) 
             detail_fish__wgt[, , , cur_time + 1] <- as_numeric_arr(fish__wgt)
-        if (cur_step == 1) {
+        if (cur_time == 0L) {
             suit_fish_comm__report[] <- 1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]])))
             REPORT(suit_fish_comm__report)
         }

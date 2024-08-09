@@ -320,11 +320,11 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 }
             }
         }
-        if (cur_step == 1) {
+        if (cur_time == 0L) {
             suit_ling_imm_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]])))
             REPORT(suit_ling_imm_igfs__report)
         }
-        if (cur_step == 1) {
+        if (cur_time == 0L) {
             suit_ling_mat_igfs__report[] <- 1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]])))
             REPORT(suit_ling_mat_igfs__report)
         }

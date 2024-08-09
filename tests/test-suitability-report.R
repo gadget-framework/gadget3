@@ -7,10 +7,12 @@ library(gadget3)
 prey_a <- g3_stock('prey_a', seq(1, 10)) |> g3s_age(1,3) |> g3s_livesonareas(c(1,2))
 prey_b <- g3_stock('prey_b', seq(1, 10)) |> g3s_age(1,3) |> g3s_livesonareas(c(2,3))
 fleet_a <- g3_fleet('fleet_a') |> g3s_livesonareas(c(1))
+fleet_b <- g3_fleet('fleet_b') |> g3s_livesonareas(c(1))
+fleet_c <- g3_fleet('fleet_c') |> g3s_livesonareas(c(1))
 pred_a <- g3_stock('pred_a', seq(50, 80, by = 10)) |> g3s_age(0, 10) |> g3s_livesonareas(c(1,2,3))
 
 actions <- list(
-    g3a_time(2000, 2000, step_lengths = c(6,6), project_years = 0),
+    g3a_time(2000, 2002, step_lengths = c(6,6), project_years = 0),
     g3a_initialconditions(prey_a, ~1e10 + 0 * prey_a__midlen, ~100),
     g3a_initialconditions(prey_b, ~2e10 + 0 * prey_b__midlen, ~200),
     g3a_initialconditions(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
@@ -23,6 +25,16 @@ actions <- list(
             prey_b = g3_suitability_andersenfleet() ),
         catchability_f = g3a_predate_catchability_totalfleet(0) ),
     g3a_predate(
+        fleet_b,
+        list(prey_a),
+        suitabilities = quote( cur_year * age ),
+        catchability_f = g3a_predate_catchability_totalfleet(0) ),
+    g3a_predate(
+        fleet_c,
+        list(prey_a),
+        suitabilities = quote( cur_step * stock__midlen ),
+        catchability_f = g3a_predate_catchability_totalfleet(0) ),
+    g3a_predate(
         pred_a,
         list(prey_a, prey_b),
         suitabilities = list(
@@ -32,6 +44,7 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     ~{nll <- nll + g3_param("x", value = 0)} )
 actions <- c(actions, list(
+    g3a_report_history(actions, "suit_.*__report"),
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions)
@@ -60,6 +73,27 @@ ok(ut_cmp_identical(
         length = c("1:2", "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", "10:Inf"),
         age = c("age1", "age2", "age3"),
         predator_length = c("50:60", "60:70", "70:80", "80:Inf") )), "suit_prey_b_pred_a__report")
+
+ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_suit_prey_a_fleet_b__report), '
+     2000-01 2000-02 2001-01 2001-02 2002-01 2002-02
+age1    2000    2000    2001    2001    2002    2002
+age2    4000    4000    4002    4002    4004    4004
+age3    6000    6000    6003    6003    6006    6006
+'), "hist_suit_prey_a_fleet_b__report: Updated every year")
+
+ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_suit_prey_a_fleet_c__report), '
+       2000-01 2000-02 2001-01 2001-02 2002-01 2002-02
+1:2        1.5       3     1.5       3     1.5       3
+2:3        2.5       5     2.5       5     2.5       5
+3:4        3.5       7     3.5       7     3.5       7
+4:5        4.5       9     4.5       9     4.5       9
+5:6        5.5      11     5.5      11     5.5      11
+6:7        6.5      13     6.5      13     6.5      13
+7:8        7.5      15     7.5      15     7.5      15
+8:9        8.5      17     8.5      17     8.5      17
+9:10       9.5      19     9.5      19     9.5      19
+10:Inf    10.5      21    10.5      21    10.5      21
+'), "hist_suit_prey_a_fleet_c__report: Flips each step")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## Report dimensions
