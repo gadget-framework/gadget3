@@ -155,7 +155,6 @@ g3a_predate <- function (
         overconsumption_f = quote(
             logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
         ),
-        report_suitability = TRUE,
         run_f = ~TRUE,
         run_at = g3_action_order$predate ) {
     out <- new.env(parent = emptyenv())
@@ -170,7 +169,6 @@ g3a_predate <- function (
             suitabilities,
             catchability_f,
             overconsumption_f = overconsumption_f,
-            report_suitability = report_suitability,
             run_f = run_f,
             run_at = run_at ))))
     }
@@ -225,15 +223,16 @@ g3a_predate <- function (
             stock_with(predstock, predstock__totalsuit[] <- 0)
         })
 
-        # NB: Without unname(), any prey_stocks names leak into action names
+        # Generate suitability array for this stock
         suitrep_step <- g3a_suitability_report(
             predstock,
             stock,
             list_to_stock_switch(suitabilities) )
+        # Add suitability report steps to our list
         for (i in seq_along(suitrep_step)) out[[names(suitrep_step)[[i]]]] <- suitrep_step[[i]]
+        # Find the suitability report definition
         suitrep <- environment(suitrep_step[[1]])$suitrep
         suitrep__report <- environment(suitrep_step[[1]])$suitrep__report
-        report_suitability <- FALSE
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
         catchability <- f_substitute(catchability_f$suit, list(suit_f = quote(suitability)))
@@ -328,13 +327,6 @@ g3a_predate <- function (
             run_f = run_f )))
     }
 
-    if (report_suitability) return(c(
-        as.list(out),
-        # NB: Without unname(), any prey_stocks names leak into action names
-        do.call(c, lapply(unname(prey_stocks), function (stock) g3a_suitability_report(
-            predstock,
-            stock,
-            list_to_stock_switch(suitabilities) )))))
     return(as.list(out))
 }
 
