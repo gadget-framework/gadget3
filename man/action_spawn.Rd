@@ -231,34 +231,50 @@ g3a_spawn(
 }
 
 \examples{
-\dontshow{library(magrittr)}
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
-ling_mat <- g3_stock('ling_mat', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+ling_imm <- g3_stock(c('ling', maturity = 'imm'), seq(20, 156, 4)) |> g3s_age(0, 10)
+ling_mat <- g3_stock(c('ling', maturity = 'mat'), seq(20, 156, 4)) |> g3s_age(3, 10)
 
-spawn_action <- g3a_spawn(
-    # Spawn from ling_mat
-    ling_mat,
-    # Use Ricker Recruitment Function to calculate # of recruits from total biomass
-    recruitment_f = g3a_spawn_recruitment_ricker(
-        g3_parameterized("ricker.mu"),
-        g3_parameterized("ricker.lambda")),
-    # Proportion of ling_mat spawning exponential relationship based on length
-    proportion_f = g3_suitability_exponentiall50(
-        alpha = g3_parameterized("spawn.prop.alpha", scale = -1),
-        l50 = g3_parameterized("spawn.prop.l50")),
-    # Proportion of ling_mat dying during spawning linear relationship to length
-    mortality_f = g3_suitability_straightline(
-        alpha = g3_parameterized("spawn.mort.alpha"),
-        beta = g3_parameterized("spawn.mort.beta")),
-    # Weightloss of ling_mat during spawning a constant
-    weightloss_f = g3_parameterized("spawn.weightloss"),
-    # Spawn into ling_imm
-    output_stocks = list(ling_imm),
-    # Spawned stock structure, as-per g3a_renewal_normalparam()
-    mean_f = 50,
-    stddev_f = 0.9,
-    alpha_f = 1,
-    beta_f = 1,
-    # Spawning should happen on the first step of every year
-    run_f = ~cur_step==1)
+actions <- list(
+    g3a_time(1990, 1994, c(6, 6)),
+    g3a_initialconditions_normalcv(ling_imm),
+    g3a_initialconditions_normalcv(ling_mat),
+    g3a_age(ling_imm),
+    g3a_age(ling_mat),
+
+    g3a_spawn(
+        # Spawn from ling_mat
+        ling_mat,
+        # Use Ricker Recruitment Function to calculate # of recruits from total biomass
+        recruitment_f = g3a_spawn_recruitment_ricker(),
+        # Proportion of ling_mat spawning exponential relationship based on length
+        proportion_f = g3_suitability_exponentiall50(
+            alpha = g3_parameterized("spawn.prop.alpha", value = 4, scale = -1),
+            l50 = g3_parameterized("spawn.prop.l50", value = 60)),
+        # Proportion of ling_mat dying during spawning linear relationship to length
+        mortality_f = g3_suitability_straightline(
+            alpha = g3_parameterized("spawn.mort.alpha"),
+            beta = g3_parameterized("spawn.mort.beta")),
+        # Spawn into ling_imm
+        output_stocks = list(ling_imm),
+        # Spawning should happen on the first step of every year
+        run_f = ~cur_step==1 ),
+    NULL )
+model_fn <- g3_to_r(c(actions,
+    g3a_report_detail(actions),
+    g3a_report_history(actions, "__spawningnum$|__offspringnum$") ))
+
+attr(model_fn, "parameter_template") |>
+    # g3a_initialconditions_normalcv()
+    g3_init_val("*.Linf", 50) |>
+    g3_init_val("*.t0", -1.4) |>
+    g3_init_val("*.walpha", 0.1) |>
+    g3_init_val("*.wbeta", 1) |>
+    # g3a_spawn_recruitment_ricker()
+    g3_init_val("*.spawn.mu", 1e6) |>
+    g3_init_val("*.spawn.lambda", 30) |>
+    identity() -> params
+
+r <- attributes(model_fn(params))
+colSums(r$detail_ling_imm__num)
+
 }
