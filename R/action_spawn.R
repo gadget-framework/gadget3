@@ -119,7 +119,7 @@ g3a_spawn <- function(
         x = run_step ))
 
     # See SpawnData::Spawn line 286
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "g3a_spawn", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("Collect total spawned offspring from ", stock, " spawning event")
 
         debug_trace("Calculate spawning proportion of ", stock)
@@ -224,7 +224,7 @@ g3a_spawn <- function(
             out_f
         }, list(out_f = out_f)), recursing = TRUE)
     }
-    out[[step_id(recruit_at, stock, action_name)]] <- g3_step(out_f)
+    out[[step_id(recruit_at, "g3a_spawn", stock, action_name)]] <- g3_step(out_f)
 
     return(out)
 }
