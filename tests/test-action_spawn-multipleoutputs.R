@@ -57,11 +57,12 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 estimate_l50 <- g3_stock_def(st_mat, "midlen")[[length(g3_stock_def(st_mat, "midlen")) / 2]]
-estimate_linf <- max(g3_stock_def(st_mat, "midlen"))
 
 for (spawn_ratio in runif(5)) ok_group(paste0("spawn_ratio: ", spawn_ratio), {
   attr(model_fn, 'parameter_template') |>
-    g3_init_val("*.Linf", estimate_linf, spread = 0.2) |>
+    g3_init_val("fish_imm_m.Linf", g3_stock_def(st_mat, "midlen")[[1]]) |>
+    g3_init_val("fish_imm_f.Linf", g3_stock_def(st_mat, "midlen")[[3]]) |>
+    g3_init_val("fish_mat.Linf", g3_stock_def(st_mat, "midlen")[[5]]) |>
     g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
     g3_init_val("*.wbeta", 3, optimise = FALSE) |>
 
@@ -74,6 +75,16 @@ for (spawn_ratio in runif(5)) ok_group(paste0("spawn_ratio: ", spawn_ratio), {
   num_spawn <- colSums(r$hist_fish_mat__offspringnum, dims = 3)
   num_m <- colSums(r$hist_fish_imm_m__num, dims = 3)
   num_f <- colSums(r$hist_fish_imm_f__num, dims = 3)
+
+  # Make sure lengthgroup structure varies between m & f (i.e. used appropriate Linfs)
+  for (t in dimnames(r$hist_fish_imm_m__num)$time) {
+    ok(ut_cmp_identical(
+        names(which.max(r$hist_fish_imm_m__num[,1,1,time = t])),
+        "5:10"), paste0("r$hist_fish_imm_m__num[,1,1,time = ", t, "]: Shortest lengthgroup most populated"))
+    ok(ut_cmp_identical(
+        names(which.max(r$hist_fish_imm_f__num[,1,1,time = t])),
+        "10:15"), paste0("r$hist_fish_imm_f__num[,1,1,time = ", t, "]: Second lengthgroup most populated"))
+  }
 
   ok(ut_cmp_equal(
     cumsum(num_spawn * (1 - spawn_ratio)),
