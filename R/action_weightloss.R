@@ -3,6 +3,7 @@ g3a_weightloss <- function (
         rel_loss = NULL,
         abs_loss = NULL,
         min_weight = 1e-7,
+        apply_to_pop = quote( stock__num ),
         run_f = TRUE,
         run_step = NULL,
         run_at = g3_action_order$naturalmortality ) {
@@ -26,10 +27,21 @@ g3a_weightloss <- function (
         list(wl_f = wl_f) )
     if (!is.null(abs_loss)) wl_f <- f_substitute(
         g3_formula(
-            quote( logspace_add_vec((wl_f - abs_loss) * 1e3, min_weight) / 1e3 ),
+            quote( logspace_add_vec((wl_f - abs_loss) * 1e7, min_weight) / 1e7 ),
             min_weight = min_weight,
             abs_loss = abs_loss ),
         list(wl_f = wl_f) )
+
+    # If not applying to whole population, wrap in ratio_add_vec()
+    if (!identical(apply_to_pop, quote( stock__num ))) wl_f <- f_substitute(
+        quote( ratio_add_vec(
+            stock_ss(stock__wgt),
+            stock_ss(stock__num) - stock_ss(apply_to_pop),
+            wl_f,
+            stock_ss(apply_to_pop) ) ),
+        list(
+            apply_to_pop = apply_to_pop,
+            wl_f = wl_f ))
 
     out[[step_id(run_at, "g3a_weightloss", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_weightloss: Weight loss for ", stock)

@@ -13,6 +13,7 @@ g3a_weightloss(
         rel_loss = NULL,
         abs_loss = NULL,
         min_weight = 1e-7,
+        apply_to_pop = quote( stock__num ),
         run_f = TRUE,
         run_step = NULL,
         run_at = g3_action_order$naturalmortality )
@@ -34,6 +35,10 @@ g3a_weightloss(
     Minimum weight below which weight cannot fall further.
     Should be more than zero to avoid models returning NaN.
   }
+  \item{apply_to_pop}{
+    Stock instance weightloss applies to, by default applies to whole stock.
+    Used by \code{\link{g3a_spawn}} to apply to subset that spawned.
+  }
   \item{run_step}{
     Which step to perform renewal in, or \code{NULL} for continuous spawning.
     Adds \code{cur_step == (run_step)} into default \var{run_f}.
@@ -54,6 +59,7 @@ g3a_weightloss(
 
 \seealso{
   \code{\link{g3a_naturalmortality}},
+  \code{\link{g3a_spawn}},
   \code{\link{g3_stock}}
 }
 
@@ -77,4 +83,6 @@ g3a_weightloss(
   model_fn <- g3_to_r(c(actions, g3a_report_detail(actions)))
   r <- model_fn(attr(model_fn, 'parameter_template'))
   attr(r, "detail_st__wgt")[1,,]
+
+  ## See g3a_spawn for an example of weightloss in spawning
 }

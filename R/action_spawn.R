@@ -89,6 +89,7 @@ g3a_spawn <- function(
         proportion_f = 1,
         mortality_f = 0,
         weightloss_f = 0,
+        weightloss_args = list(),
         output_stocks = list(),
         output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
@@ -106,6 +107,7 @@ g3a_spawn <- function(
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
     stopifnot(!is.numeric(output_ratios) || abs(sum(output_ratios) - 1) < 0.0001)
+    stopifnot(is.list(weightloss_args))
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
     stock__spawnprop <- g3_stock_instance(stock, desc = "Proportion of parents that are spawning")
@@ -145,15 +147,6 @@ g3a_spawn <- function(
         })
 
         stock_iterate(stock, if (run_f) {
-            if (weightloss_enabled) {
-                debug_trace("Apply weight loss to parents")
-                # Spawndata::Spawn, pop
-                stock_ss(stock__wgt) <- ratio_add_vec(
-                    stock_ss(stock__wgt),
-                    stock_ss(stock__num) - stock_ss(stock__spawningnum),
-                    stock_ss(stock__wgt) - stock_ss(stock__wgt) * weightloss_f,
-                    stock_ss(stock__spawningnum))
-            }
             if (mortality_enabled) {
                 debug_trace("Apply spawning mortality to parents")
                 # Spawndata::Spawn, pop
@@ -168,9 +161,24 @@ g3a_spawn <- function(
         proportion_f = f_substitute(proportion_f, list(predstock = 'spawn')),
         mortality_enabled = !identical(mortality_f, 0),
         mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
-        weightloss_enabled = !identical(weightloss_f, 0),
-        weightloss_f = weightloss_f,
         run_f = run_f)))
+
+    # Rewrite weightloss_f as weightloss_args
+    if (!identical(weightloss_f, 0)) {
+        weightloss_args <- list(
+            rel_loss = weightloss_f,
+            min_weight = 0 )
+    }
+
+    if (length(weightloss_args) > 0) {
+        out[[step_id(run_at, "g3a_spawn:weightloss", stock, action_name)]] <- do.call(g3a_weightloss, c(
+            list(
+                stock = stock,
+                apply_to_pop = quote( stock__spawningnum ),
+                run_f = run_f,
+                run_step = NULL,  # NB: Already substituted into run_f
+                run_at = g3_action_order$spawn), weightloss_args), quote = TRUE)[[1]]
+    }
 
     # Move spawned fish into their own stock
     out_f <- ~{}

@@ -29,6 +29,9 @@ actions <- list(
       mu = g3_parameterized('spawn_mu', value = 5, by_year = TRUE),
       lambda = g3_parameterized("spawn_lambda", value = 1, by_stock = TRUE) ),
     proportion_f = g3_suitability_exponentiall50(),
+    weightloss_args = list(
+        abs_loss = g3_parameterized("spawn.weightabsloss", value = 0),
+        rel_loss = g3_parameterized("spawn.weightrelloss", value = 0) ),
     output_stocks = list(st_imm_f, st_imm_m),
     output_ratios = list(
       st_imm_f = quote( g3_param('spawn_ratio', value = 0.5) ),
@@ -44,17 +47,12 @@ model_fn <- g3_to_r(c(actions, list(
       '__offspringnum$',
       '__num$',
       '__wgt$' )))))
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-  model_cpp <- g3_to_tmb(c(actions, list(
-    g3a_report_history(actions, c(
-        '__offspringnum$',
-        '__num$',
-        '__wgt$' )))))
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(c(actions, list(
+  g3a_report_history(actions, c(
+      '__offspringnum$',
+      '__num$',
+      '__wgt$' )))))
+  # model_cpp <- edit(model_cpp)
 
 estimate_l50 <- g3_stock_def(st_mat, "midlen")[[length(g3_stock_def(st_mat, "midlen")) / 2]]
 
@@ -95,9 +93,58 @@ for (spawn_ratio in runif(5)) ok_group(paste0("spawn_ratio: ", spawn_ratio), {
     num_f,
     tolerance = 1e-8), "hist_fish_imm_f__num: Cumulatve proportion of __offspringnum")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
+
+ok_group("weightloss") ################
+attr(model_fn, 'parameter_template') |>
+  g3_init_val("fish_imm_m.Linf", g3_stock_def(st_mat, "midlen")[[1]]) |>
+  g3_init_val("fish_imm_f.Linf", g3_stock_def(st_mat, "midlen")[[3]]) |>
+  g3_init_val("fish_mat.Linf", g3_stock_def(st_mat, "midlen")[[5]]) |>
+  g3_init_val("*.walpha", 1, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 1, optimise = FALSE) |>
+
+  g3_init_val("*.*.l50", estimate_l50, spread = 0.25) |>
+  g3_init_val("spawn_ratio", spawn_ratio) |>
+  g3_init_val('spawn.weightabsloss', 0.2) |>
+
+  identity() -> params
+r <- sapply(attributes(model_fn(params)), drop)
+
+# NB: We can't check spawn.weightabsloss = 0, since inaccuracy in ratio_log_vec() makes a mess
+
+ok(ut_cmp_equal(round(diff(colSums(r$hist_fish_mat__wgt[,8,])), 1)[seq(1, 31, by = 2)], c(
+    "1980-02" = 0,
+    "1981-02" = 0,
+    "1982-02" = 0,
+    "1983-02" = 0,
+    "1984-02" = 0,
+    "1985-02" = 0,
+    "1986-02" = 0,
+    "1987-02" = 0,
+    "1988-02" = 0,
+    "1989-02" = 0,
+    "1990-02" = 0,
+    "1991-02" = 0,
+    "1992-02" = 0,
+    "1993-02" = 0,
+    "1994-02" = 0,
+    "1995-02" = 0 )), "r$hist_fish_mat__wgt[,8,]: No weightloss outside spawning steps")
+ok(ut_cmp_equal(round(diff(colSums(r$hist_fish_mat__wgt[,8,])), 1)[seq(2, 30, by = 2)], c(
+    "1981-01" = -0.4,
+    "1982-01" = -0.5,
+    "1983-01" = -0.5,
+    "1984-01" = -0.5,
+    "1985-01" = -0.4,
+    "1986-01" = -0.3,
+    "1987-01" = -0.2,
+    "1988-01" = -0.4,
+    "1989-01" = -0.4,
+    "1990-01" = -0.4,
+    "1991-01" = -0.4,
+    "1992-01" = -0.4,
+    "1993-01" = -0.4,
+    "1994-01" = -0.4,
+    "1995-01" = -0.4 )), "r$hist_fish_mat__wgt[,8,]: Total weight loss roughly 0.4 (first lengthgroup not spawning, half of remaining 4 spawning)")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
