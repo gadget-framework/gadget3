@@ -5,6 +5,26 @@ library(gadget3)
 
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
+ok_group("g3_step:call", local({ # g3_step should work with a call, at least recursively.
+    f <- gadget3:::g3_step(quote( stock_iterate(st, stock_ss(st__num, vec = single)) ), recursing = TRUE, orig_env = as.environment(list(
+        st = g3_stock("stst", 1:5),
+        end = NULL )))
+    ok(gadget3:::ut_cmp_code(f, quote(
+        for (stst__length_idx in seq_along(stst__midlen)) g3_with(
+            length := stst__midlen[[stst__length_idx]],
+            stst__num[stst__length_idx])
+    )), "Triggered stock_iterate from quote()d code")
+    ok(ut_cmp_equal(
+        environment(f)$stst__midlen,
+        gadget3:::as_force_vector(c(
+            "1:2" = 1.5,
+            "2:3" = 2.5,
+            "3:4" = 3.5,
+            "4:5" = 4.5,
+            "5:Inf" = 5.5,
+            NULL )) ), "stst__midlen: Added to newly-created environment")
+}))
+
 ok_group("step_id", {
     step_id <- gadget3:::step_id
     stock_a <- g3_stock('stock_aaa', seq(10, 35, 5))

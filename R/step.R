@@ -10,7 +10,8 @@
 # - stock_isdefined(var) - Make sure variable var is defined at this point (e.g. an iterator)
 # References to the stock will also be renamed to their final name
 g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
-    stopifnot(rlang::is_formula(step_f))
+    stopifnot(rlang::is_formula(step_f) || is.call(step_f))
+    if (!rlang::is_formula(step_f)) step_f <- call_to_formula(step_f, new.env(parent = emptyenv()))
 
     # Traverse (in_c), converting stock_isdefined() to TRUE/FALSE, depending if it's var was found
     resolve_stock_isdefined <- function (in_c, sym_names = c()) {
@@ -126,7 +127,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         if (is.null(prefix)) prefix <- ""  # NB: Remove any interactvar prefix by default
 
         # Recurse first, filling out any inner functions
-        inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
+        inner_f <- call_to_formula(x[[3]], environment(step_f))
         inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
         # Wrap with stock's code
@@ -167,7 +168,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                     environment(f),
                     parent = environment(step_f))
             } else {
-                f <- call_to_formula(f, rlang::f_env(step_f))
+                f <- call_to_formula(f, environment(step_f))
             }
             # Fill out any stock functions, rename stocks
             f <- stock_rename(f, stock_var, stock$name)
@@ -180,7 +181,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         out_f <- stock_rename(out_f, stock_var, stock$name)
 
         # Add environment to formulae's environment, return inner call
-        environment_merge(rlang::f_env(step_f), rlang::f_env(out_f), ignore_overlap = TRUE)
+        environment_merge(environment(step_f), rlang::f_env(out_f), ignore_overlap = TRUE)
         return(rlang::f_rhs(out_f))
     }
 
@@ -188,7 +189,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         comment_str <- paste(vapply(tail(x, -1), function (a) {
             if (is.symbol(a)) {
                 # Dereference symbols
-                a <- get(as.character(a), envir = rlang::f_env(step_f))
+                a <- get(as.character(a), envir = environment(step_f))
                 # Stocks have a name attribute
                 if (is.list(a) && 'name' %in% names(a)) a <- a$name
             }
@@ -215,7 +216,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             comment_str <- paste(vapply(tail(x, -2), function (a) {
                 if (is.symbol(a)) {
                     # Dereference symbols
-                    a <- get(as.character(a), envir = rlang::f_env(step_f))
+                    a <- get(as.character(a), envir = environment(step_f))
                     # Stocks have a name attribute
                     if (is.list(a) && 'name' %in% names(a)) a <- a$name
                 }
@@ -229,13 +230,13 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             stock <- get(as.character(stock_var), envir = orig_env)
 
             # Recurse first, letting renames happen
-            inner_f <- call_to_formula(x[[3]], rlang::f_env(step_f))
+            inner_f <- call_to_formula(x[[3]], environment(step_f))
             inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
             if (!("length" %in% names(stock$dim))) {
                 # No length dimension, so sum everything
                 out_f <- f_substitute(quote( sum(inner_f) ), list(inner_f = inner_f))
-                environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+                environment_merge(environment(step_f), rlang::f_env(out_f))
                 return(rlang::f_rhs(out_f))
             }
 
@@ -281,7 +282,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             }
 
             # Add environment to formulae's environment, return inner call
-            environment_merge(rlang::f_env(step_f), rlang::f_env(out_f))
+            environment_merge(environment(step_f), rlang::f_env(out_f))
             return(rlang::f_rhs(out_f))
         },
         # stock_ss subsets stock data var, overriding any set expressions
@@ -443,7 +444,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                         environment(f),
                         parent = environment(step_f))
                 } else {
-                    f <- call_to_formula(f, rlang::f_env(step_f))
+                    f <- call_to_formula(f, environment(step_f))
                 }
                 f <- g3_step(f, recursing = TRUE, orig_env = orig_env)
                 return(f)
