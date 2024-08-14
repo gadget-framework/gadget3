@@ -89,6 +89,7 @@ g3a_spawn <- function(
         proportion_f = 1,
         mortality_f = 0,
         weightloss_f = 0,
+        weightloss_args = list(),
         output_stocks = list(),
         output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
@@ -106,6 +107,7 @@ g3a_spawn <- function(
     stopifnot(identical(names(recruitment_f), c('s', 'r')))
     stopifnot(length(output_stocks) == length(output_ratios))
     stopifnot(!is.numeric(output_ratios) || abs(sum(output_ratios) - 1) < 0.0001)
+    stopifnot(is.list(weightloss_args))
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
     stock__spawnprop <- g3_stock_instance(stock, desc = "Proportion of parents that are spawning")
@@ -119,7 +121,7 @@ g3a_spawn <- function(
         x = run_step ))
 
     # See SpawnData::Spawn line 286
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "g3a_spawn", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("Collect total spawned offspring from ", stock, " spawning event")
 
         debug_trace("Calculate spawning proportion of ", stock)
@@ -145,15 +147,6 @@ g3a_spawn <- function(
         })
 
         stock_iterate(stock, if (run_f) {
-            if (weightloss_enabled) {
-                debug_trace("Apply weight loss to parents")
-                # Spawndata::Spawn, pop
-                stock_ss(stock__wgt) <- ratio_add_vec(
-                    stock_ss(stock__wgt),
-                    stock_ss(stock__num) - stock_ss(stock__spawningnum),
-                    stock_ss(stock__wgt) - stock_ss(stock__wgt) * weightloss_f,
-                    stock_ss(stock__spawningnum))
-            }
             if (mortality_enabled) {
                 debug_trace("Apply spawning mortality to parents")
                 # Spawndata::Spawn, pop
@@ -168,37 +161,54 @@ g3a_spawn <- function(
         proportion_f = f_substitute(proportion_f, list(predstock = 'spawn')),
         mortality_enabled = !identical(mortality_f, 0),
         mortality_f = g3a_naturalmortality_exp(mortality_f, action_step_size_f = 1),
-        weightloss_enabled = !identical(weightloss_f, 0),
-        weightloss_f = weightloss_f,
         run_f = run_f)))
+
+    # Rewrite weightloss_f as weightloss_args
+    if (!identical(weightloss_f, 0)) {
+        weightloss_args <- list(
+            rel_loss = weightloss_f,
+            min_weight = 0 )
+    }
+
+    if (length(weightloss_args) > 0) {
+        out[[step_id(run_at, "g3a_spawn:weightloss", stock, action_name)]] <- do.call(g3a_weightloss, c(
+            list(
+                stock = stock,
+                apply_to_pop = quote( stock__spawningnum ),
+                run_f = run_f,
+                run_step = NULL,  # NB: Already substituted into run_f
+                run_at = g3_action_order$spawn), weightloss_args), quote = TRUE)[[1]]
+    }
 
     # Move spawned fish into their own stock
     out_f <- ~{}
-    for (i in seq_along(output_stocks)) {
-        output_stock <- output_stocks[[i]]
+    for (i in seq_along(output_stocks)) local({
+        # NB: Temporarily name output_stock "stock", so formulas in mean_f do something sensible
+        parent_stock <- stock
+        stock <- output_stocks[[i]]
         output_ratio <- output_ratios[[i]]
-        output_stock__spawnednum <- g3_stock_instance(output_stock, desc = "Individuals spawned by parent")
+        stock__spawnednum <- g3_stock_instance(stock, desc = "Individuals spawned by parent")
 
-        out_f <- g3_step(f_substitute(~{
-            debug_trace("Generate normal distribution for spawned ", output_stock)
-            stock_with(output_stock, output_stock__spawnednum[] <- 0)
+        out_f <<- g3_step(f_substitute(~{
+            debug_trace("Generate normal distribution for spawned ", stock)
+            stock_with(stock, stock__spawnednum[] <- 0)
             # sum(*__spawnednum) is roughly equivalent to Spawner::Storage
             # Spawner::Storage spawns into a union of output stocks first, we spawn directly to output stocks
-            stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
-                stock_ss(output_stock__spawnednum) <- exp(-(((output_stock__midlen - (mean_f)) * (1 / (stddev_f))) ** 2) * 0.5)
+            stock_iterate(stock, if (run_f && renew_into_f && output_stock_cond) {
+                stock_ss(stock__spawnednum) <- exp(-(((stock__midlen - mean_f) * (1 / stddev_f)) ** 2) * 0.5)
             })
             extension_point
             debug_trace("Scale total spawned stock by total to spawn in cycle")
             # __offspringnum eqivalent to calcRecruitNumber()
-            stock_with(output_stock, stock_with(stock,
-                output_stock__spawnednum <- (output_stock__spawnednum / avoid_zero(sum(output_stock__spawnednum))) * sum(stock__offspringnum) * output_ratio))
-            stock_iterate(output_stock, if (run_f && renew_into_f && output_stock_cond) {
-                stock_ss(output_stock__wgt) <- ratio_add_vec(
-                    stock_ss(output_stock__wgt),
-                    stock_ss(output_stock__num),
-                    (alpha_f) * output_stock__midlen ** (beta_f),
-                    stock_ss(output_stock__spawnednum))
-                stock_ss(output_stock__num) <- stock_ss(output_stock__num) + stock_ss(output_stock__spawnednum)
+            stock_with(parent_stock, stock_with(stock,
+                stock__spawnednum <- (stock__spawnednum / avoid_zero(sum(stock__spawnednum))) * sum(parent_stock__offspringnum) * output_ratio))
+            stock_iterate(stock, if (run_f && renew_into_f && output_stock_cond) {
+                stock_ss(stock__wgt) <- ratio_add_vec(
+                    stock_ss(stock__wgt),
+                    stock_ss(stock__num),
+                    (alpha_f) * stock__midlen ** (beta_f),
+                    stock_ss(stock__spawnednum))
+                stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__spawnednum)
             })
         }, list(
             mean_f = mean_f,
@@ -206,11 +216,11 @@ g3a_spawn <- function(
             alpha_f = alpha_f,
             beta_f = beta_f,
             output_ratio = output_ratio,
-            output_stock_cond = ~age == output_stock__minage,
+            output_stock_cond = ~age == stock__minage,
             renew_into_f = renewal_into(stock),
             run_f = run_f,
             extension_point = out_f)), recursing = TRUE)
-    }
+    })
     if (length(output_stocks) == 1) {
         output_stock <- output_stocks[[1]]
         # Label can mention single stock
@@ -224,7 +234,7 @@ g3a_spawn <- function(
             out_f
         }, list(out_f = out_f)), recursing = TRUE)
     }
-    out[[step_id(recruit_at, stock, action_name)]] <- g3_step(out_f)
+    out[[step_id(recruit_at, "g3a_spawn", stock, action_name)]] <- g3_step(out_f)
 
     return(out)
 }

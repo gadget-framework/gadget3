@@ -54,7 +54,6 @@ ok_group('g3a_likelihood_tagging_ckmr', {
             recruitment_f = g3a_spawn_recruitment_ricker(
                 ~g3_param("ricker.mu"),
                 ~g3_param("ricker.lambda")),
-            weightloss_f = ~g3_param("spawn.weightloss"),
             output_stocks = list(ling_imm),
             mean_f = 50,
             stddev_f = 10,
@@ -135,7 +134,6 @@ year parent_age offspring_age mo_pairs
     params$ricker.mu <- 1
     params$ricker.lambda <- 1e-6
     params$tagging_ckmr_weight <- 1.0
-    params$spawn.weightloss <- 0.1
 
     # capture.output(print(attributes(model_fn(params))), file = 'gadget3/test-likelihood_tagging_ckmr.baseline')
 
