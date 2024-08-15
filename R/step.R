@@ -13,17 +13,16 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
     stopifnot(rlang::is_formula(step_f) || is.call(step_f))
     if (!rlang::is_formula(step_f)) step_f <- call_to_formula(step_f, new.env(parent = emptyenv()))
 
+    # Run g3_step an all dependent formulas
     add_dependent_formula_filter <- function (f) {
-        # Attach outer environment so items resolve
-        if (rlang::is_formula(f)) {
-            environment(f) <- rlang::env_clone(
-                environment(f),
-                parent = environment(step_f))
-        } else {
-            f <- call_to_formula(f, environment(step_f))
+        if (!is.call(f)) return(f)
+
+        stacked_env <- rlang::env_clone(environment(step_f), parent = orig_env)
+        f <- g3_step(f, recursing = TRUE, orig_env = stacked_env)
+
+        if (is.call(attr(f, "g3_global_init_val"))) {
+            attr(f, "g3_global_init_val") <- g3_step(attr(f, "g3_global_init_val"), recursing = TRUE, orig_env = stacked_env)
         }
-        # Fill out any stock functions, rename stocks
-        f <- g3_step(f, recursing = TRUE, orig_env = orig_env)
         return(f)
     }
 
@@ -105,7 +104,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             if (length(defns) == 1) {
                 # No definitions left in this g3_with
-                return(as.call(inner))
+                return(if (is.symbol(inner)) inner else as.call(inner))
             }
             if (is.call(inner) && inner[[1]] == as.symbol("g3_with")) {
                 # There's a nested g3_with, merge with our call

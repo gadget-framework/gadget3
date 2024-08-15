@@ -322,6 +322,28 @@ ok_group("g3_step:dependent_formulas", (function () {
 
 })())
 
+ok_group("g3_step:dependent_formulas:init_val", local({
+    stock_imm <- g3_stock('ling_imm', 1)
+    stock_imm__num <- g3_stock_instance(stock_imm, 0)
+
+    fn <- g3_to_r(list(gadget3:::g3_step(g3_formula(quote(
+            return(stock_with(stock_imm, glob + stock_imm__num))
+        ),
+        glob = g3_global_formula(
+            g3_formula(1 + 1),
+            init_val = quote( stock_with(stock_imm, stock_imm__num) )),
+        stock_imm = stock_imm,
+        stock_imm__num = stock_imm__num ))))
+    ok(gadget3:::ut_cmp_code(body(fn), {
+        ling_imm__num <- array(0, dim = c(length = 1L), dimnames = list(length = "1:Inf"))
+        glob <- ling_imm__num
+        while (TRUE) {
+            glob <- 1 + 1
+            return((glob + ling_imm__num))
+        }
+    }, optimize = TRUE), "g3_global_formula: Both dependent formula and it's initval got g3_step()ed")
+}))
+
 ok_group("g3_step:stock_prepend", {
     stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
 
