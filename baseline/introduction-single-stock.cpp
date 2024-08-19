@@ -554,7 +554,7 @@ Type objective_function<Type>::operator() () {
         if ( (cur_time <= total_steps && report_detail == 1) ) {
             detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
         }
-        if ( cur_step == 1 ) {
+        if ( cur_time == 0 ) {
             suit_fish_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish__midlen - fish__f_surv__l50)));
             REPORT(suit_fish_f_surv__report);
         }

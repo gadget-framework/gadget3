@@ -59,7 +59,6 @@ g3a_predate(
         overconsumption_f = quote(
             logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
         ),
-        report_suitability = TRUE,
         run_f = ~TRUE,
         run_at = g3_action_order$predate )
 
@@ -142,12 +141,6 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
   }
   \item{overconsumption_f}{
     Overconsumption rule, a formula that should cap all values in \var{stock__consratio} to <= 95%.
-  }
-  \item{report_suitability}{
-    If TRUE, Generate a \code{suit_(prey)_(predator)__report} suitability array in the model report.
-    The dimensions in the report will vary depending on what the suitability function is dependent on, e.g. \code{predator_length}.
-
-    NB: Currently cannot generate arrays for time-varying suitabilities.
   }
   \item{by_stock}{
     Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.

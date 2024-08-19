@@ -369,11 +369,11 @@ Type objective_function<Type>::operator() () {
                 }
             }
         }
-        if ( cur_step == 1 ) {
+        if ( cur_time == 0 ) {
             suit_ling_imm_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50)));
             REPORT(suit_ling_imm_igfs__report);
         }
-        if ( cur_step == 1 ) {
+        if ( cur_time == 0 ) {
             suit_ling_mat_igfs__report = (double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50)));
             REPORT(suit_ling_mat_igfs__report);
         }
