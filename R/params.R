@@ -181,5 +181,8 @@ g3_parameterized <- function(
     if (scale != 1) out <- substitute(x * scale, list(x = out, scale = scale))
     if (avoid_zero != 0) out <- substitute(avoid_zero(x), list(x = out))
     if (offset != 0) out <- substitute(x + offset, list(x = out, offset = offset))
+
+    # TODO: Big hack to make sure by_age stays in relevant loop
+    if (isTRUE(by_age)) out <- substitute(x + 0 * age, list(x = out))
     return(out)
 }

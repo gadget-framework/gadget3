@@ -128,7 +128,7 @@ ok(cmp_code(
             cur_year = seq(start_year, end_year)))
         g3_param_table("st_m_imm.parp", expand.grid(
             cur_year = seq(start_year, end_year),
-            age = seq(st_m_imm__minage, st_m_imm__maxage)))
+            age = seq(st_m_imm__minage, st_m_imm__maxage))) + 0 * age
     NULL})), "Adding by_year or by_age turns it into a table")
 
 ok(cmp_code(
@@ -166,7 +166,7 @@ ok(cmp_code(
         stock_prepend("st.m", g3_param("parp"))
         stock_prepend("st", g3_param("parp"))
         stock_prepend("st.f", g3_param_table("parp", expand.grid(
-            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage)))))
+            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))) + 0 * age
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
 ok(cmp_code(
@@ -177,7 +177,7 @@ ok(cmp_code(
     NULL), quote({
         stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
         stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
-        stock_prepend(stock, g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
+        stock_prepend(stock, g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") + 0 * age
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
 
 year_range <- 1982:1986
