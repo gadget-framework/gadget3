@@ -55,11 +55,11 @@ out <- g3_to_r(list(
     list("004" = ~"fa", "005" = ~"fb"),
     list("005" = ~"fc", NULL),
     NULL ))
-ok(cmp_code(body(out)[[2]][[3]], quote({
+ok(gadget3:::ut_cmp_code(out, quote({
         "fa"
         "fc"
         "fu1"
         "fu2"
-})), "g3_to_r: unnamed at end, later beat former, NULLs removed, code included")
+}), model_body = TRUE), "g3_to_r: unnamed at end, later beat former, NULLs removed, code included")
 
 ########## g3_collate
