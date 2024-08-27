@@ -1,4 +1,5 @@
 #include <TMB.hpp>
+#include <numeric>
 
 namespace map_extras {
     // at(), but throw (err) if item isn't available

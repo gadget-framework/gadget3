@@ -12,6 +12,10 @@ reference:
   contents:
   - action_order
   - has_concept("G3 action")
+- title: "G3 projections"
+  desc: "Additions to your model to allow projections"
+  contents:
+  - has_concept("G3 projections")
 - title: "G3 utilities"
   desc: "Tools to aid customising G3 actions, applicable to many actions"
   contents:
@@ -27,7 +31,7 @@ reference:
 ## NB: Should be empty, so only for documentation debugging
 #- title: "Miscallaneous"
 #  contents:
-#  - lacks_concepts(c("G3 stock", "G3 action", "G3 utilities", "G3 compilation", "G3 internals"))
+#  - lacks_concepts(c("G3 stock", "G3 action", "G3 projections", "G3 utilities", "G3 compilation", "G3 internals"))
 
 articles:
 - title: User guides
