@@ -62,4 +62,21 @@ ok(gadget3:::ut_cmp_code(out, quote({
         "fu2"
 }), model_body = TRUE), "g3_to_r: unnamed at end, later beat former, NULLs removed, code included")
 
+st_imm <- g3_stock(c("st", "imm"), 1:10)
+out <- g3_to_r(list(
+    g3a_naturalmortality(
+        st_imm,
+        g3_formula(
+            parrot,
+            parrot = 0,
+            "-01:ut:parrot" = g3_formula(parrot <- runif(1)),
+            "999:ut:parrot" = g3_formula(parrot <- parrot + 1) )),
+    NULL ))
+ok(gadget3:::ut_cmp_code(out, quote({
+    parrot <- runif(1)
+    comment("Natural mortality for st_imm")
+    st_imm__num[] <- st_imm__num[] * parrot
+    parrot <- parrot + 1
+}), optimize = TRUE, model_body = TRUE), "Ancillary steps passed through action, in model in appropriate order")
+
 ########## g3_collate
