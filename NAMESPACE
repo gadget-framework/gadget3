@@ -1,4 +1,4 @@
-importFrom("stats", "as.formula", "formula", "dnorm", "lag")
+importFrom("stats", "as.formula", "formula", "dnorm", "rnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
 # R/aaa_lang.R
