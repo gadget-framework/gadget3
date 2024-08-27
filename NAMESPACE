@@ -1,4 +1,4 @@
-importFrom("stats", "as.formula", "formula", "dnorm", "lag")
+importFrom("stats", "as.formula", "formula", "dnorm", "rnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
 # R/aaa_lang.R
@@ -136,6 +136,12 @@ export(g3l_understocking)
 
 # R/params.R
 export(g3_parameterized)
+
+# R/param_project.R
+export(g3_param_project_dnorm)
+export(g3_param_project_dlnorm)
+export(g3_param_project_rwalk)
+export(g3_param_project)
 
 # R/run_desc.R
 export(g3_to_desc)

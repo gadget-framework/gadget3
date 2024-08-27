@@ -1034,7 +1034,10 @@ Type objective_function<Type>::operator() () {
     }
 
     # Make sure we include TMB
-    out <- c("#include <TMB.hpp>", "", out)
+    out <- c(
+        "#include <TMB.hpp>",
+        "#include <numeric>",  # Required for std::partial_sum, std::adjacent_difference
+        "", out)
 
     class(out) <- c("g3_cpp", class(out))
 
