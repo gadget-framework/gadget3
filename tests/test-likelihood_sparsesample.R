@@ -12,6 +12,8 @@ obs_linreg_df <- data.frame(
 obs_linreg_df$age <- floor(runif(nrow(obs_linreg_df), min = 3, max = 5.1))
 obs_linreg_df$length <- floor(runif(nrow(obs_linreg_df), min = 10, max = 50))
 obs_linreg_df$mean <- runif(nrow(obs_linreg_df), min = 10, max = 1000)
+# Occasionally test with integer values
+if (runif(1) < 0.5) obs_linreg_df$mean <- as.integer(obs_linreg_df$mean)
 
 obs_ss_df <- data.frame(
     # NB: No step, just year
