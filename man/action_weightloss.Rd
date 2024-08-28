@@ -76,8 +76,16 @@ g3a_weightloss(
 
     g3a_weightloss(st,
         # 20% of body weight should be shed in autumn
-        rel_loss = 0.2,
+        rel_loss = g3_parameterized("rel_loss_autumn", by_stock = TRUE, value = 0.2),
         run_step = 4 ),
+
+    g3a_weightloss(st,
+        # Remove "10" from body weight, with a minimum based on length
+        abs_loss = g3_parameterized("absloss_length_mw", by_stock = TRUE, value = 10),
+        min_weight = g3_formula(
+            wmin.a * st__midlen^wmin.b,
+            wmin.a = g3_parameterized("wmin.a", by_stock = TRUE, value = 10),
+            wmin.b = g3_parameterized("wmin.a", by_stock = TRUE, value = 2) )),
     NULL)
 
   model_fn <- g3_to_r(c(actions, g3a_report_detail(actions)))

@@ -26,6 +26,12 @@ actions <- list(
         min_weight = g3_parameterized("ut_min_weight", value = 1e-7),
         run_step = 2 ),
     
+    g3a_weightloss(
+        st,
+        rel_loss = g3_parameterized("ut_rel_loss_len_mw", value = 0),
+        min_weight = g3_formula(mw * st__midlen, mw = g3_parameterized("ut_min_weight_len_mw", value = 0)),
+        run_step = 2 ),
+
     g3l_abundancedistribution(
         'test_results',
         abund_obs,
@@ -128,6 +134,25 @@ age3    3000    3000    2700    1800    1800    1620     810     810     729   7
 age4    4000    4000    3600    2700    2700    2430    1620    1620    1458   729.0   729.0  656.10   656.1   656.1  590.49  590.49  590.49  531.441
 age5    5000    5000    4500    4050    4050    3645    3240    3240    2916  2551.5  2551.5 2296.35  1968.3  1968.3 1771.47 1771.47 1771.47 1594.323
 ', tolerance = 1e-6), "detail_st__wgt[1,,]: Hit 500 limit and don't go lower, with both rel & abs")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+######## rel_loss:0.1,abs_loss:100,min_weight:500
+
+ok_group("min_weight by length") ########
+params <- attr(model_fn, 'parameter_template') |>
+    g3_init_val("ut_rel_loss_len_mw", 0.75) |>
+    g3_init_val("ut_min_weight_len_mw", 50) |>
+    identity() -> params
+r <- lapply(attributes(model_fn(params)), drop)
+
+ok(gadget3:::ut_cmp_df(r$detail_st__wgt[,1,], '
+         2000-01 2000-02 2000-03 2001-01 2001-02  2001-03  2002-01  2002-02   2002-03   2003-01   2003-02   2003-03   2004-01   2004-02   2004-03   2005-01   2005-02  2005-03
+  10:20     1000    1000   812.5   812.5   812.5  765.625  765.625  765.625  753.9062  753.9062  753.9062  750.9766  750.9766  750.9766  750.2441  750.2441  750.2441  750.061
+  20:30     1000    1000  1187.5  1187.5  1187.5 1234.375 1234.375 1234.375 1246.0938 1246.0938 1246.0938 1249.0234 1249.0234 1249.0234 1249.7559 1249.7559 1249.7559 1249.939
+  30:40     1000    1000  1562.5  1562.5  1562.5 1703.125 1703.125 1703.125 1738.2812 1738.2812 1738.2812 1747.0703 1747.0703 1747.0703 1749.2676 1749.2676 1749.2676 1749.817
+  40:50     1000    1000  1937.5  1937.5  1937.5 2171.875 2171.875 2171.875 2230.4688 2230.4688 2230.4688 2245.1172 2245.1172 2245.1172 2248.7793 2248.7793 2248.7793 2249.695
+  50:Inf    1000    1000  2312.5  2312.5  2312.5 2640.625 2640.625 2640.625 2722.6562 2722.6562 2722.6562 2743.1641 2743.1641 2743.1641 2748.2910 2748.2910 2748.2910 2749.573
+', tolerance = 1e-6), "detail_st__wgt[1,,]: Limit hit depends on length")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## rel_loss:0.1,abs_loss:100,min_weight:500
