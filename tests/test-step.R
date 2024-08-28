@@ -5,6 +5,26 @@ library(gadget3)
 
 cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
 
+ok_group("g3_step:call", local({ # g3_step should work with a call, at least recursively.
+    f <- gadget3:::g3_step(quote( stock_iterate(st, stock_ss(st__num, vec = single)) ), recursing = TRUE, orig_env = as.environment(list(
+        st = g3_stock("stst", 1:5),
+        end = NULL )))
+    ok(gadget3:::ut_cmp_code(f, quote(
+        for (stst__length_idx in seq_along(stst__midlen)) g3_with(
+            length := stst__midlen[[stst__length_idx]],
+            stst__num[stst__length_idx])
+    )), "Triggered stock_iterate from quote()d code")
+    ok(ut_cmp_equal(
+        environment(f)$stst__midlen,
+        gadget3:::as_force_vector(c(
+            "1:2" = 1.5,
+            "2:3" = 2.5,
+            "3:4" = 3.5,
+            "4:5" = 4.5,
+            "5:Inf" = 5.5,
+            NULL )) ), "stst__midlen: Added to newly-created environment")
+}))
+
 ok_group("step_id", {
     step_id <- gadget3:::step_id
     stock_a <- g3_stock('stock_aaa', seq(10, 35, 5))
@@ -301,6 +321,28 @@ ok_group("g3_step:dependent_formulas", (function () {
     ))), "add_dependent_formula: stock substituted both inside and outside loop")
 
 })())
+
+ok_group("g3_step:dependent_formulas:init_val", local({
+    stock_imm <- g3_stock('ling_imm', 1)
+    stock_imm__num <- g3_stock_instance(stock_imm, 0)
+
+    fn <- g3_to_r(list(gadget3:::g3_step(g3_formula(quote(
+            return(stock_with(stock_imm, glob + stock_imm__num))
+        ),
+        glob = g3_global_formula(
+            g3_formula(1 + 1),
+            init_val = quote( stock_with(stock_imm, stock_imm__num) )),
+        stock_imm = stock_imm,
+        stock_imm__num = stock_imm__num ))))
+    ok(gadget3:::ut_cmp_code(body(fn), {
+        ling_imm__num <- array(0, dim = c(length = 1L), dimnames = list(length = "1:Inf"))
+        glob <- ling_imm__num
+        while (TRUE) {
+            glob <- 1 + 1
+            return((glob + ling_imm__num))
+        }
+    }, optimize = TRUE), "g3_global_formula: Both dependent formula and it's initval got g3_step()ed")
+}))
 
 ok_group("g3_step:stock_prepend", {
     stock_a <- g3_stock(c(t = 'stock', q = 'stick', 'aaa'), seq(10, 35, 5))
