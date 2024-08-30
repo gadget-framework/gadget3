@@ -130,7 +130,7 @@ g3l_sparsesample <- function (
         nll_name,
         obs_df,
         stocks,
-        measurement_f = quote( biomass ),
+        measurement_f = quote( wgt ),
         function_f = g3l_sparsesample_linreg(),
         area_group = NULL,
         weight = g3_parameterized(paste0(nll_name, "_weight"),
