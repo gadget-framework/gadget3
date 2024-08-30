@@ -27,7 +27,7 @@ g3a_weightloss <- function (
         list(wl_f = wl_f) )
     if (!is.null(abs_loss)) wl_f <- f_substitute(
         g3_formula(
-            quote( logspace_add_vec((wl_f - abs_loss) * 1e7, min_weight) / 1e7 ),
+            quote( dif_pmax((wl_f - abs_loss), min_weight, 1e7) ),
             min_weight = min_weight,
             abs_loss = abs_loss ),
         list(wl_f = wl_f) )
