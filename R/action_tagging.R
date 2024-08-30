@@ -39,7 +39,7 @@ g3a_predate_tagrelease <- function (
             stock_iterate(stock, stock_intersect(fleet_stock, stock_with(predprey, if (run_f) g3_with(
                     # Numbers caught (predstock_stock__cons is total weight)
                     output_tag_idx := tag_idx_f,
-                    tagged_num := stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(stock__wgt)), {
+                    tagged_num := stock_ss(predprey__cons) / avoid_zero(stock_ss(stock__wgt)), {
                 stock_ss(stock__wgt, tag = output_tag_idx) <- ratio_add_vec(
                     stock_ss(stock__wgt, tag = output_tag_idx), stock_ss(stock__num, tag = output_tag_idx),
                     stock_ss(stock__wgt), (1.0 - mortality_f) * tagged_num)

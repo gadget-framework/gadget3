@@ -23,9 +23,58 @@ namespace map_extras {
     }
 }
 
+
+#ifndef TYPE_IS_SCALAR
+#ifdef TMBAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, TMBad::global::ad_aug>::value>
+#endif // TMBAD_FRAMEWORK
+#ifdef CPPAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD>::value>
+#endif // CPPAD_FRAMEWORK
+#endif // TYPE_IS_SCALAR
+
 template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
             return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }
+// Scalar templates
+template<typename T, typename LimitT, TYPE_IS_SCALAR(T), TYPE_IS_SCALAR(LimitT)>
+T dif_pmax(T a, LimitT b, double scale) {
+    return logspace_add(a * scale, (T)b * scale) / scale;
+}
+// templates for vector<Type>s & Eigen derived vectors
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, LimitT b, double scale) {
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+// Templates for Eigen derived arrays
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, LimitT b, double scale) {
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+template<typename X>
+auto avoid_zero(X a) {
+    return dif_pmax(a, 0.0, 1e3);
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -107,13 +156,6 @@ Type objective_function<Type>::operator() () {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
-};
     auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
     vector<Type> res(a.size());
     for(int i = 0; i < a.size(); i++) {
@@ -157,9 +199,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto avoid_zero = [](Type a) -> Type {
-    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
-};
     auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
     array<Type> out(vec.size(), a);
     for (int i = 0 ; i < vec.size(); i++) {
@@ -218,14 +257,6 @@ Type objective_function<Type>::operator() () {
     auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     int total_lgs = growth_matrix.cols(); // # Length groups
 
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
-
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -234,13 +265,13 @@ Type objective_function<Type>::operator() () {
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 };
-    auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
+    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
-    auto surveyindices_linreg = [&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
+    auto surveyindices_linreg = [](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 
         auto meanI = I.mean();
@@ -483,10 +514,10 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate fish overconsumption coefficient;
             // Apply overconsumption to fish;
-            fish__consratio = fish__totalpredate / avoid_zero_vec(fish__num*fish__wgt);
+            fish__consratio = fish__totalpredate / avoid_zero(fish__num*fish__wgt);
             fish__consratio = logspace_add_vec(fish__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
             fish__overconsumption = (fish__totalpredate).sum();
-            fish__consconv = (double)(1) / avoid_zero_vec(fish__totalpredate);
+            fish__consconv = (double)(1) / avoid_zero(fish__totalpredate);
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;
             fish__overconsumption -= (fish__totalpredate).sum();
             fish__consconv *= fish__totalpredate;
@@ -513,7 +544,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
+            auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
             auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
 
@@ -609,9 +640,9 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_acoustic_dist_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_acoustic_dist_model__params = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? adist_surveyindices_log_acoustic_dist_model__params : surveyindices_linreg(log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))), log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx))), NAN, (double)(1)));
+                                adist_surveyindices_log_acoustic_dist_model__params = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? adist_surveyindices_log_acoustic_dist_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))), log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx))), NAN, (double)(1)));
                                 {
-                                    auto cur_cdist_nll = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_acoustic_dist_model__params ( 0 ) + adist_surveyindices_log_acoustic_dist_model__params ( 1 )*log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))) - log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx)))), (Type)(double)(2))).sum());
+                                    auto cur_cdist_nll = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_acoustic_dist_model__params ( 0 ) + adist_surveyindices_log_acoustic_dist_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx)))), (Type)(double)(2))).sum());
 
                                     {
                                         nll += adist_surveyindices_log_acoustic_dist_weight*cur_cdist_nll;

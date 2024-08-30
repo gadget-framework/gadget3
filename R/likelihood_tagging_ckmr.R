@@ -73,7 +73,7 @@ g3l_tagging_ckmr <- function (
                 stock_iterate(prey_stock, stock_interact(predstock, stock_intersect(modelhist, stock_with(predprey, {
                     stock_with(predstock, debug_trace("Convert ", predstock, " catch of ", prey_stock, " to numbers, add it to our total"))
                     stock_ss(modelhist__catch) <- stock_ss(modelhist__catch) +
-                        stock_reshape(modelhist, stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)))
+                        stock_reshape(modelhist, stock_ss(predprey__cons) / avoid_zero(stock_ss(prey_stock__wgt)))
                 }))))
             }, list(
                 end = NULL)))))
@@ -96,7 +96,7 @@ g3l_tagging_ckmr <- function (
                   modelhist__offspring_idx := g3_idx(offspring_age - modelhist__minage + 1),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
                   # i.e. # spawned per-parent at this time
-                  fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero_vec(modelhist__spawning[,modelhist__offspring_idx]),
+                  fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__spawning[,modelhist__offspring_idx]),
                   # Convert to a probability using (3.4):-
                   cur_ckmr_p := (fecundity_of_parents[[modelhist__parent_idx]] / modelhist__catch[[modelhist__parent_idx]]) / sum(fecundity_of_parents), {
                     # Pseudo-likelihood as per (4.1)

@@ -82,8 +82,13 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     nonconform_add <- function(base_ar, extra_ar) {
         base_ar + as.vector(extra_ar)
     }
-    avoid_zero_vec <- function(a) {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
+    dif_pmax <- function(a, b, scale) {
+        logspace_add <- function(a, b) pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+        b <- as.vector(b)
+        logspace_add(a * scale, b * scale)/scale
+    }
+    avoid_zero <- function(a) {
+        dif_pmax(a, 0, 1000)
     }
     logspace_add_vec <- function(a, b) {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
@@ -101,9 +106,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         val <- exp(lgamma(n + 1) + lgamma(alpha + beta) + lgamma(n - x + beta) + lgamma(x + alpha) - lgamma(n - x + 1) - lgamma(x + 1) - lgamma(n + alpha + beta) - lgamma(beta) - lgamma(alpha))
         dim(val) <- c(na, n + 1)
         return(val)
-    }
-    avoid_zero <- function(a) {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     g3a_grow_vec_rotate <- function(vec, a) {
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
@@ -153,13 +155,10 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     }
     g3a_grow_apply <- function(growth.matrix, wgt.matrix, input_num, input_wgt) {
         na <- dim(growth.matrix)[[1]]
-        avoid_zero_vec <- function(a) {
-            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
-        }
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         growth.matrix.sum <- colSums(growth.matrix)
-        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
+        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero(growth.matrix.sum)), dim = c(na, 2)))
     }
     nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
@@ -167,7 +166,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         return(NULL)
     }
     ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
-        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
+        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
     }
     cur_time <- -1L
     cur_year <- 0L
@@ -420,10 +419,10 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         {
             comment("Calculate ling_imm overconsumption coefficient")
             comment("Apply overconsumption to ling_imm")
-            ling_imm__consratio <- ling_imm__totalpredate/avoid_zero_vec(ling_imm__num * ling_imm__wgt)
+            ling_imm__consratio <- ling_imm__totalpredate/avoid_zero(ling_imm__num * ling_imm__wgt)
             ling_imm__consratio <- logspace_add_vec(ling_imm__consratio * -1000, 0.95 * -1000)/-1000
             ling_imm__overconsumption <- sum(ling_imm__totalpredate)
-            ling_imm__consconv <- 1/avoid_zero_vec(ling_imm__totalpredate)
+            ling_imm__consconv <- 1/avoid_zero(ling_imm__totalpredate)
             ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
             ling_imm__overconsumption <- ling_imm__overconsumption - sum(ling_imm__totalpredate)
             ling_imm__consconv <- ling_imm__consconv * ling_imm__totalpredate
@@ -432,10 +431,10 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         {
             comment("Calculate ling_mat overconsumption coefficient")
             comment("Apply overconsumption to ling_mat")
-            ling_mat__consratio <- ling_mat__totalpredate/avoid_zero_vec(ling_mat__num * ling_mat__wgt)
+            ling_mat__consratio <- ling_mat__totalpredate/avoid_zero(ling_mat__num * ling_mat__wgt)
             ling_mat__consratio <- logspace_add_vec(ling_mat__consratio * -1000, 0.95 * -1000)/-1000
             ling_mat__overconsumption <- sum(ling_mat__totalpredate)
-            ling_mat__consconv <- 1/avoid_zero_vec(ling_mat__totalpredate)
+            ling_mat__consconv <- 1/avoid_zero(ling_mat__totalpredate)
             ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio
             ling_mat__overconsumption <- ling_mat__overconsumption - sum(ling_mat__totalpredate)
             ling_mat__consconv <- ling_mat__consconv * ling_mat__totalpredate
@@ -488,7 +487,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             maturity_ratio <- (1/(1 + exp((0 - (0.001 * param[["ling.mat1"]]) * (ling_imm__midlen - param[["ling.mat2"]])))))
             growth_delta_l <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_imm__growth_l
-            else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
+            else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_imm__growth_w
             else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]])
@@ -533,7 +532,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         {
             growth_delta_l <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_mat__growth_l
-            else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
+            else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_mat__growth_w
             else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]])
@@ -577,7 +576,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx] * ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
                           ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] - ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
+                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
                         }
                       }
                   }
@@ -646,7 +645,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                     cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                     {
                       comment("Convert ling_imm_igfs to num")
-                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero_vec(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]))
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_imm_igfs__cons[, ling_imm__age_idx, ling_imm__area_idx]/avoid_zero(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]))
                     }
                   }
                 }
@@ -663,7 +662,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                     cdist_sumofsquares_ldist_lln_model__area_idx <- (1L)
                     {
                       comment("Convert ling_mat_igfs to num")
-                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]))
+                      cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] <- cdist_sumofsquares_ldist_lln_model__num[, cdist_sumofsquares_ldist_lln_model__area_idx] + (ling_mat_igfs__cons[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]))
                     }
                   }
                 }
@@ -785,7 +784,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                         {
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__age_idx, ling_imm_movement__area_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero_vec(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
+                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
                         }
                       }
                   }

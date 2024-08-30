@@ -52,8 +52,9 @@
   \preformatted{assert_msg(x > 0, "x must be positive")}
 }
 
-\section{avoid_zero / avoid_zero_vec}{
+\section{avoid_zero}{
   Adds small value to input to ensure output is never zero
+  \code{avoid_zero_vec} is identical to \code{avoid_zero}, and is only present for backward compatibility.
 }
 
 \section{bounded / bounded_vec}{
@@ -122,9 +123,9 @@
 }
 
 \examples{
-## avoid_zero / avoid_zero_vec
+## avoid_zero
 g3_eval(quote( c( avoid_zero(0), avoid_zero(10) ) ))
-g3_eval(quote( avoid_zero_vec(0:5) ))
+g3_eval(quote( avoid_zero(0:5) ))
 
 ## bounded / bounded_vec
 curve(g3_eval(quote( bounded(x, 100, 200) ), x = x), -100, 100)

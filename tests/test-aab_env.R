@@ -8,6 +8,8 @@ actions <- list()
 expecteds <- new.env(parent = emptyenv())
 tolerances <- new.env(parent = emptyenv())
 
+native_avz <- function (a) ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
+
 # logspace_add()
 logspace_add_1 <- 0.0
 logspace_add_0 <- 0.0
@@ -76,8 +78,8 @@ actions <- c(actions, ~{
     REPORT(ratio_add_vec_output)
 })
 ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
-expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / g3_env$avoid_zero_vec(ratio_add_vec_total)) +
-    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / g3_env$avoid_zero_vec(ratio_add_vec_total))
+expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / native_avz(ratio_add_vec_total)) +
+    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / native_avz(ratio_add_vec_total))
 
 # nonconform_mult
 nonconform_inp1 <- array(runif(4*3*2), dim = c(4,3,2))
@@ -147,9 +149,9 @@ actions <- c(actions, ~{
     REPORT(nonconform_outdiv_avz2)
     REPORT(nonconform_outdiv_avz2a)
 })
-expecteds$nonconform_outdiv_avz1 <- nonconform_inp1 / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,1]))
-expecteds$nonconform_outdiv_avz2 <- nonconform_inp2 / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,2]))
-expecteds$nonconform_outdiv_avz2a <- nonconform_inp2[,,1] / g3_env$avoid_zero_vec(as.vector(nonconform_div_avz_extra[,2]))
+expecteds$nonconform_outdiv_avz1 <- nonconform_inp1 / native_avz(as.vector(nonconform_div_avz_extra[,1]))
+expecteds$nonconform_outdiv_avz2 <- nonconform_inp2 / native_avz(as.vector(nonconform_div_avz_extra[,2]))
+expecteds$nonconform_outdiv_avz2a <- nonconform_inp2[,,1] / native_avz(as.vector(nonconform_div_avz_extra[,2]))
 
 ###############################################################################
 
