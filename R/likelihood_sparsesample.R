@@ -109,7 +109,7 @@ g3l_sparsesample_sumsquares <- function (
 
         if (any(!is.finite(weighting[finites]))) warning("g3l_sparsesample_sumsquares_stddev: 1/variance is NaN, use a custom weighing")
         return( weighting[finites] * (model_mean[finites] - obs_mean[finites])^2 )
-    }, cpp = '[&avoid_zero_vec](vector<Type> model_mean, vector<Type> obs_mean, vector<Type> weighting) -> vector<Type> {
+    }, cpp = '[](vector<Type> model_mean, vector<Type> obs_mean, vector<Type> weighting) -> vector<Type> {
         Eigen::Matrix<bool, Eigen::Dynamic, 1> finites = model_mean.isFinite() && obs_mean.isFinite() && weighting.isFinite();
 
         if ((!weighting.isFinite()).any()) Rf_warning("g3l_sparsesample_sumsquares_stddev: 1/variance is NaN, use a custom weighing");

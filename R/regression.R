@@ -21,7 +21,7 @@ regression_linear <- g3_native(r = function (N, I, fixed_intercept, fixed_slope)
         nll =  sum((intercept + slope * N[finites] - I[finites])**2),
         intercept = intercept,
         slope = slope ))
-}, cpp = '[&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_intercept, Type fixed_slope) -> vector<Type> {
+}, cpp = '[](vector<Type> N, vector<Type> I, Type fixed_intercept, Type fixed_slope) -> vector<Type> {
     // TRUE iff value is finite in both vectors
     Eigen::Matrix<bool, Eigen::Dynamic, 1> finites = N.isFinite() && I.isFinite();
 
