@@ -88,8 +88,13 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     nonconform_add <- function(base_ar, extra_ar) {
         base_ar + as.vector(extra_ar)
     }
-    avoid_zero_vec <- function(a) {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
+    dif_pmax <- function(a, b, scale) {
+        logspace_add <- function(a, b) pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+        b <- as.vector(b)
+        logspace_add(a * scale, b * scale)/scale
+    }
+    avoid_zero <- function(a) {
+        dif_pmax(a, 0, 1000)
     }
     logspace_add_vec <- function(a, b) {
         pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
@@ -107,9 +112,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         val <- exp(lgamma(n + 1) + lgamma(alpha + beta) + lgamma(n - x + beta) + lgamma(x + alpha) - lgamma(n - x + 1) - lgamma(x + 1) - lgamma(n + alpha + beta) - lgamma(beta) - lgamma(alpha))
         dim(val) <- c(na, n + 1)
         return(val)
-    }
-    avoid_zero <- function(a) {
-        (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
     }
     g3a_grow_vec_rotate <- function(vec, a) {
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
@@ -159,16 +161,13 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     }
     g3a_grow_apply <- function(growth.matrix, wgt.matrix, input_num, input_wgt) {
         na <- dim(growth.matrix)[[1]]
-        avoid_zero_vec <- function(a) {
-            (pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))))/1000
-        }
         growth.matrix <- growth.matrix * as.vector(input_num)
         wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
         growth.matrix.sum <- colSums(growth.matrix)
-        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero_vec(growth.matrix.sum)), dim = c(na, 2)))
+        return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero(growth.matrix.sum)), dim = c(na, 2)))
     }
     ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
-        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero_vec(orig_amount + new_amount)
+        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
     }
     surveyindices_linreg <- function(N, I, fixed_alpha, fixed_beta) {
         meanI <- mean(I)
@@ -277,13 +276,13 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 area <- fish__area
                 fish__area_idx <- (1L)
                 dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))
-                factor <- (param[["fish.init.scalar"]] * nvl(pt.fish.init[[paste(age, sep = ".")]], {
+                factor <- (param[["fish.init.scalar"]] * (nvl(pt.fish.init[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.init, ifmissing not specified")
                   NaN
-                }) * exp(-1 * (nvl(pt.fish.M[[paste(age, sep = ".")]], {
+                }) + 0 * age) * exp(-1 * ((nvl(pt.fish.M[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.M, ifmissing not specified")
                   NaN
-                }) + param[["init.F"]]) * (age - param[["recage"]])))
+                }) + 0 * age) + param[["init.F"]]) * (age - param[["recage"]])))
                 {
                   fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                   fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -381,10 +380,10 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         {
             comment("Calculate fish overconsumption coefficient")
             comment("Apply overconsumption to fish")
-            fish__consratio <- fish__totalpredate/avoid_zero_vec(fish__num * fish__wgt)
+            fish__consratio <- fish__totalpredate/avoid_zero(fish__num * fish__wgt)
             fish__consratio <- logspace_add_vec(fish__consratio * -1000, 0.95 * -1000)/-1000
             fish__overconsumption <- sum(fish__totalpredate)
-            fish__consconv <- 1/avoid_zero_vec(fish__totalpredate)
+            fish__consconv <- 1/avoid_zero(fish__totalpredate)
             fish__totalpredate <- (fish__num * fish__wgt) * fish__consratio
             fish__overconsumption <- fish__overconsumption - sum(fish__totalpredate)
             fish__consconv <- fish__consconv * fish__totalpredate
@@ -404,16 +403,16 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(nvl(pt.fish.M[[paste(age, sep = ".")]], {
+                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-((nvl(pt.fish.M[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.M, ifmissing not specified")
                   NaN
-                })) * cur_step_size)
+                }) + 0 * age)) * cur_step_size)
             }
         }
         {
             growth_delta_l <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_l
-            else (fish__growth_l[] <- growth_bbinom(avoid_zero_vec(avoid_zero_vec((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
+            else (fish__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
             growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_w
             else (fish__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]])
@@ -488,11 +487,11 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                       {
                         adist_surveyindices_log_acoustic_dist_model__params <- if (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx) 
                           adist_surveyindices_log_acoustic_dist_model__params
-                        else surveyindices_linreg(log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])), log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])), NaN, 1)
+                        else surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])), log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])), NaN, 1)
                         {
                           cur_cdist_nll <- if (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx) 
                             0
-                          else sum((adist_surveyindices_log_acoustic_dist_model__params[[1]] + adist_surveyindices_log_acoustic_dist_model__params[[2]] * log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])) - log(avoid_zero_vec(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])))^2)
+                          else sum((adist_surveyindices_log_acoustic_dist_model__params[[1]] + adist_surveyindices_log_acoustic_dist_model__params[[2]] * log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt[, , adist_surveyindices_log_acoustic_dist_model__area_idx])) - log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt[, , adist_surveyindices_log_acoustic_dist_obs__area_idx])))^2)
                           {
                             nll <- nll + param[["adist_surveyindices_log_acoustic_dist_weight"]] * cur_cdist_nll
                             nll_adist_surveyindices_log_acoustic_dist__wgt[cur_time + 1L] <- nll_adist_surveyindices_log_acoustic_dist__wgt[cur_time + 1L] + cur_cdist_nll

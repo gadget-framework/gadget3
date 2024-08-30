@@ -26,6 +26,19 @@ actions <- list(
         min_weight = g3_parameterized("ut_min_weight", value = 1e-7),
         run_step = 2 ),
     
+    g3a_weightloss(
+        st,
+        rel_loss = g3_parameterized("ut_rel_loss_len_mw", value = 0),
+        min_weight = g3_formula(mw * st__midlen, mw = g3_parameterized("ut_min_weight_len_mw", value = 0)),
+        run_step = 2,
+        run_f = g3_formula(x > 0, x = g3_parameterized("ut_rel_loss_len_mw", value = 0)) ),
+
+    g3a_weightloss(st,
+        # Remove "10" from body weight, with a minimum based on length
+        abs_loss = g3_parameterized("ut_abs_loss_len_mw", value = 0),
+        min_weight = g3_formula(mw * st__midlen, mw = g3_parameterized("ut_min_weight_len_mw", value = 0)),
+        run_f = g3_formula(x > 0, x = g3_parameterized("ut_abs_loss_len_mw", value = 0)) ),
+
     g3l_abundancedistribution(
         'test_results',
         abund_obs,
@@ -131,3 +144,41 @@ age5    5000    5000    4500    4050    4050    3645    3240    3240    2916  25
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## rel_loss:0.1,abs_loss:100,min_weight:500
+
+ok_group("rel_loss min_weight by length") ########
+params <- attr(model_fn, 'parameter_template') |>
+    g3_init_val("ut_rel_loss_len_mw", 0.75) |>
+    g3_init_val("ut_min_weight_len_mw", 50) |>
+    identity() -> params
+r <- lapply(attributes(model_fn(params)), drop)
+
+ok(gadget3:::ut_cmp_df(r$detail_st__wgt[,1,], '
+         2000-01 2000-02 2000-03 2001-01 2001-02  2001-03  2002-01  2002-02   2002-03   2003-01   2003-02   2003-03   2004-01   2004-02   2004-03   2005-01   2005-02  2005-03
+  10:20     1000    1000   812.5   812.5   812.5  765.625  765.625  765.625  753.9062  753.9062  753.9062  750.9766  750.9766  750.9766  750.2441  750.2441  750.2441  750.061
+  20:30     1000    1000  1187.5  1187.5  1187.5 1234.375 1234.375 1234.375 1246.0938 1246.0938 1246.0938 1249.0234 1249.0234 1249.0234 1249.7559 1249.7559 1249.7559 1249.939
+  30:40     1000    1000  1562.5  1562.5  1562.5 1703.125 1703.125 1703.125 1738.2812 1738.2812 1738.2812 1747.0703 1747.0703 1747.0703 1749.2676 1749.2676 1749.2676 1749.817
+  40:50     1000    1000  1937.5  1937.5  1937.5 2171.875 2171.875 2171.875 2230.4688 2230.4688 2230.4688 2245.1172 2245.1172 2245.1172 2248.7793 2248.7793 2248.7793 2249.695
+  50:Inf    1000    1000  2312.5  2312.5  2312.5 2640.625 2640.625 2640.625 2722.6562 2722.6562 2722.6562 2743.1641 2743.1641 2743.1641 2748.2910 2748.2910 2748.2910 2749.573
+', tolerance = 1e-6), "detail_st__wgt[1,,]: Limit hit depends on length")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+######## rel_loss min_weight by length
+
+ok_group("abs_loss min_weight by length") ########
+params <- attr(model_fn, 'parameter_template') |>
+    g3_init_val("ut_abs_loss_len_mw", 18) |>
+    g3_init_val("ut_min_weight_len_mw", 50) |>
+    identity() -> params
+r <- lapply(attributes(model_fn(params)), drop)
+
+ok(gadget3:::ut_cmp_df(r$detail_st__wgt[,1,], '
+         2000-01 2000-02 2000-03 2001-01 2001-02 2001-03 2002-01 2002-02 2002-03 2003-01 2003-02 2003-03 2004-01 2004-02 2004-03 2005-01 2005-02 2005-03
+  10:20     1000     982     964     946     928     910     892     874     856     838     820     802     784     766     750     750     750     750
+  20:30     1000    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250    1250
+  30:40     1000    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750    1750
+  40:50     1000    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250    2250
+  50:Inf    1000    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750    2750
+', tolerance = 1e-6), "detail_st__wgt[1,,]: Limit hit depends on length")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+######## abs_loss min_weight by length

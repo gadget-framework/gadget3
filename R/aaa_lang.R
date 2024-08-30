@@ -8,6 +8,7 @@ g3_native <- function(r, cpp, depends = c()) {
     #     Ideally we'd be using a reference to base::as.numeric, but that's causing
     #     unfathomable problems in to_tmb land.
     out <- r
+    for (fn_name in depends) environment(out)[[fn_name]] <- g3_env[[fn_name]]  # Link dependencies for g3_eval
     attr(out, "g3_native_cpp") <- cpp
     # Turn depends vector into something that calls each item, to work with var_defns
     attr(out, "g3_native_depends") <- as.call(c(as.symbol("{"), lapply(depends, as.symbol)))  # }

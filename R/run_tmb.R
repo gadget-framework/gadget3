@@ -654,7 +654,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
         if (cpp_type == 'function') {
             if (!startsWith(cpp_expr, '[')) {
-               # Full function, add with prefix so we can move it in scope_extract()
+               # Full function / polymorphic template function, add with prefix so we can move it in scope_extract()
                return(paste0('__function:', gsub('__fn__', cpp_name, cpp_expr)))
             }
             # Lambda function, include as usual with auto
@@ -933,7 +933,17 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     ss <- scope_split(scope)
 
 
-    out <- sprintf("%s
+    out <- sprintf("
+#ifndef TYPE_IS_SCALAR
+#ifdef TMBAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, TMBad::global::ad_aug>::value>
+#endif // TMBAD_FRAMEWORK
+#ifdef CPPAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD>::value>
+#endif // CPPAD_FRAMEWORK
+#endif // TYPE_IS_SCALAR
+
+%s
 
 template<class Type>
 Type objective_function<Type>::operator() () {
@@ -1032,7 +1042,7 @@ g3_tmb_adfun <- function(
 
     # Combine defaults, compile_args$flags & compile_flags together
     compile_args$flags <- paste(c(
-        "-std=gnu++11",
+        "-std=gnu++17",  # We need C++17 for function templates returning auto
         "-Wno-ignored-attributes",
         "-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS",
         compile_args$flags,
