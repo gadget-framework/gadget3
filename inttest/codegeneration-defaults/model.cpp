@@ -353,7 +353,7 @@ Type objective_function<Type>::operator() () {
 
                 auto dnorm = ((fish__midlen - (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))) / ((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv));
 
-                auto factor = (fish__init__scalar*map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
+                auto factor = (fish__init__scalar*(map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + (double)(0)*age) + init__F)*(age - recage)));
 
                 {
                     fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -509,7 +509,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
+                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-((map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + (double)(0)*age))*cur_step_size);
             }
         }
         {

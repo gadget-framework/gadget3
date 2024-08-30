@@ -277,13 +277,13 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 area <- fish__area
                 fish__area_idx <- (1L)
                 dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))
-                factor <- (param[["fish.init.scalar"]] * nvl(pt.fish.init[[paste(age, sep = ".")]], {
+                factor <- (param[["fish.init.scalar"]] * (nvl(pt.fish.init[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.init, ifmissing not specified")
                   NaN
-                }) * exp(-1 * (nvl(pt.fish.M[[paste(age, sep = ".")]], {
+                }) + 0 * age) * exp(-1 * ((nvl(pt.fish.M[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.M, ifmissing not specified")
                   NaN
-                }) + param[["init.F"]]) * (age - param[["recage"]])))
+                }) + 0 * age) + param[["init.F"]]) * (age - param[["recage"]])))
                 {
                   fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
                   fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
@@ -404,10 +404,10 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-(nvl(pt.fish.M[[paste(age, sep = ".")]], {
+                fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] * exp(-((nvl(pt.fish.M[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.M, ifmissing not specified")
                   NaN
-                })) * cur_step_size)
+                }) + 0 * age)) * cur_step_size)
             }
         }
         {
