@@ -98,7 +98,7 @@ g3a_grow_length_weightjones <- function(
               (p0 + stock_ss(stock__feedinglevel) * (p1 + p2 * stock_ss(stock__feedinglevel))) * reference_weight
           ) / stock_ss(stock__wgt)  # No, this is not a regex /
     # NB: All of growth_delta_w is equal, as it doesn't depend on length
-    ~logspace_minmax_vec(p3 + p4 * r, 0, p5, 1e5) * growth_delta_w[,1] / (p6 * p7 * stock__midlen^(p7 - 1))
+    ~dif_pminmax(p3 + p4 * r, 0, p5, 1e5) * growth_delta_w[,1] / (p6 * p7 * stock__midlen^(p7 - 1))
 }
 
 g3a_grow_weight_weightjones <- function(
