@@ -33,20 +33,14 @@ See ``R/aab_env.R`` for more information, and other existing helpers.
 ## Global & native functions
 
 Some things aren't easy to do with code translation. ``g3_native`` allows you to
-define a function with separate R and C++ definitions, for example ``logspace_add_vec``,
-used in many actions to avoid div/0, has the following definition:
+define a function with separate R and C++ definitions, for example ``normalize_vec``,
+which ensures a vector sums to 1, has the following definition:
 
 ```
-# vector<Type> form of logspace_add
-g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
-    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
-    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
-}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
+g3_env$normalize_vec <- g3_native(r = function (a) {
+    a / sum(a)
+}, cpp = '[](vector<Type> a) -> vector<Type> {
+    return a / a.sum();
 }')
 ```
 
@@ -153,28 +147,3 @@ g3_to_r(list(g3a_naturalmortality(ling_imm, nmort())))
 As well as making values available to other steps, ``g3_global_formula``()
 can also be used to ensure that the value ends up in the model report, which will
 happen automatically for any non-constant global in the model.
-
-## g3_native
-
-There are limits to what the Gadget3 transpilation can manage, particularly
-once you need to operate on matrices. To get around this, you can define
-functions using ``g3_native``, which annotates functions with a C++ definition.
-For example, it is used to define ``logspace_add_vec``:
-
-```
-# vector<Type> form of logspace_add
-g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
-    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
-}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-
-    // NB: This is a string within R code, so we have to escape slashes.
-    //     For example, "\\n"
-
-    return res;
-}')
-```

@@ -26,20 +26,6 @@ actions <- c(actions, ~{
 expecteds$logspace_add_1 <- 1.313262
 expecteds$logspace_add_0 <- 0.6931472
 
-# logspace_add_vec()
-logspace_add_vec_inp <- c(0,0.1,0.2,0.3)
-logspace_add_vec_0 <- c(0,0,0,0)
-logspace_add_vec_1 <- c(0,0,0,0)
-actions <- c(actions, ~{
-    comment('logspace_add_vec')
-    logspace_add_vec_0 <- logspace_add_vec(logspace_add_vec_inp, 0)
-    logspace_add_vec_1 <- logspace_add_vec(logspace_add_vec_inp, 1)
-    REPORT(logspace_add_vec_0)
-    REPORT(logspace_add_vec_1)
-})
-expecteds$logspace_add_vec_0 <- c(0.6931472, 0.7443967, 0.7981389, 0.8543552)
-expecteds$logspace_add_vec_1 <- c(1.313262, 1.341154, 1.371101, 1.403186)
-
 # ratio_add_vec()
 ratio_add_vec_inp_orig_vec <- runif(10) * 100
 ratio_add_vec_inp_orig_amount <- floor(runif(10) * 10)

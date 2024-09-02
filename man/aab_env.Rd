@@ -11,7 +11,6 @@
 \alias{g3_matrix_vec}
 \alias{lgamma_vec}
 \alias{logspace_add}
-\alias{logspace_add_vec}
 \alias{normalize_vec}
 \alias{nvl}
 \alias{pow_vec}
@@ -70,7 +69,7 @@
 
 \section{lgamma_vec}{Vector equivalent of \code{\link{lgamma}}}
 
-\section{logspace_add / logspace_add_vec}{
+\section{logspace_add}{
   TMB's \code{logspace_add}, essentially a differentiable version of \code{\link{pmax}}.
 }
 
