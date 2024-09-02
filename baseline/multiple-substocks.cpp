@@ -75,6 +75,10 @@ template<typename X>
 auto avoid_zero(X a) {
     return dif_pmax(a, 0.0, 1e3);
 }
+template<typename X, typename Y>
+auto dif_pmin(X a, Y b, double scale) {
+    return dif_pmax(a, b, -scale);
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -409,13 +413,6 @@ Type objective_function<Type>::operator() () {
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
-};
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
 };
     auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -932,7 +929,7 @@ Type objective_function<Type>::operator() () {
             // Calculate fish_imm overconsumption coefficient;
             // Apply overconsumption to fish_imm;
             fish_imm__consratio = fish_imm__totalpredate / avoid_zero(fish_imm__num*fish_imm__wgt);
-            fish_imm__consratio = logspace_add_vec(fish_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish_imm__consratio = dif_pmin(fish_imm__consratio, (double)(0.95), (double)(1000));
             fish_imm__overconsumption = (fish_imm__totalpredate).sum();
             fish_imm__consconv = (double)(1) / avoid_zero(fish_imm__totalpredate);
             fish_imm__totalpredate = (fish_imm__num*fish_imm__wgt)*fish_imm__consratio;
@@ -944,7 +941,7 @@ Type objective_function<Type>::operator() () {
             // Calculate fish_mat overconsumption coefficient;
             // Apply overconsumption to fish_mat;
             fish_mat__consratio = fish_mat__totalpredate / avoid_zero(fish_mat__num*fish_mat__wgt);
-            fish_mat__consratio = logspace_add_vec(fish_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish_mat__consratio = dif_pmin(fish_mat__consratio, (double)(0.95), (double)(1000));
             fish_mat__overconsumption = (fish_mat__totalpredate).sum();
             fish_mat__consconv = (double)(1) / avoid_zero(fish_mat__totalpredate);
             fish_mat__totalpredate = (fish_mat__num*fish_mat__wgt)*fish_mat__consratio;

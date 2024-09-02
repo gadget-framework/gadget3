@@ -96,8 +96,8 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
     }
-    logspace_add_vec <- function(a, b) {
-        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    dif_pmin <- function(a, b, scale) {
+        dif_pmax(a, b, -scale)
     }
     nonconform_mult <- function(base_ar, extra_ar) {
         base_ar * as.vector(extra_ar)
@@ -381,7 +381,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             comment("Calculate fish overconsumption coefficient")
             comment("Apply overconsumption to fish")
             fish__consratio <- fish__totalpredate/avoid_zero(fish__num * fish__wgt)
-            fish__consratio <- logspace_add_vec(fish__consratio * -1000, 0.95 * -1000)/-1000
+            fish__consratio <- dif_pmin(fish__consratio, 0.95, 1000)
             fish__overconsumption <- sum(fish__totalpredate)
             fish__consconv <- 1/avoid_zero(fish__totalpredate)
             fish__totalpredate <- (fish__num * fish__wgt) * fish__consratio
