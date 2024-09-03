@@ -75,6 +75,10 @@ template<typename X>
 auto avoid_zero(X a) {
     return dif_pmax(a, 0.0, 1e3);
 }
+template<typename X, typename Y>
+auto dif_pmin(X a, Y b, double scale) {
+    return dif_pmax(a, b, -scale);
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -155,13 +159,6 @@ Type objective_function<Type>::operator() () {
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
-};
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
 };
     auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -515,7 +512,7 @@ Type objective_function<Type>::operator() () {
             // Calculate fish overconsumption coefficient;
             // Apply overconsumption to fish;
             fish__consratio = fish__totalpredate / avoid_zero(fish__num*fish__wgt);
-            fish__consratio = logspace_add_vec(fish__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish__consratio = dif_pmin(fish__consratio, (double)(0.95), (double)(1000));
             fish__overconsumption = (fish__totalpredate).sum();
             fish__consconv = (double)(1) / avoid_zero(fish__totalpredate);
             fish__totalpredate = (fish__num*fish__wgt)*fish__consratio;
@@ -546,7 +543,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
-            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish__midlen), fish__wbeta), 5 + (double)(1)))*fish__walpha));
+            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate((fish__midlen).pow(fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude((fish__midlen).pow(fish__wbeta), 5 + (double)(1)))*fish__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 

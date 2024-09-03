@@ -20,7 +20,6 @@ cmp_grep <- function (a, ...) {
 # NB: Name has to be different, or it gets sucked into the model
 g3_avoid_zero <- g3_env$avoid_zero
 g3_logspace_add <- g3_env$logspace_add
-g3_logspace_add_vec <- g3_env$logspace_add_vec
 g3_lgamma_vec <- lgamma
 
 ok_group("g3_distribution_preview", {
@@ -616,7 +615,7 @@ ok_group("Likelihood per step", {
         (r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step0_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step0_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step0_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add(r$step0_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step0_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,1])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,1]))))),
@@ -650,7 +649,7 @@ ok_group("Likelihood per step", {
         (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,2])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,2]))))),
@@ -684,7 +683,7 @@ ok_group("Likelihood per step", {
         (r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step2_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,3,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,3] * log(g3_logspace_add_vec(r$step2_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step2_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,3] * log(g3_logspace_add(r$step2_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step2_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,3]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,3])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,3]))))),
@@ -718,7 +717,7 @@ ok_group("Likelihood per step", {
         (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,4,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,4] * log(g3_logspace_add_vec(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,4] * log(g3_logspace_add(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,4]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,4])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,4]))))),
@@ -957,7 +956,7 @@ ok_group("Likelihood per year", {
         (r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2] / sum(r$step1_cdist_sumofsquares_utcd_weight_model__wgt[,2]) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2] / sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,1,2])) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add_vec(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,1] * log(g3_logspace_add(r$step1_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step1_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,1]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,1])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,1]))))),
@@ -992,7 +991,7 @@ ok_group("Likelihood per year", {
         (r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2] / g3_avoid_zero(sum(r$step3_cdist_sumofsquares_utcd_weight_model__wgt[,2])) -
             r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2] / g3_avoid_zero(sum(r$cdist_sumofsquares_utcd_weight_obs__wgt[,2,2]))) ** 2,
         # multinom:
-        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add_vec(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
+        (2 * (-sum(r$cdist_multinomial_multinom_obs__num[,2] * log(g3_logspace_add(r$step3_cdist_multinomial_multinom_model__num/g3_avoid_zero(sum(r$step3_cdist_multinomial_multinom_model__num)) *
             10000, (1/(length(r$cdist_multinomial_multinom_obs__num[,2]) * 10)) * 10000)/10000)) +
                 (sum(g3_lgamma_vec(1 + r$cdist_multinomial_multinom_obs__num[,2])) - lgamma(1 +
                         sum(r$cdist_multinomial_multinom_obs__num[,2]))))),

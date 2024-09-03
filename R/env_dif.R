@@ -54,14 +54,14 @@ auto __fn__(X a, Y b, double scale) {
 
 # pminmax does both pmin & pmax
 g3_env$dif_pminmax <- g3_native(r = function(a, lower, upper, scale) {
-    a <- dif_pmax(a, upper, -scale)
-    a <- dif_pmax(a, lower, scale)
-    return(a)
+    out <- dif_pmax(a, upper, -scale)
+    out <- dif_pmax(out, lower, scale)
+    return(out)
 }, cpp = '
-template<typename X, typename Y>
-auto __fn__(X a, Y lower, Y upper, double scale) {
-    a = dif_pmax(a, upper, -scale);
-    a = dif_pmax(a, lower, scale);
-    return a;
+template<typename X, typename Y, typename Z>
+auto __fn__(X a, Y lower, Z upper, double scale) {
+    auto out = dif_pmax(a, upper, -scale);
+    out = dif_pmax(out, lower, scale);
+    return out;
 }
 ', depends = c("dif_pmax"))

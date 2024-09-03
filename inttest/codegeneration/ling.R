@@ -90,8 +90,8 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
     }
-    logspace_add_vec <- function(a, b) {
-        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    dif_pmin <- function(a, b, scale) {
+        dif_pmax(a, b, -scale)
     }
     nonconform_mult <- function(base_ar, extra_ar) {
         base_ar * as.vector(extra_ar)
@@ -111,9 +111,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
         out[is.na(out)] <- vec[length(vec)]
         out
-    }
-    pow_vec <- function(a, b) {
-        a^b
     }
     g3a_grow_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
@@ -420,7 +417,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             comment("Calculate ling_imm overconsumption coefficient")
             comment("Apply overconsumption to ling_imm")
             ling_imm__consratio <- ling_imm__totalpredate/avoid_zero(ling_imm__num * ling_imm__wgt)
-            ling_imm__consratio <- logspace_add_vec(ling_imm__consratio * -1000, 0.95 * -1000)/-1000
+            ling_imm__consratio <- dif_pmin(ling_imm__consratio, 0.95, 1000)
             ling_imm__overconsumption <- sum(ling_imm__totalpredate)
             ling_imm__consconv <- 1/avoid_zero(ling_imm__totalpredate)
             ling_imm__totalpredate <- (ling_imm__num * ling_imm__wgt) * ling_imm__consratio
@@ -432,7 +429,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             comment("Calculate ling_mat overconsumption coefficient")
             comment("Apply overconsumption to ling_mat")
             ling_mat__consratio <- ling_mat__totalpredate/avoid_zero(ling_mat__num * ling_mat__wgt)
-            ling_mat__consratio <- logspace_add_vec(ling_mat__consratio * -1000, 0.95 * -1000)/-1000
+            ling_mat__consratio <- dif_pmin(ling_mat__consratio, 0.95, 1000)
             ling_mat__overconsumption <- sum(ling_mat__totalpredate)
             ling_mat__consconv <- 1/avoid_zero(ling_mat__totalpredate)
             ling_mat__totalpredate <- (ling_mat__num * ling_mat__wgt) * ling_mat__consratio
@@ -490,7 +487,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_imm__growth_w
-            else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_imm__midlen, param[["lingimm.wbeta"]]), 15L + 1)) * param[["lingimm.walpha"]])
+            else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1) - g3a_grow_vec_extrude(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1)) * param[["lingimm.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
@@ -535,7 +532,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_mat__growth_w
-            else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1) - g3a_grow_vec_extrude(pow_vec(ling_mat__midlen, param[["lingmat.wbeta"]]), 15L + 1)) * param[["lingmat.walpha"]])
+            else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1) - g3a_grow_vec_extrude(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1)) * param[["lingmat.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

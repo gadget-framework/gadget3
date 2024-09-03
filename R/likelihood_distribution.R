@@ -46,9 +46,10 @@ g3l_distribution_multinomial <- function (epsilon = 10) {
             data = quote(stock_ss(obsstock__x))))
 
     likely <- substitute(
-        -sum(data * log(logspace_add_vec(
-            dist / avoid_zero(sum(dist)) * 10000,
-            (1 / (length(data) * epsilon)) * 10000) / 10000)), list(
+        -sum(data * log(dif_pmax(
+            dist / avoid_zero(sum(dist)),
+            1 / (length(data) * epsilon),
+            10000 ))), list(
                 data = quote(stock_ss(obsstock__x)),
                 dist = quote(stock_ss(modelstock__x)),
                 epsilon = epsilon))

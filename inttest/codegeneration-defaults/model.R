@@ -96,8 +96,8 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
     }
-    logspace_add_vec <- function(a, b) {
-        pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+    dif_pmin <- function(a, b, scale) {
+        dif_pmax(a, b, -scale)
     }
     nonconform_mult <- function(base_ar, extra_ar) {
         base_ar * as.vector(extra_ar)
@@ -117,9 +117,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         out <- vapply(seq_len(a), function(i) vec[i:(i + length(vec) - 1)], numeric(length(vec)))
         out[is.na(out)] <- vec[length(vec)]
         out
-    }
-    pow_vec <- function(a, b) {
-        a^b
     }
     g3a_grow_vec_extrude <- function(vec, a) {
         array(vec, dim = c(length(vec), a))
@@ -381,7 +378,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             comment("Calculate fish overconsumption coefficient")
             comment("Apply overconsumption to fish")
             fish__consratio <- fish__totalpredate/avoid_zero(fish__num * fish__wgt)
-            fish__consratio <- logspace_add_vec(fish__consratio * -1000, 0.95 * -1000)/-1000
+            fish__consratio <- dif_pmin(fish__consratio, 0.95, 1000)
             fish__overconsumption <- sum(fish__totalpredate)
             fish__consconv <- 1/avoid_zero(fish__totalpredate)
             fish__totalpredate <- (fish__num * fish__wgt) * fish__consratio
@@ -415,7 +412,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             else (fish__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
             growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_w
-            else (fish__growth_w[] <- (g3a_grow_vec_rotate(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1) - g3a_grow_vec_extrude(pow_vec(fish__midlen, param[["fish.wbeta"]]), 5L + 1)) * param[["fish.walpha"]])
+            else (fish__growth_w[] <- (g3a_grow_vec_rotate(fish__midlen^param[["fish.wbeta"]], 5L + 1) - g3a_grow_vec_extrude(fish__midlen^param[["fish.wbeta"]], 5L + 1)) * param[["fish.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

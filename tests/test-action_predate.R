@@ -389,7 +389,7 @@ ok_group("Overconsumption", {
     ok(ut_cmp_equal(
         as.vector(r$prey_a__num),
         c(15, 25, 35, 45 - (45 * 0.95), 55 - (55 * 0.95), 65 - (65 * 0.95), 75, 85, 95, 105),
-        # NB: Low tolerance due to using logspace_add_vec
+        # NB: Low tolerance due to using dif_pmin
         tolerance = 1e-2), "prey_a__num: Still some left thanks to overconsumption being triggered")
 
     # prey_b
@@ -403,7 +403,7 @@ ok_group("Overconsumption", {
     ok(ut_cmp_equal(
         as.vector(r$prey_b__num),
         c(15, 25, 35, 45, 55, 65 - (65 * 0.95), 75 - (75 * 0.95), 85 - (85 * 0.95), 94.96735, 105),
-        # NB: Low tolerance due to using logspace_add_vec
+        # NB: Low tolerance due to using dif_pmin
         tolerance = 1e-2), "prey_b__num: Hit overconsumption limit")
 
     # prey_c
