@@ -55,9 +55,13 @@
 }
 
 \section{bounded / bounded_vec}{
-  Ensures \var{x} is within limits \var{a} & \var{b}.
+  Ensures \var{x} is within limits \var{b} & \var{a}.
 
-  \preformatted{bounded_vec(x, 100, 1000)}
+  If \var{x} positive, return \var{a}.
+  If \var{x} negative, \var{b}.
+  If \var{x} \code{-10..10}, smoothly transition from \var{b} to \var{a}
+
+  \preformatted{bounded_vec(x, 200, 100)}
 }
 
 \section{g3_matrix_vec}{
@@ -115,7 +119,7 @@ g3_eval(quote( c( avoid_zero(0), avoid_zero(10) ) ))
 g3_eval(quote( avoid_zero(0:5) ))
 
 ## bounded / bounded_vec
-curve(g3_eval(quote( bounded(x, 100, 200) ), x = x), -100, 100)
+curve(g3_eval(quote( bounded(x, 200, 100) ), x = x), -100, 100)
 
 ## logspace_add
 curve(g3_eval(quote( logspace_add(x, 10) ), x = x), 0, 40)

@@ -40,14 +40,14 @@ g3_env$normalize_vec <- g3_native(r = function (a) {
     return a / a.sum();
 }')
 
-# Return scalar (x) bounded between (a) and (b)
+# If (x) positive, return (a). If (x) negative, (b). If (x) -10..10, smoothly transition from (b) to (a)
 g3_env$bounded <- g3_native(r = function (x, a, b) {
   a + (b-a)/(1+exp(x))
 }, cpp = '[](Type x, Type a, Type b) -> Type {
     return a + (b-a)/(1+exp(x));
 }')
 
-# Return vector (x) bounded between (a) and (b)
+# If (x) positive, return (a). If (x) negative, (b). If (x) -10..10, smoothly transition from (b) to (a)
 g3_env$bounded_vec <- g3_native(r = function (x, a, b) {
   a + (b-a)/(1+exp(x))
 }, cpp = '[](vector<Type> x, Type a, Type b) -> vector<Type> {
