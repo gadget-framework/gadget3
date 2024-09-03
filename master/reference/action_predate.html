@@ -125,22 +125,18 @@
 <span>        <span class="va">prey_stocks</span>,</span>
 <span>        <span class="va">suitabilities</span>,</span>
 <span>        <span class="va">catchability_f</span>,</span>
-<span>        overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
-<span><span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1000</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1000</span><span class="op">)</span><span class="op">/</span><span class="op">-</span><span class="fl">1000</span></span>
-<span>        <span class="op">)</span>,</span>
+<span>        overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="env_dif.html">dif_pmin</a></span><span class="op">(</span><span class="va">stock__consratio</span>, <span class="fl">0.95</span>, <span class="fl">1e3</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>        run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">predate</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># NB: Deprecated interface, use g3a_predate()</span></span>
 <span><span class="fu">g3a_predate_fleet</span><span class="op">(</span><span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">catchability_f</span>,</span>
-<span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span><span class="op">)</span> <span class="op">/</span> <span class="op">-</span><span class="fl">1e3</span> <span class="op">)</span>,</span>
+<span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="env_dif.html">dif_pmin</a></span><span class="op">(</span><span class="va">stock__consratio</span>, <span class="fl">0.95</span>, <span class="fl">1e3</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>    run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">predate</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># NB: Deprecated interface, use g3a_predate() with g3a_predate_catchability_totalfleet</span></span>
 <span><span class="fu">g3a_predate_totalfleet</span><span class="op">(</span><span class="va">fleet_stock</span>, <span class="va">prey_stocks</span>, <span class="va">suitabilities</span>, <span class="va">amount_f</span>,</span>
-<span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="aab_env.html">logspace_add_vec</a></span><span class="op">(</span><span class="va">stock__consratio</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span>, <span class="fl">0.95</span> <span class="op">*</span> <span class="op">-</span><span class="fl">1e3</span><span class="op">)</span> <span class="op">/</span> <span class="op">-</span><span class="fl">1e3</span> <span class="op">)</span>,</span>
+<span>    overconsumption_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="env_dif.html">dif_pmin</a></span><span class="op">(</span><span class="va">stock__consratio</span>, <span class="fl">0.95</span>, <span class="fl">1e3</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>    run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>, run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">predate</span><span class="op">)</span></span></code></pre></div>
     </div>
 
