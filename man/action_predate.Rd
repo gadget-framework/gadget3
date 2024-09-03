@@ -56,22 +56,18 @@ g3a_predate(
         prey_stocks,
         suitabilities,
         catchability_f,
-        overconsumption_f = quote(
-            logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
-        ),
+        overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
         run_f = ~TRUE,
         run_at = g3_action_order$predate )
 
 # NB: Deprecated interface, use g3a_predate()
 g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, catchability_f,
-    overconsumption_f = quote(
-        logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
+    overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
     run_f = ~TRUE, run_at = g3_action_order$predate)
 
 # NB: Deprecated interface, use g3a_predate() with g3a_predate_catchability_totalfleet
 g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
-    overconsumption_f = quote(
-        logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
+    overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
     run_f = ~TRUE, run_at = g3_action_order$predate)
 }
 

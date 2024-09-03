@@ -93,7 +93,7 @@ g3a_step_transition <- function(input_stock,
                 # NB: Assuming that there won't be leftover length
                 if (move_remainder) stock_ss(input_stock__transitioning_num) <- stock_ss(input_stock__transitioning_num) - stock_ss(input_stock__transitioning_num) * output_ratio
                 # Back down to mean biomass
-                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero_vec(stock_ss(output_stock__num))
+                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero(stock_ss(output_stock__num))
             }))
 
             if (move_remainder) {
@@ -132,7 +132,7 @@ g3a_step_transition <- function(input_stock,
                     # NB: Assuming that there won't be leftover length
                     if (move_remainder) stock_ss(input_stock__transitioning_remainder) <- stock_ss(input_stock__transitioning_remainder) - stock_ss(input_stock__transitioning_num) * output_ratio
                     # Back down to mean biomass
-                    stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero_vec(stock_ss(output_stock__num))
+                    stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero(stock_ss(output_stock__num))
                 }))
             }, list(
                 output_ratio = output_ratios[[n]],

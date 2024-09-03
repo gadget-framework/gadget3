@@ -18,50 +18,20 @@ g3_env$logspace_add <- g3_native(r = function(a,b) {
     pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
 }, cpp = list("logspace_add", "Type", "Type"))  # TMB-native, but arguments have to be cast to Type
 
-
-# vector<Type> form of logspace_add
-g3_env$logspace_add_vec <- g3_native(r = function(a,b) {
-    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
-    pmax(a, b) + log1p(exp(pmin(a,b) - pmax(a, b)))
-}, cpp = '[](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-}')
-
-# differentiable equivalent of pmax(pmin(vec, upper), lower)
-g3_env$logspace_minmax_vec <- g3_native(r = function(vec, lower, upper, scale) {
-    vec <- -(g3_env$logspace_add(-vec * scale, -upper * scale) / scale)
-    vec <- g3_env$logspace_add(vec * scale, lower * scale) / scale
-    return(vec)
-}, cpp = '[&logspace_add_vec](vector<Type> vec, Type lower, Type upper, double scale) -> vector<Type> {
-    vec = -(logspace_add_vec(-vec * scale, -upper * scale) / scale);
-    vec = logspace_add_vec(vec * scale, lower * scale) / scale;
-    return(vec);
-}', depends = c("logspace_add_vec"))
-
 # NB: We have to have avoid_zero in our namespace so CMD check doesn't complain about it's use
 #     in surveyindices_linreg(). Maybe g3_env should just go away and use the package
 #     namespace instead?
-g3_env$avoid_zero <- avoid_zero <- g3_native(r = function (a) {
-    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
-    ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
-}, cpp = '[](Type a) -> Type {
-    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
-}')
+g3_env$avoid_zero <- g3_native(r = function(a) {
+    dif_pmax(a, 0.0, 1e3)
+}, cpp = '
+template<typename X>
+auto __fn__(X a) {
+    return dif_pmax(a, 0.0, 1e3);
+}
+', depends = c("dif_pmax"))
 
-g3_env$avoid_zero_vec <- g3_native(r = function (a) {
-    # https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660
-    ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
-}, cpp = '[](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
-}')
+# Now-redundant alias
+g3_env$avoid_zero_vec <- g3_env$avoid_zero
 
 # Divide a vector by it's sum, i.e. so it now sums to 1
 g3_env$normalize_vec <- g3_native(r = function (a) {
@@ -70,22 +40,19 @@ g3_env$normalize_vec <- g3_native(r = function (a) {
     return a / a.sum();
 }')
 
-# Return scalar (x) bounded between (a) and (b)
+# If (x) positive, return (a). If (x) negative, (b). If (x) -10..10, smoothly transition from (b) to (a)
 g3_env$bounded <- g3_native(r = function (x, a, b) {
   a + (b-a)/(1+exp(x))
 }, cpp = '[](Type x, Type a, Type b) -> Type {
     return a + (b-a)/(1+exp(x));
 }')
 
-# Return vector (x) bounded between (a) and (b)
+# If (x) positive, return (a). If (x) negative, (b). If (x) -10..10, smoothly transition from (b) to (a)
 g3_env$bounded_vec <- g3_native(r = function (x, a, b) {
   a + (b-a)/(1+exp(x))
 }, cpp = '[](vector<Type> x, Type a, Type b) -> vector<Type> {
     return a + (b-a)/(1+exp(x));
 }')
-
-# vector<Type> form of pow()
-g3_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
 
 # Return first non-null argument. Doesn't really make sense in C++
 g3_env$nvl <- g3_native(r = function(...) {
@@ -164,10 +131,10 @@ g3_env$as_numeric_vec <- g3_native(r = function (x) x, cpp = '[](vector<Type> x)
 
 # Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
 g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {
-    (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount)
-}, cpp = '[&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
-}', depends = c('avoid_zero_vec'))
+    (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount)
+}, cpp = '[](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}', depends = c('avoid_zero'))
 
 
 g3_env$nonconform_add <- g3_native(r = function (base_ar, extra_ar) {

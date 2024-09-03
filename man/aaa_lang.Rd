@@ -55,7 +55,7 @@ eg_ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount,
     ((orig_vec * orig_amount + new_vec * new_amount)
       /
     avoid_zero_vec(orig_amount + new_amount))
-}, cpp = '[&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount,
+}, cpp = '[](vector<Type> orig_vec, vector<Type> orig_amount,
                             vector<Type> new_vec, vector<Type> new_amount)
                             -> vector<Type> {
     return (orig_vec * orig_amount + new_vec * new_amount)

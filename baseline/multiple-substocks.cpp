@@ -23,9 +23,62 @@ namespace map_extras {
     }
 }
 
+
+#ifndef TYPE_IS_SCALAR
+#ifdef TMBAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, TMBad::global::ad_aug>::value>
+#endif // TMBAD_FRAMEWORK
+#ifdef CPPAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD>::value>
+#endif // CPPAD_FRAMEWORK
+#endif // TYPE_IS_SCALAR
+
 template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
             return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }
+// Scalar templates
+template<typename T, typename LimitT, TYPE_IS_SCALAR(T), TYPE_IS_SCALAR(LimitT)>
+T dif_pmax(T a, LimitT b, double scale) {
+    return logspace_add(a * scale, (T)b * scale) / scale;
+}
+// templates for vector<Type>s & Eigen derived vectors
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, LimitT b, double scale) {
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+// Templates for Eigen derived arrays
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, LimitT b, double scale) {
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+template<typename X>
+auto avoid_zero(X a) {
+    return dif_pmax(a, 0.0, 1e3);
+}
+template<typename X, typename Y>
+auto dif_pmin(X a, Y b, double scale) {
+    return dif_pmax(a, b, -scale);
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -361,20 +414,6 @@ Type objective_function<Type>::operator() () {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
-};
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-};
     auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
@@ -411,9 +450,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto avoid_zero = [](Type a) -> Type {
-    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
-};
     auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
     array<Type> out(vec.size(), a);
     for (int i = 0 ; i < vec.size(); i++) {
@@ -463,14 +499,6 @@ Type objective_function<Type>::operator() () {
     auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     int total_lgs = growth_matrix.cols(); // # Length groups
 
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
-
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -479,7 +507,7 @@ Type objective_function<Type>::operator() () {
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 };
     auto g3a_grow_matrix_len = [](array<Type> delta_l_ar) -> matrix<Type> {
@@ -503,10 +531,10 @@ Type objective_function<Type>::operator() () {
     }
     return(growth_matrix);
 };
-    auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
+    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
-    auto surveyindices_linreg = [&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
+    auto surveyindices_linreg = [](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 
         auto meanI = I.mean();
@@ -665,7 +693,7 @@ Type objective_function<Type>::operator() () {
 
                 auto dnorm = ((fish_imm__midlen - (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))) / ((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv));
 
-                auto factor = (fish_imm__init__scalar*map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + init__F)*(age - recage)));
+                auto factor = (fish_imm__init__scalar*(map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + (double)(0)*age) + init__F)*(age - recage)));
 
                 {
                     fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -684,7 +712,7 @@ Type objective_function<Type>::operator() () {
 
                 auto dnorm = ((fish_mat__midlen - (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))) / ((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv));
 
-                auto factor = (fish_mat__init__scalar*map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + init__F)*(age - recage)));
+                auto factor = (fish_mat__init__scalar*(map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + (double)(0)*age) + init__F)*(age - recage)));
 
                 {
                     fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
@@ -900,10 +928,10 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate fish_imm overconsumption coefficient;
             // Apply overconsumption to fish_imm;
-            fish_imm__consratio = fish_imm__totalpredate / avoid_zero_vec(fish_imm__num*fish_imm__wgt);
-            fish_imm__consratio = logspace_add_vec(fish_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish_imm__consratio = fish_imm__totalpredate / avoid_zero(fish_imm__num*fish_imm__wgt);
+            fish_imm__consratio = dif_pmin(fish_imm__consratio, (double)(0.95), (double)(1000));
             fish_imm__overconsumption = (fish_imm__totalpredate).sum();
-            fish_imm__consconv = (double)(1) / avoid_zero_vec(fish_imm__totalpredate);
+            fish_imm__consconv = (double)(1) / avoid_zero(fish_imm__totalpredate);
             fish_imm__totalpredate = (fish_imm__num*fish_imm__wgt)*fish_imm__consratio;
             fish_imm__overconsumption -= (fish_imm__totalpredate).sum();
             fish_imm__consconv *= fish_imm__totalpredate;
@@ -912,10 +940,10 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate fish_mat overconsumption coefficient;
             // Apply overconsumption to fish_mat;
-            fish_mat__consratio = fish_mat__totalpredate / avoid_zero_vec(fish_mat__num*fish_mat__wgt);
-            fish_mat__consratio = logspace_add_vec(fish_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            fish_mat__consratio = fish_mat__totalpredate / avoid_zero(fish_mat__num*fish_mat__wgt);
+            fish_mat__consratio = dif_pmin(fish_mat__consratio, (double)(0.95), (double)(1000));
             fish_mat__overconsumption = (fish_mat__totalpredate).sum();
-            fish_mat__consconv = (double)(1) / avoid_zero_vec(fish_mat__totalpredate);
+            fish_mat__consconv = (double)(1) / avoid_zero(fish_mat__totalpredate);
             fish_mat__totalpredate = (fish_mat__num*fish_mat__wgt)*fish_mat__consratio;
             fish_mat__overconsumption -= (fish_mat__totalpredate).sum();
             fish_mat__consconv *= fish_mat__totalpredate;
@@ -946,7 +974,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_imm__area_idx = 0;
 
-                fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) *= exp(-(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M"))*cur_step_size);
+                fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) *= exp(-((map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + (double)(0)*age))*cur_step_size);
             }
         }
         {
@@ -958,7 +986,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_mat__area_idx = 0;
 
-                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) *= exp(-(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M"))*cur_step_size);
+                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) *= exp(-((map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + (double)(0)*age))*cur_step_size);
             }
         }
         {
@@ -967,9 +995,9 @@ Type objective_function<Type>::operator() () {
             fish_imm__transitioning_wgt = fish_imm__wgt;
         }
         {
-            auto growth_delta_l = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_l : (fish_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish_imm__Linf - fish_imm__midlen)*((double)(1) - exp(-(fish_imm__K)*cur_step_size))) / fish_imm__plusdl), 4, avoid_zero(fish_imm__bbin))));
+            auto growth_delta_l = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_l : (fish_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_imm__Linf - fish_imm__midlen)*((double)(1) - exp(-(fish_imm__K)*cur_step_size))) / fish_imm__plusdl), 4, avoid_zero(fish_imm__bbin))));
 
-            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish_imm__midlen), fish_imm__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish_imm__midlen), fish_imm__wbeta), 4 + (double)(1)))*fish_imm__walpha));
+            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)))*fish_imm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -1007,9 +1035,9 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto growth_delta_l = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_l : (fish_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((fish_mat__Linf - fish_mat__midlen)*((double)(1) - exp(-(fish_mat__K)*cur_step_size))) / fish_mat__plusdl), 4, avoid_zero(fish_mat__bbin))));
+            auto growth_delta_l = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_l : (fish_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_mat__Linf - fish_mat__midlen)*((double)(1) - exp(-(fish_mat__K)*cur_step_size))) / fish_mat__plusdl), 4, avoid_zero(fish_mat__bbin))));
 
-            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(fish_mat__midlen), fish_mat__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(fish_mat__midlen), fish_mat__wbeta), 4 + (double)(1)))*fish_mat__walpha));
+            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)))*fish_mat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -1060,7 +1088,7 @@ Type objective_function<Type>::operator() () {
                             fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm__transitioning_wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
                             fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
                             fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx) -= fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero_vec(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
                         }
                     }
                 }
@@ -1751,9 +1779,9 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_dist_si_cpue_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_dist_si_cpue_model__params = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? adist_surveyindices_log_dist_si_cpue_model__params : surveyindices_linreg(log(avoid_zero_vec(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero_vec(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1)));
+                                adist_surveyindices_log_dist_si_cpue_model__params = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? adist_surveyindices_log_dist_si_cpue_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1)));
                                 {
-                                    auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero_vec(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero_vec(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
+                                    auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
 
                                     {
                                         nll += adist_surveyindices_log_dist_si_cpue_weight*cur_cdist_nll;
@@ -1784,7 +1812,7 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Convert fish_imm_f_surv to num;
-                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
+                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
                         }
                     }
                 }
@@ -1807,7 +1835,7 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Convert fish_mat_f_surv to num;
-                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero_vec(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
+                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
                         }
                     }
                 }
@@ -1858,7 +1886,7 @@ Type objective_function<Type>::operator() () {
 
                 if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
                     // Convert fish_imm_f_surv to num;
-                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
+                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
                 }
             }
         }
@@ -1875,7 +1903,7 @@ Type objective_function<Type>::operator() () {
 
                 if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
                     // Convert fish_mat_f_surv to num;
-                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero_vec(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
+                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
                 }
             }
         }
@@ -2008,7 +2036,7 @@ Type objective_function<Type>::operator() () {
                             {
                                 fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm_movement__transitioning_wgt.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx)*fish_imm_movement__transitioning_num.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx);
                                 fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx);
-                                fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero_vec(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                                fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
                             }
                         }
                     }

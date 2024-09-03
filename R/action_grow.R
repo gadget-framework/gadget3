@@ -28,11 +28,11 @@ g3a_grow_lengthvbsimple <- function (
         kappa_f = g3_parameterized('K', by_stock = by_stock),
         by_stock = TRUE) {
     # See src/growthcalc.cc:GrowthCalcH::calcGrowth
-    # NB: avoid_zero_vec() converts negative growth into zero-growth, due to
+    # NB: avoid_zero() converts negative growth into zero-growth, due to
     #     https://github.com/gadget-framework/gadget3/issues/18
     #     but zero-growth is a valid result here
     f_substitute(
-        ~avoid_zero_vec((linf_f - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size))),
+        ~avoid_zero((linf_f - stock__midlen) * (1 - exp(-(kappa_f) * cur_step_size))),
         list(linf_f = linf_f, kappa_f = kappa_f))
 }
 
@@ -47,8 +47,8 @@ g3a_grow_weightsimple <- function (
     # growmemberfunctions.cc:61 - Make a l --> l' matrix of weight increases,
     # NB: Have to multiply by alpha_f last, otherwise TMB thinks the result should be scalar
     f_substitute(~(
-        g3a_grow_vec_rotate(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1) -
-        g3a_grow_vec_extrude(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1)
+        g3a_grow_vec_rotate(stock__midlen^beta_f, maxlengthgroupgrowth + 1) -
+        g3a_grow_vec_extrude(stock__midlen^beta_f, maxlengthgroupgrowth + 1)
     ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 
@@ -98,7 +98,7 @@ g3a_grow_length_weightjones <- function(
               (p0 + stock_ss(stock__feedinglevel) * (p1 + p2 * stock_ss(stock__feedinglevel))) * reference_weight
           ) / stock_ss(stock__wgt)  # No, this is not a regex /
     # NB: All of growth_delta_w is equal, as it doesn't depend on length
-    ~logspace_minmax_vec(p3 + p4 * r, 0, p5, 1e5) * growth_delta_w[,1] / (p6 * p7 * stock__midlen^(p7 - 1))
+    ~dif_pminmax(p3 + p4 * r, 0, p5, 1e5) * growth_delta_w[,1] / (p6 * p7 * stock__midlen^(p7 - 1))
 }
 
 g3a_grow_weight_weightjones <- function(
@@ -117,8 +117,8 @@ g3a_grow_weight_weightjones <- function(
         predator_length = function(x) quote( stock__midlen ),
         predstock = function(x) quote( stock ),
         end = NULL )
-    # NB: Pretty easy to have negative growth with nonsense parameters, thus avoid_zero_vec()
-    ~g3a_grow_vec_extrude(avoid_zero_vec(cur_step_size * (
+    # NB: Pretty easy to have negative growth with nonsense parameters, thus avoid_zero()
+    ~g3a_grow_vec_extrude(avoid_zero(cur_step_size * (
         (max_consumption / (q0 * (stock_ss(stock__wgt))^q1)) -
         q2 * (stock_ss(stock__wgt))^q3 * exp(q4 * temperature + q5) )), maxlengthgroupgrowth + 1)
 }
@@ -197,10 +197,10 @@ g3a_grow_impl_bbinom <- function (
     list(
         delta_dim = seq(0, maxlengthgroupgrowth),
         len = f_substitute(
-            # NB: avoid_zero_vec() means zero-growth doesn't result in NaN
+            # NB: avoid_zero() means zero-growth doesn't result in NaN
             # NB: We convert delta_len_f into # of length groups to jump, but badly by assuming length groups
             #     are evenly sized
-            ~growth_bbinom(avoid_zero_vec((delta_len_f) / stock__plusdl), maxlengthgroupgrowth, avoid_zero(beta_f)),
+            ~growth_bbinom(avoid_zero((delta_len_f) / stock__plusdl), maxlengthgroupgrowth, avoid_zero(beta_f)),
             list(
                 delta_len_f = delta_len_f,
                 maxlengthgroupgrowth = maxlengthgroupgrowth,
@@ -292,10 +292,6 @@ g3a_grow_apply <- g3_native(r = function (growth.matrix, wgt.matrix, input_num, 
     na <- dim(growth.matrix)[[1]]  # Number of length groups
     # See stockmemberfunctions.cc:121, grow.cc:25
 
-    avoid_zero_vec <- function(a) {
-        ( pmax(a * 1000, 0) + log1p(exp(pmin(a * 1000, 0) - pmax(a * 1000, 0))) ) / 1000
-    }
-
     # Apply matrices to stock
     growth.matrix <- growth.matrix * as.vector(input_num)  # NB: Cant matrix-multiply with a 1xn array
     wgt.matrix <- growth.matrix * (wgt.matrix + as.vector(input_wgt))
@@ -304,17 +300,9 @@ g3a_grow_apply <- g3_native(r = function (growth.matrix, wgt.matrix, input_num, 
     growth.matrix.sum <- colSums(growth.matrix)
     return(array(c(
         growth.matrix.sum,
-        colSums(wgt.matrix) / avoid_zero_vec(growth.matrix.sum) ), dim = c(na, 2)))
+        colSums(wgt.matrix) / avoid_zero(growth.matrix.sum) ), dim = c(na, 2)))
 }, cpp = '[](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     int total_lgs = growth_matrix.cols(); // # Length groups
-
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
 
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
@@ -324,9 +312,9 @@ g3a_grow_apply <- g3_native(r = function (growth.matrix, wgt.matrix, input_num, 
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-}')
+}', depends = c("avoid_zero"))
 
 # Combined growth / maturity step for a stock
 # - impl_f: formulae for growth implmentation, e.g. g3a_grow_impl_bbinom()

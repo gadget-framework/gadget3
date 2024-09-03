@@ -152,9 +152,7 @@ g3a_predate <- function (
         prey_stocks,
         suitabilities,
         catchability_f,
-        overconsumption_f = quote(
-            logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3
-        ),
+        overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
         run_f = ~TRUE,
         run_at = g3_action_order$predate ) {
     out <- new.env(parent = emptyenv())
@@ -297,14 +295,14 @@ g3a_predate <- function (
                 # NB: See prey.cc::208
                 # stock__consratio == ratio
                 # stock__consratio proportion of prey that we're about to consume
-                stock__consratio <- stock__totalpredate / avoid_zero_vec(stock__num * stock__wgt)
+                stock__consratio <- stock__totalpredate / avoid_zero(stock__num * stock__wgt)
                 stock__consratio <- overconsumption_f
 
                 # stock__overconsumption: biomass over overconsumption limit.  This is used by g3l_understocking()
                 stock__overconsumption <- sum(stock__totalpredate)
 
                 # Apply overconsumption to stock__totalpredate, work out conversion factor for predprey__cons
-                stock__consconv <- 1 / avoid_zero_vec(stock__totalpredate)
+                stock__consconv <- 1 / avoid_zero(stock__totalpredate)
                 stock__totalpredate <- (stock__num * stock__wgt) * stock__consratio
                 stock__overconsumption <- stock__overconsumption - sum(stock__totalpredate)
                 stock__consconv <- stock__consconv * stock__totalpredate
@@ -335,7 +333,7 @@ g3a_predate_fleet <- function (fleet_stock,
                                     prey_stocks,
                                     suitabilities,
                                     catchability_f,
-                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
+                                    overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
                                     run_f = ~TRUE,
                                     run_at = g3_action_order$predate) {
     predstock <- fleet_stock
@@ -391,7 +389,7 @@ g3a_predate_totalfleet <- function (fleet_stock,
                                     prey_stocks,
                                     suitabilities,
                                     amount_f,
-                                    overconsumption_f = quote( logspace_add_vec(stock__consratio * -1e3, 0.95 * -1e3) / -1e3 ),
+                                    overconsumption_f = quote( dif_pmin(stock__consratio, 0.95, 1e3) ),
                                     run_f = ~TRUE,
                                     run_at = g3_action_order$predate) {
     g3a_predate_fleet(fleet_stock, prey_stocks, suitabilities, overconsumption_f = overconsumption_f, run_f = run_f, run_at = run_at,

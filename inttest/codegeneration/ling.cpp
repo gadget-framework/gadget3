@@ -23,9 +23,62 @@ namespace map_extras {
     }
 }
 
+
+#ifndef TYPE_IS_SCALAR
+#ifdef TMBAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, TMBad::global::ad_aug>::value>
+#endif // TMBAD_FRAMEWORK
+#ifdef CPPAD_FRAMEWORK
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD>::value>
+#endif // CPPAD_FRAMEWORK
+#endif // TYPE_IS_SCALAR
+
 template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
             return lookup.count(key) > 0 ? lookup[key] : (T)def;
         }
+// Scalar templates
+template<typename T, typename LimitT, TYPE_IS_SCALAR(T), TYPE_IS_SCALAR(LimitT)>
+T dif_pmax(T a, LimitT b, double scale) {
+    return logspace_add(a * scale, (T)b * scale) / scale;
+}
+// templates for vector<Type>s & Eigen derived vectors
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, LimitT b, double scale) {
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+vector<typename Derived::value_type> dif_pmax(const Eigen::DenseBase<Derived>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    vector<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+// Templates for Eigen derived arrays
+template<typename LimitT, typename Derived, TYPE_IS_SCALAR(LimitT)>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, LimitT b, double scale) {
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)b * scale) / scale;
+    return out;
+}
+template<typename LimitT, typename Derived>
+array<typename Derived::value_type> dif_pmax(const Eigen::Map<Eigen::DenseBase<Derived>>& a, const Eigen::DenseBase<LimitT>& b, double scale) {
+    assert(a.size() % b.size() == 0);
+
+    array<typename Derived::value_type> out(a.size());
+    for(int i = 0; i < a.size(); i++) out[i] = logspace_add(a[i] * scale, (typename Derived::value_type)(b[i % b.size()]) * scale) / scale;
+    return out;
+}
+template<typename X>
+auto avoid_zero(X a) {
+    return dif_pmax(a, 0.0, 1e3);
+}
+template<typename X, typename Y>
+auto dif_pmin(X a, Y b, double scale) {
+    return dif_pmax(a, b, -scale);
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -102,20 +155,6 @@ Type objective_function<Type>::operator() () {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar + (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
 };
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-    }
-    return res;
-};
-    auto logspace_add_vec = [](vector<Type> a, Type b) -> vector<Type> {
-    vector<Type> res(a.size());
-    for(int i = 0; i < a.size(); i++) {
-        res[i] = logspace_add(a[i], b);
-    }
-    return res;
-};
     auto nonconform_mult = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
     return base_ar * (extra_ar.replicate(base_ar.size() / extra_ar.size(), 1));
@@ -152,9 +191,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto avoid_zero = [](Type a) -> Type {
-    return logspace_add(a * 1000.0, (Type)0.0) / 1000.0;
-};
     auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
     array<Type> out(vec.size(), a);
     for (int i = 0 ; i < vec.size(); i++) {
@@ -213,14 +249,6 @@ Type objective_function<Type>::operator() () {
     auto g3a_grow_apply = [](matrix<Type> growth_matrix, matrix<Type> weight_matrix, vector<Type> input_num, vector<Type> input_wgt) -> array<Type> {
     int total_lgs = growth_matrix.cols(); // # Length groups
 
-    auto avoid_zero_vec = [](vector<Type> a) -> vector<Type> {
-        vector<Type> res(a.size());
-        for(int i = 0; i < a.size(); i++) {
-            res[i] = logspace_add(a[i] * 1000.0, (Type)0.0) / 1000.0;
-        }
-        return res;
-    };
-
     // Apply matrices to stock
     // NB: Cast to array to get elementwise multiplication
     growth_matrix = growth_matrix.array().colwise() * input_num.array();
@@ -229,11 +257,11 @@ Type objective_function<Type>::operator() () {
     // Sum together all length group brackets for both length & weight
     array<Type> combined(total_lgs,2);
     combined.col(0) = growth_matrix.colwise().sum();
-    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero_vec(growth_matrix.colwise().sum()).array().transpose();
+    combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
 };
-    auto ratio_add_vec = [&avoid_zero_vec](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero_vec(orig_amount + new_amount);
+    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     int cur_time = -1;
     int cur_year = 0;
@@ -493,10 +521,10 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_imm overconsumption coefficient;
             // Apply overconsumption to ling_imm;
-            ling_imm__consratio = ling_imm__totalpredate / avoid_zero_vec(ling_imm__num*ling_imm__wgt);
-            ling_imm__consratio = logspace_add_vec(ling_imm__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            ling_imm__consratio = ling_imm__totalpredate / avoid_zero(ling_imm__num*ling_imm__wgt);
+            ling_imm__consratio = dif_pmin(ling_imm__consratio, (double)(0.95), (double)(1000));
             ling_imm__overconsumption = (ling_imm__totalpredate).sum();
-            ling_imm__consconv = (double)(1) / avoid_zero_vec(ling_imm__totalpredate);
+            ling_imm__consconv = (double)(1) / avoid_zero(ling_imm__totalpredate);
             ling_imm__totalpredate = (ling_imm__num*ling_imm__wgt)*ling_imm__consratio;
             ling_imm__overconsumption -= (ling_imm__totalpredate).sum();
             ling_imm__consconv *= ling_imm__totalpredate;
@@ -505,10 +533,10 @@ Type objective_function<Type>::operator() () {
         {
             // Calculate ling_mat overconsumption coefficient;
             // Apply overconsumption to ling_mat;
-            ling_mat__consratio = ling_mat__totalpredate / avoid_zero_vec(ling_mat__num*ling_mat__wgt);
-            ling_mat__consratio = logspace_add_vec(ling_mat__consratio*-(double)(1000), (double)(0.95)*-(double)(1000)) / -(double)(1000);
+            ling_mat__consratio = ling_mat__totalpredate / avoid_zero(ling_mat__num*ling_mat__wgt);
+            ling_mat__consratio = dif_pmin(ling_mat__consratio, (double)(0.95), (double)(1000));
             ling_mat__overconsumption = (ling_mat__totalpredate).sum();
-            ling_mat__consconv = (double)(1) / avoid_zero_vec(ling_mat__totalpredate);
+            ling_mat__consconv = (double)(1) / avoid_zero(ling_mat__totalpredate);
             ling_mat__totalpredate = (ling_mat__num*ling_mat__wgt)*ling_mat__consratio;
             ling_mat__overconsumption -= (ling_mat__totalpredate).sum();
             ling_mat__consconv *= ling_mat__totalpredate;
@@ -566,9 +594,9 @@ Type objective_function<Type>::operator() () {
         {
             auto maturity_ratio = ((double)(1) / ((double)(1) + exp(((double)(0) - ((double)(0.001)*ling__mat1)*(ling_imm__midlen - ling__mat2)))));
 
-            auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
+            auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
+            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -620,9 +648,9 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero_vec(avoid_zero_vec((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
+            auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
+            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -677,7 +705,7 @@ Type objective_function<Type>::operator() () {
                                     ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                     ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
                                 }
                             }
                         }
@@ -756,7 +784,7 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Convert ling_imm_igfs to num;
-                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) / avoid_zero(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)));
                         }
                     }
                 }
@@ -777,7 +805,7 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Convert ling_mat_igfs to num;
-                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
+                            cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) += (ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) / avoid_zero(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)));
                         }
                     }
                 }
@@ -916,7 +944,7 @@ Type objective_function<Type>::operator() () {
                                 {
                                     ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx)*ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero_vec(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
                                 }
                             }
                         }

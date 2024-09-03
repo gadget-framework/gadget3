@@ -11,7 +11,7 @@ dist_prop <- function (var_name, over) {
             x = call("stock_ss", var_sym, length = length_idx_sym),
             total = as.symbol(total_var_name),
             idx = as.symbol(gsub('__x$', '__length_idx', var_name))))
-        total_call <- substitute(avoid_zero_vec(rowSums(x)), list(
+        total_call <- substitute(avoid_zero(rowSums(x)), list(
             x = call_append(call("stock_ssinv", var_sym), over[over != 'length'])))
     } else {
         out <- substitute(x / total, list(
@@ -46,9 +46,10 @@ g3l_distribution_multinomial <- function (epsilon = 10) {
             data = quote(stock_ss(obsstock__x))))
 
     likely <- substitute(
-        -sum(data * log(logspace_add_vec(
-            dist / avoid_zero(sum(dist)) * 10000,
-            (1 / (length(data) * epsilon)) * 10000) / 10000)), list(
+        -sum(data * log(dif_pmax(
+            dist / avoid_zero(sum(dist)),
+            1 / (length(data) * epsilon),
+            10000 ))), list(
                 data = quote(stock_ss(obsstock__x)),
                 dist = quote(stock_ss(modelstock__x)),
                 epsilon = epsilon))
@@ -81,16 +82,17 @@ g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
 g3l_distribution_surveyindices <- function (fit = 'log', alpha = NULL, beta = NULL) {
     stopifnot(fit == 'linear' || fit == 'log')
 
-    N <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(modelstock__x, time =))) else ~stock_ss(modelstock__x, time = )
-    I <- if(fit == 'log') ~log(avoid_zero_vec(stock_ss(obsstock__x, time =))) else ~stock_ss(obsstock__x, time = )
+    N <- if(fit == 'log') ~log(avoid_zero(stock_ss(modelstock__x, time =))) else ~stock_ss(modelstock__x, time = )
+    I <- if(fit == 'log') ~log(avoid_zero(stock_ss(obsstock__x, time =))) else ~stock_ss(obsstock__x, time = )
 
+    avoid_zero <- g3_env$avoid_zero  # Quell CRAN warning
     surveyindices_linreg <- g3_native(r = function (N, I, fixed_alpha, fixed_beta) {
         meanI <- mean(I)
         meanN <- mean(N)
         beta <- if (is.nan(fixed_beta)) sum((I - meanI) * (N - meanN)) / avoid_zero(sum((N - meanN)**2)) else fixed_beta
         alpha <- if (is.nan(fixed_alpha)) meanI - beta * meanN else fixed_alpha
         return(c(alpha, beta))
-    }, cpp = '[&avoid_zero](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
+    }, cpp = '[](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
 
         auto meanI = I.mean();
@@ -287,7 +289,7 @@ g3l_distribution <- function (
                     end = NULL )[[obs_name]]
             } else {
                 collect_fs[[obs_name]] <- list(
-                    num = quote( stock_ss(predprey__cons) / avoid_zero_vec(stock_ss(prey_stock__wgt)) ),
+                    num = quote( stock_ss(predprey__cons) / avoid_zero(stock_ss(prey_stock__wgt)) ),
                     wgt = quote( stock_ss(predprey__cons) ),
                     end = NULL )[[obs_name]]
             }

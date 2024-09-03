@@ -11,8 +11,19 @@ actions <- local({
     eval(g2to3_mainfile('inttest/maturity'))
     c(actions, list(g3a_report_history(actions)))
 })
-environment(actions[[1]][[1]])$avoid_zero <- g3_native(function (a) max(a, 1e-7), cpp = "[](Type a) -> Type { return std::max(a, (Type)1e-7); }")
-environment(actions[[1]][[1]])$avoid_zero_vec <- g3_native(function (a) pmax(a, 1e-7), cpp = "[](vector<Type> a) -> vector<Type> { return a.cwiseMax(1e-7); }")
+
+# Replace avoid_zero with a more accurate scale
+actions <- c(g3_formula({
+    avoid_zero(nll)
+}, avoid_zero = g3_native(r = function(a) {
+    dif_pmax(a, 0.0, 1e7)
+}, cpp = '
+template<typename X>
+auto __fn__(X a) {
+    return dif_pmax(a, 0.0, 1e7);
+}
+', depends = c("dif_pmax")) ), actions)
+
 model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
 params <- local({eval(g2to3_params_r('inttest/maturity', 'params.in')) ; params.in})
 
