@@ -47,8 +47,8 @@ g3a_grow_weightsimple <- function (
     # growmemberfunctions.cc:61 - Make a l --> l' matrix of weight increases,
     # NB: Have to multiply by alpha_f last, otherwise TMB thinks the result should be scalar
     f_substitute(~(
-        g3a_grow_vec_rotate(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1) -
-        g3a_grow_vec_extrude(pow_vec(stock__midlen, beta_f), maxlengthgroupgrowth + 1)
+        g3a_grow_vec_rotate(stock__midlen^beta_f, maxlengthgroupgrowth + 1) -
+        g3a_grow_vec_extrude(stock__midlen^beta_f, maxlengthgroupgrowth + 1)
     ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 

@@ -54,9 +54,6 @@ g3_env$bounded_vec <- g3_native(r = function (x, a, b) {
     return a + (b-a)/(1+exp(x));
 }')
 
-# vector<Type> form of pow()
-g3_env$pow_vec <- g3_native(r = function(a, b) { a ^ b }, cpp = list('pow', 'vector<Type>', NULL))
-
 # Return first non-null argument. Doesn't really make sense in C++
 g3_env$nvl <- g3_native(r = function(...) {
     for (i in seq_len(...length())) if (!is.null(...elt(i))) return(...elt(i))

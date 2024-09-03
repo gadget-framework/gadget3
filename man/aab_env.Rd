@@ -13,7 +13,6 @@
 \alias{logspace_add}
 \alias{normalize_vec}
 \alias{nvl}
-\alias{pow_vec}
 \alias{print_array}
 \alias{ratio_add_vec}
 \alias{REPORT}
@@ -81,8 +80,6 @@
   Return first non-null argument.
   NB: No C++ implementation.
 }
-
-\section{pow_vec}{Vector equivalent of \code{\link{^}}}
 
 \section{print_array}{
   Utility to pretty-print array \var{ar}

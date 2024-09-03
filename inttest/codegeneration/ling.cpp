@@ -596,7 +596,7 @@ Type objective_function<Type>::operator() () {
 
             auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_imm__midlen), lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
+            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -650,7 +650,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude(pow((vector<Type>)(ling_mat__midlen), lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
+            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
