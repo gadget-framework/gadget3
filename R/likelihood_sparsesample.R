@@ -108,7 +108,7 @@ g3l_sparsesample_sumsquares <- function (
         finites <- is.finite(model_mean) & is.finite(obs_mean)
 
         if (any(!is.finite(weighting[finites]))) warning("g3l_sparsesample_sumsquares_stddev: 1/variance is NaN, use a custom weighing")
-        return( weighting[finites] * (model_mean[finites] - obs_mean[finites])^2 )
+        return( ifelse(finites, weighting, 0) * (ifelse(finites, model_mean, 0) - ifelse(finites, obs_mean, 0))^2 )
     }, cpp = '[](vector<Type> model_mean, vector<Type> obs_mean, vector<Type> weighting) -> vector<Type> {
         Eigen::Matrix<bool, Eigen::Dynamic, 1> finites = model_mean.isFinite() && obs_mean.isFinite() && weighting.isFinite();
 
@@ -132,30 +132,33 @@ g3l_sparsesample <- function (
         stocks,
         measurement_f = quote( wgt ),
         function_f = g3l_sparsesample_linreg(),
+        predstocks = list(),
         area_group = NULL,
         weight = g3_parameterized(paste0(nll_name, "_weight"),
             optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood ) {
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
+    stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     out <- new.env(parent = emptyenv())
 
-    # TODO: spabund vs spcatch, not that we have the other mode yet
-    nllstock <- g3s_sparsedata(c("nll", type = "spabund", name = nll_name), obs_df[,-ncol(obs_df), drop = FALSE], area_group = area_group)
+    nllstock <- g3s_sparsedata(c("nll", type = if (length(predstocks) > 0 ) "spcatch" else "spabund", name = nll_name), obs_df[,-ncol(obs_df), drop = FALSE], area_group = area_group)
     nllstock__obs_mean <- g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "mean"]), desc = paste0(nll_name, " observations"))
-    nllstock__obs_stddev <- if ("stddev" %in% obs_df) g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "stddev"]), desc = paste0(nll_name, " observation stddev")) else quote( stop("No observation stddev column") )
-    nllstock__obs_n <- g3_sparsedata_instance(nllstock, if ("number" %in% obs_df) obs_df[, "number"] else 1, desc = paste0(nll_name, " observation number"))
+    nllstock__obs_stddev <- if ("stddev" %in% names(obs_df)) g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "stddev"]), desc = paste0(nll_name, " observation stddev")) else quote( stop("No observation stddev column") )
+    nllstock__obs_n <- g3_sparsedata_instance(nllstock, as.numeric(if ("number" %in% names(obs_df)) obs_df[, "number"] else 1), desc = paste0(nll_name, " observation number"))
     nllstock__model_sum <- g3_sparsedata_instance(nllstock, 0, desc = paste0(nll_name, " prediction total"))
     nllstock__model_sqsum <- g3_sparsedata_instance(nllstock, 0, desc = paste0(nll_name, " prediction squared-sum"))
     nllstock__model_n <- g3_sparsedata_instance(nllstock, 0, desc = paste0(nll_name, " datapoint count"))
 
     nllstock__weight <- 0
 
-    g3_step_foreach_stock <- function (stocks, inner, outer_f) {
-        inner_f <- f_concatenate(lapply(stocks, function (stock) {
-            g3_step(inner(stock), recursing = TRUE, orig_env = list2env(list(
-                stock = stock,
-                end = NULL ), parent = environment(outer_f)))
-        }))
+    g3_step_foreach_stock <- function (stocks, inner, outer_f, predstocks = list()) {
+        if (length(predstocks) == 0) predstocks <- list(NULL)
+        inner_f <- f_concatenate(do.call(c, lapply(predstocks, function (predstock) lapply(stocks, function (stock) {
+            f <- inner(stock, predstock)
+            environment(f) <- rlang::env_clone(environment(f), parent = environment(outer_f))
+
+            g3_step(f, recursing = TRUE)
+        }))))
         outer_f <- g3_step(f_substitute(outer_f, list(inner_f = inner_f)))
         return(outer_f)
     }
@@ -167,29 +170,41 @@ g3l_sparsesample <- function (
     environment(environment(local_nll)$nllstock__nll)$nllstock__obs_stddev <- nllstock__obs_stddev
 
     # For each stock, collect current values for table
-    out[[step_id(run_at, 'g3l_sparsesample', nll_name, 1)]] <- g3_step_foreach_stock(stocks, function (stock) {
+    out[[step_id(run_at, 'g3l_sparsesample', nll_name, 1)]] <- g3_step_foreach_stock(stocks, predstocks = predstocks, function (stock, predstock) {
         # Substitute terms in measurement_f
         # TODO: We should subset what we need, and work with a vector, which means:
         #       * Getting names(stock$dim) that we are interested in
         #       * Turning this into a stock_ss(vec = x, x = default) expression
         #       * Below, measurement / (measurement)^2 should be summed if not single value
-        # TODO: A catch mode, iterating over fleets & using appropriate terms
         st_measurement_f <- f_substitute(measurement_f, list(
             wgt = quote( stock_ss(stock__wgt, vec = single) ),
             # NB: "length" will be the observed length, we should be using the midlen value
             length = quote( stock__midlen[[stock__length_idx]] ),
             end = NULL ))
-        # Multiply quantity by number present in this cell
-        st_measurement_f <- f_substitute(
-            quote( stock_ss(stock__num, vec = single) * st_measurement_f ),
-            list( st_measurement_f = st_measurement_f ))
+
+        if (!is.null(predstock)) {
+            # NB: In lockstep with action_predate()
+            predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
+
+            # Quantity is number of fish present in catch
+            st_quantity_f <- quote( stock_ss(predprey__cons, vec = single) / avoid_zero(stock_ss(stock__wgt, vec = single)) )
+        } else {
+            # Dummy predator to intersect with
+            predstock <- g3_storage("NULL")
+            predprey <- g3_storage("NULL")
+
+            # Multiply quantity by number present in this cell
+            st_quantity_f <- quote( stock_ss(stock__num, vec = single) )
+        }
 
         # NB: Manually g3_with()ing to work around lost stock-variables, should always be inside intersect anyway
-        f_substitute(~stock_intersect(stock, g3_with(measurement := st_measurement_f, {
-            stock_ss(nllstock__model_sum, vec = single) <- stock_ss(nllstock__model_sum, vec = single) + measurement
-            stock_ss(nllstock__model_sqsum, vec = single) <- stock_ss(nllstock__model_sqsum, vec = single) + (measurement)^2
-            stock_ss(nllstock__model_n, vec = single) <- stock_ss(nllstock__model_n, vec = single) + 1
-        })), list(st_measurement_f = st_measurement_f))
+        f_substitute(~stock_intersect(predstock, stock_intersect(stock, stock_with(predprey, g3_with(
+                measurement := st_measurement_f,
+                quantity := st_quantity_f, {
+            stock_ss(nllstock__model_sum, vec = single) <- stock_ss(nllstock__model_sum, vec = single) + measurement * quantity
+            stock_ss(nllstock__model_sqsum, vec = single) <- stock_ss(nllstock__model_sqsum, vec = single) + (measurement)^2 * quantity
+            stock_ss(nllstock__model_n, vec = single) <- stock_ss(nllstock__model_n, vec = single) + quantity
+        })))), list(st_measurement_f = st_measurement_f, st_quantity_f = st_quantity_f))
     }, outer_f = ~{
         debug_label("Gather model predictions matching individuals in ", nllstock, "__obs")
         stock_iterate(nllstock, inner_f)
