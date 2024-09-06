@@ -4,6 +4,7 @@ g3s_sparsedata <- function(var_name, in_df, area_group = NULL) {
 
     iterate <- quote( extension_point )
     env <- as.environment(list())
+    env$stock__cols <- c()
 
     for (n in names(in_df)) {
         if (n %in% c("year", "step")) next
@@ -18,6 +19,7 @@ g3s_sparsedata <- function(var_name, in_df, area_group = NULL) {
                 stock__n = as.symbol(paste0("stock__", n)),
                 extension_point = iterate ))
         env[[paste0("stock__", n)]] <- if (n == "length") in_df$length else as.integer(in_df[[n]])
+        env$stock__cols <- c(env$stock__cols, n)
     }
 
     if ("step" %in% names(in_df)) {
@@ -171,13 +173,28 @@ g3l_sparsesample <- function (
 
     # For each stock, collect current values for table
     out[[step_id(run_at, 'g3l_sparsesample', nll_name, 1)]] <- g3_step_foreach_stock(stocks, predstocks = predstocks, function (stock, predstock) {
+        # Find the "smallest" dimension that either the observations or measurement formula considers
+        dims_measured <- intersect(
+            union(g3_stock_def(nllstock, "cols"), all.vars(measurement_f)),
+            names(stock$dim) )
+        smallest_dim <- suppressWarnings(min(which(names(stock$dim) %in% dims_measured))) - 1
+        if (smallest_dim == 0) {
+            # Considering full stock breakdown
+            vec_sym <- as.symbol("single")
+            meas_sum <- as.symbol("(")  # Nothing to sum, replace with bracket )
+        } else if (is.infinite(smallest_dim)) {
+            # Aggregating everything for this timestep
+            vec_sym <- as.symbol("full")
+            meas_sum <- quote(sum)
+        } else {
+            # Considering up to age/length/whatever
+            vec_sym <- as.symbol(names(stock$dim)[[smallest_dim]])
+            meas_sum <- quote(sum)
+        }
+
         # Substitute terms in measurement_f
-        # TODO: We should subset what we need, and work with a vector, which means:
-        #       * Getting names(stock$dim) that we are interested in
-        #       * Turning this into a stock_ss(vec = x, x = default) expression
-        #       * Below, measurement / (measurement)^2 should be summed if not single value
         st_measurement_f <- f_substitute(measurement_f, list(
-            wgt = quote( stock_ss(stock__wgt, vec = single) ),
+            wgt = substitute(stock_ss(stock__wgt, vec = vec_sym) , list(vec_sym = vec_sym)),
             # NB: "length" will be the observed length, we should be using the midlen value
             length = quote( stock__midlen[[stock__length_idx]] ),
             end = NULL ))
@@ -187,24 +204,31 @@ g3l_sparsesample <- function (
             predprey <- g3s_stockproduct(stock, predator = predstock, ignore_dims = c('predator_area'))
 
             # Quantity is number of fish present in catch
-            st_quantity_f <- quote( stock_ss(predprey__cons, vec = single) / avoid_zero(stock_ss(stock__wgt, vec = single)) )
+            st_quantity_f <- substitute(
+                stock_ss(predprey__cons, vec = vec_sym) / avoid_zero(stock_ss(stock__wgt, vec = vec_sym)),
+                list(vec_sym = vec_sym) )
         } else {
             # Dummy predator to intersect with
             predstock <- g3_storage("NULL")
             predprey <- g3_storage("NULL")
 
             # Multiply quantity by number present in this cell
-            st_quantity_f <- quote( stock_ss(stock__num, vec = single) )
+            st_quantity_f <- substitute(
+                stock_ss(stock__num, vec = vec_sym),
+                list(vec_sym = vec_sym) )
         }
 
         # NB: Manually g3_with()ing to work around lost stock-variables, should always be inside intersect anyway
         f_substitute(~stock_intersect(predstock, stock_intersect(stock, stock_with(predprey, g3_with(
                 measurement := st_measurement_f,
                 quantity := st_quantity_f, {
-            stock_ss(nllstock__model_sum, vec = single) <- stock_ss(nllstock__model_sum, vec = single) + measurement * quantity
-            stock_ss(nllstock__model_sqsum, vec = single) <- stock_ss(nllstock__model_sqsum, vec = single) + (measurement)^2 * quantity
-            stock_ss(nllstock__model_n, vec = single) <- stock_ss(nllstock__model_n, vec = single) + quantity
-        })))), list(st_measurement_f = st_measurement_f, st_quantity_f = st_quantity_f))
+            stock_ss(nllstock__model_sum, vec = single) <- stock_ss(nllstock__model_sum, vec = single) + meas_sum(measurement * quantity)
+            stock_ss(nllstock__model_sqsum, vec = single) <- stock_ss(nllstock__model_sqsum, vec = single) + meas_sum((measurement)^2 * quantity)
+            stock_ss(nllstock__model_n, vec = single) <- stock_ss(nllstock__model_n, vec = single) + meas_sum(quantity)
+        })))), list(
+            st_measurement_f = st_measurement_f,
+            st_quantity_f = st_quantity_f,
+            meas_sum = meas_sum ))
     }, outer_f = ~{
         debug_label("Gather model predictions matching individuals in ", nllstock, "__obs")
         stock_iterate(nllstock, inner_f)
