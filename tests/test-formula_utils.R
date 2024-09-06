@@ -225,6 +225,10 @@ ok(gadget3:::ut_cmp_code(
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if ((x > (2 + 0))) { 2 }),
     ~if (x > 2) 2), "f_optimize:if: Remove excess brackets around condition")
+ok(ut_cmp_identical(
+    # NB: gadget3:::ut_cmp_code() isn't enough, the end results aren't identical, probably for some internal AST reason
+    deparse1(gadget3:::f_optimize(quote( if (x) { if (y) yy } else { zz } ))),
+    deparse1(quote(if (x) { if (y) yy } else zz ))), "f_optimize:if: Preserve braces when they're needed for else to make sense")
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{TRUE && y ; FALSE && y ; x && y ; x && FALSE ; x && TRUE ; x && (TRUE || y) ; (TRUE || x) && y}),
     ~{y ; FALSE ; x && y ; FALSE ; x ; x; y}), "f_optimize:&&")

@@ -80,6 +80,14 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     call_name <- deparse(in_call[[1]])
     call_args <- tail(in_call, -1)
 
+    if (call_name == open_curly_bracket && !statement) {
+        if (length(call_args) == 1) {
+            # Single-statement, {}, (probably if(a) ( if (b) x else d ) else e), pass through
+            return(cpp_code(call_args[[1]], in_envir, next_indent))
+        }
+        stop("Cannot include code inside expressions: ", deparse1(in_call))
+    }
+
     if (call_name == open_curly_bracket) {
         # Recurse into code block
         lines <- vapply(call_args, function (x) {

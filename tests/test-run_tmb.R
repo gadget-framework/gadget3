@@ -656,6 +656,7 @@ expecteds$as_vector_result2 <- pnorm(as_vector_array[,2], as_vector_mean, as_vec
 flow_control_vec <- runif(10)
 flow_control_break_sum <- 0.0
 flow_control_next_sum <- 0.0
+flow_control_nested_tertiary <- 0.0
 actions <- c(actions, ~{
     comment('Flow control')
     for (flow_control_idx in seq_along(flow_control_vec)) {
@@ -668,9 +669,12 @@ actions <- c(actions, ~{
         flow_control_next_sum <- flow_control_next_sum + flow_control_vec[[flow_control_idx]]
     }
     REPORT(flow_control_next_sum)
+    flow_control_nested_tertiary <- (if(flow_control_vec[[1]] > 0.5) ( if (flow_control_vec[[2]] > 0.5) flow_control_vec[[3]] else flow_control_vec[[4]] ) else flow_control_vec[[5]])
+    REPORT(flow_control_nested_tertiary)
 })
 expecteds$flow_control_break_sum <- sum(flow_control_vec[1:4])
 expecteds$flow_control_next_sum <- sum(flow_control_vec[-5])
+expecteds$flow_control_nested_tertiary <- (if(flow_control_vec[[1]] > 0.5) ( if (flow_control_vec[[2]] > 0.5) flow_control_vec[[3]] else flow_control_vec[[4]] ) else flow_control_vec[[5]])
 
 # pow() / .pow()
 pow_scalar <- 99
