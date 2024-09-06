@@ -3,6 +3,28 @@ library(unittest)
 
 library(gadget3)
 
+ok_group("g3s_sparsedata:area", {
+    sd <- gadget3:::g3s_sparsedata("frank", data.frame(
+        year = 1994,
+        area = c("a", "a", "c"),
+        length = 2,
+        stringsAsFactors = FALSE), area_group = c(a=1,b=2,c=3))
+    model_fn <- g3_to_r(list(g3a_time(1990, 1999), g3_step(g3_formula(
+        stock_iterate(sd, {
+            print(c(year = cur_year, length = length, area = area, sd__i = stock_ss(sd__i, vec = single)))
+        }),
+        sd__i = gadget3:::g3_sparsedata_instance(sd, 50.1 * seq_along(g3_stock_def(sd, 'year'))),
+        sd = sd ))))
+    ok(ut_cmp_identical(capture.output(model_fn()), c(
+        "  year length   area  sd__i ",
+        "1994.0    2.0    1.0   50.1 ",
+        "  year length   area  sd__i ",
+        "1994.0    2.0    1.0  100.2 ",
+        "  year length   area  sd__i ",
+        "1994.0    2.0    3.0  150.3 ",
+        "[1] 0")), "model_fn, iterated over numeric areas")
+})
+
 st <- g3_stock("stst", c(10, 20, 30)) |> g3s_age(3,5)
 fl <- g3_fleet(c("fl", "surv"))
 

@@ -9,8 +9,14 @@ g3s_sparsedata <- function(var_name, in_df, area_group = NULL) {
     for (n in names(in_df)) {
         if (n %in% c("year", "step")) next
 
-        if (n == "area") {
-            stop("Area not supported yet")
+        if (n == "area" && !is.null(area_group)) {
+            # Use area_group to resolve names of items
+            env[[paste0("stock__", n)]] <- area_group[in_df[[n]]]
+            names(env[[paste0("stock__", n)]]) <- in_df[[n]]
+        } else if (n == "length") {
+            env[[paste0("stock__", n)]] <- as.numeric(in_df[[n]])
+        } else {
+            env[[paste0("stock__", n)]] <- as.integer(in_df[[n]])
         }
 
         iterate <- substitute(
@@ -18,7 +24,6 @@ g3s_sparsedata <- function(var_name, in_df, area_group = NULL) {
                 n = as.symbol(n),
                 stock__n = as.symbol(paste0("stock__", n)),
                 extension_point = iterate ))
-        env[[paste0("stock__", n)]] <- if (n == "length") in_df$length else as.integer(in_df[[n]])
         env$stock__cols <- c(env$stock__cols, n)
     }
 
