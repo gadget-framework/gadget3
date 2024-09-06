@@ -111,6 +111,11 @@ export(g3l_catchdistribution)
 export(g3l_abundancedistribution)
 export(g3_distribution_preview)
 
+# R/likelihood_sparsesample.R
+export(g3l_sparsesample_linreg)
+export(g3l_sparsesample_sumsquares)
+export(g3l_sparsesample)
+
 # R/likelihood_random.R
 export(g3l_random_dnorm)
 export(g3l_random_walk)
