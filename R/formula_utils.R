@@ -310,6 +310,7 @@ f_optimize <- function (f) {
         },
         "<-" = function (x) {
             if (!is.call(x)) return(x)
+            if (length(x) < 3) return(x) # var <- (missing)
             if (is.call(x[[3]]) && x[[3]][[1]] == "(") {  # )
                 # No point wrapping a definition in braces
                 x[[3]] <- x[[3]][[2]]

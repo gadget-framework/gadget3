@@ -288,6 +288,10 @@ ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x + 0) y / 1),
     ~if (x) y), "f_optimize: Optimize through if condition")
 
+ok(ut_cmp_identical(
+    deparse1(gadget3:::f_optimize( call("<-", quote(x)) )),
+    "x <- NULL" ), "f_optimize: x <- (missing), whilst gibberish, passes through")
+
 ### all_undefined_vars
 
 ok(ut_cmp_identical(
