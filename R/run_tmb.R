@@ -32,7 +32,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             }
             return(is.numeric(env_defn) && !is.array(env_defn) && !is_force_vector(env_defn))
         }
-        # TODO: Obviously not exhaustive, but ideally one would consider setConstant() a TMB bug.
+
+        # If array subset, scalar if there are no missing points
+        if (is.call(c_val) && identical(c_val[[1]], as.symbol("["))) {
+            cols_defined <- vapply(c_val, function (d) !identical(as.character(d), ""), logical(1))
+            return(all(cols_defined))
+        }
+
+        # Array / vector lookup
+        if (is.call(c_val) && identical(c_val[[1]], as.symbol("[["))) {
+            return(TRUE)
+        }
 
         # Dunno.
         return(fallback)
