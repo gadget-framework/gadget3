@@ -6,7 +6,7 @@ library(gadget3)
 
 
 # Helper to generate ld from table string and attributes
-generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), all_predators = list(), use_preview = FALSE, ...) {
+generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), all_predators = list(), model_history = "", use_preview = FALSE, ...) {
     if (is.character(tbl)) tbl <- read.table(text = tbl, header = TRUE, stringsAsFactors = TRUE)
     if (is.null(tbl$number)) tbl$number <- as.numeric(seq_len(nrow(tbl)))
     all_stocks <- lapply(all_stocks, function (x) g3_stock(x, 1))
@@ -16,7 +16,7 @@ generate_ld <- function (tbl, all_stocks = list(), all_fleets = list(), all_pred
             num = g3_distribution_preview(structure(tbl, ...), stocks = all_stocks, fleets = all_fleets, predators = all_predators) ))
     } else {
         # Fall back to old behaviour
-        out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets, all_predators = all_predators)
+        out <- gadget3:::g3l_likelihood_data('ut', structure(tbl, ...), all_stocks = all_stocks, all_fleets = all_fleets, all_predators = all_predators, model_history = model_history)
     }
 
     # NB: A failed merge would result in repeated instances
@@ -758,7 +758,7 @@ ok_group('g3l_likelihood_data:stock', {
           6 2000    ^stock_imm  2000.6
           4 2001    ^stock_imm  2001.4
           6 2001    ^stock_mat  2001.6
-        ", all_stocks = stock_names)
+        ", all_stocks = stock_names, model_history = "late")
     ok(ut_cmp_identical(
         dimnames(ld$obs_array$num)[['stock_re']],
         c("_f$", "^stock_mat", "^stock_imm")), "Array names are regexes")
@@ -769,6 +769,20 @@ ok_group('g3l_likelihood_data:stock', {
             stock_imm_m = '^stock_imm',
             stock_mat_f = '_f$',
             stock_mat_m = '^stock_mat')), "Stock map used first regexes first")
+
+    # Generated intersect code works
+    model_fn <- g3_to_r(list(
+        g3a_time(1999, 2000),
+        gadget3:::g3_step(g3_formula(
+            stock_iterate(ms, stock_intersect(os, print(c(stock_ss(ms__x), stock_ss(os__x))))),
+            ms = ld$modelstock,
+            os = ld$obsstock,
+            ms__x = g3_stock_instance(ld$modelstock, seq_len(prod(unlist(ld$modelstock$dim)))),
+            os__x = g3_stock_instance(ld$obsstock, seq_len(prod(unlist(ld$obsstock$dim))) * 10) )),
+            NULL ))
+    ok(ut_cmp_identical(
+        capture.output(invisible(model_fn())),
+        paste0("[1]  ", 1:24, " ", 1:24 * 10)), "model_fn: Loop / intersect over modelstock/obsstock correctly")
 
     ok(ut_cmp_error(generate_ld("
         age year stock_re number
@@ -932,7 +946,7 @@ ok_group('g3l_likelihood_data:predator', {
           6 2000    _trawl_is$  2000.6
           4 2001    _trawl_is$  2001.4
           6 2001    _gil_is$  2001.6
-        ", all_predators = predators)
+        ", all_predators = predators, model_history = "late")
     ok(ut_cmp_identical(
         dimnames(ld$obs_array$num)[['predator_re']],
         c("_gil_is$", "_trawl_is$")), "Array names are regexes")
@@ -943,6 +957,20 @@ ok_group('g3l_likelihood_data:predator', {
             predator_trawl_no = NA,
             predator_gil_is = '_gil_is$',
             predator_gil_no = NA )), "predator map ignored unused predators")
+
+    # Generated intersect code works
+    model_fn <- g3_to_r(list(
+        g3a_time(1999, 2000),
+        gadget3:::g3_step(g3_formula(
+            stock_iterate(ms, stock_intersect(os, print(c(stock_ss(ms__x), stock_ss(os__x))))),
+            ms = ld$modelstock,
+            os = ld$obsstock,
+            ms__x = g3_stock_instance(ld$modelstock, seq_len(prod(unlist(ld$modelstock$dim)))),
+            os__x = g3_stock_instance(ld$obsstock, seq_len(prod(unlist(ld$obsstock$dim))) * 10) )),
+            NULL ))
+    ok(ut_cmp_identical(
+        capture.output(invisible(model_fn())),
+        paste0("[1]  ", 1:16, " ", 1:16 * 10) ), "model_fn: Loop / intersect over modelstock/obsstock correctly")
 })
 
 
@@ -1019,7 +1047,7 @@ ok_group('g3l_likelihood_data:fleet', {
           6 2000    _trawl_is$  2000.6
           4 2001    _trawl_is$  2001.4
           6 2001    _gil_is$  2001.6
-        ", all_fleets = fleets)
+        ", all_fleets = fleets, model_history = "late")
     ok(ut_cmp_identical(
         dimnames(ld$obs_array$num)[['fleet_re']],
         c("_gil_is$", "_trawl_is$")), "Array names are regexes")
@@ -1030,6 +1058,20 @@ ok_group('g3l_likelihood_data:fleet', {
             fleet_trawl_no = NA,
             fleet_gil_is = '_gil_is$',
             fleet_gil_no = NA )), "fleet map ignored unused fleets")
+
+    # Generated intersect code works
+    model_fn <- g3_to_r(list(
+        g3a_time(1999, 2000),
+        gadget3:::g3_step(g3_formula(
+            stock_iterate(ms, stock_intersect(os, print(c(stock_ss(ms__x), stock_ss(os__x))))),
+            ms = ld$modelstock,
+            os = ld$obsstock,
+            ms__x = g3_stock_instance(ld$modelstock, seq_len(prod(unlist(ld$modelstock$dim)))),
+            os__x = g3_stock_instance(ld$obsstock, seq_len(prod(unlist(ld$obsstock$dim))) * 10) )),
+            NULL ))
+    ok(ut_cmp_identical(
+        capture.output(invisible(model_fn())),
+        paste0("[1]  ", 1:16, " ", 1:16 * 10) ), "model_fn: Loop / intersect over modelstock/obsstock correctly")
 })
 
 ok_group('g3l_likelihood_data:predator') ##########

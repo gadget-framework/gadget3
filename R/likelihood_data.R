@@ -99,7 +99,11 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     if (!is.null(d[[1]])) {
         modelstock <- copydim(modelstock, d[[1]])
         # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
-        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__stock_idx") ))
+        obsstock <- g3s_manual(
+            obsstock,
+            var_base_name = names(d[[1]]$dim),
+            dimnames = d$groups,
+            intersect_idx_f = as.symbol( gsub("stock__", paste0(modelstock$name, "__"), d[[1]]$iter_ss, fixed = TRUE) ))
         # NB: g3stock doesn't modify data, so don't bother with d[[2]]
         handled_columns[[names(d[[1]]$dim)]] <- NULL
         maps[["stock"]] <- d$map
@@ -133,7 +137,11 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     if (!is.null(d[[1]])) {
         modelstock <- copydim(modelstock, d[[1]])
         # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
-        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__predator_idx") ))
+        obsstock <- g3s_manual(
+            obsstock,
+            var_base_name = names(d[[1]]$dim),
+            dimnames = d$groups,
+            intersect_idx_f = as.symbol( gsub("stock__", paste0(modelstock$name, "__"), d[[1]]$iter_ss, fixed = TRUE) ))
         # NB: g3stock doesn't modify data, so don't bother with d[[2]]
         handled_columns[[names(d[[1]]$dim)]] <- NULL
         maps[["predator"]] <- d$map
@@ -143,7 +151,11 @@ g3l_likelihood_data <- function (nll_name, data, missing_val = 0, area_group = N
     if (!is.null(d[[1]])) {
         modelstock <- copydim(modelstock, d[[1]])
         # NB: We intersect obbstock onto modelstock, so we should copy that rather than the current stock
-        obsstock <- g3s_manual(obsstock, names(d[[1]]$dim), d$groups, as.symbol( paste0(modelstock$name, "__fleet_idx") ))
+        obsstock <- g3s_manual(
+            obsstock,
+            var_base_name = names(d[[1]]$dim),
+            dimnames = d$groups,
+            intersect_idx_f = as.symbol( gsub("stock__", paste0(modelstock$name, "__"), d[[1]]$iter_ss, fixed = TRUE) ))
         # NB: g3stock doesn't modify data, so don't bother with d[[2]]
         handled_columns[[names(d[[1]]$dim)]] <- NULL
         maps[["fleet"]] <- d$map
