@@ -48,7 +48,7 @@ g3s_sparsedata <- function(var_name, in_df, area_group = NULL) {
 
     structure(list(
         dim = list(row = nrow(in_df)),
-        dimnames = list(),
+        dimnames = list(row = NULL),
         iterate = list(row = iterate),
         iter_ss = list(row = as.symbol("stock__row_idx")),
         intersect = list(row = quote(stop("stock_intersect not supported for g3_sparsedata"))),
@@ -85,19 +85,16 @@ g3l_sparsesample_linreg <- function (
     N <- if(fit == 'log') ~log(avoid_zero_vec(nllstock__model_sum/nllstock__model_n)) else ~nllstock__model_sum/nllstock__model_n
     I <- if(fit == 'log') ~log(avoid_zero_vec(nllstock__obs_mean)) else ~nllstock__obs_mean
 
-    nllstock__nll <- g3_global_formula(
-        f_substitute(
-            # NB: If we're not going to compare, don't bother recalculating linear regression
-            ~stock_with(nllstock, if (cur_time != total_steps) nllstock__nll else regression_linear(N, I, intercept_f, slope_f)),
-            list(
-                N = N,
-                I = I,
-                # NB: Can't use NULL in C++, Use NaN instead
-                intercept_f = if (is.null(intercept)) NaN else intercept,
-                slope_f = if (is.null(slope)) NaN else slope)),
-        init_val = c(nll = 0.0, intercept = 0.0, slope = 0.0) )
-    environment(nllstock__nll)$regression_linear <- regression_linear
-    return(~nllstock__nll[[1]])
+    nllstock__nll <- c(nll = 0.0, intercept = 0.0, slope = 0.0)
+    regression_linear <- regression_linear  # Make sure regression_linear is in environment
+    return(f_substitute(
+        ~(nllstock__nll[] <- regression_linear(N, I, intercept_f, slope_f))[[1]],
+        list(
+            N = N,
+            I = I,
+            # NB: Can't use NULL in C++, Use NaN instead
+            intercept_f = if (is.null(intercept)) NaN else intercept,
+            slope_f = if (is.null(slope)) NaN else slope)) )
 }
 
 g3l_sparsesample_sumsquares <- function (
@@ -123,14 +120,15 @@ g3l_sparsesample_sumsquares <- function (
         return(finites.select(weighting, 0) * (finites.select(model_mean, 1) - finites.select(obs_mean, 1)).pow(2) );
     }', depends = c('avoid_zero_vec'))
 
-    nllstock__nll <- g3_global_formula(f_substitute(
-        ~stock_with(nllstock, if (cur_time != total_steps) nllstock__nll else g3l_sparsesample_sumsquares_stddev(
+    # NB: We don't define nllstock__nll, so g3l_sparsesample will define a g3_stock_instance()
+    return(f_substitute(
+        ~sum(nllstock__nll[] <- g3l_sparsesample_sumsquares_stddev(
             nllstock__model_sum/nllstock__model_n,
             nllstock__obs_mean,
             weighting_f * nllstock__obs_n )),
-        # NB: Initialise with a reference to nllstock__model_n, so we copy it's dimensions
-        list(weighting_f = weighting_f) ), init_val = quote(stock_with(nllstock, nllstock__model_n[])) )
-    return(~sum(nllstock__nll))
+        list(
+            weighting_f = weighting_f,
+            end = NULL )))
 }
 
 g3l_sparsesample <- function (
@@ -169,12 +167,6 @@ g3l_sparsesample <- function (
         outer_f <- g3_step(f_substitute(outer_f, list(inner_f = inner_f)))
         return(outer_f)
     }
-
-    # We don't mention __obs_mean ourselves, but nllstock__nll will need a definiton
-    local_nll <- function_f
-    environment(environment(local_nll)$nllstock__nll)$nllstock__obs_mean <- nllstock__obs_mean
-    environment(environment(local_nll)$nllstock__nll)$nllstock__obs_n <- nllstock__obs_n
-    environment(environment(local_nll)$nllstock__nll)$nllstock__obs_stddev <- nllstock__obs_stddev
 
     # For each stock, collect current values for table
     out[[step_id(run_at, 'g3l_sparsesample', nll_name, 1)]] <- g3_step_foreach_stock(stocks, predstocks = predstocks, function (stock, predstock) {
@@ -239,13 +231,19 @@ g3l_sparsesample <- function (
         stock_iterate(nllstock, inner_f)
     })
 
+    # If nll formula doesn't define __nll, generate a stock instance for it to use
+    if (!exists("nllstock__nll", envir = environment(function_f))) {
+        environment(function_f)$nllstock__nll <- g3_stock_instance(nllstock, NaN, desc = paste0("nll for ", nll_name, " at each step"))
+    }
+
     # Finally, apply function_f to results
-    out[[step_id(run_at, 'g3l_sparsesample', nll_name, 2)]] <- g3_step(f_substitute(~stock_with(nllstock, {
+    out[[step_id(g3_action_order$initial, 'g3l_sparsesample', nll_name, 2)]] <- g3_step(f_substitute(~stock_with(nllstock, if (cur_time > total_steps) {
         debug_label("Add nll for ", nllstock, "__obs vs ", nllstock, "__model")
         nllstock__weight <- weight
-        nll <- nll + nllstock__weight * local_nll
+        nll <- nll + nllstock__weight * (function_f)
         # TODO: Generate stddev ready for reporting?
     }), list(
+        function_f = function_f,
         weight = weight )))
 
     return(as.list(out))
