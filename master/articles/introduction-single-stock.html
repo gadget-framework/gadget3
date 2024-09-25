@@ -286,8 +286,8 @@ will count years &amp; steps:</p>
         }
     }
 }
-&lt;bytecode: 0x5592be81c220&gt;
-&lt;environment: 0x5592bfd33c70&gt;</code></pre>
+&lt;bytecode: 0x5612f3bdbac0&gt;
+&lt;environment: 0x5612f50f4170&gt;</code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>#include &lt;TMB.hpp&gt;
@@ -298,7 +298,7 @@ will count years &amp; steps:</p>
 #define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t&lt;std::is_same&lt;TestT, int&gt;::value || std::is_same&lt;TestT, double&gt;::value || std::is_same&lt;TestT, TMBad::global::ad_aug&gt;::value&gt;
 #endif // TMBAD_FRAMEWORK
 #ifdef CPPAD_FRAMEWORK
-#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t&lt;std::is_same&lt;TestT, int&gt;::value || std::is_same&lt;TestT, double&gt;::value || std::is_same&lt;TestT, CppAD::AD&gt;::value&gt;
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t&lt;std::is_same&lt;TestT, int&gt;::value || std::is_same&lt;TestT, double&gt;::value || std::is_same&lt;TestT, CppAD::AD&lt;double&gt;&gt;::value || std::is_same&lt;TestT, CppAD::AD&lt;CppAD::AD&lt;double&gt;&gt;&gt;::value || std::is_same&lt;TestT, CppAD::AD&lt;CppAD::AD&lt;CppAD::AD&lt;double&gt;&gt;&gt;&gt;::value&gt;
 #endif // CPPAD_FRAMEWORK
 #endif // TYPE_IS_SCALAR
 
