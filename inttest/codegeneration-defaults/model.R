@@ -63,8 +63,16 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
             return(...elt(i))
         return(NULL)
     }
+    dif_pmax <- function(a, b, scale) {
+        logspace_add <- function(a, b) pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
+        b <- as.vector(b)
+        logspace_add(a * scale, b * scale)/scale
+    }
+    avoid_zero <- function(a) {
+        dif_pmax(a, 0, 1000)
+    }
     normalize_vec <- function(a) {
-        a/sum(a)
+        a/avoid_zero(sum(a))
     }
     as_numeric_arr <- function(x) x
     REPORT <- function(var) {
@@ -87,14 +95,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     }
     nonconform_add <- function(base_ar, extra_ar) {
         base_ar + as.vector(extra_ar)
-    }
-    dif_pmax <- function(a, b, scale) {
-        logspace_add <- function(a, b) pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
-        b <- as.vector(b)
-        logspace_add(a * scale, b * scale)/scale
-    }
-    avoid_zero <- function(a) {
-        dif_pmax(a, 0, 1000)
     }
     dif_pmin <- function(a, b, scale) {
         dif_pmax(a, b, -scale)
