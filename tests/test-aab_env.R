@@ -26,6 +26,16 @@ actions <- c(actions, ~{
 expecteds$logspace_add_1 <- 1.313262
 expecteds$logspace_add_0 <- 0.6931472
 
+# normalize_vec
+normalize_vec_all_zero_inp <- rep(0, 10)
+normalize_vec_all_zero_out <- rep(NA, 10)
+actions <- c(actions, ~{
+    comment("normalize_vec")
+    normalize_vec_all_zero_out <- normalize_vec(normalize_vec_all_zero_inp)
+    REPORT(normalize_vec_all_zero_out)
+})
+expecteds$normalize_vec_all_zero_out <- rep(0, 10)
+
 # ratio_add_vec()
 ratio_add_vec_inp_orig_vec <- runif(10) * 100
 ratio_add_vec_inp_orig_amount <- floor(runif(10) * 10)
