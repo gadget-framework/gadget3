@@ -141,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55a0196d6930&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55597c11f930&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -178,8 +178,8 @@ an R function:</p>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55a01ae78108&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55a01ac1a310&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55597d8c1108&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597d663310&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -247,14 +247,14 @@ reached. For example:</p>
 <span><span class="co">##     cur_step_size &lt;- step_lengths[[cur_step]]/12</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55a017dcf0b0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597a8180b0&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $`001`</span></span>
 <span><span class="co">## ~{</span></span>
 <span><span class="co">##     if (cur_time &gt; total_steps) </span></span>
 <span><span class="co">##         return(nll)</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x55a015f507f0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x5559789997f0&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -309,8 +309,8 @@ code.</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55a0188209e0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55a01af3b3f0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55597b269a88&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597d984498&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
@@ -365,8 +365,8 @@ model. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55a01af1d2d8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55a018797940&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55597d966380&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597b1e09e8&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -590,8 +590,8 @@ example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55a0159fd160&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55a018757e90&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x555978446128&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597b1a0f00&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -757,8 +757,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55a019062c90&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55a01a667298&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55597baabd70&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55597d0b0308&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>
