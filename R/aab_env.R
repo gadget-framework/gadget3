@@ -33,12 +33,12 @@ auto __fn__(X a) {
 # Now-redundant alias
 g3_env$avoid_zero_vec <- g3_env$avoid_zero
 
-# Divide a vector by it's sum, i.e. so it now sums to 1
+# Divide a vector by it's sum, i.e. so it now sums to 1. If vec sums to 0, return 0
 g3_env$normalize_vec <- g3_native(r = function (a) {
-    a / sum(a)
+    a / avoid_zero(sum(a))
 }, cpp = '[](vector<Type> a) -> vector<Type> {
-    return a / a.sum();
-}')
+    return a / avoid_zero(a.sum());
+}', depends = c("avoid_zero"))
 
 # If (x) positive, return (a). If (x) negative, (b). If (x) -10..10, smoothly transition from (b) to (a)
 g3_env$bounded <- g3_native(r = function (x, a, b) {

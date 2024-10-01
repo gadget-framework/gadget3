@@ -29,13 +29,10 @@ namespace map_extras {
 #define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, TMBad::global::ad_aug>::value>
 #endif // TMBAD_FRAMEWORK
 #ifdef CPPAD_FRAMEWORK
-#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD>::value>
+#define TYPE_IS_SCALAR(TestT) typename = std::enable_if_t<std::is_same<TestT, int>::value || std::is_same<TestT, double>::value || std::is_same<TestT, CppAD::AD<double>>::value || std::is_same<TestT, CppAD::AD<CppAD::AD<double>>>::value || std::is_same<TestT, CppAD::AD<CppAD::AD<CppAD::AD<double>>>>::value>
 #endif // CPPAD_FRAMEWORK
 #endif // TYPE_IS_SCALAR
 
-template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
-            return lookup.count(key) > 0 ? lookup[key] : (T)def;
-        }
 // Scalar templates
 template<typename T, typename LimitT, TYPE_IS_SCALAR(T), TYPE_IS_SCALAR(LimitT)>
 T dif_pmax(T a, LimitT b, double scale) {
@@ -75,6 +72,9 @@ template<typename X>
 auto avoid_zero(X a) {
     return dif_pmax(a, 0.0, 1e3);
 }
+template<typename T, typename DefT> T intlookup_getdefault(std::map<int, T> lookup, int key, DefT def) {
+            return lookup.count(key) > 0 ? lookup[key] : (T)def;
+        }
 template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
@@ -148,7 +148,7 @@ Type objective_function<Type>::operator() () {
     return FALSE;
 };
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
-    return a / a.sum();
+    return a / avoid_zero(a.sum());
 };
     auto as_numeric_arr = [](array<Type> x) -> array<double> {
   array<double> out(x.size());

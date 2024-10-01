@@ -77,7 +77,8 @@
 }
 
 \section{normalize_vec}{
-  Divide vector \var{a} by it's sum, i.e. so it now sums to 1
+  Divide vector \var{a} by it's sum, i.e. so it now sums to 1.
+  If vector is all-zero, return an all-zero vector instead.
 }
 
 \section{nvl}{
