@@ -144,6 +144,11 @@ param_template_for( g3_parameterized('K', by_stock = 'species', by_year = TRUE) 
 param_template_for( g3_parameterized('K', by_stock = list(stock_imm, stock_mat)) )
 param_template_for( g3_parameterized('K', by_stock = list(stock_imm, stock_mat), by_age = TRUE) )
 
+# If there are no shared name parts, then all names will be added
+param_template_for( g3_parameterized(
+    'btrigger',
+    by_stock = list(g3_fleet("surv"), g3_fleet("comm"))) )
+
 # You can set fixed scale/offset for the parameter
 g3_parameterized('K', scale = 5, offset = 9)
 

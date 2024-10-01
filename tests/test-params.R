@@ -162,11 +162,14 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = list(stock_mimm, stock_mmat)),
         g3_parameterized('parp', by_stock = list(stock_mimm, stock_fmat)),  # M vs F, so only species matches
         g3_parameterized('parp', by_stock = list(stock_fimm, stock_fmat), by_age = TRUE),
+        # No common parts, so concatenate everything after sorting
+        g3_parameterized('nocommon', by_stock = list(g3_stock(c("zz", "b"), 1), g3_stock(c("c", "d"), 1))),
     NULL), quote({
         stock_prepend("st.m", g3_param("parp"))
         stock_prepend("st", g3_param("parp"))
         stock_prepend("st.f", g3_param_table("parp", expand.grid(
             age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))) + 0 * age
+        stock_prepend("c_d.zz_b", g3_param("nocommon"))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
 ok(cmp_code(
