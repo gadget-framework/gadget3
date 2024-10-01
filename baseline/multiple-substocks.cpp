@@ -79,6 +79,12 @@ template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
+template<typename X, typename Y, typename Z>
+auto dif_pminmax(X a, Y lower, Z upper, double scale) {
+    auto out = dif_pmax(a, upper, -scale);
+    out = dif_pmax(out, lower, scale);
+    return out;
+}
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -1001,7 +1007,7 @@ Type objective_function<Type>::operator() () {
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
-            auto maturity_ratio = g3a_mature_continuous(fish_imm__plusdl, ((double)(1) / ((double)(1) + exp(((double)(0) - fish_imm__mat__alpha*(fish_imm__midlen - fish_imm__mat__l50))))), growth_delta_l, fish_imm__mat__alpha, (double)(0), cur_step_size);
+            auto maturity_ratio = dif_pminmax(g3a_mature_continuous(fish_imm__plusdl, ((double)(1) / ((double)(1) + exp(((double)(0) - fish_imm__mat__alpha*(fish_imm__midlen - fish_imm__mat__l50))))), growth_delta_l, fish_imm__mat__alpha, (double)(0), cur_step_size), (double)(0), (double)(1), (double)(1e+05));
 
             {
                 // g3a_grow for fish_imm;
