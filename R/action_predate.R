@@ -84,7 +84,7 @@ g3a_predate_catchability_quotafleet <- function (quota_table, E, sum_stocks = li
     }
 
     out <- list(
-        suit_unit = "energy content",
+        suit_unit = "total biomass",
         suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
         cons = f_substitute(
             ~quota_f * E * cur_step_size * stock_ss(predprey__suit),
