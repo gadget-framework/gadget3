@@ -477,6 +477,15 @@ ok_group("cpp_code", {
         "x[[(-4 + 1 - 1) / (2*8)]] + 4: Assumed int passses through +, -, *, /, ( ")
 })
 
+ok_group("g3_to_tmb:slice", local({
+    camel <- array(dim = c(10, 10))
+    ok(ut_cmp_error(
+        g3_to_tmb(list( ~camel[, 2:4] )),
+        "first column"), "camel[, 2:4]: In second dimension, not allowed")
+    ok(ut_cmp_error(
+        g3_to_tmb(list( ~camel[1, 2, 2:4] )),
+        "first column"), "camel[1, 2, 2:4]: In third dimension, not allowed")
+}))
 
 ###############################################################################
 actions <- list(g3a_time(1990, 1991))
@@ -498,6 +507,40 @@ actions <- c(actions, ~{
 })
 expecteds$constants_integer <- 5L
 expecteds$constants_nan <- NaN
+
+# slice
+slice_vec_in <- floor(runif(100, 1e5, 1e6))
+slice_vec_out <- 0 * slice_vec_in[30:45]
+slice_vec_out_idx <- 0L
+slice_arr_in <- array(floor(runif(100, 1e5, 1e6)), dim = c(10, 10))
+slice_arr_out <- 0 * slice_arr_in[4:8, 5]
+slice_vec_set_in <- floor(runif(100, 1e5, 1e6))
+slice_vec_set_out <- 0 * slice_vec_set_in
+slice_namedvec_in <- array(
+    floor(runif(100, 1e5, 1e6)),
+    dim = c(step = 5, year = 4) )
+slice_namedvec_out1 <- 0 * slice_namedvec_in[step = 2, year = 2]
+slice_namedvec_out2 <- 0 * slice_namedvec_in[step = 3:4, year = 2]
+actions <- c(actions, ~{
+    comment("scalar slice")
+    slice_vec_out_idx <- g3_idx(30L)
+    # NB: Values in slice are auto_idx'ed
+    slice_vec_out <- slice_vec_in[slice_vec_out_idx:45] ; REPORT(slice_vec_out)
+    slice_arr_out <- slice_arr_in[4:g3_idx(8), g3_idx(5)] ; REPORT(slice_arr_out)
+    slice_vec_set_out <- slice_vec_set_in
+    slice_vec_set_out[g3_idx(24):g3_idx(34)] <- 99
+    REPORT(slice_vec_set_out)
+    slice_namedvec_out1 <- slice_namedvec_in[step = g3_idx(2), year = g3_idx(2)]
+    slice_namedvec_out2 <-  slice_namedvec_in[step = 3:4, year = g3_idx(2)]
+    REPORT(slice_namedvec_out1)
+    REPORT(slice_namedvec_out2)
+})
+expecteds$slice_vec_out <- slice_vec_in[30:45]
+expecteds$slice_arr_out <- slice_arr_in[4:8, 5]
+expecteds$slice_vec_set_out <- slice_vec_set_in
+expecteds$slice_vec_set_out[24:34] <- 99
+expecteds$slice_namedvec_out1 <- slice_namedvec_in[step = 2, year = 2]
+expecteds$slice_namedvec_out2 <- slice_namedvec_in[step = 3:4, year = 2]
 
 # Can assign a single value to 1x1 array
 assign_to_1_1 <- array(dim = c(1,1))
