@@ -15,6 +15,24 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(x)
     }
 
+    # Ensure x is 0-based
+    auto_idx <- function (x) {
+        if (is.symbol(x) && endsWith(as.character(x), "_idx")) {
+            # Already 0-based, nothing to do
+            return(x)
+        }
+        if (is.call(x) && identical(x[[1]], quote(g3_idx))) {
+            # Don't need to do anything to g3_idx calls
+            return(x)
+        }
+        if (is.numeric(x)) {
+            # Indices are 0-based, subtract from value
+            return(x - 1)
+        }
+        # Add a subtract-1 operator
+        return(call("-", x, 1L))
+    }
+
     # Does this call produce a scalar value?
     value_is_scalar <- function (c_val, fallback = FALSE) {
         # Scalar numeric values are constants
@@ -36,7 +54,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # If array subset, scalar if there are no missing points
         if (is.call(c_val) && identical(c_val[[1]], as.symbol("["))) {
             cols_defined <- vapply(c_val, function (d) !identical(as.character(d), ""), logical(1))
-            return(all(cols_defined))
+            cols_slice <- vapply(c_val, function (d) is.call(d) && d[[1]] == ":", logical(1))
+            return(all(cols_defined) && all(!cols_slice))
         }
 
         # Array / vector lookup
@@ -299,11 +318,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Recurse through list of subset, converting to method calls as we go.
         convert_subset <- function (cols) {
             cols_defined <- vapply(cols, function (d) !identical(as.character(d), ""), logical(1))
+            cols_slice <- vapply(cols, function (d) is.call(d) && d[[1]] == ":", logical(1))
 
             if (length(cols) == 0) return("")
             if (all(!cols_defined)) return("")
 
-            if (all(cols_defined)) {
+            if (all(cols_defined) && all(!cols_slice)) {
                 # Nothing missing, i.e. a value lookup
                 # NB: As a byproduct this masks the fact that vec.col(x) == vec,
                 #     as col() falls back to the useless Eigen definition for vector<Type>.
@@ -317,10 +337,29 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                     ')'))
             }
 
+            if (!identical(which(cols_slice), integer(0)) && !identical(which(cols_slice), 1L)) {
+                # .segment() is an eigen function, which has no knowledge of TMB dimensions
+                # Any .segment() outside of the innermost column will produce nonsense.
+                stop("Slices can only be in the first column")
+            }
+
             if (tail(cols_defined, 1)) {
                 # Final value defined, we can use .col()
+                final_c <- tail(cols, 1)[[1]]
+                if (tail(cols_slice, 1)) {
+                    # Column is a slice, so use segment
+                    start_c <- auto_idx(final_c[[2]])
+                    end_c <- auto_idx(final_c[[3]])
+                    end_c <- substitute(end_c - (start_c) + 1, list(start_c = start_c, end_c = end_c))
+                    return(paste0(
+                        ".segment(",
+                        cpp_code(start_c, in_envir, next_indent, expecting_int = TRUE),
+                        ",",
+                        cpp_code(end_c, in_envir, next_indent, expecting_int = TRUE),
+                        ")" ))
+                }
                 return(paste0(
-                    ".col(", cpp_code(tail(cols, 1)[[1]], in_envir, next_indent, expecting_int = TRUE), ")",
+                    ".col(", cpp_code(final_c, in_envir, next_indent, expecting_int = TRUE), ")",
                     convert_subset(head(cols, -1))))
             }
 
@@ -347,20 +386,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     if (call_name == '[[') {
         # Convert indices into corresponding C code
         inds <- lapply(tail(in_call, -2), function(x) {
-            if (is.symbol(x) && endsWith(as.character(x), "_idx")) {
-                # Already 0-based, nothing to do
-                ind <- x
-            } else if (is.call(x) && identical(x[[1]], quote(g3_idx))) {
-                # Don't need to do anything to g3_idx calls
-                ind <- x
-            } else if (is.numeric(x)) {
-                # Indices are 0-based, subtract from value
-                ind <- x - 1
-            } else {
-                # Add a subtract-1 operator
-                ind <- call("-", x, 1L)
-            }
-            return(cpp_code(ind, in_envir, next_indent, expecting_int = TRUE))
+            return(cpp_code(auto_idx(x), in_envir, next_indent, expecting_int = TRUE))
         })
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
