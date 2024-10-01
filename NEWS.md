@@ -1,7 +1,7 @@
 # gadget3 0.12-1-999:
 
 ## Bug fixes
-* All-zero lengthgroups in initialconditions no longer result in NaN #187
+* All-zero lengthgroups in initialconditions / > 1 maturity ratios no longer result in NaN #187 #182
 
 ## New features
 * The `stock` column in likelihood data can now contain name parts as well as full stock names
