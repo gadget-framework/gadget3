@@ -58,11 +58,6 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
         }
         return(FALSE)
     }
-    nvl <- function(...) {
-        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
-            return(...elt(i))
-        return(NULL)
-    }
     dif_pmax <- function(a, b, scale) {
         logspace_add <- function(a, b) pmax(a, b) + log1p(exp(pmin(a, b) - pmax(a, b)))
         b <- as.vector(b)
@@ -70,6 +65,11 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
     }
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
+    }
+    nvl <- function(...) {
+        for (i in seq_len(...length())) if (!is.null(...elt(i))) 
+            return(...elt(i))
+        return(NULL)
     }
     normalize_vec <- function(a) {
         a/avoid_zero(sum(a))
@@ -272,7 +272,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))
+                ren_dnorm <- dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]])))
                 factor <- (param[["fish.init.scalar"]] * (nvl(pt.fish.init[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.init, ifmissing not specified")
                   NaN
@@ -281,7 +281,7 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                   NaN
                 }) + 0 * age) + param[["init.F"]]) * (age - param[["recage"]])))
                 {
-                  fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
+                  fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
                   fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
                 }
             }
@@ -443,9 +443,9 @@ structure(function (param = attr(get(sys.call()[[1]]), "parameter_template"))
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  dnorm <- ((fish__midlen - (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))))/((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]]))
+                  ren_dnorm <- dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]])))
                   {
-                    fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(exp(-(dnorm^2) * 0.5)) * 10000 * factor
+                    fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
                     comment("Add result to fish")
                     fish__wgt[, fish__area_idx, fish__age_idx] <- ratio_add_vec(fish__wgt[, fish__area_idx, fish__age_idx], fish__num[, fish__area_idx, fish__age_idx], fish__renewalwgt[, fish__area_idx, fish__age_idx], fish__renewalnum[, fish__area_idx, fish__age_idx])

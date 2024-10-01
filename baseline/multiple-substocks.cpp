@@ -697,12 +697,12 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_imm__area_idx = 0;
 
-                auto dnorm = ((fish_imm__midlen - (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))) / ((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv));
+                auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv)));
 
                 auto factor = (fish_imm__init__scalar*(map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + (double)(0)*age) + init__F)*(age - recage)));
 
                 {
-                    fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                    fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                     fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
                 }
             }
@@ -716,12 +716,12 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_mat__area_idx = 0;
 
-                auto dnorm = ((fish_mat__midlen - (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))) / ((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv));
+                auto ren_dnorm = dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv)));
 
                 auto factor = (fish_mat__init__scalar*(map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + (double)(0)*age) + init__F)*(age - recage)));
 
                 {
-                    fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                    fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                     fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = fish_mat__walpha*(fish_mat__midlen).pow(fish_mat__wbeta);
                 }
             }
@@ -1114,10 +1114,10 @@ Type objective_function<Type>::operator() () {
 
                     auto fish_imm__area_idx = 0;
 
-                    auto dnorm = ((fish_imm__midlen - (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0))))) / fish_imm__rec__sd);
+                    auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0)))), avoid_zero(fish_imm__rec__sd));
 
                     {
-                        fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(exp(-((dnorm).pow((double)(2)))*(double)(0.5)))*(double)(10000)*factor;
+                        fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                         fish_imm__renewalwgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
                         // Add result to fish_imm;
                         fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = ratio_add_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__renewalwgt.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx));
