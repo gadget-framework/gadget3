@@ -15,6 +15,7 @@ g3a_mature_continuous(
         l50 = g3_parameterized('mat.l50', by_stock = by_stock),
         beta = 0,
         a50 = 0,
+        bounded = TRUE,
         by_stock = TRUE)
 
 g3a_mature_constant(alpha = NULL, l50 = NA, beta = NULL, a50 = NA, gamma = NULL, 
@@ -45,6 +46,9 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
   }
   \item{k50}{
     A \link{formula} to substitute for \eqn{k_{50}}. Must be defined if \var{gamma} is defined.
+  }
+  \item{bounded}{
+    Should the maturity ratio be bounded to 0..1? Set TRUE if maturity is producing negative numbers of individuals.
   }
   \item{by_stock}{
     Change the default parameterisation (e.g. to be by 'species'), see \code{\link{g3_parameterized}}.
