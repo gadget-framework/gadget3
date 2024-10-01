@@ -72,9 +72,14 @@ ut_tmb_r_compare2 <- function (
     }
 }
 
-ut_cmp_code <- function(a, b, optimize = FALSE) {
+ut_cmp_code <- function(a, b, optimize = FALSE, model_body = FALSE) {
     if (rlang::is_formula(a)) a <- rlang::f_rhs(a)
     if (rlang::is_formula(b)) b <- rlang::f_rhs(b)
+    if (isTRUE(model_body)) {
+        # [[length(body)]] is while loop at end of body, [[3]] is content of while loop
+        if (is.function(a)) a <- body(a)[[length(body(a))]][[3]]
+        if (is.function(b)) b <- body(b)[[length(body(b))]][[3]]
+    }
     attr(a, "srcref") <- NULL
     attr(a, "srcfile") <- NULL
     attr(a, "wholeSrcref") <- NULL

@@ -181,8 +181,8 @@ nll_var <- r$hist_nll_spabund_cs_model__model_sqsum[, '1994-02']/r$hist_nll_spab
     (r$hist_nll_spabund_cs_model__model_sum[, '1994-02']/r$hist_nll_spabund_cs_model__model_n[, '1994-02'])**2
 nll_mean <- r$hist_nll_spabund_cs_model__model_sum[, '1994-02']/r$hist_nll_spabund_cs_model__model_n[, '1994-02']
 ok(ut_cmp_equal(
-    r$nll_spabund_cs_model__nll,
-    (nll_mean - obs_ss_df$mean)^2 * 1/nll_var), "r$nll_spabund_cs_model__nll: Matches derived version")
+    (r$nll_spabund_cs_model__nll),
+    array((nll_mean - obs_ss_df$mean)^2 * 1/nll_var, dim = c(row = 3L), dimnames = list(row = NULL)) ), "r$nll_spabund_cs_model__nll: Matches derived version")
 
 # Overall nll
 ok(ut_cmp_equal(nll,
@@ -238,7 +238,7 @@ nll_var <- obs_flc_df$stddev^2  # Using weighting = 'obs_stddev'
 nll_mean <- r$hist_nll_spcatch_flc__model_sum[, '1994-02']/r$hist_nll_spcatch_flc__model_n[, '1994-02']
 ok(ut_cmp_equal(
     r$nll_spcatch_flc__nll,
-    (nll_mean - obs_flc_df$mean)^2 * (1/nll_var) * obs_flc_df$number), "r$nll_spcatch_flc__nll: Matches derived version")
+    array((nll_mean - obs_flc_df$mean)^2 * (1/nll_var) * obs_flc_df$number, dim = c(row = length(r$nll_spcatch_flc__nll)), dimnames = list(row = NULL)) ), "r$nll_spcatch_flc__nll: Matches derived version")
 
 # Overall nll
 ok(ut_cmp_equal(nll,

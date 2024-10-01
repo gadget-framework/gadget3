@@ -264,6 +264,10 @@ f_optimize <- function (f) {
             x[[2]] <- f_optimize(x[[2]])
             x[[3]] <- f_optimize(x[[3]])
             if (length(x) > 3) {
+                if (is.call(x[[3]]) && identical(x[[3]][[1]], as.symbol("if"))) {
+                    # Have to brace an inner if, otherwise it'll steal our else
+                    x[[3]] <- call("{", x[[3]])  # }
+                }
                 x[[4]] <- f_optimize(x[[4]])
 
                 # If else condition is empty, remove it
@@ -306,6 +310,7 @@ f_optimize <- function (f) {
         },
         "<-" = function (x) {
             if (!is.call(x)) return(x)
+            if (length(x) < 3) return(x) # var <- (missing)
             if (is.call(x[[3]]) && x[[3]][[1]] == "(") {  # )
                 # No point wrapping a definition in braces
                 x[[3]] <- x[[3]][[2]]
