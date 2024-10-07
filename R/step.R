@@ -502,10 +502,14 @@ list_to_stock_switch <- function(l, stock_var = "stock") {
         l <- l[[1]]
     }
     if (!is.list(l)) {
+        if (!is.call(l)) {
+            # Input isn't code, so no point wrapping with stock_with()
+            return(f_substitute(quote(x), list(x = l)))
+        }
         # Choosing one item is just stock_with()
         return(f_substitute(quote(
-            stock_with(stock_var, l)
-        ), list(stock_var = stock_var, l = l)))
+            stock_with(stock_var_sym, l)
+        ), list(stock_var_sym = as.symbol(stock_var), l = l)))
     }
 
     # NB: Substituting "" doesn't work, so we turn the non-named
