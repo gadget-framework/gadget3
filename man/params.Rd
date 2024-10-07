@@ -20,6 +20,7 @@ g3_parameterized(
         avoid_zero = FALSE,
         scale = 1,
         offset = 0,
+        ifmissing = NULL,
         ...)
 }
 
@@ -73,6 +74,11 @@ g3_parameterized(
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.area"} parameter for each area of the stock(s) in \var{by_stock}}
     }
+  }
+  \item{ifmissing}{
+    Value to use for when there is no valid parameter (read: year when by_year = TRUE)
+    Either a numeric constant or character.
+    If character, add another parameter for ifmissing, using the same \var{by_stock} value.
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
   \item{avoid_zero}{If TRUE, wrap parameter with \code{avoid_zero}}

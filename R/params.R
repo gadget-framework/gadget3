@@ -32,6 +32,7 @@ g3_parameterized <- function(
         avoid_zero = FALSE,
         scale = 1,
         offset = 0,
+        ifmissing = NULL,
         ...) {
     stopifnot(is.character(name))
     stopifnot(is.logical(by_age))
@@ -39,6 +40,7 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_step))
     stopifnot(is.logical(by_area))
     stopifnot(is.logical(avoid_zero))
+    extra_params <- list(...)
 
     find_public_call <- function (calls) {
         for (in_c in rev(calls)) {
@@ -158,8 +160,14 @@ g3_parameterized <- function(
         out <- substitute(g3_param(x), list(x = name))
     }
 
+    # Add ifmissing to output, turning strings into parameters
+    if (!is.null(ifmissing)) {
+        if (is.character(ifmissing)) ifmissing <- g3_parameterized(ifmissing, by_stock = by_stock)
+        out$ifmissing <- ifmissing
+    }
+
     # Pass through standard g3_param arguments
-    out <- as.call(c(as.list(out), list(...)))
+    out <- as.call(c(as.list(out), extra_params))
 
     # Add source if we found one
     source <- find_public_call(sys.calls())

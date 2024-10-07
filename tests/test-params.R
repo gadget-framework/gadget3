@@ -100,15 +100,27 @@ ok(cmp_code(
 
 ok(cmp_code(
     call("{",  # }
+        g3_parameterized('byst', by_stock = TRUE, ifmissing = "def.byst"),
+        g3_parameterized('nby', by_stock = FALSE, ifmissing = "def.nby"),
+        g3_parameterized('parp', by_year = TRUE, ifmissing = g3_parameterized('peep')),
+    NULL), quote({
+        stock_prepend(stock, g3_param(
+            "byst",
+            ifmissing = stock_prepend(stock, g3_param("def.byst"), name_part = NULL)
+        ), name_part = NULL)
+        g3_param("nby", ifmissing = g3_param("def.nby"))
+        g3_param_table("parp", expand.grid(cur_year = seq(start_year, end_year)), ifmissing = g3_param("peep"))
+    NULL})), "ifmissing can be character (and gets assigned a parameter)")
+
+ok(cmp_code(
+    call("{",  # }
         g3_parameterized('parp', by_stock = FALSE, value = 4, lower = 2, upper = 9),
         g3_parameterized('parp', by_stock = FALSE, optimise = FALSE),
         g3_parameterized('parp', by_stock = FALSE, random = TRUE),
-        g3_parameterized('parp', by_year = TRUE, ifmissing = g3_parameterized('peep')),
     NULL), quote({
         g3_param("parp", value = 4, lower = 2, upper = 9)
         g3_param("parp", optimise = FALSE)
         g3_param("parp", random = TRUE)
-        g3_param_table("parp", expand.grid(cur_year = seq(start_year, end_year)), ifmissing = g3_param("peep"))
     NULL})), "Extra parameters passed through")
 
 ok(cmp_code(
