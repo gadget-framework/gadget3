@@ -35,6 +35,8 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn)), c(
         "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
+        "    if (is.data.frame(param)) ",
+        "        param <- structure(param$value, names = param$switch)",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
@@ -47,6 +49,8 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
         "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
+        "    if (is.data.frame(param)) ",
+        "        param <- structure(param$value, names = param$switch)",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
@@ -137,4 +141,12 @@ ok_group('parameter_template default', {
     model_fn <- g3_to_r(~return(g3_param("archibald", value = 45)))
     ok(ut_cmp_equal(model_fn(), 45), "Used default from parameter_template")
     ok(ut_cmp_equal(model_fn(list(archibald = 99)), 99), "Override default")
+})
+
+ok_group('parameter data.frame', {
+    # We can also hand model_fn a data.frame, in which case the value column is used
+    model_fn <- g3_to_r(~return(g3_param("archibald", value = 45)))
+
+    df <- data.frame(switch = c("archibald"), value = I(list(floor(runif(1, 100, 200)))))
+    ok(ut_cmp_equal(as.numeric(model_fn(df)), as.numeric(df$value)), "data.frame accepted as input")
 })

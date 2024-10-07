@@ -202,6 +202,8 @@ g3_to_r <- function(
     # Wrap all steps in a function call
     out <- call("function", pairlist(param = quote( attr(get(sys.call()[[1]]), "parameter_template") )), as.call(c(
         list(as.symbol(open_curly_bracket)),
+        # Prefix with df -> list converstion, if needed
+        list(quote( if (is.data.frame(param)) param <- structure(param$value, names = param$switch) )),
         scope,
         all_actions_code )))
 
