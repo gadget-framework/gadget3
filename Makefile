@@ -42,10 +42,10 @@ serve-docs:
 	Rscript -e "options(pkgdown.internet = FALSE) ; pkgdown::build_site(override=list(url='http://localhost:8000/')) ; servr::httd(dir='docs', host='0.0.0.0', port='8000')"
 
 test: install
-	for f in tests/test*.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
+	parallel -j 8 --halt now,fail=1 Rscript ::: tests/test*.R
 
 inttest: install
-	for f in inttest/*/run.R; do echo "=== $$f ============="; Rscript $$f || exit 1; done
+	parallel -j 8 --halt now,fail=1 Rscript ::: inttest/*/run.R
 	make vignettes G3_TEST_TMB=1
 
 coverage:
