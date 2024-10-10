@@ -1,5 +1,14 @@
 structure(function (param = attr(get(sys.call()[[1]]), "parameter_template")) 
 {
+    if (is.data.frame(param)) {
+        param_lower <- structure(param$lower, names = param$switch)
+        param_upper <- structure(param$upper, names = param$switch)
+        param <- structure(param$value, names = param$switch)
+    }
+    else {
+        param_lower <- lapply(param, function(x) NA)
+        param_upper <- lapply(param, function(x) NA)
+    }
     stopifnot("retro_years" %in% names(param))
     stopifnot("ling.Linf" %in% names(param))
     stopifnot("ling.K" %in% names(param))
