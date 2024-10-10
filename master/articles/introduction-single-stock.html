@@ -240,6 +240,15 @@ will count years &amp; steps:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>function (param = attr(get(sys.call()[[1]]), "parameter_template")) 
 {
+    if (is.data.frame(param)) {
+        param_lower &lt;- structure(param$lower, names = param$switch)
+        param_upper &lt;- structure(param$upper, names = param$switch)
+        param &lt;- structure(param$value, names = param$switch)
+    }
+    else {
+        param_lower &lt;- lapply(param, function(x) NA)
+        param_upper &lt;- lapply(param, function(x) NA)
+    }
     stopifnot("retro_years" %in% names(param))
     assert_msg &lt;- function(expr, message) {
         if (isFALSE(expr)) {
@@ -286,8 +295,8 @@ will count years &amp; steps:</p>
         }
     }
 }
-&lt;bytecode: 0x5625688dccf0&gt;
-&lt;environment: 0x562569db8bd8&gt;</code></pre>
+&lt;bytecode: 0x55cf4871d8f0&gt;
+&lt;environment: 0x55cf49e54ab8&gt;</code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>#include &lt;TMB.hpp&gt;

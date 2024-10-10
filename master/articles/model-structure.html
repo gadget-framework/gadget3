@@ -141,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x56311f570ae0&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x55edfba2e040&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -172,14 +172,23 @@ an R function:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     cows &lt;- 16</span></span>
 <span><span class="co">##     pigs &lt;- 32</span></span>
 <span><span class="co">##     while (TRUE) {</span></span>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563120d14798&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563120ab2950&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55edf854bc80&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edfcf71e48&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -247,14 +256,14 @@ reached. For example:</p>
 <span><span class="co">##     cur_step_size &lt;- step_lengths[[cur_step]]/12</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x56311dc55dc0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edfa5f4d08&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $`001`</span></span>
 <span><span class="co">## ~{</span></span>
 <span><span class="co">##     if (cur_time &gt; total_steps) </span></span>
 <span><span class="co">##         return(nll)</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x56311bdda5b8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x55edf660c8f8&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -262,6 +271,15 @@ code.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1999</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     stopifnot("retro_years" %in% names(param))</span></span>
 <span><span class="co">##     assert_msg &lt;- function(expr, message) {</span></span>
 <span><span class="co">##         if (isFALSE(expr)) {</span></span>
@@ -309,8 +327,8 @@ code.</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x56311e68eec8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563120dbd0d0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55edfcf93168&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edfa38c410&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
@@ -318,6 +336,15 @@ model. For example:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="op">~</span><span class="va">start_year</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     stopifnot("retro_years" %in% names(param))</span></span>
 <span><span class="co">##     assert_msg &lt;- function(expr, message) {</span></span>
 <span><span class="co">##         if (isFALSE(expr)) {</span></span>
@@ -365,8 +392,8 @@ model. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563120d6f420&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x56311e5ffee0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55edfba27da0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edfd3a73c0&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -450,6 +477,15 @@ example:</p>
 <span><span class="va">fn</span></span></code></pre></div>
 <pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     stopifnot("ling.bbin" %in% names(param))</span></span>
 <span><span class="co">##     growth_bbinom &lt;- function(delt_l, binn, beta) {</span></span>
 <span><span class="co">##         alpha &lt;- (beta * delt_l)/(binn - delt_l)</span></span>
@@ -590,8 +626,8 @@ example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x56311baa0ea8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x56311e559900&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55edfd21f640&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edf82631d0&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -612,6 +648,15 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="va">fn</span></span></code></pre></div>
 <pre><code><span><span class="co">## function (param = attr(get(sys.call()[[1]]), "parameter_template")) </span></span>
 <span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
 <span><span class="co">##     stopifnot("ling.bbin" %in% names(param))</span></span>
 <span><span class="co">##     growth_bbinom &lt;- function(delt_l, binn, beta) {</span></span>
 <span><span class="co">##         alpha &lt;- (beta * delt_l)/(binn - delt_l)</span></span>
@@ -757,8 +802,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x56311edb7058&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x56312043d000&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55edfb0f1450&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55edfb938358&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>
