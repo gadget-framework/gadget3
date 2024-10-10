@@ -5,6 +5,7 @@
 
 ## New features
 * The `stock` column in likelihood data can now contain name parts as well as full stock names
+* `g3_to_r`-produced model functions will accept both a list & data.frame parameter template
 
 # gadget3 0.12-0:
 
