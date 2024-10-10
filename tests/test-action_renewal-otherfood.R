@@ -74,9 +74,13 @@ ok_group("Default params") ########
 attr(model_fn, 'parameter_template') |>
     g3_init_val("other_np.Linf", max(g3_stock_def(other_np, "midlen"))) |>
     g3_init_val("other_cv.Linf", max(g3_stock_def(other_cv, "midlen"))) |>
+    g3_init_val("other_np.t0", -1) |>
+    g3_init_val("other_cv.t0", -1) |>
     g3_init_val("*.walpha", 0.01) |>
     g3_init_val("*.wbeta", 3) |>
     g3_init_val("other_wgt.of_abund.#", 2000:2005 * 1e3) |>
+    g3_init_val("other_np.of_abund.#", 1) |>
+    g3_init_val("other_cv.of_abund.#", 1) |>
     g3_init_val("other_wgt.of_meanwgt", 100) |>
 
     g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 0.2) |>
@@ -94,14 +98,14 @@ ok(ut_cmp_equal(
     0), "cdist_sumofsquares_pred_a_catch_model__num: No other_wgt caught outside it's single lengthgroup")
 ok(ut_cmp_equal(
     r$cdist_sumofsquares_pred_a_catch_model__num[1,stock="other_wgt",],
-    c("2000" = 11323.67, "2001" = 11327.88, "2002" = 11332.08, "2003" = 11336.29, "2004" = 11340.49, "2005" = 11344.69),
+    c("2000" = 11286.74, "2001" = 11290.94, "2002" = 11295.13, "2003" = 11299.33, "2004" = 11303.52, "2005" = 11307.71),
     tolerance = 1e-6 ), "cdist_sumofsquares_pred_a_catch_model__num: other_wgt catch steadily increasing")
 
 ## other_np catch
 ok(ut_cmp_equal(
     r$cdist_sumofsquares_pred_a_catch_model__num[,stock="other_np",time="2000"],
-    c("0:10" = 0, "10:20" = 0.01, "20:30" = 0.21, "30:40" = 2.69, "40:50" = 11.57,
-    "50:60" = 16.23, "60:70" = 0, "70:80" = 0, "80:90" = 0, "90:100" = 0, "100:Inf" = 0),
+    c("0:10" = 0, "10:20" = 0.0016687, "20:30" = 0.090596, "30:40" = 1.6739, "40:50" = 10.221,
+    "50:60" = 20.362, "60:70" = 0, "70:80" = 0, "80:90" = 0, "90:100" = 0, "100:Inf" = 0),
     tolerance = 1e-3 ), "cdist_sumofsquares_pred_a_catch_model__num: other_np catch has selectivity curve")
 for (yr in 2000:2005) ok(ut_cmp_equal(
     r$cdist_sumofsquares_pred_a_catch_model__num[,stock="other_np",time=as.character(yr)],
@@ -111,8 +115,8 @@ for (yr in 2000:2005) ok(ut_cmp_equal(
 ## other_cv catch
 ok(ut_cmp_equal(
     r$cdist_sumofsquares_pred_a_catch_model__num[,stock="other_cv",time="2000"],
-    c("0:10" = 0, "10:20" = 0, "20:30" = 0, "30:40" = 0, "40:50" = 0, "50:60" = 0,
-    "60:70" = 0.09, "70:80" = 2.66, "80:90" = 28.07, "90:100" = 113.36, "100:Inf" = 179.08),
+    c("0:10" = 0, "10:20" = 0, "20:30" = 0, "30:40" = 0, "40:50" = 0, "50:60" = 0.0011257,
+    "60:70" = 0.08904, "70:80" = 2.5512, "80:90" = 27.268, "90:100" = 111.97, "100:Inf" = 180.45),
     tolerance = 1e-3 ), "cdist_sumofsquares_pred_a_catch_model__num: other_cv catch has selectivity curve")
 for (yr in 2000:2005) ok(ut_cmp_equal(
     r$cdist_sumofsquares_pred_a_catch_model__num[,stock="other_cv",time=as.character(yr)],
@@ -154,11 +158,11 @@ ok(gadget3:::ut_cmp_array(r$detail_other_wgt__wgt, "
 ## other_np abundance
 ok(gadget3:::ut_cmp_array(r$detail_other_np__num[,,"2000-01", drop = FALSE], "
   length  age    time        Freq
-1  10:20 age3 2000-01    8.755424
-2  20:30 age3 2000-01  184.602700
-3  30:40 age3 2000-01 1431.872712
-4  40:50 age3 2000-01 4085.792385
-5 50:Inf age3 2000-01 4288.976779
+1  10:20 age3 2000-01    2.710355
+2  20:30 age3 2000-01   81.153587
+3  30:40 age3 2000-01  893.912126
+4  40:50 age3 2000-01 3622.325360
+5 50:Inf age3 2000-01 5399.898572
 "), "detail_other_np__num: vonB applied")
 for (t in dimnames(r$detail_other_np__num)$time) ok(ut_cmp_equal(
     r$detail_other_np__num[,,"2000-01"],
@@ -172,42 +176,42 @@ for (t in dimnames(r$detail_other_np__wgt)$time) ok(ut_cmp_equal(
 ## other_cv abundance
 ok(gadget3:::ut_cmp_array(r$detail_other_cv__num[,,"2000-01", drop = FALSE], "
   length  age    time        Freq
-1    50:60  age5 2000-01 8.260941e-02
-2    60:70  age5 2000-01 4.816416e+00
-3    70:80  age5 2000-01 1.110709e+02
-4    80:90  age5 2000-01 1.013116e+03
-5   90:100  age5 2000-01 3.655102e+03
-6  100:Inf  age5 2000-01 5.215813e+03
-7    50:60  age6 2000-01 7.133300e-02
-8    60:70  age6 2000-01 4.202005e+00
-9    70:80  age6 2000-01 9.918938e+01
-10   80:90  age6 2000-01 9.382451e+02
-11  90:100  age6 2000-01 3.556395e+03
-12 100:Inf  age6 2000-01 5.401897e+03
-13   50:60  age7 2000-01 6.764495e-02
-14   60:70  age7 2000-01 3.999179e+00
-15   70:80  age7 2000-01 9.519219e+01
-16   80:90  age7 2000-01 9.122770e+02
-17  90:100  age7 2000-01 3.520036e+03
-18 100:Inf  age7 2000-01 5.468428e+03
-19   50:60  age8 2000-01 6.634484e-02
-20   60:70  age8 2000-01 3.927444e+00
-21   70:80  age8 2000-01 9.376889e+01
-22   80:90  age8 2000-01 9.029290e+02
-23  90:100  age8 2000-01 3.506666e+03
-24 100:Inf  age8 2000-01 5.492642e+03
-25   50:60  age9 2000-01 6.587396e-02
-26   60:70  age9 2000-01 3.901431e+00
-27   70:80  age9 2000-01 9.325152e+01
-28   80:90  age9 2000-01 8.995175e+02
-29  90:100  age9 2000-01 3.501749e+03
-30 100:Inf  age9 2000-01 5.501514e+03
-31   50:60 age10 2000-01 6.570172e-02
-32   60:70 age10 2000-01 3.891912e+00
-33   70:80 age10 2000-01 9.306202e+01
-34   80:90 age10 2000-01 8.982661e+02
-35  90:100 age10 2000-01 3.499941e+03
-36 100:Inf age10 2000-01 5.504774e+03
+1    50:60  age5 2000-01 6.901043e-02
+2    60:70  age5 2000-01 4.074388e+00
+3    70:80  age5 2000-01 9.667898e+01
+4    80:90  age5 2000-01 9.219846e+02
+5   90:100  age5 2000-01 3.533761e+03
+6  100:Inf  age5 2000-01 5.443432e+03
+7    50:60  age6 2000-01 6.683220e-02
+8    60:70  age6 2000-01 3.954349e+00
+9    70:80  age6 2000-01 9.430333e+01
+10   80:90  age6 2000-01 9.064455e+02
+11  90:100  age6 2000-01 3.511713e+03
+12 100:Inf  age6 2000-01 5.483517e+03
+13   50:60  age7 2000-01 6.605127e-02
+14   60:70  age7 2000-01 3.911228e+00
+15   70:80  age7 2000-01 9.344646e+01
+16   80:90  age7 2000-01 9.008037e+02
+17  90:100  age7 2000-01 3.503606e+03
+18 100:Inf  age7 2000-01 5.498167e+03
+19   50:60  age8 2000-01 6.576669e-02
+20   60:70  age8 2000-01 3.895503e+00
+21   70:80  age8 2000-01 9.313351e+01
+22   80:90  age8 2000-01 8.987383e+02
+23  90:100  age8 2000-01 3.500623e+03
+24 100:Inf  age8 2000-01 5.503543e+03
+25   50:60  age9 2000-01 6.566236e-02
+26   60:70  age9 2000-01 3.889736e+00
+27   70:80  age9 2000-01 9.301869e+01
+28   80:90  age9 2000-01 8.979798e+02
+29  90:100  age9 2000-01 3.499526e+03
+30 100:Inf  age9 2000-01 5.505520e+03
+31   50:60 age10 2000-01 6.562402e-02
+32   60:70 age10 2000-01 3.887617e+00
+33   70:80 age10 2000-01 9.297649e+01
+34   80:90 age10 2000-01 8.977010e+02
+35  90:100 age10 2000-01 3.499123e+03
+36 100:Inf age10 2000-01 5.506246e+03
 ", tolerance = 1e-7), "detail_other_cv__num: vonB applied to all ages")
 for (t in dimnames(r$detail_other_cv__num)$time) ok(ut_cmp_equal(
     r$detail_other_cv__num[,,"2000-01"],

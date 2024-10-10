@@ -307,25 +307,21 @@ g3a_otherfood <- function (
 # Steps to set up renewal of stocks on first step
 g3a_otherfood_normalparam <- function (
         stock,
-        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        factor_f = g3_parameterized(
+            'of_abund', by_year = TRUE, by_stock = by_stock,
+            scale = g3_parameterized(
+                'of_abund.step', value = 1, by_step = TRUE, by_stock = by_stock),
+            ifmissing = "of_abund.proj" ),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', value = 10,
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
-        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
         run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
-
-    # Replace "age" with "age - cur_step_size", i.e. pretending this is happening at time "-1"
-    if (!is.null(age_offset)) {
-        age_offset <- f_substitute(quote(age - age_offset), list(age_offset = age_offset))
-        mean_f <- f_substitute(mean_f, list(age = age_offset))
-        stddev_f <- f_substitute(stddev_f, list(age = age_offset))
-    }
 
     # NB: Generate action name with our arguments
     out <- list()
@@ -342,13 +338,16 @@ g3a_otherfood_normalparam <- function (
 # normalparam, but with a cv_f instead of stddev_f
 g3a_otherfood_normalcv <- function (
         stock,
-        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        factor_f = g3_parameterized(
+            'of_abund', by_year = TRUE, by_stock = by_stock,
+            scale = g3_parameterized(
+                'of_abund.step', value = 1, by_step = TRUE, by_stock = by_stock),
+            ifmissing = "of_abund.proj" ),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
             optimise = FALSE),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
-        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
@@ -361,7 +360,6 @@ g3a_otherfood_normalcv <- function (
         stddev_f = f_substitute(quote(mean_f * cv_f), list(mean_f = mean_f, cv_f = cv_f)),
         alpha_f = alpha_f,
         beta_f = beta_f,
-        age_offset = age_offset,
         run_f = run_f,
         run_at = run_at)
 }
