@@ -272,7 +272,7 @@ g3a_otherfood_normalcv(
   \subsection{g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam}{
     As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
 
-    \deqn{n = e^{-(\frac{L - \mu}{\sigma})^2 / 2}}
+    \deqn{n = {dnorm}(L, \mu, \sigma)}
     \deqn{N = F 10000 \frac{n}{\sum n}}
     \deqn{W = \alpha L^{\beta}}
     \describe{

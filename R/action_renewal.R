@@ -60,12 +60,12 @@ g3a_renewal_len_dnorm <- function(
         factor_f = g3a_renewal_initabund(by_stock = by_stock),
         by_stock = TRUE,
         by_age = FALSE) {
-    dnorm <- f_substitute(
-        quote( (stock__midlen - mean_f)/stddev_f ),
-        list(mean_f = mean_f, stddev_f = stddev_f))
     g3_formula(
-        quote( normalize_vec(exp( -(dnorm**2) * 0.5)) * 10000 * factor ),
-        dnorm = dnorm,
+        quote( normalize_vec(ren_dnorm) * 10000 * factor ),
+        ren_dnorm = f_substitute(
+            # NB: sd must be > 0
+            quote(dnorm(stock__midlen, mean_f, avoid_zero(stddev_f))),
+            list(mean_f = mean_f, stddev_f = stddev_f) ),
         factor = factor_f)
 }
 
