@@ -381,7 +381,7 @@
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam">g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam"></a></h3>
 <p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate num/wgt:</p>
-<p>$$n = e^{-(\frac{L - \mu}{\sigma})^2 / 2}$$
+<p>$$n = {dnorm}(L, \mu, \sigma)$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
 <dd><p>Midlength of length groups for current area/age/...</p></dd>
