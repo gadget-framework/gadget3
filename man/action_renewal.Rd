@@ -140,13 +140,16 @@ g3a_otherfood(
 
 g3a_otherfood_normalparam(
         stock,
-        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        factor_f = g3_parameterized(
+            'of_abund', by_year = TRUE, by_stock = by_stock,
+            scale = g3_parameterized(
+                'of_abund.step', value = 1, by_step = TRUE, by_stock = by_stock),
+            ifmissing = "of_abund.proj" ),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('init.sd', value = 10,
             by_stock = by_stock, by_age = by_age),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
-        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
@@ -155,13 +158,16 @@ g3a_otherfood_normalparam(
 
 g3a_otherfood_normalcv(
         stock,
-        factor_f = g3a_renewal_initabund(by_stock = by_stock),
+        factor_f = g3_parameterized(
+            'of_abund', by_year = TRUE, by_stock = by_stock,
+            scale = g3_parameterized(
+                'of_abund.step', value = 1, by_step = TRUE, by_stock = by_stock),
+            ifmissing = "of_abund.proj" ),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
             optimise = FALSE),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
         beta_f = g3_parameterized('wbeta', by_stock = wgt_by_stock),
-        age_offset = quote( cur_step_size ),
         by_stock = TRUE,
         by_age = FALSE,
         wgt_by_stock = TRUE,
