@@ -165,15 +165,15 @@
     <p></p><div class="section">
 <h3 id="g-a-mature-continuous">g3a_mature_continuous<a class="anchor" aria-label="anchor" href="#g-a-mature-continuous"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\top $$</p>
+    $$ m_0 * (\alpha \Delta{L} + \beta {\Delta t})^\top $$</p>
 <p></p><dl><dt>\(m_0\)</dt>
 <dd><p>The <code>g3a_mature_constant</code> formula, as defined below, using parameters supplied to <code>g3a_mature_continuous</code></p></dd>
 
       <dt>\(\Delta{L}\)</dt>
 <dd><p>Vector of all possible changes in length, as per current growth matrix (see <a href="action_grow.html">g3a_grow_impl_bbinom</a>)</p></dd>
 
-      <dt>\(\Delta{t}\)</dt>
-<dd><p>Length of the current timestep</p></dd>
+      <dt>\(\Delta t\)</dt>
+<dd><p>Length of current step as a proportion of the year, e.g. 0.25. See <code>cur_step_size</code> in <code><a href="action_time.html">g3a_time</a></code></p></dd>
 
 
 </dl><p></p>
