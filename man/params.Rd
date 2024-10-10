@@ -20,6 +20,7 @@ g3_parameterized(
         avoid_zero = FALSE,
         scale = 1,
         offset = 0,
+        ifmissing = NULL,
         ...)
 }
 
@@ -73,6 +74,11 @@ g3_parameterized(
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.area"} parameter for each area of the stock(s) in \var{by_stock}}
     }
+  }
+  \item{ifmissing}{
+    Value to use for when there is no valid parameter (read: year when by_year = TRUE)
+    Either a numeric constant or character.
+    If character, add another parameter for ifmissing, using the same \var{by_stock} value.
   }
   \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
   \item{avoid_zero}{If TRUE, wrap parameter with \code{avoid_zero}}
@@ -143,6 +149,11 @@ param_template_for( g3_parameterized('K', by_stock = 'species', by_year = TRUE) 
 # Can give a list of stocks, in which case it works out name parts for you
 param_template_for( g3_parameterized('K', by_stock = list(stock_imm, stock_mat)) )
 param_template_for( g3_parameterized('K', by_stock = list(stock_imm, stock_mat), by_age = TRUE) )
+
+# If there are no shared name parts, then all names will be added
+param_template_for( g3_parameterized(
+    'btrigger',
+    by_stock = list(g3_fleet("surv"), g3_fleet("comm"))) )
 
 # You can set fixed scale/offset for the parameter
 g3_parameterized('K', scale = 5, offset = 9)

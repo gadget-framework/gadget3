@@ -449,6 +449,10 @@ ok_group("list_to_stock_switch", {
         gadget3:::g3_step(f)
     }
 
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::list_to_stock_switch(34),
+        quote( 34 ) ), "Non-code items aren't wrapped with stock_with()")
+
     ok(ut_cmp_error(
         gadget3:::list_to_stock_switch(list(1,2)),
         "one default"), "Only one default option allowed")

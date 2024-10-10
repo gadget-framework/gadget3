@@ -217,6 +217,21 @@ f_chain_conditional <- function (fs, default_f = NaN, ...) {
     f_substitute(out, fs)
 }
 
+# Combine list of formulas with an operator, e.g. f_chain_op(list(~a, ~b, ~c), "+") ---> ~a + b + c
+f_chain_op <- function (fs, op) {
+    # Assign names to list we can use as symbols
+    names(fs) <- paste0("f", seq_along(fs))
+
+    # Build code to do sum, based list names
+    sum_c <- NULL
+    for (i in seq_along(fs)) {
+        sym <- as.symbol(names(fs)[[i]])
+        sum_c <- if (i == 1) sym else call(op, sum_c, sym)
+    }
+
+    return(f_substitute(sum_c, fs))
+}
+
 # Perform optimizations on code within formulae, mostly for readability
 f_optimize <- function (f) {
     # Simplify Basic arithmetic

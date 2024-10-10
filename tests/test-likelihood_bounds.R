@@ -81,84 +81,82 @@ actions <- list(g3a_time(2000, 2000), list("555" = g3_formula({
     nll <- nll + g3_param('pc')
     nll <- nll + g3_param('pd', value = 0, lower = -10, upper = 10)
 })))
-model_code <- g3_to_tmb(c(actions, list( g3l_bounds_penalty(actions) )))
-fn <- g3_to_r(c(actions, list( g3l_bounds_penalty(actions) )))
+model_cpp <- g3_to_tmb(c(actions, list( g3l_bounds_penalty(actions) )))
+model_fn <- g3_to_r(c(actions, list( g3l_bounds_penalty(actions) )))
 
+attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pa', 100.45) |>
+    g3_init_val('pb', 200) |>
+    g3_init_val('pc', 300.5342) |>
+    identity() -> params.in
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 ok(ut_cmp_equal(
-    as.numeric(fn(c(list(pa=1, pb=2, pc=3), attr(fn, 'parameter_template')))),
-    1 + 2 + 3), "nll: R version ignores g3l_bounds_penalty()")
+    nll,
+    sum(unlist(params.in$value)) ), "nll: TMB version with no bounds enabled")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    attr(model_code, 'parameter_template') |>
-        g3_init_val('pa', 100.45) |>
-        g3_init_val('pb', 200) |>
-        g3_init_val('pc', 300.5342) |>
-        identity() -> params.in
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        sum(unlist(params.in$value)) ), "nll: TMB version with no bounds enabled")
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pa', 100, lower = 50, upper = 150) |>
+    g3_init_val('pb', 200) |>
+    g3_init_val('pc', 300) |>
+    identity() -> params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+ok(ut_cmp_equal(
+    nll,
+    sum(unlist(params.in$value)) ), "nll: TMB version, within bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pa', 100, lower = 50, upper = 150) |>
-        g3_init_val('pb', 200) |>
-        g3_init_val('pc', 300) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        sum(unlist(params.in$value)) ), "nll: TMB version, within bounds")
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pa', 100, lower = 10, upper = 50) |>
+    g3_init_val('pb', 200) |>
+    g3_init_val('pc', 300) |>
+    identity() -> params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+ok(ut_cmp_equal(
+    nll,
+    1.6e12,
+    tolerance=1e1), "nll: TMB version, above bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pa', 100, lower = 10, upper = 50) |>
-        g3_init_val('pb', 200) |>
-        g3_init_val('pc', 300) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        1.6e12,
-        tolerance=1e1), "nll: TMB version, above bounds")
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pa', 10, lower = 20, upper = 50) |>
+    g3_init_val('pb', 200) |>
+    g3_init_val('pc', 300) |>
+    identity() -> params.in)
+obj.fn <- g3_tmb_adfun(model_cpp, params.in)
+ok(ut_cmp_equal(
+    nll,
+    1e+11,
+    tolerance=1e1), "nll: TMB version, outside bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pa', 10, lower = 20, upper = 50) |>
-        g3_init_val('pb', 200) |>
-        g3_init_val('pc', 300) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        1e+11,
-        tolerance=1e1), "nll: TMB version, outside bounds")
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pa', 10, lower = 20, upper = 50) |>
+    g3_init_val('pb', 90, lower = 20, upper = 50) |>
+    g3_init_val('pc', 300) |>
+    identity() -> params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+ok(ut_cmp_equal(
+    nll,
+    2e12,
+    tolerance=1e1), "nll: TMB version, 2 parameters outside bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pa', 10, lower = 20, upper = 50) |>
-        g3_init_val('pb', 90, lower = 20, upper = 50) |>
-        g3_init_val('pc', 300) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        2e12,
-        tolerance=1e1), "nll: TMB version, 2 parameters outside bounds")
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pd', 100) |>
+    identity() -> params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+ok(ut_cmp_equal(
+    nll,
+    2e12,
+    tolerance = 1e1 ), "nll: Outside initial bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pd', 100) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        2e12,
-        tolerance = 1e1 ), "nll: Outside initial bounds")
-
-    suppressWarnings(attr(model_code, 'parameter_template') |>
-        g3_init_val('pd', 100, lower = NA, upper = NA) |>
-        identity() -> params.in)
-    obj.fn <- g3_tmb_adfun(model_code, params.in)
-    ok(ut_cmp_equal(
-        obj.fn$fn(),
-        sum(unlist(params.in$value)) ), "nll: Outside initial bounds, but we cleared them")
-
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+suppressWarnings(attr(model_cpp, 'parameter_template') |>
+    g3_init_val('pd', 100, lower = NA, upper = NA) |>
+    identity() -> params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+ok(ut_cmp_equal(
+    nll,
+    sum(unlist(params.in$value)) ), "nll: Outside initial bounds, but we cleared them")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)

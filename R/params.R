@@ -32,6 +32,7 @@ g3_parameterized <- function(
         avoid_zero = FALSE,
         scale = 1,
         offset = 0,
+        ifmissing = NULL,
         ...) {
     stopifnot(is.character(name))
     stopifnot(is.logical(by_age))
@@ -39,6 +40,7 @@ g3_parameterized <- function(
     stopifnot(is.logical(by_step))
     stopifnot(is.logical(by_area))
     stopifnot(is.logical(avoid_zero))
+    extra_params <- list(...)
 
     find_public_call <- function (calls) {
         for (in_c in rev(calls)) {
@@ -132,7 +134,12 @@ g3_parameterized <- function(
         for (i in seq_along(by_stock)) if (i > 1) {
             common_part <- common_part & (by_stock[[1]]$name_parts == by_stock[[i]]$name_parts)
         }
-        stock_extra <- paste(by_stock[[1]]$name_parts[common_part], collapse = ".")
+        if (any(common_part)) {
+            stock_extra <- paste(by_stock[[1]]$name_parts[common_part], collapse = ".")
+        } else {
+            # No common parts, concatenate full names of both
+            stock_extra <- paste(sort(vapply(by_stock, function (s) s$name, character(1))), collapse = ".")
+        }
     } else stop('Unknown by_stock parameter, should be FALSE, TRUE, a name_part or list of stocks')
 
     if (isTRUE(by_area) && (isTRUE(by_stock) || is.character(by_stock))) {
@@ -153,8 +160,14 @@ g3_parameterized <- function(
         out <- substitute(g3_param(x), list(x = name))
     }
 
+    # Add ifmissing to output, turning strings into parameters
+    if (!is.null(ifmissing)) {
+        if (is.character(ifmissing)) ifmissing <- g3_parameterized(ifmissing, by_stock = by_stock)
+        out$ifmissing <- ifmissing
+    }
+
     # Pass through standard g3_param arguments
-    out <- as.call(c(as.list(out), list(...)))
+    out <- as.call(c(as.list(out), extra_params))
 
     # Add source if we found one
     source <- find_public_call(sys.calls())

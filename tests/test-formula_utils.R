@@ -24,6 +24,12 @@ cmp_environment <- function (a, b) {
     ut_cmp_identical(ordered_list(a), ordered_list(b))
 }
 
+model_body <- function(...) {
+    out_c <- body(suppressWarnings(g3_to_r(list(...))))
+    out_c[[2]] <- NULL  # Remove data.frame -> list munging
+    return(out_c)
+}
+
 deep_ls <- function (env) {
     if (environmentName(env) == "R_EmptyEnv") {
         c()
@@ -192,6 +198,17 @@ ok(gadget3:::ut_cmp_code(out_f, quote({
 ok(ut_cmp_identical(as.list(environment(out_f)), list(
     y = 9 )), "f_concatenate: code has no effect on environment")
 
+out_f <- gadget3:::f_chain_op(list(
+    quote(2),
+    3,
+    g3_formula(x**2, x = 99),
+    g3_formula(1 + a + 3, a = 2, z = 123),
+    101 ), "+")
+ok(gadget3:::ut_cmp_code(out_f, quote(2 + 3 + (x^2) + (1 + a + 3) + 101)), "f_chain_op: Can use calls, formulas, constants. Precedence correct")
+ok(ut_cmp_identical(as.list(environment(out_f), sorted = TRUE), list(
+    a = 2,
+    x = 99)), "f_chain_op: Relevant parts of environment copied")
+
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; oink; baa}),
     ~{woo; oink; baa}), "f_optimize: Passed through 3 terms")
@@ -342,7 +359,7 @@ out <- adf(g3_formula(
         mean = g3_formula(block1 + offset, offset = g3_formula(block1)),
         stddev = g3_formula(block2 + offset, offset = g3_formula(block1)) )))
 ok(gadget3:::ut_cmp_code(
-    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+    model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
         block1 <- 1
         block2 <- 2
         while (TRUE) {
@@ -363,7 +380,7 @@ out <- adf(g3_formula(
     glob1 = g3_global_formula(g3_formula(block1 + glob2)),
     end = NULL))
 ok(gadget3:::ut_cmp_code(
-    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+    model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
          block2 <- 2
          block1 <- 1
          while (TRUE) {
@@ -379,7 +396,7 @@ out <- adf(g3_formula(
     f1 = g3_formula(f2 + f3, f2 = quote(block1 + 2), f3 = 4),
     end = NULL))
 ok(gadget3:::ut_cmp_code(
-    body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+    model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
         block1 <- 1
         f3 <- 4
         while (TRUE) {
@@ -394,7 +411,7 @@ out <- adf(g3_formula(
     10 + f1,
     f1 = g3_formula(f2 + f3, f2 = quote(secret_block + 2), f3 = 4),
     end = NULL) )
-ok(gadget3:::ut_cmp_code(body(suppressWarnings(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out)))), quote({
+ok(gadget3:::ut_cmp_code(model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
     secret_block <- stop("Incomplete model: No definition for ",
         "secret_block")
     f2 <- secret_block + 2
@@ -409,7 +426,7 @@ out <- adf(g3_formula(
     10 + f1,
     f1 = g3_formula(f2 + f3, f2 = quote(secret_block + 2), f3 = 4),
     end = NULL), filter_fn = function (f) gadget3:::call_replace(f, secret_block = function (y) quote(block1)) )
-ok(gadget3:::ut_cmp_code(body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+ok(gadget3:::ut_cmp_code(model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
     block1 <- 1
     f3 <- 4
     while (TRUE) {
@@ -426,7 +443,7 @@ out <- adf(g3_formula(
     10 + f1,
     f1 = g3_formula(f2 + 1, f2 = g3_formula(f3 + 2, f3 = g3_formula(secret_block))),
     end = NULL) )
-ok(gadget3:::ut_cmp_code(body(suppressWarnings(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out)))), quote({
+ok(gadget3:::ut_cmp_code(model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
     secret_block <- stop("Incomplete model: No definition for ",
         "secret_block")
     f3 <- secret_block
@@ -441,7 +458,7 @@ out <- adf(g3_formula(
     10 + f1,
     f1 = g3_formula(f2 + 1, f2 = g3_formula(f3 + 2, f3 = g3_formula(secret_block))),
     end = NULL), filter_fn = function (f) gadget3:::call_replace(f, secret_block = function (y) quote(block1)) )
-ok(gadget3:::ut_cmp_code(body(g3_to_r(list(g3_formula(quote(9), block1 = 1, block2 = 2), out))), quote({
+ok(gadget3:::ut_cmp_code(model_body(g3_formula(quote(9), block1 = 1, block2 = 2), out), quote({
     block1 <- 1
     while (TRUE) {
         9
