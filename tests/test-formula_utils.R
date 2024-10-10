@@ -192,6 +192,17 @@ ok(gadget3:::ut_cmp_code(out_f, quote({
 ok(ut_cmp_identical(as.list(environment(out_f)), list(
     y = 9 )), "f_concatenate: code has no effect on environment")
 
+out_f <- gadget3:::f_chain_op(list(
+    quote(2),
+    3,
+    g3_formula(x**2, x = 99),
+    g3_formula(1 + a + 3, a = 2, z = 123),
+    101 ), "+")
+ok(gadget3:::ut_cmp_code(out_f, quote(2 + 3 + (x^2) + (1 + a + 3) + 101)), "f_chain_op: Can use calls, formulas, constants. Precedence correct")
+ok(ut_cmp_identical(as.list(environment(out_f), sorted = TRUE), list(
+    a = 2,
+    x = 99)), "f_chain_op: Relevant parts of environment copied")
+
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~{woo; oink; baa}),
     ~{woo; oink; baa}), "f_optimize: Passed through 3 terms")
