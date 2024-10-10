@@ -35,8 +35,15 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn)), c(
         "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
-        "    if (is.data.frame(param)) ",
+        "    if (is.data.frame(param)) {",
+        "        param_lower <- structure(param$lower, names = param$switch)",
+        "        param_upper <- structure(param$upper, names = param$switch)",
         "        param <- structure(param$value, names = param$switch)",
+        "    }",
+        "    else {",
+        "        param_lower <- lapply(param, function(x) NA)",
+        "        param_upper <- lapply(param, function(x) NA)",
+        "    }",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
@@ -49,8 +56,15 @@ ok_group('print.g3_r', {
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
         "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
         "{",
-        "    if (is.data.frame(param)) ",
+        "    if (is.data.frame(param)) {",
+        "        param_lower <- structure(param$lower, names = param$switch)",
+        "        param_upper <- structure(param$upper, names = param$switch)",
         "        param <- structure(param$value, names = param$switch)",
+        "    }",
+        "    else {",
+        "        param_lower <- lapply(param, function(x) NA)",
+        "        param_upper <- lapply(param, function(x) NA)",
+        "    }",
         "    stopifnot(\"parp\" %in% names(param))",
         "    x <- param[[\"parp\"]]",
         "    while (TRUE) {",
@@ -147,6 +161,6 @@ ok_group('parameter data.frame', {
     # We can also hand model_fn a data.frame, in which case the value column is used
     model_fn <- g3_to_r(~return(g3_param("archibald", value = 45)))
 
-    df <- data.frame(switch = c("archibald"), value = I(list(floor(runif(1, 100, 200)))))
+    df <- data.frame(switch = c("archibald"), lower = 0, upper = 100, value = I(list(floor(runif(1, 100, 200)))))
     ok(ut_cmp_equal(as.numeric(model_fn(df)), as.numeric(df$value)), "data.frame accepted as input")
 })

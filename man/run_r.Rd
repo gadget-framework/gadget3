@@ -51,8 +51,15 @@ g3_to_r(
 }
 
 \value{
-  A function that takes a \var{params} variable, that defines all \var{g3_param}s required by the model.
-  The following attributes will be set:
+  A function that takes a \var{params} variable, which can be:
+
+  \enumerate{
+    \item{A list of parameters as defined by \code{attr(fn, 'parameter_template')}}
+    \item{A data.frame of parameters defined by \code{\link{g3_to_tmb}}'s parameter template}
+    \item{Not provided, in which case the parameter defaults are used}
+  }
+
+  The function will have the following attributes:
   \describe{
     \item{actions}{The original \var{actions} list given to the function}
     \item{parameter_template}{A list of all parameters expected by the model, to fill in}

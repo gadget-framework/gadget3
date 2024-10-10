@@ -54,15 +54,20 @@ ut_tmb_r_compare2 <- function (
         return()
     }
 
-    # Splice R parameters into parameter_template
-    param_template <- attr(model_cpp, 'parameter_template')
-    param_template$value[names(params)] <- params
+    if (is.data.frame(params)) {
+        # Input params is already a parameter template
+        param_template <- params
+    } else {
+        # Splice R parameters into parameter_template
+        param_template <- attr(model_cpp, 'parameter_template')
+        param_template$value[names(params)] <- params
+    }
 
     # writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = TRUE)))
     model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
 
     model_tmb_report <- model_tmb$report()
-    r_result <- model_fn(params)
+    r_result <- model_fn(param_template)
 
     for (n in names(attributes(r_result))) {
         unittest::ok(unittest::ut_cmp_equal(

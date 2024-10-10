@@ -90,9 +90,11 @@ g3_to_r <- function(
                     ifmissing))
             }
 
-            if (x[[1]] == 'g3_param_upper' || x[[1]] == 'g3_param_lower') {
-                # We have no bounds for R. Hard-code to NA, short-circuiting any bounds-checking
-                return(NA)
+            if (x[[1]] == 'g3_param_lower') {
+                return(substitute( param_lower[[par]], list(par = x[[2]]) ))
+            }
+            if (x[[1]] == 'g3_param_upper') {
+                return(substitute( param_upper[[par]], list(par = x[[2]]) ))
             }
 
             # Default for g3_param / g3_param_vector
@@ -139,7 +141,7 @@ g3_to_r <- function(
                 # Already init'ed this, ignore it.
                 next
             }
-            if (var_name == 'param') {
+            if (var_name == 'param' || var_name == 'param_lower' || var_name == 'param_upper') {
                 # It's the parameter argument
                 next
             }
@@ -203,7 +205,15 @@ g3_to_r <- function(
     out <- call("function", pairlist(param = quote( attr(get(sys.call()[[1]]), "parameter_template") )), as.call(c(
         list(as.symbol(open_curly_bracket)),
         # Prefix with df -> list converstion, if needed
-        list(quote( if (is.data.frame(param)) param <- structure(param$value, names = param$switch) )),
+        list(quote( if (is.data.frame(param)) {
+            param_lower <- structure(param$lower, names = param$switch)
+            param_upper <- structure(param$upper, names = param$switch)
+            param <- structure(param$value, names = param$switch)
+        } else {
+            # No bounds, map to NA
+            param_lower <- lapply(param, function (x) NA)
+            param_upper <- lapply(param, function (x) NA)
+        } )),
         scope,
         all_actions_code )))
 
