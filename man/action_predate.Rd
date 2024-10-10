@@ -214,7 +214,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     \describe{
       \item{\eqn{S}}{Suitability form \var{suitabilities} argument}
       \item{\eqn{E}}{\var{E} argument, scaling factor for the stock that is to be caught, per month}
-      \item{\eqn{\Delta t}}{length of current timestep in months}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{N_{pl}}}{Number of prey in length cell for prey \eqn{p}, length \eqn{l}}
       \item{\eqn{W_{pl}}}{Mean weight of prey in length cell for prey \eqn{p}, length \eqn{l}}
     }
@@ -228,7 +228,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
       \item{\eqn{S}}{Suitability form \var{suitabilities} argument}
       \item{\eqn{c_{s}}}{\var{catchability_fs} argument for the current stock}
       \item{\eqn{E}}{\var{E} argument, scaling factor for the stock that is to be caught, per month}
-      \item{\eqn{\Delta t}}{length of current timestep in months}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{N_{pl}}}{Number of prey in length cell for prey \eqn{p}, length \eqn{l}}
       \item{\eqn{W_{pl}}}{Mean weight of prey in length cell for prey \eqn{p}, length \eqn{l}}
     }
@@ -246,7 +246,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
         }
       \item{\eqn{S}}{Suitability form \var{suitabilities} argument}
       \item{\eqn{E}}{\var{E} argument, scaling factor for the stock that is to be caught, per month}
-      \item{\eqn{\Delta t}}{length of current timestep}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{N_{pl}}}{Number of prey in length cell for prey \eqn{p}, length \eqn{l}}
       \item{\eqn{W_{pl}}}{Mean weight of prey in length cell for prey \eqn{p}, length \eqn{l}}
     }
@@ -259,7 +259,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     \deqn{ M_{L} = m_0 \Delta t e^{(m_1T-m_2T^3)} L^{m_3}  }
     \describe{
       \item{\eqn{m_x}}{\var{mx} parameter, for \eqn{M_L}, maximum possible consumption for the predator on the current timestep}
-      \item{\eqn{\Delta t}}{length of current timestep in months}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{T}}{\var{temperature} parameter, formula representing current temperature}
     }
   }
@@ -271,7 +271,7 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     \deqn{ \psi_{L} = \frac{ \displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl} }{ H \Delta t + \displaystyle \sum_{\it preys}^p \sum_{\it lengths}^l F_{pl} } }
     \describe{
       \item{\eqn{S}}{Suitability form \var{suitabilities} argument}
-      \item{\eqn{\Delta t}}{length of current timestep in months}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{N_{pl}}}{Number of prey in length cell for prey \eqn{p}, length \eqn{l}}
       \item{\eqn{W_{pl}}}{Mean weight of prey in length cell for prey \eqn{p}, length \eqn{l}}
       \item{\eqn{M_L}}{Maximum possible consumption for the predator on the current timestep, in in kilojoules per month. See \code{\link{g3a_predate_maxconsumption}}}

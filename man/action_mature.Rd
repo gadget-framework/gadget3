@@ -87,12 +87,12 @@ g3a_mature(stock, maturity_f, output_stocks, output_ratios = rep(1/length(output
 
 \value{
   \subsection{g3a_mature_continuous}{A \link{formula} object representing
-    \deqn{ m_0 * (\alpha \Delta{L} + \beta \Delta{t})^\top }
+    \deqn{ m_0 * (\alpha \Delta{L} + \beta {\Delta t})^\top }
 
     \describe{
       \item{\eqn{m_0}}{The \code{\link{g3a_mature_constant}} formula, as defined below, using parameters supplied to \code{\link{g3a_mature_continuous}}}
       \item{\eqn{\Delta{L}}}{Vector of all possible changes in length, as per current growth matrix (see \link{g3a_grow_impl_bbinom})}
-      \item{\eqn{\Delta{t}}}{Length of the current timestep}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
     }
   }
   \subsection{g3a_mature_constant}{A \link{formula} object with the following equation

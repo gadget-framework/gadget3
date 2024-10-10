@@ -59,7 +59,7 @@ g3a_naturalmortality(
     \deqn{ e^{-m \Delta t} }
   
     \describe{
-      \item{\eqn{\Delta t}}{length of current timestep}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
     }
   }
   \subsection{g3a_naturalmortality}{An action (i.e. list of formula objects) that will, for the given \var{stock}...\enumerate{

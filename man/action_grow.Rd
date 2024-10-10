@@ -166,33 +166,34 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
 \value{
   \subsection{g3a_grow_lengthvbsimple}{Returns a \link{formula} for use as \var{delta_len_f}:
 
-  \deqn{ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa{\Delta}t}) }
-
-  Where \eqn{ \Delta{t} } is the length of the current timestep.
+    \deqn{ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa {\Delta t}}) }
+    \describe{
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
+    }
   }
   \subsection{g3a_grow_weightsimple}{Returns a \link{formula} for use as \var{delta_wgt_f}:
 
-  \deqn{ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) }
-
-  Where \eqn{ \Delta{t} } is the length of the current timestep,
-  \eqn{ {{\Delta}L} } is all possible length group increases i.e \code{0..maxlengthgroupgrowth}.
+    \deqn{ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) }
+    \describe{
+      \item{\eqn{{\Delta}L}}{Vector of all possible length group increases i.e \code{0..maxlengthgroupgrowth}}
+    }
   }
 
   \subsection{g3a_grow_length_multspec}{Returns a \link{formula} for use as \var{delta_len_f}:
-    \deqn{ {{\Delta}L}_i = {\Delta}t p_0 L_i^{p_1} \psi_i (p_2 T + p_3) }
+    \deqn{ {{\Delta}L}_i = {\Delta t} p_0 L_i^{p_1} \psi_i (p_2 T + p_3) }
     \describe{
       \item{\eqn{p_x}}{Supplied parameters}
-      \item{\eqn{{\Delta}t}}{Length of the current timestep}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{L_i}}{Current length}
       \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
       \item{\eqn{T}}{Temperature of current region}
     }
   }
   \subsection{g3a_grow_weight_multspec}{Returns a \link{formula} for use as \var{delta_wgt_f}:
-    \deqn{ {{\Delta}W}_{i,j} = {\Delta}t p_4 {W_i}^p_5 (\psi_i - p_6) (p_7 T + p_8) }
+    \deqn{ {{\Delta}W}_{i,j} = {\Delta t} p_4 {W_i}^p_5 (\psi_i - p_6) (p_7 T + p_8) }
     \describe{
       \item{\eqn{p_x}}{Supplied parameters}
-      \item{\eqn{{\Delta}t}}{Length of the current timestep}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{W_i}}{Current mean weight}
       \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
       \item{\eqn{T}}{Temperature of current region}
