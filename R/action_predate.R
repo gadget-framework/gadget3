@@ -21,8 +21,49 @@ g3a_predate_catchability_linearfleet <- function (E) {
         suit_unit = "total biomass",
         suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
         cons = f_substitute(
+            # NB: Divide by cur_step_size, assuming E is per-year
             ~E * cur_step_size * stock_ss(predprey__suit),
             list(E = E)) )
+}
+
+g3a_predate_catchability_project <- function (
+    quota_f,
+    pre_projection_landings_f = NULL,
+    # Proportion of quota assigned to predator
+    quota_prop = g3_parameterized("quota.prop", by_predator = TRUE, value = 1),
+    # Proportion of predator quota assigned to which step
+    quota_step = g3_parameterized("quota.step", by_predator = TRUE, by_step = TRUE,
+        value = quote( step_lengths / 12.0 )),
+    unit = c("biomass", "effort", "individuals") ) {
+    unit <- match.arg(unit)
+
+    # Add on pre_projection landings if given
+    if (!is.null(pre_projection_landings_f)) {
+        quota_f <- f_substitute(
+            quote( if (cur_year_projection) quota_f else pre_f ),
+            list(
+                pre_f = pre_projection_landings_f,
+                quota_f = quota_f ))
+    }
+
+    quota_f <- f_substitute(quote( quota_step * quota_prop * (quota_f) ), list(
+        quota_prop = list_to_stock_switch(quota_prop, "predstock"),
+        quota_step = quota_step,
+        quota_f = quota_f ))
+
+    if (unit == "effort") {
+        # Cancel out linearfleet's "* cur_step_size" as we are applying quota_step instead
+        quota_f <- f_substitute(
+            quote( quota_f * (1/cur_step_size) ),
+            list(quota_f = quota_f) )
+        g3a_predate_catchability_linearfleet(quota_f)
+    } else if (unit == "biomass") {
+        g3a_predate_catchability_totalfleet(quota_f)
+    } else if (unit == "individuals") {
+        g3a_predate_catchability_totalfleet(quota_f)
+    } else {
+        stop("Unknown catchability unit ", unit)
+    }
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {
