@@ -33,7 +33,7 @@ ok_group('print.g3_r', {
         y = c(4, 5),
         x = g3_parameterized('parp') )))
     ok(ut_cmp_identical(cap(print(model_fn)), c(
-        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
+        "function (param = parameter_template) ",
         "{",
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
@@ -54,7 +54,7 @@ ok_group('print.g3_r', {
         "<environment: xxx>",
         NULL)), "Default print output has code, no attributes")
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
-        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
+        "function (param = parameter_template) ",
         "{",
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
@@ -103,6 +103,64 @@ ok_group("g3_to_r: attr.parameter_template", {
     model_fn <- g3_to_r(actions)
     ok(ut_cmp_identical(attr(model_fn, 'parameter_template'), list(moo = 4, oink = 99)), "2 values populated")
 })
+
+ok_group("g3_to_r: custom functions", local({
+    # Find an unclaimed name in globalenv to use
+    fn_name <- NULL
+    while (is.null(fn_name) || exists(fn_name, envir = globalenv())) {
+        fn_name <- paste0("ut_run_r_fn_", floor(runif(1, 1e6, 1e7)))
+    }
+
+    # Set here and in globalenv, neither should appear in our tests
+    assign(fn_name, function(x) 98)
+    assign(fn_name, function(x) 99, envir = globalenv())
+
+    # Trying to call this without defining it explicitly doesn't work
+    step_f <- gadget3:::call_to_formula(
+        substitute( return(fn(123)), list( fn = as.symbol(fn_name) )),
+        env = new.env(parent = emptyenv()) )
+    model_fn <- g3_to_r(list(step_f))
+    ok(!(fn_name %in% names(environment(model_fn))), "Function *not* in model environment")
+    ok(ut_cmp_error(
+        model_fn(),
+        fn_name ), "Failed to run function without definition in formula, don't pick up globalenv")
+
+    environment(step_f)[[fn_name]] <- function (x) x * 100
+    model_fn <- g3_to_r(list(step_f))
+    ok(fn_name %in% names(environment(model_fn)), "Function in model environment")
+    ok(ut_cmp_equal(model_fn(), 12300), "Used definition of function from formula, not globalenv")
+
+    # Can use closures within the model too
+    closure <- function (base) { base <- base * 1e5 ; function(x) x + base }
+    environment(step_f)[[fn_name]] <- closure(89)
+    model_fn <- g3_to_r(list(step_f))
+    ok(fn_name %in% names(environment(model_fn)), "Function in model environment")
+    ok(ut_cmp_equal(model_fn(), 8900123), "Used function, preserved it's closure")
+
+    # Tidy up
+    rm(list = fn_name, envir = globalenv())
+}))
+
+ok_group("g3_to_r: non-base functions", local({
+    model_fn <- g3_to_r(list(g3_formula(quote(
+        # NB: tail is part of utils::, not base::
+        return(tail(1:10, 5))
+    ))))
+    ok(!any(grepl("tail", names(environment(model_fn)))), "tail not included in environment")
+    ok(ut_cmp_equal(model_fn(), 6:10), "Can use non-base attached namespaces")
+}))
+
+ok_group("g3_to_r: namespace-referenced functions", local({
+    model_fn <- g3_to_r(list(g3_formula(quote({
+        # Explicitly reference dplyr::desc, which (probably) isn't attached.
+        return(dplyr::desc(g3_param("v")))
+    }))))
+    v_in <- runif(1, 1e5, 1e6)
+    ok(!any(grepl("desc", names(environment(model_fn)))), "dplyr::desc not included in environment")
+    ok(ut_cmp_equal(
+        model_fn(list(v = v_in)),
+        dplyr::desc(v_in) ), "Called dplyr::desc to generate output")
+}))
 
 ok_group('g3_param', {
     param <- attr(g3_to_r(list(g3a_time(2000, 2004, project_years = 0), ~{

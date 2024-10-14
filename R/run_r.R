@@ -12,8 +12,9 @@ g3_to_r <- function(
     all_actions <- f_concatenate(c(
         collated_actions,
         NULL), parent = g3_env, wrap_call = call("while", TRUE))
-    # NB: Needs to be globalenv() to evaluate core R
-    model_env <- new.env(parent = globalenv())
+    # NB: R envs look like globalenv() <- package:attached <- package:attached <- .. <- baseenv() <- emptyenv()
+    #     Attach to one up from globalenv()
+    model_env <- new.env(parent = parent.env(globalenv()))
     scope <- list()
 
     # R always reports
@@ -129,9 +130,19 @@ g3_to_r <- function(
                     environment(fn_defn) <- env  # TODO: This should be the output function scope, not env.
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), fn_defn)
                 } else if (is.character(all_defns[[var_name]]) && all_defns[[var_name]] != var_name) {
-                    # Native function with a different name
+                    # R function, not part of baseenv
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), as.symbol(all_defns[[var_name]]))
                 }
+                next
+            }
+            if (is.function(all_defns[[var_name]])) {
+                # Ignore baseenv functions
+                if (identical(all_defns[[var_name]], get0(var_name, envir = baseenv()))) next
+
+                # Include function in model environment
+                # We don't modify it's environment, so closures will be intact
+                # NB: Package functions won't be visible here, since that's a "::" call.
+                assign(var_name, all_defns[[var_name]], envir = model_env)
             }
         }
 
@@ -202,7 +213,7 @@ g3_to_r <- function(
     }
 
     # Wrap all steps in a function call
-    out <- call("function", pairlist(param = quote( attr(get(sys.call()[[1]]), "parameter_template") )), as.call(c(
+    out <- call("function", pairlist(param = quote( parameter_template )), as.call(c(
         list(as.symbol(open_curly_bracket)),
         # Prefix with df -> list converstion, if needed
         list(quote( if (is.data.frame(param)) {
@@ -231,13 +242,16 @@ g3_to_r <- function(
     # Turn call structure into an actual function
     out <- eval(out)
 
+    # Generate pararameter template, add to environment for param default to use
+    model_env$parameter_template <- scope_to_parameter_template(scope, 'list')
+
     # Attach data to model as closure, compile
     environment(out) <- model_env
     out <- g3_r_compile(out, work_dir = work_dir, cmp_options = cmp_options)
 
     class(out) <- c("g3_r", class(out))
     attr(out, 'actions') <- actions
-    attr(out, 'parameter_template') <- scope_to_parameter_template(scope, 'list')
+    attr(out, 'parameter_template') <- model_env$parameter_template
     return(out)
 }
 
@@ -283,8 +297,11 @@ print.g3_r <- function(x, ..., with_environment = FALSE, with_template = FALSE) 
     attributes(x) <- NULL
     print.function(x)
     if (with_environment) {
+        # Don't show parameter_template, we do that later
+        env_names <- setdiff(names(environment(x)), "parameter_template")
+
         writeLines("Environment:")
-        str(as.list(environment(x)), no.list = TRUE)
+        str(as.list(environment(x))[env_names], no.list = TRUE)
     }
     if (with_template) {
         writeLines("Parameter template:")

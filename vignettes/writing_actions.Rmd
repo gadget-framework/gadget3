@@ -32,16 +32,47 @@ See ``R/aab_env.R`` for more information, and other existing helpers.
 
 ## Global & native functions
 
-Some things aren't easy to do with code translation. ``g3_native`` allows you to
-define a function with separate R and C++ definitions, for example ``normalize_vec``,
-which ensures a vector sums to 1, has the following definition:
+### Under R
 
+R functions can be included in a formula as anything else, *provided you use this through R*.
+For example:
+
+```r
+model_fn <- g3_to_r(list(g3a_time(1990, 1990), g3_formula(
+    nll <- nll + fn(9),
+    fn = function (x) x * 10 )))
+model_fn()
 ```
-g3_env$normalize_vec <- g3_native(r = function (a) {
+
+Your function is now part of the model environment
+
+```r
+environment(model_fn)$fn
+```
+
+### Under TMB: g3_native
+
+We do not yet translate functions from TMB to R,however ``g3_native`` allows you to
+Some things aren't easy to do with code translation. ``g3_native`` allows you to
+define a function with separate R and C++ definitions, for example:
+
+```r
+normalize_vec <- g3_native(r = function (a) {
     a / sum(a)
 }, cpp = '[](vector<Type> a) -> vector<Type> {
     return a / a.sum();
 }')
+model_fn <- g3_to_r(list(g3a_time(1990, 1990), g3_formula(
+    nll <- nll + normalize_vec(g3_param("a")),
+    normalize_vec = normalize_vec )))
+model_fn(c(list(a = 10:20), attr(model_fn, "parameter_template")))
+```
+
+```r
+model_code <- g3_to_tmb(list(g3a_time(1990, 1990), g3_formula(
+    nll <- nll + normalize_vec(g3_param("a")),
+    normalize_vec = normalize_vec )))
+model_code
 ```
 
 ## Stock steps
