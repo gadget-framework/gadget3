@@ -88,6 +88,9 @@ export(g3a_time)
 # R/action_weightloss.R
 export(g3a_weightloss)
 
+# R/array_utils.R
+export(g3_array_agg)
+
 # R/eval.R
 export(g3_eval)
 

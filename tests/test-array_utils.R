@@ -1,0 +1,138 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
+library(unittest)
+
+library(gadget3)
+
+# ut_cmp_equal, but strip off dimensions first
+ut_cmp_vec <- function(a, b, ...) ut_cmp_equal(as.vector(a), as.vector(b), ...)
+
+# Generate random array from dimnames input
+gen_arr <- function(...) {
+    dn <- list(...)
+
+    if ("time" %in% names(dn)) {
+        dn$time <- paste(
+            rep(dn$time[[1]], each = length(dn$time[[2]])),
+            sprintf("%02d", dn$time[[2]]),
+            sep = "-")
+    }
+    if ("age" %in% names(dn)) {
+        dn$age <- paste0("age", dn$age)
+    }
+    if ("length" %in% names(dn)) {
+        dn$length <- paste(
+            dn$length,
+            c(tail(dn$length, -1), "Inf"),
+            sep = ":" )
+    }
+
+    d <- vapply(dn, length, integer(1))
+    array(
+        floor(runif(prod(d), 1e5, 1e6)),
+        dim = d,
+        dimnames = dn)
+}
+
+ok_group("time_split") ########################################################
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_vec(
+    g3_array_agg(ar, opt_time_split = TRUE)[,,step = "1", year = "2002"],
+    ar[,,time = "2002-01"],
+    end = NULL ), "opt_time_split returns same values [2002-01]")
+ok(ut_cmp_vec(
+    g3_array_agg(ar, opt_time_split = TRUE)[,,step = "2", year = "2004"],
+    ar[,,time = "2004-02"],
+    end = NULL ), "opt_time_split returns same values [2004-02]")
+
+ar <- gen_arr(
+    time = list(2000:2004, 1:4),
+    age = 0:10 )
+ok(ut_cmp_equal(
+    g3_array_agg(ar, opt_time_split = TRUE)[step = "3", year = "2001",],
+    ar[time = "2001-03",],
+    end = NULL ), "opt_time_split returns same values, time at start [2001-03]")
+
+ar <- gen_arr(
+    time = list(2000:2004, 1:4),
+    age = 0:10 )
+ok(ut_cmp_equal(
+    g3_array_agg(ar, opt_time_split = FALSE),
+    ar,
+    end = NULL ), "Can turn opt_time_split off")
+ok(ut_cmp_equal(
+    names(g3_array_agg(ar, c("year"))),
+    as.character(2000:2004),
+    end = NULL ), "Aggregated by year when asked")
+ok(ut_cmp_equal(
+    names(g3_array_agg(ar, c("time"))),
+    paste0(rep(2000:2004, each = 4), c("-01", "-02", "-03", "-04")),
+    end = NULL ), "...or by time")
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_vec(
+    g3_array_agg(ar, c("length"), year = 2004),
+    apply(ar[,,time = c("2004-01", "2004-02")], 'length', sum),
+    end = NULL ), "time_split turns on when filtering by year")
+ok(ut_cmp_vec(
+    g3_array_agg(ar, c("length"), time = c("2001-01", "2002-02")),
+    apply(ar[,,time = c("2001-01", "2002-02")], 'length', sum),
+    end = NULL ), "time_split turns off when filtering by time")
+
+ok_group("filtering") #########################################################
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_vec(
+    # TODO: Having to set margins manually, since otherwise we assume time
+    g3_array_agg(ar, age = 4, year = 2001:2002, step = 2),
+    ar[,age = "age4",time = paste0(2001:2002, "-02")],
+    end = NULL ), "Can use numeric age/year/step, get converted")
+
+ok_group("grouping") ##########################################################
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_vec(
+    g3_array_agg(ar, margins = c("year", "length"), year = 2002:2003),
+    c(
+        apply(ar[,,time = c("2002-01", "2002-02")], "length", sum),
+        apply(ar[,,time = c("2003-01", "2003-02")], "length", sum),
+        NULL ),
+    end = NULL ), "Can filter/aggregate year at the same time")
+
+ok_group("length") ############################################################
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10 )
+ok(ut_cmp_identical(
+    dimnames(g3_array_agg(ar, opt_length_midlen = TRUE)),
+    list(
+        length = c("55", "65", "75"),
+        age = paste0("age", 0:10) )), "Turning on opt_length_midlen converted dimnames to midlength")
+
+ar <- gen_arr(
+    length = seq(10, 100, 10) )
+ok(ut_cmp_vec(
+    g3_array_agg(ar, length = c(50, 75, 200)),
+    ar[length = c("50:60", "70:80", "100:Inf"), drop = F],
+    end = NULL), "Can select lengthgroups by using any value within the grouping")
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 0:10 )
+ok(ut_cmp_vec(
+    g3_array_agg(ar, length = 65, opt_length_midlen = TRUE),
+    ar[length = "60:70",],
+    end = NULL), "opt_length_midlen doesn't prevent being able to select by single integers")
