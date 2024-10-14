@@ -1,3 +1,40 @@
+g3_param_project_ldnorm <- function (
+        lmean_f = g3_parameterized(paste0(prefix, "_proj_lmean"), value = 0, optimise = FALSE),
+        lstddev_f = g3_parameterized(paste0(prefix, "_proj_lstddev"), value = 1e5, optimise = FALSE),
+        prefix = "wotsit") {
+    # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
+
+    # NB: Only real purpose is to cast the var to .vec()
+    g3_param_project_nll_ldnorm <- g3_native(r = function (var, lmean, lstddev) {
+        return(-dnorm(var, mean = lmean - exp(2*lstddev) / 2, sd = exp(lstddev), log = TRUE))
+    }, cpp = '[](array<Type> var, Type lmean, Type lstddev) -> vector<Type> {
+        return(-dnorm(var.vec(), lmean - exp(2*lstddev) / 2, exp(lstddev), 1));
+    }')
+    g3_param_project_ldnorm <- g3_native(r = function (var, lmean, lstddev) {
+        count <- length(var[!is.finite(var)])
+
+        var[!is.finite(var)] <- exp(rnorm(count, mean = lmean - exp(2*lstddev) / 2, sd = exp(lstddev)))
+        return(var)
+    }, cpp = '[](array<Type> var, Type mean, Type stddev) {
+        int count = var.size() - var.isFinite().count();
+
+        vector<Type> rn = exp(rnorm(count, lmean - exp(2*lstddev) / 2, exp(lstddev)));
+        var.tail(count) = rn;
+
+        return var;
+    }')
+
+    list(
+        name = "ldnorm",
+        # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
+        nll = f_substitute(
+            ~sum(projstock__nll[] <- g3_param_project_nll_ldnorm(projstock__var, lmean_f, lstddev_f)),
+            list(lmean_f = lmean_f, lstddev_f = lstddev_f) ),
+        project = f_substitute(
+            ~g3_param_project_ldnorm(projstock__var, lmean_f, lstddev_f),
+            list(lmean_f = lmean_f, lstddev_f = lstddev_f) ))
+}
+
 g3_param_project_dnorm <- function (
         mean_f = 0,
         stddev_f = 1 ) {

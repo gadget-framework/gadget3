@@ -21,8 +21,64 @@ g3a_predate_catchability_linearfleet <- function (E) {
         suit_unit = "total biomass",
         suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
         cons = f_substitute(
+            # NB: Divide by cur_step_size, assuming E is per-year
             ~E * cur_step_size * stock_ss(predprey__suit),
             list(E = E)) )
+}
+
+g3a_predate_catchability_project <- function (
+    quota_f,
+    pre_projection_landings_f = NULL,
+    unit = c("biomass", "effort", "individuals"),
+    # TODO: Is "active_at" too prescriptive? Use for projections, let landings table vary if need be?
+    quota_prop = g3_parameterized("quota_prop", by_predator = TRUE),
+    active_at = NULL ) {
+    unit <- match.arg(unit)
+
+    # Add on pre_projection landings if given
+    if (!is.null(pre_projection_landings_f)) {
+        quota_f <- f_substitute(
+            quote( if (cur_year_projection) quota_f else pre_f ),
+            list(
+                pre_f = pre_projection_landings_f,
+                quota_f = quota_f ))
+    }
+
+    # Make sure we are only active in active_at
+    if (!is.null(active_at)) {
+        # List of cur_step == i || .., for each active_at
+        cond_f <- f_chain_op(lapply(active_at, function (i) substitute(cur_step == i, list(i = i))), "||")
+
+        quota_f <- f_substitute(
+            quote( if (cond_f) quota_prop * (quota_f) else 0 ),
+            list(
+                quota_prop = list_to_stock_switch(quota_prop, "predstock"),
+                cond_f = cond_f,
+                quota_f = quota_f ))
+    }
+
+    if (unit == "effort") {
+        # If active_at present, divide by step proportion (linearfleet already does * cur_step_size)
+        # NB: Assuming that all steps are the same length, should be doing sum(step_size[active_at])
+        if (!is.null(active_at)) quota_f <- f_substitute(
+            quote( quota_f / (cur_step_size * predation_steps) ),
+            list(quota_f = quota_f, predation_steps = length(active_at)) )
+        g3a_predate_catchability_linearfleet(quota_f)
+    } else if (unit == "biomass") {
+        # If active_at present, split quota into active steps
+        if (!is.null(active_at)) quota_f <- f_substitute(
+            quote( quota_f * cur_step_size / (cur_step_size * predation_steps) ),
+            list(quota_f = quota_f, predation_steps = length(active_at)) )
+        g3a_predate_catchability_totalfleet(quota_f)
+    } else if (unit == "individuals") {
+        # If active_at present, split quota into active steps
+        if (!is.null(active_at)) quota_f <- f_substitute(
+            quote( quota_f * cur_step_size / (cur_step_size * predation_steps) ),
+            list(quota_f = quota_f, predation_steps = length(active_at)) )
+        g3a_predate_catchability_totalfleet(quota_f)
+    } else {
+        stop("Unknown catchability unit ", unit)
+    }
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {

@@ -16,7 +16,7 @@ actions <- list(
         g3_param_project_rwalk(mean_f = g3_parameterized("Mrw_mean", value = 0.001), stddev_f = 0.001) ))),
     g3a_naturalmortality(st, g3a_naturalmortality_exp(g3_param_project(
         "Mdn",
-        g3_param_project_dnorm(mean_f = g3_parameterized("Mdn_mean", value = 0.1), stddev_f = 0.001) ))),
+        g3_param_project_ldnorm(mean_f = g3_parameterized("Mdn_mean", value = 0.1), stddev_f = 0.001) ))),
     # NB: Dummy parameter so model will compile in TMB
     quote( nll <- nll + g3_param("x", value = 0) ) )
 full_actions <- c(actions, list(
