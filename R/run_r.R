@@ -130,9 +130,19 @@ g3_to_r <- function(
                     environment(fn_defn) <- env  # TODO: This should be the output function scope, not env.
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), fn_defn)
                 } else if (is.character(all_defns[[var_name]]) && all_defns[[var_name]] != var_name) {
-                    # Native function with a different name
+                    # R function, not part of baseenv
                     scope[[var_name]] <<- call("<-", as.symbol(var_name), as.symbol(all_defns[[var_name]]))
                 }
+                next
+            }
+            if (is.function(all_defns[[var_name]])) {
+                # Ignore baseenv functions
+                if (identical(all_defns[[var_name]], get0(var_name, envir = baseenv()))) next
+
+                # Include function in model environment
+                # We don't modify it's environment, so closures will be intact
+                # NB: Package functions won't be visible here, since that's a "::" call.
+                assign(var_name, all_defns[[var_name]], envir = model_env)
             }
         }
 
