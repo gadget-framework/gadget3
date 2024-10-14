@@ -33,7 +33,7 @@ ok_group('print.g3_r', {
         y = c(4, 5),
         x = g3_parameterized('parp') )))
     ok(ut_cmp_identical(cap(print(model_fn)), c(
-        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
+        "function (param = parameter_template) ",
         "{",
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
@@ -54,7 +54,7 @@ ok_group('print.g3_r', {
         "<environment: xxx>",
         NULL)), "Default print output has code, no attributes")
     ok(ut_cmp_identical(cap(print(model_fn, with_environment = TRUE, with_template = TRUE)), c(
-        "function (param = attr(get(sys.call()[[1]]), \"parameter_template\")) ",
+        "function (param = parameter_template) ",
         "{",
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
