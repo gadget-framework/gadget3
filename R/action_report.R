@@ -62,6 +62,13 @@ g3a_report_var <- function (
             var_name)
     }
 
+    if (is.null(defn)) {
+        # No definition available, can't do anything.
+        # Either this is a problem (and the model will stop with Incomplete model)
+        # or we've found a reference to a reporting variable we're about to generate (and there's no point recursing)
+        return(list())
+    }
+
     if (is.array(defn) && 'time' %in% names(dim(defn))) {
         # Array with time, we don't need to modify it
     } else if (is.null(out_prefix)) {
