@@ -190,12 +190,36 @@ g3a_growmature(stock, impl_f, maturity_f = ~0, output_stocks = list(),
     }
   }
   \subsection{g3a_grow_weight_multspec}{Returns a \link{formula} for use as \var{delta_wgt_f}:
-    \deqn{ {{\Delta}W}_{i,j} = {\Delta t} p_4 {W_i}^p_5 (\psi_i - p_6) (p_7 T + p_8) }
+    \deqn{ {{\Delta}W}_{i,j} = {\Delta t} p_4 {W_i}^{p_5} (\psi_i - p_6) (p_7 T + p_8) }
     \describe{
       \item{\eqn{p_x}}{Supplied parameters}
       \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
       \item{\eqn{W_i}}{Current mean weight}
       \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
+      \item{\eqn{T}}{Temperature of current region}
+    }
+    Note that the equation is not dependent on the change in length, the value will be the same for each \eqn{j}.
+  }
+
+  \subsection{g3a_grow_length_weightjones}{Returns a \link{formula} for use as \var{delta_len_f}:
+    \deqn{ r = \frac{ W_i - (p_0 + \psi_i (p_1 + p_2 \psi_i)) W_{ref} }{ W_i } }
+    \deqn{ {{\Delta}L}_i = {minmax}(p_3 + p_4 r, 0, p_5) \frac{ {{\Delta}W}_{i,j} }{ p_6 p_7 {L_i}^{(p_7 - 1)} } }
+    \describe{
+      \item{\eqn{W_i}}{Current mean weight}
+      \item{\eqn{p_x}}{Supplied parameters}
+      \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
+      \item{\eqn{W_{ref}}}{Reference weight, from the \var{reference_weight} parameter}
+      \item{\eqn{{{\Delta}W}_{i,j}}}{Change in weight, i.e. the output from the \var{delta_wgt_f} formula, probably \code{g3a_grow_weight_weightjones}.}
+    }
+  }
+  \subsection{g3a_grow_weight_weightjones}{Returns a \link{formula} for use as \var{delta_wgt_f}:
+    \deqn{ {{\Delta}W}_{i,j} = {\Delta t} ( \frac{ M \psi_i }{ q_0 {W_i}^{q_1} } - q_2 {W_i}^{q_3} e^{(q_4 T + q_5)} ) }
+    \describe{
+      \item{\eqn{q_x}}{Supplied parameters}
+      \item{\eqn{\Delta t}}{Length of current step as a proportion of the year, e.g. 0.25. See \code{cur_step_size} in \code{\link{g3a_time}}}
+      \item{\eqn{M}}{Maximum theoretical consumption, as defined by \code{\link{g3a_predate_maxconsumption}}}
+      \item{\eqn{\psi_i}}{Feeding level of stock. See \code{\link{g3a_predate_catchability_predator}}}
+      \item{\eqn{W_i}}{Current mean weight}
       \item{\eqn{T}}{Temperature of current region}
     }
     Note that the equation is not dependent on the change in length, the value will be the same for each \eqn{j}.
