@@ -84,8 +84,11 @@ f_substitute <- function (f, env) {
                 assign(n, o[[2]], envir = env)
             }
 
-            # Only copy things the formulae mentions
-            vars_to_copy <- all.names(rlang::f_rhs(o), unique = TRUE)
+            vars_to_copy <- c(
+                # Copy anything the formula explicitly mentions
+                all.names(rlang::f_rhs(o), unique = TRUE),
+                # Anything starting with "001:" (e.g.) is assumed to be an ancillary step, which should be copied regardless
+                grep("^(?:\\d|-)\\d{2}:", names(environment(o)), value = TRUE, perl = TRUE) )
             environment_merge(combined_env, rlang::f_env(o), var_names = vars_to_copy)
         }
     }
