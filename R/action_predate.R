@@ -171,6 +171,9 @@ g3a_predate <- function (
             run_at = run_at ))))
     }
 
+    stopifnot(g3_is_stock(predstock))
+    stopifnot(is.list(prey_stocks) && all(sapply(prey_stocks, g3_is_stock)))
+
     # Variables used:
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
     # stock__consratio: Proportion of total prey biomass to be consumed, capped by overconsumption rule
