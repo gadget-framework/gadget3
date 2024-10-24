@@ -104,7 +104,8 @@ g3a_suitability_report <- function (
 
   suit_f <- g3_step(f_substitute(~stock_with(stock, suit_f), list(suit_f = suit_f)), recursing = TRUE)  # Resolve stock_switch
 
-  suit_dims <- all.vars(suit_f)
+  # NB: Include any vars used by nested formulas (read: g3_timevariable()))
+  suit_dims <- all_undefined_vars(suit_f, recursive = TRUE)
 
   # Work out when to refresh, by mentions of time
   run_f <- quote( cur_time == 0L )
@@ -142,6 +143,10 @@ g3a_suitability_report <- function (
   }), list(
       suit_f = suit_f,
       run_f = run_f )))
+
+  # Make it easy for g3a_predate to find stock/report. g3_step may have removed it from the environment
+  environment(out[[1]])$suitrep <- suitrep
+  environment(out[[1]])$suitrep__report <- suitrep__report
 
   return(out)
 }
