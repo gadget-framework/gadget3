@@ -494,10 +494,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Use std:: versions to replace min/max
         if (length(in_call) != 3) stop(call_name, " expects 2 arguments")
         return(paste0(
-            "std::", call_name, "( (Type)",
-            cpp_code(in_call[[2]], in_envir, next_indent),
-            ", (Type)",
-            cpp_code(in_call[[3]], in_envir, next_indent),
+            "std::", call_name, "(",
+            if (expecting_int) "" else "(Type) ",
+            cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
+            ",",
+            if (expecting_int) "" else "(Type) ",
+            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int),
             ")"))
     }
 
