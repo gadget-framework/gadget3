@@ -102,8 +102,12 @@
 <span>        function_f <span class="op">=</span> <span class="fu">g3l_sparsesample_linreg</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        predstocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
-<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">predstocks</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="st">"csparse"</span> <span class="kw">else</span> <span class="st">"asparse"</span>,</span>
+<span>            <span class="va">function_f_name</span>,</span>
+<span>            <span class="va">nll_name</span>,</span>
+<span>            <span class="st">"weight"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span> <span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -121,7 +125,8 @@
 <dd><p>Weighting applied to sum-of-squares. One of "model_stddev", "obs_stddev" or a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a>.</p></dd>
 
   <dt id="arg-nll-name">nll_name<a class="anchor" aria-label="anchor" href="#arg-nll-name"></a></dt>
-<dd><p>Character string, used to define the variable name for <var>obsstock</var> and <var>modelstock</var>.</p></dd>
+<dd><p>Character string, used to define the variable name for <var>obsstock</var> and <var>modelstock</var>.
+    By default set to <code>(asparse|csparse)_(name_of_function_f)_(nll_name)_weight</code>.</p></dd>
 
   <dt id="arg-obs-df">obs_df<a class="anchor" aria-label="anchor" href="#arg-obs-df"></a></dt>
 <dd><p>Data.frame of observation data. See details.</p></dd>
