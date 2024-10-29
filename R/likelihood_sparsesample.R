@@ -139,12 +139,20 @@ g3l_sparsesample <- function (
         function_f = g3l_sparsesample_linreg(),
         predstocks = list(),
         area_group = NULL,
-        weight = g3_parameterized(paste0(nll_name, "_weight"),
-            optimise = FALSE, value = 1),
+        weight = g3_parameterized(paste(
+            if (length(predstocks) > 0) "csparse" else "asparse",
+            function_f_name,
+            nll_name,
+            "weight",
+            sep = "_"), optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood ) {
     stopifnot(is.list(stocks) && all(sapply(stocks, g3_is_stock)))
     stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     out <- new.env(parent = emptyenv())
+
+    # Find name of function user called, and g3l_substitution function used
+    function_f_name <- if (is.call(substitute(function_f))) as.character(substitute(function_f)[[1]]) else "custom"
+    function_f_name <- gsub("^g3l_sparsesample_|_+", "", function_f_name)
 
     nllstock <- g3s_sparsedata(c("nll", type = if (length(predstocks) > 0 ) "spcatch" else "spabund", name = nll_name), obs_df[,-ncol(obs_df), drop = FALSE], area_group = area_group)
     nllstock__obs_mean <- g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "mean"]), desc = paste0(nll_name, " observations"))

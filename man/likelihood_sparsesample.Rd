@@ -26,8 +26,12 @@ g3l_sparsesample(
         function_f = g3l_sparsesample_linreg(),
         predstocks = list(),
         area_group = NULL,
-        weight = g3_parameterized(paste0(nll_name, "_weight"),
-            optimise = FALSE, value = 1),
+        weight = g3_parameterized(paste(
+            if (length(predstocks) > 0) "csparse" else "asparse",
+            function_f_name,
+            nll_name,
+            "weight",
+            sep = "_"), optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood )
 }
 
@@ -44,6 +48,7 @@ g3l_sparsesample(
   }
   \item{nll_name}{
     Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
+    By default set to \code{(asparse|csparse)_(name_of_function_f)_(nll_name)_weight}.
   }
   \item{obs_df}{
     Data.frame of observation data. See details.

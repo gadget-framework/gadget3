@@ -93,9 +93,9 @@ model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("bt_weight", runif(1, 0.5, 5)) |>
-    g3_init_val("cs_model_weight", runif(1, 0.5, 5)) |>
-    g3_init_val("flc_weight", 0) |>
+    g3_init_val("asparse_linreg_bt_weight", runif(1, 0.5, 5)) |>
+    g3_init_val("asparse_sumsquares_cs_model_weight", runif(1, 0.5, 5)) |>
+    g3_init_val("csparse_sumsquares_flc_weight", 0) |>
     identity() -> params
 
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
@@ -186,18 +186,18 @@ ok(ut_cmp_equal(
 
 # Overall nll
 ok(ut_cmp_equal(nll,
-    params$bt_weight * r$nll_spabund_bt__nll[["nll"]] +
-    params$cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
-    params$flc_weight * sum(r$nll_spcatch_flc__nll) +
+    params$asparse_linreg_bt_weight * r$nll_spabund_bt__nll[["nll"]] +
+    params$asparse_sumsquares_cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
+    params$csparse_sumsquares_flc_weight * sum(r$nll_spcatch_flc__nll) +
     0 ), "nll: Overall value matches")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
 ok_group("flc") ###############################################################
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("bt_weight", 0) |>
-    g3_init_val("cs_model_weight", 0) |>
-    g3_init_val("flc_weight", runif(1, 0.5, 5)) |>
+    g3_init_val("asparse_linreg_bt_weight", 0) |>
+    g3_init_val("asparse_sumsquares_cs_model_weight", 0) |>
+    g3_init_val("csparse_sumsquares_flc_weight", runif(1, 0.5, 5)) |>
     g3_init_val("predate_num", 100) |>
     g3_init_val("stst.fl_surv.alpha", 10) |>
     g3_init_val("stst.fl_surv.l50", 25) |>
@@ -242,9 +242,9 @@ ok(ut_cmp_equal(
 
 # Overall nll
 ok(ut_cmp_equal(nll,
-    params$bt_weight * r$nll_spabund_bt__nll[["nll"]] +
-    params$cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
-    params$flc_weight * sum(r$nll_spcatch_flc__nll) +
+    params$asparse_linreg_bt_weight * r$nll_spabund_bt__nll[["nll"]] +
+    params$asparse_sumsquares_cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
+    params$csparse_sumsquares_flc_weight * sum(r$nll_spcatch_flc__nll) +
     0 ), "nll: Overall value matches")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
