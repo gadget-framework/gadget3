@@ -279,12 +279,13 @@ g3a_otherfood <- function (
                 by_stock = by_stock) ),
         wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
         by_stock = TRUE,
+        force_lengthvector = !any(grepl("__midlen$", all.vars(num_f))),
         run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial) {
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
 
-    if (!any(grepl("__midlen$", all.vars(num_f)))) {
+    if (force_lengthvector) {
         # num_f doesn't mention stock__midlen, we should add it
         num_f <- f_substitute(quote(n + 0 * stock__midlen), list(n = num_f))
     }

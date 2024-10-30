@@ -135,6 +135,7 @@ g3a_otherfood(
                 by_stock = by_stock) ),
         wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
         by_stock = TRUE,
+        force_lengthvector = !any(grepl("__midlen$", all.vars(num_f))),
         run_f = quote( cur_time <= total_steps ),
         run_at = g3_action_order$initial)
 
@@ -197,6 +198,9 @@ g3a_otherfood_normalcv(
   }
   \item{age_offset}{
     Replace \code{age} with \code{age - age_offset} in \var{mean_f}. Used to simulate initialconditions at time "-1".
+  }
+  \item{force_lengthvector}{
+    Should we assume that \code{num_f} is a constant, and needs repeating enough times to turn into a length vector?
   }
   \item{run_age}{Age to run renewals for, used as \code{age == (run_age)} into default \var{run_f}}
   \item{run_projection}{Boolean. Run renewal in projection years? If false adds \code{!cur_year_projection} into default \var{run_f}}
