@@ -76,7 +76,6 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     ~{nll <- nll + g3_param("x", value = 0)} )
 actions <- c(actions, list(
-    g3a_report_history(actions, var_re = "__suit$", out_prefix = "catchhist"),
     g3a_report_history(actions, var_re = "__feedinglevel$|__totalsuit$"),
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(actions)
@@ -98,9 +97,9 @@ result <- model_fn(params)
 r <- attributes(result)
 
 ok(all.equal(
-    def_r$catchhistprey_a_pred_a__suit[] * 2,
-    r$catchhistprey_a_pred_a__suit[],
-    tolerance = 1e-6), "catchhistprey_a_pred_a__suit: Doubled thanks to energycontent")
+    def_r$detail_prey_a_pred_a__suit[] * 2,
+    r$detail_prey_a_pred_a__suit[],
+    tolerance = 1e-6), "detail_prey_a_pred_a__suit: Doubled thanks to energycontent")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## Energy content
@@ -118,9 +117,9 @@ params$pred_a.halffeeding <- 1e15  # Needs to be proportion higher than total_pr
 result <- model_fn(params) ; r <- attributes(result)
 
 ok(all.equal(
-    def_r$catchhistprey_a_pred_a__suit,
-    r$catchhistprey_a_pred_a__suit,
-    tolerance = 1e-3 ), "r$catchhistprey_a_pred_a__suit: consumption.m3 results in approximately equal __suit")
+    def_r$detail_prey_a_pred_a__suit,
+    r$detail_prey_a_pred_a__suit,
+    tolerance = 1e-3 ), "r$detail_prey_a_pred_a__suit: consumption.m3 results in approximately equal __suit")
 
 ok(ut_cmp_equal(
     r$detail_prey_a_pred_a__cons[1,1,2,1,1],
