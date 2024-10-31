@@ -179,6 +179,8 @@ g3a_report_detail <- function (actions,
             var_re = paste(c(
                 '^.+_surveyindices_.+__params$',
                 '^step_lengths$',
+                '^_weight$',  # Likelihood component weightings
+                '^nll_.sparse_.*.nll$',  # Sparse data nll reports
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,
