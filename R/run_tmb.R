@@ -1228,12 +1228,7 @@ g3_tmb_adfun <- function(
         }
     }
 
-    fn$orig_report <- fn$report
-    fn$report <- function (...) {
-        old_reporting_enabled <- fn$env$data$reporting_enabled
-        fn$env$data$reporting_enabled <- 1
-        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
-        out <- fn$orig_report(...)
+    report_patch <- function (out) {
         # Patch report names back again
         for (dimname in names(report_renames)) {
             if (!(dimname %in% names(out))) next
@@ -1261,6 +1256,22 @@ g3_tmb_adfun <- function(
             dimnames(out[[dimname]]) <- report_dimnames[[dimname]]
         }
         return(out)
+    }
+
+    fn$orig_report <- fn$report
+    fn$report <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
+        report_patch(fn$orig_report(...))
+    }
+
+    fn$orig_simulate <- fn$simulate
+    fn$simulate <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
+        report_patch(fn$orig_simulate(...))
     }
 
     # With Type = "Fun", fn$par sometimes isn't set. Bodge around it

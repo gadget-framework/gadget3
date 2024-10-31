@@ -1069,4 +1069,10 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     param_template$value <- params[param_template$switch]
     generated_warnings <- capture_warnings(gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template))$warnings
     ok(ut_cmp_identical(generated_warnings, c(expected_warnings_r, expected_warnings_tmb)), "Warnings from R+TMB as expected")
+
+    ok(ut_cmp_equal(model_tmb$report(), model_tmb$simulate()), "$simulate: Also produces named output, as $report")
+
+    out_simcomplete <- model_tmb$simulate(complete = TRUE)
+    ok(ut_cmp_equal(model_tmb$report(), out_simcomplete[names(model_tmb$report())]), "$simulate(complete=TRUE): Contains named output")
+    ok(ut_cmp_equal(model_tmb$env$data$slice_vec_set_in, out_simcomplete$slice_vec_set_in), "$simulate(complete=TRUE): Also contains data")
 }
