@@ -134,6 +134,7 @@ export(g3_parameterized)
 
 # R/param_project.R
 export(g3_param_project_dnorm)
+export(g3_param_project_ldnorm)
 export(g3_param_project_rwalk)
 export(g3_param_project)
 
