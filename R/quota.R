@@ -70,7 +70,7 @@ g3_quota <- function (
         lag = 1,  # In steps if by_step, else in years
         by_step = TRUE,
         run_step = NULL,
-        run_f = quote( cur_year_projection ),
+        run_f = quote( cur_year >= end_year - 1 ),  # TODO: Allow for lag
         init_val = 0,
         run_at = g3_action_order$quota) {
     if (!is.null(run_step)) run_f <- f_substitute(quote(cur_step == x && run_f), list(
