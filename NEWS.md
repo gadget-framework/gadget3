@@ -9,6 +9,9 @@
 * `g3_to_r` models can include arbitary R functions, see vignettes/writing_actions #194
 * Add `g3_array_agg` #193
 
+## Breaking changes
+* run_projection is now TRUE by default for renewal. A rec.proj parameter covers projection.
+
 # gadget3 0.12-0:
 
 ## Bug fixes

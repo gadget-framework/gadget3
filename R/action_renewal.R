@@ -201,7 +201,9 @@ g3a_renewal_normalparam <- function (
             scale = g3_parameterized(
                 name = 'rec.scalar',
                 by_stock = by_stock),
-            ifmissing = NaN),
+            ifmissing = g3_parameterized(
+                name = 'rec.proj',
+                by_stock = by_stock )),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
         alpha_f = g3_parameterized('walpha', by_stock = wgt_by_stock),
@@ -209,7 +211,7 @@ g3a_renewal_normalparam <- function (
         by_stock = TRUE,
         wgt_by_stock = TRUE,
         run_age = quote(stock__minage),
-        run_projection = FALSE,
+        run_projection = TRUE,
         run_step = 1,
         run_f = NULL,
         run_at = g3_action_order$renewal) {
@@ -241,7 +243,9 @@ g3a_renewal_normalcv <- function (
             scale = g3_parameterized(
                 name = 'rec.scalar',
                 by_stock = by_stock),
-            ifmissing = NaN),
+            ifmissing = g3_parameterized(
+                name = 'rec.proj',
+                by_stock = by_stock )),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
             optimise = FALSE),
@@ -250,7 +254,7 @@ g3a_renewal_normalcv <- function (
         by_stock = TRUE,
         wgt_by_stock = TRUE,
         run_age = quote(stock__minage),
-        run_projection = FALSE,
+        run_projection = TRUE,
         run_step = 1,
         run_f = NULL,
         run_at = g3_action_order$renewal) {
@@ -276,7 +280,8 @@ g3a_otherfood <- function (
         stock,
         num_f = g3_parameterized('of_abund', by_year = TRUE, by_stock = by_stock,
             scale = g3_parameterized('of_abund.step', by_step = TRUE,
-                by_stock = by_stock) ),
+                by_stock = by_stock),
+            ifmissing = "of_abund.proj" ),
         wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
         by_stock = TRUE,
         force_lengthvector = !any(grepl("__midlen$", all.vars(num_f))),
