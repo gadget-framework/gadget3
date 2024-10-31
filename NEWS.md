@@ -11,6 +11,7 @@
 * Add surplus production model action `g3a_spmodel` #209
 
 ## Breaking changes
+* run_projection is now TRUE by default for renewal. A rec.proj parameter covers projection.
 * Rename ``detail_x__num`` to ``dstart_x__num`` #200
 
 # gadget3 0.12-0:
