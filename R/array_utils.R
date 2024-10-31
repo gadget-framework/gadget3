@@ -31,6 +31,7 @@ g3_array_agg <- function(
         first_dl <- NULL
         dimnames(ar)$length <- vapply(split_length, function (x) {
             x <- as.numeric(x)
+            if (is.null(first_dl) && is.infinite(x[[2]])) return(NA_real_)  # 0:Inf, e.g. otherfood
             if (is.null(first_dl)) first_dl <<- diff(x)
             if (is.infinite(x[[2]])) x[[2]] <- x[[1]] + first_dl
             mean(x)
@@ -41,6 +42,7 @@ g3_array_agg <- function(
         first_dl <- NULL
         dimnames(ar)$predator_length <- vapply(split_predator_length, function (x) {
             x <- as.numeric(x)
+            if (is.null(first_dl) && is.infinite(x[[2]])) return(NA_real_)  # 0:Inf, e.g. otherfood
             if (is.null(first_dl)) first_dl <<- diff(x)
             if (is.infinite(x[[2]])) x[[2]] <- x[[1]] + first_dl
             mean(x)

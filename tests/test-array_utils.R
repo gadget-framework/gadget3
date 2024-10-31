@@ -25,6 +25,12 @@ gen_arr <- function(...) {
             c(tail(dn$length, -1), "Inf"),
             sep = ":" )
     }
+    if ("predator_length" %in% names(dn)) {
+        dn$predator_length <- paste(
+            dn$predator_length,
+            c(tail(dn$predator_length, -1), "Inf"),
+            sep = ":" )
+    }
 
     d <- vapply(dn, length, integer(1))
     array(
@@ -136,3 +142,15 @@ ok(ut_cmp_vec(
     g3_array_agg(ar, length = 65, opt_length_midlen = TRUE),
     ar[length = "60:70",],
     end = NULL), "opt_length_midlen doesn't prevent being able to select by single integers")
+
+ar <- gen_arr( length = c(0) )
+ok(ut_cmp_identical(
+    dimnames(g3_array_agg(ar, opt_length_midlen = TRUE)),
+    list(
+        length = NA_character_ )), "opt_length_midlen turns 0:Inf to NA")
+
+ar <- gen_arr( predator_length = c(0) )
+ok(ut_cmp_identical(
+    dimnames(g3_array_agg(ar, opt_length_midlen = TRUE)),
+    list(
+        predator_length = NA_character_ )), "opt_length_midlen turns predator_length 0:Inf to NA")
