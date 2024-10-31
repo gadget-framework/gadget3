@@ -24,13 +24,11 @@ actions <- list(
         st_imm,
         factor_f = g3_parameterized(
             'of_abund', by_year = TRUE, by_stock = TRUE,
-            # TODO: We don't really want ifmissing, we want ifproj
             ifmissing = "of_abund.proj" )),
     g3a_otherfood_normalcv(
         st_mat,
         factor_f = g3_parameterized(
             'of_abund', by_year = TRUE, by_stock = TRUE,
-            # TODO: We don't really want ifmissing, we want ifproj
             ifmissing = "of_abund.proj" )),
     g3a_predate(
         fl1,
