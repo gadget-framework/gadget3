@@ -31,7 +31,9 @@ g3a_predate_catchability_project <- function (
     pre_projection_landings_f = NULL,
     unit = c("biomass", "effort", "individuals"),
     # TODO: Is "active_at" too prescriptive? Use for projections, let landings table vary if need be?
-    quota_prop = g3_parameterized("quota_prop", by_predator = TRUE),
+    # TODO: Can we use a formula for active at? quote( if (cur_year == 2000) 3 else 2 )
+    # TODO: This should be divided by number of fleets by default
+    quota_prop = g3_parameterized("quota_prop", by_predator = TRUE, value = 1),
     active_at = NULL ) {
     unit <- match.arg(unit)
 
@@ -44,15 +46,18 @@ g3a_predate_catchability_project <- function (
                 quota_f = quota_f ))
     }
 
+    quota_f <- f_substitute(quote( quota_prop * (quota_f) ), list(
+        quota_prop = list_to_stock_switch(quota_prop, "predstock"),
+        quota_f = quota_f ))
+
     # Make sure we are only active in active_at
     if (!is.null(active_at)) {
         # List of cur_step == i || .., for each active_at
         cond_f <- f_chain_op(lapply(active_at, function (i) substitute(cur_step == i, list(i = i))), "||")
 
         quota_f <- f_substitute(
-            quote( if (cond_f) quota_prop * (quota_f) else 0 ),
+            quote( if (cond_f) (quota_f) else 0 ),
             list(
-                quota_prop = list_to_stock_switch(quota_prop, "predstock"),
                 cond_f = cond_f,
                 quota_f = quota_f ))
     }
