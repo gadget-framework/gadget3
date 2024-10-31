@@ -4,9 +4,10 @@ g3_quota_hockeyfleet <- function (
         preyprop_f = 1,  # NB: Doesn't have to sum to 1
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
         harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks) ) {
+    if (g3_is_stock(predstocks)) predstocks <- list(predstocks)
+    if (g3_is_stock(preystocks)) preystocks <- list(preystocks)
     stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     stopifnot(is.list(preystocks) && all(sapply(preystocks, g3_is_stock)))
-    # TODO: Convert to list if not
 
     # totalsuit: Total suitable spawning-stock biomass
     # == sum(predstock1_preystock1__suit) + sum(predstock1_preystock2__suit) + ...
