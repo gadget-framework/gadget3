@@ -86,6 +86,7 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     quote( nll <- nll + g3_param("x", value = 0) ) )
 full_actions <- c(actions, list(
+    g3a_report_detail(actions),
     g3a_report_history(actions, var_re = "__num$|__wgt$|__cons$|^nll_.sparse_.+__(model|obs)_.+$"),
     g3a_report_history(actions, var_re = "^nll_.sparse_.+__nll$", out_prefix = NULL),
     NULL))
