@@ -188,6 +188,8 @@ g3a_report_detail <- function (actions,
                 '^step_lengths$',
                 '^_weight$',  # Likelihood component weightings
                 '^nll_.sparse_.*._(nll|obs_mean|obs_stddev|obs_n|model_sum|model_sqsum|model_n)$',  # Sparse data nll reports
+                '^quota_',  # Report all g3_quota()
+                '^proj_',  # Report all g3_param_project()
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,
