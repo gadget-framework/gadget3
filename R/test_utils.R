@@ -46,6 +46,7 @@ ut_tmb_r_compare2 <- function (
             x <- as.numeric(x)
             attributes(x) <- oldattr  # Preserve arrayness
         }
+        attr(x, "desc") <- NULL  # Hide descriptions, we're not preserving yet
         return(x)
     }
 

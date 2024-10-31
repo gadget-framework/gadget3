@@ -86,8 +86,9 @@ actions <- list(
     # NB: Dummy parameter so model will compile in TMB
     quote( nll <- nll + g3_param("x", value = 0) ) )
 full_actions <- c(actions, list(
-    g3a_report_history(actions, var_re = "__num$|__wgt$|__cons$|^nll_sp(abund|catch)_.+__(model|obs)_.+$"),
-    g3a_report_history(actions, var_re = "^nll_sp(abund|catch)_.+__nll$", out_prefix = NULL),
+    g3a_report_detail(actions),
+    g3a_report_history(actions, var_re = "__num$|__wgt$|__cons$|^nll_.sparse_.+__(model|obs)_.+$"),
+    g3a_report_history(actions, var_re = "^nll_.sparse_.+__nll$", out_prefix = NULL),
     NULL))
 model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)
@@ -113,20 +114,20 @@ for (i in seq_len(nrow(obs_linreg_df))) {
         age = sprintf("age%d", obs_linreg_df[i, "age"]),
         time = sprintf("%04d-%02d", obs_linreg_df[i, "year"], obs_linreg_df[i, "step"]) ]
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_bt__model_sum[i, '1994-02']),
-        sum(m * count) ), paste0("r$hist_nll_spabund_bt__model_sum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_linreg_bt__model_sum[i, '1994-02']),
+        sum(m * count) ), paste0("r$hist_nll_asparse_linreg_bt__model_sum[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_bt__model_sqsum[i, '1994-02']),
-        sum(m**2 * count) ), paste0("r$hist_nll_spabund_bt__model_sqsum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_linreg_bt__model_sqsum[i, '1994-02']),
+        sum(m**2 * count) ), paste0("r$hist_nll_asparse_linreg_bt__model_sqsum[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_bt__model_n[i, '1994-02']),
-        sum(count) ), paste0("r$hist_nll_spabund_bt__model_n[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_linreg_bt__model_n[i, '1994-02']),
+        sum(count) ), paste0("r$hist_nll_asparse_linreg_bt__model_n[", i, ", '1994-02']"))
 }
 ok(ut_cmp_equal(
-    r$hist_nll_spabund_bt__model_sum,
-    ifelse(r$hist_nll_spabund_bt__model_n > 0, r$hist_nll_spabund_bt__model_sum[,"1994-02"], 0),
-    end = NULL), "hist_nll_spabund_bt__model_sum: History is the same shape as __model_n")
-ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_nll_spabund_bt__model_n > 0), '
+    r$hist_nll_asparse_linreg_bt__model_sum,
+    ifelse(r$hist_nll_asparse_linreg_bt__model_n > 0, r$hist_nll_asparse_linreg_bt__model_sum[,"1994-02"], 0),
+    end = NULL), "hist_nll_asparse_linreg_bt__model_sum: History is the same shape as __model_n")
+ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_nll_asparse_linreg_bt__model_n > 0), '
 1990-01 1990-02 1991-01 1991-02 1992-01 1992-02 1993-01 1993-02 1994-01 1994-02
    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE
   FALSE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE    TRUE
@@ -136,21 +137,21 @@ ok(gadget3:::ut_cmp_df(as.data.frame(r$hist_nll_spabund_bt__model_n > 0), '
   FALSE   FALSE   FALSE   FALSE   FALSE    TRUE    TRUE    TRUE    TRUE    TRUE
   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE    TRUE    TRUE
   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE   FALSE    TRUE
-'), "hist_nll_spabund_bt__model_n: Added value once per step, apart from 1993")
+'), "hist_nll_asparse_linreg_bt__model_n: Added value once per step, apart from 1993")
 ok(ut_cmp_equal(
-    r$hist_nll_spabund_bt__obs_mean,
+    r$hist_nll_asparse_linreg_bt__obs_mean,
     array(
         obs_linreg_df$mean,
         dim = c(vec = length(obs_linreg_df$mean), time = 10),
         dimnames = list(vec = NULL, time = paste0(rep(1990:1994, each=2), c("-01", "-02"))) ),
-    end = NULL), "hist_nll_spabund_bt__obs_mean: Repeats the input observations")
-nll_mean <- r$hist_nll_spabund_bt__model_sum[, '1994-02']/r$hist_nll_spabund_bt__model_n[, '1994-02']
+    end = NULL), "hist_nll_asparse_linreg_bt__obs_mean: Repeats the input observations")
+nll_mean <- r$hist_nll_asparse_linreg_bt__model_sum[, '1994-02']/r$hist_nll_asparse_linreg_bt__model_n[, '1994-02']
 ok(ut_cmp_equal(
-    r$nll_spabund_bt__nll,
-    gadget3:::regression_linear(nll_mean, obs_linreg_df$mean, NaN, 1) ), "r$nll_spabund_bt__nll: Matches derived version")
+    r$nll_asparse_linreg_bt__nll,
+    gadget3:::regression_linear(nll_mean, obs_linreg_df$mean, NaN, 1) ), "r$nll_asparse_linreg_bt__nll: Matches derived version")
 
 # cs_model
-ok(ut_cmp_equal(colSums(r$hist_nll_spabund_cs_model__model_n) / colSums(r$hist_stst__num, dims = 2), c(
+ok(ut_cmp_equal(colSums(r$hist_nll_asparse_sumsquares_cs_model__model_n) / colSums(r$hist_stst__num, dims = 2), c(
     "1990-01" = 1,
     "1990-02" = 2,
     "1991-01" = 2,
@@ -161,34 +162,34 @@ ok(ut_cmp_equal(colSums(r$hist_nll_spabund_cs_model__model_n) / colSums(r$hist_s
     "1993-02" = 6,
     "1994-01" = 6,
     "1994-02" = 6,
-    NULL )), "hist_nll_spabund_cs_model__model_n: Final data point has 6 step's worth of individuals")
+    NULL )), "hist_nll_asparse_sumsquares_cs_model__model_n: Final data point has 6 step's worth of individuals")
 expected_m <- r$hist_stst__wgt * rep(3:5, each = 3)
 for (i in seq_len(nrow(obs_ss_df))) {
     # Pick out all relevant measurements to this row
     m <- expected_m[,,time = paste0(obs_ss_df[i, "year"], c("-01", "-02"))]
     count <- r$hist_stst__num[,,time = paste0(obs_ss_df[i, "year"], c("-01", "-02"))]
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_cs_model__model_sum[i, '1994-02']),
-        sum(m * count) ), paste0("r$hist_nll_spabund_cs_model__model_sum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_sumsquares_cs_model__model_sum[i, '1994-02']),
+        sum(m * count) ), paste0("r$hist_nll_asparse_sumsquares_cs_model__model_sum[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_cs_model__model_sqsum[i, '1994-02']),
-        sum(m**2 * count) ), paste0("r$hist_nll_spabund_cs_model__model_sqsum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_sumsquares_cs_model__model_sqsum[i, '1994-02']),
+        sum(m**2 * count) ), paste0("r$hist_nll_asparse_sumsquares_cs_model__model_sqsum[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spabund_cs_model__model_n[i, '1994-02']),
-        sum(count) ), paste0("r$hist_nll_spabund_cs__model_n[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_asparse_sumsquares_cs_model__model_n[i, '1994-02']),
+        sum(count) ), paste0("r$hist_nll_asparse_cs__model_n[", i, ", '1994-02']"))
 }
-nll_var <- r$hist_nll_spabund_cs_model__model_sqsum[, '1994-02']/r$hist_nll_spabund_cs_model__model_n[, '1994-02'] -
-    (r$hist_nll_spabund_cs_model__model_sum[, '1994-02']/r$hist_nll_spabund_cs_model__model_n[, '1994-02'])**2
-nll_mean <- r$hist_nll_spabund_cs_model__model_sum[, '1994-02']/r$hist_nll_spabund_cs_model__model_n[, '1994-02']
+nll_var <- r$hist_nll_asparse_sumsquares_cs_model__model_sqsum[, '1994-02']/r$hist_nll_asparse_sumsquares_cs_model__model_n[, '1994-02'] -
+    (r$hist_nll_asparse_sumsquares_cs_model__model_sum[, '1994-02']/r$hist_nll_asparse_sumsquares_cs_model__model_n[, '1994-02'])**2
+nll_mean <- r$hist_nll_asparse_sumsquares_cs_model__model_sum[, '1994-02']/r$hist_nll_asparse_sumsquares_cs_model__model_n[, '1994-02']
 ok(ut_cmp_equal(
-    (r$nll_spabund_cs_model__nll),
-    array((nll_mean - obs_ss_df$mean)^2 * 1/nll_var, dim = c(row = 3L), dimnames = list(row = NULL)) ), "r$nll_spabund_cs_model__nll: Matches derived version")
+    (r$nll_asparse_sumsquares_cs_model__nll),
+    array((nll_mean - obs_ss_df$mean)^2 * 1/nll_var, dim = c(row = 3L), dimnames = list(row = NULL)) ), "r$nll_asparse_sumsquares_cs_model__nll: Matches derived version")
 
 # Overall nll
 ok(ut_cmp_equal(nll,
-    params$asparse_linreg_bt_weight * r$nll_spabund_bt__nll[["nll"]] +
-    params$asparse_sumsquares_cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
-    params$csparse_sumsquares_flc_weight * sum(r$nll_spcatch_flc__nll) +
+    params$asparse_linreg_bt_weight * r$nll_asparse_linreg_bt__nll[["nll"]] +
+    params$asparse_sumsquares_cs_model_weight * sum(r$nll_asparse_sumsquares_cs_model__nll) +
+    params$csparse_sumsquares_flc_weight * sum(r$nll_csparse_sumsquares_flc__nll) +
     0 ), "nll: Overall value matches")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
@@ -224,27 +225,27 @@ for (i in seq_len(nrow(obs_ss_df))) {
         age = ,
         time = sprintf("%04d-%02d", obs_flc_df[i, "year"], 1:2) ]
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spcatch_flc__model_n[i, '1994-02']),
-        sum(count) ), paste0("r$hist_nll_spcatch_flc__model_n[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_csparse_sumsquares_flc__model_n[i, '1994-02']),
+        sum(count) ), paste0("r$hist_nll_csparse_sumsquares_flc__model_n[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spcatch_flc__model_sum[i, '1994-02']),
-        sum(m * count) ), paste0("r$hist_nll_spcatch_flc__model_sum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_csparse_sumsquares_flc__model_sum[i, '1994-02']),
+        sum(m * count) ), paste0("r$hist_nll_csparse_sumsquares_flc__model_sum[", i, ", '1994-02']"))
     ok(ut_cmp_equal(
-        as.vector(r$hist_nll_spcatch_flc__model_sqsum[i, '1994-02']),
-        sum(m**2 * count) ), paste0("r$hist_nll_spcatch_flc__model_sqsum[", i, ", '1994-02']"))
+        as.vector(r$hist_nll_csparse_sumsquares_flc__model_sqsum[i, '1994-02']),
+        sum(m**2 * count) ), paste0("r$hist_nll_csparse_sumsquares_flc__model_sqsum[", i, ", '1994-02']"))
 }
 
 nll_var <- obs_flc_df$stddev^2  # Using weighting = 'obs_stddev'
-nll_mean <- r$hist_nll_spcatch_flc__model_sum[, '1994-02']/r$hist_nll_spcatch_flc__model_n[, '1994-02']
+nll_mean <- r$hist_nll_csparse_sumsquares_flc__model_sum[, '1994-02']/r$hist_nll_csparse_sumsquares_flc__model_n[, '1994-02']
 ok(ut_cmp_equal(
-    r$nll_spcatch_flc__nll,
-    array((nll_mean - obs_flc_df$mean)^2 * (1/nll_var) * obs_flc_df$number, dim = c(row = length(r$nll_spcatch_flc__nll)), dimnames = list(row = NULL)) ), "r$nll_spcatch_flc__nll: Matches derived version")
+    r$nll_csparse_sumsquares_flc__nll,
+    array((nll_mean - obs_flc_df$mean)^2 * (1/nll_var) * obs_flc_df$number, dim = c(row = length(r$nll_csparse_sumsquares_flc__nll)), dimnames = list(row = NULL)) ), "r$nll_csparse_sumsquares_flc__nll: Matches derived version")
 
 # Overall nll
 ok(ut_cmp_equal(nll,
-    params$asparse_linreg_bt_weight * r$nll_spabund_bt__nll[["nll"]] +
-    params$asparse_sumsquares_cs_model_weight * sum(r$nll_spabund_cs_model__nll) +
-    params$csparse_sumsquares_flc_weight * sum(r$nll_spcatch_flc__nll) +
+    params$asparse_linreg_bt_weight * r$nll_asparse_linreg_bt__nll[["nll"]] +
+    params$asparse_sumsquares_cs_model_weight * sum(r$nll_asparse_sumsquares_cs_model__nll) +
+    params$csparse_sumsquares_flc_weight * sum(r$nll_csparse_sumsquares_flc__nll) +
     0 ), "nll: Overall value matches")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

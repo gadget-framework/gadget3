@@ -179,6 +179,8 @@ g3a_report_detail <- function (actions,
             var_re = paste(c(
                 '^.+_surveyindices_.+__params$',
                 '^step_lengths$',
+                '^_weight$',  # Likelihood component weightings
+                '^nll_.sparse_.*._(nll|obs_mean|obs_stddev|obs_n|model_sum|model_sqsum|model_n)$',  # Sparse data nll reports
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,
@@ -192,7 +194,7 @@ g3a_report_detail <- function (actions,
         g3a_report_history(
             actions = actions,
             # NB: __predby_ is the old name for __cons$, and could eventually be removed
-            var_re = c('__renewalnum$', '__spawnednum$', '__cons$', '__suit_', '__predby_'),
+            var_re = c('__renewalnum$', '__spawnednum$', '__cons$', "__suit$", '__suit_', '__predby_'),
             out_prefix = "detail_",
             run_f = run_f,
             run_at = run_at),

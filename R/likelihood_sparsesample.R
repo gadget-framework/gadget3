@@ -154,7 +154,13 @@ g3l_sparsesample <- function (
     function_f_name <- if (is.call(substitute(function_f))) as.character(substitute(function_f)[[1]]) else "custom"
     function_f_name <- gsub("^g3l_sparsesample_|_+", "", function_f_name)
 
-    nllstock <- g3s_sparsedata(c("nll", type = if (length(predstocks) > 0 ) "spcatch" else "spabund", name = nll_name), obs_df[,-ncol(obs_df), drop = FALSE], area_group = area_group)
+    # nll_(csparse|asparse)_(function_f_name)_(nll_name)__(mean|stddev|obs_n|sum|sqsum|model_n)
+    # nll_(csparse|asparse)_(function_f_name)_(nll_name)__nll
+    nllstock <- g3s_sparsedata(c(
+        "nll",
+        type = if (length(predstocks) > 0 ) "csparse" else "asparse",
+        fnname = function_f_name,
+        name = nll_name ), obs_df[,-ncol(obs_df), drop = FALSE], area_group = area_group)
     nllstock__obs_mean <- g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "mean"]), desc = paste0(nll_name, " observations"))
     nllstock__obs_stddev <- if ("stddev" %in% names(obs_df)) g3_sparsedata_instance(nllstock, as.numeric(obs_df[, "stddev"]), desc = paste0(nll_name, " observation stddev")) else quote( stop("No observation stddev column") )
     nllstock__obs_n <- g3_sparsedata_instance(nllstock, as.numeric(if ("number" %in% names(obs_df)) obs_df[, "number"] else 1), desc = paste0(nll_name, " observation number"))

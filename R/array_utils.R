@@ -31,6 +31,18 @@ g3_array_agg <- function(
         first_dl <- NULL
         dimnames(ar)$length <- vapply(split_length, function (x) {
             x <- as.numeric(x)
+            if (is.null(first_dl) && is.infinite(x[[2]])) return(NA_real_)  # 0:Inf, e.g. otherfood
+            if (is.null(first_dl)) first_dl <<- diff(x)
+            if (is.infinite(x[[2]])) x[[2]] <- x[[1]] + first_dl
+            mean(x)
+        }, numeric(1))
+    }
+    if (isTRUE(opt_length_midlen) && "predator_length" %in% names(dim(ar))) {
+        split_predator_length <- strsplit(dimnames(ar)$predator_length, ":")
+        first_dl <- NULL
+        dimnames(ar)$predator_length <- vapply(split_predator_length, function (x) {
+            x <- as.numeric(x)
+            if (is.null(first_dl) && is.infinite(x[[2]])) return(NA_real_)  # 0:Inf, e.g. otherfood
             if (is.null(first_dl)) first_dl <<- diff(x)
             if (is.infinite(x[[2]])) x[[2]] <- x[[1]] + first_dl
             mean(x)
@@ -51,6 +63,19 @@ g3_array_agg <- function(
 
         # Pick the appropriate dimname
         filter$length <- dimnames(ar)$length[filter$length]
+    }
+
+    # Find lengthgroup that numbers sit within
+    if ("predator_length" %in% names(filter) && is.numeric(filter$predator_length)) {
+        # NB: If already calculated, don't do it again. If we do it'll be wrong (as well as a waste)
+        if (!exists("split_predator_length")) split_predator_length <- strsplit(dimnames(ar)$predator_length, ":")
+        first_len <- vapply(split_predator_length, function(x) as.numeric(x[[1]]), numeric(1))
+
+        # Find index of last item that's bigger than or equal to the lower bound
+        filter$predator_length <- vapply(filter$predator_length, function (x) max(which(x >= first_len)), integer(1))
+
+        # Pick the appropriate dimname
+        filter$predator_length <- dimnames(ar)$predator_length[filter$predator_length]
     }
 
     filter <- sapply(
