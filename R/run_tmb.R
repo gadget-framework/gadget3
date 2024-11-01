@@ -340,7 +340,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             if (!identical(which(cols_slice), integer(0)) && !identical(which(cols_slice), 1L)) {
                 # .segment() is an eigen function, which has no knowledge of TMB dimensions
                 # Any .segment() outside of the innermost column will produce nonsense.
-                stop("Slices can only be in the first column: ", deparse1(in_call))
+                stop("Slices can only be in the first column, not ", paste(which(cols_slice), collapse = "/"), ": ", deparse1(in_call))
             }
 
             if (tail(cols_defined, 1)) {
