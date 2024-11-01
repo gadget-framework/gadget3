@@ -735,7 +735,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     stringsAsFactors = FALSE)
             }
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
-            param_name <- cpp_escape_varname(x[[2]])
+            param_name <- x[[2]]
             if (x[[1]] == 'g3_param_table') {
                 ifmissing <- find_arg('ifmissing', NULL, do_eval = FALSE)
                 if (rlang::is_formula(ifmissing)) stop("Formula ifmissing not supported")  # Should f_substitute for this to work
@@ -785,25 +785,25 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
             if (x[[1]] == 'g3_param_lower' || x[[1]] == 'g3_param_upper') {
                 param_name <- paste0(param_name, if (x[[1]] == 'g3_param_lower') "__lower" else "__upper")
-                scope[[param_name]] <<- sprintf(
+                scope[[cpp_escape_varname(param_name)]] <<- sprintf(
                     "DATA_SCALAR(%s);",
-                    param_name )
+                    cpp_escape_varname(param_name) )
                 # NB: We'll update these later with real values
                 model_data[[param_name]] <<- NaN
                 # NB: Tell assignment if we're scalar, so it can use is.finite()
-                return(call("g3_cpp_asis", param_name, scalar = TRUE))
+                return(call("g3_cpp_asis", cpp_escape_varname(param_name), scalar = TRUE))
             }
 
             # Add PARAMETER definition for variable
             if (x[[1]] != 'g3_param_nodef') {
-                scope[[param_name]] <<- structure(sprintf("PARAMETER%s(%s);",
+                scope[[cpp_escape_varname(param_name)]] <<- structure(sprintf("PARAMETER%s(%s);",
                     if (x[[1]] == 'g3_param_array') '_ARRAY'
                     else if (x[[1]] == 'g3_param_vector') '_VECTOR'
                     else '',
-                    param_name), param_template = df_template(x[[2]]))
+                    cpp_escape_varname(param_name)), param_template = df_template(x[[2]]))
             }
             # NB: Tell assignment if we're scalar, so it can use setConstant()
-            return(call("g3_cpp_asis", param_name, scalar = (x[[1]] == 'g3_param')))
+            return(call("g3_cpp_asis", cpp_escape_varname(param_name), scalar = (x[[1]] == 'g3_param')))
         }
         code <- call_replace(code,
             g3_param_table = repl_fn,
@@ -930,7 +930,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                           'array<Type>' = 'DATA_ARRAY', 'array<int>' = 'DATA_IARRAY')[[cpp_type]],
                         '(', cpp_escape_varname(var_name) , ')')
                     attr(var_val, "desc") <- NULL  # The desc break's TMB's type detection
-                    assign(cpp_escape_varname(var_name), hide_force_vector(var_val), envir = model_data)
+                    assign(var_name, hide_force_vector(var_val), envir = model_data)
                 } else if (is.numeric(var_val[[1]]) && var_val[[1]] == 0) {  # NB: FALSE == 0
                     defn <- paste0(defn, " ", cpp_escape_varname(var_name), ".setZero();")
                 } else {
@@ -1158,6 +1158,7 @@ g3_tmb_adfun <- function(
 
     # Update any bounds used by the model
     tmb_data <- as.list(update_data_bounds(attr(cpp_code, 'model_data'), parameters))
+    names(tmb_data) <- cpp_escape_varname(names(tmb_data))
     if (output_script) {
         tmp_script_path <- tempfile(fileext = ".R")
         tmp_data_path <- paste0(tmp_script_path, "data")

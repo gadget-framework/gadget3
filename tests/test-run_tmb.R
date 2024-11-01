@@ -350,6 +350,19 @@ ok_group("g3_to_tmb: attr.actions", {
     ok(ut_cmp_identical(attr(model_fn, 'actions'), actions), "actions returned as attribute uncollated")
 })
 
+ok_group("g3_to_tmb: model_data", {
+    lots.of.data <- floor(runif(100, 1e4, 1e5))
+    model_fn <- g3_to_tmb(list(g3_formula(
+        mean(lots.of.data) + g3_param_lower('parrot.par'),
+        lots.of.data = lots.of.data )))
+    ok(ut_cmp_equal(
+        attr(model_fn, "model_data")$lots.of.data,
+        lots.of.data ), "model_data uses unescaped variable names")
+    ok(ut_cmp_equal(
+        attr(model_fn, "model_data")$parrot.par__lower,
+        NaN ), "model_data g3_param_lower uses unescaped variable names")
+})
+
 ok_group("g3_to_tmb: Can use random parameters without resorting to include_random", local({
     # ./TMB/inst/examples/randomregression.R converted into gadget3
     actions <- local({
