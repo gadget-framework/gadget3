@@ -175,10 +175,13 @@ ok(ut_cmp_identical(g3_array_uniondn(dimnames(ar1), dimnames(ar2)), list(
 ok(ut_cmp_identical(
     g3_array_uniondn(dimnames(ar1), dimnames(ar2)),
     g3_array_uniondn(dimnames(ar1), dimnames(ar2)) ), "g3_array_uniondn: Order irrelevant")
+ok(ut_cmp_identical(
+    g3_array_uniondn(dimnames(ar1), dimnames(ar2)),
+    g3_array_uniondn(ar1, ar2) ), "g3_array_uniondn: Can use raw arrays")
 ok(ut_cmp_identical(g3_array_uniondn(dimnames(ar1), dimnames(ar2), dimnames(ar3)), list(
    length = c("30:40", "40:50", "50:60", "60:70", "70:Inf"),
    age = paste0("age", 0:20),
    time = c("2000-01", "2000-02", "2001-01", "2001-02", "2002-01", "2002-02", "2003-01", "2003-02", "2004-01", "2004-02") )), "g3_array_uniondn: Can use 3 args")
 ok(ut_cmp_identical(
-    g3_array_uniondn(dimnames(ar1), dimnames(ar2), dimnames(ar3))
+    g3_array_uniondn(dimnames(ar1), dimnames(ar2), dimnames(ar3)),
     g3_array_uniondn(list(dimnames(ar1), dimnames(ar2), dimnames(ar3))) ), "g3_array_uniondn: List or separate args the same")

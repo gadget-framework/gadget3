@@ -104,6 +104,10 @@ g3_array_fromdn <- function(dn, val = 0) array(val, dim = sapply(dn, length), di
 # Return sorted union of dimnames dn_a & dn_b
 g3_array_uniondn <- function(...) {
     inner <- function (dn_a, dn_b) {
+        # Convert any arrays to dimnames
+        if (is.array(dn_a)) dn_a <- dimnames(dn_a)
+        if (is.array(dn_b)) dn_b <- dimnames(dn_b)
+
         sapply(names(dn_a), function(n) {
             # Find out which of dn_a & dn_b contains the first item of the other
             if (length(aidx <- which(dn_a[[n]] == dn_b[[n]][[1]])) > 0) {
