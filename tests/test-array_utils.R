@@ -154,3 +154,20 @@ ok(ut_cmp_identical(
     dimnames(g3_array_agg(ar, opt_length_midlen = TRUE)),
     list(
         predator_length = NA_character_ )), "opt_length_midlen turns predator_length 0:Inf to NA")
+
+
+ar1 <- gen_arr(
+    length = c(30, 40, 50),
+    age = 0:10,
+    time = list(2000:2004, 1:2) )
+ar2 <- gen_arr(
+    length = c(40, 50, 60, 70),
+    age = 5:15,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_identical(g3_array_uniondn(dimnames(ar1), dimnames(ar2)), list(
+   length = c("30:40", "40:50", "50:60", "60:70", "70:Inf"),
+   age = paste0("age", 0:15),
+   time = c("2000-01", "2000-02", "2001-01", "2001-02", "2002-01", "2002-02", "2003-01", "2003-02", "2004-01", "2004-02") )), "g3_array_uniondn")
+ok(ut_cmp_identical(
+    g3_array_uniondn(dimnames(ar1), dimnames(ar2)),
+    g3_array_uniondn(dimnames(ar1), dimnames(ar2)) ), "g3_array_uniondn: Order irrelevant")
