@@ -102,22 +102,34 @@ g3_array_agg <- function(
 g3_array_fromdn <- function(dn, val = 0) array(val, dim = sapply(dn, length), dimnames = dn)
 
 # Return sorted union of dimnames dn_a & dn_b
-g3_array_uniondn <- function(dn_a, dn_b) {
-    sapply(names(dn_a), function(n) {
-        # Find out which of dn_a & dn_b contains the first item of the other
-        if (length(aidx <- which(dn_a[[n]] == dn_b[[n]][[1]])) > 0) {
-            out <- dn_a[[n]]
-            # Splice dn_b into dn_a, letting R expand the array
-            out[aidx:(aidx + length(dn_b[[n]]) - 1)] <- dn_b[[n]]
+g3_array_uniondn <- function(...) {
+    inner <- function (dn_a, dn_b) {
+        sapply(names(dn_a), function(n) {
+            # Find out which of dn_a & dn_b contains the first item of the other
+            if (length(aidx <- which(dn_a[[n]] == dn_b[[n]][[1]])) > 0) {
+                out <- dn_a[[n]]
+                # Splice dn_b into dn_a, letting R expand the array
+                out[aidx:(aidx + length(dn_b[[n]]) - 1)] <- dn_b[[n]]
 
-        } else if (length(bidx <- which(dn_b[[n]] == dn_a[[n]][[1]])) > 0) {
-            out <- dn_b[[n]]
-            # Splice dn_a into dn_b, letting R expand the array
-            out[bidx:(bidx + length(dn_a[[n]]) - 1)] <- dn_a[[n]]
+            } else if (length(bidx <- which(dn_b[[n]] == dn_a[[n]][[1]])) > 0) {
+                out <- dn_b[[n]]
+                # Splice dn_a into dn_b, letting R expand the array
+                out[bidx:(bidx + length(dn_a[[n]]) - 1)] <- dn_a[[n]]
 
-        } else {
-            stop("No intersection between ", paste(dn_a[[n]], collapse = ","), " and ", paste(dn_b[[n]], collapse = ","))
-        }
-        out
-    }, simplify = FALSE)
+            } else {
+                stop("No intersection between ", paste(dn_a[[n]], collapse = ","), " and ", paste(dn_b[[n]], collapse = ","))
+            }
+            out
+        }, simplify = FALSE)
+    }
+
+    # Accept either a list or any number of arguments
+    args <- if (...length() == 1 && is.list(..1)) ..1 else list(...)
+
+    if (length(args) == 0) stop("You must provide at least one argument")
+    if (length(args) == 1) return(args[[1]])
+    if (length(args) == 2) return(inner(args[[1]], args[[2]]))
+    return(g3_array_uniondn(c(
+        list(inner(args[[1]], args[[2]])),
+        tail(args, -2) )))
 }
