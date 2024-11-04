@@ -123,7 +123,7 @@ suppressWarnings(attr(model_cpp, 'parameter_template') |>
     g3_init_val('pb', 200) |>
     g3_init_val('pc', 300) |>
     identity() -> params.in)
-obj.fn <- g3_tmb_adfun(model_cpp, params.in)
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 ok(ut_cmp_equal(
     nll,
     1e+11,
