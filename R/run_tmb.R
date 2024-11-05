@@ -729,21 +729,23 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Rework all g3_param calls
         repl_fn <- function(x) {
             # NB: eval() because -1 won't be a symbol
-            find_arg <- function (arg_name, def, do_eval = TRUE) {
-                if (!(arg_name %in% names(x))) return(def)
-                if (do_eval) return(eval(x[[arg_name]], envir = env))
-                return(x[[arg_name]])
+            find_arg <- function (arg_name, def, do_eval = TRUE, sub_param_idx = NULL) {
+                out <- if (arg_name %in% names(x)) x[[arg_name]] else def
+                if (isTRUE(do_eval)) out <- eval(out, envir = env)
+                # For g3_param_table(..., value = 1:4), split up vector into individual positions
+                if (!is.null(sub_param_idx) && length(out) > 1) out <- out[[sub_param_idx]]
+                return(out)
             }
             if ('optimize' %in% names(x)) stop("g3_param() optimise parameter should be spelt with an s")
 
-            df_template <- function (name, dims = c(1)) {
+            df_template <- function (name, dims = c(1), sub_param_idx = NULL) {
                 # Extract named args from g3_param() call
-                value <- find_arg('value', 0)
+                value <- find_arg('value', 0, sub_param_idx = sub_param_idx)
                 optimise <- find_arg('optimise', !find_arg('random', FALSE))  # i.e. default is opposite of random
                 random <- find_arg('random', FALSE)
-                lower <- as.numeric(find_arg('lower', NA))
-                upper <- as.numeric(find_arg('upper', NA))
-                parscale <- as.numeric(find_arg('parscale', NA))
+                lower <- as.numeric(find_arg('lower', NA, sub_param_idx = sub_param_idx))
+                upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
+                parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
                 source <- as.character(find_arg('source', as.character(NA)))
 
                 data.frame(
@@ -783,7 +785,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
                     scope[[cpp_escape_varname(sub_param_name)]] <<- structure(
                         sprintf('PARAMETER(%s);', cpp_escape_varname(sub_param_name)),
-                        param_template = df_template(sub_param_name))
+                        param_template = df_template(sub_param_name, sub_param_idx = i))
                     paste0("{std::make_tuple(", sub_param_tuple ,"), &", cpp_escape_varname(sub_param_name), "}")
                 }, character(1))
 

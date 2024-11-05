@@ -305,6 +305,12 @@ ok_group('g3_param_table', {
         g3_param_table('pg', expand.grid(
             cur_year = start_year,
             cur_step = 1:2), value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
+        g3_param_table('p_inited',
+            expand.grid(cur_year = seq(start_year, end_year)),
+            lower = 0:4,
+            value = 100:104,
+            upper = 1000:1004,
+            parscale = 5 )
     })), 'parameter_template')
     ok(ut_cmp_identical(
         param[c(paste('pt', 2000:2004, 2, sep = '.'), paste('pt', 2000:2004, 3, sep = '.'), 'pg.2000.1', 'pg.2000.2'),],
@@ -333,6 +339,14 @@ ok_group('g3_param_table', {
             parscale = as.numeric(c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)),
             source = as.character(NA),
             stringsAsFactors = FALSE)), "Param table included custom values")
+    ok(gadget3:::ut_cmp_df(param[grepl("^p_inited.", param$switch), c("switch", "value", "lower", "upper", "parscale")], '
+                         switch value lower upper parscale
+    p_inited.2000 p_inited.2000   100     0  1000        5
+    p_inited.2001 p_inited.2001   101     1  1001        5
+    p_inited.2002 p_inited.2002   102     2  1002        5
+    p_inited.2003 p_inited.2003   103     3  1003        5
+    p_inited.2004 p_inited.2004   104     4  1004        5
+    '), "p_inited: Init'ed value/lower/upper with a vector")
     ok(ut_cmp_identical(
         attr(g3_to_tmb(list(~{
             g3_param_table('moo', expand.grid(cur_year=1990:1994))
