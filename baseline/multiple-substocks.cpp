@@ -578,10 +578,10 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<double> detail_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__num.setZero();
-    array<double> detail_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__wgt.setConstant((double)(1));
-    array<double> detail_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__num.setZero();
-    array<double> detail_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); detail_fish_mat__wgt.setConstant((double)(1));
+    array<double> dinit_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); dinit_fish_imm__num.setZero();
+    array<double> dinit_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); dinit_fish_imm__wgt.setConstant((double)(1));
+    array<double> dinit_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); dinit_fish_mat__num.setZero();
+    array<double> dinit_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); dinit_fish_mat__wgt.setConstant((double)(1));
     array<Type> suit_fish_imm_f_surv__report(5);
     array<Type> suit_fish_mat_f_surv__report(5);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
@@ -729,16 +729,16 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_imm__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__num);
+            dinit_fish_imm__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_imm__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__wgt);
+            dinit_fish_imm__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__wgt);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_mat__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__num);
+            dinit_fish_mat__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
+            dinit_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
         }
         if ( cur_time == 0 ) {
             suit_fish_imm_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50)));
@@ -770,16 +770,10 @@ Type objective_function<Type>::operator() () {
             REPORT(cdist_sumofsquares_ldist_f_surv_obs__num);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish_imm__num);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_imm__predby_f_surv);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_imm__renewalnum);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish_imm__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_imm_f_surv__cons);
@@ -788,19 +782,25 @@ Type objective_function<Type>::operator() () {
             REPORT(detail_fish_imm_f_surv__suit);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish_mat__num);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_mat__predby_f_surv);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish_mat__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_mat_f_surv__cons);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_mat_f_surv__suit);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish_imm__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish_imm__wgt);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish_mat__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish_mat__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);

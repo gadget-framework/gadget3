@@ -284,7 +284,7 @@ attr(model_fn, "parameter_template") |>
     identity() -> params
 
 r <- attributes(model_fn(params))
-colSums(r$detail_ling_imm__num)
-colSums(r$detail_ling_mat__wgt)
+colSums(r$dstart_ling_imm__num)
+colSums(r$dstart_ling_mat__wgt)
 
 }

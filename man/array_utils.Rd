@@ -18,7 +18,7 @@ g3_array_agg(
 }
 
 \arguments{
-  \item{ar}{Input array, e.g. \code{detail_fish__num} from a model report}
+  \item{ar}{Input array, e.g. \code{dstart_fish__num} from a model report}
   \item{margins}{dimension names to include in the final array, e.g. \code{c("age", "year")} to generate a report by-year & age. If NULL, no aggregation is done}
   \item{agg}{Function to use when aggregating}
   \item{opt_time_split}{Boolean, should we split up "time" into separate "year" & "step" dimensions?}

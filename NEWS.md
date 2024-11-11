@@ -9,6 +9,9 @@
 * `g3_to_r` models can include arbitary R functions, see vignettes/writing_actions #194
 * Add `g3_array_agg` #193
 
+## Breaking changes
+* Rename ``detail_x__num`` to ``dstart_x__num`` #200
+
 # gadget3 0.12-0:
 
 ## Bug fixes

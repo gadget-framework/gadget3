@@ -210,6 +210,6 @@ model_fn <- g3_to_r(c(actions, list(
     g3a_report_detail(actions),  # TODO: Not reporting anything useful
     NULL )))
 r <- attributes(model_fn())
-colSums(r$detail_fish__num)  # TODO: Report something related
+colSums(r$dstart_fish__num)  # TODO: Report something related
 
 }

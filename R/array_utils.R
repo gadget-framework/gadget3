@@ -1,4 +1,4 @@
-# Turn "time" dimension into separate "year" & "step", e.g. split_time(r$detail_st_imm__num)
+# Turn "time" dimension into separate "year" & "step", e.g. split_time(r$dstart_st_imm__num)
 # NB: This doesn't copy array data, as we are only modifying the dimensions around it
 ar_split_time <- function(ar) {
     dn <- dimnames(ar)

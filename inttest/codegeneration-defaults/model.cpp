@@ -300,8 +300,8 @@ Type objective_function<Type>::operator() () {
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<double> detail_fish__num(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
-    array<double> detail_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    array<double> dinit_fish__num(6,1,10,as_integer(total_steps + (double)(1))); dinit_fish__num.setZero();
+    array<double> dinit_fish__wgt(6,1,10,as_integer(total_steps + (double)(1))); dinit_fish__wgt.setConstant((double)(1));
     array<Type> suit_fish_comm__report(6);
     vector<Type> adist_surveyindices_log_acoustic_dist_model__params(2); adist_surveyindices_log_acoustic_dist_model__params.setZero();
     array<Type> adist_surveyindices_log_acoustic_dist_model__wgt(1,11,1); adist_surveyindices_log_acoustic_dist_model__wgt.setZero();
@@ -391,10 +391,10 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
+            dinit_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
+            dinit_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
         }
         if ( cur_time == 0 ) {
             suit_fish_comm__report = (double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50)));
@@ -416,22 +416,22 @@ Type objective_function<Type>::operator() () {
             REPORT(cdist_sumofsquares_comm_ldist_obs__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__num);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__predby_comm);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__renewalnum);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__wgt);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_comm__cons);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_comm__suit);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dinit_fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
