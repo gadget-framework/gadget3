@@ -173,22 +173,22 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">model_fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">'parameter_template'</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"detail_st__wgt"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,,<span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dstart_st__wgt"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"time"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age    2000-01 2000-02 2000-03 2000-04 2001-01 2001-02 2001-03 2001-04 2002-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age3    3000    2990    2980    2970  2412.1  2402.1  2392.1  2382.1 1941.78</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age4    4000    3990    3980    3970  2412.1  2402.1  2392.1  2382.1 1941.78</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age5    5000    4990    4980    4970  3612.1  3602.1  3592.1  3582.1 2581.78</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age    2000-01 2000-02 2000-03 2000-04 2001-01 2001-02 2001-03 2001-04  2002-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3   33000   32890   32780   32670 27149.1 27039.1 26929.1 26819.1 22468.38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4   44000   43890   43780   43670 27149.1 27039.1 26929.1 26819.1 22468.38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5   55000   54890   54780   54670 40349.1 40239.1 40129.1 40019.1 29508.38</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age    2002-02 2002-03 2002-04  2003-01  2003-02  2003-03  2003-04  2004-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age3 1931.78 1921.78 1911.78 1565.524 1555.524 1545.524 1535.524 1264.519</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age4 1931.78 1921.78 1911.78 1565.524 1555.524 1545.524 1535.524 1264.519</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age5 2571.78 2561.78 2551.78 2077.524 2067.524 2057.524 2047.524 1674.119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     2002-02  2002-03  2002-04 2003-01 2003-02 2003-03 2003-04  2004-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3 22358.38 22248.38 22138.38 18723.8 18613.8 18503.8 18393.8 15728.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4 22358.38 22248.38 22138.38 18723.8 18613.8 18503.8 18393.8 15728.14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5 29398.38 29288.38 29178.38 24355.8 24245.8 24135.8 24025.8 20233.74</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age     2004-02  2004-03  2004-04  2005-01  2005-02  2005-03   2005-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age3 1254.519 1244.519 1234.519 1023.715 1013.715 1003.715  993.7154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age4 1254.519 1244.519 1234.519 1023.715 1013.715 1003.715  993.7154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   age5 1664.119 1654.119 1644.119 1351.395 1341.395 1331.395 1321.3954</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     2004-02  2004-03  2004-04  2005-01  2005-02  2005-03  2005-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3 15618.14 15508.14 15398.14 13331.61 13221.61 13111.61 13001.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4 15618.14 15508.14 15398.14 13331.61 13221.61 13111.61 13001.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5 20123.74 20013.74 19903.74 16936.09 16826.09 16716.09 16606.09</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co">## See g3a_spawn for an example of weightloss in spawning</span></span></span>
 </code></pre></div>
