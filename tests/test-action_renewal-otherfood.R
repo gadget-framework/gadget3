@@ -124,7 +124,7 @@ for (yr in 2000:2005) ok(ut_cmp_equal(
     tolerance = 1e-3), paste0("cdist_sumofsquares_pred_a_catch_model__num: other_cv catch ~stable across year ", yr))
 
 ## other_wgt abundance
-ok(gadget3:::ut_cmp_array(r$detail_other_wgt__num, "
+ok(gadget3:::ut_cmp_array(r$dstart_other_wgt__num, "
    length    time Freq
 1   0:Inf 2000-01 2000000
 2   0:Inf 2000-02 2000000
@@ -138,8 +138,8 @@ ok(gadget3:::ut_cmp_array(r$detail_other_wgt__num, "
 10  0:Inf 2004-02 2004000
 11  0:Inf 2005-01 2005000
 12  0:Inf 2005-02 2005000
-"), "detail_other_wgt__num: current year * 1000, not affected by catch")
-ok(gadget3:::ut_cmp_array(r$detail_other_wgt__wgt, "
+"), "dstart_other_wgt__num: current year * 1000, not affected by catch")
+ok(gadget3:::ut_cmp_array(r$dstart_other_wgt__wgt, "
    length    time Freq
 1   0:Inf 2000-01  100
 2   0:Inf 2000-02  100
@@ -153,28 +153,28 @@ ok(gadget3:::ut_cmp_array(r$detail_other_wgt__wgt, "
 10  0:Inf 2004-02  100
 11  0:Inf 2005-01  100
 12  0:Inf 2005-02  100
-"), "detail_other_wgt__wgt: All 100, not affected by catch")
+"), "dstart_other_wgt__wgt: All 100, not affected by catch")
 
 ## other_np abundance
-ok(gadget3:::ut_cmp_array(r$detail_other_np__num[,,"2000-01", drop = FALSE], "
+ok(gadget3:::ut_cmp_array(r$dstart_other_np__num[,,"2000-01", drop = FALSE], "
   length  age    time        Freq
 1  10:20 age3 2000-01    2.710355
 2  20:30 age3 2000-01   81.153587
 3  30:40 age3 2000-01  893.912126
 4  40:50 age3 2000-01 3622.325360
 5 50:Inf age3 2000-01 5399.898572
-"), "detail_other_np__num: vonB applied")
-for (t in dimnames(r$detail_other_np__num)$time) ok(ut_cmp_equal(
-    r$detail_other_np__num[,,"2000-01"],
-    r$detail_other_np__num[,,t],
-    ignore = NULL ), paste0("detail_other_np__num: Stable across timestep ", t, ", not affected by catch"))
-for (t in dimnames(r$detail_other_np__wgt)$time) ok(ut_cmp_equal(
-    r$detail_other_np__wgt[,,"2000-01"],
-    r$detail_other_np__wgt[,,t],
-    ignore = NULL ), paste0("detail_other_np__wgt: Stable across timestep ", t, ", not affected by catch"))
+"), "dstart_other_np__num: vonB applied")
+for (t in dimnames(r$dstart_other_np__num)$time) ok(ut_cmp_equal(
+    r$dstart_other_np__num[,,"2000-01"],
+    r$dstart_other_np__num[,,t],
+    ignore = NULL ), paste0("dstart_other_np__num: Stable across timestep ", t, ", not affected by catch"))
+for (t in dimnames(r$dstart_other_np__wgt)$time) ok(ut_cmp_equal(
+    r$dstart_other_np__wgt[,,"2000-01"],
+    r$dstart_other_np__wgt[,,t],
+    ignore = NULL ), paste0("dstart_other_np__wgt: Stable across timestep ", t, ", not affected by catch"))
 
 ## other_cv abundance
-ok(gadget3:::ut_cmp_array(r$detail_other_cv__num[,,"2000-01", drop = FALSE], "
+ok(gadget3:::ut_cmp_array(r$dstart_other_cv__num[,,"2000-01", drop = FALSE], "
   length  age    time        Freq
 1    50:60  age5 2000-01 6.901043e-02
 2    60:70  age5 2000-01 4.074388e+00
@@ -212,15 +212,15 @@ ok(gadget3:::ut_cmp_array(r$detail_other_cv__num[,,"2000-01", drop = FALSE], "
 34   80:90 age10 2000-01 8.977010e+02
 35  90:100 age10 2000-01 3.499123e+03
 36 100:Inf age10 2000-01 5.506246e+03
-", tolerance = 1e-7), "detail_other_cv__num: vonB applied to all ages")
-for (t in dimnames(r$detail_other_cv__num)$time) ok(ut_cmp_equal(
-    r$detail_other_cv__num[,,"2000-01"],
-    r$detail_other_cv__num[,,t],
-    ignore = NULL ), paste0("detail_other_cv__num: Stable across timestep ", t, ", not affected by catch"))
-for (t in dimnames(r$detail_other_cv__wgt)$time) ok(ut_cmp_equal(
-    r$detail_other_cv__wgt[,,"2000-01"],
-    r$detail_other_cv__wgt[,,t],
-    ignore = NULL ), paste0("detail_other_cv__wgt: Stable across timestep ", t, ", not affected by catch"))
+", tolerance = 1e-7), "dstart_other_cv__num: vonB applied to all ages")
+for (t in dimnames(r$dstart_other_cv__num)$time) ok(ut_cmp_equal(
+    r$dstart_other_cv__num[,,"2000-01"],
+    r$dstart_other_cv__num[,,t],
+    ignore = NULL ), paste0("dstart_other_cv__num: Stable across timestep ", t, ", not affected by catch"))
+for (t in dimnames(r$dstart_other_cv__wgt)$time) ok(ut_cmp_equal(
+    r$dstart_other_cv__wgt[,,"2000-01"],
+    r$dstart_other_cv__wgt[,,t],
+    ignore = NULL ), paste0("dstart_other_cv__wgt: Stable across timestep ", t, ", not affected by catch"))
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ######## Default params

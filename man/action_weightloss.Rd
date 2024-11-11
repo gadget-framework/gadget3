@@ -90,7 +90,7 @@ g3a_weightloss(
 
   model_fn <- g3_to_r(c(actions, g3a_report_detail(actions)))
   r <- model_fn(attr(model_fn, 'parameter_template'))
-  attr(r, "detail_st__wgt")[1,,]
+  g3_array_agg(attr(r, "dstart_st__wgt"), c("age", "time"))
 
   ## See g3a_spawn for an example of weightloss in spawning
 }

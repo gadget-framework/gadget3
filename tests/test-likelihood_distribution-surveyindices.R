@@ -43,7 +43,7 @@ modeldata <- attr(r, 'prey_a__num')
 exp_nll <- 0
 for (age in unique(obsdata$age)) {
     ok_group(paste0("age = ", age))
-    N <- colSums(attr(r, 'detail_prey_a__num')[,,age = age,], 2)
+    N <- colSums(attr(r, 'dstart_prey_a__num')[,,age = age,], 2)
     N <- colSums(array(N, dim=c(2,length(N) / 2)))  # Group timestep by year
     I <- obsdata[obsdata$age == age, 'number']
     alpha <- mean(I) - 1.8 * mean(N)

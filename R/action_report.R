@@ -188,14 +188,14 @@ g3a_report_detail <- function (actions,
         g3a_report_history(
             actions = actions,
             var_re = c('__num$', '__wgt$'),
-            out_prefix = "detail_",
+            out_prefix = if (abundance_run_at == g3_action_order$report_early) "dstart_" else "detail_",
             run_f = f_substitute(quote(cur_time <= total_steps && run_f), list(run_f = run_f)),
             run_at = abundance_run_at),
         g3a_report_history(
             actions = actions,
             # NB: __predby_ is the old name for __cons$, and could eventually be removed
             var_re = c('__renewalnum$', '__spawnednum$', '__cons$', "__suit$", '__suit_', '__predby_'),
-            out_prefix = "detail_",
+            out_prefix = if (run_at == g3_action_order$report_early) "dstart_" else "detail_",
             run_f = run_f,
             run_at = run_at),
         NULL)

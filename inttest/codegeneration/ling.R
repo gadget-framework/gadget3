@@ -1,4 +1,4 @@
-structure(function (param = attr(get(sys.call()[[1]]), "parameter_template")) 
+structure(function (param = parameter_template) 
 {
     if (is.data.frame(param)) {
         param_lower <- structure(param$lower, names = param$switch)

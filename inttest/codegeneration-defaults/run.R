@@ -122,9 +122,9 @@ capture.output(print(params, width = 500), file = 'inttest/codegeneration-defaul
 options(width=oldWidth)
 
 r <- attributes(model_fn(params$value))
-ok(all(is.finite(r$detail_fish__num)), "detail_fish__num: finite")
+ok(all(is.finite(r$dstart_fish__num)), "dstart_fish__num: finite")
 ok(all(is.finite(r$detail_fish__renewalnum)), "detail_fish__renewalnum: finite")
-ok(all(is.finite(r$detail_fish__wgt)), "detail_fish__wgt: finite")
+ok(all(is.finite(r$dstart_fish__wgt)), "dstart_fish__wgt: finite")
 # TODO: detail_fish_comm__cons still NA
 ok(all(is.finite(r$detail_fish__suit_comm)), "detail_fish__suit_comm: finite")
 

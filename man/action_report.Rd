@@ -63,15 +63,21 @@ g3a_report_detail(actions,
 }
 
 \details{
-  The actions will define the following variables in your model:
+  The \code{g3a_report_detail} defines a selection of default reports from your model, using \code{g3a_report_history}:
   \describe{
-    \item{\var{report_stock}__\var{instance_name}}{
-        Results of collating \var{input_stock}__\var{instance_name}, where
-        \var{instance_name} is defined by the first instance variable in \var{report_f}.
-        For example, if \var{report_f} is \code{~input_stock__num}, then we will report \code{report_stock__num}.
-    }
+    \item{\code{*_surveyindices_*__params}}{The slope/intercept as used by \code{\link{g3l_distribution_surveyindices_log}}}
+    \item{\code{step_lengths}}{}
+    \item{\code{*_weight}}{The weighting of likelihood components}
+    \item{\code{nll_*}}{Breakdown of nll for each likelihood component}
+    \item{\code{dstart_*__num}}{Abundance in numbers, at start of each model step}
+    \item{\code{dstart_*__wgt}}{Mean weight of individuals, at start of each model step}
+    \item{\code{detail_*__renewalnum}}{Numbers produced by renewal at each model step}
+    \item{\code{detail_*__spawnednum}}{Numbers produced by spawning at each model step}
+    \item{\code{detail_*_*__cons}}{Total biomass of prey consumed by predator, at each model step}
+    \item{\code{detail_*_*__suit}}{Total suitable biomass of prey for predator, at each model step}
   }
 
+  The reports produced by \code{g3a_report_history} will vary based on the provided inputs.
   A model can have any number of \code{g3a_report_*} actions, so long as the
   calling arguments are different. For instance, \code{run_f = ~age == 5} and
   \code{run_f = ~age == 7}.
@@ -85,7 +91,7 @@ g3a_report_detail(actions,
   \subsection{g3a_report_history}{
     An action (i.e. list of formula objects) that will store the current state of each variable found matching \var{var_re}.
   }
-  \subsection{g3a_report_detailed}{
+  \subsection{g3a_report_detail}{
     Uses \link{g3a_report_history} to generate detailed reports suitable for use in \code{g3_fit}.
   }
 }
