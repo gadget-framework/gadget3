@@ -487,6 +487,7 @@ Type objective_function<Type>::operator() () {
     array<double> detail_fish__predby_f_surv(10,1,5,as_integer(total_steps + (double)(1)));
     array<double> detail_fish__renewalnum(10,1,5,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
     array<double> detail_fish_f_surv__cons(10,1,5,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_f_surv__suit(10,1,5,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__weight.setZero();
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__wgt.setZero();
@@ -621,6 +622,9 @@ Type objective_function<Type>::operator() () {
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_f_surv__cons);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(detail_fish_f_surv__suit);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
@@ -1416,6 +1420,9 @@ Type objective_function<Type>::operator() () {
         }
         if ( report_detail == 1 ) {
             detail_fish_f_surv__cons.col(cur_time + 1 - 1) = as_numeric_arr(fish_f_surv__cons);
+        }
+        if ( report_detail == 1 ) {
+            detail_fish_f_surv__suit.col(cur_time + 1 - 1) = as_numeric_arr(fish_f_surv__suit);
         }
         if ( cur_step_final ) {
             // g3a_age for fish;
