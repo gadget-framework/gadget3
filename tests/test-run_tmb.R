@@ -866,10 +866,8 @@ actions <- c(actions, ~{
 expecteds$g3_with_result <- 1L  # i.e. 2 - 1 in R or 1 - 0 in TMB
 expecteds$g3_with_other_exp <- 1L + 2L + 3L
 
-# min() & max()
-min_result <- 0.0
-max_result <- 0.0
-
+# min() & max() & floor() & ceiling()
+min_result <- max_result <- floor_result <- ceiling_result <- 0.0
 min_iar_in <- as.array(runif(100))
 min_iar_out <- 0 * min_iar_in[min(3, 7):max(10, 20)]
 actions <- c(actions, ~{
@@ -877,13 +875,19 @@ actions <- c(actions, ~{
     min_result <- min(4, 9)
     max_result <- max(sum(mean_vector), 2)  # NB: sum gets cast to Type
     min_iar_out <- min_iar_in[min(3, 7):max(10, 20)]  # NB: Gets auto-idx'ed
+    floor_result <- floor(as.numeric(min_iar_in[[1]]))
+    ceiling_result <- ceiling(as.numeric(min_iar_in[[1]]))
     REPORT(min_result)
     REPORT(max_result)
     REPORT(min_iar_out)
+    REPORT(floor_result)
+    REPORT(ceiling_result)
 })
 expecteds$min_result <- 4
 expecteds$max_result <- sum(mean_vector)
 expecteds$min_iar_out <- min_iar_in[min(3, 7):max(10, 20)]
+expecteds$floor_result <- floor(min_iar_in[[1]])
+expecteds$ceiling_result <- ceiling(min_iar_in[[1]])
 
 # negate single value
 negate_x <- 10

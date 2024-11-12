@@ -503,9 +503,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             ")"))
     }
 
-    if (call_name %in% c("floor")) {
+    if (call_name %in% c("floor", "ceiling")) {
         # Use std:: versions to replace floor
         if (length(in_call) != 2) stop(call_name, " expects 1 argument")
+        if (call_name == "ceiling") call_name <- "ceil"
         return(paste0(
             "std::", call_name, "(",
             cpp_code(in_call[[2]], in_envir, next_indent),
