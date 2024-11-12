@@ -130,12 +130,15 @@ g3_parameterized <- function(
         }
 
         # Find common name_part, add that to our name
-        common_part <- rep(TRUE, length(by_stock[[1]]$name_parts))
-        for (i in seq_along(by_stock)) if (i > 1) {
-            common_part <- common_part & (by_stock[[1]]$name_parts == by_stock[[i]]$name_parts)
+        for (i in seq_along(by_stock)) {
+            if (i == 1) {
+                common_part <- by_stock[[i]]$name_parts
+            } else {
+                common_part <- intersect(common_part, by_stock[[i]]$name_parts)
+            }
         }
-        if (any(common_part)) {
-            stock_extra <- paste(by_stock[[1]]$name_parts[common_part], collapse = ".")
+        if (length(common_part) > 0) {
+            stock_extra <- paste(common_part, collapse = ".")
         } else {
             # No common parts, concatenate full names of both
             stock_extra <- paste(sort(vapply(by_stock, function (s) s$name, character(1))), collapse = ".")
