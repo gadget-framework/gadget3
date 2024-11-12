@@ -192,6 +192,11 @@ ok(ut_cmp_equal(nll,
     params$csparse_sumsquares_flc_weight * sum(r$nll_csparse_sumsquares_flc__nll) +
     0 ), "nll: Overall value matches")
 
+for (n in grep("^hist_nll_", names(r), value = TRUE)) {
+    ok(ut_cmp_equal(
+        as.vector(r[[n]][, "1994-02"]),
+        as.vector(r[[gsub("^hist_", "", n)]])), paste0(n, ": _detail reports match last column of our history") )
+}
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
 ok_group("flc") ###############################################################
@@ -248,4 +253,9 @@ ok(ut_cmp_equal(nll,
     params$csparse_sumsquares_flc_weight * sum(r$nll_csparse_sumsquares_flc__nll) +
     0 ), "nll: Overall value matches")
 
+for (n in grep("^hist_nll_", names(r), value = TRUE)) {
+    ok(ut_cmp_equal(
+        as.vector(r[[n]][, "1994-02"]),
+        as.vector(r[[gsub("^hist_", "", n)]])), paste0(n, ": _detail reports match last column of our history") )
+}
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
