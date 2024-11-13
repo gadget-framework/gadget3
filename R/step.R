@@ -150,8 +150,10 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             inner_vars <- all_undefined_vars(inner_f, recursive = TRUE)
             # List of formulas, select the relevant ones and combine
             for (i in seq_along(repl_list)) {
-                if (!is.symbol(stock$iter_ss[[i]])) next
-                if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock_var)) %in% inner_vars) {
+                if (!is.symbol(stock$iter_ss[[i]])) {
+                    # Iterator isn't a symbol, assume we need to iterate over it (see g3s_modeltime)
+                    out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
+                } else if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock_var)) %in% inner_vars) {
                     # We use the subset-iterator in inner code, so wrap with this iterator
                     # (e.g. stock__area_idx in code ==> iterate over area)
                     out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
