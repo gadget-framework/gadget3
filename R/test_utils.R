@@ -38,6 +38,7 @@ ut_tmb_r_compare2 <- function (
         model_fn,
         model_cpp,
         params,
+        gdbsource = FALSE,
         tolerance = 1e-5 ) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
@@ -64,7 +65,14 @@ ut_tmb_r_compare2 <- function (
         param_template$value[names(params)] <- params
     }
 
-    # writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = TRUE)))
+    if (gdbsource) {
+        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), output_script = TRUE))
+        if (length(grep("\\[Inferior 1 .* exited normally\\]", out_lines)) == 0) {
+            writeLines(out_lines)
+            stop("Model run failed")
+        }
+    }
+
     model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
 
     model_tmb_nll <- model_tmb$fn()
