@@ -155,7 +155,12 @@ g3_parameterized <- function(
     # Generate core call
     if (length(table_defn) > 0) {
         table_defn <- as.call(c(as.symbol('expand.grid'), table_defn))
-        out <- substitute(g3_param_table(x, table_defn), list(x = name, table_defn = table_defn))
+        # NB: select isn't used (yet), but give something for code-analysis to find
+        select_c <- as.call(c(
+            list(as.symbol("list")),
+            lapply(tail(names(table_defn), -1), as.symbol) ))
+        out <- substitute(
+            g3_param_table(x, table_defn, select = select_c), list(x = name, table_defn = table_defn, select_c = select_c))
     } else {
         out <- substitute(g3_param(x), list(x = name))
     }
@@ -195,7 +200,5 @@ g3_parameterized <- function(
     if (avoid_zero != 0) out <- substitute(avoid_zero(x), list(x = out))
     if (offset != 0) out <- substitute(x + offset, list(x = out, offset = offset))
 
-    # TODO: Big hack to make sure by_age stays in relevant loop
-    if (isTRUE(by_age)) out <- substitute(x + 0 * age, list(x = out))
     return(out)
 }
