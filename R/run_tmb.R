@@ -589,7 +589,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name == "length") {
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
+        # NB: .size() produces a long int, but asDouble() is missing the template to handle it
+        return(paste0("(int)(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
     }
 
     if (call_name == "t") {

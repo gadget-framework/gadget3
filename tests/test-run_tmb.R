@@ -710,6 +710,18 @@ actions <- c(actions, ~{
 expecteds$is_nan_output <- 1 + 8 + 16
 expecteds$is_finite_output <- 2 + 4 + 32 + 64 + 128
 
+# length --> size()
+length_inp <- rep(0, floor(runif(1, 2, 10)))
+actions[["integer_division"]] <- g3_formula(
+    {
+        expect_length_1 <- length(length_inp)
+        expect_length_2 <- as.numeric(length(length_inp))
+    },
+    length_inp = length_inp,
+    expect_length_1 = length(length_inp),
+    expect_length_2 = as.numeric(length(length_inp)),
+    end = NULL )
+
 # as.vector() --> .vec()
 as_vector_array <- array(runif(20), dim=c(10, 2))
 as_vector_result1 <- rep(NaN, 10)
