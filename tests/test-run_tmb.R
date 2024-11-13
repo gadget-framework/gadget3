@@ -750,6 +750,20 @@ expecteds$flow_control_break_sum <- sum(flow_control_vec[1:4])
 expecteds$flow_control_next_sum <- sum(flow_control_vec[-5])
 expecteds$flow_control_nested_tertiary <- (if(flow_control_vec[[1]] > 0.5) ( if (flow_control_vec[[2]] > 0.5) flow_control_vec[[3]] else flow_control_vec[[4]] ) else flow_control_vec[[5]])
 
+# Integer division / %/%
+intdiv_1 <- 0 - runif(1, 2, 10)
+intdiv_2 <- floor(runif(1, 2, 10))
+actions[["integer_division"]] <- g3_formula(
+    {
+        expect_intdiv_1 <- intdiv_1 %/% 2L
+        expect_intdiv_2 <- intdiv_2 %/% 2L
+    },
+    intdiv_1 = intdiv_1,
+    intdiv_2 = intdiv_2,
+    expect_intdiv_1 = intdiv_1 %/% 2L,
+    expect_intdiv_2 = intdiv_2 %/% 2L,
+    end = NULL )
+
 # pow() / .pow()
 pow_scalar <- 99
 pow_scalar_result <- 0
@@ -1052,12 +1066,40 @@ expecteds$param_table_nameclash_out <- params[["param_table_nameclash.1990"]] * 
 
 ###############################################################################
 
+for (i in seq_along(actions)) {
+    exp_names <- grep("^expect_", names(environment(actions[[i]])), value = TRUE)
+    if (length(exp_names) == 0) next  # Old-style test
+
+    # For each expect_ variable, move to expecteds
+    for (exp_name in exp_names) {
+        expecteds[[exp_name]] <- environment(actions[[i]])[[exp_name]]
+        environment(actions[[i]])[[exp_name]][] <- 0
+    }
+
+    # REPORT every expect_
+    reports <- lapply(exp_names, function (exp_name) {
+        substitute(REPORT(sym), list(sym = as.symbol(exp_name)))
+    })
+    # Convert list to { REPORT(x) ; REPORT(y); ... }
+    reports <- as.call(c(as.symbol("{"), reports))
+
+    # Top/tail actions with a comment of their name & reports
+    actions[[i]] <- gadget3:::f_substitute(quote({
+        comment(act_name)
+        act_f
+        reports
+    }), list(
+        act_name = names(actions)[[i]],
+        act_f = actions[[i]],
+        reports = reports))
+}
+
 nll <- 0.0
-actions <- c(actions, ~{
+actions[['zzzzz']] <- ~{
     comment('done')
     nll <- nll + g3_param('rv')
     return(nll)
-})
+}
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)

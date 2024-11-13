@@ -417,10 +417,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "%/%") {
         # Integer division
+        # NB: int / int rounds to zero in C++, not floor
         return(paste0(
-            "((int) ", cpp_code(in_call[[2]], in_envir, next_indent), ")",
+            "(int) std::floor(asDouble(",
+            "(", cpp_code(in_call[[2]], in_envir, next_indent), ")",
             " / ",
-            "((int) ", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+            "((double) ", cpp_code(in_call[[3]], in_envir, next_indent), ")",
+            "))"))
     }
 
     if (call_name == "^") {
