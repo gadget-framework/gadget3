@@ -4,7 +4,7 @@ if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceb
 
 library(gadget3)
 
-cmp_code <- function (a, b) ut_cmp_identical(deparse(a), deparse(b))
+cmp_code <- function (a, b) ut_cmp_identical(deparse1(a), deparse1(b))
 
 # Generate parameter template for all given parameters (beginning with "ut.")
 param_model <- function (...) {
@@ -109,7 +109,7 @@ ok(cmp_code(
             ifmissing = stock_prepend(stock, g3_param("def.byst"), name_part = NULL)
         ), name_part = NULL)
         g3_param("nby", ifmissing = g3_param("def.nby"))
-        g3_param_table("parp", expand.grid(cur_year = seq(start_year, end_year)), ifmissing = g3_param("peep"))
+        g3_param_table("parp", expand.grid(cur_year = seq(start_year, end_year)), select = list(cur_year), ifmissing = g3_param("peep"))
     NULL})), "ifmissing can be character (and gets assigned a parameter)")
 
 ok(cmp_code(
@@ -137,10 +137,10 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = TRUE, by_year = TRUE, by_age = TRUE),
     NULL)), quote({
         g3_param_table("st_m_imm.parp", expand.grid(
-            cur_year = seq(start_year, end_year)))
+            cur_year = seq(start_year, end_year)), select = list(cur_year) )
         g3_param_table("st_m_imm.parp", expand.grid(
             cur_year = seq(start_year, end_year),
-            age = seq(st_m_imm__minage, st_m_imm__maxage))) + 0 * age
+            age = seq(st_m_imm__minage, st_m_imm__maxage)), select = list(cur_year, age))
     NULL})), "Adding by_year or by_age turns it into a table")
 
 ok(cmp_code(
@@ -150,12 +150,12 @@ ok(cmp_code(
         g3_parameterized('yrst', by_year = TRUE, by_step = TRUE),
     NULL)), quote({
     g3_param_table("yr", expand.grid(
-        cur_year = seq(start_year, end_year)))
+        cur_year = seq(start_year, end_year)), select = list(cur_year))
     g3_param_table("st", expand.grid(
-        cur_step = seq_along(step_lengths)))
+        cur_step = seq_along(step_lengths)), select = list(cur_step))
     g3_param_table("yrst", expand.grid(
         cur_year = seq(start_year, end_year),
-        cur_step = seq_along(step_lengths)))
+        cur_step = seq_along(step_lengths)), select = list(cur_year, cur_step))
     NULL})), "by_year & by_step can be combined")
 
 ok(cmp_code(
@@ -166,7 +166,7 @@ ok(cmp_code(
     NULL)), quote({
         g3_param("st.parp", lower = 3)
         g3_param("st_m.parp", lower = 3)
-        g3_param_table("m.parp", expand.grid(cur_year = seq(start_year, end_year)))
+        g3_param_table("m.parp", expand.grid(cur_year = seq(start_year, end_year)), select = list(cur_year))
     NULL})), "Can specify which name_part should be used in the name")
 
 ok(cmp_code(
@@ -180,7 +180,7 @@ ok(cmp_code(
         stock_prepend("st.m", g3_param("parp"))
         stock_prepend("st", g3_param("parp"))
         stock_prepend("st.f", g3_param_table("parp", expand.grid(
-            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))))) + 0 * age
+            age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))), select = list(age)))
         stock_prepend("c_d.zz_b", g3_param("nocommon"))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
@@ -192,7 +192,7 @@ ok(cmp_code(
     NULL), quote({
         stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
         stock_prepend(stock, g3_param("rec"), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") + stock_prepend(stock, g3_param("rec.offset"), name_part = "species")
-        stock_prepend(stock, g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage))), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species") + 0 * age
+        stock_prepend(stock, g3_param_table("rec", expand.grid(age = seq(stock__minage, stock__maxage)), select = list(age)), name_part = "species") * stock_prepend(stock, g3_param("rec.scalar"), name_part = "species")
     NULL})), "scale / offset can be character, in which case they are also a param. Only by_stock is honoured though")
 
 year_range <- 1982:1986

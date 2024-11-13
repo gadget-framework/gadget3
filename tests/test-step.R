@@ -316,7 +316,7 @@ ok_group("g3_step:dependent_formulas", (function () {
             const := g3_param("ling_imm.const"),
             for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) g3_with(
                 ling_imm__age_idx := g3_idx(age - ling_imm__minage + 1L),
-                by_age := (g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage))) + 0 * age),
+                by_age := g3_param_table("ling_imm.byage", expand.grid(age = seq(ling_imm__minage, ling_imm__maxage)), select = list(age)),
                 (ling_imm__num[, ling_imm__age_idx] + const + by_age)))
     ))), "add_dependent_formula: stock substituted both inside and outside loop")
 
