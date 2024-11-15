@@ -1,5 +1,6 @@
 \name{quota}
 \alias{g3_quota_hockeyfleet}
+\alias{g3_quota_assess}
 \alias{g3_quota}
 \concept{G3 projections}
 
@@ -16,6 +17,11 @@ g3_quota_hockeyfleet(
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
         harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
         stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0) )
+
+g3_quota_assess(
+        predstocks,
+        preystocks,
+        assess_f )
 
 g3_quota(
         function_f,
@@ -44,6 +50,9 @@ g3_quota(
   }
   \item{stddev}{
     If > 0, then apply log-normal noise to the output quota.
+  }
+  \item{assess_f}{
+    A formula that runs an assessment model & returns a quota. See vignette TODO:
   }
   \item{function_f}{
     Output of one of the \code{g3_quota_*} functions, responsible for choosing the next quota
@@ -131,6 +140,7 @@ g3_quota(
       \item{\eqn{B_p}}{Total abundance of prey in biomass}
     }
   }
+  \subsection{g3_quota_assess}{A formula for use in \code{\link{g3_quota}} }
   \subsection{g3_quota}{A formula for use in \code{\link{g3a_predate_catchability_project}} }
 }
 

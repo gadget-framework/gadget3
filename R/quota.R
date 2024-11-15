@@ -46,6 +46,36 @@ g3_quota_hockeyfleet <- function (
     return(out)
 }
 
+g3_quota_assess <- function (
+        predstocks,
+        preystocks,
+        assess_f ) {
+    # Turn list of calls into a single list() call
+    to_list_call <- function (x) as.call(c(list(as.symbol("list")), x ))
+
+    pred_names <- vapply(predstocks, function (s) s$name, character(1))
+    prey_names <- vapply(preystocks, function (s) s$name, character(1))
+
+    hist_cons <- to_list_call(sapply(pred_names, function (pred_n) {
+        to_list_call(sapply(prey_names, function (prey_n) {
+            as.symbol(paste0("detail_", prey_n, "_", pred_n, "__cons"))
+        }, simplify = FALSE))
+    }, simplify = FALSE))
+    hist_abund <- to_list_call(sapply(prey_names, function (prey_n) {
+        as.symbol(paste0("dstart_", prey_n, "__num"))
+    }, simplify = FALSE))
+    hist_meanwgt <- to_list_call(sapply(prey_names, function (prey_n) {
+        as.symbol(paste0("dstart_", prey_n, "__wgt"))
+    }, simplify = FALSE))
+
+    out <- f_substitute(assess_f, list(
+        cons = hist_cons,
+        abund = hist_abund,
+        meanwgt = hist_meanwgt ))
+    attr(out, "quota_name") <- c("assess", sapply(predstocks, function (ps) ps$name))
+    return(out)
+}
+
 g3_quota <- function (
         function_f,
         quota_name = attr(function_f, 'quota_name'),
