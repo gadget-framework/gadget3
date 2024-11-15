@@ -146,6 +146,7 @@ export(g3_param_project)
 
 # R/quota.R
 export(g3_quota_hockeyfleet)
+export(g3_quota_assess)
 export(g3_quota)
 
 # R/run_desc.R
