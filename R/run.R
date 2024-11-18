@@ -89,7 +89,7 @@ update_data_bounds <- function (model_data, param_tmpl) {
     } else if (is.data.frame(param_tmpl)) {
         for (param_type in c('lower', 'upper')) {
             for (i in seq_len(nrow(param_tmpl))) {
-                data_var <- cpp_escape_varname(paste0(param_tmpl[i, 'switch'], '__', param_type))
+                data_var <- paste0(param_tmpl[i, 'switch'], '__', param_type)
                 if (!exists(data_var, envir = model_data)) next
 
                 data_val <- param_tmpl[i, param_type]
