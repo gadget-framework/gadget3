@@ -67,8 +67,14 @@ ut_tmb_r_compare2 <- function (
     # writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = TRUE)))
     model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
 
+    model_tmb_nll <- model_tmb$fn()
     model_tmb_report <- model_tmb$report()
     r_result <- model_fn(param_template)
+
+    unittest::ok(unittest::ut_cmp_equal(
+        model_tmb_nll,
+        as.vector(r_result),
+        tolerance = tolerance ), "TMB and R match nll")
 
     for (n in names(attributes(r_result))) {
         unittest::ok(unittest::ut_cmp_equal(

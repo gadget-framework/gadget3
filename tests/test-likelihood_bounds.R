@@ -3,7 +3,7 @@ library(unittest)
 
 library(gadget3)
 
-############# Tests for parameter_template mode
+############# Tests for parameter_template mode (old, should be removed)
 
 actions <- list()
 area_names <- g3_areas(c("IXa"))
@@ -76,7 +76,7 @@ ok(ut_cmp_identical(lapply(g3l_bounds_penalty(params.in), deparse), list(
 actions <- list(g3a_time(2000, 2000), list("555" = g3_formula({
     # TMB will fail mysteriously if at least one parameter isn't optimisable
     nll <- nll + g3_param('p0', value = 0, optimise = TRUE)
-    nll <- nll + g3_param('pa')
+    nll <- nll + g3_param('p.a')
     nll <- nll + g3_param('pb')
     nll <- nll + g3_param('pc')
     nll <- nll + g3_param('pd', value = 0, lower = -10, upper = 10)
@@ -85,7 +85,7 @@ model_cpp <- g3_to_tmb(c(actions, list( g3l_bounds_penalty(actions) )))
 model_fn <- g3_to_r(c(actions, list( g3l_bounds_penalty(actions) )))
 
 attr(model_cpp, 'parameter_template') |>
-    g3_init_val('pa', 100.45) |>
+    g3_init_val('p.a', 100.45) |>
     g3_init_val('pb', 200) |>
     g3_init_val('pc', 300.5342) |>
     identity() -> params.in
@@ -96,7 +96,7 @@ ok(ut_cmp_equal(
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 suppressWarnings(attr(model_cpp, 'parameter_template') |>
-    g3_init_val('pa', 100, lower = 50, upper = 150) |>
+    g3_init_val('p.a', 100, lower = 50, upper = 150) |>
     g3_init_val('pb', 200) |>
     g3_init_val('pc', 300) |>
     identity() -> params.in)
@@ -107,7 +107,7 @@ ok(ut_cmp_equal(
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 suppressWarnings(attr(model_cpp, 'parameter_template') |>
-    g3_init_val('pa', 100, lower = 10, upper = 50) |>
+    g3_init_val('p.a', 100, lower = 10, upper = 50) |>
     g3_init_val('pb', 200) |>
     g3_init_val('pc', 300) |>
     identity() -> params.in)
@@ -119,7 +119,7 @@ ok(ut_cmp_equal(
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 suppressWarnings(attr(model_cpp, 'parameter_template') |>
-    g3_init_val('pa', 10, lower = 20, upper = 50) |>
+    g3_init_val('p.a', 10, lower = 20, upper = 50) |>
     g3_init_val('pb', 200) |>
     g3_init_val('pc', 300) |>
     identity() -> params.in)
@@ -131,7 +131,7 @@ ok(ut_cmp_equal(
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 suppressWarnings(attr(model_cpp, 'parameter_template') |>
-    g3_init_val('pa', 10, lower = 20, upper = 50) |>
+    g3_init_val('p.a', 10, lower = 20, upper = 50) |>
     g3_init_val('pb', 90, lower = 20, upper = 50) |>
     g3_init_val('pc', 300) |>
     identity() -> params.in)
