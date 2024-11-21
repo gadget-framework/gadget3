@@ -75,6 +75,10 @@ export(g3a_spawn_recruitment_bevertonholt_ss3)
 export(g3a_spawn_recruitment_hockeystick)
 export(g3a_spawn)
 
+# R/action_spmodel.R
+export(g3a_spmodel_logistic)
+export(g3a_spmodel)
+
 # R/action_tagging.R
 export(g3a_predate_tagrelease)
 export(g3a_tag_shedding)
