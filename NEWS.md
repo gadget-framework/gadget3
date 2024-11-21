@@ -8,6 +8,7 @@
 * `g3_to_r`-produced model functions will accept both a list & data.frame parameter template
 * `g3_to_r` models can include arbitary R functions, see vignettes/writing_actions #194
 * Add `g3_array_agg` #193
+* Add surplus production model action `g3a_spmodel` #209
 
 ## Breaking changes
 * Rename ``detail_x__num`` to ``dstart_x__num`` #200
