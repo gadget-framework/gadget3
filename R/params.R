@@ -28,6 +28,7 @@ g3_parameterized <- function(
         by_step = FALSE,
         by_age = FALSE,
         by_area = FALSE,
+        prepend_extra = list(),
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -191,6 +192,11 @@ g3_parameterized <- function(
     } else if (isTRUE(by_stock) || is.character(by_stock)) {
         # Use stock_prepend() to do stock substitutions
         out <- substitute(stock_prepend(stock, out, name_part = name_part), list(out = out, name_part = name_part(by_stock)))
+    }
+
+    # Append any extra items using stock_prepend
+    for (ex in (if (is.list(prepend_extra)) prepend_extra else list(prepend_extra))) {
+        out <- substitute(stock_prepend(ex, out), list(out = out, ex = ex))
     }
 
     # Turn character scale/offset into parameter code
