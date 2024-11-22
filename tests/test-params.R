@@ -248,3 +248,16 @@ ok(ut_cmp_identical(param_tmpl(
         NULL )), "by_predator/by_area: Used predator areas instead of stock")
 
 ########## by_area
+
+ok_group("prepend_extra") ##########
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized("paramut", value = 1, prepend_extra = quote(predstock)),
+    g3_parameterized("paramut", value = 1, prepend_extra = "lindsey"),
+    g3_parameterized("paramut", value = 2, prepend_extra = list("frank", "fronk")),
+    NULL)$switch, c(
+        "is_comm.paramut",
+        "lindsey.paramut",
+        "fronk.frank.paramut",
+        NULL )), "prepend_extra: Used code / string / list of strings")
+
+########## prepend_extra
