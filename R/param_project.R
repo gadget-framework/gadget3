@@ -1,7 +1,8 @@
 g3_param_project_dlnorm <- function (
-        # TODO: Parameterized defaults?
-        lmean_f = 0,
-        lstddev_f = 1e5 ) {
+        lmean_f = g3_parameterized("lmean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        lstddev_f = g3_parameterized("lstddev", value = 1e5, optimise = FALSE,
+            prepend_extra = quote(projstock)) ) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(var))
     # lstddev_f = log(sd(log(var)))
@@ -38,8 +39,10 @@ g3_param_project_dlnorm <- function (
 }
 
 g3_param_project_dnorm <- function (
-        mean_f = 0,
-        stddev_f = 1 ) {
+        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
+            prepend_extra = quote(projstock)) ) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
 
     # NB: Only real purpose is to cast the var to .vec()
@@ -72,8 +75,10 @@ g3_param_project_dnorm <- function (
 }
 
 g3_param_project_rwalk <- function (
-        mean_f = 0,
-        stddev_f = 1 ) {
+        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
+            prepend_extra = quote(projstock)) ) {
     g3_param_project_nll_rwalk <- g3_native(r = function (var, mean, stddev) {
         d <- c(0, diff(var))
         return(dnorm(d, mean = mean, sd = stddev))

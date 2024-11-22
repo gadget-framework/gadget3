@@ -12,16 +12,22 @@
 
 \usage{
 g3_param_project_dlnorm(
-        lmean_f = 0,
-        lstddev_f = 1e5 )
+        lmean_f = g3_parameterized("lmean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        lstddev_f = g3_parameterized("lstddev", value = 1e5, optimise = FALSE,
+            prepend_extra = quote(projstock)) )
 
 g3_param_project_dnorm(
-        mean_f = 0,
-        stddev_f = 1 )
+        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
+            prepend_extra = quote(projstock)) )
 
 g3_param_project_rwalk(
-        mean_f = 0,
-        stddev_f = 1 )
+        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
+            prepend_extra = quote(projstock)),
+        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
+            prepend_extra = quote(projstock)) )
 
 g3_param_project(
         param_name,
@@ -36,6 +42,8 @@ g3_param_project(
 \arguments{
   \item{mean_f, stddev_f, lmean_f, lstddev_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
+    Defaults to parameters with names \code{proj_(dlnorm|dnorm|rwalk)_(param_name).(mean|stddev)}
+    (i.e. the same name as the projection variable)
   }
   \item{param_name}{
     Character string used to name the parameters.
