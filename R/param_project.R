@@ -116,16 +116,32 @@ g3_param_project_rwalk <- function (
 g3_param_project <- function (
         param_name,
         project_fs = g3_param_project_rwalk(),
-        # TODO: Support by_stock
-        # * Support stock_prepend(stock, stock_ss(proj__woo))
-        # * Recycle the prepending logic in g3_parameterized() to do the above
-        # * Make the g3_step() happen implicitly in the overall g3_step(), thus having stock about
         by_step = TRUE,
+        by_stock = FALSE,
         weight = g3_parameterized(
-            paste("proj", project_fs$name, param_name, "weight", sep = "_"),
+            paste("proj", project_fs$name, by_stock, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
         random = TRUE ) {
-    projstock <- g3_storage(c('proj', project_fs$name, param_name))
+
+    # Convert by_stock into a character vector
+    if (isTRUE(by_stock)) {
+        stop("by_stock = TRUE not supported for g3_param_project(), must be explicit stock objects")
+    } else if (isFALSE(by_stock)) {
+        by_stock <- c()
+    } else if (g3_is_stock(by_stock)) {
+        by_stock <- by_stock$name
+    } else if (is.list(by_stock) && sapply(by_stock, g3_is_stock)) {
+        by_stock <- stock_common_part(by_stock)
+    } else {
+        stop("Unknown by_stock argument. Should be a g3_stock or list of stocks")
+    }
+
+    # Create projstock storage for projection values
+    projstock <- g3_storage(c(
+        "proj",
+        project_fs$name,
+        by_stock,
+        param_name ))
     projstock <- g3s_modeltime(projstock, by_year = isFALSE(by_step))
 
     param_tbl <- g3_parameterized(param_name, by_year = TRUE, by_step = isTRUE(by_step), random = random, ifmissing = NaN)
