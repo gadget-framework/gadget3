@@ -33,6 +33,7 @@ g3_param_project(
         param_name,
         project_fs = g3_param_project_rwalk(),
         by_step = TRUE,
+        by_stock = FALSE,
         weight = g3_parameterized(
             paste("proj", project_fs$name, by_stock, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
@@ -53,6 +54,11 @@ g3_param_project(
   }
   \item{by_step}{
     Boolean, generate per-step or per-year values.
+  }
+  \item{by_stock}{
+    Prepend stock name to the projection variable, i.e. \var{param_name}.
+    Unlike \code{\link{g3_parameterized}}, can only be \code{FALSE} or \code{\link{g3_stock}} objects,
+    \code{TRUE} or \code{"species"} isn't supported.
   }
   \item{weight}{
     A weighting to give to the likelhood when generating total nll.
@@ -141,13 +147,18 @@ actions <- list(
     g3a_naturalmortality(st, g3a_naturalmortality_exp(
         g3_param_project("Mrw", g3_param_project_rwalk(
           mean_f = 0,
-          stddev_f = 0.001 ), by_step = FALSE ))),
+          stddev_f = 0.001 ),
+        by_step = FALSE,
+        # by_stock means the stock name will be included in parameter names
+        by_stock = st ))),
 
     # Natural mortality with per-step deviates
     g3a_naturalmortality(st, g3a_naturalmortality_exp(
         g3_param_project("Mdn", g3_param_project_dnorm(
           mean_f = g3_parameterized("Mdn_mean", value = 0.1, optimise = FALSE),
-          stddev_f = g3_parameterized("Mdn_sd", value = 0.001, optimise = FALSE) )))),
+          stddev_f = g3_parameterized("Mdn_sd", value = 0.001, optimise = FALSE) ),
+          # by_stock means the stock name will be included in parameter names
+          by_stock = st ))),
     NULL )
 
 model_fn <- g3_to_r(c(actions, list(
@@ -169,16 +180,16 @@ attr(model_fn, 'parameter_template') |>
 
     # Don't include projections in nll calculations:
     # allows a stddev to be supplied for projections, but estimated freely
-    g3_init_val("proj_Mrw_weight", 0) |>
-    g3_init_val("proj_Mdn_weight", 0) |>
+    g3_init_val("proj_rwalk_fish_Mrw_weight", 0) |>
+    g3_init_val("proj_dnorm_fish_Mdn_weight", 0) |>
 
     identity() -> params
 r <- attributes(model_fn(params))
 
 # Values used for dnorm
-plot(r$proj_dnorm_Mdn__var)
+plot(r$proj_dnorm_fish_Mdn__var)
 
 # Values used for random walk
-plot(r$proj_rwalk_Mrw__var)
+plot(r$proj_rwalk_fish_Mrw__var)
 
 }
