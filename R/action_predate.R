@@ -60,7 +60,7 @@ g3a_predate_catchability_project <- function (
     } else if (unit == "biomass") {
         g3a_predate_catchability_totalfleet(quota_f)
     } else if (unit == "individuals") {
-        g3a_predate_catchability_totalfleet(quota_f)
+        g3a_predate_catchability_numberfleet(quota_f)
     } else {
         stop("Unknown catchability unit ", unit)
     }
