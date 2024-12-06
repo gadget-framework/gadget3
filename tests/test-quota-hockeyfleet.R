@@ -67,21 +67,26 @@ ok(ut_cmp_equal(as.vector(tail(0 - diff(r$quota_hockeyfleet_fl__var), -1)), as.v
     `2024:2025` = 26525, `2025:2026` = 26166
     )), tolerance = 1e-4), "quota_hockeyfleet_fl__var: Constant until btrigger, then starts dropping")
 
-x <- g3_array_agg(r$detail_st_fl__cons, year = 1990:2024, "step")
+x <- g3_array_agg(r$detail_st_fl__cons, year = 1990:1995, "step")
+ok(ut_cmp_equal(
+    as.vector(x),
+    c(6e6, 6e6, 6e6, 6e6),
+    tolerance = 3e-7 ), "detail_st_fl__cons: Specified by parameters (before projecting)")
+x <- g3_array_agg(r$detail_st_fl__cons, year = 1996:2024, "step")
 ok(ut_cmp_equal(
     as.vector(x / sum(x)),
     c(0, 0.5, 0.4, 0.1),
-    tolerance = 3e-3 ), "detail_st_fl__cons: Follows seasonal pattern")
+    tolerance = 4e-3 ), "detail_st_fl__cons: Follows seasonal pattern (whilst projecting)")
 
 fishingyear_cons <- c(0, tail(g3_array_agg(r$detail_st_fl__cons, year = 1990:2024, "year", step = 1:3), -1)) +
     g3_array_agg(r$detail_st_fl__cons, year = 1990:2024, "year", step = 4)
 fishingyear_quota <- head(r$quota_hockeyfleet_fl__var, -1)
 ok(ut_cmp_equal(
     fishingyear_cons[[1]],
-    1e6 * 0.1), "fishingyear_cons: First year only contains an autumn")
+    1e6), "fishingyear_cons: First year only contains an autumn")
 ok(ut_cmp_equal(
     as.vector(fishingyear_cons[2:6]),
-    rep(1e6, 5)), "fishingyear_cons: Outside projections we consume landings rate")
+    rep(4e6, 5)), "fishingyear_cons: Outside projections we consume landings rate")
 ok(ut_cmp_equal(
     as.vector( fishingyear_cons[7:length(fishingyear_cons)] ),
     as.vector( r$quota_hockeyfleet_fl__var[7:length(fishingyear_cons)] / 1.001 ),

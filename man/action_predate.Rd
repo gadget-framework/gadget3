@@ -110,11 +110,11 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     Generally, this will be produced by \code{\link{g3_quota}}.
   }
   \item{quota_prop}{
-    A quota can apply to multiple fleets, in which case use this parameter to assign the proportion available to the current fleet.
+    A quota can apply to multiple fleets, in which case use this parameter to assign the proportion of quota available to the current fleet.
     Note that ideally all \var{quota_prop} values sum to 1, but this doesn't have to be the case (e.g. over/under-utilisation of quotas).
   }
   \item{quota_step}{
-    The proportion of the per-year quota or landings that is used in each step.
+    The proportion of the per-year quota that is used in each step.
     As with \var{quota_prop} ideally all values sum to 1.
   }
   \item{unit}{
