@@ -37,6 +37,11 @@ g3a_predate_catchability_project <- function (
     unit = c("biomass", "effort", "individuals") ) {
     unit <- match.arg(unit)
 
+    quota_f <- f_substitute(quote( quota_step * quota_prop * (quota_f) ), list(
+        quota_prop = list_to_stock_switch(quota_prop, "predstock"),
+        quota_step = quota_step,
+        quota_f = quota_f ))
+
     # Add on pre_projection landings if given
     if (!is.null(pre_projection_landings_f)) {
         quota_f <- f_substitute(
@@ -45,11 +50,6 @@ g3a_predate_catchability_project <- function (
                 pre_f = pre_projection_landings_f,
                 quota_f = quota_f ))
     }
-
-    quota_f <- f_substitute(quote( quota_step * quota_prop * (quota_f) ), list(
-        quota_prop = list_to_stock_switch(quota_prop, "predstock"),
-        quota_step = quota_step,
-        quota_f = quota_f ))
 
     if (unit == "effort") {
         # Cancel out linearfleet's "* cur_step_size" as we are applying quota_step instead
