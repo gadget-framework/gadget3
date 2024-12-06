@@ -54,14 +54,15 @@ g3a_time <- function(
         ~length(step_lengths) * (end_year - retro_years - start_year + project_years) + final_year_steps - 1L,
         list(
             # i.e. hard code a 0L (so it can be optimised out), otherwise include variable
-            project_years = if (have_projection_years) quote(project_years) else 0L,
-            retro_years = if (have_retro_years) quote(retro_years) else 0L,
+            project_years = if (have_projection_years) quote(as_integer(project_years)) else 0L,
+            retro_years = if (have_retro_years) quote(as_integer(retro_years)) else 0L,
             final_year_steps = final_year_steps )))
     total_years <- g3_global_formula(init_val = f_substitute(
         ~end_year - retro_years - start_year + project_years + 1L,
         list(
-            retro_years = if (have_retro_years) quote (retro_years) else 0L,
-            project_years = if (have_projection_years) quote(project_years) else 0L)))
+            # NB: retro_years / project_years are parameters, so will be Type
+            retro_years = if (have_retro_years) quote (as_integer(retro_years)) else 0L,
+            project_years = if (have_projection_years) quote(as_integer(project_years)) else 0L)))
     nll <- 0.0
 
     out <- new.env(parent = emptyenv())

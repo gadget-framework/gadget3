@@ -97,3 +97,69 @@ g3_array_agg <- function(
     }
     return(ar)
 }
+
+g3_array_combine <- function(
+        arrays,
+        agg = sum,
+        init_val = 0 ) {
+    # Return sorted union of arrays
+    uniondn <- function(args) {
+        inner <- function (dn_a, dn_b) {
+            # Convert any arrays to dimnames
+            if (is.array(dn_a)) dn_a <- dimnames(dn_a)
+            if (is.array(dn_b)) dn_b <- dimnames(dn_b)
+
+            sapply(names(dn_a), function(n) {
+                # Find out which of dn_a & dn_b contains the first item of the other
+                if (length(aidx <- which(dn_a[[n]] == dn_b[[n]][[1]])) > 0) {
+                    out <- dn_a[[n]]
+                    # Splice dn_b into dn_a, letting R expand the array
+                    out[aidx:(aidx + length(dn_b[[n]]) - 1)] <- dn_b[[n]]
+
+                } else if (length(bidx <- which(dn_b[[n]] == dn_a[[n]][[1]])) > 0) {
+                    out <- dn_b[[n]]
+                    # Splice dn_a into dn_b, letting R expand the array
+                    out[bidx:(bidx + length(dn_a[[n]]) - 1)] <- dn_a[[n]]
+
+                } else {
+                    stop("No intersection between ", paste(dn_a[[n]], collapse = ","), " and ", paste(dn_b[[n]], collapse = ","))
+                }
+                out
+            }, simplify = FALSE)
+        }
+
+        if (length(args) == 0) stop("You must provide at least one argument")
+        if (length(args) == 1) return(args[[1]])
+        if (length(args) == 2) return(inner(args[[1]], args[[2]]))
+        return(uniondn(c(
+            list(inner(args[[1]], args[[2]])),
+            tail(args, -2) )))
+    }
+
+    flatten_lists <- function (l) {
+        # Base-case: Return single-item list
+        if (!is.list(l)) return(list(l))
+
+        # Recurse for each element in l, generating a list of lists
+        out <- lapply(l, flatten_lists)
+        # Concatenate all lists in out
+        do.call(c, out)
+    }
+
+    arrays <- flatten_lists(arrays)
+    for (i in seq_along(arrays)) if (i > 1) {
+        # Names of dimensions should match
+        stopifnot(all.equal(
+            names(dim(arrays[[i]])),
+            names(dim(arrays[[1]])) ))
+    }
+
+    dn <- uniondn(arrays)
+    out <- array(init_val, dim = sapply(dn, length), dimnames = dn)
+    for (ar in arrays) {
+        # Convert ar's dimnames into a subset
+        subset <- as.call(c(list(as.symbol("["), quote(out)), dimnames(ar)))
+        eval(substitute(subset <- subset + ar, list(subset = subset)))
+    }
+    return(out)
+}

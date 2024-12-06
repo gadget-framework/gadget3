@@ -104,3 +104,71 @@ g3s_modeltime <- function (inner_stock, by_year = FALSE) {
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
+
+# Add dimension for fishing year, (year_length) years long, starting at (start_step)
+g3s_modeltime_fishingyear <- function (inner_stock, year_length = 1, start_step = 1) {
+    stopifnot(g3_is_stock(inner_stock))
+    stopifnot(is.numeric(year_length))
+    stopifnot(is.numeric(start_step))
+    year_length <- as.integer(year_length)
+    start_step <- as.integer(start_step)
+
+    # Year that start_step sits in
+    # NB: These could be stock__fishingyear_start, but for that dynamic dims would need to be stock_rename()ed
+    fishing_startyr_c <- substitute(
+        start_year + ((start_step - 1L) %/% step_count),
+        list( year_length = year_length, start_step = start_step ))
+    # Total number of steps in fishing calendar (excluding start), divided by fishing year length, rounded up
+    fishing_years_c <- substitute(
+        as_integer(ceiling( as.numeric(total_steps - start_step + 1L) / as.numeric(step_count * year_length) )) + 1L,
+        list( year_length = year_length, start_step = start_step ))
+
+    new_dim <- fishing_years_c
+    new_dimnames <- substitute(
+        paste(
+            seq.int(fishing_startyr_c, length.out = fishing_years_c, by = year_length),
+            seq.int(fishing_startyr_c + year_length, length.out = fishing_years_c, by = year_length),
+            sep = ":" ),
+        list( fishing_startyr_c = fishing_startyr_c, fishing_years_c = fishing_years_c, year_length = year_length ))
+    if (start_step > 1) {
+        # Add remainder year for start of model
+        new_dim <- substitute(new_dim + 1L, list(new_dim = new_dim))
+        new_dimnames <- substitute(c(
+            list(paste(start_year, fishing_startyr_c, sep = ":")),
+            new_dimnames ), list(fishing_startyr_c = fishing_startyr_c, new_dimnames = new_dimnames))
+    }
+
+    lookup <- substitute(
+        g3_idx(max(
+            ((cur_time - start_step + 1L) %/% (step_count * year_length)) + offset,
+            1L )), list(
+            offset = if (start_step > 1) 2L else 1L,
+            year_length = year_length,
+            start_step = start_step ))
+    code <- substitute(g3_with(
+        stock__fishingyear_step :=
+            if (cur_time + 1L < start_step) cur_time + 1L else (cur_time - start_step + 1L) %% (step_count * year_length) + 1L,
+        stock__fishingyear_revstep :=
+            if (cur_time + 1L < start_step) cur_time - start_step + 1L else (cur_time - start_step + 1L) %% (step_count * year_length) - (step_count * year_length),
+        stock__fishingyear_idx := lookup,
+        extension_point ), list(
+            lookup = lookup,
+            offset = if (start_step > 1) 2L else 1L,
+            year_length = year_length,
+            start_step = start_step ))
+    structure(list(
+        dim = c(inner_stock$dim, fishingyear = new_dim),
+        dimnames = c(inner_stock$dimnames, fishingyear = new_dimnames),
+        iterate = c(inner_stock$iterate, fishingyear = code),
+        # NB: We can't use an _idx variable currently, as we have to do stock_with(stock_ss(..)) as part of an expression, so the definitions get lost
+        iter_ss = c(inner_stock$iter_ss, fishingyear = lookup),
+        intersect = c(inner_stock$intersect, fishingyear = code),
+        interact = c(inner_stock$interact, fishingyear = code),
+        with = c(inner_stock$with, fishingyear = quote(extension_point)),
+        env = as.environment(c(as.list(inner_stock$env), list(
+            stock__fishingyear_startyear = fishing_startyr_c,
+            stock__fishingyear_stepcount = fishing_years_c ))),
+        #env = as.environment(c(as.list(inner_stock$env))),
+        name_parts = inner_stock$name_parts,
+        name = inner_stock$name), class = c("g3_stock", "list"))
+}

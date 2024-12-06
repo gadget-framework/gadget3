@@ -178,3 +178,25 @@ g3_to_r(list(g3a_naturalmortality(ling_imm, nmort())))
 As well as making values available to other steps, ``g3_global_formula``()
 can also be used to ensure that the value ends up in the model report, which will
 happen automatically for any non-constant global in the model.
+
+## Ancillary steps
+
+Additional steps can be attached to a formula, allowing setup for a variable at the beginning of a model,
+or implicit likelihood components. For example:
+
+```{r}
+st_imm <- g3_stock(c("st", "imm"), 1:10)
+g3_to_r(list(
+    g3a_naturalmortality(
+        st_imm,
+        g3_formula(
+            parrot**2,
+            parrot = 0,
+            "-01:ut:parrot" = g3_formula({
+                parrot <- runif(1)
+            }))),
+    NULL ))
+```
+
+The attached step gets inserted at the beginning of the model,
+and a new random number is chosen for ``parrot`` at each model timestep.

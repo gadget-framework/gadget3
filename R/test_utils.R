@@ -38,6 +38,7 @@ ut_tmb_r_compare2 <- function (
         model_fn,
         model_cpp,
         params,
+        gdbsource = FALSE,
         tolerance = 1e-5 ) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
@@ -47,6 +48,10 @@ ut_tmb_r_compare2 <- function (
             attributes(x) <- oldattr  # Preserve arrayness
         }
         attr(x, "desc") <- NULL  # Hide descriptions, we're not preserving yet
+        if (is.array(x) && "fishingyear" %in% names(dimnames(x))) {
+            # fishingyear dimensions aren't preserved yet, we'd need to do more gen_dimnames magic
+            dimnames(x)$fishingyear <- NULL
+        }
         return(x)
     }
 
@@ -64,7 +69,14 @@ ut_tmb_r_compare2 <- function (
         param_template$value[names(params)] <- params
     }
 
-    # writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = TRUE)))
+    if (gdbsource) {
+        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), output_script = TRUE))
+        if (length(grep("\\[Inferior 1 .* exited normally\\]", out_lines)) == 0) {
+            writeLines(out_lines)
+            stop("Model run failed")
+        }
+    }
+
     model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
 
     model_tmb_nll <- model_tmb$fn()
@@ -119,13 +131,26 @@ ut_cmp_array <- function (ar, table_text, ...) {
 
 ut_cmp_df <- function (df, table_text, ...) {
     df <- as.data.frame(df, stringsAsFactors = FALSE)
+    cc <- sapply(df, class)
+
+    # For any AsIs list columns, pull out the value of the first item
+    cc_is_list <- cc == "AsIs"
+    cc[cc_is_list] <- sapply(
+        names(cc[cc_is_list]),
+        function (n) class(df[[n]][[1]]) )
+
     if (nzchar(trimws(table_text))) {
         expected <- utils::read.table(
             header = TRUE,
             check.names = FALSE,
             stringsAsFactors = FALSE,
-            colClasses = sapply(df, class),
+            colClasses = cc,
             text = table_text)
+        for (i in which(cc_is_list)) {
+            # Put listiness back
+            expected[[i]] <- I(as.list(expected[[i]]))
+            names(expected[[i]]) <- names(df[[i]])
+        }
     } else {
         # Empty data frame, so we can copy expected values
         expected <- df[c(),, drop = FALSE]

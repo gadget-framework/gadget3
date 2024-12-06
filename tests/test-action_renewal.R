@@ -74,11 +74,11 @@ ok_group('g3a_renewal:run_f default parameterisation', {
     }
 
     ok(ut_cmp_identical(run_cond(), quote(
-        age == fish__minage && cur_step == 1 && (!cur_year_projection)
+        age == fish__minage && cur_step == 1
     )), "No params, got default")
 
     ok(ut_cmp_identical(run_cond(run_age = 5), quote(
-        age == 5 && cur_step == 1 && (!cur_year_projection)
+        age == 5 && cur_step == 1
     )), "Overrode age")
 
     ok(ut_cmp_identical(run_cond(run_age = 2, run_projection = TRUE), quote(
@@ -86,12 +86,16 @@ ok_group('g3a_renewal:run_f default parameterisation', {
     )), "Overrode age & projection")
 
     ok(ut_cmp_identical(run_cond(run_step = 2), quote(
-        age == fish__minage && cur_step == 2 && (!cur_year_projection)
+        age == fish__minage && cur_step == 2
     )), "Overrode run_step")
 
     ok(ut_cmp_identical(run_cond(run_step = NULL), quote(
-        age == fish__minage && (!cur_year_projection)
+        age == fish__minage
     )), "run_step can be turned off entirely")
+
+    ok(ut_cmp_identical(run_cond(run_step = NULL, run_projection = FALSE), quote(
+        age == fish__minage && (!cur_year_projection)
+    )), "run_projection can be turned off")
 })
 
 ok_group('g3a_renewal:default parameterisation', {
@@ -103,7 +107,7 @@ ok_group('g3a_renewal:default parameterisation', {
 
     ok(ut_cmp_identical(renewal_params(), c(
         "fish.rec.1990", "fish.rec.1991", "fish.rec.1992", "fish.rec.1993", "fish.rec.1994",
-        "fish.rec.scalar",
+        "fish.rec.proj", "fish.rec.scalar",
         "fish.rec.sd")), "Default, per-year rec, one scalar property")
 })
 

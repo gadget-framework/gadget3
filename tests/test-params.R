@@ -174,6 +174,10 @@ ok(cmp_code(
         g3_parameterized('parp', by_stock = list(stock_mimm, stock_mmat)),
         g3_parameterized('parp', by_stock = list(stock_mimm, stock_fmat)),  # M vs F, so only species matches
         g3_parameterized('parp', by_stock = list(stock_fimm, stock_fmat), by_age = TRUE),
+        # Mismatched stock list lengths isn't a problem
+        g3_parameterized("mismatch", by_stock = list(
+            g3_fleet(c(type = "comm", gear = "x")),
+            g3_fleet(c(type = "comm", gear = "y", "foreign")) )),
         # No common parts, so concatenate everything after sorting
         g3_parameterized('nocommon', by_stock = list(g3_stock(c("zz", "b"), 1), g3_stock(c("c", "d"), 1))),
     NULL), quote({
@@ -181,6 +185,7 @@ ok(cmp_code(
         stock_prepend("st", g3_param("parp"))
         stock_prepend("st.f", g3_param_table("parp", expand.grid(
             age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))), select = list(age)))
+        stock_prepend("comm", g3_param("mismatch"))
         stock_prepend("c_d.zz_b", g3_param("nocommon"))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
@@ -243,3 +248,16 @@ ok(ut_cmp_identical(param_tmpl(
         NULL )), "by_predator/by_area: Used predator areas instead of stock")
 
 ########## by_area
+
+ok_group("prepend_extra") ##########
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized("paramut", value = 1, prepend_extra = quote(predstock)),
+    g3_parameterized("paramut", value = 1, prepend_extra = "lindsey"),
+    g3_parameterized("paramut", value = 2, prepend_extra = list("frank", "fronk")),
+    NULL)$switch, c(
+        "is_comm.paramut",
+        "lindsey.paramut",
+        "fronk.frank.paramut",
+        NULL )), "prepend_extra: Used code / string / list of strings")
+
+########## prepend_extra
