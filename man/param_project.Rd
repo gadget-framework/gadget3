@@ -12,22 +12,28 @@
 
 \usage{
 g3_param_project_dlnorm(
-        lmean_f = g3_parameterized("lmean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        lstddev_f = g3_parameterized("lstddev", value = 1e5, optimise = FALSE,
-            prepend_extra = quote(projstock)) )
+        lmean_f = g3_parameterized("proj.dlnorm.lmean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
+            value = 1e5, optimise = FALSE,
+            prepend_extra = quote(param_name) ))
 
 g3_param_project_dnorm(
-        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
-            prepend_extra = quote(projstock)) )
+        mean_f = g3_parameterized("proj.dnorm.mean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized("proj.dnorm.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ))
 
 g3_param_project_rwalk(
-        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
-            prepend_extra = quote(projstock)) )
+        mean_f = g3_parameterized("proj.rwalk.mean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized("proj.rwalk.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ))
 
 g3_param_project(
         param_name,
@@ -35,7 +41,7 @@ g3_param_project(
         by_step = TRUE,
         by_stock = FALSE,
         weight = g3_parameterized(
-            paste("proj", project_fs$name, by_stock, param_name, "weight", sep = "_"),
+            paste("proj", project_fs$name, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
         random = TRUE )
 }
@@ -43,8 +49,7 @@ g3_param_project(
 \arguments{
   \item{mean_f, stddev_f, lmean_f, lstddev_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
-    Defaults to parameters with names \code{proj_(dlnorm|dnorm|rwalk)_(param_name).(mean|stddev)}
-    (i.e. the same name as the projection variable)
+    Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
   }
   \item{param_name}{
     Character string used to name the parameters.
@@ -135,30 +140,43 @@ g3_param_project(
 }
 
 \examples{
-st <- g3_stock("fish", c(10, 20, 30))
+st <- list(
+    imm = g3_stock(c("fish", maturity = "imm"), c(10, 20, 30)),
+    mat = g3_stock(c("fish", maturity = "mat"), c(10, 20, 30)) )
+st2 <- g3_stock("other", c(10, 20, 30))
+
+# Set up a projected parameter to share over both stocks
+st_Mdn <- g3_param_project(
+   "Mdn",
+   g3_param_project_dnorm(),
+   # Append common part of stock names to parameter name
+   by_stock = st )
 
 actions <- list(
     g3a_time(1990, 1994, c(6,6)),
-    g3a_initialconditions(st,
+    g3a_initialconditions(st$imm,
+        quote( 100 + stock__minlen ),
+        quote( 1e4 + 0 * stock__minlen ) ),
+    g3a_initialconditions(st$mat,
+        quote( 100 + stock__minlen ),
+        quote( 1e4 + 0 * stock__minlen ) ),
+    g3a_initialconditions(st2,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
 
-    # Natural mortality with per-year random walk
-    g3a_naturalmortality(st, g3a_naturalmortality_exp(
-        g3_param_project("Mrw", g3_param_project_rwalk(
-          mean_f = 0,
-          stddev_f = 0.001 ),
-        by_step = FALSE,
-        # by_stock means the stock name will be included in parameter names
-        by_stock = st ))),
-
     # Natural mortality with per-step deviates
-    g3a_naturalmortality(st, g3a_naturalmortality_exp(
-        g3_param_project("Mdn", g3_param_project_dnorm(
-          mean_f = g3_parameterized("Mdn_mean", value = 0.1, optimise = FALSE),
-          stddev_f = g3_parameterized("Mdn_sd", value = 0.001, optimise = FALSE) ),
+    g3a_naturalmortality(st$imm, g3a_naturalmortality_exp(st_Mdn)),
+    g3a_naturalmortality(st$mat, g3a_naturalmortality_exp(st_Mdn)),
+
+    # Natural mortality with per-year random walk
+    g3a_naturalmortality(st2, g3a_naturalmortality_exp(
+        g3_param_project(
+          "Mrw",
+          g3_param_project_rwalk(),
+          # The same value will be used for each step
+          by_step = FALSE,
           # by_stock means the stock name will be included in parameter names
-          by_stock = st ))),
+          by_stock = st2 ))),
     NULL )
 
 model_fn <- g3_to_r(c(actions, list(
@@ -166,15 +184,20 @@ model_fn <- g3_to_r(c(actions, list(
     NULL )))
 
 # Mdn has a parameter for each year/step, as well as mean/sd (added above) & likelihood weighting
-grep("^Mdn", names(attr(model_fn, 'parameter_template')), value = TRUE)
+grep("^fish.Mdn", names(attr(model_fn, 'parameter_template')), value = TRUE)
 
 # Mrw has parameters for each year
-grep("^Mrw", names(attr(model_fn, 'parameter_template')), value = TRUE)
+grep("^other.Mrw", names(attr(model_fn, 'parameter_template')), value = TRUE)
 
 attr(model_fn, 'parameter_template') |>
-    # Fill in initial values for each
-    g3_init_val("Mdn.#.#", 0.5, lower = 0.1, upper = 0.9, random = TRUE) |>
-    g3_init_val("Mrw.#", 0.5, lower = 0.1, upper = 0.9, random = TRUE) |>
+    g3_init_val("stst.Mdn.#.#", 0.5, lower = 0.1, upper = 0.9, random = TRUE) |>
+    g3_init_val("stst.Mdn.proj.dnorm.lmean", 0.1) |>
+    g3_init_val("stst.Mdn.proj.dnorm.lstddev", 0.001) |>
+
+    g3_init_val("other.Mrw.proj.rwalk.mean", 0) |>
+    g3_init_val("other.Mrw.proj.rwalk.stddev", 0.001) |>
+    g3_init_val("other.Mrw.#", 0.5, lower = 0.1, upper = 0.9, random = TRUE) |>
+
     # Project forwards 20 years
     g3_init_val("project_years", 20) |>
 
@@ -190,6 +213,6 @@ r <- attributes(model_fn(params))
 plot(r$proj_dnorm_fish_Mdn__var)
 
 # Values used for random walk
-plot(r$proj_rwalk_fish_Mrw__var)
+plot(r$proj_rwalk_other_Mrw__var)
 
 }

@@ -13,15 +13,11 @@ actions <- list(
         quote( 1e4 + 0 * stock__minlen ) ),
     g3a_naturalmortality(st, g3a_naturalmortality_exp(g3_param_project(
         "Mrw",
-        g3_param_project_rwalk(
-            mean_f = g3_parameterized("Mrw_mean", value = 0.001),
-            stddev_f = g3_parameterized("Mrw_sd", value = 0.001) ),
+        g3_param_project_rwalk(),
         random = FALSE ))),
     g3a_naturalmortality(st, g3a_naturalmortality_exp(g3_param_project(
         "Mdn",
-        g3_param_project_dlnorm(
-            lmean_f = g3_parameterized("Mdn_mean", value = 0.1),
-            lstddev_f = g3_parameterized("Mdn_sd", value = 0.2) ),
+        g3_param_project_dlnorm(),
         by_stock = st,
         random = FALSE ))),
     # NB: Dummy parameter so model will compile in TMB
@@ -36,10 +32,12 @@ model_cpp <- g3_to_tmb(full_actions)
 ok_group("project_years=0") ###################################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("Mrw_mean", runif(1, 0.001, 0.1)) |>
-    g3_init_val("Mdn_mean", runif(1, 5, 10)) |>
+    g3_init_val("Mrw.proj.rwalk.mean", runif(1, 0.001, 0.1)) |>
+    g3_init_val("Mrw.proj.rwalk.stddev", 0.001) |>
     g3_init_val("Mrw.#.#", rnorm(5 * 2, 0.2, 0.001)) |>
-    g3_init_val("Mdn.#.#", rnorm(5 * 2, 18, 0.001)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lmean", runif(1, 5, 10)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lstddev", 0.2) |>
+    g3_init_val("stst.Mdn.#.#", rnorm(5 * 2, 18, 0.001)) |>
     g3_init_val("project_years", 0) |>
     identity() -> params
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
@@ -49,11 +47,11 @@ ok(ut_cmp_equal(signif(mean(r$proj_dlnorm_stst_Mdn__var), 2), 18), "mean(r$proj_
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
-    as.vector(dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw_mean, sd = params$Mrw_sd)),
+    as.vector(dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdn__nll),
-    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdn__var), params$Mdn_mean - exp(2 * params$Mdn_sd)/2, exp(params$Mdn_sd), log = TRUE)),
+    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdn__var), params$stst.Mdn.proj.dlnorm.lmean - exp(2 * params$stst.Mdn.proj.dlnorm.lstddev)/2, exp(params$stst.Mdn.proj.dlnorm.lstddev), log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdn__nll: dnorm of __var")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
@@ -61,22 +59,24 @@ gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ok_group("project_years=0, high sd") ##########################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("Mrw_mean", runif(1, 0.001, 0.1)) |>
-    g3_init_val("Mdn_mean", runif(1, 5, 10)) |>
+    g3_init_val("stst.Mdn.#.#", rnorm(5 * 2, 50, 10)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lmean", runif(1, 5, 10)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lstddev", 0.2) |>
     # Increase variance of input data to give dnorm()s something to chew on
     g3_init_val("Mrw.#.#", rnorm(5 * 2, 50, 10)) |>
-    g3_init_val("Mdn.#.#", rnorm(5 * 2, 50, 10)) |>
+    g3_init_val("Mrw.proj.rwalk.mean", runif(1, 0.001, 0.1)) |>
+    g3_init_val("Mrw.proj.rwalk.stddev", 0.001) |>
     g3_init_val("project_years", 0) |>
     identity() -> params
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
-    as.vector(dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw_mean, sd = params$Mrw_sd)),
+    as.vector(dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdn__nll),
-    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdn__var), params$Mdn_mean - exp(2 * params$Mdn_sd)/2, exp(params$Mdn_sd), log = TRUE)),
+    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdn__var), params$stst.Mdn.proj.dlnorm.lmean - exp(2 * params$stst.Mdn.proj.dlnorm.lstddev)/2, exp(params$stst.Mdn.proj.dlnorm.lstddev), log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdn__nll: dnorm of __var (also, by_stock has worked)")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
@@ -84,10 +84,12 @@ gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 ok_group("project_years=20") ##################################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("Mrw_mean", runif(1, 0.001, 0.1)) |>
-    g3_init_val("Mdn_mean", runif(1, 0.001, 0.1)) |>
+    g3_init_val("stst.Mdn.#.#", rnorm(5 * 2, 0.5, 0.001)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lmean", runif(1, 0.001, 0.1)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lstddev", 0.2) |>
     g3_init_val("Mrw.#.#", rnorm(5 * 2, 0.2, 0.001)) |>
-    g3_init_val("Mdn.#.#", rnorm(5 * 2, 0.5, 0.001)) |>
+    g3_init_val("Mrw.proj.rwalk.mean", runif(1, 0.001, 0.1)) |>
+    g3_init_val("Mrw.proj.rwalk.stddev", 0.001) |>
     g3_init_val("project_years", 20) |>
     identity() -> params
 
@@ -116,12 +118,12 @@ for (r in rs) {
 
     ok(ut_cmp_equal(
         mean(tail(r$proj_dlnorm_stst_Mdn__var, -5*2)),
-        params$Mdn_mean,
-        tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdn__var): Projected values have a mean ~matching Mdn_mean")
+        params$stst.Mdn.proj.dlnorm.lmean,
+        tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdn__var): Projected values have a mean ~matching stst.Mdn.proj.dlnorm.lmean")
     ok(sd(tail(r$proj_dlnorm_stst_Mdn__var, -5*2)) > 0, "sd(r$proj_dlnorm_stst_Mdn__var): sd greater than 0 (values not equal)")
     ok(ut_cmp_equal(
         mean(diff(c(0, tail(r$proj_rwalk_Mrw__var, -5*2)))),
-        params$Mrw_mean,
-        tolerance = 1e4), "mean(r$proj_rwalk_Mrw__var): Projected values have a mean delta ~matching Mrw_mean")
+        params$Mrw.proj.rwalk.mean,
+        tolerance = 1e4), "mean(r$proj_rwalk_Mrw__var): Projected values have a mean delta ~matching Mrw.proj.rwalk.mean")
     ok(sd(tail(r$proj_rwalk_Mrw__var, -5*2)) > 0, "sd(r$proj_rwalk_Mrw__var): sd greater than 0 (values not equal)")
 }

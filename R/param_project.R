@@ -1,8 +1,10 @@
 g3_param_project_dlnorm <- function (
-        lmean_f = g3_parameterized("lmean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        lstddev_f = g3_parameterized("lstddev", value = 1e5, optimise = FALSE,
-            prepend_extra = quote(projstock)) ) {
+        lmean_f = g3_parameterized("proj.dlnorm.lmean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
+            value = 1e5, optimise = FALSE,
+            prepend_extra = quote(param_name) )) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(var))
     # lstddev_f = log(sd(log(var)))
@@ -39,10 +41,12 @@ g3_param_project_dlnorm <- function (
 }
 
 g3_param_project_dnorm <- function (
-        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
-            prepend_extra = quote(projstock)) ) {
+        mean_f = g3_parameterized("proj.dnorm.mean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized("proj.dnorm.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) )) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
 
     # NB: Only real purpose is to cast the var to .vec()
@@ -75,10 +79,12 @@ g3_param_project_dnorm <- function (
 }
 
 g3_param_project_rwalk <- function (
-        mean_f = g3_parameterized("mean", value = 0, optimise = FALSE,
-            prepend_extra = quote(projstock)),
-        stddev_f = g3_parameterized("stddev", value = 1, optimise = FALSE,
-            prepend_extra = quote(projstock)) ) {
+        mean_f = g3_parameterized("proj.rwalk.mean",
+            value = 0, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized("proj.rwalk.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) )) {
     g3_param_project_nll_rwalk <- g3_native(r = function (var, mean, stddev) {
         d <- c(0, diff(var))
         return(dnorm(d, mean = mean, sd = stddev))
@@ -119,7 +125,7 @@ g3_param_project <- function (
         by_step = TRUE,
         by_stock = FALSE,
         weight = g3_parameterized(
-            paste("proj", project_fs$name, by_stock, param_name, "weight", sep = "_"),
+            paste("proj", project_fs$name, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
         random = TRUE ) {
 
@@ -130,22 +136,27 @@ g3_param_project <- function (
         by_stock <- c()
     } else if (g3_is_stock(by_stock)) {
         by_stock <- by_stock$name
-    } else if (is.list(by_stock) && sapply(by_stock, g3_is_stock)) {
+    } else if (is.list(by_stock) && all(sapply(by_stock, g3_is_stock))) {
         by_stock <- stock_common_part(by_stock)
     } else {
         stop("Unknown by_stock argument. Should be a g3_stock or list of stocks")
     }
+    param_name <- c(by_stock, param_name)
 
     # Create projstock storage for projection values
     projstock <- g3_storage(c(
         "proj",
         project_fs$name,
-        by_stock,
         param_name ))
     projstock <- g3s_modeltime(projstock, by_year = isFALSE(by_step))
 
-    param_tbl <- g3_parameterized(param_name, by_year = TRUE, by_step = isTRUE(by_step), random = random, ifmissing = NaN)
-    projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", param_name))
+    param_tbl <- g3_parameterized(
+        param_name,
+        by_year = TRUE,
+        by_step = isTRUE(by_step),
+        random = random,
+        ifmissing = NaN )
+    projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name))
 
     out <- g3_step(f_substitute(~(
         stock_with(projstock, stock_ss(projstock__var, vec = single))
@@ -154,7 +165,7 @@ g3_param_project <- function (
 
     # If nll formula doesn't define projstock__nll, generate a stock instance for it to use
     if (!exists("projstock__nll", envir = environment(project_fs$nll))) {
-        environment(project_fs$nll)$projstock__nll <- g3_stock_instance(projstock, NaN, desc = paste0("nll for ", param_name, " deviants"))
+        environment(project_fs$nll)$projstock__nll <- g3_stock_instance(projstock, NaN, desc = paste0("nll for ", projstock$name, " deviants"))
     }
 
     environment(out)[[step_id(g3_action_order$initial, "g3a_project_param", param_name)]] <- g3_step(f_substitute(~{
