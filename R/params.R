@@ -96,6 +96,9 @@ g3_parameterized <- function(
         return(NULL)
     }
 
+    # If provided multiple parts to a name, concatenate them together
+    name <- paste(name, collapse = ".")
+
     # Define name_part based on input arg
     name_part <- function (arg) {
         if (isTRUE(arg)) {

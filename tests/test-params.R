@@ -124,6 +124,10 @@ ok(cmp_code(
     NULL})), "Extra parameters passed through")
 
 ok(cmp_code(
+    g3_parameterized(c('a', 'b', moo = 'c')),
+    quote( g3_param("a.b.c") )), "Multiple name parts concatentated, labels ignored")
+
+ok(cmp_code(
     pretend_stock_action(g3_parameterized('parp', by_stock = TRUE)),
     quote(g3_param("st_m_imm.parp"))), "by_stock, so will use stock_prepend() to rename variables")
 
