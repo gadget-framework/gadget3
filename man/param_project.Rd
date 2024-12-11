@@ -2,6 +2,7 @@
 \alias{g3_param_project_dlnorm}
 \alias{g3_param_project_dnorm}
 \alias{g3_param_project_rwalk}
+\alias{g3_param_project_logar1}
 \alias{g3_param_project}
 \concept{G3 projections}
 
@@ -35,6 +36,16 @@ g3_param_project_rwalk(
             value = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ))
 
+g3_param_project_logar1(
+        logphi_f = g3_parameterized(
+            "proj.logar1.logphi",
+            value = 0.8, lower = 0, upper = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        lstddev_f = g3_parameterized(
+            "proj.logar1.lstddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ))
+
 g3_param_project(
         param_name,
         project_fs = g3_param_project_rwalk(),
@@ -49,7 +60,7 @@ g3_param_project(
 }
 
 \arguments{
-  \item{mean_f, stddev_f, lmean_f, lstddev_f}{
+  \item{mean_f, stddev_f, lmean_f, lstddev_f, logphi_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
     Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
   }
@@ -116,6 +127,17 @@ g3_param_project(
     }
   }
   
+  \subsection{g3_param_project_logar1}{
+    Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
+
+    The parameter will describe a log-AR1 process projecting from any existing values.
+
+    \describe{
+      \item{nll}{Compare values to log-AR1 process}
+      \item{proj}{Generate new values using log-AR1 process}
+    }
+  }
+
   \subsection{g3_param_project}{
     Returns a \link{formula} to choose the current value from the \code{__var} vector.
 

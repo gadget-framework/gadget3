@@ -142,6 +142,7 @@ export(g3_parameterized)
 export(g3_param_project_dnorm)
 export(g3_param_project_dlnorm)
 export(g3_param_project_rwalk)
+export(g3_param_project_logar1)
 export(g3_param_project)
 
 # R/quota.R
