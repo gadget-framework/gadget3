@@ -43,6 +43,8 @@ g3_param_project(
         weight = g3_parameterized(
             paste("proj", project_fs$name, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
+        scale = 1,
+        offset = 0,
         random = TRUE )
 }
 
@@ -67,6 +69,11 @@ g3_param_project(
   }
   \item{weight}{
     A weighting to give to the likelhood when generating total nll.
+  }
+  \item{scale, offset}{
+    Number, formula or string. Scale / offset to add to parameter values.
+    If string, then the scale/offset will also be a parameter, equivalent to setting
+    \code{scale = g3_parameterized(c(param_name, "proj", "scale"))}.
   }
   \item{random}{
     Boolean, tell TMB to treat the deviates as random variables by default. Can be changed in the parameter template.

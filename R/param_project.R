@@ -127,6 +127,8 @@ g3_param_project <- function (
         weight = g3_parameterized(
             paste("proj", project_fs$name, param_name, "weight", sep = "_"),
             optimise = FALSE, value = 1),
+        scale = 1,
+        offset = 0,
         random = TRUE ) {
 
     # Convert by_stock into a character vector
@@ -142,6 +144,10 @@ g3_param_project <- function (
         stop("Unknown by_stock argument. Should be a g3_stock or list of stocks")
     }
     param_name <- c(by_stock, param_name)
+
+    # Turn character scale/offset into parameter code, prepending name
+    if (is.character(scale)) scale <- g3_parameterized(c(param_name, scale), value = 1, optimise = FALSE)
+    if (is.character(offset)) offset <- g3_parameterized(c(param_name, offset), optimise = FALSE)
 
     # Create projstock storage for projection values
     projstock <- g3_storage(c(
@@ -175,10 +181,11 @@ g3_param_project <- function (
                 nll <- if (weight > 0) nll + weight * nll_f else 0
             } else if (cur_year_projection) {
                 if (is.nan(stock_ss(projstock__var, vec = single))) {
-                    projstock__var <- project_f
+                    projstock__var <- (projstock__var - offset) / scale  # Unapply scale/offset from below
+                    projstock__var <- project_f * scale + offset
                 }
             } else {
-                stock_ss(projstock__var, vec = single) <- param_tbl
+                stock_ss(projstock__var, vec = single) <- param_tbl * scale + offset
             }
         })
     }, list(
@@ -187,6 +194,8 @@ g3_param_project <- function (
         nll_f = project_fs$nll,
         param_tbl = param_tbl,
         weight = weight,
+        scale = scale,
+        offset = offset,
         end = NULL )))
     return(out)
 }

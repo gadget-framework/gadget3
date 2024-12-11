@@ -19,6 +19,8 @@ actions <- list(
         "Mdn",
         g3_param_project_dlnorm(),
         by_stock = st,
+        scale = "scale",
+        offset = "offset",
         random = FALSE ))),
     # NB: Dummy parameter so model will compile in TMB
     quote( nll <- nll + g3_param("x", value = 0) ) )
@@ -127,3 +129,35 @@ for (r in rs) {
         tolerance = 1e4), "mean(r$proj_rwalk_Mrw__var): Projected values have a mean delta ~matching Mrw.proj.rwalk.mean")
     ok(sd(tail(r$proj_rwalk_Mrw__var, -5*2)) > 0, "sd(r$proj_rwalk_Mrw__var): sd greater than 0 (values not equal)")
 }
+
+ok_group("project_years=40, scale / offset") ###################################
+
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("stst.Mdn.#.#", rnorm(5 * 2, 50, 10)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lmean", runif(1, 5, 10)) |>
+    g3_init_val("stst.Mdn.proj.dlnorm.lstddev", 0.2) |>
+    g3_init_val("stst.Mdn.scale", runif(1, 10, 100)) |>
+    g3_init_val("stst.Mdn.offset", runif(1, 10, 100)) |>
+    g3_init_val("project_years", 40) |>
+    identity() -> params
+nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+ok(ut_cmp_equal(
+    as.vector(r$proj_dlnorm_stst_Mdn__var)[1:10],
+    as.vector(unlist(params[sort(grep("stst.Mdn.[0-9]+.[0-9]+", names(params), value = TRUE))]) * params$stst.Mdn.scale + params$stst.Mdn.offset),
+    tolerance = 1e-7 ), "proj_dlnorm_stst_Mdn__var: Values match input parameters with scale/offset applied")
+ok(ut_cmp_equal(
+    as.vector(r$proj_rwalk_Mrw__nll),
+    as.vector(dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
+    tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
+ok(ut_cmp_equal(
+    as.vector(r$proj_dlnorm_stst_Mdn__nll),
+    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdn__var), params$stst.Mdn.proj.dlnorm.lmean - exp(2 * params$stst.Mdn.proj.dlnorm.lstddev)/2, exp(params$stst.Mdn.proj.dlnorm.lstddev), log = TRUE)),
+    tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdn__nll: dnorm of __var (also, by_stock has worked)")
+
+ok(ut_cmp_equal(
+    mean(tail(r$proj_dlnorm_stst_Mdn__var, -5*2)),
+    params$stst.Mdn.proj.dlnorm.lmean * params$stst.Mdn.scale + params$stst.Mdn.offset,
+    tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdn__var): Projected values have a mean ~matching stst.Mdn.proj.dlnorm.lmean with scale/offset applied")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
