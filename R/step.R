@@ -385,18 +385,20 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         },
         stock_prepend = function (x) { # Arguments: stock variable, param, name_part = NULL
             stock_var <- x[[2]]
+            stock <- if (is.symbol(stock_var)) get(as.character(stock_var), envir = orig_env) else NULL
 
-            # Fish out extra part to add to name
-            if (is.character(stock_var)) {
-                stock <- NULL
-                # Adding a fixed string, don't invoke stock mechanisms
-                name_extra <- stock_var
-            } else if (!is.null(x$name_part)) {
-                stock <- get(as.character(stock_var), envir = orig_env)
-                name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
+            if (g3_is_stock(stock)) {
+                if (!is.null(x$name_part)) {
+                    name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
+                } else {
+                    name_extra <- stock$name
+                }
+            } else if (!is.null(stock)) {
+                # stock is a constant to add
+                name_extra <- as.character(stock)
             } else {
-                stock <- get(as.character(stock_var), envir = orig_env)
-                name_extra <- stock$name
+                # stock_var isn't a symbol, so must be a constant to add
+                name_extra <- as.character(stock_var)
             }
 
             # Inner code is first item in arguments that doesn't have a name
@@ -409,7 +411,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             # Apply stock rename to the rest of the call, to translate any stock__minage references.
             # NB: Recurse first to resolve any nested stock_prepend()
-            if (!is.null(stock)) {
+            if (g3_is_stock(stock)) {
                 inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
             }
             inner <- rlang::f_rhs(g3_step(
