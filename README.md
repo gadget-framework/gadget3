@@ -64,3 +64,13 @@ Releases are made with:
     git push --tags && git push
 
 On success, upload the tarball to https://cran.r-project.org/submit.html
+
+## Acknowledgements
+
+Gadget3 has received funding from:
+
+* Innviðasjóður Icelandic infrastructure grant #191774-0031
+* Under One Cod #206740-051
+* Fishing into the Future, Rannís grant of excellence #206967-051
+* NORSUSTAIN project funded by the joint Danish, Greenlandic, and Faroese Presidency of the Nordic Council of Ministers
+* Formas Swedish Research Council for Sustainable Development #2021-00826
