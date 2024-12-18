@@ -146,9 +146,11 @@ highlighted.</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gadget-framework.github.io/gadget3/">gadget3</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">##   object 'type_sum.accel' not found</span></span></code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">area_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock_areas.html">g3_areas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'IXa'</span>, <span class="st">'IXb'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create time definitions ####################</span></span>
@@ -167,7 +169,7 @@ highlighted.</p>
 <p>We define 2 stocks instead of one, and a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>
 containing both for convenience:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create stock definition for fish ####################</span></span>
 <span><span class="va">st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"fish"</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5L</span>, <span class="fl">25L</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="va">area_names</span><span class="op">[</span><span class="st">"IXa"</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -193,7 +195,7 @@ and we adjust to suit.</li>
 <p>Stock actions now need to include interactions between immature &amp;
 mature:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span><span class="va">st_imm</span>,</span>
 <span>    <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span></span>
@@ -246,7 +248,7 @@ model vs. single stocks.</p>
 <p>To define a fleet, we need to introduce historical data into the
 model. In our case we will generate random data to use later:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fleet data for f_surv #################################</span></span>
 <span></span>
 <span><span class="co"># Landings data: For each year/step/area</span></span>
@@ -296,7 +298,7 @@ model. In our case we will generate random data to use later:</p>
 <p>Our fleet is defined with the same set of actions as the
 single-species model:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create fleet definition for f_surv ####################</span></span>
 <span><span class="va">f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">"f_surv"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="va">area_names</span><span class="op">[</span><span class="st">"IXa"</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
@@ -347,7 +349,7 @@ species name.</li>
 in the parameter template. If <code>by_stock = TRUE</code> (the default)
 then we get parameters for both <code>fish_imm.f_surv.l50</code> &amp;
 <code>fish_mat.f_surv.l50</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
@@ -395,13 +397,13 @@ then we get parameters for both <code>fish_imm.f_surv.l50</code> &amp;
 <span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
 <span><span class="co">## Used in expression(s):</span></span>
 <span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"           "fish_imm.f_surv.alpha" "fish_imm.f_surv.l50"  </span></span>
 <span><span class="co">## [4] "fish_mat.f_surv.alpha" "fish_mat.f_surv.l50"   "project_years"</span></span></code></pre>
 <p>If <code>by_stock = 'species'</code>, then there is a single, shared
 <code>fish.f_surv.l50</code> parameter:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
@@ -449,7 +451,7 @@ then we get parameters for both <code>fish_imm.f_surv.l50</code> &amp;
 <span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
 <span><span class="co">## Used in expression(s):</span></span>
 <span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"       "fish.f_surv.alpha" "fish.f_surv.l50"  </span></span>
 <span><span class="co">## [4] "project_years"</span></span></code></pre>
@@ -458,7 +460,7 @@ change the default settings, if we specify
 <code><a href="../reference/params.html">g3_parameterized()</a></code> ourselves we can change the
 parameterization in other ways, for example <code>by_year = TRUE</code>
 gives us per-year <code>l50</code>:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simple_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span><span class="op">)</span>, <span class="fu"><a href="../reference/action_predate.html">g3a_predate_fleet</a></span><span class="op">(</span></span>
 <span>    <span class="va">f_surv</span>,</span>
 <span>    <span class="va">stocks</span>,</span>
@@ -507,7 +509,7 @@ gives us per-year <code>l50</code>:</p>
 <span><span class="co">## Error in get(var_name, envir = env, inherits = TRUE): object 'fish_mat__wgt' not found</span></span>
 <span><span class="co">## Used in expression(s):</span></span>
 <span><span class="co">## fish_mat__totalpredate &lt;- (fish_mat__num * fish_mat__wgt) * fish_mat__consratio</span></span></code></pre>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">simple_model</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "retro_years"           "fish_imm.f_surv.alpha" "fish.f_surv.l50.1990" </span></span>
 <span><span class="co">## [4] "fish.f_surv.l50.1991"  "fish.f_surv.l50.1992"  "fish.f_surv.l50.1993" </span></span>
@@ -525,7 +527,7 @@ observation data could contain a <em>stock</em> column with
 <p>Survey indices should be handed the full <code>stocks</code> list,
 instead of a single stock, but are otherwise the same as before:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create abundance index for si_cpue ########################</span></span>
 <span></span>
 <span><span class="co"># Generate random data</span></span>
@@ -555,7 +557,7 @@ instead of a single stock, but are otherwise the same as before:</p>
 </h3>
 <p>At this point, we are ready to convert our model into code:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
 <span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -568,7 +570,7 @@ lot of the parameter settings will work regardless of the model being
 single- or multi-stock, so we don’t need to change the initial values
 from the previous model:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guess l50 / linf based on stock sizes</span></span>
 <span><span class="va">estimate_l50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">estimate_linf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span></span>
@@ -598,7 +600,7 @@ TMB <em>objective function</em>.
 <code>gadgetutils::g3_iterative()</code> then optimises based on
 iterative reweighting</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
 <span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span><span class="op">)</span></span>
 <span></span>
@@ -616,14 +618,14 @@ iterative reweighting</p>
 <p>Once this has finished, we can view the output using
 <code>gadgetplots::gadget_plots()</code>.</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate detailed report ######################</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_fit</span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span>
 <span><span class="fu">gadgetplots</span><span class="fu">::</span><span class="fu">gadget_plots</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"figs"</span>, file_type <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Once finished, you can view the output in your web browser:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/browseURL.html" class="external-link">browseURL</a></span><span class="op">(</span><span class="st">"figs/model_output_figures.html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>

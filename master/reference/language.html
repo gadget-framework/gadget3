@@ -152,7 +152,7 @@
 <dd><p>A data.frame, one column for each variable to check, one row for possible values. Required</p></dd>
 
       <dt>value</dt>
-<dd><p>Initial value for use in model parameter_template. Default 0</p></dd>
+<dd><p>Initial value(s) for use in model parameter_template. Default 0</p></dd>
 
       <dt>optimise</dt>
 <dd><p>Initial optimise setting in parameter_template. Default TRUE</p></dd>
@@ -161,10 +161,10 @@
 <dd><p>Initial random setting in parameter_template. Default FALSE</p></dd>
 
       <dt>lower</dt>
-<dd><p>Initial lower setting in parameter_template. Default NA</p></dd>
+<dd><p>Initial lower setting(s) in parameter_template. Default NA</p></dd>
 
       <dt>upper</dt>
-<dd><p>Initial upper setting in parameter_template. Default NA</p></dd>
+<dd><p>Initial upper setting(s) in parameter_template. Default NA</p></dd>
 
       <dt>ifmissing</dt>
 <dd><p>Value to return when outside of table bounds. Default NaN with warning if a value is missing</p></dd>
@@ -175,6 +175,7 @@
 <p>The function takes 2 arguments, a prefix for the generated parameters, and a
   data.frame of variables to possible values. <code><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></code> can be
   used to produce a cross product of all provided variables.</p>
+<p><var>value</var>, <var>lower</var>, <var>upper</var> can be vectors, in which case it is split up with one per parameter.</p>
 <p><em>Note:</em> The variables referenced will need to be integer variables, most
   likely iteration variables such as <code>cur_year</code>, <code>age</code>,
   <code>area</code>...</p>

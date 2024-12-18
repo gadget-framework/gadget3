@@ -274,6 +274,55 @@ defined using <code>g3_global_formula</code> and providing an
 value ends up in the model report, which will happen automatically for
 any non-constant global in the model.</p>
 </div>
+<div class="section level2">
+<h2 id="ancillary-steps">Ancillary steps<a class="anchor" aria-label="anchor" href="#ancillary-steps"></a>
+</h2>
+<p>Additional steps can be attached to a formula, allowing setup for a
+variable at the beginning of a model, or implicit likelihood components.
+For example:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"st"</span>, <span class="st">"imm"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span></span>
+<span>        <span class="va">st_imm</span>,</span>
+<span>        <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span></span>
+<span>            <span class="va">parrot</span><span class="op">**</span><span class="fl">2</span>,</span>
+<span>            parrot <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            <span class="st">"-01:ut:parrot"</span> <span class="op">=</span> <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>                <span class="va">parrot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span>            <span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="cn">NULL</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## function (param = parameter_template) </span></span>
+<span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     parrot &lt;- 0</span></span>
+<span><span class="co">##     st_imm__num &lt;- array(0, dim = c(length = 10L), dimnames = list(length = c("1:2", </span></span>
+<span><span class="co">##         "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", </span></span>
+<span><span class="co">##         "10:Inf")))</span></span>
+<span><span class="co">##     while (TRUE) {</span></span>
+<span><span class="co">##         {</span></span>
+<span><span class="co">##             parrot &lt;- runif(1)</span></span>
+<span><span class="co">##         }</span></span>
+<span><span class="co">##         {</span></span>
+<span><span class="co">##             comment("Natural mortality for st_imm")</span></span>
+<span><span class="co">##             st_imm__num[] &lt;- st_imm__num[] * (parrot^2)</span></span>
+<span><span class="co">##         }</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">## }</span></span>
+<span><span class="co">## &lt;bytecode: 0x558a8063b080&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x558a7f59ef90&gt;</span></span></code></pre>
+<p>The attached step gets inserted at the beginning of the model, and a
+new random number is chosen for <code>parrot</code> at each model
+timestep.</p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
