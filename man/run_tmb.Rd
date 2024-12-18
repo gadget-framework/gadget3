@@ -232,7 +232,12 @@ if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
   # Rebuild, only including "Fun" (i.e. without auto-differentiation)
   # Result will only work for tmb$report
   tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
-  result <- tmb$report(g3_tmb_par(tmb_param))
+  result <- tmb$report(g3_tmb_par(tmb_param, include_random = TRUE))
+
+  # We can also use tmb$simulate
+  result <- tmb$simulate(g3_tmb_par(tmb_param, include_random = TRUE))
+
+  # NB: Before running simulations, you should use set.seed() to ensure random output
 }
 }
 

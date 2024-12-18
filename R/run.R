@@ -31,19 +31,23 @@ is_force_numeric <- function (x) inherits(x, "force_numeric")
 g3_collate <- function(action_list) {
     # Collapse lists / sub-lists into a single list, preserving order
     unnest <- function (l) {
-        # No sub-lists, nothing to do
-        if (!any( vapply(l, is.list, logical(1)) )) return(l)
-
-        # Flatten sub-lists, then concatenate the lot
+        # Recurse along l generating sub-lists, then concatentate together
         do.call(c, lapply(seq_along(l), function (i) {
-            if (is.list(l[[i]])) {
+            if (is.null(l[[i]])) {
+                # Strip NULLs (and avoid calling environment(NULL))
+                c()
+            } else if (is.list(l[[i]])) {
                 # Flattern sub-lists by recursing
                 unnest(l[[i]])
             } else {
                 # Convert non-lists into a single-item list
-                structure(
-                    list(l[[i]]),
-                    names = names(l)[[i]] )
+                out <- structure(list(l[[i]]), names = names(l)[[i]])
+
+                # Pull out items stuffed in environment()
+                ancillary_step_names <- grep("^(?:\\d|-)\\d{2}:", names(environment(l[[i]])), value = TRUE, perl = TRUE)
+                if (length(ancillary_step_names) > 0) out <- c(out, mget(ancillary_step_names, envir = environment(l[[i]])))
+
+                out
             }
         }))
     }

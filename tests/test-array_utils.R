@@ -154,3 +154,65 @@ ok(ut_cmp_identical(
     dimnames(g3_array_agg(ar, opt_length_midlen = TRUE)),
     list(
         predator_length = NA_character_ )), "opt_length_midlen turns predator_length 0:Inf to NA")
+
+ar1 <- gen_arr(
+    age = 5:15,
+    time = list(2000:2004, 1:2) )
+ar2 <- gen_arr(
+    age = 10:20,
+    time = list(2000:2004, 1:2) )
+ok(ut_cmp_equal(
+    g3_array_combine(list(ar1, ar2)),
+    g3_array_combine(list(ar2, ar1)) ), "g3_array_combine: Order irrelevant")
+for (t in seq_along(dimnames(ar1)$time)) ok(ut_cmp_equal(g3_array_combine(list(ar1, ar2))[,t], c(
+    age5 = ar1["age5", t] + 0,
+    age6 = ar1["age6", t] + 0,
+    age7 = ar1["age7", t] + 0,
+    age8 = ar1["age8", t] + 0,
+    age9 = ar1["age9", t] + 0,
+    age10 = ar1["age10", t] + ar2["age10", t],
+    age11 = ar1["age11", t] + ar2["age11", t],
+    age12 = ar1["age12", t] + ar2["age12", t],
+    age13 = ar1["age13", t] + ar2["age13", t],
+    age14 = ar1["age14", t] + ar2["age14", t],
+    age15 = ar1["age15", t] + ar2["age15", t],
+    age16 = 0 + ar2["age16", t],
+    age17 = 0 + ar2["age17", t],
+    age18 = 0 + ar2["age18", t],
+    age19 = 0 + ar2["age19", t],
+    age20 = 0 + ar2["age20", t] )), paste0("g3_array_combine: time ", t, " combined as expected"))
+
+wtm <- function(ar, meas, ...) {
+    x <- g3_array_agg(ar, meas, ..., opt_length_midlen = TRUE)
+    x <- rep(as.numeric(names(x)), x)  # Unfold into a list of counts
+    mean(x)
+}
+wtsd <- function(ar, meas, ...) {
+    x <- g3_array_agg(ar, meas, ..., opt_length_midlen = TRUE)
+    x <- rep(as.numeric(names(x)), x)  # Unfold into a list of counts
+    sd(x)
+}
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    age = 1:10,
+    area = 1:3 )
+for (i in 1:10) ok(ut_cmp_equal(
+    as.vector(g3_array_agg(ar, c("age"), agg = "length_mean")[i]),
+    as.vector(wtm(ar, "length", age = i))), paste0("length_mean: age ", i))
+for (i in 1:10) for (j in 1:3) ok(ut_cmp_equal(
+    as.vector(g3_array_agg(ar, c("age", "area"), agg = "length_mean")[age = i, area = j]),
+    as.vector(wtm(ar, "length", age = i, area = j))), paste0("length_mean: age ", i, ", area ", j))
+for (i in 1:10) ok(ut_cmp_equal(
+    as.vector(g3_array_agg(ar, c("age"), agg = "length_sd")[i]),
+    as.vector(wtsd(ar, "length", age = i))), paste0("length_sd: age ", i))
+for (i in 1:10) for (j in 1:3) ok(ut_cmp_equal(
+    as.vector(g3_array_agg(ar, c("age", "area"), agg = "length_sd")[age = i, area = j]),
+    as.vector(wtsd(ar, "length", age = i, area = j))), paste0("length_sd: age ", i, ", area ", j))
+
+ar <- gen_arr(
+    length = c(50, 60, 70),
+    predator_length = c(100, 200),
+    area = 1:3 )
+for (i in 1:3) ok(ut_cmp_equal(
+    as.vector( g3_array_agg(ar, c("area"), agg ="predator_length_mean")[i] ),
+    as.vector( wtm(ar, "predator_length", area = i) )), paste0("predator_length_mean: area ", i))

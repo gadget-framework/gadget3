@@ -61,7 +61,7 @@ g3l_distribution_multinomial <- function (epsilon = 10) {
 
 g3l_distribution_multivariate <- function (rho_f, sigma_f, over = c('area')) {
     multivariate_fn <- g3_native(r = function (x, rho, sigma) {
-        sum(dnorm(rho * lag(x, 1), sqrt(1 - rho**2) * sigma))
+        sum(dnorm(rho * lag(x, 1), 0, sqrt(1 - rho**2) * sigma))
     }, cpp = '[](auto x, Type rho, Type sigma) -> Type { // NB: "auto" because it could be vector<Type> or array<Type>
        // http://kaskr.github.io/adcomp/_book/Densities.html#autoregressive-processes
        using namespace density;

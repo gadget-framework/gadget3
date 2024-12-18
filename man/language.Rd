@@ -67,11 +67,11 @@
   \describe{
       \item{name}{Variable name for parameter. Required}
       \item{table}{A data.frame, one column for each variable to check, one row for possible values. Required}
-      \item{value}{Initial value for use in model parameter_template. Default 0}
+      \item{value}{Initial value(s) for use in model parameter_template. Default 0}
       \item{optimise}{Initial optimise setting in parameter_template. Default TRUE}
       \item{random}{Initial random setting in parameter_template. Default FALSE}
-      \item{lower}{Initial lower setting in parameter_template. Default NA}
-      \item{upper}{Initial upper setting in parameter_template. Default NA}
+      \item{lower}{Initial lower setting(s) in parameter_template. Default NA}
+      \item{upper}{Initial upper setting(s) in parameter_template. Default NA}
       \item{ifmissing}{Value to return when outside of table bounds. Default NaN with warning if a value is missing}
   }
 
@@ -81,6 +81,8 @@
   The function takes 2 arguments, a prefix for the generated parameters, and a
   data.frame of variables to possible values. \code{\link{expand.grid}} can be
   used to produce a cross product of all provided variables.
+
+  \var{value}, \var{lower}, \var{upper} can be vectors, in which case it is split up with one per parameter.
 
   \emph{Note:} The variables referenced will need to be integer variables, most
   likely iteration variables such as \code{cur_year}, \code{age},

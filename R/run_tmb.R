@@ -15,6 +15,24 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         return(x)
     }
 
+    # Ensure x is 0-based
+    auto_idx <- function (x) {
+        if (is.symbol(x) && endsWith(as.character(x), "_idx")) {
+            # Already 0-based, nothing to do
+            return(x)
+        }
+        if (is.call(x) && identical(x[[1]], quote(g3_idx))) {
+            # Don't need to do anything to g3_idx calls
+            return(x)
+        }
+        if (is.numeric(x)) {
+            # Indices are 0-based, subtract from value
+            return(x - 1)
+        }
+        # Add a subtract-1 operator
+        return(call("-", x, 1L))
+    }
+
     # Does this call produce a scalar value?
     value_is_scalar <- function (c_val, fallback = FALSE) {
         # Scalar numeric values are constants
@@ -36,7 +54,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # If array subset, scalar if there are no missing points
         if (is.call(c_val) && identical(c_val[[1]], as.symbol("["))) {
             cols_defined <- vapply(c_val, function (d) !identical(as.character(d), ""), logical(1))
-            return(all(cols_defined))
+            cols_slice <- vapply(c_val, function (d) is.call(d) && d[[1]] == ":", logical(1))
+            return(all(cols_defined) && all(!cols_slice))
         }
 
         # Array / vector lookup
@@ -299,11 +318,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Recurse through list of subset, converting to method calls as we go.
         convert_subset <- function (cols) {
             cols_defined <- vapply(cols, function (d) !identical(as.character(d), ""), logical(1))
+            cols_slice <- vapply(cols, function (d) is.call(d) && d[[1]] == ":", logical(1))
 
             if (length(cols) == 0) return("")
             if (all(!cols_defined)) return("")
 
-            if (all(cols_defined)) {
+            if (all(cols_defined) && all(!cols_slice)) {
                 # Nothing missing, i.e. a value lookup
                 # NB: As a byproduct this masks the fact that vec.col(x) == vec,
                 #     as col() falls back to the useless Eigen definition for vector<Type>.
@@ -317,10 +337,29 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                     ')'))
             }
 
+            if (length(which(cols_slice)) > 0 && !identical(unname(which(cols_slice)), 1L)) {
+                # .segment() is an eigen function, which has no knowledge of TMB dimensions
+                # Any .segment() outside of the innermost column will produce nonsense.
+                stop("Slices can only be in the first column, not ", paste(which(cols_slice), collapse = "/"), ": ", deparse1(in_call))
+            }
+
             if (tail(cols_defined, 1)) {
                 # Final value defined, we can use .col()
+                final_c <- tail(cols, 1)[[1]]
+                if (tail(cols_slice, 1)) {
+                    # Column is a slice, so use segment
+                    start_c <- auto_idx(final_c[[2]])
+                    end_c <- auto_idx(final_c[[3]])
+                    end_c <- substitute(end_c - (start_c) + 1, list(start_c = start_c, end_c = end_c))
+                    return(paste0(
+                        ".segment(",
+                        cpp_code(start_c, in_envir, next_indent, expecting_int = TRUE),
+                        ",",
+                        cpp_code(end_c, in_envir, next_indent, expecting_int = TRUE),
+                        ")" ))
+                }
                 return(paste0(
-                    ".col(", cpp_code(tail(cols, 1)[[1]], in_envir, next_indent, expecting_int = TRUE), ")",
+                    ".col(", cpp_code(final_c, in_envir, next_indent, expecting_int = TRUE), ")",
                     convert_subset(head(cols, -1))))
             }
 
@@ -347,20 +386,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     if (call_name == '[[') {
         # Convert indices into corresponding C code
         inds <- lapply(tail(in_call, -2), function(x) {
-            if (is.symbol(x) && endsWith(as.character(x), "_idx")) {
-                # Already 0-based, nothing to do
-                ind <- x
-            } else if (is.call(x) && identical(x[[1]], quote(g3_idx))) {
-                # Don't need to do anything to g3_idx calls
-                ind <- x
-            } else if (is.numeric(x)) {
-                # Indices are 0-based, subtract from value
-                ind <- x - 1
-            } else {
-                # Add a subtract-1 operator
-                ind <- call("-", x, 1L)
-            }
-            return(cpp_code(ind, in_envir, next_indent, expecting_int = TRUE))
+            return(cpp_code(auto_idx(x), in_envir, next_indent, expecting_int = TRUE))
         })
         return(paste(
             cpp_code(in_call[[2]], in_envir, next_indent),
@@ -391,10 +417,13 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "%/%") {
         # Integer division
+        # NB: int / int rounds to zero in C++, not floor
         return(paste0(
-            "((int) ", cpp_code(in_call[[2]], in_envir, next_indent), ")",
+            "(int) std::floor(asDouble(",
+            "(", cpp_code(in_call[[2]], in_envir, next_indent), ")",
             " / ",
-            "((int) ", cpp_code(in_call[[3]], in_envir, next_indent), ")"))
+            "((double) ", cpp_code(in_call[[3]], in_envir, next_indent), ")",
+            "))"))
     }
 
     if (call_name == "^") {
@@ -468,16 +497,19 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Use std:: versions to replace min/max
         if (length(in_call) != 3) stop(call_name, " expects 2 arguments")
         return(paste0(
-            "std::", call_name, "( (Type)",
-            cpp_code(in_call[[2]], in_envir, next_indent),
-            ", (Type)",
-            cpp_code(in_call[[3]], in_envir, next_indent),
+            "std::", call_name, "(",
+            if (expecting_int) "" else "(Type) ",
+            cpp_code(in_call[[2]], in_envir, next_indent, expecting_int = expecting_int),
+            ",",
+            if (expecting_int) "" else "(Type) ",
+            cpp_code(in_call[[3]], in_envir, next_indent, expecting_int = expecting_int),
             ")"))
     }
 
-    if (call_name %in% c("floor")) {
+    if (call_name %in% c("floor", "ceiling")) {
         # Use std:: versions to replace floor
         if (length(in_call) != 2) stop(call_name, " expects 1 argument")
+        if (call_name == "ceiling") call_name <- "ceil"
         return(paste0(
             "std::", call_name, "(",
             cpp_code(in_call[[2]], in_envir, next_indent),
@@ -557,7 +589,8 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
     }
 
     if (call_name == "length") {
-        return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
+        # NB: .size() produces a long int, but asDouble() is missing the template to handle it
+        return(paste0("(int)(", cpp_code(in_call[[2]], in_envir, next_indent), ").size()"))
     }
 
     if (call_name == "t") {
@@ -701,21 +734,23 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
         # Rework all g3_param calls
         repl_fn <- function(x) {
             # NB: eval() because -1 won't be a symbol
-            find_arg <- function (arg_name, def, do_eval = TRUE) {
-                if (!(arg_name %in% names(x))) return(def)
-                if (do_eval) return(eval(x[[arg_name]], envir = env))
-                return(x[[arg_name]])
+            find_arg <- function (arg_name, def, do_eval = TRUE, sub_param_idx = NULL) {
+                out <- if (arg_name %in% names(x)) x[[arg_name]] else def
+                if (isTRUE(do_eval)) out <- eval(out, envir = env)
+                # For g3_param_table(..., value = 1:4), split up vector into individual positions
+                if (!is.null(sub_param_idx) && length(out) > 1) out <- out[[sub_param_idx]]
+                return(out)
             }
             if ('optimize' %in% names(x)) stop("g3_param() optimise parameter should be spelt with an s")
 
-            df_template <- function (name, dims = c(1)) {
+            df_template <- function (name, dims = c(1), sub_param_idx = NULL) {
                 # Extract named args from g3_param() call
-                value <- find_arg('value', 0)
+                value <- find_arg('value', 0, sub_param_idx = sub_param_idx)
                 optimise <- find_arg('optimise', !find_arg('random', FALSE))  # i.e. default is opposite of random
                 random <- find_arg('random', FALSE)
-                lower <- as.numeric(find_arg('lower', NA))
-                upper <- as.numeric(find_arg('upper', NA))
-                parscale <- as.numeric(find_arg('parscale', NA))
+                lower <- as.numeric(find_arg('lower', NA, sub_param_idx = sub_param_idx))
+                upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
+                parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
                 source <- as.character(find_arg('source', as.character(NA)))
 
                 data.frame(
@@ -755,7 +790,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
 
                     scope[[cpp_escape_varname(sub_param_name)]] <<- structure(
                         sprintf('PARAMETER(%s);', cpp_escape_varname(sub_param_name)),
-                        param_template = df_template(sub_param_name))
+                        param_template = df_template(sub_param_name, sub_param_idx = i))
                     paste0("{std::make_tuple(", sub_param_tuple ,"), &", cpp_escape_varname(sub_param_name), "}")
                 }, character(1))
 
@@ -1200,12 +1235,7 @@ g3_tmb_adfun <- function(
         }
     }
 
-    fn$orig_report <- fn$report
-    fn$report <- function (...) {
-        old_reporting_enabled <- fn$env$data$reporting_enabled
-        fn$env$data$reporting_enabled <- 1
-        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
-        out <- fn$orig_report(...)
+    report_patch <- function (out) {
         # Patch report names back again
         for (dimname in names(report_renames)) {
             if (!(dimname %in% names(out))) next
@@ -1233,6 +1263,22 @@ g3_tmb_adfun <- function(
             dimnames(out[[dimname]]) <- report_dimnames[[dimname]]
         }
         return(out)
+    }
+
+    fn$orig_report <- fn$report
+    fn$report <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
+        report_patch(fn$orig_report(...))
+    }
+
+    fn$orig_simulate <- fn$simulate
+    fn$simulate <- function (...) {
+        old_reporting_enabled <- fn$env$data$reporting_enabled
+        fn$env$data$reporting_enabled <- 1
+        on.exit(fn$env$data$reporting_enabled <- old_reporting_enabled)
+        report_patch(fn$orig_simulate(...))
     }
 
     # With Type = "Fun", fn$par sometimes isn't set. Bodge around it

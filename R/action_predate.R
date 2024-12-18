@@ -125,6 +125,7 @@ g3a_predate_catchability_predator <- function (
         temperature = 0,
         by_predator = TRUE,
         by_stock = TRUE ) {
+    # https://github.com/gadget-framework/gadget2/blob/master/src/stockpredator.cc#L144
     list(
         suit_unit = "energy content",
         suit = g3_formula(
