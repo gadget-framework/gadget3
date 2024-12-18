@@ -19,10 +19,51 @@ ar_split_time <- function(ar) {
 g3_array_agg <- function(
         ar,
         margins = NULL,
-        agg = sum,
+        agg = c(
+            "sum",
+            "length_mean", "length_sd",
+            "predator_length_mean", "predator_length_sd" ),
         opt_time_split = !("time" %in% margins || "time" %in% ...names()),
         opt_length_midlen = FALSE,
         ... ) {
+    if (is.character(agg)) {
+        to_vec <- function (x, meas) {
+            # If more than one dimension, collapse down to just meas
+            if (is.array(x)) x <- g3_array_agg(x, meas)
+
+            return(x)
+        }
+
+        agg <- match.arg(agg)
+        if (identical(agg, "sum")) {
+            agg <- base::sum
+        } else if (endsWith(agg, "_mean")) {
+            meas <- gsub("_mean$", "", agg)
+            agg <- function (x) {
+                # Values are counts, names are measurement groups
+                wt <- to_vec(x, meas)
+                x <- as.numeric(names(wt))
+                xmean <- sum(x * wt) / sum(wt)
+
+                return(xmean)
+            }
+            opt_length_midlen <- TRUE
+        } else if (endsWith(agg, "_sd")) {
+            meas <- gsub("_sd$", "", agg)
+            agg <- function (x) {
+                # Values are counts, names are measurement groups
+                wt <- to_vec(x, meas)
+                x <- as.numeric(names(wt))
+                xmean <- sum(x * wt) / sum(wt)
+
+                return(sqrt( sum(wt * (x - xmean)^2) / (sum(wt) - 1) ))
+            }
+            opt_length_midlen <- TRUE
+        } else stop("Unknown agg function name '", agg, "'")
+    } else {
+        stopifnot(is.character(agg) || is.function(agg))
+    }
+
     filter <- list(...)
 
     if (isTRUE(opt_time_split)) ar <- ar_split_time(ar)
