@@ -1,3 +1,21 @@
+stock_common_part <- function (stocks, collapse = ".") {
+    # Find common name_part, add that to our name
+    for (i in seq_along(stocks)) {
+        if (i == 1) {
+            common_part <- stocks[[i]]$name_parts
+        } else {
+            common_part <- intersect(common_part, stocks[[i]]$name_parts)
+        }
+    }
+
+    if (length(common_part) > 0) {
+        paste(common_part, collapse = collapse)
+    } else {
+        # No common parts, concatenate full names of both
+        paste(sort(vapply(stocks, function (s) s$name, character(1))), collapse = collapse)
+    }
+}
+
 # Reverse g3_parameterized(), find out how parameter would be broken down
 g3_parameterized_breakdown <- function (in_c) {
     if (!is.call(in_c)) stop("Expect a g3_parameterized() call")
@@ -28,6 +46,7 @@ g3_parameterized <- function(
         by_step = FALSE,
         by_age = FALSE,
         by_area = FALSE,
+        prepend_extra = list(),
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -76,6 +95,9 @@ g3_parameterized <- function(
         }
         return(NULL)
     }
+
+    # If provided multiple parts to a name, concatenate them together
+    name <- paste(name, collapse = ".")
 
     # Define name_part based on input arg
     name_part <- function (arg) {
@@ -129,20 +151,7 @@ g3_parameterized <- function(
             table_defn <- c(table_defn, list(age = substitute(seq(min_age, max_age), list(min_age = min_age, max_age = max_age))))
         }
 
-        # Find common name_part, add that to our name
-        for (i in seq_along(by_stock)) {
-            if (i == 1) {
-                common_part <- by_stock[[i]]$name_parts
-            } else {
-                common_part <- intersect(common_part, by_stock[[i]]$name_parts)
-            }
-        }
-        if (length(common_part) > 0) {
-            stock_extra <- paste(common_part, collapse = ".")
-        } else {
-            # No common parts, concatenate full names of both
-            stock_extra <- paste(sort(vapply(by_stock, function (s) s$name, character(1))), collapse = ".")
-        }
+        stock_extra <- stock_common_part(by_stock)
     } else stop('Unknown by_stock parameter, should be FALSE, TRUE, a name_part or list of stocks')
 
     if (isTRUE(by_area) && (isTRUE(by_stock) || is.character(by_stock))) {
@@ -191,6 +200,11 @@ g3_parameterized <- function(
     } else if (isTRUE(by_stock) || is.character(by_stock)) {
         # Use stock_prepend() to do stock substitutions
         out <- substitute(stock_prepend(stock, out, name_part = name_part), list(out = out, name_part = name_part(by_stock)))
+    }
+
+    # Append any extra items using stock_prepend
+    for (ex in (if (is.list(prepend_extra)) prepend_extra else list(prepend_extra))) {
+        out <- substitute(stock_prepend(ex, out), list(out = out, ex = ex))
     }
 
     # Turn character scale/offset into parameter code

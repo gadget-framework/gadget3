@@ -383,6 +383,15 @@ ok_group("g3_step:stock_prepend", {
             g3_param("bling.Linf", value = 1)
             g3_param("blang.Linf", value = 1)
         }), "stock_var can also be a string (worked out by g3_parameterized), which just gets prepended")
+
+    ok(cmp_code(
+        gadget3:::g3_step(g3_formula({
+            stock_prepend(blong, g3_param("Linf", value = 1))
+            stock_prepend(blong, stock_prepend("bling", g3_param("Linf", value = 1)))
+        }, blong = "hello")), ~{
+            g3_param("hello.Linf", value = 1)
+            g3_param("hello.bling.Linf", value = 1)
+        }), "stock_var can refer to a string (useful for param_project), which just gets prepended")
 })
 
 ok_group("g3_step:stock_prepend:table", {

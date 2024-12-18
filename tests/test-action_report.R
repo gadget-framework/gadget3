@@ -35,6 +35,10 @@ ok(ut_cmp_equal(
         REPORT(doublearr_var)
     })), "action_reports: Removed subsets")
 
+ok(ut_cmp_identical(
+    g3a_report_history(g3_formula(comment(testreport_missing)), '^testreport_'),
+    list() ), "Don't try and report undefined variables (let compilation finish)")
+
 #######################################
 
 prey_a <- g3_stock('prey_a', c(1)) %>% g3s_age(1, 5)
