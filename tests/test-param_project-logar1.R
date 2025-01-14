@@ -96,6 +96,32 @@ ok(ut_cmp_equal(
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
+ok_group("No noise, last 3 values as loglevel") ###############################
+
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
+    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst.rec.proj.logar1.loglevel", -3) |>
+    g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
+
+    g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+    g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
+    g3_init_val("*.t0", g3_stock_def(st_imm, "minage") - 0.8, spread = 2) |>
+    g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+    g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+
+    g3_init_val("project_years", 100) |>
+    identity() -> params.in
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+ok(ut_cmp_equal(
+    as.vector(tail(r$proj_logar1_stst_rec__var, 10)),
+    rep( mean(r$proj_logar1_stst_rec__var[c("1992", "1993", "1994")]), 10),
+    tolerance = 5e-5 ), "proj_logar1_stst_rec__var: Settles to loglevel matching mean of last 3 values")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
 ok_group("With noise, no projection") #########################################
 
 old_seed <- .Random.seed

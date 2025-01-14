@@ -70,8 +70,9 @@ g3_param_project(
   }
   \item{loglevel_f}{
     logspace level (or offset) applied on top of logar1 regression.
-    If -1, use the last non-projection value for timeseries.
-    Defaults to parameter with name \code{(by_stock).(param_name).proj.loglevel}
+    If negative, use the mean of the last (x) non-projection values as loglevel.
+    Defaults to parameter with name \code{(by_stock).(param_name).proj.loglevel},
+    which itself defaults to -1 (i.e. use the last non-projection value)
   }
   \item{param_name}{
     Character string used to name the parameters.

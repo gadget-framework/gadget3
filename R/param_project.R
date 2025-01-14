@@ -179,7 +179,8 @@ g3_param_project_logar1 <- function (
             if (!is.finite(logvar[[i]])) {  # Ignore non-projection values
                 if (loglevel < 0) {
                     # Loglevel needs setting from previous values, if not enough assume 0
-                    loglevel <- if (i > 1) logvar[[i - 1]] else 0
+                    lastx <- -round(loglevel)
+                    loglevel <- if ((i - lastx) >= 1) mean(logvar[(i - lastx):(i - 1)]) else 0
                 }
                 logvar[[i]] <- logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev) + loglevel
             }
@@ -198,7 +199,8 @@ g3_param_project_logar1 <- function (
             if (!logvar.segment(i, 1).allFinite()) {  // Ignore non-projection values
                 if (loglevel < 0) {
                     // Loglevel needs setting from previous values, if not enough assume 0
-                    loglevel = i > 0 ? logvar(i - 1) : 0;
+                    int lastx = -std::round(asDouble(loglevel));
+                    loglevel = (i - lastx) >= 0 ? logvar.segment(i - lastx, lastx).mean() : 0;
                 }
                 logvar(i) = (Type)(logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev)(0) + loglevel);
             }
