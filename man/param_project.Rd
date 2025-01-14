@@ -115,10 +115,36 @@ g3_param_project(
 }
 
 \value{
+  \subsection{g3_param_project_dlnorm}{
+    Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
+
+    The functions compare / generate normally-distributed deviates around a mean, i.e:
+    \deqn{ V_t = \epsilon_{M - \frac{e^{2*\Sigma}}{2},\Sigma} }
+    \deqn{ v = exp(V) }
+    \describe{
+      \item{\eqn{M}}{\var{lmean_f} / \code{(by_stock).(param_name).proj.lmean} parameter}
+      \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter}
+      \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
+      \item{\eqn{v}}{Output time series}
+    }
+
+    \describe{
+      \item{nll}{Compare values against \code{dnorm(x, mean_f, stddev_f)}}
+      \item{proj}{Generate new values with \code{rnorm(mean_f, stddev_f)}}
+    }
+  }
+
   \subsection{g3_param_project_dnorm}{
     Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
 
-    The parameter will describe deviates around a mean.
+    The functions compare / generate log-normal deviates around a mean, i.e:
+    \deqn{ v_t = \epsilon_{\mu,\sigma} }
+    \describe{
+      \item{\eqn{\mu}}{\var{mean_f} / \code{(by_stock).(param_name).proj.mean} parameter}
+      \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter}
+      \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
+      \item{\eqn{v}}{Output time series}
+    }
 
     \describe{
       \item{nll}{Compare values against \code{dnorm(x, mean_f, stddev_f)}}
@@ -129,7 +155,14 @@ g3_param_project(
   \subsection{g3_param_project_rwalk}{
     Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
 
-    The parameter will describe a random walk.
+    The functions compare / generate to a random walk, i.e:
+    \deqn{ v_t = v_{t-1} + \epsilon_{\mu,\sigma} }
+    \describe{
+      \item{\eqn{\mu}}{\var{mean_f} / \code{(by_stock).(param_name).proj.mean} parameter}
+      \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter}
+      \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
+      \item{\eqn{v}}{Output time series}
+    }
 
     \describe{
       \item{nll}{Compare difference between values \code{dnorm(x, mean_f, stddev_f)}}
