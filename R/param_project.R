@@ -119,6 +119,101 @@ g3_param_project_rwalk <- function (
             list(mean_f = mean_f, stddev_f = stddev_f) ))
 }
 
+g3_param_project_ar1 <- function (
+        phi_f = g3_parameterized(
+            "proj.ar1.phi",
+            value = 0.8, lower = 0, upper = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized(
+            "proj.ar1.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        level_f = g3_parameterized(
+            "proj.ar1.level",
+            value = -1, optimise = FALSE,
+            prepend_extra = quote(param_name) )) {
+    g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev) {
+        noisemean <- 0
+        noisestddev <- stddev
+
+        # If noise disabled, just set nll 0
+        if (noisestddev == 0) return(rep(0, length(var)))
+
+        lagvar <- c(0, head(var, -1))  # i.e. vector with the previous entry to subtract
+        return(-dnorm(
+            var - phi * lagvar,
+            noisemean,
+            noisestddev,
+            log = TRUE ))
+    }, cpp = '[](array<Type> var, Type phi, Type stddev) -> vector<Type> {
+        Type noisemean = 0;
+        Type noisestddev = stddev;
+
+        // If noise disabled, just set nll 0
+        if (noisestddev == 0) {
+            vector<Type> out(var.size());
+            out.setConstant(0);
+            return out;
+        }
+
+        array<Type> lagvar(var.size());
+        lagvar(0) = 0;
+        lagvar.tail(lagvar.size() - 1) = var.head(var.size() - 1);
+        return -dnorm(
+            (vector<Type>)(var - phi * lagvar),
+            noisemean,
+            noisestddev,
+            1 );
+    }')
+    g3_param_project_ar1 <- g3_native(r = function (var, phi, stddev, level) {
+        if (all(is.finite(var))) return(var)
+        noisemean <- 0
+        noisestddev <- stddev
+
+        lastvar <- 0
+        for (i in seq_along(var)) {
+            if (!is.finite(var[[i]])) {  # Ignore non-projection values
+                if (level < 0) {
+                    # level needs setting from previous values, if not enough assume 0
+                    lastx <- -round(level)
+                    level <- if ((i - lastx) >= 1) mean(var[(i - lastx):(i - 1)]) else 0
+                }
+                var[[i]] <- phi * lastvar + (1 - phi) * level + rnorm(1, noisemean, noisestddev)
+            }
+            lastvar <- var[[i]]
+        }
+        return(var)
+    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level) -> vector<Type> {
+        if (var.allFinite()) return var;
+        Type noisemean = 0;
+        Type noisestddev = stddev;
+
+        Type lastvar = 0;
+        for (int i = 0; i < var.size(); i++) {
+            if (!var.segment(i, 1).allFinite()) {  // Ignore non-projection values
+                if (level < 0) {
+                    // level needs setting from previous values, if not enough assume 0
+                    int lastx = -std::round(asDouble(level));
+                    level = (i - lastx) >= 0 ? var.segment(i - lastx, lastx).mean() : 0;
+                }
+                var(i) = (Type)(phi * lastvar + (1 - phi) * level + rnorm(1, noisemean, noisestddev)(0));
+            }
+            lastvar = var(i);
+        }
+        return (var);
+    }')
+
+    list(
+        name = "ar1",
+        # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
+        nll = f_substitute(
+            ~sum(projstock__nll[] <- g3_param_project_nll_ar1(projstock__var, phi_f, stddev_f)),
+            list(phi_f = phi_f, stddev_f = stddev_f) ),
+        project = f_substitute(
+            ~g3_param_project_ar1(projstock__var, phi_f, stddev_f, level_f),
+            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f) ))
+}
+
 g3_param_project_logar1 <- function (
         logphi_f = g3_parameterized(
             "proj.logar1.logphi",

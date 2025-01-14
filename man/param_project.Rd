@@ -2,6 +2,7 @@
 \alias{g3_param_project_dlnorm}
 \alias{g3_param_project_dnorm}
 \alias{g3_param_project_rwalk}
+\alias{g3_param_project_ar1}
 \alias{g3_param_project_logar1}
 \alias{g3_param_project}
 \concept{G3 projections}
@@ -36,6 +37,20 @@ g3_param_project_rwalk(
             value = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ))
 
+g3_param_project_ar1(
+        phi_f = g3_parameterized(
+            "proj.ar1.phi",
+            value = 0.8, lower = 0, upper = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        stddev_f = g3_parameterized(
+            "proj.ar1.stddev",
+            value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        level_f = g3_parameterized(
+            "proj.ar1.level",
+            value = -1, optimise = FALSE,
+            prepend_extra = quote(param_name) ))
+
 g3_param_project_logar1(
         logphi_f = g3_parameterized(
             "proj.logar1.logphi",
@@ -64,14 +79,14 @@ g3_param_project(
 }
 
 \arguments{
-  \item{mean_f, stddev_f, lmean_f, lstddev_f, logphi_f}{
+  \item{mean_f, stddev_f, phi_f, lmean_f, lstddev_f, logphi_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
     Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
   }
-  \item{loglevel_f}{
-    logspace level (or offset) applied on top of logar1 regression.
-    If negative, use the mean of the last (x) non-projection values as loglevel.
-    Defaults to parameter with name \code{(by_stock).(param_name).proj.loglevel},
+  \item{level_f, loglevel_f}{
+    (logspace) level (or offset) applied on top of ar1/logar1 regression.
+    If negative, use the mean of the last (x) non-projection values as (log)level.
+    Defaults to parameter with name \code{(by_stock).(param_name).proj.(level|loglevel)},
     which itself defaults to -1 (i.e. use the last non-projection value)
   }
   \item{param_name}{
@@ -170,6 +185,20 @@ g3_param_project(
     }
   }
   
+  \subsection{g3_param_project_ar1}{
+    Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
+
+    The functions compare / generate a AR1 process projecting from any existing values, i.e:
+    \deqn{ v_t = \phi v_{t-1} + (1 - \phi) \theta + \epsilon_{0,\sigma} }
+    \describe{
+      \item{\eqn{\phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
+      \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter}
+      \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter}
+      \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
+      \item{\eqn{v}}{Output time series}
+    }
+  }
+
   \subsection{g3_param_project_logar1}{
     Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
 
