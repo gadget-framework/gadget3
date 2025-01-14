@@ -127,11 +127,18 @@ g3_param_project_logar1 <- function (
         lstddev_f = g3_parameterized(
             "proj.logar1.lstddev",
             value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        loglevel_f = g3_parameterized(
+            "proj.logar1.loglevel",
+            value = -1, optimise = FALSE,
             prepend_extra = quote(param_name) )) {
     g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev) {
         logvar <- log(var)
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
+
+        # If noise disabled, just set nll 0
+        if (noisestddev < 1e-7) return(rep(0, length(logvar)))
 
         laglogvar <- c(0, head(logvar, -1))  # i.e. vector with the previous entry to subtract
         return(-dnorm(
@@ -145,6 +152,13 @@ g3_param_project_logar1 <- function (
         Type noisemean = 0 - exp(2*lstddev) / 2;
         Type noisestddev = exp(lstddev);
 
+        // If noise disabled, just set nll 0
+        if (noisestddev < 1e-7) {
+            vector<Type> out(logvar.size());
+            out.setConstant(0);
+            return out;
+        }
+
         array<Type> laglogvar(logvar.size());
         laglogvar(0) = 0;
         laglogvar.tail(laglogvar.size() - 1) = logvar.head(logvar.size() - 1);
@@ -154,25 +168,25 @@ g3_param_project_logar1 <- function (
             noisestddev,
             1 );
     }')
-    g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev) {
+    g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel) {
         if (all(is.finite(var))) return(var)
         logvar <- log(var)
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
 
         lastlogvar <- 0
-        loglevel <- 0
         for (i in seq_along(logvar)) {
-            if (is.finite(logvar[[i]])) {
-                # Use final non-projection value as loglevel when available
-                loglevel <- logvar[[i]]
-            } else {
+            if (!is.finite(logvar[[i]])) {  # Ignore non-projection values
+                if (loglevel < 0) {
+                    # Loglevel needs setting from previous values, if not enough assume 0
+                    loglevel <- if (i > 1) logvar[[i - 1]] else 0
+                }
                 logvar[[i]] <- logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev) + loglevel
             }
             lastlogvar <- logvar[[i]]
         }
         return(exp(logvar))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel) -> vector<Type> {
         if (var.allFinite()) return var;
         array<Type> logvar(var.size());
         logvar = var.log();
@@ -180,12 +194,12 @@ g3_param_project_logar1 <- function (
         Type noisestddev = exp(lstddev);
 
         Type lastlogvar = 0;
-        Type loglevel = 0;
         for (int i = 0; i < logvar.size(); i++) {
-            if (logvar.segment(i, 1).allFinite()) {
-                // Use final non-projection value as loglevel when available
-                loglevel = logvar(i);
-            } else {
+            if (!logvar.segment(i, 1).allFinite()) {  // Ignore non-projection values
+                if (loglevel < 0) {
+                    // Loglevel needs setting from previous values, if not enough assume 0
+                    loglevel = i > 0 ? logvar(i - 1) : 0;
+                }
                 logvar(i) = (Type)(logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev)(0) + loglevel);
             }
             lastlogvar = logvar(i);
@@ -200,8 +214,8 @@ g3_param_project_logar1 <- function (
             ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f)),
             list(logphi_f = logphi_f, lstddev_f = lstddev_f) ),
         project = f_substitute(
-            ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f),
-            list(logphi_f = logphi_f, lstddev_f = lstddev_f) ))
+            ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f),
+            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f) ))
 }
 
 g3_param_project <- function (

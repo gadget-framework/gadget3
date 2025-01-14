@@ -44,6 +44,10 @@ g3_param_project_logar1(
         lstddev_f = g3_parameterized(
             "proj.logar1.lstddev",
             value = 1, optimise = FALSE,
+            prepend_extra = quote(param_name) ),
+        loglevel_f = g3_parameterized(
+            "proj.logar1.loglevel",
+            value = -1, optimise = FALSE,
             prepend_extra = quote(param_name) ))
 
 g3_param_project(
@@ -63,6 +67,11 @@ g3_param_project(
   \item{mean_f, stddev_f, lmean_f, lstddev_f, logphi_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
     Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
+  }
+  \item{loglevel_f}{
+    logspace level (or offset) applied on top of logar1 regression.
+    If -1, use the last non-projection value for timeseries.
+    Defaults to parameter with name \code{(by_stock).(param_name).proj.loglevel}
   }
   \item{param_name}{
     Character string used to name the parameters.

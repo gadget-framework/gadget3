@@ -70,6 +70,60 @@ ok(ut_cmp_equal(
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
+ok_group("No noise, fixed loglevel") ##########################################
+
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
+    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst.rec.proj.logar1.loglevel", log(round(runif(1, 10, 20)))) |>
+    g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
+
+    g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+    g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
+    g3_init_val("*.t0", g3_stock_def(st_imm, "minage") - 0.8, spread = 2) |>
+    g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+    g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+
+    g3_init_val("project_years", 100) |>
+    identity() -> params.in
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+ok(ut_cmp_equal(
+    as.vector(tail(r$proj_logar1_stst_rec__var, 10)),
+    rep(exp(params.in$stst.rec.proj.logar1.loglevel), 10),
+    end = NULL ), "proj_logar1_stst_rec__var: Settles to loglevel in projection, regardless of initial value")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+ok_group("With noise, no projection") #########################################
+
+old_seed <- .Random.seed
+set.seed(1234)  # Fix seed so we always choose the same stst.rec.#
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
+    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
+
+    g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+    g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
+    g3_init_val("*.t0", g3_stock_def(st_imm, "minage") - 0.8, spread = 2) |>
+    g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+    g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+
+    g3_init_val("project_years", 0) |>
+    identity() -> params.in
+.Random.seed <- old_seed
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+ok(ut_cmp_equal(nll, 682647457), "nll: Matches baseline (stst.rec.# always the same values)")
+ok(ut_cmp_equal(
+    as.vector(r$proj_logar1_stst_rec__nll),
+    c(588296503, 23684246, 23644656, 23227865, 23794187) ), "r$proj_logar1_stst_rec__nll: Matches baseline")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
 ok_group("With noise") ########################################################
 
 attr(model_fn, 'parameter_template') |>
