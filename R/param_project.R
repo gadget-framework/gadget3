@@ -182,7 +182,7 @@ g3_param_project_logar1 <- function (
                     lastx <- -round(loglevel)
                     loglevel <- if ((i - lastx) >= 1) mean(logvar[(i - lastx):(i - 1)]) else 0
                 }
-                logvar[[i]] <- logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev) + loglevel
+                logvar[[i]] <- logphi * lastlogvar + (1 - logphi) * loglevel + rnorm(1, noisemean, noisestddev)
             }
             lastlogvar <- logvar[[i]]
         }
@@ -202,7 +202,7 @@ g3_param_project_logar1 <- function (
                     int lastx = -std::round(asDouble(loglevel));
                     loglevel = (i - lastx) >= 0 ? logvar.segment(i - lastx, lastx).mean() : 0;
                 }
-                logvar(i) = (Type)(logphi * (lastlogvar - loglevel) + rnorm(1, noisemean, noisestddev)(0) + loglevel);
+                logvar(i) = (Type)(logphi * lastlogvar + (1 - logphi) * loglevel + rnorm(1, noisemean, noisestddev)(0));
             }
             lastlogvar = logvar(i);
         }

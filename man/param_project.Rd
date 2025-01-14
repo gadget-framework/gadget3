@@ -140,11 +140,15 @@ g3_param_project(
   \subsection{g3_param_project_logar1}{
     Returns a "nll" & "project" \link{formula} objects for use as \var{project_fs}.
 
-    The parameter will describe a log-AR1 process projecting from any existing values.
-
+    The functions compare / generate a log-AR1 process projecting from any existing values, i.e:
+    \deqn{ V_t = \Phi V_{t-1} + (1 - \Phi) \Theta + \epsilon_{0 - \frac{e^{2*\Sigma}}{2},\Sigma} }
+    \deqn{ v = exp(V) }
     \describe{
-      \item{nll}{Compare values to log-AR1 process}
-      \item{proj}{Generate new values using log-AR1 process}
+      \item{\eqn{\Phi}}{\var{logphi_f} / \code{(by_stock).(param_name).proj.logphi} parameter}
+      \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
+      \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter}
+      \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
+      \item{\eqn{v}}{Output time series}
     }
   }
 
