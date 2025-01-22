@@ -268,7 +268,7 @@ Type objective_function<Type>::operator() () {
     int cur_year = 0;
     int start_year = 1994;
     vector<int> step_lengths(4); step_lengths.setConstant(3);
-    auto step_count = (step_lengths).size();
+    auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
     int end_year = 2018;
     int cur_step = 0;
@@ -290,7 +290,7 @@ Type objective_function<Type>::operator() () {
     array<Type> ling_mat__wgt(35,11,1); ling_mat__wgt.setConstant((double)(1));
     array<Type> suit_ling_imm_igfs__report(35);
     array<Type> suit_ling_mat_igfs__report(35);
-    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + 0) + (step_lengths).size() - 1;
+    auto total_steps = (int)(step_lengths).size()*(end_year - as_integer(retro_years) - start_year + 0) + (int)(step_lengths).size() - 1;
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
     Type nll = (double)(0);
     array<Type> ling_imm__totalpredate(35,8,1);
@@ -350,7 +350,7 @@ Type objective_function<Type>::operator() () {
             if ( cur_time == 0 && assert_msg(retro_years >= (double)(0), "retro_years must be >= 0") ) {
                 return NAN;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year = start_year + ((int) std::floor(asDouble((cur_time) / ((double) step_count))));
             cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
             cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);

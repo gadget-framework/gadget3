@@ -119,6 +119,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__f_surv__alpha);
     PARAMETER(fish__f_surv__l50);
     PARAMETER(fish__bbin);
+    PARAMETER(fish__rec__proj);
     PARAMETER(fish__rec__1979);
     PARAMETER(fish__rec__1980);
     PARAMETER(fish__rec__1981);
@@ -297,6 +298,8 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish__rec__2022__upper);
     DATA_SCALAR(fish__rec__2023__lower);
     DATA_SCALAR(fish__rec__2023__upper);
+    DATA_SCALAR(fish__rec__proj__lower);
+    DATA_SCALAR(fish__rec__proj__upper);
     DATA_SCALAR(fish__rec__scalar__lower);
     DATA_SCALAR(fish__rec__scalar__upper);
     DATA_SCALAR(fish__rec__sd__lower);
@@ -459,7 +462,7 @@ Type objective_function<Type>::operator() () {
     int cur_year = 0;
     int start_year = 1979;
     vector<int> step_lengths(4); step_lengths.setConstant(3);
-    auto step_count = (step_lengths).size();
+    auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
     int end_year = 2023;
     int cur_step = 0;
@@ -471,12 +474,12 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(fish__midlen)
     array<Type> fish__num(10,1,5); fish__num.setZero();
     array<Type> fish__wgt(10,1,5); fish__wgt.setConstant((double)(1));
-    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<double> detail_fish__num(10,1,5,as_integer(total_steps + (double)(1))); detail_fish__num.setZero();
-    array<double> detail_fish__wgt(10,1,5,as_integer(total_steps + (double)(1))); detail_fish__wgt.setConstant((double)(1));
+    auto total_steps = (int)(step_lengths).size()*(end_year - as_integer(retro_years) - start_year + as_integer(project_years)) + (int)(step_lengths).size() - 1;
+    array<double> dstart_fish__num(10,1,5,as_integer(total_steps + (double)(1))); dstart_fish__num.setZero();
+    array<double> dstart_fish__wgt(10,1,5,as_integer(total_steps + (double)(1))); dstart_fish__wgt.setConstant((double)(1));
     array<Type> suit_fish_f_surv__report(10);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
     array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,5,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
@@ -553,7 +556,7 @@ Type objective_function<Type>::operator() () {
             if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
                 return NAN;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year = start_year + ((int) std::floor(asDouble((cur_time) / ((double) step_count))));
             cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
             cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
@@ -570,7 +573,7 @@ Type objective_function<Type>::operator() () {
 
                 auto ren_dnorm = dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv)));
 
-                auto factor = (fish__init__scalar*(map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + (double)(0)*age) + init__F)*(age - recage)));
+                auto factor = (fish__init__scalar*map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                 {
                     fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
@@ -579,10 +582,10 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
+            dstart_fish__num.col(cur_time + 1 - 1) = as_numeric_arr(fish__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            detail_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
+            dstart_fish__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish__wgt);
         }
         if ( cur_time == 0 ) {
             suit_fish_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish__midlen - fish__f_surv__l50)));
@@ -610,22 +613,22 @@ Type objective_function<Type>::operator() () {
             REPORT(cdist_sumofsquares_ldist_f_surv_obs__num);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__num);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__predby_f_surv);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish__renewalnum);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(detail_fish__wgt);
-        }
-        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_f_surv__cons);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_f_surv__suit);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dstart_fish__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(dstart_fish__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
@@ -741,7 +744,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-((map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + (double)(0)*age))*cur_step_size);
+                fish__num.col(fish__age_idx).col(fish__area_idx) *= exp(-(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M"))*cur_step_size);
             }
         }
         {
@@ -780,11 +783,11 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto factor = (map_extras::at_def(pt__fish__rec, std::make_tuple(cur_year), (Type)(NAN))*fish__rec__scalar);
+            auto factor = (map_extras::at_def(pt__fish__rec, std::make_tuple(cur_year), (Type)(fish__rec__proj))*fish__rec__scalar);
 
             {
                 // g3a_renewal for fish;
-                for (auto age = fish__minage; age <= fish__maxage; age++) if ( age == fish__minage && cur_step == 2 && (! cur_year_projection) ) {
+                for (auto age = fish__minage; age <= fish__maxage; age++) if ( age == fish__minage && cur_step == 2 ) {
                     auto fish__age_idx = age - fish__minage + 1 - 1;
 
                     auto area = fish__area;
@@ -1191,6 +1194,12 @@ Type objective_function<Type>::operator() () {
             // g3l_bounds_penalty for fish.rec.2023;
             if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__2023__lower)) && std::isfinite(asDouble(fish__rec__2023__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__2023 - fish__rec__2023__upper) / (fish__rec__2023__upper - fish__rec__2023__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__2023__lower - fish__rec__2023) / (fish__rec__2023__upper - fish__rec__2023__lower)), (Type)((double)(0)))), (Type)(double)(2)));
+            }
+        }
+        {
+            // g3l_bounds_penalty for fish.rec.proj;
+            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__proj__lower)) && std::isfinite(asDouble(fish__rec__proj__upper)) ) {
+                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__proj - fish__rec__proj__upper) / (fish__rec__proj__upper - fish__rec__proj__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__proj__lower - fish__rec__proj) / (fish__rec__proj__upper - fish__rec__proj__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
         {

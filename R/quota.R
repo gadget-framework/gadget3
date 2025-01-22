@@ -10,27 +10,18 @@ g3_quota_hockeyfleet <- function (
     stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     stopifnot(is.list(preystocks) && all(sapply(preystocks, g3_is_stock)))
 
-    # totalsuit: Total suitable spawning-stock biomass
-    # == sum(predstock1_preystock1__suit) + sum(predstock1_preystock2__suit) + ...
-    totalsuit <- lapply(predstocks, function (predstock) lapply(preystocks, function (preystock) {
-        f_substitute(quote( preyprop * sum(suit_var) ), list(
-            preyprop = resolve_stock_list(preyprop_fs, preystock),
-            # NB: Should match action_predate's g3s_stockproduct()
-            suit_var = as.symbol(paste0(preystock$name, "_", predstock$name, "__suit")) ))
-    }))
-    totalsuit <- f_chain_op(do.call(c, totalsuit), "+")
-
     # totalssb: Total spawning-stock biomass
-    # == sum(preystock1__num * preystock1__wgt) + ...
+    # == sum(preyprop * preystock1__num * preystock1__wgt) + ...
     totalssb <- lapply(predstocks, function (predstock) lapply(preystocks, function (preystock) {
-        substitute(sum(num * wgt), list(
+        substitute(sum(preyprop * num * wgt), list(
+            preyprop = resolve_stock_list(preyprop_fs, preystock),
             num = as.symbol(paste0(preystock$name, "__num")),
             wgt = as.symbol(paste0(preystock$name, "__wgt")) ))
     }))
     totalssb <- f_chain_op(do.call(c, totalssb), "+")
 
     out <- f_substitute(
-        ~harvest_rate * totalsuit * dif_pminmax(totalssb / btrigger, 0, 1, 1e3),
+        ~harvest_rate * dif_pmin(totalssb / btrigger, 1, 1e3),
         list(
             btrigger = btrigger,
             harvest_rate = harvest_rate ))
@@ -43,15 +34,19 @@ g3_quota_hockeyfleet <- function (
             out = out ))
 
     attr(out, "quota_name") <- c("hockeyfleet", sapply(predstocks, function (ps) ps$name))
+    attr(out, "catchability_unit") <- "harvest-rate-year"
     return(out)
 }
 
 g3_quota_assess <- function (
         predstocks,
         preystocks,
-        assess_f ) {
+        assess_f,
+        unit = c("biomass-year", "biomass", "harvest-rate", "harvest-rate-year",
+                 "individuals", "individuals-year") ) {
     # Turn list of calls into a single list() call
     to_list_call <- function (x) as.call(c(list(as.symbol("list")), x ))
+    unit <- match.arg(unit)
 
     pred_names <- vapply(predstocks, function (s) s$name, character(1))
     prey_names <- vapply(preystocks, function (s) s$name, character(1))
@@ -73,6 +68,7 @@ g3_quota_assess <- function (
         abund = hist_abund,
         meanwgt = hist_meanwgt ))
     attr(out, "quota_name") <- c("assess", sapply(predstocks, function (ps) ps$name))
+    attr(out, "catchability_unit") <- unit
     return(out)
 }
 
@@ -99,6 +95,7 @@ g3_quota <- function (
         stock_with(quotastock, stock_ss(quotastock__var, vec = single))
     ), list(
         end = NULL )), recursing = TRUE)
+    attr(out, "catchability_unit") <- attr(function_f, "catchability_unit")
 
     # Ancillary step to calculate quota at assessent step
     environment(out)[[step_id(run_at, "g3a_quota", quotastock)]] <- g3_step(f_substitute(~{

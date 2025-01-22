@@ -21,7 +21,9 @@ g3_quota_hockeyfleet(
 g3_quota_assess(
         predstocks,
         preystocks,
-        assess_f )
+        assess_f,
+        unit = c("biomass-year", "biomass", "harvest-rate", "harvest-rate-year",
+                 "individuals", "individuals-year") )
 
 g3_quota(
         function_f,
@@ -53,6 +55,9 @@ g3_quota(
   }
   \item{assess_f}{
     A formula that runs an assessment model & returns a quota. See vignette TODO:
+  }
+  \item{unit}{
+    A single string representing the unit of the value that \var{assess_f} returns.
   }
   \item{function_f}{
     Output of one of the \code{g3_quota_*} functions, responsible for choosing the next quota

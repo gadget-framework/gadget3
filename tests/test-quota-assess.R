@@ -111,8 +111,8 @@ attr(model_cpp, 'parameter_template') |>
     g3_init_val("surv_1.quota.prop", 0.8) |>
     g3_init_val("surv_2.quota.prop", 0.2) |>
     # surv_1 active at 1, surv_2 active at 2/3
-    g3_init_val("surv_1.quota.step.#", c(1, 0, 0, 0)) |>
-    g3_init_val("surv_2.quota.step.#", c(0, 0.6, 0.4, 0)) |>
+    g3_init_val("surv_1.cons.step.#", c(1, 0, 0, 0)) |>
+    g3_init_val("surv_2.cons.step.#", c(0, 0.6, 0.4, 0)) |>
 
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
