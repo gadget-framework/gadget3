@@ -43,6 +43,8 @@ g3_quota(
   \item{preyprop_fs}{
     A \code{\link{formula}} or list of formulas representing the proportion of that prey that makes up the Spawning Stock Biomass (SSB).
     The proportions do not need to sum to 1, for example you may use \code{preyprop_fs = 0.4} to assume that 40% of a single prey stock is mature.
+
+    Using a suitability function is also supported, e.g. \code{\link{g3_suitability_exponentiall50}}.
   }
   \item{btrigger}{
     Trigger biomass, see formula

@@ -13,12 +13,34 @@ g3_quota_hockeyfleet <- function (
     # totalssb: Total spawning-stock biomass
     # == sum(preyprop * preystock1__num * preystock1__wgt) + ...
     totalssb <- lapply(predstocks, function (predstock) lapply(preystocks, function (preystock) {
-        substitute(sum(preyprop * num * wgt), list(
-            preyprop = resolve_stock_list(preyprop_fs, preystock),
-            num = as.symbol(paste0(preystock$name, "__num")),
-            wgt = as.symbol(paste0(preystock$name, "__wgt")) ))
+        stock <- preystock
+        g3_step(f_substitute(
+            ~stock_with(stock, hockeyfleet_mult_sum(stock__num * stock__wgt, preyprop)),
+            list(
+                preyprop = resolve_stock_list(preyprop_fs, preystock) )), recursing = TRUE)
     }))
     totalssb <- f_chain_op(do.call(c, totalssb), "+")
+
+    # Work out function used to multiply & sum preyprop
+    if (is.numeric(preyprop_fs) && length(preyprop_fs) == 1) {
+        # preyprop_fs is just a constant, can use regular *
+        totalssb <- call_replace(totalssb, hockeyfleet_mult_sum = function (x) {
+            substitute(sum(a * b), list(
+                a = x[[2]],
+                b = x[[3]] ))
+        })
+    } else {
+        # Function equivalent to sum(nonconform_mult(base_ar, extra_vec))
+        # NB: To use nonconform_mult() we'd need a template version accepting array+vector,
+        #     which doesn't work for C++ template reasons, and would likely write the new
+        #     array to memory just to sum it anyway.
+        environment(totalssb)$hockeyfleet_mult_sum <- g3_native(r = function (base_ar, extra_vec) {
+            sum(base_ar * as.vector(extra_vec))
+        }, cpp = '[](array<Type> base_ar, vector<Type> extra_vec) -> Type {
+            assert(base_ar.size() % extra_vec.size() == 0);
+            return (base_ar * (extra_vec.replicate(base_ar.size() / extra_vec.size(), 1))).sum();
+        }')
+    }
 
     out <- f_substitute(
         ~harvest_rate * dif_pmin(totalssb / btrigger, 1, 1e3),
