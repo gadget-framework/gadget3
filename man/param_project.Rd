@@ -320,4 +320,27 @@ plot(r$proj_dnorm_fish_Mdn__var)
 # Values used for random walk
 plot(r$proj_rwalk_other_Mrw__var)
 
+### Plot values for an individual projection function
+
+actions <- list( g3a_time(1990, 1991), g3_param_project("M", g3_param_project_dlnorm()) )
+model_fn <- g3_to_r(c(actions, list(
+    g3a_report_history(actions, 'proj_.*', out_prefix = NULL),
+    NULL )))
+
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("M.proj.dlnorm.lmean", log(20)) |>
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-6)) |>
+    g3_init_val("M.#.#", 20) |>
+
+    g3_init_val("project_years", 100) |>
+
+    identity() -> params
+
+par(mfrow=c(3, 1))
+plot(attr(model_fn(params |>
+    g3_init_val("M.proj.dlnorm.lstddev", log(1.001)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+plot(attr(model_fn(params |>
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-1)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+plot(attr(model_fn(params |>
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-2)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
 }
