@@ -142,11 +142,9 @@ vignettes.</p>
 <div class="modelScript hide">
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gadget-framework.github.io/gadget3/">gadget3</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">##   object 'type_sum.accel' not found</span></span></code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">area_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock_areas.html">g3_areas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'IXa'</span>, <span class="st">'IXb'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create time definitions ####################</span></span>
@@ -160,7 +158,7 @@ vignettes.</p>
 <span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="modelScript hide">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create stock definition for fish ####################</span></span>
 <span><span class="va">st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">"fish"</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5L</span>, <span class="fl">25L</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="va">area_names</span><span class="op">[</span><span class="st">"IXa"</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -186,7 +184,7 @@ a random walk.</p>
 here, apart from <code><a href="../reference/action_renewal.html">g3a_renewal_normalparam()</a></code> no longer being
 present:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span><span class="va">st_imm</span>,</span>
 <span>    <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span></span>
@@ -205,7 +203,7 @@ present:</p>
 <p>Next, we need to define the set of parameters that will constitute
 our random walk:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Configure our random walk for mu</span></span>
 <span><span class="va">st_spawn_mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn_mu'</span>,</span>
 <span>    by_year <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -223,7 +221,7 @@ which can be used to control when spawning happens.</p>
 <p>We store this as a separate variable as we need to use it in 2
 places. First, when we configure our spawning action:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_st_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_grow.html">g3a_growmature</a></span><span class="op">(</span><span class="va">st_mat</span>,</span>
 <span>    <span class="fu"><a href="../reference/action_grow.html">g3a_grow_impl_bbinom</a></span><span class="op">(</span></span>
@@ -249,7 +247,7 @@ recruitment, <em>mu</em>.</p>
 <p>Next we use a likelihood action to constrain the values in the random
 walk during optimisation:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">actions_likelihood_st</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/likelihood_understocking.html">g3l_understocking</a></span><span class="op">(</span><span class="va">stocks</span>, nll_breakdown <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/likelihood_random.html">g3l_random_walk</a></span><span class="op">(</span><span class="st">'rwalk_st_spawn_mu'</span>,</span>
@@ -271,7 +269,7 @@ The former penalises random values that stray outside given normal
 distribution, the latter constrains along a random walk; the current
 year’s value should not vary significantly from the previous.</p>
 <div class="modelScript hide">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fleet data for f_surv #################################</span></span>
 <span></span>
 <span><span class="co"># Landings data: For each year/step/area</span></span>
@@ -317,7 +315,7 @@ year’s value should not vary significantly from the previous.</p>
 <span>  <span class="va">aldist_f_surv</span></span></code></pre></div>
 </div>
 <div class="modelScript hide">
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create fleet definition for f_surv ####################</span></span>
 <span><span class="va">f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">"f_surv"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/stock_areas.html">g3s_livesonareas</a></span><span class="op">(</span><span class="va">area_names</span><span class="op">[</span><span class="st">"IXa"</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
@@ -353,7 +351,7 @@ year’s value should not vary significantly from the previous.</p>
 <span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="va">actions_f_surv</span>, <span class="va">actions_likelihood_f_surv</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="modelScript hide">
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create abundance index for si_cpue ########################</span></span>
 <span></span>
 <span><span class="co"># Generate random data</span></span>
@@ -382,7 +380,7 @@ year’s value should not vary significantly from the previous.</p>
 </h3>
 <p>At this point, we are ready to convert our model into code:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create model objective function ####################</span></span>
 <span></span>
 <span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -390,7 +388,7 @@ year’s value should not vary significantly from the previous.</p>
 <span>    <span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="modelScript">
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guess l50 / linf based on stock sizes</span></span>
 <span><span class="va">estimate_l50</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">estimate_linf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">st_imm</span>, <span class="st">"midlen"</span><span class="op">)</span><span class="op">)</span></span>
@@ -427,7 +425,7 @@ TMB <em>objective function</em>.
 <code>gadgetutils::g3_iterative()</code> then optimises based on
 iterative reweighting</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
 <span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">3</span>, maxit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>

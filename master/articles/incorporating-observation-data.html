@@ -123,8 +123,6 @@
   background-color: #f0f8ff !important;
 }
 </style>
-<pre><code><span><span class="co">## Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">##   object 'type_sum.accel' not found</span></span></code></pre>
 <p>Each run of a model will generate a likelihood score, by summing the
 result of any <em>likelihood actions</em> in the model together. To fit
 a model to observation data, we need to add a <em>likelihood action</em>
@@ -149,7 +147,7 @@ the square of these</li>
 <p>We saw the following example in
 <code><a href="../articles/introduction-single-stock.html">vignette("introduction-single-stock")</a></code>:</p>
 <div class="modelScript">
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># TODO: This isn't a brilliantly-named example, something else?</span></span>
 <span><span class="co"># Generate random data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">3</span>, area <span class="op">=</span> <span class="st">'IXa'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -276,7 +274,7 @@ aggregated by year. Gaps are allowed, if so then no comparisons will be
 made for that year/step.</p>
 <p>The following observations will be compared against the total number
 of indivduals caught in years 1999, 2000, 2002, 2003:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year  number</span></span>
 <span><span class="st">1999    1000</span></span>
@@ -293,7 +291,7 @@ year).</p>
 <p>In the following example, we will aggregate <strong>spring</strong>
 of 1999 &amp; 2000, <strong>autumn</strong> of 2001. Any catch in spring
 of 2001, or other periods not mentioned, will be ignored:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year step number</span></span>
 <span><span class="st">1999    2   1020</span></span>
@@ -311,7 +309,7 @@ of 2001, or other periods not mentioned, will be ignored:</p>
 <p>Adding a length column will aggregate catch/abundance data by the
 same length bins as in the observation data.</p>
 <p>For instance:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year  length number</span></span>
 <span><span class="st">1999  [0,10)  1023</span></span>
@@ -338,7 +336,7 @@ this behaviour is controlled with the <em>missing_val</em> parameter to
 <p>Length aggregations do not have to be hand-crafted like we do above,
 a length column could be generated using <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::group_by()</a></code>
 and <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate an unaggregated length distribution</span></span>
 <span><span class="va">ldist.lln.raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1999</span>, <span class="fl">2000</span><span class="op">)</span>,</span>
@@ -370,7 +368,7 @@ and <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()<
 <span><span class="co">## <span style="color: #BCBCBC;">12</span>  <span style="text-decoration: underline;">2</span>000 [50,60)      9</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">13</span>  <span style="text-decoration: underline;">2</span>000 [60,70)      6</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">14</span>  <span style="text-decoration: underline;">2</span>000 [70,80)      2</span></span></code></pre>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># NB: The last 2 bins are empty, but because cut() creates a factor column,</span></span>
 <span><span class="co">#     gadget3 knows about them even though they don't appear in the data.</span></span>
 <span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="va">ldist.lln.agg</span><span class="op">)</span></span></code></pre></div>
@@ -387,7 +385,7 @@ and <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()<
 <span><span class="co">##   90:100   NA   NA</span></span></code></pre>
 <p>gadget3 will also automatically read the aggregation attributes used
 by <code>?mfdb::mfdb_sample_count</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import data into a temporary database</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mfdb</span><span class="op">)</span></span>
 <span><span class="va">mdb</span> <span class="op">&lt;-</span> <span class="fu">mfdb</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".duckdb"</span><span class="op">)</span><span class="op">)</span></span>
@@ -411,7 +409,7 @@ by <code>?mfdb::mfdb_sample_count</code>.</p>
 <p>Age-length aggregations can be performed by adding an <em>age</em>
 column in a very similar manner to the <em>length</em> column:</p>
 <p>We can both group by individual age values:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year  age  length number</span></span>
 <span><span class="st">1999    1  [0,10)  1026</span></span>
@@ -432,7 +430,7 @@ column in a very similar manner to the <em>length</em> column:</p>
 <span><span class="co">##   20:30 3962 3962</span></span>
 <span><span class="co">##   30:40 3863 3863</span></span></code></pre>
 <p>…or group ages together:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year  age    length number</span></span>
 <span><span class="st">1999  [1,1]    [0,10)  1026</span></span>
@@ -464,7 +462,7 @@ is used to decide what to do with them.</p>
 </h3>
 <p>If a stock is divided up into multiple areas, then data can be broken
 down by area</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">area_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock_areas.html">g3_areas</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'IXa'</span>, <span class="st">'IXb'</span>, <span class="st">'IXc'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
@@ -493,7 +491,7 @@ compared.</p>
 <p>If you have multiple stocks, for example because you have divided up
 your species into mature and immature substocks, you can use this
 division in likelihood components also:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'imm'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">st_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'mat'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span></span>
@@ -512,7 +510,7 @@ division in likelihood components also:</p>
 <p>The stock names have to match what gadget3 uses, or an error will be
 generated.</p>
 <p>You can also use partial stock names, for example:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'imm'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
 <span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'imm'</span>, <span class="st">'m'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
@@ -537,7 +535,7 @@ generated.</p>
 <code>fish_imm_f</code> &amp; <code>fish_mat_f</code>.</p>
 <p>The parts do not have to be in order, the following is also
 valid:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year    stock    number</span></span>
 <span><span class="st">1999   fish_f   1000</span></span>
@@ -553,7 +551,7 @@ valid:</p>
 <span><span class="co">## fish_imm_f fish_imm_m fish_mat_f fish_mat_m </span></span>
 <span><span class="co">##   "fish_f"   "fish_m"   "fish_f"   "fish_m"</span></span></code></pre>
 <p><em>NB:</em> A stock can only appear in one grouping:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># NB: Wrong!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year    stock    number</span></span>
@@ -579,7 +577,7 @@ is used to decide what to do with them.</p>
 <h3 id="fleet-column">
 <em>fleet</em> column<a class="anchor" aria-label="anchor" href="#fleet-column"></a>
 </h3>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fleets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'comm'</span>, country <span class="op">=</span> <span class="st">'se'</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'comm'</span>, country <span class="op">=</span> <span class="st">'fi'</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -606,7 +604,7 @@ is used to decide what to do with them.</p>
 <h3 id="predator-column">
 <em>predator</em> column<a class="anchor" aria-label="anchor" href="#predator-column"></a>
 </h3>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">predators</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'imm'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'mat'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>

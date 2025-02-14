@@ -94,6 +94,7 @@
 <span>        by_step <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_age <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        by_area <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        exponentiate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        avoid_zero <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        scale <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -182,6 +183,11 @@
 
 
 </dl><p></p></dd>
+
+  <dt id="arg-prepend-extra">prepend_extra<a class="anchor" aria-label="anchor" href="#arg-prepend-extra"></a></dt>
+<dd><p>List of extra things to prepend to the parameter name.
+    Can be a string, or a stock object.
+    See <code><a href="step.html">stock_prepend</a></code>, which <var>prepend_extra</var> is passed to</p></dd>
 
   <dt id="arg-ifmissing">ifmissing<a class="anchor" aria-label="anchor" href="#arg-ifmissing"></a></dt>
 <dd><p>Value to use for when there is no valid parameter (read: year when by_year = TRUE)
