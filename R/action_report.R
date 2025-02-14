@@ -62,6 +62,13 @@ g3a_report_var <- function (
             var_name)
     }
 
+    if (is.null(defn)) {
+        # No definition available, can't do anything.
+        # Either this is a problem (and the model will stop with Incomplete model)
+        # or we've found a reference to a reporting variable we're about to generate (and there's no point recursing)
+        return(list())
+    }
+
     if (is.array(defn) && 'time' %in% names(dim(defn))) {
         # Array with time, we don't need to modify it
     } else if (is.null(out_prefix)) {
@@ -181,6 +188,8 @@ g3a_report_detail <- function (actions,
                 '^step_lengths$',
                 '^_weight$',  # Likelihood component weightings
                 '^nll_.sparse_.*._(nll|obs_mean|obs_stddev|obs_n|model_sum|model_sqsum|model_n)$',  # Sparse data nll reports
+                '^quota_',  # Report all g3_quota()
+                '^proj_',  # Report all g3_param_project()
                 '^nll$' ), collapse = "|"),
             out_prefix = NULL,  # Don't log history
             run_f = run_f,

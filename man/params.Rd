@@ -16,6 +16,7 @@ g3_parameterized(
         by_step = FALSE,
         by_age = FALSE,
         by_area = FALSE,
+        prepend_extra = list(),
         exponentiate = FALSE,
         avoid_zero = FALSE,
         scale = 1,
@@ -74,6 +75,11 @@ g3_parameterized(
       \item{FALSE}{No}
       \item{TRUE}{Produce a \code{"name.area"} parameter for each area of the stock(s) in \var{by_stock}}
     }
+  }
+  \item{prepend_extra}{
+    List of extra things to prepend to the parameter name.
+    Can be a string, or a stock object.
+    See \code{\link{stock_prepend}}, which \var{prepend_extra} is passed to
   }
   \item{ifmissing}{
     Value to use for when there is no valid parameter (read: year when by_year = TRUE)

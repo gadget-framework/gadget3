@@ -1,4 +1,4 @@
-importFrom("stats", "as.formula", "formula", "dnorm", "lag")
+importFrom("stats", "as.formula", "formula", "dnorm", "rnorm", "lag")
 importFrom("utils", "capture.output", "head", "str", "tail")
 
 # R/aaa_lang.R
@@ -38,6 +38,7 @@ export(g3a_naturalmortality_exp)
 export(g3a_predate_catchability_totalfleet)
 export(g3a_predate_catchability_numberfleet)
 export(g3a_predate_catchability_linearfleet)
+export(g3a_predate_catchability_project)
 export(g3a_predate_catchability_effortfleet)
 export(g3a_predate_catchability_quotafleet)
 export(g3a_predate_maxconsumption)
@@ -136,6 +137,19 @@ export(g3l_understocking)
 
 # R/params.R
 export(g3_parameterized)
+
+# R/param_project.R
+export(g3_param_project_dnorm)
+export(g3_param_project_dlnorm)
+export(g3_param_project_rwalk)
+export(g3_param_project_ar1)
+export(g3_param_project_logar1)
+export(g3_param_project)
+
+# R/quota.R
+export(g3_quota_hockeyfleet)
+export(g3_quota_assess)
+export(g3_quota)
 
 # R/run_desc.R
 export(g3_to_desc)

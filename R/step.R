@@ -150,8 +150,10 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             inner_vars <- all_undefined_vars(inner_f, recursive = TRUE)
             # List of formulas, select the relevant ones and combine
             for (i in seq_along(repl_list)) {
-                if (!is.symbol(stock$iter_ss[[i]])) next
-                if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock_var)) %in% inner_vars) {
+                if (!is.symbol(stock$iter_ss[[i]])) {
+                    # Iterator isn't a symbol, assume we need to iterate over it (see g3s_modeltime)
+                    out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
+                } else if (as.character(stock_rename(stock$iter_ss[[i]], "stock", stock_var)) %in% inner_vars) {
                     # We use the subset-iterator in inner code, so wrap with this iterator
                     # (e.g. stock__area_idx in code ==> iterate over area)
                     out_f <- do.call(substitute, list(repl_list[[i]], list(extension_point = out_f)))
@@ -383,18 +385,20 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         },
         stock_prepend = function (x) { # Arguments: stock variable, param, name_part = NULL
             stock_var <- x[[2]]
+            stock <- if (is.symbol(stock_var)) get(as.character(stock_var), envir = orig_env) else NULL
 
-            # Fish out extra part to add to name
-            if (is.character(stock_var)) {
-                stock <- NULL
-                # Adding a fixed string, don't invoke stock mechanisms
-                name_extra <- stock_var
-            } else if (!is.null(x$name_part)) {
-                stock <- get(as.character(stock_var), envir = orig_env)
-                name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
+            if (g3_is_stock(stock)) {
+                if (!is.null(x$name_part)) {
+                    name_extra <- paste(stock$name_part[eval(x$name_part, envir = baseenv())], collapse = '_')
+                } else {
+                    name_extra <- stock$name
+                }
+            } else if (!is.null(stock)) {
+                # stock is a constant to add
+                name_extra <- as.character(stock)
             } else {
-                stock <- get(as.character(stock_var), envir = orig_env)
-                name_extra <- stock$name
+                # stock_var isn't a symbol, so must be a constant to add
+                name_extra <- as.character(stock_var)
             }
 
             # Inner code is first item in arguments that doesn't have a name
@@ -407,7 +411,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             # Apply stock rename to the rest of the call, to translate any stock__minage references.
             # NB: Recurse first to resolve any nested stock_prepend()
-            if (!is.null(stock)) {
+            if (g3_is_stock(stock)) {
                 inner <- call("stock_with", stock_var, inner)  # stock_with(stock, ...) is implicit
             }
             inner <- rlang::f_rhs(g3_step(

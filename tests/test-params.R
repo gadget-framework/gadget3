@@ -124,6 +124,10 @@ ok(cmp_code(
     NULL})), "Extra parameters passed through")
 
 ok(cmp_code(
+    g3_parameterized(c('a', 'b', moo = 'c')),
+    quote( g3_param("a.b.c") )), "Multiple name parts concatentated, labels ignored")
+
+ok(cmp_code(
     pretend_stock_action(g3_parameterized('parp', by_stock = TRUE)),
     quote(g3_param("st_m_imm.parp"))), "by_stock, so will use stock_prepend() to rename variables")
 
@@ -248,3 +252,16 @@ ok(ut_cmp_identical(param_tmpl(
         NULL )), "by_predator/by_area: Used predator areas instead of stock")
 
 ########## by_area
+
+ok_group("prepend_extra") ##########
+ok(ut_cmp_identical(param_tmpl(
+    g3_parameterized("paramut", value = 1, prepend_extra = quote(predstock)),
+    g3_parameterized("paramut", value = 1, prepend_extra = "lindsey"),
+    g3_parameterized("paramut", value = 2, prepend_extra = list("frank", "fronk")),
+    NULL)$switch, c(
+        "is_comm.paramut",
+        "lindsey.paramut",
+        "fronk.frank.paramut",
+        NULL )), "prepend_extra: Used code / string / list of strings")
+
+########## prepend_extra

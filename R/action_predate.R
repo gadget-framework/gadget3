@@ -21,8 +21,84 @@ g3a_predate_catchability_linearfleet <- function (E) {
         suit_unit = "total biomass",
         suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
         cons = f_substitute(
+            # NB: Divide by cur_step_size, assuming E is per-year
             ~E * cur_step_size * stock_ss(predprey__suit),
             list(E = E)) )
+}
+
+g3a_predate_catchability_project <- function (
+    quota_f = NULL,
+    landings_f = NULL,
+    # Proportion of quota assigned to predator
+    quota_prop = g3_parameterized("quota.prop", by_predator = TRUE, value = 1),
+    # Proportion of predator yearly quota assigned to which step
+    cons_step = g3_parameterized("cons.step", by_predator = TRUE, by_step = TRUE,
+        value = quote( step_lengths / 12.0 )),
+    unit = c("biomass", "biomass-year", "harvest-rate", "harvest-rate-year",
+             "individuals", "individuals-year") ) {
+
+    # Unit landings_f is expressed in
+    landings_unit <- match.arg(unit)
+    # Unit quota_f is expressed in
+    quota_unit <- match.arg(attr(quota_f, "catchability_unit"), eval(formals()$unit))
+    # Unit suitability / total_predsuit will be expressed in
+    suit_unit <- if (startsWith(landings_unit, "individuals")) "individuals" else "biomass"
+
+    # Take proportion of quota based on quota_prop
+    if (!is.null(quota_f)) quota_f <- f_substitute(quote( quota_prop * quota_f ), list(
+        quota_prop = list_to_stock_switch(quota_prop, "predstock"),
+        quota_f = quota_f ))
+
+    # For both quota_f & landings_f, divide by total_predsuit & cons_step as appropriate
+    adapt <- function (f, unit) {
+        if (is.null(f)) return(f)
+
+        # if f returns biomass / individuals
+        if (startsWith(unit, "biomass")) {
+            if (suit_unit == "individuals") stop("Cannot use a quota in biomass with landings in individuals")
+            f <- f_substitute(quote( f / total_predsuit ), list(f = f))
+        }
+        if (startsWith(unit, "individuals")) {
+            if (suit_unit == "biomass") stop("Cannot use a quota in individuals with landings in biomass")
+            f <- f_substitute(quote( f / total_predsuit ), list(f = f))
+        }
+        if (endsWith(unit, "-year")) {
+            f <- f_substitute(quote( f * cons_step ), list(f = f, cons_step = cons_step))
+        }
+        return(f)
+    }
+    quota_f <- adapt(quota_f, quota_unit)
+    landings_f <- adapt(landings_f, landings_unit)
+
+    # Combine quota/landings into a single formula
+    if (is.null(quota_f)) {
+        combined_f <- landings_f
+    } else if (is.null(landings_f)) {
+        combined_f <- quota_f
+    } else {
+        combined_f <- f_substitute(
+            quote( if (cur_year_projection) quota_f else landings_f ),
+            list(
+                landings_f = landings_f,
+                quota_f = quota_f ))
+    }
+
+    # Return catchablity based on suit_unit
+    if (suit_unit == "biomass") {
+        list(
+            suit_unit = "total biomass",
+            suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+            cons = f_substitute(
+                quote( stock_ss(predprey__suit) * combined_f ),
+                list(combined_f = combined_f)) )
+    } else if (suit_unit == "individuals") {
+        list(
+            suit_unit = "number of individuals",
+            suit = quote( suit_f * stock_ss(stock__num) ),
+            cons = f_substitute(
+                quote( stock_ss(predprey__suit) * combined_f ),
+                list(combined_f = combined_f)) )
+    } else stop("Unknown suitability unit ", suit_unit)
 }
 
 g3a_predate_catchability_effortfleet <- function (catchability_fs, E) {

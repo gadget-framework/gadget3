@@ -48,6 +48,10 @@ ut_tmb_r_compare2 <- function (
             attributes(x) <- oldattr  # Preserve arrayness
         }
         attr(x, "desc") <- NULL  # Hide descriptions, we're not preserving yet
+        if (is.array(x) && "fishingyear" %in% names(dimnames(x))) {
+            # fishingyear dimensions aren't preserved yet, we'd need to do more gen_dimnames magic
+            dimnames(x)$fishingyear <- NULL
+        }
         return(x)
     }
 
