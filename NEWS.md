@@ -9,6 +9,10 @@
 * `g3_to_r` models can include arbitary R functions, see vignettes/writing_actions #194
 * Add `g3_array_agg`, `g3_array_combine` #193 #213
 * Add surplus production model action `g3a_spmodel` #209
+* Projection / MSE support #210
+  * Add g3_param_project() for time-varying parameters that also support projection
+  * AR1/logAR1 distribution functions
+  * Add g3_quota() for quota-definitions during projection based on a custom fishing year
 
 ## Breaking changes
 * run_projection is now TRUE by default for renewal. A rec.proj parameter covers projection.
