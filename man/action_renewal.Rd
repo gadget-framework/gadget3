@@ -246,34 +246,34 @@ g3a_otherfood_normalcv(
 
 \value{
   \subsection{g3a_renewal_vonb_recl}{A \link{formula} object representing
-    \deqn{ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} }
+    \deqn{ L_{\infty} (1 - e^{-\kappa (a - a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa} )}) }
     \describe{
-      \item{\eqn{L_{0}}}{Substituted for \var{recl}}
-      \item{\eqn{L_{\infty}}}{Substituted for \var{Linf}}
-      \item{\eqn{\kappa}}{Substituted for \var{K}}
-      \item{\eqn{a_{0}}}{Substituted for \var{recage}}
+      \item{\eqn{L_{\infty}}}{\var{Linf} argument, by default model parameter named \code{(stock).Linf}}
+      \item{\eqn{\kappa}}{\var{K} argument, by default model parameter named \code{(stock).K}}
+      \item{\eqn{L_{0}}}{\var{recl} argument, by default model parameter named \code{(stock).recl}}
+      \item{\eqn{a_{0}}}{\var{recage} argument, by default model parameter named \code{recage}}
     }
     \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - \Delta{t}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb_t0}{A \link{formula} object representing
-    \deqn{ L_{\infty} * (1 - e^{-1 * \kappa * (a - t_{0}) }) }
+    \deqn{ L_{\infty} (1 - e^{-\kappa (a - t_{0}) }) }
     \describe{
-      \item{\eqn{L_{\infty}}}{Substituted for \var{Linf}}
-      \item{\eqn{\kappa}}{Substituted for \var{K}}
-      \item{\eqn{t_{0}}}{Substituted for \var{t0}}
+      \item{\eqn{L_{\infty}}}{\var{Linf} argument, by default model parameter named \code{(stock).Linf}}
+      \item{\eqn{\kappa}}{\var{K} argument, by default model parameter named \code{(stock).K}}
+      \item{\eqn{t_{0}}}{\var{t0} argument, by default model parameter named \code{(stock).t0}}
     }
     \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - \Delta{t}}, see \var{age_offset}
   }
   \subsection{g3a_renewal_vonb}{An alias for \code{g3a_renewal_vonb_recl}()}
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
-    \deqn{ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion }
+    \deqn{ p s_{0} s_{a} e^{-1 (M + F_{0}) (a - a_{0})} }
     \describe{
-      \item{scalar}{Substituted for \var{scalar}}
-      \item{init}{Substituted for \var{init}}
-      \item{\eqn{M}}{Substituted for \var{M}}
-      \item{\eqn{F_{0}}}{Substituted for \var{init_F}}
-      \item{\eqn{a_{0}}}{Substituted for \var{recage}}
-      \item{proportion}{Substituted for \var{proportion}}
+      \item{\eqn{s_{0}}}{\var{scalar} argument, by default model parameter named \code{(stock).init.scalar}}
+      \item{\eqn{s_{a}}}{\var{init} argument, by default model parameter named \code{(stock).(age).init}}
+      \item{\eqn{M}}{\var{M} argument, by default model parameter named \code{(stock).(age).M}}
+      \item{\eqn{F_{0}}}{\var{init_F} argument, by default model parameter named \code{(stock).(age).M}}
+      \item{\eqn{a_{0}}}{\var{recage} argument, by default model parameter named \code{recage}}
+      \item{p}{\var{proportion} argument, by default \code{1}}
     }
   }
   \subsection{g3a_initialconditions / g3a_renewal / g3a_otherfood}{
@@ -285,33 +285,33 @@ g3a_otherfood_normalcv(
   whereas initialconditions & otherfood will replace any previous values.
   }
   \subsection{g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam}{
-    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
+    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate abundance (\eqn{N}) and mean weight (\eqn{W}):
 
     \deqn{n = {dnorm}(L, \mu, \sigma)}
     \deqn{N = F 10000 \frac{n}{\sum n}}
     \deqn{W = \alpha L^{\beta}}
     \describe{
-      \item{\eqn{L}}{Midlength of length groups for current area/age/...}
-      \item{\eqn{F}}{Substituted for \var{factor_f}}
-      \item{\eqn{\mu}}{Substituted for \var{mean_f}}
-      \item{\eqn{\sigma}}{Substituted for \var{stddev_f}}
-      \item{\eqn{\alpha}}{Substituted for \var{alpha_f}}
-      \item{\eqn{\beta}}{Substituted for \var{beta_f}}
+      \item{\eqn{L}}{Midlength of all length groups for current area/age/...}
+      \item{\eqn{F}}{\var{factor_f} argument, by default output of \code{\link{g3a_renewal_initabund}}}
+      \item{\eqn{\mu}}{\var{mean_f} argument, by default output of \code{\link{g3a_renewal_vonb_t0}}}
+      \item{\eqn{\sigma}}{\var{stddev_f} argument, by default model parameter named \code{(stock).(init|rec).sd}}
+      \item{\eqn{\alpha}}{\var{alpha_f} argument, by default model parameter named \code{(stock).walpha}}
+      \item{\eqn{\beta}}{\var{beta_f} argument, by default model parameter named \code{(stock).wbeta}}
     }
   }
   \subsection{g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv}{
-    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate num/wgt:
+    As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate abundance (\eqn{N}) and mean weight (\eqn{W}):
 
     \deqn{n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}}
     \deqn{N = F 10000 \frac{n}{\sum n}}
     \deqn{W = \alpha L^{\beta}}
     \describe{
-      \item{\eqn{L}}{Midlength of length groups for current area/age/...}
-      \item{\eqn{F}}{Substituted for \var{factor_f}}
-      \item{\eqn{\mu}}{Substituted for \var{mean_f}}
-      \item{\eqn{CV}}{Substituted for \var{cv_f}}
-      \item{\eqn{\alpha}}{Substituted for \var{alpha_f}}
-      \item{\eqn{\beta}}{Substituted for \var{beta_f}}
+      \item{\eqn{L}}{Midlength of all length groups for current area/age/...}
+      \item{\eqn{F}}{\var{factor_f} argument, by default output of \code{\link{g3a_renewal_initabund}}}
+      \item{\eqn{\mu}}{\var{mean_f} argument, by default output of \code{\link{g3a_renewal_vonb_t0}}}
+      \item{\eqn{CV}}{\var{cv_f} argument, by default model parameter named \code{(stock).lencv}}
+      \item{\eqn{\alpha}}{\var{alpha_f} argument, by default model parameter named \code{(stock).walpha}}
+      \item{\eqn{\beta}}{\var{beta_f} argument, by default model parameter named \code{(stock).wbeta}}
     }
   }
 }
@@ -325,21 +325,35 @@ g3a_otherfood_normalcv(
 
 \examples{
 \dontshow{library(magrittr)}
-ling_imm <- g3_stock('ling_imm', seq(20, 156, 4)) \%>\% g3s_age(3, 10)
+stocks <- list(
+    imm = g3_stock(c('ling', maturity = "imm"), seq(10, 100, 10)) \%>\% g3s_age(3, 7),
+    mat = g3_stock(c('ling', maturity = "mat"), seq(10, 100, 10)) \%>\% g3s_age(5, 10) )
 
-initialconditions_action <- g3a_initialconditions_normalparam(
-    ling_imm,
-    by_age = TRUE)  # per-age init.sd parameters
-renewal_action <- g3a_renewal_normalparam(
-    ling_imm,
-    run_step = 2)  # Renewal happens in spring
+actions <- list(
+    g3a_time(2000, 2000),
+    g3a_initialconditions_normalcv(stocks$imm),
+    g3a_initialconditions_normalcv(stocks$mat),
+    NULL)
+model_fn <- g3_to_r(c(actions, list(
+    g3a_report_detail(actions) )))
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("init.F", 0.4) |>
+    g3_init_val("ling_imm.Linf", 80) |>
+    g3_init_val("ling_mat.Linf", 160) |>
+    g3_init_val("ling_*.K", 90) |>
+    g3_init_val("ling_*.t0", 0) |>
+    g3_init_val("ling_*.lencv", 0.1) |>
+    g3_init_val("ling_imm.init.#", 3:7 * 100) |>
+    g3_init_val("ling_mat.init.#", 5:10 * 200) |>
+    g3_init_val("ling_*.init.scalar", 200) |>
+    g3_init_val("ling_*.walpha", 2.275e-06) |>
+    g3_init_val("ling_*.wbeta", 3.2020) |>
+    g3_init_val("ling_*.M.#", 0.15) |>
+    identity() -> params.in
+r <- model_fn(params.in)
 
-# To get a single ling_imm.lencv parameter instead of init.sd
-initialconditions_action <- g3a_initialconditions_normalcv(
-    ling_imm)
-renewal_action <- g3a_renewal_normalcv(
-    ling_imm,
-    run_step = 2)  # Renewal happens in spring
+g3_array_plot(attr(r, "dstart_ling_imm__num")[,,time=1])
+g3_array_plot(attr(r, "dstart_ling_mat__num")[,,time=1])
 
 ## Plots
 par(mar = c(4,2,2,1), cex.main = 1)
@@ -358,9 +372,28 @@ curve(g3_eval(g3a_renewal_vonb_t0(Linf = 20, K = 1.4, t0 = 0), age = x),
 other_wgt <- g3_stock('other_wgt', 0)
 other_cv <- g3_stock('other_cv', seq(50, 100, by = 10)) \%>\% g3s_age(5,10)
 
-otherfood_actions <- list(
+actions <- list(
+    g3a_time(2000, 2010),
     # Will get other_wgt.of_abund.1998.1, other_wgt.of_meanwgt parameters
     g3a_otherfood(other_wgt),
     # Use standard vonB parameters (Linf/K/t0) to define abundance
-    g3a_otherfood_normalcv(other_cv) )
+    g3a_otherfood_normalcv(other_cv),
+    NULL)
+model_fn <- g3_to_r(c(actions, list(
+    g3a_report_detail(actions) )))
+attr(model_fn, 'parameter_template') |>
+    g3_init_val("other_cv.Linf", 80) |>
+    g3_init_val("other_cv.K", 90) |>
+    g3_init_val("other_cv.t0", 0) |>
+    g3_init_val("other_cv.of_abund.#", 100:110) |>
+    g3_init_val("other_wgt.of_abund.#", 100:110) |>
+    g3_init_val("other_wgt.of_abund.step.#", 1) |>
+    g3_init_val("other_cv.of_abund.proj", 80) |>
+    g3_init_val("other_wgt.of_abund.proj", 70) |>
+    g3_init_val("project_years", 5) |>
+    identity() -> params.in
+r <- model_fn(params.in)
+
+g3_array_plot(t(attr(r, "dstart_other_wgt__num")))
+g3_array_plot(t(attr(r, "dstart_other_cv__num")[,age="age7",]))
 }
