@@ -279,8 +279,8 @@ g3a_renewal_normalcv <- function (
 g3a_otherfood <- function (
         stock,
         num_f = g3_parameterized('of_abund', by_year = TRUE, by_stock = by_stock,
-            scale = g3_parameterized('of_abund.step', by_step = TRUE,
-                by_stock = by_stock),
+            scale = g3_parameterized(
+                'of_abund.step', value = 1, by_step = TRUE, by_stock = by_stock),
             ifmissing = "of_abund.proj" ),
         wgt_f = g3_parameterized('of_meanwgt', by_stock = by_stock),
         by_stock = TRUE,
