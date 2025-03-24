@@ -1,6 +1,7 @@
 \name{array_utils}
 \alias{g3_array_agg}
 \alias{g3_array_combine}
+\alias{g3_array_plot}
 \concept{G3 utilities}
 
 \title{Gadget3 array-handling utilities}
@@ -24,6 +25,8 @@ g3_array_combine(
         arrays,
         agg = sum,
         init_val = 0 )
+
+g3_array_plot(ar)
 }
 
 \arguments{
@@ -56,6 +59,8 @@ g3_array_combine(
 
   \code{g3_array_combine} generates the union of 2 disjoint arrays,
   so you can combine aggregated output from an immature and mature stock for example.
+
+  \code{g3_array_plot} will plot the contents of an array, for arrays with 2 dimensions or less.
 }
 
 \value{
@@ -73,6 +78,8 @@ ar <- array(
     dim = sapply(dn, length),
     dimnames = dn)
 ar[,,"1994-02", drop = FALSE]
+g3_array_plot(ar[,,"1994-02"])
+g3_array_plot(ar["50:60","age3",])
 
 # Generate by-year report for ages 2..4
 g3_array_agg(ar, c('age', 'year'), age = 2:4)

@@ -96,6 +96,7 @@ export(g3a_weightloss)
 # R/array_utils.R
 export(g3_array_agg)
 export(g3_array_combine)
+export(g3_array_plot)
 
 # R/eval.R
 export(g3_eval)

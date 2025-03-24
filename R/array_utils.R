@@ -204,3 +204,36 @@ g3_array_combine <- function(
     }
     return(out)
 }
+
+g3_array_plot <- function(ar) {
+    ar <- as.array(ar)
+    if (is.null(dim(ar)) || length(dim(ar)) == 1) {
+        graphics::plot(
+            ar,
+            type = "l",
+            xaxt = "n",
+            xlab = paste(names(dim(ar)), collapse = " / "),
+            ylab = deparse1(sys.call()[[2]]),
+            col = grDevices::rainbow(1) )
+        graphics::axis(1, at = seq_len(nrow(ar)), labels = rownames(ar))
+    } else if (length(dim(ar)) == 2) {
+        colors <- grDevices::rainbow(ncol(ar))
+        for (i in seq_len(ncol(ar))) {
+            if (i == 1) {
+                graphics::plot(
+                    ar[,i],
+                    type = "l",
+                    xaxt = "n",
+                    xlab = paste(names(dim(ar)), collapse = " / "),
+                    ylab = deparse1(sys.call()[[2]]),
+                    ylim = range(ar),
+                    col = colors[[i]] )
+                graphics::axis(1, at = seq_len(nrow(ar)), labels = rownames(ar))
+            } else {
+                graphics::lines(ar[,i], col = colors[[i]])
+            }
+        }
+    } else {
+        stop("Unsupported number of dimensions: ", paste(dim(ar)))
+    }
+}
