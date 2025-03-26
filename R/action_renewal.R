@@ -203,6 +203,7 @@ g3a_renewal_normalparam <- function (
                 by_stock = by_stock),
             ifmissing = g3_parameterized(
                 name = 'rec.proj',
+                optimise = FALSE,
                 by_stock = by_stock )),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         stddev_f = g3_parameterized('rec.sd', value = 10, by_stock = by_stock),
@@ -245,6 +246,7 @@ g3a_renewal_normalcv <- function (
                 by_stock = by_stock),
             ifmissing = g3_parameterized(
                 name = 'rec.proj',
+                optimise = FALSE,
                 by_stock = by_stock )),
         mean_f = g3a_renewal_vonb_t0(by_stock = by_stock),
         cv_f = g3_parameterized('lencv', by_stock = by_stock, value = 0.1,
