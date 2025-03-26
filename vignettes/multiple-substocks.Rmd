@@ -254,11 +254,13 @@ We can see the result of setting this in the parameter template.
 If ``by_stock = TRUE`` (the default) then we get parameters for both ``fish_imm.f_surv.l50`` & ``fish_mat.f_surv.l50``:
 
 ```{r}
+suppressWarnings({  # NB: The model is incomplete, fish_imm__num isn't defined
 simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
     f_surv,
     stocks,
     suitabilities = g3_suitability_exponentiall50(by_stock = TRUE),
     catchability_f = g3a_predate_catchability_totalfleet(1) )))
+})
 names(attr(simple_model, "parameter_template"))
 ```
 
@@ -275,12 +277,14 @@ ok(ut_cmp_identical(sort(names(attr(simple_model, "parameter_template")), method
 If ``by_stock = 'species'``, then there is a single, shared ``fish.f_surv.l50`` parameter:
 
 ```{r}
+suppressWarnings({  # NB: The model is incomplete, fish_imm__num isn't defined
 simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
     f_surv,
     stocks,
     suitabilities = g3_suitability_exponentiall50(by_stock = 'species'),
     catchability_f = g3a_predate_catchability_totalfleet(1) )))
 names(attr(simple_model, "parameter_template"))
+})
 ```
 
 ```{r, message=FALSE, echo=FALSE}
@@ -296,6 +300,7 @@ if we specify ``g3_parameterized()`` ourselves we can change the parameterizatio
 for example ``by_year = TRUE`` gives us per-year ``l50``:
 
 ```{r}
+suppressWarnings({  # NB: The model is incomplete, fish_imm__num isn't defined
 simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
     f_surv,
     stocks,
@@ -303,6 +308,7 @@ simple_model <- g3_to_r(list(g3a_time(1990, 1994), g3a_predate_fleet(
         l50 = g3_parameterized("l50", by_stock = 'species', by_predator = TRUE, by_year = TRUE)),
     catchability_f = g3a_predate_catchability_totalfleet(1) )))
 names(attr(simple_model, "parameter_template"))
+})
 ```
 
 ```{r, message=FALSE, echo=FALSE}
