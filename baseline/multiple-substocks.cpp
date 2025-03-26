@@ -153,6 +153,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish_imm__mat__alpha);
     PARAMETER(fish_imm__mat__l50);
     PARAMETER(fish_mat__bbin);
+    PARAMETER(fish_imm__rec__proj);
     PARAMETER(fish_imm__rec__1979);
     PARAMETER(fish_imm__rec__1980);
     PARAMETER(fish_imm__rec__1981);
@@ -335,6 +336,8 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish_imm__rec__2022__upper);
     DATA_SCALAR(fish_imm__rec__2023__lower);
     DATA_SCALAR(fish_imm__rec__2023__upper);
+    DATA_SCALAR(fish_imm__rec__proj__lower);
+    DATA_SCALAR(fish_imm__rec__proj__upper);
     DATA_SCALAR(fish_imm__rec__scalar__lower);
     DATA_SCALAR(fish_imm__rec__scalar__upper);
     DATA_SCALAR(fish_imm__rec__sd__lower);
@@ -557,7 +560,7 @@ Type objective_function<Type>::operator() () {
     int cur_year = 0;
     int start_year = 1979;
     vector<int> step_lengths(4); step_lengths.setConstant(3);
-    auto step_count = (step_lengths).size();
+    auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
     int end_year = 2023;
     int cur_step = 0;
@@ -575,14 +578,14 @@ Type objective_function<Type>::operator() () {
     DATA_VECTOR(fish_mat__midlen)
     array<Type> fish_mat__num(5,1,8); fish_mat__num.setZero();
     array<Type> fish_mat__wgt(5,1,8); fish_mat__wgt.setConstant((double)(1));
-    auto total_steps = (step_lengths).size()*(end_year - retro_years - start_year + project_years) + (step_lengths).size() - 1;
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
-    array<double> dinit_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); dinit_fish_imm__num.setZero();
-    array<double> dinit_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); dinit_fish_imm__wgt.setConstant((double)(1));
-    array<double> dinit_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); dinit_fish_mat__num.setZero();
-    array<double> dinit_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); dinit_fish_mat__wgt.setConstant((double)(1));
+    auto total_steps = (int)(step_lengths).size()*(end_year - as_integer(retro_years) - start_year + as_integer(project_years)) + (int)(step_lengths).size() - 1;
+    array<double> dstart_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); dstart_fish_imm__num.setZero();
+    array<double> dstart_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); dstart_fish_imm__wgt.setConstant((double)(1));
+    array<double> dstart_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); dstart_fish_mat__num.setZero();
+    array<double> dstart_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); dstart_fish_mat__wgt.setConstant((double)(1));
     array<Type> suit_fish_imm_f_surv__report(5);
     array<Type> suit_fish_mat_f_surv__report(5);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
@@ -685,7 +688,7 @@ Type objective_function<Type>::operator() () {
             if ( cur_time == 0 && assert_msg(project_years >= (double)(0), "project_years must be >= 0") ) {
                 return NAN;
             }
-            cur_year = start_year + (((int) cur_time) / ((int) step_count));
+            cur_year = start_year + ((int) std::floor(asDouble((cur_time) / ((double) step_count))));
             cur_year_projection = cur_year > end_year - retro_years;
             cur_step = (cur_time % step_count) + 1;
             cur_step_size = step_lengths ( cur_step - 1 ) / (double)(12);
@@ -702,7 +705,7 @@ Type objective_function<Type>::operator() () {
 
                 auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv)));
 
-                auto factor = (fish_imm__init__scalar*(map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + (double)(0)*age) + init__F)*(age - recage)));
+                auto factor = (fish_imm__init__scalar*map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + init__F)*(age - recage)));
 
                 {
                     fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
@@ -721,7 +724,7 @@ Type objective_function<Type>::operator() () {
 
                 auto ren_dnorm = dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv)));
 
-                auto factor = (fish_mat__init__scalar*(map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init") + (double)(0)*age)*exp(-(double)(1)*((map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + (double)(0)*age) + init__F)*(age - recage)));
+                auto factor = (fish_mat__init__scalar*map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + init__F)*(age - recage)));
 
                 {
                     fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
@@ -730,16 +733,16 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            dinit_fish_imm__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__num);
+            dstart_fish_imm__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            dinit_fish_imm__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__wgt);
+            dstart_fish_imm__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_imm__wgt);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            dinit_fish_mat__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__num);
+            dstart_fish_mat__num.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__num);
         }
         if ( (cur_time <= total_steps && report_detail == 1) ) {
-            dinit_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
+            dstart_fish_mat__wgt.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat__wgt);
         }
         if ( cur_time == 0 ) {
             suit_fish_imm_f_surv__report = (double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50)));
@@ -792,16 +795,16 @@ Type objective_function<Type>::operator() () {
             REPORT(detail_fish_mat_f_surv__suit);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(dinit_fish_imm__num);
+            REPORT(dstart_fish_imm__num);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(dinit_fish_imm__wgt);
+            REPORT(dstart_fish_imm__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(dinit_fish_mat__num);
+            REPORT(dstart_fish_mat__num);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
-            REPORT(dinit_fish_mat__wgt);
+            REPORT(dstart_fish_mat__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll);
@@ -989,7 +992,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_imm__area_idx = 0;
 
-                fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) *= exp(-((map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + (double)(0)*age))*cur_step_size);
+                fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) *= exp(-(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M"))*cur_step_size);
             }
         }
         {
@@ -1001,7 +1004,7 @@ Type objective_function<Type>::operator() () {
 
                 auto fish_mat__area_idx = 0;
 
-                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) *= exp(-((map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + (double)(0)*age))*cur_step_size);
+                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) *= exp(-(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M"))*cur_step_size);
             }
         }
         {
@@ -1112,11 +1115,11 @@ Type objective_function<Type>::operator() () {
             fish_imm__num += fish_imm__transitioning_num;
         }
         {
-            auto factor = (map_extras::at_def(pt__fish_imm__rec, std::make_tuple(cur_year), (Type)(NAN))*fish_imm__rec__scalar);
+            auto factor = (map_extras::at_def(pt__fish_imm__rec, std::make_tuple(cur_year), (Type)(fish_imm__rec__proj))*fish_imm__rec__scalar);
 
             {
                 // g3a_renewal for fish_imm;
-                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( age == fish_imm__minage && cur_step == 1 && (! cur_year_projection) ) {
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( age == fish_imm__minage && cur_step == 1 ) {
                     auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
                     auto area = fish_imm__area;
@@ -1535,6 +1538,12 @@ Type objective_function<Type>::operator() () {
             // g3l_bounds_penalty for fish_imm.rec.2023;
             if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__2023__lower)) && std::isfinite(asDouble(fish_imm__rec__2023__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__2023 - fish_imm__rec__2023__upper) / (fish_imm__rec__2023__upper - fish_imm__rec__2023__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__2023__lower - fish_imm__rec__2023) / (fish_imm__rec__2023__upper - fish_imm__rec__2023__lower)), (Type)((double)(0)))), (Type)(double)(2)));
+            }
+        }
+        {
+            // g3l_bounds_penalty for fish_imm.rec.proj;
+            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__proj__lower)) && std::isfinite(asDouble(fish_imm__rec__proj__upper)) ) {
+                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__proj - fish_imm__rec__proj__upper) / (fish_imm__rec__proj__upper - fish_imm__rec__proj__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__proj__lower - fish_imm__rec__proj) / (fish_imm__rec__proj__upper - fish_imm__rec__proj__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
         {
