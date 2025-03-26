@@ -159,6 +159,7 @@
 <span>                by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>            ifmissing <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
 <span>                name <span class="op">=</span> <span class="st">'rec.proj'</span>,</span>
+<span>                optimise <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                by_stock <span class="op">=</span> <span class="va">by_stock</span> <span class="op">)</span><span class="op">)</span>,</span>
 <span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        stddev_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'rec.sd'</span>, value <span class="op">=</span> <span class="fl">10</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
@@ -182,6 +183,7 @@
 <span>                by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>            ifmissing <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
 <span>                name <span class="op">=</span> <span class="st">'rec.proj'</span>,</span>
+<span>                optimise <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                by_stock <span class="op">=</span> <span class="va">by_stock</span> <span class="op">)</span><span class="op">)</span>,</span>
 <span>        mean_f <span class="op">=</span> <span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        cv_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'lencv'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>, value <span class="op">=</span> <span class="fl">0.1</span>,</span>
@@ -201,8 +203,8 @@
 <span><span class="fu">g3a_otherfood</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>
 <span>        num_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'of_abund'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span>,</span>
-<span>            scale <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'of_abund.step'</span>, by_step <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>            scale <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
+<span>                <span class="st">'of_abund.step'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_step <span class="op">=</span> <span class="cn">TRUE</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>            ifmissing <span class="op">=</span> <span class="st">"of_abund.proj"</span> <span class="op">)</span>,</span>
 <span>        wgt_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'of_meanwgt'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
 <span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -332,31 +334,31 @@
     <p></p><div class="section">
 <h3 id="g-a-renewal-vonb-recl">g3a_renewal_vonb_recl<a class="anchor" aria-label="anchor" href="#g-a-renewal-vonb-recl"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ L_{\infty} * {1 - e^{-1 * \kappa * (a - (a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa}  ))}} $$</p><dl><dt>\(L_{0}\)</dt>
-<dd><p>Substituted for <var>recl</var></p></dd>
-
-      <dt>\(L_{\infty}\)</dt>
-<dd><p>Substituted for <var>Linf</var></p></dd>
+    $$ L_{\infty} (1 - e^{-\kappa (a - a_{0} + \frac{\log(1 - L_{0}/L_{\infty})}{\kappa} )}) $$</p><dl><dt>\(L_{\infty}\)</dt>
+<dd><p><var>Linf</var> argument, by default model parameter named <code>(stock).Linf</code></p></dd>
 
       <dt>\(\kappa\)</dt>
-<dd><p>Substituted for <var>K</var></p></dd>
+<dd><p><var>K</var> argument, by default model parameter named <code>(stock).K</code></p></dd>
+
+      <dt>\(L_{0}\)</dt>
+<dd><p><var>recl</var> argument, by default model parameter named <code>(stock).recl</code></p></dd>
 
       <dt>\(a_{0}\)</dt>
-<dd><p>Substituted for <var>recage</var></p></dd>
+<dd><p><var>recage</var> argument, by default model parameter named <code>recage</code></p></dd>
 
 
 </dl><p><strong>NB:</strong> <code>g3a_initialconditions_normalparam</code> will replace \(a\) with \(a - \Delta{t}\), see <var>age_offset</var></p>
 </div><p></p><div class="section">
 <h3 id="g-a-renewal-vonb-t-">g3a_renewal_vonb_t0<a class="anchor" aria-label="anchor" href="#g-a-renewal-vonb-t-"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ L_{\infty} * (1 - e^{-1 * \kappa * (a - t_{0}) }) $$</p><dl><dt>\(L_{\infty}\)</dt>
-<dd><p>Substituted for <var>Linf</var></p></dd>
+    $$ L_{\infty} (1 - e^{-\kappa (a - t_{0}) }) $$</p><dl><dt>\(L_{\infty}\)</dt>
+<dd><p><var>Linf</var> argument, by default model parameter named <code>(stock).Linf</code></p></dd>
 
       <dt>\(\kappa\)</dt>
-<dd><p>Substituted for <var>K</var></p></dd>
+<dd><p><var>K</var> argument, by default model parameter named <code>(stock).K</code></p></dd>
 
       <dt>\(t_{0}\)</dt>
-<dd><p>Substituted for <var>t0</var></p></dd>
+<dd><p><var>t0</var> argument, by default model parameter named <code>(stock).t0</code></p></dd>
 
 
 </dl><p><strong>NB:</strong> <code>g3a_initialconditions_normalparam</code> will replace \(a\) with \(a - \Delta{t}\), see <var>age_offset</var></p>
@@ -366,23 +368,23 @@
 </div><p></p><div class="section">
 <h3 id="g-a-renewal-initabund">g3a_renewal_initabund<a class="anchor" aria-label="anchor" href="#g-a-renewal-initabund"></a></h3>
 <p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> object representing
-    $$ scalar * init * e^{-1 * (M + F_{0}) * (a - a_{0}) } * proportion $$</p><dl><dt>scalar</dt>
-<dd><p>Substituted for <var>scalar</var></p></dd>
+    $$ p s_{0} s_{a} e^{-1 (M + F_{0}) (a - a_{0})} $$</p><dl><dt>\(s_{0}\)</dt>
+<dd><p><var>scalar</var> argument, by default model parameter named <code>(stock).init.scalar</code></p></dd>
 
-      <dt>init</dt>
-<dd><p>Substituted for <var>init</var></p></dd>
+      <dt>\(s_{a}\)</dt>
+<dd><p><var>init</var> argument, by default model parameter named <code>(stock).(age).init</code></p></dd>
 
       <dt>\(M\)</dt>
-<dd><p>Substituted for <var>M</var></p></dd>
+<dd><p><var>M</var> argument, by default model parameter named <code>(stock).(age).M</code></p></dd>
 
       <dt>\(F_{0}\)</dt>
-<dd><p>Substituted for <var>init_F</var></p></dd>
+<dd><p><var>init_F</var> argument, by default model parameter named <code>(stock).(age).M</code></p></dd>
 
       <dt>\(a_{0}\)</dt>
-<dd><p>Substituted for <var>recage</var></p></dd>
+<dd><p><var>recage</var> argument, by default model parameter named <code>recage</code></p></dd>
 
-      <dt>proportion</dt>
-<dd><p>Substituted for <var>proportion</var></p></dd>
+      <dt>p</dt>
+<dd><p><var>proportion</var> argument, by default <code>1</code></p></dd>
 
 
 </dl><p></p>
@@ -395,51 +397,51 @@
   whereas initialconditions &amp; otherfood will replace any previous values.</p>
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam">g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam"></a></h3>
-<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate num/wgt:</p>
+<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
 <p>$$n = {dnorm}(L, \mu, \sigma)$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
-<dd><p>Midlength of length groups for current area/age/...</p></dd>
+<dd><p>Midlength of all length groups for current area/age/...</p></dd>
 
       <dt>\(F\)</dt>
-<dd><p>Substituted for <var>factor_f</var></p></dd>
+<dd><p><var>factor_f</var> argument, by default output of <code>g3a_renewal_initabund</code></p></dd>
 
       <dt>\(\mu\)</dt>
-<dd><p>Substituted for <var>mean_f</var></p></dd>
+<dd><p><var>mean_f</var> argument, by default output of <code>g3a_renewal_vonb_t0</code></p></dd>
 
       <dt>\(\sigma\)</dt>
-<dd><p>Substituted for <var>stddev_f</var></p></dd>
+<dd><p><var>stddev_f</var> argument, by default model parameter named <code>(stock).(init|rec).sd</code></p></dd>
 
       <dt>\(\alpha\)</dt>
-<dd><p>Substituted for <var>alpha_f</var></p></dd>
+<dd><p><var>alpha_f</var> argument, by default model parameter named <code>(stock).walpha</code></p></dd>
 
       <dt>\(\beta\)</dt>
-<dd><p>Substituted for <var>beta_f</var></p></dd>
+<dd><p><var>beta_f</var> argument, by default model parameter named <code>(stock).wbeta</code></p></dd>
 
 
 </dl><p></p>
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv">g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv"></a></h3>
-<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate num/wgt:</p>
+<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
 <p>$$n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
-<dd><p>Midlength of length groups for current area/age/...</p></dd>
+<dd><p>Midlength of all length groups for current area/age/...</p></dd>
 
       <dt>\(F\)</dt>
-<dd><p>Substituted for <var>factor_f</var></p></dd>
+<dd><p><var>factor_f</var> argument, by default output of <code>g3a_renewal_initabund</code></p></dd>
 
       <dt>\(\mu\)</dt>
-<dd><p>Substituted for <var>mean_f</var></p></dd>
+<dd><p><var>mean_f</var> argument, by default output of <code>g3a_renewal_vonb_t0</code></p></dd>
 
       <dt>\(CV\)</dt>
-<dd><p>Substituted for <var>cv_f</var></p></dd>
+<dd><p><var>cv_f</var> argument, by default model parameter named <code>(stock).lencv</code></p></dd>
 
       <dt>\(\alpha\)</dt>
-<dd><p>Substituted for <var>alpha_f</var></p></dd>
+<dd><p><var>alpha_f</var> argument, by default model parameter named <code>(stock).walpha</code></p></dd>
 
       <dt>\(\beta\)</dt>
-<dd><p>Substituted for <var>beta_f</var></p></dd>
+<dd><p><var>beta_f</var> argument, by default model parameter named <code>(stock).wbeta</code></p></dd>
 
 
 </dl><p></p>
@@ -456,21 +458,37 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">stocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    imm <span class="op">=</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ling'</span>, maturity <span class="op">=</span> <span class="st">"imm"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    mat <span class="op">=</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ling'</span>, maturity <span class="op">=</span> <span class="st">"mat"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># per-age init.sd parameters</span></span></span>
-<span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    run_step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>  <span class="co"># Renewal happens in spring</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3a_initialconditions_normalcv</span><span class="op">(</span><span class="va">stocks</span><span class="op">$</span><span class="va">imm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3a_initialconditions_normalcv</span><span class="op">(</span><span class="va">stocks</span><span class="op">$</span><span class="va">mat</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">'parameter_template'</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"init.F"</span>, <span class="fl">0.4</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_imm.Linf"</span>, <span class="fl">80</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_mat.Linf"</span>, <span class="fl">160</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.K"</span>, <span class="fl">90</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.t0"</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.lencv"</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_imm.init.#"</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">7</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_mat.init.#"</span>, <span class="fl">5</span><span class="op">:</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">200</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.init.scalar"</span>, <span class="fl">200</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.walpha"</span>, <span class="fl">2.275e-06</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.wbeta"</span>, <span class="fl">3.2020</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"ling_*.M.#"</span>, <span class="fl">0.15</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params.in</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">model_fn</span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># To get a single ling_imm.lencv parameter instead of init.sd</span></span></span>
-<span class="r-in"><span><span class="va">initialconditions_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_initialconditions_normalcv</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">ling_imm</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">renewal_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_renewal_normalcv</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">ling_imm</span>,</span></span>
-<span class="r-in"><span>    run_step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>  <span class="co"># Renewal happens in spring</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dstart_ling_imm__num"</span><span class="op">)</span><span class="op">[</span>,,time<span class="op">=</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="action_renewal-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dstart_ling_mat__num"</span><span class="op">)</span><span class="op">[</span>,,time<span class="op">=</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="action_renewal-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Plots</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span>, cex.main <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
@@ -482,7 +500,7 @@
 <span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">10</span>, col <span class="op">=</span> <span class="fl">3</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu">g3a_renewal_vonb_t0</span><span class="op">(</span>Linf <span class="op">=</span> <span class="fl">20</span>, K <span class="op">=</span> <span class="fl">1.4</span>, t0 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, age <span class="op">=</span> <span class="va">x</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">10</span>, col <span class="op">=</span> <span class="fl">4</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="action_renewal-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="action_renewal-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Otherfood</span></span></span>
 <span class="r-in"><span><span class="co"># "Otherfood" stocks are defined in a similar manner to any other stock</span></span></span>
@@ -490,11 +508,32 @@
 <span class="r-in"><span><span class="va">other_wgt</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'other_wgt'</span>, <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">other_cv</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'other_cv'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">otherfood_actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2010</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="co"># Will get other_wgt.of_abund.1998.1, other_wgt.of_meanwgt parameters</span></span></span>
 <span class="r-in"><span>    <span class="fu">g3a_otherfood</span><span class="op">(</span><span class="va">other_wgt</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="co"># Use standard vonB parameters (Linf/K/t0) to define abundance</span></span></span>
-<span class="r-in"><span>    <span class="fu">g3a_otherfood_normalcv</span><span class="op">(</span><span class="va">other_cv</span><span class="op">)</span> <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_otherfood_normalcv</span><span class="op">(</span><span class="va">other_cv</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">'parameter_template'</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_cv.Linf"</span>, <span class="fl">80</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_cv.K"</span>, <span class="fl">90</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_cv.t0"</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_cv.of_abund.#"</span>, <span class="fl">100</span><span class="op">:</span><span class="fl">110</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_wgt.of_abund.#"</span>, <span class="fl">100</span><span class="op">:</span><span class="fl">110</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_wgt.of_abund.step.#"</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_cv.of_abund.proj"</span>, <span class="fl">80</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"other_wgt.of_abund.proj"</span>, <span class="fl">70</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"project_years"</span>, <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params.in</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">model_fn</span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dstart_other_wgt__num"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="action_renewal-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r</span>, <span class="st">"dstart_other_cv__num"</span><span class="op">)</span><span class="op">[</span>,age<span class="op">=</span><span class="st">"age7"</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="action_renewal-5.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>

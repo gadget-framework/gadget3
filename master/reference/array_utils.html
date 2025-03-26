@@ -100,7 +100,9 @@
 <span><span class="fu">g3_array_combine</span><span class="op">(</span></span>
 <span>        <span class="va">arrays</span>,</span>
 <span>        agg <span class="op">=</span> <span class="va">sum</span>,</span>
-<span>        init_val <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span></code></pre></div>
+<span>        init_val <span class="op">=</span> <span class="fl">0</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3_array_plot</span><span class="op">(</span><span class="va">ar</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -147,6 +149,7 @@
 
 </dl><p><code>g3_array_combine</code> generates the union of 2 disjoint arrays,
   so you can combine aggregated output from an immature and mature stock for example.</p>
+<p><code>g3_array_plot</code> will plot the contents of an array, for arrays with 2 dimensions or less.</p>
     </div>
     <div id="value">
     <h2>Value</h2>
@@ -173,6 +176,10 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>   60:70   164  167  170  173  176  179</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   70:Inf  165  168  171  174  177  180</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu">g3_array_plot</span><span class="op">(</span><span class="va">ar</span><span class="op">[</span>,,<span class="st">"1994-02"</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="array_utils-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">g3_array_plot</span><span class="op">(</span><span class="va">ar</span><span class="op">[</span><span class="st">"50:60"</span>,<span class="st">"age3"</span>,<span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="array_utils-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Generate by-year report for ages 2..4</span></span></span>
 <span class="r-in"><span><span class="fu">g3_array_agg</span><span class="op">(</span><span class="va">ar</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'year'</span><span class="op">)</span>, age <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></span>
