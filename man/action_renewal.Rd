@@ -271,9 +271,9 @@ g3a_otherfood_normalcv(
     \deqn{ p s_{0} s_{a} e^{-1 (M + F_{0}) (a - a_{0})} }
     \describe{
       \item{\eqn{s_{0}}}{\var{scalar} argument, by default model parameter named \code{(stock).init.scalar}}
-      \item{\eqn{s_{a}}}{\var{init} argument, by default model parameter named \code{(stock).(age).init}}
-      \item{\eqn{M}}{\var{M} argument, by default model parameter named \code{(stock).(age).M}}
-      \item{\eqn{F_{0}}}{\var{init_F} argument, by default model parameter named \code{(stock).(age).M}}
+      \item{\eqn{s_{a}}}{\var{init} argument, by default model parameter named \code{(stock).init.(age)}}
+      \item{\eqn{M}}{\var{M} argument, by default model parameter named \code{(stock).M.(age)}}
+      \item{\eqn{F_{0}}}{\var{init_F} argument, by default model parameter named \code{init.F}}
       \item{\eqn{a_{0}}}{\var{recage} argument, by default model parameter named \code{recage}}
       \item{p}{\var{proportion} argument, by default \code{1}}
     }
