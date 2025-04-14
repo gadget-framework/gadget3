@@ -13,6 +13,7 @@
   * Add g3_param_project() for time-varying parameters that also support projection
   * AR1/logAR1 distribution functions
   * Add g3_quota() for quota-definitions during projection based on a custom fishing year
+* Add `g3_array_plot`
 
 ## Breaking changes
 * run_projection is now TRUE by default for renewal. A rec.proj parameter covers projection.
