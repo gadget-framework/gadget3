@@ -120,17 +120,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__f_surv__l50);
     PARAMETER(fish__bbin);
     PARAMETER(fish__rec__proj);
-    PARAMETER(fish__rec__1979);
-    PARAMETER(fish__rec__1980);
-    PARAMETER(fish__rec__1981);
-    PARAMETER(fish__rec__1982);
-    PARAMETER(fish__rec__1983);
-    PARAMETER(fish__rec__1984);
-    PARAMETER(fish__rec__1985);
-    PARAMETER(fish__rec__1986);
-    PARAMETER(fish__rec__1987);
-    PARAMETER(fish__rec__1988);
-    PARAMETER(fish__rec__1989);
     PARAMETER(fish__rec__1990);
     PARAMETER(fish__rec__1991);
     PARAMETER(fish__rec__1992);
@@ -165,9 +154,8 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish__rec__2021);
     PARAMETER(fish__rec__2022);
     PARAMETER(fish__rec__2023);
-    std::map<std::tuple<int>, Type*> pt__fish__rec = {{std::make_tuple(1979), &fish__rec__1979}, {std::make_tuple(1980), &fish__rec__1980}, {std::make_tuple(1981), &fish__rec__1981}, {std::make_tuple(1982), &fish__rec__1982}, {std::make_tuple(1983), &fish__rec__1983}, {std::make_tuple(1984), &fish__rec__1984}, {std::make_tuple(1985), &fish__rec__1985}, {std::make_tuple(1986), &fish__rec__1986}, {std::make_tuple(1987), &fish__rec__1987}, {std::make_tuple(1988), &fish__rec__1988}, {std::make_tuple(1989), &fish__rec__1989}, {std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}, {std::make_tuple(2001), &fish__rec__2001}, {std::make_tuple(2002), &fish__rec__2002}, {std::make_tuple(2003), &fish__rec__2003}, {std::make_tuple(2004), &fish__rec__2004}, {std::make_tuple(2005), &fish__rec__2005}, {std::make_tuple(2006), &fish__rec__2006}, {std::make_tuple(2007), &fish__rec__2007}, {std::make_tuple(2008), &fish__rec__2008}, {std::make_tuple(2009), &fish__rec__2009}, {std::make_tuple(2010), &fish__rec__2010}, {std::make_tuple(2011), &fish__rec__2011}, {std::make_tuple(2012), &fish__rec__2012}, {std::make_tuple(2013), &fish__rec__2013}, {std::make_tuple(2014), &fish__rec__2014}, {std::make_tuple(2015), &fish__rec__2015}, {std::make_tuple(2016), &fish__rec__2016}, {std::make_tuple(2017), &fish__rec__2017}, {std::make_tuple(2018), &fish__rec__2018}, {std::make_tuple(2019), &fish__rec__2019}, {std::make_tuple(2020), &fish__rec__2020}, {std::make_tuple(2021), &fish__rec__2021}, {std::make_tuple(2022), &fish__rec__2022}, {std::make_tuple(2023), &fish__rec__2023}};
+    std::map<std::tuple<int>, Type*> pt__fish__rec = {{std::make_tuple(1990), &fish__rec__1990}, {std::make_tuple(1991), &fish__rec__1991}, {std::make_tuple(1992), &fish__rec__1992}, {std::make_tuple(1993), &fish__rec__1993}, {std::make_tuple(1994), &fish__rec__1994}, {std::make_tuple(1995), &fish__rec__1995}, {std::make_tuple(1996), &fish__rec__1996}, {std::make_tuple(1997), &fish__rec__1997}, {std::make_tuple(1998), &fish__rec__1998}, {std::make_tuple(1999), &fish__rec__1999}, {std::make_tuple(2000), &fish__rec__2000}, {std::make_tuple(2001), &fish__rec__2001}, {std::make_tuple(2002), &fish__rec__2002}, {std::make_tuple(2003), &fish__rec__2003}, {std::make_tuple(2004), &fish__rec__2004}, {std::make_tuple(2005), &fish__rec__2005}, {std::make_tuple(2006), &fish__rec__2006}, {std::make_tuple(2007), &fish__rec__2007}, {std::make_tuple(2008), &fish__rec__2008}, {std::make_tuple(2009), &fish__rec__2009}, {std::make_tuple(2010), &fish__rec__2010}, {std::make_tuple(2011), &fish__rec__2011}, {std::make_tuple(2012), &fish__rec__2012}, {std::make_tuple(2013), &fish__rec__2013}, {std::make_tuple(2014), &fish__rec__2014}, {std::make_tuple(2015), &fish__rec__2015}, {std::make_tuple(2016), &fish__rec__2016}, {std::make_tuple(2017), &fish__rec__2017}, {std::make_tuple(2018), &fish__rec__2018}, {std::make_tuple(2019), &fish__rec__2019}, {std::make_tuple(2020), &fish__rec__2020}, {std::make_tuple(2021), &fish__rec__2021}, {std::make_tuple(2022), &fish__rec__2022}, {std::make_tuple(2023), &fish__rec__2023}};
     PARAMETER(fish__rec__scalar);
-    PARAMETER(fish__rec__sd);
     DATA_SCALAR(adist_surveyindices_log_dist_si_cpue_weight__lower);
     DATA_SCALAR(adist_surveyindices_log_dist_si_cpue_weight__upper);
     DATA_SCALAR(cdist_sumofsquares_aldist_f_surv_weight__lower);
@@ -208,28 +196,6 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish__init__scalar__upper);
     DATA_SCALAR(fish__lencv__lower);
     DATA_SCALAR(fish__lencv__upper);
-    DATA_SCALAR(fish__rec__1979__lower);
-    DATA_SCALAR(fish__rec__1979__upper);
-    DATA_SCALAR(fish__rec__1980__lower);
-    DATA_SCALAR(fish__rec__1980__upper);
-    DATA_SCALAR(fish__rec__1981__lower);
-    DATA_SCALAR(fish__rec__1981__upper);
-    DATA_SCALAR(fish__rec__1982__lower);
-    DATA_SCALAR(fish__rec__1982__upper);
-    DATA_SCALAR(fish__rec__1983__lower);
-    DATA_SCALAR(fish__rec__1983__upper);
-    DATA_SCALAR(fish__rec__1984__lower);
-    DATA_SCALAR(fish__rec__1984__upper);
-    DATA_SCALAR(fish__rec__1985__lower);
-    DATA_SCALAR(fish__rec__1985__upper);
-    DATA_SCALAR(fish__rec__1986__lower);
-    DATA_SCALAR(fish__rec__1986__upper);
-    DATA_SCALAR(fish__rec__1987__lower);
-    DATA_SCALAR(fish__rec__1987__upper);
-    DATA_SCALAR(fish__rec__1988__lower);
-    DATA_SCALAR(fish__rec__1988__upper);
-    DATA_SCALAR(fish__rec__1989__lower);
-    DATA_SCALAR(fish__rec__1989__upper);
     DATA_SCALAR(fish__rec__1990__lower);
     DATA_SCALAR(fish__rec__1990__upper);
     DATA_SCALAR(fish__rec__1991__lower);
@@ -302,8 +268,6 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish__rec__proj__upper);
     DATA_SCALAR(fish__rec__scalar__lower);
     DATA_SCALAR(fish__rec__scalar__upper);
-    DATA_SCALAR(fish__rec__sd__lower);
-    DATA_SCALAR(fish__rec__sd__upper);
     DATA_SCALAR(fish__t0__lower);
     DATA_SCALAR(fish__t0__upper);
     DATA_SCALAR(fish__walpha__lower);
@@ -460,7 +424,7 @@ Type objective_function<Type>::operator() () {
     int cur_time = -1;
     PARAMETER(project_years);
     int cur_year = 0;
-    int start_year = 1979;
+    int start_year = 1990;
     vector<int> step_lengths(4); step_lengths.setConstant(3);
     auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
@@ -482,11 +446,11 @@ Type objective_function<Type>::operator() () {
     array<double> dstart_fish__wgt(10,1,5,as_integer(total_steps + (double)(1))); dstart_fish__wgt.setConstant((double)(1));
     array<Type> suit_fish_f_surv__report(10);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
-    array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,5,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
+    array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,34,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_dist_si_cpue_obs__wgt)
-    array<Type> cdist_sumofsquares_aldist_f_surv_model__num(5,4,5); cdist_sumofsquares_aldist_f_surv_model__num.setZero();
+    array<Type> cdist_sumofsquares_aldist_f_surv_model__num(5,4,34); cdist_sumofsquares_aldist_f_surv_model__num.setZero();
     DATA_ARRAY(cdist_sumofsquares_aldist_f_surv_obs__num)
-    array<Type> cdist_sumofsquares_ldist_f_surv_model__num(5,5); cdist_sumofsquares_ldist_f_surv_model__num.setZero();
+    array<Type> cdist_sumofsquares_ldist_f_surv_model__num(5,34); cdist_sumofsquares_ldist_f_surv_model__num.setZero();
     DATA_ARRAY(cdist_sumofsquares_ldist_f_surv_obs__num)
     array<double> detail_fish__predby_f_surv(10,1,5,as_integer(total_steps + (double)(1)));
     array<double> detail_fish__renewalnum(10,1,5,as_integer(total_steps + (double)(1))); detail_fish__renewalnum.setZero();
@@ -794,7 +758,7 @@ Type objective_function<Type>::operator() () {
 
                     auto fish__area_idx = 0;
 
-                    auto ren_dnorm = dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0)))), avoid_zero(fish__rec__sd));
+                    auto ren_dnorm = dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv)));
 
                     {
                         fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
@@ -924,72 +888,6 @@ Type objective_function<Type>::operator() () {
             // g3l_bounds_penalty for fish.lencv;
             if ( cur_time == 0 && std::isfinite(asDouble(fish__lencv__lower)) && std::isfinite(asDouble(fish__lencv__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__lencv - fish__lencv__upper) / (fish__lencv__upper - fish__lencv__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__lencv__lower - fish__lencv) / (fish__lencv__upper - fish__lencv__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1979;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1979__lower)) && std::isfinite(asDouble(fish__rec__1979__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1979 - fish__rec__1979__upper) / (fish__rec__1979__upper - fish__rec__1979__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1979__lower - fish__rec__1979) / (fish__rec__1979__upper - fish__rec__1979__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1980;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1980__lower)) && std::isfinite(asDouble(fish__rec__1980__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1980 - fish__rec__1980__upper) / (fish__rec__1980__upper - fish__rec__1980__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1980__lower - fish__rec__1980) / (fish__rec__1980__upper - fish__rec__1980__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1981;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1981__lower)) && std::isfinite(asDouble(fish__rec__1981__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1981 - fish__rec__1981__upper) / (fish__rec__1981__upper - fish__rec__1981__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1981__lower - fish__rec__1981) / (fish__rec__1981__upper - fish__rec__1981__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1982;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1982__lower)) && std::isfinite(asDouble(fish__rec__1982__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1982 - fish__rec__1982__upper) / (fish__rec__1982__upper - fish__rec__1982__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1982__lower - fish__rec__1982) / (fish__rec__1982__upper - fish__rec__1982__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1983;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1983__lower)) && std::isfinite(asDouble(fish__rec__1983__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1983 - fish__rec__1983__upper) / (fish__rec__1983__upper - fish__rec__1983__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1983__lower - fish__rec__1983) / (fish__rec__1983__upper - fish__rec__1983__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1984;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1984__lower)) && std::isfinite(asDouble(fish__rec__1984__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1984 - fish__rec__1984__upper) / (fish__rec__1984__upper - fish__rec__1984__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1984__lower - fish__rec__1984) / (fish__rec__1984__upper - fish__rec__1984__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1985;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1985__lower)) && std::isfinite(asDouble(fish__rec__1985__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1985 - fish__rec__1985__upper) / (fish__rec__1985__upper - fish__rec__1985__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1985__lower - fish__rec__1985) / (fish__rec__1985__upper - fish__rec__1985__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1986;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1986__lower)) && std::isfinite(asDouble(fish__rec__1986__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1986 - fish__rec__1986__upper) / (fish__rec__1986__upper - fish__rec__1986__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1986__lower - fish__rec__1986) / (fish__rec__1986__upper - fish__rec__1986__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1987;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1987__lower)) && std::isfinite(asDouble(fish__rec__1987__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1987 - fish__rec__1987__upper) / (fish__rec__1987__upper - fish__rec__1987__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1987__lower - fish__rec__1987) / (fish__rec__1987__upper - fish__rec__1987__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1988;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1988__lower)) && std::isfinite(asDouble(fish__rec__1988__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1988 - fish__rec__1988__upper) / (fish__rec__1988__upper - fish__rec__1988__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1988__lower - fish__rec__1988) / (fish__rec__1988__upper - fish__rec__1988__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish.rec.1989;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__1989__lower)) && std::isfinite(asDouble(fish__rec__1989__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__1989 - fish__rec__1989__upper) / (fish__rec__1989__upper - fish__rec__1989__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__1989__lower - fish__rec__1989) / (fish__rec__1989__upper - fish__rec__1989__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
         {
@@ -1209,12 +1107,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3l_bounds_penalty for fish.rec.sd;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish__rec__sd__lower)) && std::isfinite(asDouble(fish__rec__sd__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__rec__sd - fish__rec__sd__upper) / (fish__rec__sd__upper - fish__rec__sd__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__rec__sd__lower - fish__rec__sd) / (fish__rec__sd__upper - fish__rec__sd__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
             // g3l_bounds_penalty for fish.t0;
             if ( cur_time == 0 && std::isfinite(asDouble(fish__t0__lower)) && std::isfinite(asDouble(fish__t0__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish__t0 - fish__t0__upper) / (fish__t0__upper - fish__t0__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish__t0__lower - fish__t0) / (fish__t0__upper - fish__t0__lower)), (Type)((double)(0)))), (Type)(double)(2)));
@@ -1278,7 +1170,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto adist_surveyindices_log_dist_si_cpue_model__max_time_idx = 4;
+            auto adist_surveyindices_log_dist_si_cpue_model__max_time_idx = 33;
 
             {
                 // g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_dist_si_cpue_model to adist_surveyindices_log_dist_si_cpue_obs;
