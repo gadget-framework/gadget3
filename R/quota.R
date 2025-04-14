@@ -103,6 +103,7 @@ g3_quota <- function (
         run_revstep = -1,
         run_f = TRUE,
         run_at = g3_action_order$quota ) {
+    stopifnot(is.numeric(init_val))
 
     if (!is.null(run_revstep)) run_f <- f_substitute(quote(quotastock__fishingyear_revstep == x && run_f), list(
         run_f = run_f,

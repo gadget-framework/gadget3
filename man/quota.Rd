@@ -83,7 +83,8 @@ g3_quota(
     When the quota should be recalculated, in addition to any condition defined by \var{run_revstep}.
   }
   \item{init_val}{
-    The value the quota is set to if not yet calculated, e.g. at model start.
+    Numeric scalar that the quota array is initalised to.
+    Will be used if the quota used before it is calculated, e.g. at model start.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
