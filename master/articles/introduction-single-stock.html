@@ -220,13 +220,13 @@ actions:</p>
 <span></span>
 <span><span class="va">actions_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span></span>
-<span>    <span class="fl">1979L</span>, <span class="fl">2023L</span>,</span>
+<span>    <span class="fl">1990L</span>, <span class="fl">2023L</span>,</span>
 <span>    step_lengths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fl">3L</span>, <span class="fl">3L</span>, <span class="fl">3L</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>This acts as timekeeping for our model, starting in year 1979 and
+<p>This acts as timekeeping for our model, starting in year 1990 and
 progressing until 2023. Each year will have 4 time steps in, of equal
 length.</p>
 <p>As a convention, we build up an <code>actions</code> array of
@@ -261,7 +261,7 @@ will count years &amp; steps:</p>
     stopifnot("project_years" %in% names(param))
     project_years &lt;- param[["project_years"]]
     cur_year &lt;- 0L
-    start_year &lt;- 1979L
+    start_year &lt;- 1990L
     step_count &lt;- length(step_lengths)
     cur_year_projection &lt;- FALSE
     end_year &lt;- 2023L
@@ -296,8 +296,8 @@ will count years &amp; steps:</p>
         }
     }
 }
-&lt;bytecode: 0x562059781ba0&gt;
-&lt;environment: 0x56205a6c91c0&gt;</code></pre>
+&lt;bytecode: 0x5579e7e18f68&gt;
+&lt;environment: 0x5579e8d5e280&gt;</code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>#include &lt;TMB.hpp&gt;
@@ -326,7 +326,7 @@ Type objective_function&lt;Type&gt;::operator() () {
     int cur_time = -1;
     PARAMETER(project_years);
     int cur_year = 0;
-    int start_year = 1979;
+    int start_year = 1990;
     vector&lt;int&gt; step_lengths(4); step_lengths.setConstant(3);
     auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
@@ -422,7 +422,7 @@ earlier:</p>
 <span>    maxlengthgroupgrowth <span class="op">=</span> <span class="fl">4L</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span><span class="va">fish</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/action_renewal.html">g3a_initialconditions_normalcv</a></span><span class="op">(</span><span class="va">fish</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="../reference/action_renewal.html">g3a_renewal_normalparam</a></span><span class="op">(</span><span class="va">fish</span>,</span>
+<span>  <span class="fu"><a href="../reference/action_renewal.html">g3a_renewal_normalcv</a></span><span class="op">(</span><span class="va">fish</span>,</span>
 <span>    run_step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">fish</span><span class="op">)</span>,</span>
 <span>  <span class="cn">NULL</span><span class="op">)</span></span>
@@ -448,7 +448,7 @@ stock</li>
 <code><a href="../reference/action_renewal.html">g3a_initialconditions_normalcv()</a></code>: Initial recruitment,
 defining numbers &amp; mean weights for the start of the model</li>
 <li>
-<code><a href="../reference/action_renewal.html">g3a_renewal_normalparam()</a></code>: Recruitment occuring every
+<code><a href="../reference/action_renewal.html">g3a_renewal_normalcv()</a></code>: Recruitment occuring every
 spring (<code>run_step = 2</code>), independent of stock status</li>
 <li>
 <code><a href="../reference/action_age.html">g3a_age()</a></code>: Move fish through age groups at the end of a
@@ -460,7 +460,7 @@ available.</li>
 </ul>
 <p>There are more actions available besides these, for instance
 <code><a href="../reference/action_spawn.html">g3a_spawn()</a></code> can be used for recruitment dependent on stock
-size instead of <code><a href="../reference/action_renewal.html">g3a_renewal_normalparam()</a></code>. For a full list,
+size instead of <code><a href="../reference/action_renewal.html">g3a_renewal_normalcv()</a></code>. For a full list,
 see <code>??gadget3::"G3 action"</code> or the package reference
 index.</p>
 <p>Likelihood actions are actions that will sum their output into the
@@ -555,18 +555,19 @@ model, we will cover it’s use later.</p>
 <span><span class="va">params</span><span class="op">$</span><span class="va">report_detail</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span></span>
 <span><span class="co"># Run model and pull out final abundance from the result</span></span>
-<span><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>, time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">abund</span><span class="op">)</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">abund</span><span class="op">[</span>, age <span class="op">=</span> <span class="va">a</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">a</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/array_utils.html">g3_array_agg</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>,</span>
+<span>    time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 <p>Altering K results in corresponding changes to the stock
 structure:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span><span class="op">$</span><span class="va">fish.K</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
-<span><span class="va">abund</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>, time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">a</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">abund</span><span class="op">)</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">abund</span><span class="op">[</span>, age <span class="op">=</span> <span class="va">a</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">a</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/array_utils.html">g3_array_agg</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>,</span>
+<span>    time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 </div>
 </div>
@@ -586,7 +587,7 @@ steps would apply regardless.</p>
 <code class="sourceCode R"><span><span class="co"># Fleet data for f_surv #################################</span></span>
 <span></span>
 <span><span class="co"># Landings data: For each year/step/area</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2023</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="co"># Generate a random total landings by weight</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">1000</span>, sd <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="co"># Assign result to landings_f_surv</span></span>
@@ -605,12 +606,41 @@ own line.</p>
 figures:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">landings_f_surv</span></span></code></pre></div>
-<pre><code><span><span class="co">##   year step area    weight</span></span>
-<span><span class="co">## 1 1990    2  IXa  943.9524</span></span>
-<span><span class="co">## 2 1991    2  IXa  976.9823</span></span>
-<span><span class="co">## 3 1992    2  IXa 1155.8708</span></span>
-<span><span class="co">## 4 1993    2  IXa 1007.0508</span></span>
-<span><span class="co">## 5 1994    2  IXa 1012.9288</span></span></code></pre>
+<pre><code><span><span class="co">##    year step area    weight</span></span>
+<span><span class="co">## 1  1990    2  IXa  943.9524</span></span>
+<span><span class="co">## 2  1991    2  IXa  976.9823</span></span>
+<span><span class="co">## 3  1992    2  IXa 1155.8708</span></span>
+<span><span class="co">## 4  1993    2  IXa 1007.0508</span></span>
+<span><span class="co">## 5  1994    2  IXa 1012.9288</span></span>
+<span><span class="co">## 6  1995    2  IXa 1171.5065</span></span>
+<span><span class="co">## 7  1996    2  IXa 1046.0916</span></span>
+<span><span class="co">## 8  1997    2  IXa  873.4939</span></span>
+<span><span class="co">## 9  1998    2  IXa  931.3147</span></span>
+<span><span class="co">## 10 1999    2  IXa  955.4338</span></span>
+<span><span class="co">## 11 2000    2  IXa 1122.4082</span></span>
+<span><span class="co">## 12 2001    2  IXa 1035.9814</span></span>
+<span><span class="co">## 13 2002    2  IXa 1040.0771</span></span>
+<span><span class="co">## 14 2003    2  IXa 1011.0683</span></span>
+<span><span class="co">## 15 2004    2  IXa  944.4159</span></span>
+<span><span class="co">## 16 2005    2  IXa 1178.6913</span></span>
+<span><span class="co">## 17 2006    2  IXa 1049.7850</span></span>
+<span><span class="co">## 18 2007    2  IXa  803.3383</span></span>
+<span><span class="co">## 19 2008    2  IXa 1070.1356</span></span>
+<span><span class="co">## 20 2009    2  IXa  952.7209</span></span>
+<span><span class="co">## 21 2010    2  IXa  893.2176</span></span>
+<span><span class="co">## 22 2011    2  IXa  978.2025</span></span>
+<span><span class="co">## 23 2012    2  IXa  897.3996</span></span>
+<span><span class="co">## 24 2013    2  IXa  927.1109</span></span>
+<span><span class="co">## 25 2014    2  IXa  937.4961</span></span>
+<span><span class="co">## 26 2015    2  IXa  831.3307</span></span>
+<span><span class="co">## 27 2016    2  IXa 1083.7787</span></span>
+<span><span class="co">## 28 2017    2  IXa 1015.3373</span></span>
+<span><span class="co">## 29 2018    2  IXa  886.1863</span></span>
+<span><span class="co">## 30 2019    2  IXa 1125.3815</span></span>
+<span><span class="co">## 31 2020    2  IXa 1042.6464</span></span>
+<span><span class="co">## 32 2021    2  IXa  970.4929</span></span>
+<span><span class="co">## 33 2022    2  IXa 1089.5126</span></span>
+<span><span class="co">## 34 2023    2  IXa 1087.8133</span></span></code></pre>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">landings_f_surv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'year'</span>, <span class="st">'weight'</span><span class="op">)</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2000</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
@@ -625,7 +655,7 @@ works, see <code><a href="../articles/incorporating-observation-data.html">vigne
 <div class="modelScript">
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Length distribution data: Randomly generate 100 samples in each year/step/area</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2023</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Generate random lengths for these samples</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">50</span>, sd <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Save unagggregated data into ldist_f_surv.raw</span></span>
@@ -650,12 +680,12 @@ can see the end result:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ldist_f_surv.raw</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   year step area   length</span></span>
-<span><span class="co">## 1 1990    2  IXa 84.30130</span></span>
-<span><span class="co">## 2 1991    2  IXa 59.21832</span></span>
-<span><span class="co">## 3 1992    2  IXa 24.69878</span></span>
-<span><span class="co">## 4 1993    2  IXa 36.26294</span></span>
-<span><span class="co">## 5 1994    2  IXa 41.08676</span></span>
-<span><span class="co">## 6 1990    2  IXa 74.48164</span></span></code></pre>
+<span><span class="co">## 1 1990    2  IXa 66.43162</span></span>
+<span><span class="co">## 2 1991    2  IXa 63.77281</span></span>
+<span><span class="co">## 3 1992    2  IXa 61.07835</span></span>
+<span><span class="co">## 4 1993    2  IXa 48.76177</span></span>
+<span><span class="co">## 5 1994    2  IXa 43.88075</span></span>
+<span><span class="co">## 6 1995    2  IXa 42.39058</span></span></code></pre>
 <p>We next use <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by()</a></code> and <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> to
 aggregate by year, step &amp; length bins. <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> is
 responsible for binning continuous data. We can see what it does by
@@ -675,15 +705,15 @@ For more information on how this works, see
 result into a <em>number</em> column. The end result looks like:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##       year           step        length      number     </span></span>
-<span><span class="co">##  Min.   :1990   Min.   :2   [0,20)  :5   Min.   : 2.00  </span></span>
-<span><span class="co">##  1st Qu.:1991   1st Qu.:2   [20,40) :5   1st Qu.: 6.00  </span></span>
-<span><span class="co">##  Median :1992   Median :2   [40,60) :5   Median :19.50  </span></span>
-<span><span class="co">##  Mean   :1992   Mean   :2   [60,80) :5   Mean   :19.23  </span></span>
-<span><span class="co">##  3rd Qu.:1993   3rd Qu.:2   [80,Inf):5   3rd Qu.:26.75  </span></span>
-<span><span class="co">##  Max.   :1994   Max.   :2   NA's    :1   Max.   :46.00</span></span></code></pre>
+<pre><code><span><span class="co">##       year           step        length       number     </span></span>
+<span><span class="co">##  Min.   :1990   Min.   :2   [0,20)  :34   Min.   : 1.00  </span></span>
+<span><span class="co">##  1st Qu.:1998   1st Qu.:2   [20,40) :34   1st Qu.: 5.00  </span></span>
+<span><span class="co">##  Median :2006   Median :2   [40,60) :34   Median :18.00  </span></span>
+<span><span class="co">##  Mean   :2006   Mean   :2   [60,80) :34   Mean   :18.18  </span></span>
+<span><span class="co">##  3rd Qu.:2015   3rd Qu.:2   [80,Inf):34   3rd Qu.:27.00  </span></span>
+<span><span class="co">##  Max.   :2023   Max.   :2   NA's    :17   Max.   :50.00</span></span></code></pre>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">y</span> <span class="kw">in</span> <span class="va">years</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">ldist_f_surv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">y</span> <span class="op">&amp;</span> <span class="va">step</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -697,12 +727,12 @@ result into a <em>number</em> column. The end result looks like:</p>
 age-length data:</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Assume 5 * 5 samples in each year/step/area</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">5</span><span class="op">)</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># Generate random lengths/ages for these samples</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">50</span>, sd <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="co"># Assume 100 * 100 samples in each year/step/area</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2023</span>, step <span class="op">=</span> <span class="fl">2</span>, area <span class="op">=</span> <span class="st">'IXa'</span>, age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Generate random whole numbers for age</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">1</span>, max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># Generate random lengths for these samples</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">30</span> <span class="op">+</span> <span class="va">age</span> <span class="op">*</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Group into length/age bins</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>      year <span class="op">=</span> <span class="va">year</span>,</span>
@@ -717,15 +747,15 @@ age-length data:</p>
 <em>year</em>/<em>step</em>/<em>age</em>/<em>length</em>/<em>number</em>:</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##       year           step        age             length       number     </span></span>
-<span><span class="co">##  Min.   :1990   Min.   :2   Min.   :1.000   [0,20)  : 3   Min.   :1.000  </span></span>
-<span><span class="co">##  1st Qu.:1991   1st Qu.:2   1st Qu.:1.250   [20,40) :14   1st Qu.:1.000  </span></span>
-<span><span class="co">##  Median :1992   Median :2   Median :3.000   [40,60) :19   Median :2.000  </span></span>
-<span><span class="co">##  Mean   :1992   Mean   :2   Mean   :2.552   [60,80) :15   Mean   :2.155  </span></span>
-<span><span class="co">##  3rd Qu.:1993   3rd Qu.:2   3rd Qu.:3.750   [80,Inf): 5   3rd Qu.:3.000  </span></span>
-<span><span class="co">##  Max.   :1994   Max.   :2   Max.   :4.000   NA's    : 2   Max.   :6.000</span></span></code></pre>
+<pre><code><span><span class="co">##       year           step        age             length        number      </span></span>
+<span><span class="co">##  Min.   :1990   Min.   :2   Min.   :1.000   [0,20)  :136   Min.   :   1.0  </span></span>
+<span><span class="co">##  1st Qu.:1998   1st Qu.:2   1st Qu.:1.000   [20,40) :136   1st Qu.:  62.0  </span></span>
+<span><span class="co">##  Median :2006   Median :2   Median :2.000   [40,60) :136   Median : 349.0  </span></span>
+<span><span class="co">##  Mean   :2006   Mean   :2   Mean   :2.476   [60,80) :136   Mean   : 423.4  </span></span>
+<span><span class="co">##  3rd Qu.:2015   3rd Qu.:2   3rd Qu.:3.000   [80,Inf):136   3rd Qu.: 803.5  </span></span>
+<span><span class="co">##  Max.   :2023   Max.   :2   Max.   :4.000   NA's    :123   Max.   :1037.0</span></span></code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span></span>
 <span><span class="va">ages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aldist_f_surv</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ages</span><span class="op">)</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
@@ -834,7 +864,7 @@ likelihood actions:</p>
 <code class="sourceCode R"><span><span class="co"># Create abundance index for si_cpue ########################</span></span>
 <span></span>
 <span><span class="co"># Generate random data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span>, step <span class="op">=</span> <span class="fl">3</span>, area <span class="op">=</span> <span class="st">'IXa'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2023</span>, step <span class="op">=</span> <span class="fl">3</span>, area <span class="op">=</span> <span class="st">'IXa'</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="co"># Fill in a weight column with total biomass for the year/step/area combination</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, min <span class="op">=</span> <span class="fl">10000</span>, max <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span></span>
 <span>    <span class="va">dist_si_cpue</span></span>
@@ -1032,27 +1062,25 @@ stock/fleet naming:</p>
 <span><span class="va">estimate_t0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock_def</a></span><span class="op">(</span><span class="va">fish</span>, <span class="st">"minage"</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.8</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># fish.init.scalar &amp; fish.rec.scalar: Overall scalar for recruitment/initial conditions, see g3a_renewal_normalparam()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec|init.scalar"</span>, <span class="fl">10</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">200</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># fish.rec.(age): Per-age recriutment scalar, see g3a_renewal_normalparam()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.init.#"</span>, <span class="fl">10</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">200</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># fish.rec.(year): Recruitment level year-on-year, see g3a_renewal_normalparam()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.#"</span>, <span class="fl">100</span>, lower <span class="op">=</span> <span class="fl">1e-6</span>, upper <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.proj"</span>, <span class="fl">100</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># fish.rec.sd: Standard deviation for recruitment, see g3a_renewal_normalparam()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.sd"</span>, <span class="fl">5</span>, lower <span class="op">=</span> <span class="fl">4</span>, upper <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># fish.init.scalar &amp; fish.rec.scalar: Overall scalar for recruitment/initial conditions, see g3a_renewal_normalcv()</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec|init.scalar"</span>, <span class="fl">1</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># fish.rec.(age): Per-age recriutment scalar, see g3a_renewal_normalcv()</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.init.#"</span>, <span class="fl">10</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># fish.rec.(year): Recruitment level year-on-year, see g3a_renewal_normalcv()</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.#"</span>, <span class="fl">1e-4</span>, lower <span class="op">=</span> <span class="fl">1e-6</span>, upper <span class="op">=</span> <span class="fl">1e-2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.proj"</span>, <span class="fl">0.002</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># init.F: Offset for initial M, see g3a_renewal_initabund()</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"init.F"</span>, <span class="fl">0.5</span>, lower <span class="op">=</span> <span class="fl">0.1</span>, upper <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
 <span>  <span class="co"># fish.M.(age): per-age M for our species, see g3a_naturalmortality()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.#"</span>, <span class="fl">0.15</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.M.#"</span>, <span class="fl">0.15</span>, lower <span class="op">=</span> <span class="fl">0.001</span>, upper <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
 <span>  <span class="co"># fish.Linf, fish.K, fish.t0: VonB parameters for our species, see g3a_renewal_vonb_t0(), g3a_grow_lengthvbsimple()</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.Linf"</span>, <span class="va">estimate_linf</span>, spread <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.K"</span>, <span class="fl">0.3</span>, lower <span class="op">=</span> <span class="fl">0.04</span>, upper <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.t0"</span>, <span class="va">estimate_t0</span>, spread <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
-<span>  <span class="co"># fish.walpha, fish.wbeta: Age/weight relationship for initialconditions, renewal, see g3a_renewal_normalparam()</span></span>
+<span>  <span class="co"># fish.walpha, fish.wbeta: Age/weight relationship for initialconditions, renewal, see g3a_renewal_normalcv()</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.walpha"</span>, <span class="fl">0.01</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.wbeta"</span>, <span class="fl">3</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
@@ -1061,7 +1089,7 @@ stock/fleet naming:</p>
 <span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.*.l50"</span>, <span class="va">estimate_l50</span>, spread <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
 <span>  <span class="co"># fish.bbin: Beta for beta-binomial distribution for fish growth, see g3a_grow_impl_bbinom()</span></span>
-<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.bbin"</span>, <span class="fl">100</span>, lower <span class="op">=</span> <span class="fl">1e-05</span>, upper <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.bbin"</span>, <span class="fl">1</span>, lower <span class="op">=</span> <span class="fl">1e-05</span>, upper <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
 <span>  <span class="co"># identity() is a do-nothing function, but it lets us finish on a new line</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params.in</span></span></code></pre></div>
