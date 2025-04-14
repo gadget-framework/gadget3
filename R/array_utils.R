@@ -205,7 +205,9 @@ g3_array_combine <- function(
     return(out)
 }
 
-g3_array_plot <- function(ar) {
+g3_array_plot <- function (
+        ar,
+        legend = "topright" ) {
     ar <- as.array(ar)
     if (is.null(dim(ar)) || length(dim(ar)) == 1) {
         graphics::plot(
@@ -224,7 +226,7 @@ g3_array_plot <- function(ar) {
                     ar[,i],
                     type = "l",
                     xaxt = "n",
-                    xlab = paste(names(dim(ar)), collapse = " / "),
+                    xlab = names(dim(ar))[[1]],
                     ylab = deparse1(sys.call()[[2]]),
                     ylim = range(ar),
                     col = colors[[i]] )
@@ -233,6 +235,7 @@ g3_array_plot <- function(ar) {
                 graphics::lines(ar[,i], col = colors[[i]])
             }
         }
+        legend(legend, dimnames(ar)[[2]], lty = 1, bg = "white", col = colors, x.intersp = 1)
     } else {
         stop("Unsupported number of dimensions: ", paste(dim(ar)))
     }
