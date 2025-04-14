@@ -31,6 +31,7 @@ options(unittest.output = stderr())
 
 library(gadget3)
 set.seed(123)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
 ```
 
 <div class="alert alert-warning">

@@ -25,6 +25,7 @@ vignette: >
 ```{r, message=FALSE, echo=FALSE}
 library(gadget3)
 library(dplyr)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
 set.seed(123)
 ```
 
