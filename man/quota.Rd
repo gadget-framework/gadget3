@@ -30,7 +30,7 @@ g3_quota(
         quota_name = attr(function_f, 'quota_name'),
         year_length = 1L,
         start_step = 1L,
-        init_val = 0.0,
+        interim_value = NULL,
         run_revstep = -1,
         run_f = TRUE,
         run_at = g3_action_order$quota )
@@ -82,9 +82,8 @@ g3_quota(
   \item{run_f}{
     When the quota should be recalculated, in addition to any condition defined by \var{run_revstep}.
   }
-  \item{init_val}{
-    Numeric scalar that the quota array is initalised to.
-    Will be used if the quota used before it is calculated, e.g. at model start.
+  \item{interim_value}{
+    A formula that provides the interim value to bridge the gap between historical landings & projected quota values, see examples.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
@@ -208,5 +207,27 @@ par(mar = c(6, 5, 1, 0)) ; barplot(r$quota_hockeyfleet_fl__var, las = 2) ; ablin
 ##   (b) inflection of hitting btrigger
 ##   (c) Uneven spread of fishing effort throughout year (fl.quota.step.#)
 barplot(g3_array_agg(r$detail_st_fl__cons, "time"), las = 2)
+
+## Timing of calculations for fishing year
+fl_quota <- g3_quota(
+    # Our quota values are year/step at the assessment time step
+    quote( cur_year * 10 + cur_step ),
+    year_length = 1L,
+    start_step = 4L,
+    interim_value = g3_parameterized("interim_value", value = 99, optimize = FALSE),
+    run_revstep = -3L )
+yr <- as.integer(format(Sys.Date(), "\%Y"))
+actions <- list(
+    g3a_time(yr - 6, yr - 1, project_years = 10, step_lengths = rep(3L, 4)),
+    fl_quota,
+    # At each step in the model, print the current year/step, and the quota value that will get used
+    # NB: before projection, g3a_predate_catchability_project() will use landings data not the quota
+    g3_step(g3_formula(
+        writeLines(paste(cur_year, cur_step, if (cur_year_projection) q else "landings")),
+        q = fl_quota )),
+    NULL)
+model_fn <- g3_to_r(c(actions,
+    g3a_report_history(actions, "quota_", out_prefix = NULL) ))
+attr(model_fn(), "quota__var")
 
 }
