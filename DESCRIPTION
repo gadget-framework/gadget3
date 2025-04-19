@@ -1,8 +1,8 @@
 Package: gadget3
 Type: Package
 Title: Globally-Applicable Area Disaggregated General Ecosystem Toolbox V3
-Version: 0.12-1-999
-Date: 2024-07-03
+Version: 0.13-0
+Date: 2025-04-19
 Authors@R: c(person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut", "cre"), comment = c(ORCID = "0000-0001-5727-2996")),
             person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut"), comment = c(ORCID = "0000-0001-5855-1188")),
             person("William", "Butler", email="will.butler@hafogvatn.is",role = c("aut"), comment = c(ORCID = "0000-0002-3286-0748")),
@@ -17,7 +17,7 @@ Description: A framework to assist creation of marine ecosystem models,
              Begley, J., & Howell, D. (2004) <https://core.ac.uk/download/pdf/225936648.pdf> "An overview of Gadget, the globally applicable area-disaggregated general ecosystem toolbox. ICES.".
 URL: https://gadget-framework.github.io/gadget3/, https://github.com/gadget-framework/gadget3/
 Encoding: UTF-8
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.2.0)
 Imports:
     digest,
     rlang (>= 0.4.5),

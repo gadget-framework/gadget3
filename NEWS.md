@@ -1,4 +1,4 @@
-# gadget3 0.12-1-999:
+# gadget3 0.13-0:
 
 ## Bug fixes
 * All-zero lengthgroups in initialconditions / > 1 maturity ratios no longer result in NaN #187 #182
