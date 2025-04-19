@@ -106,7 +106,7 @@
 <span>        quota_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">function_f</span>, <span class="st">'quota_name'</span><span class="op">)</span>,</span>
 <span>        year_length <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>        start_step <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>        init_val <span class="op">=</span> <span class="fl">0.0</span>,</span>
+<span>        interim_value <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        run_revstep <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
 <span>        run_f <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">quota</span> <span class="op">)</span></span></code></pre></div>
@@ -159,9 +159,8 @@
   <dt id="arg-run-f">run_f<a class="anchor" aria-label="anchor" href="#arg-run-f"></a></dt>
 <dd><p>When the quota should be recalculated, in addition to any condition defined by <var>run_revstep</var>.</p></dd>
 
-  <dt id="arg-init-val">init_val<a class="anchor" aria-label="anchor" href="#arg-init-val"></a></dt>
-<dd><p>Numeric scalar that the quota array is initalised to.
-    Will be used if the quota used before it is calculated, e.g. at model start.</p></dd>
+  <dt id="arg-interim-value">interim_value<a class="anchor" aria-label="anchor" href="#arg-interim-value"></a></dt>
+<dd><p>A formula that provides the interim value to bridge the gap between historical landings &amp; projected quota values, see examples.</p></dd>
 
   <dt id="arg-run-at">run_at<a class="anchor" aria-label="anchor" href="#arg-run-at"></a></dt>
 <dd><p>Integer order that actions will be run within model, see <code><a href="action_order.html">g3_action_order</a></code>.</p></dd>
@@ -307,6 +306,99 @@
 <span class="r-in"><span><span class="co">##   (c) Uneven spread of fishing effort throughout year (fl.quota.step.#)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">detail_st_fl__cons</span>, <span class="st">"time"</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="quota-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Timing of calculations for fishing year</span></span></span>
+<span class="r-in"><span><span class="va">fl_quota</span> <span class="op">&lt;-</span> <span class="fu">g3_quota</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="co"># Our quota values are year/step at the assessment time step</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="va">cur_year</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">+</span> <span class="va">cur_step</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    year_length <span class="op">=</span> <span class="fl">1L</span>,</span></span>
+<span class="r-in"><span>    start_step <span class="op">=</span> <span class="fl">4L</span>,</span></span>
+<span class="r-in"><span>    interim_value <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"interim_value"</span>, value <span class="op">=</span> <span class="fl">99</span>, optimize <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    run_revstep <span class="op">=</span> <span class="op">-</span><span class="fl">3L</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">yr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="va">yr</span> <span class="op">-</span> <span class="fl">6</span>, <span class="va">yr</span> <span class="op">-</span> <span class="fl">1</span>, project_years <span class="op">=</span> <span class="fl">10</span>, step_lengths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">3L</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="va">fl_quota</span>,</span></span>
+<span class="r-in"><span>    <span class="co"># At each step in the model, print the current year/step, and the quota value that will get used</span></span></span>
+<span class="r-in"><span>    <span class="co"># NB: before projection, g3a_predate_catchability_project() will use landings data not the quota</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="step.html">g3_step</a></span><span class="op">(</span><span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">cur_year</span>, <span class="va">cur_step</span>, <span class="kw">if</span> <span class="op">(</span><span class="va">cur_year_projection</span><span class="op">)</span> <span class="va">q</span> <span class="kw">else</span> <span class="st">"landings"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        q <span class="op">=</span> <span class="va">fl_quota</span> <span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_history</a></span><span class="op">(</span><span class="va">actions</span>, <span class="st">"quota_"</span>, out_prefix <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">model_fn</span><span class="op">(</span><span class="op">)</span>, <span class="st">"quota__var"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2019 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2019 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2019 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2019 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2020 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2020 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2020 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2020 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2021 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2021 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2021 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2021 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2022 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2022 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2022 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2022 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2023 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2023 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2023 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2023 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2024 1 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2024 2 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2024 3 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2024 4 landings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2025 1 99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2025 2 99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2025 3 99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2025 4 20251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026 1 20251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026 2 20251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026 3 20251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026 4 20261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2027 1 20261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2027 2 20261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2027 3 20261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2027 4 20271</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2028 1 20271</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2028 2 20271</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2028 3 20271</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2028 4 20281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2029 1 20281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2029 2 20281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2029 3 20281</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2029 4 20291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2030 1 20291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2030 2 20291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2030 3 20291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2030 4 20301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2031 1 20301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2031 2 20301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2031 3 20301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2031 4 20311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2032 1 20311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2032 2 20311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2032 3 20311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2032 4 20321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2033 1 20321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2033 2 20321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2033 3 20321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2033 4 20331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2034 1 20331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2034 2 20331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2034 3 20331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2034 4 20341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> fishingyear</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2019:2019 2019:2020 2020:2021 2021:2022 2022:2023 2023:2024 2024:2025 2025:2026 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         0        99        99        99        99        99        99     20251 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2026:2027 2027:2028 2028:2029 2029:2030 2030:2031 2031:2032 2032:2033 2033:2034 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     20261     20271     20281     20291     20301     20311     20321     20331 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2034:2035 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     20341 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
