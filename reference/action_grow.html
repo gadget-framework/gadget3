@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -238,24 +238,29 @@
     <p></p><div class="section">
 <h3 id="g-a-grow-lengthvbsimple">g3a_grow_lengthvbsimple<a class="anchor" aria-label="anchor" href="#g-a-grow-lengthvbsimple"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_len_f</var>:</p>
-<p>$$ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa{\Delta}t}) $$</p>
-<p>Where \( \Delta{t} \) is the length of the current timestep.</p>
+<p>$$ {{\Delta}L}_i = ( L_\infty - L_i )(1 - e^{-\kappa {\Delta t}}) $$</p><dl><dt>\(\Delta t\)</dt>
+<dd><p>Length of current step as a proportion of the year, e.g. 0.25. See <code>cur_step_size</code> in <code><a href="action_time.html">g3a_time</a></code></p></dd>
+
+
+</dl><p></p>
 </div><p></p><div class="section">
 <h3 id="g-a-grow-weightsimple">g3a_grow_weightsimple<a class="anchor" aria-label="anchor" href="#g-a-grow-weightsimple"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_wgt_f</var>:</p>
-<p>$$ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) $$</p>
-<p>Where \( \Delta{t} \) is the length of the current timestep,
-  \( {{\Delta}L} \) is all possible length group increases i.e <code>0..maxlengthgroupgrowth</code>.</p>
+<p>$$ {{\Delta}W}_{i,j} = \alpha ( (L_i + {{\Delta}L}_j)^\beta - {L_i}^\beta ) $$</p><dl><dt>\({\Delta}L\)</dt>
+<dd><p>Vector of all possible length group increases i.e <code>0..maxlengthgroupgrowth</code></p></dd>
+
+
+</dl><p></p>
 </div>
 
 <p></p><div class="section">
 <h3 id="g-a-grow-length-multspec">g3a_grow_length_multspec<a class="anchor" aria-label="anchor" href="#g-a-grow-length-multspec"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_len_f</var>:
-    $$ {{\Delta}L}_i = {\Delta}t p_0 L_i^{p_1} \psi_i (p_2 T + p_3) $$</p><dl><dt>\(p_x\)</dt>
+    $$ {{\Delta}L}_i = {\Delta t} p_0 L_i^{p_1} \psi_i (p_2 T + p_3) $$</p><dl><dt>\(p_x\)</dt>
 <dd><p>Supplied parameters</p></dd>
 
-      <dt>\({\Delta}t\)</dt>
-<dd><p>Length of the current timestep</p></dd>
+      <dt>\(\Delta t\)</dt>
+<dd><p>Length of current step as a proportion of the year, e.g. 0.25. See <code>cur_step_size</code> in <code><a href="action_time.html">g3a_time</a></code></p></dd>
 
       <dt>\(L_i\)</dt>
 <dd><p>Current length</p></dd>
@@ -271,17 +276,63 @@
 </div><p></p><div class="section">
 <h3 id="g-a-grow-weight-multspec">g3a_grow_weight_multspec<a class="anchor" aria-label="anchor" href="#g-a-grow-weight-multspec"></a></h3>
 <p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_wgt_f</var>:
-    $$ {{\Delta}W}_{i,j} = {\Delta}t p_4 {W_i}^p_5 (\psi_i - p_6) (p_7 T + p_8) $$</p><dl><dt>\(p_x\)</dt>
+    $$ {{\Delta}W}_{i,j} = {\Delta t} p_4 {W_i}^{p_5} (\psi_i - p_6) (p_7 T + p_8) $$</p><dl><dt>\(p_x\)</dt>
 <dd><p>Supplied parameters</p></dd>
 
-      <dt>\({\Delta}t\)</dt>
-<dd><p>Length of the current timestep</p></dd>
+      <dt>\(\Delta t\)</dt>
+<dd><p>Length of current step as a proportion of the year, e.g. 0.25. See <code>cur_step_size</code> in <code><a href="action_time.html">g3a_time</a></code></p></dd>
 
       <dt>\(W_i\)</dt>
 <dd><p>Current mean weight</p></dd>
 
       <dt>\(\psi_i\)</dt>
 <dd><p>Feeding level of stock. See <code><a href="action_predate.html">g3a_predate_catchability_predator</a></code></p></dd>
+
+      <dt>\(T\)</dt>
+<dd><p>Temperature of current region</p></dd>
+
+
+</dl><p>Note that the equation is not dependent on the change in length, the value will be the same for each \(j\).</p>
+</div>
+
+<p></p><div class="section">
+<h3 id="g-a-grow-length-weightjones">g3a_grow_length_weightjones<a class="anchor" aria-label="anchor" href="#g-a-grow-length-weightjones"></a></h3>
+<p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_len_f</var>:
+    $$ r = \frac{ W_i - (p_0 + \psi_i (p_1 + p_2 \psi_i)) W_{ref} }{ W_i } $$
+    $$ {{\Delta}L}_i = {minmax}(p_3 + p_4 r, 0, p_5) \frac{ {{\Delta}W}_{i,j} }{ p_6 p_7 {L_i}^{(p_7 - 1)} } $$</p><dl><dt>\(W_i\)</dt>
+<dd><p>Current mean weight</p></dd>
+
+      <dt>\(p_x\)</dt>
+<dd><p>Supplied parameters</p></dd>
+
+      <dt>\(\psi_i\)</dt>
+<dd><p>Feeding level of stock. See <code><a href="action_predate.html">g3a_predate_catchability_predator</a></code></p></dd>
+
+      <dt>\(W_{ref}\)</dt>
+<dd><p>Reference weight, from the <var>reference_weight</var> parameter</p></dd>
+
+      <dt>\({{\Delta}W}_{i,j}\)</dt>
+<dd><p>Change in weight, i.e. the output from the <var>delta_wgt_f</var> formula, probably <code>g3a_grow_weight_weightjones</code>.</p></dd>
+
+
+</dl><p></p>
+</div><p></p><div class="section">
+<h3 id="g-a-grow-weight-weightjones">g3a_grow_weight_weightjones<a class="anchor" aria-label="anchor" href="#g-a-grow-weight-weightjones"></a></h3>
+<p>Returns a <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> for use as <var>delta_wgt_f</var>:
+    $$ {{\Delta}W}_{i,j} = {\Delta t} ( \frac{ M \psi_i }{ q_0 {W_i}^{q_1} } - q_2 {W_i}^{q_3} e^{(q_4 T + q_5)} ) $$</p><dl><dt>\(q_x\)</dt>
+<dd><p>Supplied parameters</p></dd>
+
+      <dt>\(\Delta t\)</dt>
+<dd><p>Length of current step as a proportion of the year, e.g. 0.25. See <code>cur_step_size</code> in <code><a href="action_time.html">g3a_time</a></code></p></dd>
+
+      <dt>\(M\)</dt>
+<dd><p>Maximum theoretical consumption, as defined by <code><a href="action_predate.html">g3a_predate_maxconsumption</a></code></p></dd>
+
+      <dt>\(\psi_i\)</dt>
+<dd><p>Feeding level of stock. See <code><a href="action_predate.html">g3a_predate_catchability_predator</a></code></p></dd>
+
+      <dt>\(W_i\)</dt>
+<dd><p>Current mean weight</p></dd>
 
       <dt>\(T\)</dt>
 <dd><p>Temperature of current region</p></dd>
@@ -353,7 +404,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

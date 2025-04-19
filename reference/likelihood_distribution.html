@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span></span>
-<span>        over <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'area'</span>, <span class="st">'predator_tag'</span>, <span class="st">'predator_age'</span>, <span class="st">'predator_length'</span><span class="op">)</span><span class="op">)</span></span>
+<span>        over <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'area'</span>, <span class="st">'predator'</span>, <span class="st">'predator_tag'</span>, <span class="st">'predator_age'</span>, <span class="st">'predator_length'</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3l_distribution_multinomial</span><span class="op">(</span>epsilon <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
@@ -105,14 +105,14 @@
 <span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        <span class="va">stocks</span>,</span>
 <span>        <span class="va">function_f</span>,</span>
+<span>        predators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        missing_val <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        report <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3l_catchdistribution</span><span class="op">(</span></span>
@@ -121,18 +121,19 @@
 <span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        <span class="va">stocks</span>,</span>
 <span>        <span class="va">function_f</span>,</span>
+<span>        predators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        missing_val <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        report <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        nll_breakdown <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span></span>
-<span>            <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="va">n</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>            <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        weight <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">nll_name</span>, <span class="st">"_weight"</span><span class="op">)</span>,</span>
+<span>            optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_distribution_preview</span><span class="op">(</span></span>
 <span>        <span class="va">obs_data</span>,</span>
+<span>        predators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        area_group <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
@@ -173,7 +174,7 @@
 <p>Should at least have a year column, and a length or weight column.
     For more information, see "obs_data and data aggregation" below.</p></dd>
 
-  <dt id="arg-fleets">fleets<a class="anchor" aria-label="anchor" href="#arg-fleets"></a></dt>
+  <dt id="arg-fleets-predators">fleets, predators<a class="anchor" aria-label="anchor" href="#arg-fleets-predators"></a></dt>
 <dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects to collect catch data for.
     If empty, will collect abundance data for <var>stocks</var> instead.</p></dd>
 
@@ -279,11 +280,15 @@
 
       <dt>stock</dt>
 <dd><p>Optional.
-        If this and stock_re are missing all stocks in <var>stocks</var> will be
-        summed to compare to the data.</p>
+        If tmissing all stocks in <var>stocks</var> will be summed to compare to the data.</p>
 <p>The values in the stocks column should match the names of the stocks
         given in the <var>stocks</var> parameter. This column can be factor or
         character.</p>
+<p>The values can also some of the stock name parts, e.g. <code>"st_f"</code> or <code>"f"</code>
+        which would then aggregate <code>"st_imm_f"</code>, <code>"st_mat_f"</code> together.</p>
+<p>However, note that a stock can only be included in one grouping,
+        so given columns <code>"f"</code> &amp; <code>"imm"</code>, <code>"st_imm_f"</code> would only be included in the former group.
+        If you want to do something along these lines, 2 separate likelihood actions would be more appropriate.</p>
 <p>Any missing stocks (when there is otherwise data for that
         year/step) will be compared to zero.</p></dd>
 
@@ -671,10 +676,10 @@
 <span class="r-in"><span>    <span class="fu">g3l_catchdistribution</span><span class="op">(</span></span></span>
 <span class="r-in"><span>        <span class="st">'pred_a_sizepref'</span>,</span></span>
 <span class="r-in"><span>        <span class="va">pred_a_sizepref_obs</span>,</span></span>
-<span class="r-in"><span>        fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pred_a</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        predators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pred_a</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        <span class="co"># NB: Only referencing stocks included in observation data</span></span></span>
 <span class="r-in"><span>        stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">prey_a</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        function_f <span class="op">=</span> <span class="fu">g3l_distribution_sumofsquares</span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        <span class="co"># Use transform_fs to apply digestioncoefficients</span></span></span>
 <span class="r-in"><span>        transform_fs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>prey_a <span class="op">=</span> <span class="fu"><a href="formula_utils.html">g3_formula</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">d0</span> <span class="op">+</span> <span class="va">d1</span> <span class="op">*</span> <span class="va">prey_a__midlen</span><span class="op">^</span><span class="va">d2</span><span class="op">)</span> <span class="op">)</span>,</span></span>
@@ -698,7 +703,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -132,8 +132,11 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A function that takes a <var>params</var> variable, that defines all <var>g3_param</var>s required by the model.
-  The following attributes will be set:</p><dl><dt>actions</dt>
+    <p>A function that takes a <var>params</var> variable, which can be:</p>
+<p></p><ol><li><p>A list of parameters as defined by <code>attr(fn, 'parameter_template')</code></p></li>
+<li><p>A data.frame of parameters defined by <code><a href="run_tmb.html">g3_to_tmb</a></code>'s parameter template</p></li>
+<li><p>Not provided, in which case the parameter defaults are used</p></li>
+</ol><p>The function will have the following attributes:</p><dl><dt>actions</dt>
 <dd><p>The original <var>actions</var> list given to the function</p></dd>
 
     <dt>parameter_template</dt>
@@ -216,7 +219,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -99,7 +99,8 @@
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">report</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_report_detail</span><span class="op">(</span><span class="va">actions</span>,</span>
-<span>    run_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'report_detail'</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">)</span>,</span>
+<span>    run_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="language.html">g3_param</a></span><span class="op">(</span><span class="st">'report_detail'</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>, value <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>        source <span class="op">=</span> <span class="st">"g3a_report_detail"</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">)</span>,</span>
 <span>    abundance_run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">report_early</span>,</span>
 <span>    run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">report</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -140,13 +141,39 @@
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p>The actions will define the following variables in your model:</p><dl><dt><var>report_stock</var>__<var>instance_name</var></dt>
-<dd><p>Results of collating <var>input_stock</var>__<var>instance_name</var>, where
-        <var>instance_name</var> is defined by the first instance variable in <var>report_f</var>.
-        For example, if <var>report_f</var> is <code>~input_stock__num</code>, then we will report <code>report_stock__num</code>.</p></dd>
+    <p>The <code>g3a_report_detail</code> defines a selection of default reports from your model, using <code>g3a_report_history</code>:</p><dl><dt><code>*_surveyindices_*__params</code></dt>
+<dd><p>The slope/intercept as used by <code><a href="likelihood_distribution.html">g3l_distribution_surveyindices_log</a></code></p></dd>
+
+    <dt><code>step_lengths</code></dt>
+<dd></dd>
+
+    <dt><code>*_weight</code></dt>
+<dd><p>The weighting of likelihood components</p></dd>
+
+    <dt><code>nll_*</code></dt>
+<dd><p>Breakdown of nll for each likelihood component</p></dd>
+
+    <dt><code>dstart_*__num</code></dt>
+<dd><p>Abundance in numbers, at start of each model step</p></dd>
+
+    <dt><code>dstart_*__wgt</code></dt>
+<dd><p>Mean weight of individuals, at start of each model step</p></dd>
+
+    <dt><code>detail_*__renewalnum</code></dt>
+<dd><p>Numbers produced by renewal at each model step</p></dd>
+
+    <dt><code>detail_*__spawnednum</code></dt>
+<dd><p>Numbers produced by spawning at each model step</p></dd>
+
+    <dt><code>detail_*_*__cons</code></dt>
+<dd><p>Total biomass of prey consumed by predator, at each model step</p></dd>
+
+    <dt><code>detail_*_*__suit</code></dt>
+<dd><p>Total suitable biomass of prey for predator, at each model step</p></dd>
 
 
-</dl><p>A model can have any number of <code>g3a_report_*</code> actions, so long as the
+</dl><p>The reports produced by <code>g3a_report_history</code> will vary based on the provided inputs.
+  A model can have any number of <code>g3a_report_*</code> actions, so long as the
   calling arguments are different. For instance, <code>run_f = ~age == 5</code> and
   <code>run_f = ~age == 7</code>.</p>
     </div>
@@ -160,7 +187,7 @@
 <h3 id="g-a-report-history">g3a_report_history<a class="anchor" aria-label="anchor" href="#g-a-report-history"></a></h3>
 <p>An action (i.e. list of formula objects) that will store the current state of each variable found matching <var>var_re</var>.</p>
 </div><p></p><div class="section">
-<h3 id="g-a-report-detailed">g3a_report_detailed<a class="anchor" aria-label="anchor" href="#g-a-report-detailed"></a></h3>
+<h3 id="g-a-report-detail">g3a_report_detail<a class="anchor" aria-label="anchor" href="#g-a-report-detail"></a></h3>
 <p>Uses g3a_report_history to generate detailed reports suitable for use in <code>g3_fit</code>.</p>
 </div>
 
@@ -212,7 +239,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -86,15 +86,45 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_spawn_recruitment_fecundity</span><span class="op">(</span><span class="va">p0</span>, <span class="va">p1</span>, <span class="va">p2</span>, <span class="va">p3</span>, <span class="va">p4</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3a_spawn_recruitment_fecundity</span><span class="op">(</span></span>
+<span>        p0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p0'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p1 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p1'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p2 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p2'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p3 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p3'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        p4 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.p4'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_simplessb</span><span class="op">(</span><span class="va">mu</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_simplessb</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span><span class="va">mu</span>, <span class="va">lambda</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        lambda <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.lambda'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_bevertonholt</span><span class="op">(</span><span class="va">mu</span>, <span class="va">lambda</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_bevertonholt</span><span class="op">(</span></span>
+<span>        mu <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.mu'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        lambda <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.lambda'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">g3a_spawn_recruitment_hockeystick</span><span class="op">(</span><span class="va">r0</span>, <span class="va">blim</span><span class="op">)</span></span>
+<span><span class="fu">g3a_spawn_recruitment_bevertonholt_ss3</span><span class="op">(</span></span>
+<span>        <span class="co"># Steepness parameter</span></span>
+<span>        h <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.h'</span>, lower <span class="op">=</span> <span class="fl">0.1</span>, upper <span class="op">=</span> <span class="fl">1</span>, value <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span> <span class="op">)</span>,</span>
+<span>        <span class="co"># Recruitment deviates</span></span>
+<span>        R <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.R'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, exponentiate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            <span class="co"># Unfished equilibrium recruitment</span></span>
+<span>            scale <span class="op">=</span> <span class="st">"spawn.R0"</span>,</span>
+<span>            by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        <span class="co"># Unfished equilibrium spawning biomass (corresponding to R0)</span></span>
+<span>        B0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.B0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu">g3a_spawn_recruitment_hockeystick</span><span class="op">(</span></span>
+<span>        r0 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.r0'</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        blim <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">'spawn.blim'</span>, value <span class="op">=</span> <span class="fl">1</span>, by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
+<span>        by_stock <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_spawn</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>
@@ -102,6 +132,7 @@
 <span>        proportion_f <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>        mortality_f <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        weightloss_f <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        weightloss_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        output_stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        output_ratios <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">output_stocks</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">output_stocks</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>        mean_f <span class="op">=</span> <span class="fu"><a href="action_renewal.html">g3a_renewal_vonb_t0</a></span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
@@ -122,7 +153,7 @@
 <dl><dt id="arg-p-p-p-p-p-">p0,p1,p2,p3,p4<a class="anchor" aria-label="anchor" href="#arg-p-p-p-p-p-"></a></dt>
 <dd><p>Substituted into <code>g3a_spawn_recruitment_fecundity</code> formula, see below.</p></dd>
 
-  <dt id="arg-mu-lambda-r-blim">mu,lambda,r0,blim<a class="anchor" aria-label="anchor" href="#arg-mu-lambda-r-blim"></a></dt>
+  <dt id="arg-mu-lambda-h-r-b-r-blim">mu,lambda,h,R,B0,r0,blim<a class="anchor" aria-label="anchor" href="#arg-mu-lambda-h-r-b-r-blim"></a></dt>
 <dd><p>Substituted into <code>g3a_spawn_recruitment_*</code> formula, see below.</p></dd>
 
   <dt id="arg-stock">stock<a class="anchor" aria-label="anchor" href="#arg-stock"></a></dt>
@@ -148,7 +179,12 @@
 
   <dt id="arg-weightloss-f">weightloss_f<a class="anchor" aria-label="anchor" href="#arg-weightloss-f"></a></dt>
 <dd><p><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> generated by one of the <a href="suitability.html">g3_suitability_*</a> functions, describing
-    the overall weight loss during spawning.</p></dd>
+    the overall weight loss during spawning.</p>
+<p>DEPRECATED: Use <var>weightloss_args</var> for new models.</p></dd>
+
+  <dt id="arg-weightloss-args">weightloss_args<a class="anchor" aria-label="anchor" href="#arg-weightloss-args"></a></dt>
+<dd><p><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a> of options to pass to <code><a href="action_weightloss.html">g3a_weightloss</a></code>, e.g. <var>rel_loss</var> &amp; <var>abs_loss</var>.
+    If not empty, a weightloss action will be included as part of spawning.</p></dd>
 
   <dt id="arg-output-stocks">output_stocks<a class="anchor" aria-label="anchor" href="#arg-output-stocks"></a></dt>
 <dd><p>List of <code><a href="stock.html">g3_stock</a></code>s that will be spawned into.</p></dd>
@@ -233,7 +269,7 @@
       <dt>\(p\)</dt>
 <dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
 
-      <dt>μ</dt>
+      <dt></dt>
 <dd><p>Argument provided to function</p></dd>
 
 
@@ -251,10 +287,10 @@
       <dt>\(p\)</dt>
 <dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
 
-      <dt>μ</dt>
+      <dt></dt>
 <dd><p>Argument provided to function</p></dd>
 
-      <dt>λ</dt>
+      <dt></dt>
 <dd><p>Argument provided to function</p></dd>
 
 
@@ -272,10 +308,41 @@
       <dt>\(p\)</dt>
 <dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
 
-      <dt>μ</dt>
+      <dt></dt>
 <dd><p>Argument provided to function</p></dd>
 
-      <dt>λ</dt>
+      <dt></dt>
+<dd><p>Argument provided to function</p></dd>
+
+
+</dl><p></p>
+</div><p></p><div class="section">
+<h3 id="g-a-spawn-recruitment-bevertonholt-ss-">g3a_spawn_recruitment_bevertonholt_ss3<a class="anchor" aria-label="anchor" href="#g-a-spawn-recruitment-bevertonholt-ss-"></a></h3>
+<p>A <a href="https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt" class="external-link">modified beverton-holt implementation from SS3</a>
+    returning a pair of <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects:
+    $$ S = N_{al} p  W_{al} $$
+    $$ R = \frac{ 4 h R_0 s R }{ B_0 (1 - h) + S (5 h - 1) } $$</p><dl><dt>\(N_{al}\)</dt>
+<dd><p>Number of parent stock</p></dd>
+
+      <dt>\(W_{al}\)</dt>
+<dd><p>Weight of parent stock</p></dd>
+
+      <dt>\(p\)</dt>
+<dd><p>Proportion of parent stock spawning, from <var>proportion_f</var></p></dd>
+
+      <dt>\(h\)</dt>
+<dd><p>Steepness parameter, by default provided by the <code>srr_h</code> parameter</p></dd>
+
+      <dt>\(R_0\)</dt>
+<dd><p>Unfished equilibrium recruitment, by default provided by the <code>R0</code> parameter</p></dd>
+
+      <dt>\(R\)</dt>
+<dd><p>Recruitment deviates, by default provided by the <code>R</code> parameter table</p></dd>
+
+      <dt>\(B_0\)</dt>
+<dd><p>Unfished equilibrium spawning biomass (corresponding to R0), by default provided by the <code>B0</code> parameter</p></dd>
+
+      <dt></dt>
 <dd><p>Argument provided to function</p></dd>
 
 
@@ -306,7 +373,7 @@
 <h3 id="g-a-spawn">g3a_spawn<a class="anchor" aria-label="anchor" href="#g-a-spawn"></a></h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>...</p><ol><li><p>Use <var>proportion_f</var> to calculate the total parent <var>stock</var> that will spawn</p></li>
 <li><p>Use <var>recruitment_f</var> to derive the total newly spawned stock</p></li>
-<li><p>Apply <var>weightloss_f</var> and <var>mortality_f</var> to the parent <var>stock</var></p></li>
+<li><p>Apply <var>weightloss</var> and <var>mortality_f</var> to the parent <var>stock</var></p></li>
 </ol><p>... then, at recruitment stage ...</p><ol><li><p>Recruit evenly into <var>output_stocks</var>, using <var>mean_f</var>, <var>stddev_f</var>, <var>alpha_f</var>, <var>beta_f</var>
     as-per <a href="action_renewal.html">g3a_renewal_normalparam</a></p></li>
 </ol></div>
@@ -315,41 +382,108 @@
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><a href="https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn" class="external-link">https://gadget-framework.github.io/gadget2/userguide/chap-stock.html#sec-stockspawn</a>,
+  <a href="https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt" class="external-link">https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#beverton-holt</a>,
   <code><a href="action_naturalmortality.html">g3a_naturalmortality</a></code>,
   <code><a href="stock.html">g3_stock</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_imm'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ling_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">'ling_mat'</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ling_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ling'</span>, maturity <span class="op">=</span> <span class="st">'imm'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ling_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ling'</span>, maturity <span class="op">=</span> <span class="st">'mat'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">156</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="stock_age.html">g3s_age</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">spawn_action</span> <span class="op">&lt;-</span> <span class="fu">g3a_spawn</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="co"># Spawn from ling_mat</span></span></span>
-<span class="r-in"><span>    <span class="va">ling_mat</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Use Ricker Recruitment Function to calculate # of recruits from total biomass</span></span></span>
-<span class="r-in"><span>    recruitment_f <span class="op">=</span> <span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span></span></span>
-<span class="r-in"><span>        <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"ricker.mu"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"ricker.lambda"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Proportion of ling_mat spawning exponential relationship based on length</span></span></span>
-<span class="r-in"><span>    proportion_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>        alpha <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.prop.alpha"</span>, scale <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        l50 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.prop.l50"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Proportion of ling_mat dying during spawning linear relationship to length</span></span></span>
-<span class="r-in"><span>    mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>        alpha <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.mort.alpha"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        beta <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.mort.beta"</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Weightloss of ling_mat during spawning a constant</span></span></span>
-<span class="r-in"><span>    weightloss_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.weightloss"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Spawn into ling_imm</span></span></span>
-<span class="r-in"><span>    output_stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Spawned stock structure, as-per g3a_renewal_normalparam()</span></span></span>
-<span class="r-in"><span>    mean_f <span class="op">=</span> <span class="fl">50</span>,</span></span>
-<span class="r-in"><span>    stddev_f <span class="op">=</span> <span class="fl">0.9</span>,</span></span>
-<span class="r-in"><span>    alpha_f <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>    beta_f <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Spawning should happen on the first step of every year</span></span></span>
-<span class="r-in"><span>    run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1994</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_renewal.html">g3a_initialconditions_normalcv</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_renewal.html">g3a_initialconditions_normalcv</a></span><span class="op">(</span><span class="va">ling_mat</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_age.html">g3a_age</a></span><span class="op">(</span><span class="va">ling_mat</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="fu">g3a_spawn</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="co"># Spawn from ling_mat</span></span></span>
+<span class="r-in"><span>        <span class="va">ling_mat</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Use Ricker Recruitment Function to calculate # of recruits from total biomass</span></span></span>
+<span class="r-in"><span>        recruitment_f <span class="op">=</span> <span class="fu">g3a_spawn_recruitment_ricker</span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Proportion of ling_mat spawning exponential relationship based on length</span></span></span>
+<span class="r-in"><span>        proportion_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_exponentiall50</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            alpha <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.prop.alpha"</span>, value <span class="op">=</span> <span class="fl">4</span>, scale <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            l50 <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.prop.l50"</span>, value <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Proportion of ling_mat dying during spawning linear relationship to length</span></span></span>
+<span class="r-in"><span>        mortality_f <span class="op">=</span> <span class="fu"><a href="suitability.html">g3_suitability_straightline</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            alpha <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.mort.alpha"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            beta <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.mort.beta"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Weight of spawning ling_imm should reduce by a fixed absolute amount (see g3a_weightloss)</span></span></span>
+<span class="r-in"><span>        weightloss_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span> abs_loss <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"spawn.weightloss"</span>, value <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Spawn into ling_imm</span></span></span>
+<span class="r-in"><span>        output_stocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ling_imm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        <span class="co"># Spawning should happen on the first step of every year</span></span></span>
+<span class="r-in"><span>        run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_step</span><span class="op">==</span><span class="fl">1</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="cn">NULL</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_history</a></span><span class="op">(</span><span class="va">actions</span>, <span class="st">"__spawningnum$|__offspringnum$"</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="co"># g3a_initialconditions_normalcv()</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.Linf"</span>, <span class="fl">50</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.t0"</span>, <span class="op">-</span><span class="fl">1.4</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.walpha"</span>, <span class="fl">0.1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.wbeta"</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="co"># g3a_spawn_recruitment_ricker()</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.spawn.mu"</span>, <span class="fl">1e6</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.spawn.lambda"</span>, <span class="fl">30</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="fu">model_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">dstart_ling_imm__num</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     1990-01 1990-02 1991-01 1991-02 1992-01 1992-02 1993-01 1993-02 1994-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age0    10000   10000       0       0       0       0       0       0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age1    10000   10000   10000   10000       0       0       0       0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age2    10000   10000   10000   10000   10000   10000       0       0       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3    10000   10000   10000   10000   10000   10000   10000   10000       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age6    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age7    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age8    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age9    10000   10000   10000   10000   10000   10000   10000   10000   10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age10   10000   10000   20000   20000   30000   30000   40000   40000   50000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     1994-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age0        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age1        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age2        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age6    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age7    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age8    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age9    10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age10   50000</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">dstart_ling_mat__wgt</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age     1990-01  1990-02  1991-01  1991-02  1992-01  1992-02  1993-01  1993-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3      315 66.41122 66.41122  0.00000  0.00000  0.00000  0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4      315 67.75073 66.41122 64.24502  0.00000  0.00000  0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5      315 68.61062 67.75073 64.59135 64.24502 62.90600  0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age6      315 68.97281 68.61062 65.18702 64.59135 62.84557 62.90600 61.74642</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age7      315 69.11103 68.97281 65.50674 65.18702 63.15756 62.84557 61.59535</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age8      315 69.16247 69.11103 65.63896 65.50674 63.37422 63.15756 61.74004</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age9      315 69.18147 69.16247 65.68958 65.63896 63.47144 63.37422 61.87163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age10     315 69.18846 67.91383 66.01110 65.57397 64.29601 63.98007 62.88019</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age      1994-01  1994-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age3   0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age4   0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age5   0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age6   0.00000  0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age7  61.74642 60.66980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age8  61.59535 60.53587</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age9  61.74004 60.61440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   age10 62.64468 61.60524</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -364,7 +498,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -105,7 +105,7 @@
       <h1 data-toc-skip>Writing G3 Actions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/master/vignettes/writing_actions.Rmd" class="external-link"><code>vignettes/writing_actions.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.13-0/vignettes/writing_actions.Rmd" class="external-link"><code>vignettes/writing_actions.Rmd</code></a></small>
       <div class="hidden name"><code>writing_actions.Rmd</code></div>
 
     </div>
@@ -132,21 +132,43 @@ helpers.</p>
 <div class="section level2">
 <h2 id="global-native-functions">Global &amp; native functions<a class="anchor" aria-label="anchor" href="#global-native-functions"></a>
 </h2>
-<p>Some things aren’t easy to do with code translation.
-<code>g3_native</code> allows you to define a function with separate R
-and C++ definitions, for example <code>logspace_add_vec</code>, used in
-many actions to avoid div/0, has the following definition:</p>
-<pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
-<span><span class="va">g3_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_native</a></span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># https://github.com/kaskr/adcomp/issues/7#issuecomment-642559660</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
-<span><span class="st">    vector&lt;Type&gt; res(a.size());</span></span>
-<span><span class="st">    for(int i = 0; i &lt; a.size(); i++) {</span></span>
-<span><span class="st">        res[i] = logspace_add(a[i], b);</span></span>
-<span><span class="st">    }</span></span>
-<span><span class="st">    return res;</span></span>
-<span><span class="st">}'</span><span class="op">)</span></span></code></pre>
+<div class="section level3">
+<h3 id="under-r">Under R<a class="anchor" aria-label="anchor" href="#under-r"></a>
+</h3>
+<p>R functions can be included in a formula as anything else,
+<em>provided you use this through R</em>. For example:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1990</span><span class="op">)</span>, <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span></span>
+<span>    <span class="va">nll</span> <span class="op">&lt;-</span> <span class="va">nll</span> <span class="op">+</span> <span class="fu">fn</span><span class="op">(</span><span class="fl">9</span><span class="op">)</span>,</span>
+<span>    fn <span class="op">=</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">model_fn</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Your function is now part of the model environment</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="va">model_fn</span><span class="op">)</span><span class="op">$</span><span class="va">fn</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="under-tmb-g3_native">Under TMB: g3_native<a class="anchor" aria-label="anchor" href="#under-tmb-g3_native"></a>
+</h3>
+<p>We do not yet translate functions from TMB to R,however
+<code>g3_native</code> allows you to Some things aren’t easy to do with
+code translation. <code>g3_native</code> allows you to define a function
+with separate R and C++ definitions, for example:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">normalize_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_native</a></span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span> <span class="op">(</span><span class="va">a</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">a</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
+<span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a) -&gt; vector&lt;Type&gt; {</span></span>
+<span><span class="st">    return a / a.sum();</span></span>
+<span><span class="st">}'</span><span class="op">)</span></span>
+<span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1990</span><span class="op">)</span>, <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span></span>
+<span>    <span class="va">nll</span> <span class="op">&lt;-</span> <span class="va">nll</span> <span class="op">+</span> <span class="fu"><a href="../reference/aab_env.html">normalize_vec</a></span><span class="op">(</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">"a"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    normalize_vec <span class="op">=</span> <span class="va">normalize_vec</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">model_fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">"parameter_template"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="../reference/action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1990</span><span class="op">)</span>, <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span></span>
+<span>    <span class="va">nll</span> <span class="op">&lt;-</span> <span class="va">nll</span> <span class="op">+</span> <span class="fu"><a href="../reference/aab_env.html">normalize_vec</a></span><span class="op">(</span><span class="fu"><a href="../reference/language.html">g3_param</a></span><span class="op">(</span><span class="st">"a"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    normalize_vec <span class="op">=</span> <span class="va">normalize_vec</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">model_code</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="stock-steps">Stock steps<a class="anchor" aria-label="anchor" href="#stock-steps"></a>
@@ -157,7 +179,7 @@ series of substitutions, which are handled by <code><a href="../reference/step.h
 This takes a formula, looks for <code>stock_*</code> named functions and
 mangles the formula as appropriate. For example, a snippet from
 <code>action_mature.R</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>    <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">emptyenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">out</span><span class="op">[[</span><span class="fu">step_id</span><span class="op">(</span><span class="va">run_at</span>, <span class="fl">1</span>, <span class="va">stock</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/step.html">g3_step</a></span><span class="op">(</span><span class="fu">f_substitute</span><span class="op">(</span><span class="op">~</span><span class="op">{</span></span>
 <span>        <span class="fu"><a href="../reference/step.html">debug_label</a></span><span class="op">(</span><span class="st">"g3a_mature for "</span>, <span class="va">stock</span><span class="op">)</span></span>
@@ -252,28 +274,53 @@ value ends up in the model report, which will happen automatically for
 any non-constant global in the model.</p>
 </div>
 <div class="section level2">
-<h2 id="g3_native">g3_native<a class="anchor" aria-label="anchor" href="#g3_native"></a>
+<h2 id="ancillary-steps">Ancillary steps<a class="anchor" aria-label="anchor" href="#ancillary-steps"></a>
 </h2>
-<p>There are limits to what the Gadget3 transpilation can manage,
-particularly once you need to operate on matrices. To get around this,
-you can define functions using <code>g3_native</code>, which annotates
-functions with a C++ definition. For example, it is used to define
-<code>logspace_add_vec</code>:</p>
-<pre><code><span><span class="co"># vector&lt;Type&gt; form of logspace_add</span></span>
-<span><span class="va">g3_env</span><span class="op">$</span><span class="va">logspace_add_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/aaa_lang.html">g3_native</a></span><span class="op">(</span>r <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log1p</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span>, cpp <span class="op">=</span> <span class="st">'[](vector&lt;Type&gt; a, Type b) -&gt; vector&lt;Type&gt; {</span></span>
-<span><span class="st">    vector&lt;Type&gt; res(a.size());</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">    for(int i = 0; i &lt; a.size(); i++) {</span></span>
-<span><span class="st">        res[i] = logspace_add(a[i], b);</span></span>
-<span><span class="st">    }</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">    // NB: This is a string within R code, so we have to escape slashes.</span></span>
-<span><span class="st">    //     For example, "\\n"</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">    return res;</span></span>
-<span><span class="st">}'</span><span class="op">)</span></span></code></pre>
+<p>Additional steps can be attached to a formula, allowing setup for a
+variable at the beginning of a model, or implicit likelihood components.
+For example:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">st_imm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"st"</span>, <span class="st">"imm"</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/action_naturalmortality.html">g3a_naturalmortality</a></span><span class="op">(</span></span>
+<span>        <span class="va">st_imm</span>,</span>
+<span>        <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span></span>
+<span>            <span class="va">parrot</span><span class="op">**</span><span class="fl">2</span>,</span>
+<span>            parrot <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            <span class="st">"-01:ut:parrot"</span> <span class="op">=</span> <span class="fu"><a href="../reference/formula_utils.html">g3_formula</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>                <span class="va">parrot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span>            <span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="cn">NULL</span> <span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## function (param = parameter_template) </span></span>
+<span><span class="co">## {</span></span>
+<span><span class="co">##     if (is.data.frame(param)) {</span></span>
+<span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
+<span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     else {</span></span>
+<span><span class="co">##         param_lower &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##         param_upper &lt;- lapply(param, function(x) NA)</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">##     parrot &lt;- 0</span></span>
+<span><span class="co">##     st_imm__num &lt;- array(0, dim = c(length = 10L), dimnames = list(length = c("1:2", </span></span>
+<span><span class="co">##         "2:3", "3:4", "4:5", "5:6", "6:7", "7:8", "8:9", "9:10", </span></span>
+<span><span class="co">##         "10:Inf")))</span></span>
+<span><span class="co">##     while (TRUE) {</span></span>
+<span><span class="co">##         {</span></span>
+<span><span class="co">##             parrot &lt;- runif(1)</span></span>
+<span><span class="co">##         }</span></span>
+<span><span class="co">##         {</span></span>
+<span><span class="co">##             comment("Natural mortality for st_imm")</span></span>
+<span><span class="co">##             st_imm__num[] &lt;- st_imm__num[] * (parrot^2)</span></span>
+<span><span class="co">##         }</span></span>
+<span><span class="co">##     }</span></span>
+<span><span class="co">## }</span></span>
+<span><span class="co">## &lt;bytecode: 0x55b3315e8ca0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55b33052c920&gt;</span></span></code></pre>
+<p>The attached step gets inserted at the beginning of the model, and a
+new random number is chosen for <code>parrot</code> at each model
+timestep.</p>
 </div>
   </div>
 
@@ -292,7 +339,7 @@ functions with a C++ definition. For example, it is used to define
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -111,14 +111,18 @@
 <p></p><div class="sourceCode"><pre><code><span><span class="fu"><a href="../reference/aab_env.html">assert_msg</a></span><span class="op">(</span><span class="va">x</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"x must be positive"</span><span class="op">)</span></span></code></pre></div>
 
     </div>
-    <div id="avoid-zero-avoid-zero-vec">
-    <h2>avoid_zero / avoid_zero_vec</h2>
-    <p>Adds small value to input to ensure output is never zero</p>
+    <div id="avoid-zero">
+    <h2>avoid_zero</h2>
+    <p>Adds small value to input to ensure output is never zero
+  <code>avoid_zero_vec</code> is identical to <code>avoid_zero</code>, and is only present for backward compatibility.</p>
     </div>
     <div id="bounded-bounded-vec">
     <h2>bounded / bounded_vec</h2>
-    <p>Ensures <var>x</var> is within limits <var>a</var> &amp; <var>b</var>.</p>
-<p></p><div class="sourceCode"><pre><code><span><span class="fu"><a href="../reference/aab_env.html">bounded_vec</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
+    <p>Ensures <var>x</var> is within limits <var>b</var> &amp; <var>a</var>.</p>
+<p>If <var>x</var> positive, return <var>a</var>.
+  If <var>x</var> negative, <var>b</var>.
+  If <var>x</var> <code>-10..10</code>, smoothly transition from <var>b</var> to <var>a</var></p>
+<p></p><div class="sourceCode"><pre><code><span><span class="fu"><a href="../reference/aab_env.html">bounded_vec</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">200</span>, <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
 
     </div>
     <div id="g-matrix-vec">
@@ -131,30 +135,19 @@
     <h2>lgamma_vec</h2>
     <p>Vector equivalent of <code><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></code></p>
     </div>
-    <div id="logspace-add-logspace-add-vec">
-    <h2>logspace_add / logspace_add_vec</h2>
+    <div id="logspace-add">
+    <h2>logspace_add</h2>
     <p>TMB's <code>logspace_add</code>, essentially a differentiable version of <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></code>.</p>
-    </div>
-    <div id="logspace-minmax-vec">
-    <h2>logspace_minmax_vec</h2>
-    <p>Differentiable equivalent of <code>pmax(pmin(vec, upper), lower)</code>.
-  <var>scale</var> influences the sharpness of inflection points at <var>lower</var> &amp; <var>upper</var>,
-  should be ~1e5, depending on ranges of input values.</p>
-<p></p><div class="sourceCode"><pre><code><span><span class="fu"><a href="../reference/aab_env.html">logspace_minmax_vec</a></span><span class="op">(</span><span class="va">vec</span>, <span class="va">lower</span>, <span class="va">upper</span>, <span class="va">scale</span><span class="op">)</span></span></code></pre></div>
-
     </div>
     <div id="normalize-vec">
     <h2>normalize_vec</h2>
-    <p>Divide vector <var>a</var> by it's sum, i.e. so it now sums to 1</p>
+    <p>Divide vector <var>a</var> by it's sum, i.e. so it now sums to 1.
+  If vector is all-zero, return an all-zero vector instead.</p>
     </div>
     <div id="nvl">
     <h2>nvl</h2>
     <p>Return first non-null argument.
   NB: No C++ implementation.</p>
-    </div>
-    <div id="pow-vec">
-    <h2>pow_vec</h2>
-    <p>Vector equivalent of <code><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">^</a></code></p>
     </div>
     <div id="print-array">
     <h2>print_array</h2>
@@ -186,24 +179,20 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## avoid_zero / avoid_zero_vec</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## avoid_zero</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fu">avoid_zero</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>, <span class="fu">avoid_zero</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.931472e-04 1.000000e+01</span>
-<span class="r-in"><span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">avoid_zero_vec</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">avoid_zero</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0006931472 1.0000000000 2.0000000000 3.0000000000 4.0000000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6] 5.0000000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## bounded / bounded_vec</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">bounded</span><span class="op">(</span><span class="va">x</span>, <span class="fl">100</span>, <span class="fl">200</span><span class="op">)</span> <span class="op">)</span>, x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>, <span class="op">-</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">bounded</span><span class="op">(</span><span class="va">x</span>, <span class="fl">200</span>, <span class="fl">100</span><span class="op">)</span> <span class="op">)</span>, x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>, <span class="op">-</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="aab_env-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## logspace_add</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">logspace_add</span><span class="op">(</span><span class="va">x</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">)</span>, x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">40</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="aab_env-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## logspace_minmax_vec</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">logspace_minmax_vec</span><span class="op">(</span><span class="va">x</span>, <span class="fl">30</span>, <span class="fl">60</span>, scale <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span><span class="op">)</span>, x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="aab_env-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## normalize_vec</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="eval.html">g3_eval</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="fu">normalize_vec</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">8</span>, <span class="fl">2</span> <span class="op">)</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span></span>
@@ -379,7 +368,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

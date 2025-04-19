@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -105,7 +105,7 @@
       <h1 data-toc-skip>Incorporating observation data into models</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/master/vignettes/incorporating-observation-data.Rmd" class="external-link"><code>vignettes/incorporating-observation-data.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.13-0/vignettes/incorporating-observation-data.Rmd" class="external-link"><code>vignettes/incorporating-observation-data.Rmd</code></a></small>
       <div class="hidden name"><code>incorporating-observation-data.Rmd</code></div>
 
     </div>
@@ -129,8 +129,9 @@ that will compare observation data to the model.</p>
 <p>To do this you either need <code><a href="../reference/likelihood_distribution.html">g3l_catchdistribution()</a></code> or
 <code><a href="../reference/likelihood_distribution.html">g3l_abundancedistribution()</a></code>. As the names suggest,
 <code><a href="../reference/likelihood_distribution.html">g3l_catchdistribution()</a></code> will compare catch data of stocks
-from the provided fleets, <code><a href="../reference/likelihood_distribution.html">g3l_abundancedistribution()</a></code> will
-compare total abundance of stocks. Otherwise they are identical.</p>
+from the provided fleets/predators,
+<code><a href="../reference/likelihood_distribution.html">g3l_abundancedistribution()</a></code> will compare total abundance of
+stocks. Otherwise they are identical.</p>
 <p>This comparison is a 2 stage process:</p>
 <ol style="list-style-type: decimal">
 <li>Aggregation: The columns in the observation data are inspected, and
@@ -507,6 +508,67 @@ division in likelihood components also:</p>
 <span><span class="co">##   fish_mat 4305 2381 3913</span></span></code></pre>
 <p>The stock names have to match what gadget3 uses, or an error will be
 generated.</p>
+<p>You can also use partial stock names, for example:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'imm'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
+<span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'imm'</span>, <span class="st">'m'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
+<span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'mat'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>,</span>
+<span>   <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'fish'</span>, <span class="st">'mat'</span>, <span class="st">'m'</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
+<span><span class="st">year    stock    number</span></span>
+<span><span class="st">1999   imm   1000</span></span>
+<span><span class="st">1999   mat   4305</span></span>
+<span><span class="st">2000   imm   7034</span></span>
+<span><span class="st">2000   mat   2381</span></span>
+<span><span class="st">"</span><span class="op">)</span>, stocks <span class="op">=</span> <span class="va">stocks</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      time</span></span>
+<span><span class="co">## stock 1999 2000</span></span>
+<span><span class="co">##   imm 1000 7034</span></span>
+<span><span class="co">##   mat 4305 2381</span></span>
+<span><span class="co">## attr(,"stock_map")</span></span>
+<span><span class="co">## fish_imm_f fish_imm_m fish_mat_f fish_mat_m </span></span>
+<span><span class="co">##      "imm"      "imm"      "mat"      "mat"</span></span></code></pre>
+<p>The <code>imm</code> columns will compare to the sum of
+<code>fish_imm_f</code> &amp; <code>fish_mat_f</code>.</p>
+<p>The parts do not have to be in order, the following is also
+valid:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
+<span><span class="st">year    stock    number</span></span>
+<span><span class="st">1999   fish_f   1000</span></span>
+<span><span class="st">1999   fish_m   4305</span></span>
+<span><span class="st">2000   fish_f   7034</span></span>
+<span><span class="st">2000   fish_m   2381</span></span>
+<span><span class="st">"</span><span class="op">)</span>, stocks <span class="op">=</span> <span class="va">stocks</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##         time</span></span>
+<span><span class="co">## stock    1999 2000</span></span>
+<span><span class="co">##   fish_f 1000 7034</span></span>
+<span><span class="co">##   fish_m 4305 2381</span></span>
+<span><span class="co">## attr(,"stock_map")</span></span>
+<span><span class="co">## fish_imm_f fish_imm_m fish_mat_f fish_mat_m </span></span>
+<span><span class="co">##   "fish_f"   "fish_m"   "fish_f"   "fish_m"</span></span></code></pre>
+<p><em>NB:</em> A stock can only appear in one grouping:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># NB: Wrong!</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
+<span><span class="st">year    stock    number</span></span>
+<span><span class="st">1999   f         1000</span></span>
+<span><span class="st">1999   imm       4305</span></span>
+<span><span class="st">2000   f         7034</span></span>
+<span><span class="st">2000   imm       2381</span></span>
+<span><span class="st">"</span><span class="op">)</span>, stocks <span class="op">=</span> <span class="va">stocks</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##      time</span></span>
+<span><span class="co">## stock 1999 2000</span></span>
+<span><span class="co">##   f   1000 7034</span></span>
+<span><span class="co">##   imm 4305 2381</span></span>
+<span><span class="co">## attr(,"stock_map")</span></span>
+<span><span class="co">## fish_imm_f fish_imm_m fish_mat_f fish_mat_m </span></span>
+<span><span class="co">##        "f"      "imm"        "f"         NA</span></span></code></pre>
+<p><code>fish_imm_f</code> will only appear in the <code>f</code> rows,
+not <code>imm</code> rows. In this case, multiple likelhood components
+would be a better approach.</p>
 <p>As before, gaps in data are preserved, and <code>missing_val</code>
 is used to decide what to do with them.</p>
 </div>
@@ -514,24 +576,56 @@ is used to decide what to do with them.</p>
 <h3 id="fleet-column">
 <em>fleet</em> column<a class="anchor" aria-label="anchor" href="#fleet-column"></a>
 </h3>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">f_comm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'comm'</span><span class="op">)</span></span>
-<span><span class="va">f_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'surv'</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fleets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'comm'</span>, country <span class="op">=</span> <span class="st">'se'</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'comm'</span>, country <span class="op">=</span> <span class="st">'fi'</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'surv'</span>, country <span class="op">=</span> <span class="st">'se'</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
 <span><span class="st">year    fleet    number</span></span>
-<span><span class="st">1999   f_comm   1000</span></span>
-<span><span class="st">1999   f_surv   4305</span></span>
-<span><span class="st">2000   f_comm   7034</span></span>
-<span><span class="st">2000   f_surv   2381</span></span>
-<span><span class="st">2001   f_surv   3913</span></span>
-<span><span class="st">"</span><span class="op">)</span>, fleets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f_comm</span>, <span class="va">f_surv</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>length <span class="op">=</span> <span class="st">'0:Inf'</span>,,<span class="op">]</span></span></code></pre></div>
+<span><span class="st">1999   comm      1000</span></span>
+<span><span class="st">1999   surv_se   4305</span></span>
+<span><span class="st">2000   comm      7034</span></span>
+<span><span class="st">2000   surv_se   2381</span></span>
+<span><span class="st">2001   surv_se   3913</span></span>
+<span><span class="st">"</span><span class="op">)</span>, fleets <span class="op">=</span> <span class="va">fleets</span><span class="op">)</span><span class="op">[</span>length <span class="op">=</span> <span class="st">'0:Inf'</span>,,<span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">##          time</span></span>
+<span><span class="co">## fleet     1999 2000 2001</span></span>
+<span><span class="co">##   comm    1000 7034   NA</span></span>
+<span><span class="co">##   surv_se 4305 2381 3913</span></span></code></pre>
+<p>The name matching works in the same way as stocks above, and should
+be either the name gadget3 uses or parts of it.</p>
+<p>As before, gaps in data are preserved, and <code>missing_val</code>
+is used to decide what to do with them.</p>
+</div>
+<div class="section level3">
+<h3 id="predator-column">
+<em>predator</em> column<a class="anchor" aria-label="anchor" href="#predator-column"></a>
+</h3>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">predators</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'imm'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'mat'</span>, <span class="st">'f'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'imm'</span>, <span class="st">'m'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="../reference/stock.html">g3_stock</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'seal'</span>, <span class="st">'mat'</span>, <span class="st">'m'</span><span class="op">)</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span> <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>header <span class="op">=</span> <span class="cn">TRUE</span>, text<span class="op">=</span><span class="st">"</span></span>
+<span><span class="st">year    predator    number</span></span>
+<span><span class="st">1999   seal_f   1000</span></span>
+<span><span class="st">1999   seal_m   4305</span></span>
+<span><span class="st">2000   seal_f   7034</span></span>
+<span><span class="st">2000   seal_m   2381</span></span>
+<span><span class="st">"</span><span class="op">)</span>, predators <span class="op">=</span> <span class="va">predators</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##         time</span></span>
-<span><span class="co">## fleet    1999 2000 2001</span></span>
-<span><span class="co">##   f_comm 1000 7034   NA</span></span>
-<span><span class="co">##   f_surv 4305 2381 3913</span></span></code></pre>
-<p>The stock names have to match what gadget3 uses, or an error will be
-generated.</p>
+<span><span class="co">## predator 1999 2000</span></span>
+<span><span class="co">##   seal_f 1000 7034</span></span>
+<span><span class="co">##   seal_m 4305 2381</span></span>
+<span><span class="co">## attr(,"predator_map")</span></span>
+<span><span class="co">## seal_imm_f seal_mat_f seal_imm_m seal_mat_m </span></span>
+<span><span class="co">##   "seal_f"   "seal_f"   "seal_m"   "seal_m"</span></span></code></pre>
+<p>The name matching works in the same way as stocks above, and should
+be either the name gadget3 uses or parts of it.</p>
 <p>As before, gaps in data are preserved, and <code>missing_val</code>
 is used to decide what to do with them.</p>
 </div>
@@ -553,7 +647,7 @@ is used to decide what to do with them.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

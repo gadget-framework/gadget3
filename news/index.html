@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.12-1-999</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
       </span>
     </div>
 
@@ -77,11 +77,37 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/gadget-framework/gadget3/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.13-0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.12-1-999" id="gadget3-012-1-999">gadget3 0.12-1-999:<a class="anchor" aria-label="anchor" href="#gadget3-012-1-999"></a></h2>
+<h2 class="page-header" data-toc-text="0.13-0" id="gadget3-013-0">gadget3 0.13-0:<a class="anchor" aria-label="anchor" href="#gadget3-013-0"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-13-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-13-0"></a></h3>
+<ul><li>All-zero lengthgroups in initialconditions / &gt; 1 maturity ratios no longer result in NaN <a href="https://github.com/gadget-framework/gadget3/issues/187" class="external-link">#187</a> <a href="https://github.com/gadget-framework/gadget3/issues/182" class="external-link">#182</a></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-13-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-13-0"></a></h3>
+<ul><li>The <code>stock</code> column in likelihood data can now contain name parts as well as full stock names</li>
+<li>
+<code>g3_to_r</code>-produced model functions will accept both a list &amp; data.frame parameter template</li>
+<li>
+<code>g3_to_r</code> models can include arbitary R functions, see vignettes/writing_actions <a href="https://github.com/gadget-framework/gadget3/issues/194" class="external-link">#194</a></li>
+<li>Add <code>g3_array_agg</code>, <code>g3_array_combine</code> <a href="https://github.com/gadget-framework/gadget3/issues/193" class="external-link">#193</a> <a href="https://github.com/gadget-framework/gadget3/issues/213" class="external-link">#213</a></li>
+<li>Add surplus production model action <code>g3a_spmodel</code> <a href="https://github.com/gadget-framework/gadget3/issues/209" class="external-link">#209</a></li>
+<li>Projection / MSE support <a href="https://github.com/gadget-framework/gadget3/issues/210" class="external-link">#210</a> <a href="https://github.com/gadget-framework/gadget3/issues/220" class="external-link">#220</a>
+<ul><li>Add g3_param_project() for time-varying parameters that also support projection</li>
+<li>AR1/logAR1 distribution functions</li>
+<li>Add g3_quota() for quota-definitions during projection based on a custom fishing year</li>
+</ul></li>
+<li>Add <code>g3_array_plot</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-13-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-13-0"></a></h3>
+<ul><li>run_projection is now TRUE by default for renewal. A rec.proj parameter covers projection.</li>
+<li>Rename <code>detail_x__num</code> to <code>dstart_x__num</code> <a href="https://github.com/gadget-framework/gadget3/issues/200" class="external-link">#200</a></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.12-0" id="gadget3-012-0">gadget3 0.12-0:<a class="anchor" aria-label="anchor" href="#gadget3-012-0"></a></h2>
@@ -215,7 +241,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
