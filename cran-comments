@@ -1,5 +1,18 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.13-0
+
+New release of existing package.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.13-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.12-1...v0.13-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/14548123348
+
 ==== 0.12-1
 
 Additional release to fix CRAN-pretest problems.
