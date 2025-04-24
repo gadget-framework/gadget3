@@ -82,12 +82,12 @@ We define 2 stocks instead of one, and a `list()` containing both for convenienc
 ```{r}
 # Create stock definition for fish ####################
 st_imm <- g3_stock(c(species = "fish", 'imm'), seq(5L, 25L, 5)) |>
-  g3s_livesonareas(area_names["IXa"]) |>
-  g3s_age(1L, 5L)
+  g3s_age(1L, 5L) |>
+  g3s_livesonareas(area_names["IXa"])
 
 st_mat <- g3_stock(c(species = "fish", 'mat'), seq(5L, 25L, 5)) |>
-  g3s_livesonareas(area_names["IXa"]) |>
-  g3s_age(3L, 10L)
+  g3s_age(3L, 10L) |>
+  g3s_livesonareas(area_names["IXa"])
 stocks = list(imm = st_imm, mat = st_mat)
 ```
 </div>
