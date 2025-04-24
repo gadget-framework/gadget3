@@ -196,10 +196,31 @@ expand.grid(year = 1990:2023, step = 2, area = 'IXa', age = rep(NA, 100), length
   # Report count in each length bin
   summarise(number = n(), .groups = 'keep') ->
   aldist_f_surv
+
+# Map maturity stage data to stocks
+as.data.frame(aldist_f_surv) |>
+  # Generate random maturity stage data from age data, our stock matures between 3..5
+  mutate(maturity = age > runif(n(), 3, 5)) |>
+  # Map maturity stage to the stock name: Note we don't have to use the full stock name
+  mutate(stock = ifelse(maturity, "mat", "imm")) |>
+  # Remove redundant columns
+  mutate(age = NULL, maturity = NULL) ->
+  matp_f_surv
 ```
 </div>
 
 For more information on how this works, see `vignette("incorporating-observation-data")`.
+
+As well as the data we defined last time, we also define a maturity stage dataset.
+We represent the maturity stage data by adding a "stock" column,
+when we then compare to model gadget3 will breakdown predicted catches by stock.
+
+```{r}
+matp_f_surv[sample(nrow(matp_f_surv), 10),]
+```
+
+Also note we don't provide the full name of a stock,
+this both makes code re-use easier and means that we would combine multiple stocks if there is for example a "fish_imm_m" and "fish_imm_f".
 
 Our fleet is defined with the same set of actions as the single-species model:
 
@@ -235,6 +256,15 @@ actions_likelihood_f_surv <- list(
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "matp_f_surv",
+    obs_data = matp_f_surv,
+    fleets = list(f_surv),
+    stocks = stocks,
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
   NULL)
 
 actions <- c(actions, actions_f_surv, actions_likelihood_f_surv)
@@ -248,6 +278,8 @@ There are 2 differences to before:
 * We set `g3_suitability_exponentiall50(by_stock = 'species')`,
   instructing it to have a single `alpha` & `l50` parameter for both our stocks,
   as they have the same species name.
+* We also define "matp_f_surv", to make use of our maturity data. We still use `g3l_catchdistribution()` as before,
+  the difference is in the columns of our input data.
 
 The `by_stock` parameter is passed through to `g3_parameterized()`.
 We can see the result of setting this in the parameter template.
@@ -422,7 +454,7 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     model = model_code,
     params.in = params.in,
     grouping = list(
-        fleet = c("ldist_f_surv", "aldist_f_surv"),
+        fleet = c("ldist_f_surv", "aldist_f_surv", "matp_f_surv"),
         abund = c("dist_si_cpue")),
     method = "BFGS",
     control = list(maxit = 1000, reltol = 1e-10),
