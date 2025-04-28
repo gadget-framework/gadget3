@@ -81,11 +81,11 @@ We define 2 stocks instead of one, and a `list()` containing both for convenienc
 <div class="modelScript">
 ```{r}
 # Create stock definition for fish ####################
-st_imm <- g3_stock(c(species = "fish", 'imm'), seq(5L, 25L, 5)) |>
+st_imm <- g3_stock(c(species = "fish", 'imm'), seq(5L, 100L, 5)) |>
   g3s_age(1L, 5L) |>
   g3s_livesonareas(area_names["IXa"])
 
-st_mat <- g3_stock(c(species = "fish", 'mat'), seq(5L, 25L, 5)) |>
+st_mat <- g3_stock(c(species = "fish", 'mat'), seq(5L, 100L, 5)) |>
   g3s_age(3L, 10L) |>
   g3s_livesonareas(area_names["IXa"])
 stocks = list(imm = st_imm, mat = st_mat)
@@ -175,7 +175,7 @@ ldist_f_surv.raw |>
   group_by(
       year = year,
       step = step,
-      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
+      length = cut(length, breaks = c(seq(0, 110, 5), Inf), right = FALSE) ) |>
   # Report count in each length bin
   summarise(number = n(), .groups = 'keep') |>
   # Save into ldist_f_surv
@@ -186,13 +186,13 @@ expand.grid(year = 1990:2023, step = 2, area = 'IXa', age = rep(NA, 100), length
   # Generate random whole numbers for age
   mutate(age = floor(pmin(rnorm(n(), mean = 6, sd = 1), 10))) |>
   # Generate random lengths for these samples
-  mutate(length = rnorm(n(), mean = 30 + age * 10, sd = 20)) |>
+  mutate(length = rnorm(n(), mean = 30 + age * 2, sd = 20)) |>
   # Group into length/age bins
   group_by(
       year = year,
       step = step,
       age = age,
-      length = cut(length, breaks = c(seq(0, 80, 20), Inf), right = FALSE) ) |>
+      length = cut(length, breaks = c(seq(0, 110, 5), Inf), right = FALSE) ) |>
   # Report count in each length bin
   summarise(number = n(), .groups = 'keep') ->
   aldist_f_surv
@@ -415,7 +415,7 @@ so we don't need to change the initial values from the previous model:
 ```{r}
 # Guess l50 / linf based on stock sizes
 estimate_l50 <- g3_stock_def(st_imm, "midlen")[[length(g3_stock_def(st_imm, "midlen")) / 2]]
-estimate_linf <- max(g3_stock_def(st_imm, "midlen"))
+estimate_linf <- tail(g3_stock_def(st_imm, "midlen"), 3)[[1]]
 estimate_t0 <- g3_stock_def(st_imm, "minage") - 0.8
 
 attr(model_code, "parameter_template") |>
@@ -427,7 +427,7 @@ attr(model_code, "parameter_template") |>
   g3_init_val("init.F", 0.5, lower = 0.1, upper = 10) |>
   g3_init_val("*.Linf", estimate_linf, spread = 2) |>
   g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
-  g3_init_val("*.t0", estimate_t0, spread = 5) |>
+  g3_init_val("*.t0", estimate_t0, optimise = FALSE) |>
   g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
   g3_init_val("*.wbeta", 3, optimise = FALSE) |>
   g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 1.8) |>
