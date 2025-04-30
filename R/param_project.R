@@ -132,30 +132,22 @@ g3_param_project_ar1 <- function (
             "proj.ar1.level",
             value = -1, optimise = FALSE,
             prepend_extra = quote(param_name) )) {
-    g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev) {
+    g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev, level) {
         noisemean <- 0
         noisestddev <- stddev
-
-        # If noise disabled, just set nll 0
-        if (noisestddev == 0) return(rep(0, length(var)))
 
         lastvar <- head(var, -1)
         curvar <- tail(var, -1)
         c(0, -dnorm(
-            curvar - phi * lastvar,
+            # i.e. only try to account for level when it's not derived from previous values
+            curvar - phi * lastvar - (1 - phi) * max(level, 0),
             noisemean,
-            noisestddev,
+            # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
+            max(noisestddev, 1e-7),
             log = TRUE ))
-    }, cpp = '[](array<Type> var, Type phi, Type stddev) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level) -> vector<Type> {
         Type noisemean = 0;
         Type noisestddev = stddev;
-
-        // If noise disabled, just set nll 0
-        if (noisestddev == 0) {
-            vector<Type> out(var.size());
-            out.setConstant(0);
-            return out;
-        }
 
         array<Type> lastvar(var.size() - 1);
         array<Type> curvar(var.size() - 1);
@@ -164,9 +156,11 @@ g3_param_project_ar1 <- function (
         curvar = var.tail(var.size() - 1);
         nll(0) = 0;
         nll.tail(nll.size() - 1) = -dnorm(
-            (vector<Type>)(curvar - phi * lastvar),
+            // i.e. only try to account for level when its not derived from previous values
+            (vector<Type>)(curvar - phi * lastvar - (1 - phi) * std::max(level, (Type)0)),
             noisemean,
-            noisestddev,
+            // noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
+            std::max(noisestddev, (Type)1e-7),
             1 );
         return(nll);
     }')
@@ -212,8 +206,8 @@ g3_param_project_ar1 <- function (
         name = "ar1",
         # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
         nll = f_substitute(
-            ~sum(projstock__nll[] <- g3_param_project_nll_ar1(projstock__var, phi_f, stddev_f)),
-            list(phi_f = phi_f, stddev_f = stddev_f) ),
+            ~sum(projstock__nll[] <- g3_param_project_nll_ar1(projstock__var, phi_f, stddev_f, level_f)),
+            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f) ),
         project = f_substitute(
             ~g3_param_project_ar1(projstock__var, phi_f, stddev_f, level_f),
             list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f) ))
@@ -232,33 +226,25 @@ g3_param_project_logar1 <- function (
             "proj.logar1.loglevel",
             value = -1, optimise = FALSE,
             prepend_extra = quote(param_name) )) {
-    g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev) {
+    g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel) {
         logvar <- log(var)
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
 
-        # If noise disabled, just set nll 0
-        if (noisestddev < 1e-7) return(rep(0, length(logvar)))
-
         lastlogvar <- head(logvar, -1)
         curlogvar <- tail(logvar, -1)
         c(0, -dnorm(
-            curlogvar - logphi * lastlogvar,
+            # i.e. only try to account for loglevel when it's not derived from previous values
+            curlogvar - logphi * lastlogvar - (1 - logphi) * max(loglevel, 0),
             noisemean,
-            noisestddev,
+            # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
+            max(noisestddev, 1e-7),
             log = TRUE ))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel) -> vector<Type> {
         array<Type> logvar(var.size());
         logvar = var.log();
         Type noisemean = 0 - exp(2*lstddev) / 2;
         Type noisestddev = exp(lstddev);
-
-        // If noise disabled, just set nll 0
-        if (noisestddev < 1e-7) {
-            vector<Type> out(logvar.size());
-            out.setConstant(0);
-            return out;
-        }
 
         array<Type> lastlogvar(logvar.size() - 1);
         array<Type> curlogvar(logvar.size() - 1);
@@ -267,9 +253,11 @@ g3_param_project_logar1 <- function (
         curlogvar = logvar.tail(logvar.size() - 1);
         nll(0) = 0;
         nll.tail(nll.size() - 1) = -dnorm(
-            (vector<Type>)(curlogvar - logphi * lastlogvar),
+            // i.e. only try to account for loglevel when its not derived from previous values
+            (vector<Type>)(curlogvar - logphi * lastlogvar - (1 - logphi) * std::max(loglevel, (Type)0)),
             noisemean,
-            noisestddev,
+            // noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
+            std::max(noisestddev, (Type)1e-7),
             1 );
         return(nll);
     }')
@@ -318,8 +306,8 @@ g3_param_project_logar1 <- function (
         name = "logar1",
         # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
         nll = f_substitute(
-            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f)),
-            list(logphi_f = logphi_f, lstddev_f = lstddev_f) ),
+            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f)),
+            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f) ),
         project = f_substitute(
             ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f),
             list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f) ))
