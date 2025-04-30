@@ -304,7 +304,7 @@ g3a_otherfood_normalcv(
   \subsection{g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv}{
     As \link{g3a_initialconditions} / \link{g3a_renewal}, but the following formulae are used to calculate abundance (\eqn{N}) and mean weight (\eqn{W}):
 
-    \deqn{n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}}
+    \deqn{n = {dnorm}(L, \mu, \mu * {CV})}
     \deqn{N = F 10000 \frac{n}{\sum n}}
     \deqn{W = \alpha L^{\beta}}
     \describe{
