@@ -143,10 +143,15 @@ attr(model_fn, 'parameter_template') |>
 .Random.seed <- old_seed
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
-ok(ut_cmp_equal(nll, 5.75405e+11, tolerance = 1e-7), "nll: Matches baseline (stst.rec.# always the same values)")
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll (stst.rec.# always the same values)")
 ok(ut_cmp_equal(
     as.vector(r$proj_ar1_stst_rec__nll),
-    c(493982883848.231, 21262397496.0474, 20871796561.9318, 16915811600.9032, 22372135017.1434) ), "r$proj_ar1_stst_rec__nll: Matches baseline")
+    as.vector(c(0, -dnorm(
+        tail(r$proj_ar1_stst_rec__var, -1) -
+        0.8 * head(r$proj_ar1_stst_rec__var, -1),
+        0,
+        0.1,
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
