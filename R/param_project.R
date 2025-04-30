@@ -139,9 +139,10 @@ g3_param_project_ar1 <- function (
         # If noise disabled, just set nll 0
         if (noisestddev == 0) return(rep(0, length(var)))
 
-        lagvar <- c(0, head(var, -1))  # i.e. vector with the previous entry to subtract
-        return(-dnorm(
-            var - phi * lagvar,
+        lastvar <- head(var, -1)
+        curvar <- tail(var, -1)
+        c(0, -dnorm(
+            curvar - phi * lastvar,
             noisemean,
             noisestddev,
             log = TRUE ))
@@ -156,14 +157,18 @@ g3_param_project_ar1 <- function (
             return out;
         }
 
-        array<Type> lagvar(var.size());
-        lagvar(0) = 0;
-        lagvar.tail(lagvar.size() - 1) = var.head(var.size() - 1);
-        return -dnorm(
-            (vector<Type>)(var - phi * lagvar),
+        array<Type> lastvar(var.size() - 1);
+        array<Type> curvar(var.size() - 1);
+        array<Type> nll(var.size());
+        lastvar = var.head(var.size() - 1);
+        curvar = var.tail(var.size() - 1);
+        nll(0) = 0;
+        nll.tail(nll.size() - 1) = -dnorm(
+            (vector<Type>)(curvar - phi * lastvar),
             noisemean,
             noisestddev,
             1 );
+        return(nll);
     }')
     g3_param_project_ar1 <- g3_native(r = function (var, phi, stddev, level) {
         if (all(is.finite(var))) return(var)
@@ -235,9 +240,10 @@ g3_param_project_logar1 <- function (
         # If noise disabled, just set nll 0
         if (noisestddev < 1e-7) return(rep(0, length(logvar)))
 
-        laglogvar <- c(0, head(logvar, -1))  # i.e. vector with the previous entry to subtract
-        return(-dnorm(
-            logvar - logphi * laglogvar,
+        lastlogvar <- head(logvar, -1)
+        curlogvar <- tail(logvar, -1)
+        c(0, -dnorm(
+            curlogvar - logphi * lastlogvar,
             noisemean,
             noisestddev,
             log = TRUE ))
@@ -254,14 +260,18 @@ g3_param_project_logar1 <- function (
             return out;
         }
 
-        array<Type> laglogvar(logvar.size());
-        laglogvar(0) = 0;
-        laglogvar.tail(laglogvar.size() - 1) = logvar.head(logvar.size() - 1);
-        return -dnorm(
-            (vector<Type>)(logvar - logphi * laglogvar),
+        array<Type> lastlogvar(logvar.size() - 1);
+        array<Type> curlogvar(logvar.size() - 1);
+        array<Type> nll(logvar.size());
+        lastlogvar = logvar.head(logvar.size() - 1);
+        curlogvar = logvar.tail(logvar.size() - 1);
+        nll(0) = 0;
+        nll.tail(nll.size() - 1) = -dnorm(
+            (vector<Type>)(curlogvar - logphi * lastlogvar),
             noisemean,
             noisestddev,
             1 );
+        return(nll);
     }')
     g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel) {
         if (all(is.finite(var))) return(var)
