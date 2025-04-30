@@ -374,7 +374,7 @@ g3_param_project <- function (
         debug_label("g3_param_project: generate projections for ", projstock)
         stock_with(projstock, {
             if (cur_time > total_steps) {
-                nll <- if (weight > 0) nll + weight * nll_f else 0
+                if (weight > 0) nll <- nll + weight * nll_f
             } else if (cur_year_projection) {
                 if (is.nan(stock_ss(projstock__var, vec = single))) {
                     projstock__var <- (projstock__var - offset) / scale  # Unapply scale/offset from below
