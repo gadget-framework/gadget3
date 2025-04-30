@@ -68,6 +68,18 @@ ok(ut_cmp_equal(
     as.vector( r$proj_logar1_stst_rec__var ),
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
+ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
+ok(ut_cmp_equal(
+    as.vector(r$proj_logar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(log(r$proj_logar1_stst_rec__var), -1) -
+        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        0.2 * 0,  # level not accounted for as it's negative
+        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
+        1e-7,  # i.e. using hard-coded minimum stddev
+        1 ))),
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, level not accounted for, minimum stddev")
+
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("No noise, fixed loglevel") ##########################################
@@ -93,6 +105,18 @@ ok(ut_cmp_equal(
     as.vector(tail(r$proj_logar1_stst_rec__var, 10)),
     rep(exp(params.in$stst.rec.proj.logar1.loglevel), 10),
     end = NULL ), "proj_logar1_stst_rec__var: Settles to loglevel in projection, regardless of initial value")
+
+ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
+ok(ut_cmp_equal(
+    as.vector(r$proj_logar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(log(r$proj_logar1_stst_rec__var), -1) -
+        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        0.2 * params.in[["stst.rec.proj.logar1.loglevel"]],
+        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
+        1e-7,  # i.e. using hard-coded minimum stddev
+        1 ))),
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, minimum stddev")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
@@ -120,6 +144,18 @@ ok(ut_cmp_equal(
     rep( mean(r$proj_logar1_stst_rec__var[c("1992", "1993", "1994")]), 10),
     tolerance = 5e-5 ), "proj_logar1_stst_rec__var: Settles to loglevel matching mean of last 3 values")
 
+ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
+ok(ut_cmp_equal(
+    as.vector(r$proj_logar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(log(r$proj_logar1_stst_rec__var), -1) -
+        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        0.2 * 0,  # Not accounting for loglevel
+        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
+        1e-7,  # i.e. using hard-coded minimum stddev
+        1 ))),
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, minimum stddev")
+
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("With noise, no projection") #########################################
@@ -143,16 +179,17 @@ attr(model_fn, 'parameter_template') |>
 .Random.seed <- old_seed
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
-ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (stst.rec.# always the same values)")
+ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
 ok(ut_cmp_equal(
     as.vector(r$proj_logar1_stst_rec__nll),
     as.vector(c(0, -dnorm(
+        tail(log(r$proj_logar1_stst_rec__var), -1) -
         0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
-        tail(log(r$proj_logar1_stst_rec__var), -1),
-        0 - exp(2*-8) / 2,
-        exp(-8),
+        0.2 * 0,  # level not accounted for as it's negative
+        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
+        exp(params.in[["stst.rec.proj.logar1.lstddev"]]),
         1 ))),
-    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var")
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, level not accounted for")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
@@ -180,5 +217,17 @@ ok(ut_cmp_equal(
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
 ok(all(r$proj_logar1_stst_rec__var > 1e4), "r$proj_logar1_stst_rec__var: Noise not high enough for value to drop below 1e4")
+
+ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
+ok(ut_cmp_equal(
+    as.vector(r$proj_logar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(log(r$proj_logar1_stst_rec__var), -1) -
+        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        0.2 * 0,  # level not accounted for as it's negative
+        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
+        exp(params.in[["stst.rec.proj.logar1.lstddev"]]),
+        1 ))),
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, level not accounted for")
 
 # plot(r$proj_logar1_stst_rec__var)

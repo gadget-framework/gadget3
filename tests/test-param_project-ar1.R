@@ -68,6 +68,17 @@ ok(ut_cmp_equal(
     as.vector( r$proj_ar1_stst_rec__var ),
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll")
+ok(ut_cmp_equal(
+    as.vector(r$proj_ar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(r$proj_ar1_stst_rec__var, -1) -
+        0.8 * head(r$proj_ar1_stst_rec__var, -1) -
+        0.2 * 0, # Level would be negative
+        0,
+        1e-7,  # Minimum stddev, so we don't return Inf
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, not accounting for level, minimum stddev")
+
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("No noise, fixed loglevel") ##########################################
@@ -88,6 +99,17 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("project_years", 200) |>
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll")
+ok(ut_cmp_equal(
+    as.vector(r$proj_ar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(r$proj_ar1_stst_rec__var, -1) -
+        0.8 * head(r$proj_ar1_stst_rec__var, -1) -
+        0.2 * params.in[["stst.rec.proj.ar1.level"]],
+        0,
+        1e-7,  # NB: Used hard-coded minimum stddev
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, use minimum stddev, account for level")
 
 ok(ut_cmp_equal(
     as.vector(tail(r$proj_ar1_stst_rec__var, 5)),
@@ -120,6 +142,17 @@ ok(ut_cmp_equal(
     rep( mean(r$proj_ar1_stst_rec__var[c("1992", "1993", "1994")]), 10),
     tolerance = 5e-5 ), "proj_ar1_stst_rec__var: Settles to loglevel matching mean of last 3 values")
 
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll")
+ok(ut_cmp_equal(
+    as.vector(r$proj_ar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(r$proj_ar1_stst_rec__var, -1) -
+        0.8 * head(r$proj_ar1_stst_rec__var, -1) -
+        0.2 * 0, # Level would be negative
+        0,
+        1e-7,  # NB: Used hard-coded minimum stddev
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, use minimum stddev, level not included as < 0")
+
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("With noise, no projection") #########################################
@@ -131,6 +164,7 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("stst.rec.proj.ar1.stddev", 0.1) |>
     g3_init_val("stst.rec.proj.ar1.phi", 0.8) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
+    # NB: level defaults to -1
 
     g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
     g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
@@ -143,15 +177,16 @@ attr(model_fn, 'parameter_template') |>
 .Random.seed <- old_seed
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
-ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll (stst.rec.# always the same values)")
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll")
 ok(ut_cmp_equal(
     as.vector(r$proj_ar1_stst_rec__nll),
     as.vector(c(0, -dnorm(
         tail(r$proj_ar1_stst_rec__var, -1) -
-        0.8 * head(r$proj_ar1_stst_rec__var, -1),
+        0.8 * head(r$proj_ar1_stst_rec__var, -1) -
+        0.2 * 0, # Level would be negative
         0,
         0.1,
-        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var")
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, not accounting for level")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
@@ -181,4 +216,13 @@ ok(ut_cmp_equal(
 
 ok(all(r$proj_ar1_stst_rec__var > 1e4), "r$proj_ar1_stst_rec__var: Noise not high enough for value to drop below 1e4")
 
-# plot(r$proj_ar1_stst_rec__var)
+ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll")
+ok(ut_cmp_equal(
+    as.vector(r$proj_ar1_stst_rec__nll),
+    as.vector(c(0, -dnorm(
+        tail(r$proj_ar1_stst_rec__var, -1) -
+        0.8 * head(r$proj_ar1_stst_rec__var, -1) -
+        0.2 * 0, # Level would be negative
+        0,
+        params.in[["stst.rec.proj.ar1.stddev"]],
+        1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, not accounting for level")
