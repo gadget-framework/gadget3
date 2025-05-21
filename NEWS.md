@@ -1,5 +1,8 @@
 # gadget3 0.13-0-999:
 
+## Bug fixes
+* g3a_predate_catchability_project now correctly scales when quotas are expressed in individuals #222
+
 # gadget3 0.13-0:
 
 ## Bug fixes
