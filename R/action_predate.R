@@ -96,7 +96,7 @@ g3a_predate_catchability_project <- function (
             suit_unit = "number of individuals",
             suit = quote( suit_f * stock_ss(stock__num) ),
             cons = f_substitute(
-                quote( stock_ss(predprey__suit) * combined_f ),
+                quote( stock_ss(predprey__suit) * combined_f * stock_ss(stock__wgt) ),
                 list(combined_f = combined_f)) )
     } else stop("Unknown suitability unit ", suit_unit)
 }
@@ -257,7 +257,7 @@ g3a_predate <- function (
     # stock__overconsumption: Single figure, proportion of total biomass consumed to total biomass hoping to be consumed. Used by g3l_understocking()
     # predstock__totalsuit: Total prey suitable for consumption by pred
     # predprey__cons: Biomass of prey consumed by pred
-    # predprey__suit: Biomass of prey suitable for consumption by pred
+    # predprey__suit: Biomass/number of prey suitable for consumption by pred
 
     predstock__feedinglevel <- g3_stock_instance(predstock, desc = "Fraction of the available food that the predator is consuming")
     predstock__totalsuit <- g3_stock_instance(predstock, desc = paste0("Total suitable prey by ", catchability_f$suit_unit))
