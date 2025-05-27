@@ -912,7 +912,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                     # NB: bool -> int, as array<bool> doesn't REPORT() (tests/test-action_time.R, R/test_utils.R)
                     cpp_type <- 'int'
                 } else {
-                    stop("Don't know how to define ", var_name, " = ", paste(capture.output(str(var_val)), collapse = "\n    "))
+                    stop("Don't know how to define ", var_name, " = ", paste(utils::capture.output(utils::str(var_val)), collapse = "\n    "))
                 }
                 if (is.array(var_val)) {
                     cpp_type <- paste0('array<', cpp_type, '>')

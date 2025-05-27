@@ -3,7 +3,7 @@
 # Display the parse tree of a formulae / language object
 parse_tree <- function (o, prefix = "") {
     short_str <- function (x) {
-        trimws(capture.output(str(x))[[1]])
+        trimws(utils::capture.output(utils::str(x))[[1]])
     }
 
     if (missing(o)) {

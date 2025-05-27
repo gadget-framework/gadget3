@@ -303,10 +303,10 @@ print.g3_r <- function(x, ..., with_environment = FALSE, with_template = FALSE) 
         env_names <- setdiff(names(environment(x)), "parameter_template")
 
         writeLines("Environment:")
-        str(as.list(environment(x))[env_names], no.list = TRUE)
+        utils::str(as.list(environment(x))[env_names], no.list = TRUE)
     }
     if (with_template) {
         writeLines("Parameter template:")
-        str(a$parameter_template, no.list = TRUE)
+        utils::str(a$parameter_template, no.list = TRUE)
     }
 }

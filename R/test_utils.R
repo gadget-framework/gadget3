@@ -180,7 +180,7 @@ vignette_test_output <- function (vign_name, model_code, params.out, tolerance =
         param_df <- as.data.frame(unlist(params.out$value))
         colnames(param_df) <- "value"
         param_df <- param_df[order(rownames(param_df)),,drop = F]
-        capture.output(print.data.frame(param_df, digits = 20), file = paste0(out_base, '.params'))
+        utils::capture.output(print.data.frame(param_df, digits = 20), file = paste0(out_base, '.params'))
     }
 
     model_fn <- g3_to_r(attr(model_code, "actions"))
@@ -198,7 +198,7 @@ vignette_test_output <- function (vign_name, model_code, params.out, tolerance =
     for (n in grep('^detail_.*__(num|wgt)$', names(r), value = TRUE)) {
         unittest::ok(all(!is.na(r[[n]])), paste0(n, ": No NaN values"))
 
-        capture.output(
+        utils::capture.output(
             print(signif(drop(r[[n]]), 4), width = 1e4),
             file = paste0(out_base, '.', n))
     }
