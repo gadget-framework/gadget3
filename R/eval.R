@@ -46,9 +46,9 @@ g3_eval <- function (f, ...) {
         stop(paste(c(
             e,
             "Whilst evaluating expression:",
-            capture.output(print( rlang::f_rhs(f) )),
+            utils::capture.output(print( rlang::f_rhs(f) )),
             "With environment:",
-            capture.output(print( as.list(environment(f)) )),
+            utils::capture.output(print( as.list(environment(f)) )),
             NULL), collapse = "\n"))
     })
 }
