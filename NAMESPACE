@@ -1,5 +1,5 @@
 importFrom("stats", "as.formula", "formula", "dnorm", "rnorm", "lag")
-importFrom("utils", "capture.output", "head", "str", "tail")
+importFrom("utils", "capture.output", "str")
 
 # R/aaa_lang.R
 export(g3_native)
