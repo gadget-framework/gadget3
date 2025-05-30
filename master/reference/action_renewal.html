@@ -423,7 +423,7 @@
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv">g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv"></a></h3>
 <p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
-<p>$$n = e^{-(\frac{L - \mu}{\mu * {CV}})^2 / 2}$$
+<p>$$n = {dnorm}(L, \mu, \mu * {CV})$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
 <dd><p>Midlength of all length groups for current area/age/...</p></dd>
