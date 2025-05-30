@@ -193,7 +193,7 @@ g3_param_project(
     \describe{
       \item{\eqn{\phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
       \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter}
-      \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter}
+      \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
     }
@@ -208,7 +208,7 @@ g3_param_project(
     \describe{
       \item{\eqn{\Phi}}{\var{logphi_f} / \code{(by_stock).(param_name).proj.logphi} parameter}
       \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
-      \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter}
+      \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
     }
