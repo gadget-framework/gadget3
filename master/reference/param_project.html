@@ -300,7 +300,7 @@
 <dd><p><var>level_f</var> / <code>(by_stock).(param_name).proj.level</code> parameter</p></dd>
 
       <dt>\(\sigma\)</dt>
-<dd><p><var>stddev_f</var> / <code>(by_stock).(param_name).proj.stddev</code> parameter</p></dd>
+<dd><p><var>stddev_f</var> / <code>(by_stock).(param_name).proj.stddev</code> parameter, if 0 1e-7 is used, so we don't return Inf</p></dd>
 
       <dt>\(\epsilon_{\mu,\sigma}\)</dt>
 <dd><p>Normally distributed noise generated using <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></code></p></dd>
@@ -324,7 +324,7 @@
 <dd><p><var>loglevel_f</var> / <code>(by_stock).(param_name).proj.loglevel</code> parameter</p></dd>
 
       <dt>\(\Sigma\)</dt>
-<dd><p><var>lstddev_f</var> / <code>(by_stock).(param_name).proj.lstddev</code> parameter</p></dd>
+<dd><p><var>lstddev_f</var> / <code>(by_stock).(param_name).proj.lstddev</code> parameter, if 0 1e-7 is used, so we don't return Inf</p></dd>
 
       <dt>\(\epsilon_{\mu,\sigma}\)</dt>
 <dd><p>Normally distributed noise generated using <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></code></p></dd>
