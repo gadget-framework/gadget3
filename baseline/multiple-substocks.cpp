@@ -154,17 +154,6 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish_imm__mat__l50);
     PARAMETER(fish_mat__bbin);
     PARAMETER(fish_imm__rec__proj);
-    PARAMETER(fish_imm__rec__1979);
-    PARAMETER(fish_imm__rec__1980);
-    PARAMETER(fish_imm__rec__1981);
-    PARAMETER(fish_imm__rec__1982);
-    PARAMETER(fish_imm__rec__1983);
-    PARAMETER(fish_imm__rec__1984);
-    PARAMETER(fish_imm__rec__1985);
-    PARAMETER(fish_imm__rec__1986);
-    PARAMETER(fish_imm__rec__1987);
-    PARAMETER(fish_imm__rec__1988);
-    PARAMETER(fish_imm__rec__1989);
     PARAMETER(fish_imm__rec__1990);
     PARAMETER(fish_imm__rec__1991);
     PARAMETER(fish_imm__rec__1992);
@@ -199,15 +188,16 @@ Type objective_function<Type>::operator() () {
     PARAMETER(fish_imm__rec__2021);
     PARAMETER(fish_imm__rec__2022);
     PARAMETER(fish_imm__rec__2023);
-    std::map<std::tuple<int>, Type*> pt__fish_imm__rec = {{std::make_tuple(1979), &fish_imm__rec__1979}, {std::make_tuple(1980), &fish_imm__rec__1980}, {std::make_tuple(1981), &fish_imm__rec__1981}, {std::make_tuple(1982), &fish_imm__rec__1982}, {std::make_tuple(1983), &fish_imm__rec__1983}, {std::make_tuple(1984), &fish_imm__rec__1984}, {std::make_tuple(1985), &fish_imm__rec__1985}, {std::make_tuple(1986), &fish_imm__rec__1986}, {std::make_tuple(1987), &fish_imm__rec__1987}, {std::make_tuple(1988), &fish_imm__rec__1988}, {std::make_tuple(1989), &fish_imm__rec__1989}, {std::make_tuple(1990), &fish_imm__rec__1990}, {std::make_tuple(1991), &fish_imm__rec__1991}, {std::make_tuple(1992), &fish_imm__rec__1992}, {std::make_tuple(1993), &fish_imm__rec__1993}, {std::make_tuple(1994), &fish_imm__rec__1994}, {std::make_tuple(1995), &fish_imm__rec__1995}, {std::make_tuple(1996), &fish_imm__rec__1996}, {std::make_tuple(1997), &fish_imm__rec__1997}, {std::make_tuple(1998), &fish_imm__rec__1998}, {std::make_tuple(1999), &fish_imm__rec__1999}, {std::make_tuple(2000), &fish_imm__rec__2000}, {std::make_tuple(2001), &fish_imm__rec__2001}, {std::make_tuple(2002), &fish_imm__rec__2002}, {std::make_tuple(2003), &fish_imm__rec__2003}, {std::make_tuple(2004), &fish_imm__rec__2004}, {std::make_tuple(2005), &fish_imm__rec__2005}, {std::make_tuple(2006), &fish_imm__rec__2006}, {std::make_tuple(2007), &fish_imm__rec__2007}, {std::make_tuple(2008), &fish_imm__rec__2008}, {std::make_tuple(2009), &fish_imm__rec__2009}, {std::make_tuple(2010), &fish_imm__rec__2010}, {std::make_tuple(2011), &fish_imm__rec__2011}, {std::make_tuple(2012), &fish_imm__rec__2012}, {std::make_tuple(2013), &fish_imm__rec__2013}, {std::make_tuple(2014), &fish_imm__rec__2014}, {std::make_tuple(2015), &fish_imm__rec__2015}, {std::make_tuple(2016), &fish_imm__rec__2016}, {std::make_tuple(2017), &fish_imm__rec__2017}, {std::make_tuple(2018), &fish_imm__rec__2018}, {std::make_tuple(2019), &fish_imm__rec__2019}, {std::make_tuple(2020), &fish_imm__rec__2020}, {std::make_tuple(2021), &fish_imm__rec__2021}, {std::make_tuple(2022), &fish_imm__rec__2022}, {std::make_tuple(2023), &fish_imm__rec__2023}};
+    std::map<std::tuple<int>, Type*> pt__fish_imm__rec = {{std::make_tuple(1990), &fish_imm__rec__1990}, {std::make_tuple(1991), &fish_imm__rec__1991}, {std::make_tuple(1992), &fish_imm__rec__1992}, {std::make_tuple(1993), &fish_imm__rec__1993}, {std::make_tuple(1994), &fish_imm__rec__1994}, {std::make_tuple(1995), &fish_imm__rec__1995}, {std::make_tuple(1996), &fish_imm__rec__1996}, {std::make_tuple(1997), &fish_imm__rec__1997}, {std::make_tuple(1998), &fish_imm__rec__1998}, {std::make_tuple(1999), &fish_imm__rec__1999}, {std::make_tuple(2000), &fish_imm__rec__2000}, {std::make_tuple(2001), &fish_imm__rec__2001}, {std::make_tuple(2002), &fish_imm__rec__2002}, {std::make_tuple(2003), &fish_imm__rec__2003}, {std::make_tuple(2004), &fish_imm__rec__2004}, {std::make_tuple(2005), &fish_imm__rec__2005}, {std::make_tuple(2006), &fish_imm__rec__2006}, {std::make_tuple(2007), &fish_imm__rec__2007}, {std::make_tuple(2008), &fish_imm__rec__2008}, {std::make_tuple(2009), &fish_imm__rec__2009}, {std::make_tuple(2010), &fish_imm__rec__2010}, {std::make_tuple(2011), &fish_imm__rec__2011}, {std::make_tuple(2012), &fish_imm__rec__2012}, {std::make_tuple(2013), &fish_imm__rec__2013}, {std::make_tuple(2014), &fish_imm__rec__2014}, {std::make_tuple(2015), &fish_imm__rec__2015}, {std::make_tuple(2016), &fish_imm__rec__2016}, {std::make_tuple(2017), &fish_imm__rec__2017}, {std::make_tuple(2018), &fish_imm__rec__2018}, {std::make_tuple(2019), &fish_imm__rec__2019}, {std::make_tuple(2020), &fish_imm__rec__2020}, {std::make_tuple(2021), &fish_imm__rec__2021}, {std::make_tuple(2022), &fish_imm__rec__2022}, {std::make_tuple(2023), &fish_imm__rec__2023}};
     PARAMETER(fish_imm__rec__scalar);
-    PARAMETER(fish_imm__rec__sd);
     DATA_SCALAR(adist_surveyindices_log_dist_si_cpue_weight__lower);
     DATA_SCALAR(adist_surveyindices_log_dist_si_cpue_weight__upper);
     DATA_SCALAR(cdist_sumofsquares_aldist_f_surv_weight__lower);
     DATA_SCALAR(cdist_sumofsquares_aldist_f_surv_weight__upper);
     DATA_SCALAR(cdist_sumofsquares_ldist_f_surv_weight__lower);
     DATA_SCALAR(cdist_sumofsquares_ldist_f_surv_weight__upper);
+    DATA_SCALAR(cdist_sumofsquares_matp_f_surv_weight__lower);
+    DATA_SCALAR(cdist_sumofsquares_matp_f_surv_weight__upper);
     DATA_SCALAR(fish__f_surv__alpha__lower);
     DATA_SCALAR(fish__f_surv__alpha__upper);
     DATA_SCALAR(fish__f_surv__l50__lower);
@@ -246,28 +236,6 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish_imm__mat__alpha__upper);
     DATA_SCALAR(fish_imm__mat__l50__lower);
     DATA_SCALAR(fish_imm__mat__l50__upper);
-    DATA_SCALAR(fish_imm__rec__1979__lower);
-    DATA_SCALAR(fish_imm__rec__1979__upper);
-    DATA_SCALAR(fish_imm__rec__1980__lower);
-    DATA_SCALAR(fish_imm__rec__1980__upper);
-    DATA_SCALAR(fish_imm__rec__1981__lower);
-    DATA_SCALAR(fish_imm__rec__1981__upper);
-    DATA_SCALAR(fish_imm__rec__1982__lower);
-    DATA_SCALAR(fish_imm__rec__1982__upper);
-    DATA_SCALAR(fish_imm__rec__1983__lower);
-    DATA_SCALAR(fish_imm__rec__1983__upper);
-    DATA_SCALAR(fish_imm__rec__1984__lower);
-    DATA_SCALAR(fish_imm__rec__1984__upper);
-    DATA_SCALAR(fish_imm__rec__1985__lower);
-    DATA_SCALAR(fish_imm__rec__1985__upper);
-    DATA_SCALAR(fish_imm__rec__1986__lower);
-    DATA_SCALAR(fish_imm__rec__1986__upper);
-    DATA_SCALAR(fish_imm__rec__1987__lower);
-    DATA_SCALAR(fish_imm__rec__1987__upper);
-    DATA_SCALAR(fish_imm__rec__1988__lower);
-    DATA_SCALAR(fish_imm__rec__1988__upper);
-    DATA_SCALAR(fish_imm__rec__1989__lower);
-    DATA_SCALAR(fish_imm__rec__1989__upper);
     DATA_SCALAR(fish_imm__rec__1990__lower);
     DATA_SCALAR(fish_imm__rec__1990__upper);
     DATA_SCALAR(fish_imm__rec__1991__lower);
@@ -340,8 +308,6 @@ Type objective_function<Type>::operator() () {
     DATA_SCALAR(fish_imm__rec__proj__upper);
     DATA_SCALAR(fish_imm__rec__scalar__lower);
     DATA_SCALAR(fish_imm__rec__scalar__upper);
-    DATA_SCALAR(fish_imm__rec__sd__lower);
-    DATA_SCALAR(fish_imm__rec__sd__upper);
     DATA_SCALAR(fish_imm__t0__lower);
     DATA_SCALAR(fish_imm__t0__upper);
     DATA_SCALAR(fish_imm__walpha__lower);
@@ -407,6 +373,7 @@ Type objective_function<Type>::operator() () {
     PARAMETER(adist_surveyindices_log_dist_si_cpue_weight);
     PARAMETER(cdist_sumofsquares_aldist_f_surv_weight);
     PARAMETER(cdist_sumofsquares_ldist_f_surv_weight);
+    PARAMETER(cdist_sumofsquares_matp_f_surv_weight);
     auto assert_msg = [](bool expr, std::string message) -> bool {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
@@ -558,7 +525,7 @@ Type objective_function<Type>::operator() () {
     int cur_time = -1;
     PARAMETER(project_years);
     int cur_year = 0;
-    int start_year = 1979;
+    int start_year = 1990;
     vector<int> step_lengths(4); step_lengths.setConstant(3);
     auto step_count = (int)(step_lengths).size();
     int cur_year_projection = false;
@@ -566,42 +533,44 @@ Type objective_function<Type>::operator() () {
     int cur_step = 0;
     auto cur_step_size = step_lengths ( 0 ) / (double)(12);
     int cur_step_final = false;
+    int fish_imm__area = 1;
     int fish_imm__minage = 1;
     int fish_imm__maxage = 5;
-    int fish_imm__area = 1;
     DATA_VECTOR(fish_imm__midlen)
-    array<Type> fish_imm__num(5,1,5); fish_imm__num.setZero();
-    array<Type> fish_imm__wgt(5,1,5); fish_imm__wgt.setConstant((double)(1));
+    array<Type> fish_imm__num(20,5,1); fish_imm__num.setZero();
+    array<Type> fish_imm__wgt(20,5,1); fish_imm__wgt.setConstant((double)(1));
+    int fish_mat__area = 1;
     int fish_mat__minage = 3;
     int fish_mat__maxage = 10;
-    int fish_mat__area = 1;
     DATA_VECTOR(fish_mat__midlen)
-    array<Type> fish_mat__num(5,1,8); fish_mat__num.setZero();
-    array<Type> fish_mat__wgt(5,1,8); fish_mat__wgt.setConstant((double)(1));
+    array<Type> fish_mat__num(20,8,1); fish_mat__num.setZero();
+    array<Type> fish_mat__wgt(20,8,1); fish_mat__wgt.setConstant((double)(1));
     auto as_integer = [](Type v) -> int {
     return std::floor(asDouble(v));
 };
     auto total_steps = (int)(step_lengths).size()*(end_year - as_integer(retro_years) - start_year + as_integer(project_years)) + (int)(step_lengths).size() - 1;
-    array<double> dstart_fish_imm__num(5,1,5,as_integer(total_steps + (double)(1))); dstart_fish_imm__num.setZero();
-    array<double> dstart_fish_imm__wgt(5,1,5,as_integer(total_steps + (double)(1))); dstart_fish_imm__wgt.setConstant((double)(1));
-    array<double> dstart_fish_mat__num(5,1,8,as_integer(total_steps + (double)(1))); dstart_fish_mat__num.setZero();
-    array<double> dstart_fish_mat__wgt(5,1,8,as_integer(total_steps + (double)(1))); dstart_fish_mat__wgt.setConstant((double)(1));
-    array<Type> suit_fish_imm_f_surv__report(5);
-    array<Type> suit_fish_mat_f_surv__report(5);
+    array<double> dstart_fish_imm__num(20,5,1,as_integer(total_steps + (double)(1))); dstart_fish_imm__num.setZero();
+    array<double> dstart_fish_imm__wgt(20,5,1,as_integer(total_steps + (double)(1))); dstart_fish_imm__wgt.setConstant((double)(1));
+    array<double> dstart_fish_mat__num(20,8,1,as_integer(total_steps + (double)(1))); dstart_fish_mat__num.setZero();
+    array<double> dstart_fish_mat__wgt(20,8,1,as_integer(total_steps + (double)(1))); dstart_fish_mat__wgt.setConstant((double)(1));
+    array<Type> suit_fish_imm_f_surv__report(20);
+    array<Type> suit_fish_mat_f_surv__report(20);
     vector<Type> adist_surveyindices_log_dist_si_cpue_model__params(2); adist_surveyindices_log_dist_si_cpue_model__params.setZero();
-    array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,5,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
+    array<Type> adist_surveyindices_log_dist_si_cpue_model__wgt(1,34,1); adist_surveyindices_log_dist_si_cpue_model__wgt.setZero();
     DATA_ARRAY(adist_surveyindices_log_dist_si_cpue_obs__wgt)
-    array<Type> cdist_sumofsquares_aldist_f_surv_model__num(5,4,5); cdist_sumofsquares_aldist_f_surv_model__num.setZero();
+    array<Type> cdist_sumofsquares_aldist_f_surv_model__num(23,10,34); cdist_sumofsquares_aldist_f_surv_model__num.setZero();
     DATA_ARRAY(cdist_sumofsquares_aldist_f_surv_obs__num)
-    array<Type> cdist_sumofsquares_ldist_f_surv_model__num(5,5); cdist_sumofsquares_ldist_f_surv_model__num.setZero();
+    array<Type> cdist_sumofsquares_ldist_f_surv_model__num(23,34); cdist_sumofsquares_ldist_f_surv_model__num.setZero();
     DATA_ARRAY(cdist_sumofsquares_ldist_f_surv_obs__num)
-    array<double> detail_fish_imm__predby_f_surv(5,1,5,as_integer(total_steps + (double)(1)));
-    array<double> detail_fish_imm__renewalnum(5,1,5,as_integer(total_steps + (double)(1))); detail_fish_imm__renewalnum.setZero();
-    array<double> detail_fish_imm_f_surv__cons(5,1,5,as_integer(total_steps + (double)(1)));
-    array<double> detail_fish_imm_f_surv__suit(5,1,5,as_integer(total_steps + (double)(1)));
-    array<double> detail_fish_mat__predby_f_surv(5,1,8,as_integer(total_steps + (double)(1)));
-    array<double> detail_fish_mat_f_surv__cons(5,1,8,as_integer(total_steps + (double)(1)));
-    array<double> detail_fish_mat_f_surv__suit(5,1,8,as_integer(total_steps + (double)(1)));
+    array<Type> cdist_sumofsquares_matp_f_surv_model__num(23,2,34); cdist_sumofsquares_matp_f_surv_model__num.setZero();
+    DATA_ARRAY(cdist_sumofsquares_matp_f_surv_obs__num)
+    array<double> detail_fish_imm__predby_f_surv(20,5,1,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_imm__renewalnum(20,5,1,as_integer(total_steps + (double)(1))); detail_fish_imm__renewalnum.setZero();
+    array<double> detail_fish_imm_f_surv__cons(20,5,1,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_imm_f_surv__suit(20,5,1,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_mat__predby_f_surv(20,8,1,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_mat_f_surv__cons(20,8,1,as_integer(total_steps + (double)(1)));
+    array<double> detail_fish_mat_f_surv__suit(20,8,1,as_integer(total_steps + (double)(1)));
     Type nll = (double)(0);
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__weight(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__weight.setZero();
     array<Type> nll_adist_surveyindices_log_dist_si_cpue__wgt(as_integer(total_steps + 1)); nll_adist_surveyindices_log_dist_si_cpue__wgt.setZero();
@@ -609,59 +578,61 @@ Type objective_function<Type>::operator() () {
     array<Type> nll_cdist_sumofsquares_aldist_f_surv__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_aldist_f_surv__weight.setZero();
     array<Type> nll_cdist_sumofsquares_ldist_f_surv__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_f_surv__num.setZero();
     array<Type> nll_cdist_sumofsquares_ldist_f_surv__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_ldist_f_surv__weight.setZero();
+    array<Type> nll_cdist_sumofsquares_matp_f_surv__num(as_integer(total_steps + 1)); nll_cdist_sumofsquares_matp_f_surv__num.setZero();
+    array<Type> nll_cdist_sumofsquares_matp_f_surv__weight(as_integer(total_steps + 1)); nll_cdist_sumofsquares_matp_f_surv__weight.setZero();
     array<Type> nll_understocking__wgt(as_integer(total_steps + 1)); nll_understocking__wgt.setZero();
-    array<Type> fish_imm__totalpredate(5,1,5);
-    array<Type> fish_mat__totalpredate(5,1,8);
+    array<Type> fish_imm__totalpredate(20,5,1);
+    array<Type> fish_mat__totalpredate(20,8,1);
     array<Type> f_surv__totalsuit(1);
-    array<Type> fish_imm_f_surv__suit(5,1,5);
+    array<Type> fish_imm_f_surv__suit(20,5,1);
     int f_surv__area = 1;
-    array<Type> fish_mat_f_surv__suit(5,1,8);
-    array<Type> fish_imm_f_surv__cons(5,1,5);
+    array<Type> fish_mat_f_surv__suit(20,8,1);
+    array<Type> fish_imm_f_surv__cons(20,5,1);
     DATA_IVECTOR(landings_f_surv_keys)
     DATA_VECTOR(landings_f_surv_values)
     auto landings_f_surv = intlookup_zip(landings_f_surv_keys, landings_f_surv_values);
-    array<Type> fish_mat_f_surv__cons(5,1,8);
-    array<Type> fish_imm__consratio(5,1,5);
+    array<Type> fish_mat_f_surv__cons(20,8,1);
+    array<Type> fish_imm__consratio(20,5,1);
     Type fish_imm__overconsumption = (double)(0);
-    array<Type> fish_imm__consconv(5,1,5);
-    array<Type> fish_mat__consratio(5,1,8);
+    array<Type> fish_imm__consconv(20,5,1);
+    array<Type> fish_mat__consratio(20,8,1);
     Type fish_mat__overconsumption = (double)(0);
-    array<Type> fish_mat__consconv(5,1,8);
-    array<Type> fish_imm__predby_f_surv(5,1,5);
-    array<Type> fish_mat__predby_f_surv(5,1,8);
-    array<Type> fish_imm__transitioning_num(5,1,5); fish_imm__transitioning_num.setZero();
-    array<Type> fish_imm__transitioning_wgt(5,1,5);
+    array<Type> fish_mat__consconv(20,8,1);
+    array<Type> fish_imm__predby_f_surv(20,5,1);
+    array<Type> fish_mat__predby_f_surv(20,8,1);
+    array<Type> fish_imm__transitioning_num(20,5,1); fish_imm__transitioning_num.setZero();
+    array<Type> fish_imm__transitioning_wgt(20,5,1);
     int fish_imm__growth_lastcalc = -1;
-    array<Type> fish_imm__growth_l(5,5);
+    array<Type> fish_imm__growth_l(20,5);
     Type fish_imm__plusdl = (double)(5);
-    array<Type> fish_imm__growth_w(5,5);
+    array<Type> fish_imm__growth_w(20,5);
     Type fish_imm__prevtotal = (double)(0);
     int fish_mat__growth_lastcalc = -1;
-    array<Type> fish_mat__growth_l(5,5);
+    array<Type> fish_mat__growth_l(20,5);
     Type fish_mat__plusdl = (double)(5);
-    array<Type> fish_mat__growth_w(5,5);
+    array<Type> fish_mat__growth_w(20,5);
     Type fish_mat__prevtotal = (double)(0);
-    array<Type> fish_imm__renewalnum(5,1,5); fish_imm__renewalnum.setZero();
-    array<Type> fish_imm__renewalwgt(5,1,5); fish_imm__renewalwgt.setZero();
+    array<Type> fish_imm__renewalnum(20,5,1); fish_imm__renewalnum.setZero();
+    array<Type> fish_imm__renewalwgt(20,5,1); fish_imm__renewalwgt.setZero();
     int adist_surveyindices_log_dist_si_cpue_model__area = 1;
     DATA_IVECTOR(adist_surveyindices_log_dist_si_cpue_model__times_keys)
     DATA_IVECTOR(adist_surveyindices_log_dist_si_cpue_model__times_values)
     auto adist_surveyindices_log_dist_si_cpue_model__times = intlookup_zip(adist_surveyindices_log_dist_si_cpue_model__times_keys, adist_surveyindices_log_dist_si_cpue_model__times_values);
-    array<Type> fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix(1,5); fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.setConstant((double)(1));
-    array<Type> fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix(1,5); fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.setConstant((double)(1));
+    array<Type> fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix(1,20); fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.setConstant((double)(1));
+    array<Type> fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix(1,20); fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.setConstant((double)(1));
     int adist_surveyindices_log_dist_si_cpue_obs__area = 1;
     DATA_IVECTOR(cdist_sumofsquares_aldist_f_surv_model__times_keys)
     DATA_IVECTOR(cdist_sumofsquares_aldist_f_surv_model__times_values)
     auto cdist_sumofsquares_aldist_f_surv_model__times = intlookup_zip(cdist_sumofsquares_aldist_f_surv_model__times_keys, cdist_sumofsquares_aldist_f_surv_model__times_values);
     int cdist_sumofsquares_aldist_f_surv_model__minage = 1;
-    int cdist_sumofsquares_aldist_f_surv_model__maxage = 4;
+    int cdist_sumofsquares_aldist_f_surv_model__maxage = 10;
     DATA_ARRAY(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix)
     DATA_ARRAY(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix)
     DATA_IVECTOR(cdist_sumofsquares_aldist_f_surv_obs__times_keys)
     DATA_IVECTOR(cdist_sumofsquares_aldist_f_surv_obs__times_values)
     auto cdist_sumofsquares_aldist_f_surv_obs__times = intlookup_zip(cdist_sumofsquares_aldist_f_surv_obs__times_keys, cdist_sumofsquares_aldist_f_surv_obs__times_values);
     int cdist_sumofsquares_aldist_f_surv_obs__minage = 1;
-    int cdist_sumofsquares_aldist_f_surv_obs__maxage = 4;
+    int cdist_sumofsquares_aldist_f_surv_obs__maxage = 10;
     DATA_IVECTOR(cdist_sumofsquares_ldist_f_surv_model__times_keys)
     DATA_IVECTOR(cdist_sumofsquares_ldist_f_surv_model__times_values)
     auto cdist_sumofsquares_ldist_f_surv_model__times = intlookup_zip(cdist_sumofsquares_ldist_f_surv_model__times_keys, cdist_sumofsquares_ldist_f_surv_model__times_values);
@@ -670,13 +641,21 @@ Type objective_function<Type>::operator() () {
     DATA_IVECTOR(cdist_sumofsquares_ldist_f_surv_obs__times_keys)
     DATA_IVECTOR(cdist_sumofsquares_ldist_f_surv_obs__times_values)
     auto cdist_sumofsquares_ldist_f_surv_obs__times = intlookup_zip(cdist_sumofsquares_ldist_f_surv_obs__times_keys, cdist_sumofsquares_ldist_f_surv_obs__times_values);
+    DATA_IVECTOR(cdist_sumofsquares_matp_f_surv_model__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_matp_f_surv_model__times_values)
+    auto cdist_sumofsquares_matp_f_surv_model__times = intlookup_zip(cdist_sumofsquares_matp_f_surv_model__times_keys, cdist_sumofsquares_matp_f_surv_model__times_values);
+    DATA_ARRAY(fish_imm_f_surv_cdist_sumofsquares_matp_f_surv_model_lgmatrix)
+    DATA_ARRAY(fish_mat_f_surv_cdist_sumofsquares_matp_f_surv_model_lgmatrix)
+    DATA_IVECTOR(cdist_sumofsquares_matp_f_surv_obs__times_keys)
+    DATA_IVECTOR(cdist_sumofsquares_matp_f_surv_obs__times_values)
+    auto cdist_sumofsquares_matp_f_surv_obs__times = intlookup_zip(cdist_sumofsquares_matp_f_surv_obs__times_keys, cdist_sumofsquares_matp_f_surv_obs__times_values);
     Type g3l_understocking_total = (double)(0);
     array<Type> nll_understocking__weight(as_integer(total_steps + 1)); nll_understocking__weight.setZero();
-    array<Type> fish_imm_movement__transitioning_num(5,1,1);
-    array<Type> fish_imm_movement__transitioning_wgt(5,1,1);
+    array<Type> fish_imm_movement__transitioning_num(20,1,1);
+    array<Type> fish_imm_movement__transitioning_wgt(20,1,1);
+    int fish_imm_movement__area = 1;
     int fish_imm_movement__minage = 6;
     int fish_imm_movement__maxage = 6;
-    int fish_imm_movement__area = 1;
 
     while (true) {
         {
@@ -696,39 +675,43 @@ Type objective_function<Type>::operator() () {
         }
         {
             // g3a_initialconditions for fish_imm;
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( cur_time == 0 ) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv)));
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( cur_time == 0 ) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                auto factor = (fish_imm__init__scalar*map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + init__F)*(age - recage)));
+                    auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv)));
 
-                {
-                    fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
-                    fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
+                    auto factor = (fish_imm__init__scalar*map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + init__F)*(age - recage)));
+
+                    {
+                        fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
+                    }
                 }
             }
         }
         {
             // g3a_initialconditions for fish_mat;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( cur_time == 0 ) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                auto ren_dnorm = dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv)));
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( cur_time == 0 ) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                auto factor = (fish_mat__init__scalar*map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + init__F)*(age - recage)));
+                    auto ren_dnorm = dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv)));
 
-                {
-                    fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
-                    fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = fish_mat__walpha*(fish_mat__midlen).pow(fish_mat__wbeta);
+                    auto factor = (fish_mat__init__scalar*map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + init__F)*(age - recage)));
+
+                    {
+                        fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat__walpha*(fish_mat__midlen).pow(fish_mat__wbeta);
+                    }
                 }
             }
         }
@@ -772,6 +755,12 @@ Type objective_function<Type>::operator() () {
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(cdist_sumofsquares_ldist_f_surv_obs__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(cdist_sumofsquares_matp_f_surv_model__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(cdist_sumofsquares_matp_f_surv_obs__num);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(detail_fish_imm__predby_f_surv);
@@ -828,6 +817,12 @@ Type objective_function<Type>::operator() () {
             REPORT(nll_cdist_sumofsquares_ldist_f_surv__weight);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll_cdist_sumofsquares_matp_f_surv__num);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
+            REPORT(nll_cdist_sumofsquares_matp_f_surv__weight);
+        }
+        if ( reporting_enabled > 0 && cur_time > total_steps ) {
             REPORT(nll_understocking__wgt);
         }
         if ( reporting_enabled > 0 && cur_time > total_steps ) {
@@ -847,15 +842,15 @@ Type objective_function<Type>::operator() () {
             {
                 // g3a_predate for f_surv predating fish_imm;
                 fish_imm_f_surv__suit.setZero();
-                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+                {
                     auto area = fish_imm__area;
 
                     auto fish_imm__area_idx = 0;
 
-                    if ( area == f_surv__area ) {
-                        auto catchability = (suitability*fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx));
+                    for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( area == f_surv__area ) {
+                        auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                        auto catchability = (suitability*fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx)*fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx));
 
                         auto f_surv__area_idx = 0;
 
@@ -863,8 +858,8 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Collect all suitable fish_imm biomass for f_surv;
-                            fish_imm_f_surv__suit.col(fish_imm__age_idx).col(fish_imm__area_idx) = catchability;
-                            f_surv__totalsuit(f_surv__area_idx) += (fish_imm_f_surv__suit.col(fish_imm__age_idx).col(fish_imm__area_idx)).sum();
+                            fish_imm_f_surv__suit.col(fish_imm__area_idx).col(fish_imm__age_idx) = catchability;
+                            f_surv__totalsuit(f_surv__area_idx) += (fish_imm_f_surv__suit.col(fish_imm__area_idx).col(fish_imm__age_idx)).sum();
                         }
                     }
                 }
@@ -876,15 +871,15 @@ Type objective_function<Type>::operator() () {
             {
                 // g3a_predate for f_surv predating fish_mat;
                 fish_mat_f_surv__suit.setZero();
-                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+                {
                     auto area = fish_mat__area;
 
                     auto fish_mat__area_idx = 0;
 
-                    if ( area == f_surv__area ) {
-                        auto catchability = (suitability*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                    for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( area == f_surv__area ) {
+                        auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+
+                        auto catchability = (suitability*fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx));
 
                         auto f_surv__area_idx = 0;
 
@@ -892,8 +887,8 @@ Type objective_function<Type>::operator() () {
 
                         {
                             // Collect all suitable fish_mat biomass for f_surv;
-                            fish_mat_f_surv__suit.col(fish_mat__age_idx).col(fish_mat__area_idx) = catchability;
-                            f_surv__totalsuit(f_surv__area_idx) += (fish_mat_f_surv__suit.col(fish_mat__age_idx).col(fish_mat__area_idx)).sum();
+                            fish_mat_f_surv__suit.col(fish_mat__area_idx).col(fish_mat__age_idx) = catchability;
+                            f_surv__totalsuit(f_surv__area_idx) += (fish_mat_f_surv__suit.col(fish_mat__area_idx).col(fish_mat__age_idx)).sum();
                         }
                     }
                 }
@@ -902,21 +897,21 @@ Type objective_function<Type>::operator() () {
         {
             // Scale f_surv catch of fish_imm by total expected catch;
             fish_imm_f_surv__cons.setZero();
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                if ( area == f_surv__area ) {
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( area == f_surv__area ) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
                     auto f_surv__area_idx = 0;
 
                     auto predator_area = area;
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) = fish_imm_f_surv__suit.col(fish_imm__age_idx).col(fish_imm__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm_f_surv__suit.col(fish_imm__area_idx).col(fish_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
             }
             fish_imm__totalpredate = nonconform_add(fish_imm__totalpredate, fish_imm_f_surv__cons);
@@ -924,21 +919,21 @@ Type objective_function<Type>::operator() () {
         {
             // Scale f_surv catch of fish_mat by total expected catch;
             fish_mat_f_surv__cons.setZero();
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                if ( area == f_surv__area ) {
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( area == f_surv__area ) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+
                     auto f_surv__area_idx = 0;
 
                     auto predator_area = area;
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) = fish_mat_f_surv__suit.col(fish_mat__age_idx).col(fish_mat__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat_f_surv__suit.col(fish_mat__area_idx).col(fish_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
                 }
             }
             fish_mat__totalpredate = nonconform_add(fish_mat__totalpredate, fish_mat_f_surv__cons);
@@ -985,26 +980,30 @@ Type objective_function<Type>::operator() () {
         }
         {
             // Natural mortality for fish_imm;
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) *= exp(-(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M"))*cur_step_size);
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                    fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) *= exp(-(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M"))*cur_step_size);
+                }
             }
         }
         {
             // Natural mortality for fish_mat;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) *= exp(-(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M"))*cur_step_size);
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+
+                    fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) *= exp(-(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M"))*cur_step_size);
+                }
             }
         }
         {
@@ -1023,29 +1022,31 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_grow for fish_imm;
-                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+                {
                     auto area = fish_imm__area;
 
                     auto fish_imm__area_idx = 0;
 
-                    auto growthmatresult = g3a_grow_apply(g3a_grow_matrix_len(growth_delta_l*maturity_ratio), growthmat_w, fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx));
+                    for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                        auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                    auto growthimmresult = g3a_grow_apply(g3a_grow_matrix_len(growth_delta_l*((double)(1) - maturity_ratio)), growthmat_w, fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx));
+                        auto growthmatresult = g3a_grow_apply(g3a_grow_matrix_len(growth_delta_l*maturity_ratio), growthmat_w, fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx));
 
-                    {
-                        if ( false ) {
-                            fish_imm__prevtotal = (fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx)).sum();
-                        }
-                        // Grow and separate maturing fish_imm;
-                        fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx) = growthmatresult.col(0);
-                        fish_imm__transitioning_wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = growthmatresult.col(1);
-                        // Grow non-maturing fish_imm;
-                        fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) = growthimmresult.col(0);
-                        fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = growthimmresult.col(1);
-                        if ( false ) {
-                            assert_msg(CppAD::abs(fish_imm__prevtotal - (fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx)).sum() - (fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish_imm__num totals are not the same before and after growth (excluding maturation)");
+                        auto growthimmresult = g3a_grow_apply(g3a_grow_matrix_len(growth_delta_l*((double)(1) - maturity_ratio)), growthmat_w, fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx));
+
+                        {
+                            if ( false ) {
+                                fish_imm__prevtotal = (fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx)).sum();
+                            }
+                            // Grow and separate maturing fish_imm;
+                            fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx) = growthmatresult.col(0);
+                            fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = growthmatresult.col(1);
+                            // Grow non-maturing fish_imm;
+                            fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = growthimmresult.col(0);
+                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = growthimmresult.col(1);
+                            if ( false ) {
+                                assert_msg(CppAD::abs(fish_imm__prevtotal - (fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx)).sum() - (fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish_imm__num totals are not the same before and after growth (excluding maturation)");
+                            }
                         }
                     }
                 }
@@ -1063,24 +1064,26 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_grow for fish_mat;
-                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+                {
                     auto area = fish_mat__area;
 
                     auto fish_mat__area_idx = 0;
 
-                    auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx), fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                    for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                        auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                    {
-                        if ( false ) {
-                            fish_mat__prevtotal = (fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)).sum();
-                        }
-                        // Update fish_mat using delta matrices;
-                        fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) = growthresult.col(0);
-                        fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = growthresult.col(1);
-                        if ( false ) {
-                            assert_msg(CppAD::abs(fish_mat__prevtotal - (fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish_mat__num totals are not the same before and after growth");
+                        auto growthresult = g3a_grow_apply(growthmat_l, growthmat_w, fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx));
+
+                        {
+                            if ( false ) {
+                                fish_mat__prevtotal = (fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)).sum();
+                            }
+                            // Update fish_mat using delta matrices;
+                            fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) = growthresult.col(0);
+                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = growthresult.col(1);
+                            if ( false ) {
+                                assert_msg(CppAD::abs(fish_mat__prevtotal - (fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)).sum()) < (double)(1e-04), "g3a_growmature: fish_mat__num totals are not the same before and after growth");
+                            }
                         }
                     }
                 }
@@ -1089,24 +1092,26 @@ Type objective_function<Type>::operator() () {
         }
         {
             // Move fish_imm to fish_mat;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( age >= fish_imm__minage && age <= fish_imm__maxage ) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                {
-                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( area == fish_imm__area ) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                    if ( area == fish_imm__area ) {
+                    {
                         auto fish_imm__area_idx = 0;
 
-                        {
-                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm__transitioning_wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                            fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                            fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx) -= fish_imm__transitioning_num.col(fish_imm__age_idx).col(fish_imm__area_idx);
-                            fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                        if ( age >= fish_imm__minage && age <= fish_imm__maxage ) {
+                            auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                            {
+                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = (fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)) + fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx)*fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                                fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                                fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx) -= fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) /= avoid_zero(fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx));
+                            }
                         }
                     }
                 }
@@ -1119,21 +1124,23 @@ Type objective_function<Type>::operator() () {
 
             {
                 // g3a_renewal for fish_imm;
-                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( age == fish_imm__minage && cur_step == 1 ) {
-                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+                {
                     auto area = fish_imm__area;
 
                     auto fish_imm__area_idx = 0;
 
-                    auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0)))), avoid_zero(fish_imm__rec__sd));
+                    for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( age == fish_imm__minage && cur_step == 1 ) {
+                        auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                    {
-                        fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
-                        fish_imm__renewalwgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
-                        // Add result to fish_imm;
-                        fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx) = ratio_add_vec(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__renewalwgt.col(fish_imm__age_idx).col(fish_imm__area_idx), fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx));
-                        fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx) += fish_imm__renewalnum.col(fish_imm__age_idx).col(fish_imm__area_idx);
+                        auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0))))*fish_imm__lencv)));
+
+                        {
+                            fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
+                            // Add result to fish_imm;
+                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = ratio_add_vec(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx));
+                            fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) += fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                        }
                     }
                 }
             }
@@ -1154,6 +1161,12 @@ Type objective_function<Type>::operator() () {
             // g3l_bounds_penalty for cdist_sumofsquares_ldist_f_surv_weight;
             if ( cur_time == 0 && std::isfinite(asDouble(cdist_sumofsquares_ldist_f_surv_weight__lower)) && std::isfinite(asDouble(cdist_sumofsquares_ldist_f_surv_weight__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(cdist_sumofsquares_ldist_f_surv_weight - cdist_sumofsquares_ldist_f_surv_weight__upper) / (cdist_sumofsquares_ldist_f_surv_weight__upper - cdist_sumofsquares_ldist_f_surv_weight__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(cdist_sumofsquares_ldist_f_surv_weight__lower - cdist_sumofsquares_ldist_f_surv_weight) / (cdist_sumofsquares_ldist_f_surv_weight__upper - cdist_sumofsquares_ldist_f_surv_weight__lower)), (Type)((double)(0)))), (Type)(double)(2)));
+            }
+        }
+        {
+            // g3l_bounds_penalty for cdist_sumofsquares_matp_f_surv_weight;
+            if ( cur_time == 0 && std::isfinite(asDouble(cdist_sumofsquares_matp_f_surv_weight__lower)) && std::isfinite(asDouble(cdist_sumofsquares_matp_f_surv_weight__upper)) ) {
+                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(cdist_sumofsquares_matp_f_surv_weight - cdist_sumofsquares_matp_f_surv_weight__upper) / (cdist_sumofsquares_matp_f_surv_weight__upper - cdist_sumofsquares_matp_f_surv_weight__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(cdist_sumofsquares_matp_f_surv_weight__lower - cdist_sumofsquares_matp_f_surv_weight) / (cdist_sumofsquares_matp_f_surv_weight__upper - cdist_sumofsquares_matp_f_surv_weight__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
         {
@@ -1268,72 +1281,6 @@ Type objective_function<Type>::operator() () {
             // g3l_bounds_penalty for fish_imm.mat.l50;
             if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__mat__l50__lower)) && std::isfinite(asDouble(fish_imm__mat__l50__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__mat__l50 - fish_imm__mat__l50__upper) / (fish_imm__mat__l50__upper - fish_imm__mat__l50__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__mat__l50__lower - fish_imm__mat__l50) / (fish_imm__mat__l50__upper - fish_imm__mat__l50__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1979;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1979__lower)) && std::isfinite(asDouble(fish_imm__rec__1979__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1979 - fish_imm__rec__1979__upper) / (fish_imm__rec__1979__upper - fish_imm__rec__1979__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1979__lower - fish_imm__rec__1979) / (fish_imm__rec__1979__upper - fish_imm__rec__1979__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1980;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1980__lower)) && std::isfinite(asDouble(fish_imm__rec__1980__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1980 - fish_imm__rec__1980__upper) / (fish_imm__rec__1980__upper - fish_imm__rec__1980__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1980__lower - fish_imm__rec__1980) / (fish_imm__rec__1980__upper - fish_imm__rec__1980__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1981;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1981__lower)) && std::isfinite(asDouble(fish_imm__rec__1981__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1981 - fish_imm__rec__1981__upper) / (fish_imm__rec__1981__upper - fish_imm__rec__1981__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1981__lower - fish_imm__rec__1981) / (fish_imm__rec__1981__upper - fish_imm__rec__1981__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1982;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1982__lower)) && std::isfinite(asDouble(fish_imm__rec__1982__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1982 - fish_imm__rec__1982__upper) / (fish_imm__rec__1982__upper - fish_imm__rec__1982__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1982__lower - fish_imm__rec__1982) / (fish_imm__rec__1982__upper - fish_imm__rec__1982__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1983;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1983__lower)) && std::isfinite(asDouble(fish_imm__rec__1983__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1983 - fish_imm__rec__1983__upper) / (fish_imm__rec__1983__upper - fish_imm__rec__1983__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1983__lower - fish_imm__rec__1983) / (fish_imm__rec__1983__upper - fish_imm__rec__1983__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1984;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1984__lower)) && std::isfinite(asDouble(fish_imm__rec__1984__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1984 - fish_imm__rec__1984__upper) / (fish_imm__rec__1984__upper - fish_imm__rec__1984__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1984__lower - fish_imm__rec__1984) / (fish_imm__rec__1984__upper - fish_imm__rec__1984__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1985;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1985__lower)) && std::isfinite(asDouble(fish_imm__rec__1985__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1985 - fish_imm__rec__1985__upper) / (fish_imm__rec__1985__upper - fish_imm__rec__1985__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1985__lower - fish_imm__rec__1985) / (fish_imm__rec__1985__upper - fish_imm__rec__1985__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1986;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1986__lower)) && std::isfinite(asDouble(fish_imm__rec__1986__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1986 - fish_imm__rec__1986__upper) / (fish_imm__rec__1986__upper - fish_imm__rec__1986__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1986__lower - fish_imm__rec__1986) / (fish_imm__rec__1986__upper - fish_imm__rec__1986__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1987;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1987__lower)) && std::isfinite(asDouble(fish_imm__rec__1987__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1987 - fish_imm__rec__1987__upper) / (fish_imm__rec__1987__upper - fish_imm__rec__1987__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1987__lower - fish_imm__rec__1987) / (fish_imm__rec__1987__upper - fish_imm__rec__1987__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1988;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1988__lower)) && std::isfinite(asDouble(fish_imm__rec__1988__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1988 - fish_imm__rec__1988__upper) / (fish_imm__rec__1988__upper - fish_imm__rec__1988__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1988__lower - fish_imm__rec__1988) / (fish_imm__rec__1988__upper - fish_imm__rec__1988__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
-            // g3l_bounds_penalty for fish_imm.rec.1989;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__1989__lower)) && std::isfinite(asDouble(fish_imm__rec__1989__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1989 - fish_imm__rec__1989__upper) / (fish_imm__rec__1989__upper - fish_imm__rec__1989__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__1989__lower - fish_imm__rec__1989) / (fish_imm__rec__1989__upper - fish_imm__rec__1989__lower)), (Type)((double)(0)))), (Type)(double)(2)));
             }
         }
         {
@@ -1553,12 +1500,6 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            // g3l_bounds_penalty for fish_imm.rec.sd;
-            if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__rec__sd__lower)) && std::isfinite(asDouble(fish_imm__rec__sd__upper)) ) {
-                nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__rec__sd - fish_imm__rec__sd__upper) / (fish_imm__rec__sd__upper - fish_imm__rec__sd__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__rec__sd__lower - fish_imm__rec__sd) / (fish_imm__rec__sd__upper - fish_imm__rec__sd__lower)), (Type)((double)(0)))), (Type)(double)(2)));
-            }
-        }
-        {
             // g3l_bounds_penalty for fish_imm.t0;
             if ( cur_time == 0 && std::isfinite(asDouble(fish_imm__t0__lower)) && std::isfinite(asDouble(fish_imm__t0__upper)) ) {
                 nll += (double)(1)*(pow((logspace_add((Type)((double)(1e+06)*(fish_imm__t0 - fish_imm__t0__upper) / (fish_imm__t0__upper - fish_imm__t0__lower)), (Type)((double)(0))) + logspace_add((Type)((double)(1e+06)*(fish_imm__t0__lower - fish_imm__t0) / (fish_imm__t0__upper - fish_imm__t0__lower)), (Type)((double)(0)))), (Type)(double)(2)));
@@ -1746,48 +1687,52 @@ Type objective_function<Type>::operator() () {
         }
         if ( adist_surveyindices_log_dist_si_cpue_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish_imm for adist_surveyindices_log_dist_si_cpue;
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                if ( area == adist_surveyindices_log_dist_si_cpue_model__area ) {
-                    auto adist_surveyindices_log_dist_si_cpue_model__area_idx = 0;
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                    auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
+                    if ( area == adist_surveyindices_log_dist_si_cpue_model__area ) {
+                        auto adist_surveyindices_log_dist_si_cpue_model__area_idx = 0;
 
-                    if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
-                        // Convert fish_imm to wgt;
-                        adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_imm__num.col(fish_imm__age_idx).col(fish_imm__area_idx)*fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx))).matrix())).vec();
+                        auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                        if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
+                            // Convert fish_imm to wgt;
+                            adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_imm_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx)*fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx))).matrix())).vec();
+                        }
                     }
                 }
             }
         }
         if ( adist_surveyindices_log_dist_si_cpue_weight > (double)(0) ) {
             // g3l_abundancedistribution_surveyindices_log: Collect abundance from fish_mat for adist_surveyindices_log_dist_si_cpue;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                if ( area == adist_surveyindices_log_dist_si_cpue_model__area ) {
-                    auto adist_surveyindices_log_dist_si_cpue_model__area_idx = 0;
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                    auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
+                    if ( area == adist_surveyindices_log_dist_si_cpue_model__area ) {
+                        auto adist_surveyindices_log_dist_si_cpue_model__area_idx = 0;
 
-                    if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
-                        // Convert fish_mat to wgt;
-                        adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx))).matrix())).vec();
+                        auto adist_surveyindices_log_dist_si_cpue_model__time_idx = intlookup_getdefault(adist_surveyindices_log_dist_si_cpue_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                        if ( adist_surveyindices_log_dist_si_cpue_model__time_idx >= 0 ) {
+                            // Convert fish_mat to wgt;
+                            adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx).col(adist_surveyindices_log_dist_si_cpue_model__time_idx) += ((matrix<Type>)(fish_mat_adist_surveyindices_log_dist_si_cpue_model_lgmatrix.matrix() * ((fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx))).matrix())).vec();
+                        }
                     }
                 }
             }
         }
         {
-            auto adist_surveyindices_log_dist_si_cpue_model__max_time_idx = 4;
+            auto adist_surveyindices_log_dist_si_cpue_model__max_time_idx = 33;
 
             {
                 // g3l_abundancedistribution_surveyindices_log: Compare adist_surveyindices_log_dist_si_cpue_model to adist_surveyindices_log_dist_si_cpue_obs;
@@ -1821,22 +1766,24 @@ Type objective_function<Type>::operator() () {
         }
         if ( cdist_sumofsquares_aldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_imm for cdist_sumofsquares_aldist_f_surv;
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                auto cdist_sumofsquares_aldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_aldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                if ( cdist_sumofsquares_aldist_f_surv_model__time_idx >= 0 ) {
-                    if ( age >= cdist_sumofsquares_aldist_f_surv_model__minage && age <= cdist_sumofsquares_aldist_f_surv_model__maxage ) {
-                        auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
+                    auto cdist_sumofsquares_aldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_aldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
-                        {
-                            // Convert fish_imm_f_surv to num;
-                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
+                    if ( cdist_sumofsquares_aldist_f_surv_model__time_idx >= 0 ) {
+                        if ( age >= cdist_sumofsquares_aldist_f_surv_model__minage && age <= cdist_sumofsquares_aldist_f_surv_model__maxage ) {
+                            auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
+
+                            {
+                                // Convert fish_imm_f_surv to num;
+                                cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx)))).matrix())).vec();
+                            }
                         }
                     }
                 }
@@ -1844,22 +1791,24 @@ Type objective_function<Type>::operator() () {
         }
         if ( cdist_sumofsquares_aldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_mat for cdist_sumofsquares_aldist_f_surv;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                auto cdist_sumofsquares_aldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_aldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                if ( cdist_sumofsquares_aldist_f_surv_model__time_idx >= 0 ) {
-                    if ( age >= cdist_sumofsquares_aldist_f_surv_model__minage && age <= cdist_sumofsquares_aldist_f_surv_model__maxage ) {
-                        auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
+                    auto cdist_sumofsquares_aldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_aldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
 
-                        {
-                            // Convert fish_mat_f_surv to num;
-                            cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
+                    if ( cdist_sumofsquares_aldist_f_surv_model__time_idx >= 0 ) {
+                        if ( age >= cdist_sumofsquares_aldist_f_surv_model__minage && age <= cdist_sumofsquares_aldist_f_surv_model__maxage ) {
+                            auto cdist_sumofsquares_aldist_f_surv_model__age_idx = age - cdist_sumofsquares_aldist_f_surv_model__minage + 1 - 1;
+
+                            {
+                                // Convert fish_mat_f_surv to num;
+                                cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_aldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)))).matrix())).vec();
+                            }
                         }
                     }
                 }
@@ -1899,35 +1848,39 @@ Type objective_function<Type>::operator() () {
         }
         if ( cdist_sumofsquares_ldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_imm for cdist_sumofsquares_ldist_f_surv;
-            for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
-
+            {
                 auto area = fish_imm__area;
 
                 auto fish_imm__area_idx = 0;
 
-                auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
-                    // Convert fish_imm_f_surv to num;
-                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__age_idx).col(fish_imm__area_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__age_idx).col(fish_imm__area_idx)))).matrix())).vec();
+                    auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                    if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
+                        // Convert fish_imm_f_surv to num;
+                        cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx)))).matrix())).vec();
+                    }
                 }
             }
         }
         if ( cdist_sumofsquares_ldist_f_surv_weight > (double)(0) ) {
             // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_mat for cdist_sumofsquares_ldist_f_surv;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
-                    // Convert fish_mat_f_surv to num;
-                    cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__age_idx).col(fish_mat__area_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)))).matrix())).vec();
+                    auto cdist_sumofsquares_ldist_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_ldist_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                    if ( cdist_sumofsquares_ldist_f_surv_model__time_idx >= 0 ) {
+                        // Convert fish_mat_f_surv to num;
+                        cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_ldist_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)))).matrix())).vec();
+                    }
                 }
             }
         }
@@ -1950,6 +1903,82 @@ Type objective_function<Type>::operator() () {
                             nll += cdist_sumofsquares_ldist_f_surv_weight*cur_cdist_nll;
                             nll_cdist_sumofsquares_ldist_f_surv__num(cur_time + 1 - 1) += cur_cdist_nll;
                             nll_cdist_sumofsquares_ldist_f_surv__weight(cur_time + 1 - 1) = cdist_sumofsquares_ldist_f_surv_weight;
+                        }
+                    }
+                }
+            }
+        }
+        if ( cdist_sumofsquares_matp_f_surv_weight > (double)(0) ) {
+            // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_imm for cdist_sumofsquares_matp_f_surv;
+            {
+                auto area = fish_imm__area;
+
+                auto fish_imm__area_idx = 0;
+
+                for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                    auto cdist_sumofsquares_matp_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_matp_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                    if ( cdist_sumofsquares_matp_f_surv_model__time_idx >= 0 ) {
+                        auto cdist_sumofsquares_matp_f_surv_model__stock_idx = 0;
+
+                        if ( cdist_sumofsquares_matp_f_surv_model__stock_idx >= 0 ) {
+                            // Convert fish_imm_f_surv to num;
+                            cdist_sumofsquares_matp_f_surv_model__num.col(cdist_sumofsquares_matp_f_surv_model__time_idx).col(cdist_sumofsquares_matp_f_surv_model__stock_idx) += ((matrix<Type>)(fish_imm_f_surv_cdist_sumofsquares_matp_f_surv_model_lgmatrix.matrix() * ((fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) / avoid_zero(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx)))).matrix())).vec();
+                        }
+                    }
+                }
+            }
+        }
+        if ( cdist_sumofsquares_matp_f_surv_weight > (double)(0) ) {
+            // g3l_catchdistribution_sumofsquares: Collect catch from f_surv/fish_mat for cdist_sumofsquares_matp_f_surv;
+            {
+                auto area = fish_mat__area;
+
+                auto fish_mat__area_idx = 0;
+
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+
+                    auto cdist_sumofsquares_matp_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_matp_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                    if ( cdist_sumofsquares_matp_f_surv_model__time_idx >= 0 ) {
+                        auto cdist_sumofsquares_matp_f_surv_model__stock_idx = 1;
+
+                        if ( cdist_sumofsquares_matp_f_surv_model__stock_idx >= 0 ) {
+                            // Convert fish_mat_f_surv to num;
+                            cdist_sumofsquares_matp_f_surv_model__num.col(cdist_sumofsquares_matp_f_surv_model__time_idx).col(cdist_sumofsquares_matp_f_surv_model__stock_idx) += ((matrix<Type>)(fish_mat_f_surv_cdist_sumofsquares_matp_f_surv_model_lgmatrix.matrix() * ((fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) / avoid_zero(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)))).matrix())).vec();
+                        }
+                    }
+                }
+            }
+        }
+        {
+            // g3l_catchdistribution_sumofsquares: Compare cdist_sumofsquares_matp_f_surv_model to cdist_sumofsquares_matp_f_surv_obs;
+            if ( cdist_sumofsquares_matp_f_surv_weight > (double)(0) ) {
+                auto cdist_sumofsquares_matp_f_surv_model__time_idx = intlookup_getdefault(cdist_sumofsquares_matp_f_surv_model__times, (cur_year*100 + cur_step), -1) - 1;
+
+                if ( cdist_sumofsquares_matp_f_surv_model__time_idx >= 0 ) {
+                    for (auto cdist_sumofsquares_matp_f_surv_model__stock_idx = 0; cdist_sumofsquares_matp_f_surv_model__stock_idx <= 1; cdist_sumofsquares_matp_f_surv_model__stock_idx++) {
+                        auto cdist_sumofsquares_matp_f_surv_model__sstotal = avoid_zero((cdist_sumofsquares_matp_f_surv_model__num.col(cdist_sumofsquares_matp_f_surv_model__time_idx)).sum());
+
+                        auto cdist_sumofsquares_matp_f_surv_obs__time_idx = intlookup_getdefault(cdist_sumofsquares_matp_f_surv_obs__times, (cur_year*100 + cur_step), -1) - 1;
+
+                        if ( cdist_sumofsquares_matp_f_surv_obs__time_idx >= 0 ) {
+                            auto cdist_sumofsquares_matp_f_surv_obs__stock_idx = cdist_sumofsquares_matp_f_surv_model__stock_idx;
+
+                            if ( cdist_sumofsquares_matp_f_surv_obs__stock_idx >= 0 ) {
+                                auto cdist_sumofsquares_matp_f_surv_obs__sstotal = avoid_zero((cdist_sumofsquares_matp_f_surv_obs__num.col(cdist_sumofsquares_matp_f_surv_obs__time_idx)).sum());
+
+                                auto cur_cdist_nll = ((pow(((cdist_sumofsquares_matp_f_surv_model__num.col(cdist_sumofsquares_matp_f_surv_model__time_idx).col(cdist_sumofsquares_matp_f_surv_model__stock_idx) / cdist_sumofsquares_matp_f_surv_model__sstotal) - (cdist_sumofsquares_matp_f_surv_obs__num.col(cdist_sumofsquares_matp_f_surv_obs__time_idx).col(cdist_sumofsquares_matp_f_surv_obs__stock_idx) / cdist_sumofsquares_matp_f_surv_obs__sstotal)), (Type)(double)(2)))).sum();
+
+                                {
+                                    nll += cdist_sumofsquares_matp_f_surv_weight*cur_cdist_nll;
+                                    nll_cdist_sumofsquares_matp_f_surv__num(cur_time + 1 - 1) += cur_cdist_nll;
+                                    nll_cdist_sumofsquares_matp_f_surv__weight(cur_time + 1 - 1) = cdist_sumofsquares_matp_f_surv_weight;
+                                }
+                            }
                         }
                     }
                 }
@@ -1998,50 +2027,60 @@ Type objective_function<Type>::operator() () {
             detail_fish_mat_f_surv__suit.col(cur_time + 1 - 1) = as_numeric_arr(fish_mat_f_surv__suit);
         }
         if ( cur_step_final ) {
-            // g3a_age for fish_imm;
-            for (auto age = fish_imm__maxage; age >= fish_imm__minage; age--) {
-                auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+            auto fish_imm_movement__area_idx = 0;
 
-                {
-                    // Check stock has remained finite for this step;
-                    if (age == fish_imm__maxage) {
-                        // Move oldest fish_imm into fish_imm_movement;
-                        fish_imm_movement__transitioning_num.col(0) = fish_imm__num.col(fish_imm__age_idx);
-                        fish_imm_movement__transitioning_wgt.col(0) = fish_imm__wgt.col(fish_imm__age_idx);
-                        fish_imm__num.col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__age_idx - 1);
-                        fish_imm__wgt.col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__age_idx - 1);
-                    } else {
-                        if (age == fish_imm__minage) {
-                            // Empty youngest fish_imm age-group;
-                            fish_imm__num.col(fish_imm__age_idx).setZero();
+            auto fish_imm__area_idx = 0;
+
+            {
+                // g3a_age for fish_imm;
+                for (auto age = fish_imm__maxage; age >= fish_imm__minage; age--) {
+                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                    {
+                        // Check stock has remained finite for this step;
+                        if (age == fish_imm__maxage) {
+                            // Move oldest fish_imm into fish_imm_movement;
+                            fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(0) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                            fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(0) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                            fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
                         } else {
-                            // Move fish_imm age-group to next one up;
-                            fish_imm__num.col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__age_idx - 1);
-                            fish_imm__wgt.col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__age_idx - 1);
+                            if (age == fish_imm__minage) {
+                                // Empty youngest fish_imm age-group;
+                                fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx).setZero();
+                            } else {
+                                // Move fish_imm age-group to next one up;
+                                fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                                fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                            }
                         }
                     }
                 }
             }
         }
         if ( cur_step_final ) {
-            // g3a_age for fish_mat;
-            for (auto age = fish_mat__maxage; age >= fish_mat__minage; age--) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+            auto fish_mat__area_idx = 0;
 
-                {
-                    // Check stock has remained finite for this step;
-                    if (age == fish_mat__maxage) {
-                        // Oldest fish_mat is a plus-group, combine with younger individuals;
-                        fish_mat__wgt.col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__age_idx), fish_mat__num.col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__age_idx - 1));
-                        fish_mat__num.col(fish_mat__age_idx) += fish_mat__num.col(fish_mat__age_idx - 1);
-                    } else {
-                        if (age == fish_mat__minage) {
-                            // Empty youngest fish_mat age-group;
-                            fish_mat__num.col(fish_mat__age_idx).setZero();
+            {
+                // g3a_age for fish_mat;
+                for (auto age = fish_mat__maxage; age >= fish_mat__minage; age--) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
+
+                    {
+                        // Check stock has remained finite for this step;
+                        if (age == fish_mat__maxage) {
+                            // Oldest fish_mat is a plus-group, combine with younger individuals;
+                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
+                            fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
                         } else {
-                            // Move fish_mat age-group to next one up;
-                            fish_mat__num.col(fish_mat__age_idx) = fish_mat__num.col(fish_mat__age_idx - 1);
-                            fish_mat__wgt.col(fish_mat__age_idx) = fish_mat__wgt.col(fish_mat__age_idx - 1);
+                            if (age == fish_mat__minage) {
+                                // Empty youngest fish_mat age-group;
+                                fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx).setZero();
+                            } else {
+                                // Move fish_mat age-group to next one up;
+                                fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
+                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
+                            }
                         }
                     }
                 }
@@ -2049,24 +2088,26 @@ Type objective_function<Type>::operator() () {
         }
         {
             // Move fish_imm_movement to fish_mat;
-            for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( age >= fish_imm_movement__minage && age <= fish_imm_movement__maxage ) {
-                auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
-
+            {
                 auto area = fish_mat__area;
 
                 auto fish_mat__area_idx = 0;
 
-                {
-                    auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
+                for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( area == fish_imm_movement__area ) {
+                    auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                    if ( area == fish_imm_movement__area ) {
-                        if ( cur_step_final ) {
-                            auto fish_imm_movement__area_idx = 0;
+                    {
+                        auto fish_imm_movement__area_idx = 0;
 
-                            {
-                                fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) = (fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx)*fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx)) + fish_imm_movement__transitioning_wgt.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx)*fish_imm_movement__transitioning_num.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx);
-                                fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__age_idx).col(fish_imm_movement__area_idx);
-                                fish_mat__wgt.col(fish_mat__age_idx).col(fish_mat__area_idx) /= avoid_zero(fish_mat__num.col(fish_mat__age_idx).col(fish_mat__area_idx));
+                        if ( age >= fish_imm_movement__minage && age <= fish_imm_movement__maxage ) {
+                            if ( cur_step_final ) {
+                                auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
+
+                                {
+                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = (fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)) + fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx)*fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
+                                    fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
+                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) /= avoid_zero(fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx));
+                                }
                             }
                         }
                     }
