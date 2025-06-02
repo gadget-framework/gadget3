@@ -155,7 +155,11 @@ g3_quota(
     }
   }
   \subsection{g3_quota_assess}{A formula for use in \code{\link{g3_quota}} }
-  \subsection{g3_quota}{A formula for use in \code{\link{g3a_predate_catchability_project}} }
+  \subsection{g3_quota}{
+    A formula for use in \code{\link{g3a_predate_catchability_project}}, returning the current value of the quota \code{quota_\var{quota_name}__var} time vector.
+
+    In addition, returns an ancillary step that populates the \code{quota_\var{quota_name}__var} time vector according to the fishing year.
+  }
 }
 
 \examples{
