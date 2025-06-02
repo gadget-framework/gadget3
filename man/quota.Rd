@@ -39,6 +39,8 @@ g3_quota(
 \arguments{
   \item{predstocks, preystocks}{
     Lists of \code{\link{g3_stock}} objects to represent the predators/fleets and prey when forming the quota.
+    In \code{\link{g3_quota_hockeyfleet}}, these will be used to name the quota/parameters.
+    In \code{\link{g3_quota_assess}}, these will define helper variables for use in \var{function_f}.
   }
   \item{preyprop_fs}{
     A \code{\link{formula}} or list of formulas representing the proportion of that prey that makes up the Spawning Stock Biomass (SSB).

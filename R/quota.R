@@ -1,5 +1,5 @@
 g3_quota_hockeyfleet <- function (
-        predstocks,
+        predstocks,  # Predator / fleet stocks forming a name for quota
         preystocks,  # Mature spawning-stocks
         preyprop_fs = 1,  # NB: Doesn't have to sum to 1
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
@@ -12,13 +12,13 @@ g3_quota_hockeyfleet <- function (
 
     # totalssb: Total spawning-stock biomass
     # == sum(preyprop * preystock1__num * preystock1__wgt) + ...
-    totalssb <- lapply(predstocks, function (predstock) lapply(preystocks, function (preystock) {
+    totalssb <- lapply(preystocks, function (preystock) {
         stock <- preystock
         g3_step(f_substitute(
             ~stock_with(stock, hockeyfleet_mult_sum(stock__num * stock__wgt, preyprop)),
             list(
                 preyprop = resolve_stock_list(preyprop_fs, preystock) )), recursing = TRUE)
-    }))
+    })
     totalssb <- f_chain_op(do.call(c, totalssb), "+")
 
     # Work out function used to multiply & sum preyprop
@@ -55,7 +55,7 @@ g3_quota_hockeyfleet <- function (
             stddev = stddev,
             out = out ))
 
-    attr(out, "quota_name") <- c("hockeyfleet", sapply(predstocks, function (ps) ps$name))
+    attr(out, "quota_name") <- c("hockeyfleet", stock_common_part(predstocks, collapse = NULL))
     attr(out, "catchability_unit") <- "harvest-rate-year"
     return(out)
 }

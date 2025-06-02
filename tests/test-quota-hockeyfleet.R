@@ -4,11 +4,14 @@ library(unittest)
 library(gadget3)
 
 st <- g3_stock("st", c(10))
-fl <- g3_fleet('fl')
+stocks_fl <- list(
+    a = g3_fleet(c(type = 'fl', 'a')),
+    # NB: We don't use this one, just added to ensure we alter names accordingly
+    b = g3_fleet(c(type = 'fl', 'b')) )
 
 # Define quota for the fleet, with an assessment in spring, application in autumn
 fl_quota <- g3_quota(
-    g3_quota_hockeyfleet(list(fl), list(st), preyprop_fs = 1),
+    g3_quota_hockeyfleet(stocks_fl, list(st), preyprop_fs = 1),
     start_step = 4L,
     run_revstep = -2L )
 
@@ -21,7 +24,7 @@ ok_group("g3_quota_hockeyfleet: selectivity function preyprop_fs", {
         g3_stock(c("st", "female"), 0:10 * 10) |> g3s_age(1, 3))
 
     q_hf <- g3_quota_hockeyfleet(
-            list(fl),
+            stocks_fl,
             stocks,
             preyprop_fs = g3_suitability_blueling() )
 
@@ -79,7 +82,7 @@ actions <- list(
         abund = 1e6 - 1e4 * seq(0, 2050-1990 + 0.75, by = 0.25)), "abund"), wgt_f = 10),
     # Fleet predates stock
     g3a_predate(
-        fl,
+        stocks_fl$a,
         list(st),
         suitabilities = 0.8,
         catchability_f = g3a_predate_catchability_project(
@@ -99,9 +102,9 @@ attr(model_fn, "parameter_template") |>
     # Project for 30 years
     g3_init_val("project_years", 30) |>
     # Fishing generally occurs in spring/summer, none in winter
-    g3_init_val("fl.cons.step.#", c(0.0, 0.5, 0.4, 0.1)) |>
+    g3_init_val("fl_a.cons.step.#", c(0.0, 0.5, 0.4, 0.1)) |>
     # Initial landings fixed
-    g3_init_val("fl.landings.#", 1e6) |>
+    g3_init_val("fl_a.landings.#", 1e6) |>
     # Hockefleet: harvest rate & trigger biomass
     g3_init_val("fl.hf.harvest_rate", 0.2) |>
     g3_init_val("fl.hf.btrigger", 7.8e6) |>
@@ -129,21 +132,21 @@ ok(ut_cmp_equal(
     `2017:2018` = 0.173432, `2018:2019` = 0.171212, `2019:2020` = 0.168986,
     `2020:2021` = 0.166757, `2021:2022` = 0.164524, `2022:2023` = 0.162286,
     `2023:2024` = 0.160044, `2024:2025` = 0.157797, `2025:2026` = 0.155546
-    ), tolerance = 5e-5), "quota_hockeyfleet_fl__var: Constant until btrigger, then starts dropping")
+    ), tolerance = 5e-5), "quota_hockeyfleet_fl__var Constant until btrigger, then starts dropping")
 
-x <- g3_array_agg(r$detail_st_fl__cons, year = 1990:1995, "step")
+x <- g3_array_agg(r$detail_st_fl_a__cons, year = 1990:1995, "step")
 ok(ut_cmp_equal(
     as.vector(x),
     c(6e6, 6e6, 6e6, 6e6),
-    tolerance = 3e-7 ), "detail_st_fl__cons: Specified by parameters (before projecting)")
-x <- g3_array_agg(r$detail_st_fl__cons, year = 1996:2024, "step")
+    tolerance = 3e-7 ), "detail_st_fl_a__cons: Specified by parameters (before projecting)")
+x <- g3_array_agg(r$detail_st_fl_a__cons, year = 1996:2024, "step")
 ok(ut_cmp_equal(
     as.vector(x / sum(x)),
     c(0, 0.5, 0.4, 0.1),
-    tolerance = 4e-3 ), "detail_st_fl__cons: Follows seasonal pattern (whilst projecting)")
+    tolerance = 4e-3 ), "detail_st_fl_a__cons: Follows seasonal pattern (whilst projecting)")
 
-fishingyear_cons <- c(0, tail(g3_array_agg(r$detail_st_fl__cons, year = 1990:2024, "year", step = 1:3), -1)) +
-    g3_array_agg(r$detail_st_fl__cons, year = 1990:2024, "year", step = 4)
+fishingyear_cons <- c(0, tail(g3_array_agg(r$detail_st_fl_a__cons, year = 1990:2024, "year", step = 1:3), -1)) +
+    g3_array_agg(r$detail_st_fl_a__cons, year = 1990:2024, "year", step = 4)
 ok(ut_cmp_equal(
     fishingyear_cons[[1]],
     1e6), "fishingyear_cons: First year only contains an autumn")
@@ -152,24 +155,24 @@ ok(ut_cmp_equal(
     rep(4e6, 5)), "fishingyear_cons: Outside projections we consume landings rate")
 
 ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl__cons, "year", step = 1), -6)),
+    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 1), -6)),
     as.vector(tail(to_vect(g3_array_agg(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 1) * head(r$quota_hockeyfleet_fl__var * 0, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl__cons[step = 1]: consumption based on quota")
+    tolerance = 1e-7), "detail_st_fl_a__cons[step = 1]: consumption based on quota")
 ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl__cons, "year", step = 2), -6)),
+    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 2), -6)),
     as.vector(tail(to_vect(g3_array_agg(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 2) * head(r$quota_hockeyfleet_fl__var * 0.5, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl__cons[step = 2]: consumption based on quota")
+    tolerance = 1e-7), "detail_st_fl_a__cons[step = 2]: consumption based on quota")
 ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl__cons, "year", step = 3), -6)),
+    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 3), -6)),
     as.vector(tail(to_vect(g3_array_agg(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 3) * head(r$quota_hockeyfleet_fl__var * 0.4, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl__cons[step = 3]: consumption based on quota")
+    tolerance = 1e-7), "detail_st_fl_a__cons[step = 3]: consumption based on quota")
 ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl__cons, "year", step = 4), -6)),
+    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 4), -6)),
     as.vector(tail(to_vect(g3_array_agg(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 4) * tail(r$quota_hockeyfleet_fl__var * 0.1, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl__cons[step = 4]: consumption based on quota")
+    tolerance = 1e-7), "detail_st_fl_a__cons[step = 4]: consumption based on quota")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
