@@ -8,12 +8,14 @@ stock_common_part <- function (stocks, collapse = ".") {
         }
     }
 
-    if (length(common_part) > 0) {
-        paste(common_part, collapse = collapse)
-    } else {
+    if (length(common_part) == 0) {
         # No common parts, concatenate full names of both
-        paste(sort(vapply(stocks, function (s) s$name, character(1))), collapse = collapse)
+        common_part <- sort(vapply(stocks, function (s) s$name, character(1)))
     }
+
+    # If collapse given, collapse parts together
+    if (!is.null(collapse)) common_part <- paste(common_part, collapse = collapse)
+    return(common_part)
 }
 
 # Reverse g3_parameterized(), find out how parameter would be broken down
