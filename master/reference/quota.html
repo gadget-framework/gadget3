@@ -115,8 +115,15 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <p></p>
-<dl><dt id="arg-predstocks-preystocks">predstocks, preystocks<a class="anchor" aria-label="anchor" href="#arg-predstocks-preystocks"></a></dt>
-<dd><p>Lists of <code><a href="stock.html">g3_stock</a></code> objects to represent the predators/fleets and prey when forming the quota.</p></dd>
+<dl><dt id="arg-predstocks">predstocks<a class="anchor" aria-label="anchor" href="#arg-predstocks"></a></dt>
+<dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects for all predators/fleets that will use the quota.
+    In <code>g3_quota_hockeyfleet</code>, these will be used to name the quota/parameters.
+    In <code>g3_quota_assess</code>, these will define helper variables for use in <var>function_f</var>.</p></dd>
+
+  <dt id="arg-preystocks">preystocks<a class="anchor" aria-label="anchor" href="#arg-preystocks"></a></dt>
+<dd><p>A list of <code><a href="stock.html">g3_stock</a></code> objects for all prey that the quota will apply to.
+    In <code>g3_quota_hockeyfleet</code>, these will be used to define the spawning stock biomass.
+    In <code>g3_quota_assess</code>, these will define helper variables for use in <var>function_f</var>.</p></dd>
 
   <dt id="arg-preyprop-fs">preyprop_fs<a class="anchor" aria-label="anchor" href="#arg-preyprop-fs"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></code> or list of formulas representing the proportion of that prey that makes up the Spawning Stock Biomass (SSB).
@@ -172,7 +179,7 @@
 <h3 id="variables-defined-in-your-model">Variables defined in your model<a class="anchor" aria-label="anchor" href="#variables-defined-in-your-model"></a></h3>
 <p>Once added the following variables can be reported:</p>
 <p></p><dl><dt>quota_<var>quota_name</var>__var</dt>
-<dd><p>A vector of quota values, one per <em>fishing year</em> in your model, see <code>quota_hockeyfleet_fl__var</code> in example below</p></dd>
+<dd><p>A vector of quota values, one per <em>fishing year</em> in your model, see <code>quota_hockeyfleet_trawl__var</code> in example below</p></dd>
 
 
 </dl><p></p>
@@ -216,22 +223,24 @@
     <p></p><div class="section">
 <h3 id="g-quota-hockeyfleet">g3_quota_hockeyfleet<a class="anchor" aria-label="anchor" href="#g-quota-hockeyfleet"></a></h3>
 <p>A formula for use in <code>g3_quota</code></p>
-<p>$$
-      H (\sum_{predators}{\sum_{preys}{S_{p,p} P_p}}) {minmax}(\sum_{preys}\frac{B_p}{T}, 0, 1)
-    $$</p><dl><dt>\(H\)</dt>
+<p>$$SSB = \sum^{preys}_{p}{S_p N_p W_p}$$
+    $$H {min}(\frac{SSB}{B_{trig}}, 1)$$</p><dl><dt>\(H\)</dt>
 <dd><p>Harvest rate, provided by <var>harvest_rate</var> argument, by default the <code>hf.harvest_rate</code> parameter</p></dd>
 
-      <dt>\(T\)</dt>
+      <dt>\(B_{trig}\)</dt>
 <dd><p>Trigger biomass, provided by <var>btrigger</var> argument, by default the <code>hf.btrigger</code> parameter</p></dd>
 
-      <dt>\(P_p\)</dt>
-<dd><p>Prey proportion, provided by <var>preyprop_fs</var> (i.e. the proportion of the prey stock that can be considered part of the spawning stock)</p></dd>
+      <dt>\(SSB\)</dt>
+<dd><p>Spawning Stock Biomass (SSB)</p></dd>
 
-      <dt>\(S_{p, p}\)</dt>
-<dd><p>Total suitable biomass for predator/prey combination</p></dd>
+      <dt>\(S_{p}\)</dt>
+<dd><p>Suitable proportion of prey \(p\), as decided by <var>preyprop_fs</var></p></dd>
 
-      <dt>\(B_p\)</dt>
-<dd><p>Total abundance of prey in biomass</p></dd>
+      <dt>\(N_p\)</dt>
+<dd><p>Total abundance of prey \(p\)</p></dd>
+
+      <dt>\(N_p\)</dt>
+<dd><p>Mean weight of prey \(p\)</p></dd>
 
 
 </dl><p></p>
@@ -240,7 +249,8 @@
 <p>A formula for use in <code>g3_quota</code></p>
 </div><p></p><div class="section">
 <h3 id="g-quota">g3_quota<a class="anchor" aria-label="anchor" href="#g-quota"></a></h3>
-<p>A formula for use in <code><a href="action_predate.html">g3a_predate_catchability_project</a></code></p>
+<p>A formula for use in <code><a href="action_predate.html">g3a_predate_catchability_project</a></code>, returning the current value of the quota <code>quota_<var>quota_name</var>__var</code> time vector.</p>
+<p>In addition, returns an ancillary step that populates the <code>quota_<var>quota_name</var>__var</code> time vector according to the fishing year.</p>
 </div>
 
     </div>
@@ -248,13 +258,23 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_stock</a></span><span class="op">(</span><span class="st">"st"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fl</span> <span class="op">&lt;-</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">'fl'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fleets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="co"># NB: We break down our fleet names into parts, g3_quota_hockeyfleet() will</span></span></span>
+<span class="r-in"><span>    <span class="co"># use the common name part (read: trawl) when naming parameters.</span></span></span>
+<span class="r-in"><span>    nor <span class="op">=</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"trawl"</span>, country <span class="op">=</span> <span class="st">"nor"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    oth <span class="op">=</span> <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"trawl"</span>, country <span class="op">=</span> <span class="st">"oth"</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Define quota for the fleet, with an assessment in spring, application in autumn</span></span></span>
+<span class="r-in"><span><span class="co"># Define quota for both fleets, with an assessment in spring, application in autumn</span></span></span>
 <span class="r-in"><span><span class="va">fl_quota</span> <span class="op">&lt;-</span> <span class="fu">g3_quota</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fu">g3_quota_hockeyfleet</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">fl</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span>, preyprop_fs <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu">g3_quota_hockeyfleet</span><span class="op">(</span><span class="va">fleets</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span>, preyprop_fs <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    start_step <span class="op">=</span> <span class="fl">4L</span>,</span></span>
 <span class="r-in"><span>    run_revstep <span class="op">=</span> <span class="op">-</span><span class="fl">2L</span> <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Invent some historical landings tables for the sake of example</span></span></span>
+<span class="r-in"><span><span class="va">landings_trawl_nor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1995</span>, step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">landings_trawl_nor</span><span class="op">$</span><span class="va">total_weight</span> <span class="op">&lt;-</span> <span class="fl">1e6</span></span></span>
+<span class="r-in"><span><span class="va">landings_trawl_oth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1995</span>, step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">landings_trawl_oth</span><span class="op">$</span><span class="va">total_weight</span> <span class="op">&lt;-</span> <span class="fl">1e8</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="action_time.html">g3a_time</a></span><span class="op">(</span><span class="fl">1990</span>, <span class="fl">1995</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
@@ -262,15 +282,23 @@
 <span class="r-in"><span>    <span class="fu"><a href="action_renewal.html">g3a_otherfood</a></span><span class="op">(</span><span class="va">st</span>, num_f <span class="op">=</span> <span class="fu"><a href="timedata.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">'st_abund'</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>        year <span class="op">=</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">2050</span>,</span></span>
 <span class="r-in"><span>        abund <span class="op">=</span> <span class="fl">1e6</span> <span class="op">-</span> <span class="fl">1e4</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2050</span><span class="op">-</span><span class="fl">1990</span><span class="op">)</span><span class="op">)</span>, <span class="st">"abund"</span><span class="op">)</span>, wgt_f <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="co"># Fleet predates stock</span></span></span>
+<span class="r-in"><span>    <span class="co"># Fleet predation, both sharing the same quota</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="action_predate.html">g3a_predate</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>        <span class="va">fl</span>,</span></span>
+<span class="r-in"><span>        <span class="va">fleets</span><span class="op">$</span><span class="va">nor</span>,</span></span>
 <span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        suitabilities <span class="op">=</span> <span class="fl">0.8</span>,</span></span>
 <span class="r-in"><span>        catchability_f <span class="op">=</span> <span class="fu"><a href="action_predate.html">g3a_predate_catchability_project</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>            <span class="co"># Use the quota when projecting, otherwise use landings parameters</span></span></span>
-<span class="r-in"><span>            <span class="va">fl_quota</span>,</span></span>
-<span class="r-in"><span>            <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"landings"</span>, value <span class="op">=</span> <span class="fl">0</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_predator <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            <span class="co"># Use the (shared) quota when projecting, otherwise use historical landings</span></span></span>
+<span class="r-in"><span>            quota_f <span class="op">=</span> <span class="va">fl_quota</span>,</span></span>
+<span class="r-in"><span>            landings_f <span class="op">=</span> <span class="fu"><a href="timedata.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">"landings_trawl_nor"</span>, <span class="va">landings_trawl_nor</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="action_predate.html">g3a_predate</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="va">fleets</span><span class="op">$</span><span class="va">oth</span>,</span></span>
+<span class="r-in"><span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">st</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        suitabilities <span class="op">=</span> <span class="fl">0.8</span>,</span></span>
+<span class="r-in"><span>        catchability_f <span class="op">=</span> <span class="fu"><a href="action_predate.html">g3a_predate_catchability_project</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            <span class="co"># Use the (shared) quota when projecting, otherwise use historical landings</span></span></span>
+<span class="r-in"><span>            quota_f <span class="op">=</span> <span class="va">fl_quota</span>,</span></span>
+<span class="r-in"><span>            landings_f <span class="op">=</span> <span class="fu"><a href="timedata.html">g3_timeareadata</a></span><span class="op">(</span><span class="st">"landings_trawl_oth"</span>, <span class="va">landings_trawl_oth</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    <span class="cn">NULL</span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_r.html">g3_to_r</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>,</span></span>
 <span class="r-in"><span>    <span class="fu"><a href="action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span></span>
@@ -280,32 +308,28 @@
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">model_fn</span>, <span class="st">"parameter_template"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>    <span class="co"># Project for 30 years</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"project_years"</span>, <span class="fl">30</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="co"># Fishing generally occurs in spring/summer, none in winter</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"fl.quota.step.#"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="co"># Initial landings fixed</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"fl.landings.#"</span>, <span class="fl">1e6</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="co"># Hockefleet: harvest rate &amp; trigger biomass</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"fl.hf.harvest_rate"</span>, <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"fl.hf.btrigger"</span>, <span class="fl">7.2e6</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="co"># Quota is yearly, so specify cons.step parameters to divide up into steps</span></span></span>
+<span class="r-in"><span>    <span class="co"># Fishing predominantly occurs in spring/summer, none in winter</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"trawl_*.cons.step.#"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span>, <span class="fl">0.5</span>, <span class="fl">0.4</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="co"># 3/4 of the quota goes to nor, the rest to oth</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"trawl_nor.quota.prop"</span>, <span class="fl">0.75</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"trawl_oth.quota.prop"</span>, <span class="fl">0.25</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="co"># Hockefleet: harvest rate &amp; trigger biomass (shared across trawl_nor &amp; trawl_oth)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"trawl.hf.harvest_rate"</span>, <span class="fl">0.2</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"trawl.hf.btrigger"</span>, <span class="fl">7.2e6</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params.in</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>g3_init_val('fl.quota.step.#') didn't match any parameters</span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="fu">model_fn</span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Total biomass at assessment step, with btrigger marked</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">dend_st__num</span> <span class="op">*</span> <span class="va">r</span><span class="op">$</span><span class="va">dend_st__wgt</span>, <span class="st">"year"</span>, step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h<span class="op">=</span><span class="fl">7.2e6</span><span class="op">)</span> ; <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">26.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Quota values, inflection once total biomass falls below btrigger</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> ; <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">quota_hockeyfleet_trawl__var</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> ; <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">27.7</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="quota-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Quota values, inflection once total biomass falls below btrigger</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> ; <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">quota_hockeyfleet_fl__var</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> ; <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">27.7</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="quota-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Consumption by fleet, demonstrating</span></span></span>
-<span class="r-in"><span><span class="co">##   (a) fixed landings before projections (fl.landings.#)</span></span></span>
+<span class="r-in"><span><span class="co">##   (a) fixed landings before projections (landings_trawl_nor)</span></span></span>
 <span class="r-in"><span><span class="co">##   (b) inflection of hitting btrigger</span></span></span>
 <span class="r-in"><span><span class="co">##   (c) Uneven spread of fishing effort throughout year (fl.quota.step.#)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">detail_st_fl__cons</span>, <span class="st">"time"</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="quota-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">detail_st_trawl_nor__cons</span>, <span class="st">"time"</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="quota-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Timing of calculations for fishing year</span></span></span>
 <span class="r-in"><span><span class="va">fl_quota</span> <span class="op">&lt;-</span> <span class="fu">g3_quota</span><span class="op">(</span></span></span>
