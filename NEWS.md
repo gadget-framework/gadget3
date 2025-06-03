@@ -4,6 +4,7 @@
 * g3a_predate_catchability_project now correctly scales when quotas are expressed in individuals #222
 * gadget3 resistant to packages (re)defining head/tail S3 methods, e.g. reformulas #224
 * g3_param_project projections tending to zero in some cases #226
+* g3_quota_hockeyfleet not overreporting when handed multiple stocks #227
 
 # gadget3 0.13-0:
 
