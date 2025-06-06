@@ -38,6 +38,7 @@ ut_tmb_r_compare2 <- function (
         model_fn,
         model_cpp,
         params,
+        g3_test_tmb = 1,
         gdbsource = FALSE,
         tolerance = 1e-5 ) {
     dearray <- function (x) {
@@ -55,8 +56,10 @@ ut_tmb_r_compare2 <- function (
         return(x)
     }
 
-    if (!nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        writeLines("# skip: not running TMB tests")
+    cur_g3_test_tmb <- as.integer(Sys.getenv('G3_TEST_TMB'))
+    if (is.na(cur_g3_test_tmb)) cur_g3_test_tmb <- 0
+    if (cur_g3_test_tmb < g3_test_tmb) {
+        writeLines(paste("# skip: not running TMB tests", cur_g3_test_tmb, " < ", g3_test_tmb))
         return()
     }
 
