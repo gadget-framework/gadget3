@@ -4,19 +4,24 @@ g3_quota_hockeyfleet <- function (
         preyprop_fs = 1,  # NB: Doesn't have to sum to 1
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
         harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
-        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0)) {
+        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0),
+        unit = c("harvest-rate-year", "harvest-rate", "biomass-year", "biomass",
+                 "individuals", "individuals-year") ) {
     if (g3_is_stock(predstocks)) predstocks <- list(predstocks)
     if (g3_is_stock(preystocks)) preystocks <- list(preystocks)
     stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     stopifnot(is.list(preystocks) && all(sapply(preystocks, g3_is_stock)))
+    unit <- match.arg(unit)
 
     # totalssb: Total spawning-stock biomass
     # == sum(preyprop * preystock1__num * preystock1__wgt) + ...
+    ssb_c <- if (startsWith(unit, "individuals")) quote(stock__num) else quote(stock__num * stock__wgt)
     totalssb <- lapply(preystocks, function (preystock) {
         stock <- preystock
         g3_step(f_substitute(
-            ~stock_with(stock, hockeyfleet_mult_sum(stock__num * stock__wgt, preyprop)),
+            ~stock_with(stock, hockeyfleet_mult_sum(ssb_c, preyprop)),
             list(
+                ssb_c = ssb_c,
                 preyprop = resolve_stock_list(preyprop_fs, preystock) )), recursing = TRUE)
     })
     totalssb <- f_chain_op(do.call(c, totalssb), "+")
@@ -56,7 +61,7 @@ g3_quota_hockeyfleet <- function (
             out = out ))
 
     attr(out, "quota_name") <- c("hockeyfleet", stock_common_part(predstocks, collapse = NULL))
-    attr(out, "catchability_unit") <- "harvest-rate-year"
+    attr(out, "catchability_unit") <- unit
     return(out)
 }
 

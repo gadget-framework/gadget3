@@ -8,6 +8,8 @@ stocks_fl <- list(
     a = g3_fleet(c(type = 'fl', 'a')),
     # NB: We don't use this one, just added to ensure we alter names accordingly
     b = g3_fleet(c(type = 'fl', 'b')) )
+stocks_ind <- list(
+    x = g3_fleet(c(type = 'ind', 'x')) )
 
 # Define quota for the fleet, with an assessment in spring, application in autumn
 fl_quota <- g3_quota(
@@ -15,6 +17,16 @@ fl_quota <- g3_quota(
     start_step = 4L,
     run_revstep = -2L )
 
+# Define quota based on individuals caught
+fl_quota_ind <- g3_quota(
+    g3_quota_hockeyfleet(stocks_ind, list(st), unit = "individuals-year"),
+    start_step = 2L,
+    run_revstep = -1L )
+
+landings_ind <- expand.grid(
+    year = 1990:1995,
+    step = 2:3 )
+landings_ind$number <- 5
 
 actions <- list(
     g3a_time(1990, 1995, c(3,3,3,3)),
@@ -32,6 +44,16 @@ actions <- list(
             # Use the quota when projecting, otherwise use landings parameters
             fl_quota,
             g3_parameterized("landings", value = 0, by_year = TRUE, by_predator = TRUE) )),
+    # Predation based on number of indivduals
+    g3a_predate(
+        stocks_ind$x,
+        list(st),
+        suitabilities = 0.8,
+        catchability_f = g3a_predate_catchability_project(
+            quota_f = fl_quota_ind,
+            landings_f = g3_timeareadata("landings_ind", landings_ind, "number"),
+            # Set the unit for the landings (fl_quota_ind has it's own unit)
+            unit = "individuals" )),
     NULL )
 full_actions <- c(actions, list(
     g3a_report_detail(actions),
@@ -117,6 +139,27 @@ ok(ut_cmp_equal(
     as.vector(tail(to_vect(g3_array_agg(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 4) * tail(r$quota_hockeyfleet_fl__var * 0.1, -1)), -6)),
     tolerance = 1e-7), "detail_st_fl_a__cons[step = 4]: consumption based on quota")
+
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 1), -6)),
+    as.vector(tail(to_vect(g3_array_agg(
+        r$dstart_st__num * 0.5, "year", step = 1) * head(r$quota_hockeyfleet_ind_x__var * 0, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 1]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 2), -6)),
+    as.vector(tail(to_vect(g3_array_agg(
+        r$dstart_st__num * 0.5, "year", step = 2) * head(r$quota_hockeyfleet_ind_x__var * 0.5, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 2]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 3), -6)),
+    as.vector(tail(to_vect(g3_array_agg(
+        r$dstart_st__num * 0.5, "year", step = 3) * head(r$quota_hockeyfleet_ind_x__var * 0.4, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 3]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 4), -6)),
+    as.vector(tail(to_vect(g3_array_agg(
+        r$dstart_st__num * 0.5, "year", step = 4) * head(tail(r$quota_hockeyfleet_ind_x__var * 0.1, -1), -1)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 4]: consumption based on quota, individuals-wise")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
