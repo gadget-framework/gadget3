@@ -5,6 +5,7 @@
 * gadget3 resistant to packages (re)defining head/tail S3 methods, e.g. reformulas #224
 * g3_param_project projections tending to zero in some cases #226
 * g3_quota_hockeyfleet not overreporting when handed multiple stocks #227
+* Allow for zero mean weight in weightjones #228 
 
 # gadget3 0.13-0:
 
