@@ -36,7 +36,7 @@ full_actions <- c(actions, list(
     g3a_report_detail(actions),
     g3a_report_history(actions, "__num$|__wgt$", out_prefix="dend_"),  # NB: Late reporting
     g3a_report_history(actions, "quota_", out_prefix = NULL),
-    # g3experiments::g3a_trace_nan(actions, check_positive = TRUE, var_re = c("__wgt$"), on_error = "stop"),
+    # g3a_trace_var(actions, check_positive = TRUE, var_re = c("__wgt$"), on_error = "stop"),
     NULL))
 model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)

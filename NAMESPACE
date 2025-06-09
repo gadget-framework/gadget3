@@ -83,6 +83,9 @@ export(g3a_spmodel)
 export(g3a_predate_tagrelease)
 export(g3a_tag_shedding)
 
+# R/action_trace.R
+export(g3a_trace_var)
+
 # R/action_order.R
 export(g3_action_order)
 
