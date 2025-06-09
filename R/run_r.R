@@ -261,6 +261,7 @@ g3_to_r <- function(
 g3_r_compile <- function (model, work_dir = tempdir(), cmp_options = list(optimize = 3)) {
     model_string <- deparse(model)
     base_name <- paste0('g3_r_', digest::sha1(model_string))
+    if (!dir.exists(work_dir)) dir.create(work_dir, showWarnings = FALSE, recursive = TRUE)
     r_path <- paste0(file.path(work_dir, base_name), '.R')
 
     # Write out file so srcRef is populated

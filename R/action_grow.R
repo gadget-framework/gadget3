@@ -119,7 +119,7 @@ g3a_grow_weight_weightjones <- function(
         end = NULL )
     # NB: Pretty easy to have negative growth with nonsense parameters, thus avoid_zero()
     ~g3a_grow_vec_extrude(avoid_zero(cur_step_size * (
-        ((max_consumption * stock_ss(stock__feedinglevel)) / (q0 * (stock_ss(stock__wgt))^q1)) -
+        ((max_consumption * stock_ss(stock__feedinglevel)) / (q0 * avoid_zero(stock_ss(stock__wgt))^q1)) -
         q2 * (stock_ss(stock__wgt))^q3 * exp(q4 * temperature + q5) )), maxlengthgroupgrowth + 1)
 }
 
