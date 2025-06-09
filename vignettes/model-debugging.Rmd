@@ -16,37 +16,63 @@ library(magrittr)
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
 ```
 
-## Debugging the R model
+There are several techniques available to help debug problems in gadget3 models.
+The following lists common errors and ways you can investigate further.
 
-In theory, the TMB and R output of gadget3 should be identically-behaving
-functions, so instead of trying to decipher what the TMB model is doing wrong,
-you can use R function instead in a more familiar environment, for example
-using standard tools such as ``options(error=recover)``.
+## Viewing & editing model code
 
-You can also use ``edit()`` to edit the R function directly and re-run the
-model:
+gadget3 models are converted to R or TMB source code, which is often useful to study to see what the model will do at any point.
+It is also possible to edit the source code and e.g. add debugging breaks with ``recover()``.
+
+An R model function can be viewed / edited directly using the R ``edit()`` function:
 
 ```{r, eval=FALSE}
-# Model setup will look something like this
-ling_model <- g3_to_r(...)
+# Create model based on your actions
+model_fn <- g3_to_r(actions)
 
-ling_model <- edit(ling_model) ; ling_model(ling_param)
+# Edit source code & re-run model
+model_fn <- edit(model_fn)
+model_fn(params.in)
 ```
 
-...this is useful if you want to add trace ``print()`` statements around a
-particular part of the model that's failing, e.g. or insert a breakpoint by
-adding a ``recover()`` line.
+The TMB source code could also be inspected using ``edit()``:
 
-## Debugging the TMB model
+```{r, eval=FALSE}
+tmb_model <- g3_to_tmb(actions)
 
-It's possible to have a working R model that doesn't compile using TMB, due to
-the relative strictness of the Eigen array library in comparison to R arrays,
-for example. In which case you'll need to debug the TMB version.
+# Edit source code & re-run model
+tmb_model <- edit(tmb_model)
+obj.fn <- g3_tmb_adfun(tmb_model, params.in, Type = "Fun")
+r <- obj.fn$report()
+```
+As the R & TMB model will be equivalent, you can view the source of whichever you are more comfortable with.
 
-### Preserving your R session whilst building
+## ``NaN`` in likelihood / reports
+
+A non-finite value, once generated, will spread to all related parts of the model,
+so trying to debug by looking at the final result is often useless.
+
+To pinpoint where the problem is, you can add ``g3a_trace_var()`` to find where the problem originates.
+See the manpage for how to use it.
+
+### "Error in optim(...): initial value in 'vmmin' is not finite"
+
+The optimiser is telling you that the initial values you provided do not produce a finite likelihood.
+Add ``g3a_trace_var()`` and run your model outside the optimiser, with e.g:
+
+```{r, eval=FALSE}
+tmb_model <- g3_to_tmb(c(actions, list(
+  g3a_report_detail(actions),
+  g3a_trace_var(actions),
+  gadget3::g3l_bounds_penalty(actions) )))
+obj.fn <- g3_tmb_adfun(tmb_model, params.in, Type = "Fun")
+r <- obj.fn$report()
+```
+
+## TMB model crashes your R session
 
 If the model crashes whilst forming the TMB ADFun object, then it takes your R
-session with it. To prevent this, wrap ``g3_tmb_adfun()`` with
+session with it. If this is happening, wrap ``g3_tmb_adfun()`` with
 ``TMB::gdbsource()`` as follows:
 
 ```{r, eval=FALSE}
@@ -64,29 +90,12 @@ writeLines(TMB::gdbsource(g3_tmb_adfun(
 ``output_script = TRUE`` tells ``g3_tmb_adfun()`` to, after compilation, write
 a temporary R script that will build the TMB ADFun object (and presumably crash
 in the process). ``TMB::gdbsource()`` in turn runs a provided R script in a
-fresh R session wrapped in gdb. By default it will print a stacktrace and quit,
-which should show you where the crash occured.
+fresh R session wrapped in gdb. By default it will print a stacktrace and quit.
 
-### Editing C++ code
+In the stacktrace you should see a line number for where the crash occured.
+You can then look at the TMB model source code, find the line number and thus the action that is currently failing.
 
-As with the R model you can edit the raw C++ source before building:
-
-```{r, eval=FALSE}
-tmb_ling <- edit(tmb_ling)
-writeLines(TMB::gdbsource(g3_tmb_adfun(
-    tmb_ling,
-    tmb_param,
-    compile_flags = "-g",
-    output_script = TRUE)))
-```
-
-Through this you can...
-
-* Print the contents of single values with ``std::cout << ling__Linf << std::endl;``
-* Use ``().cols()`` and ``().rows()`` to get the size of an array expression
-* Print the contents of array objects with ``ling_imm__consratio.print()``
-
-### Interactive debugging
+## Interactive debugging of TMB models
 
 In theory you can use ``interactive = TRUE`` with ``TMB::gdbsource()``, however
 as this eats error messages it's better to do this by hand:
@@ -111,6 +120,10 @@ Array val: -nan -nan -nan -nan -nan
 (gdb) print cur_time
 $5 = 0
 ```
+
+* Print the contents of single values with ``std::cout << ling__Linf << std::endl;``
+* Use ``().cols()`` and ``().rows()`` to get the size of an array expression
+* Print the contents of array objects with ``ling_imm__consratio.print()``
 
 Note that for the ``.print()`` method to be available for arrays, it has to be
 referenced at least once in the model source, otherwise it won't be compiled
