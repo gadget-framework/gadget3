@@ -16,7 +16,9 @@ g3_quota_hockeyfleet(
         preyprop_fs = 1,
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
         harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
-        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0) )
+        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0),
+        unit = c("harvest-rate-year", "harvest-rate", "biomass-year", "biomass",
+                 "individuals", "individuals-year") )
 
 g3_quota_assess(
         predstocks,
@@ -54,10 +56,10 @@ g3_quota(
     Using a suitability function is also supported, e.g. \code{\link{g3_suitability_exponentiall50}}.
   }
   \item{btrigger}{
-    Trigger biomass, see formula
+    Trigger biomass (or number of individuals, if \var{unit} is "individuals-year"), see formula
   }
   \item{harvest_rate}{
-    Harvest rate, see formula
+    The maximum quota value to be returned, assuming the stock is healthy, and above \var{btrigger}, see formula
   }
   \item{stddev}{
     If > 0, then apply log-normal noise to the output quota.
@@ -66,7 +68,9 @@ g3_quota(
     A formula that runs an assessment model & returns a quota. See vignette TODO:
   }
   \item{unit}{
-    A single string representing the unit of the value that \var{assess_f} returns.
+    A single string representing the returned quota's unit, as used by \code{\link{g3a_predate_catchability_project}}.
+    In \code{\link{g3_quota_hockeyfleet}}, the unit of both \var{harvest_rate} and \var{btrigger}
+    In \code{\link{g3_quota_assess}}, the value returned by \var{assess_f} will be assumed to have this unit.
   }
   \item{function_f}{
     Output of one of the \code{g3_quota_*} functions, responsible for choosing the next quota
@@ -143,12 +147,13 @@ g3_quota(
   \subsection{g3_quota_hockeyfleet}{
     A formula for use in \code{\link{g3_quota}}
 
-    \deqn{SSB = \sum^{preys}_{p}{S_p N_p W_p}}
-    \deqn{H {min}(\frac{SSB}{B_{trig}}, 1)}
+    \deqn{SS = \sum^{preys}_{p}{S_p N_p}} ... if unit = \code{"individuals"} or \code{"individuals-year"}
+    \deqn{SS = \sum^{preys}_{p}{S_p N_p W_p}} ... otherwise
+    \deqn{H {min}(\frac{SS}{B_{trig}}, 1)}
     \describe{
       \item{\eqn{H}}{Harvest rate, provided by \var{harvest_rate} argument, by default the \code{hf.harvest_rate} parameter}
-      \item{\eqn{B_{trig}}}{Trigger biomass, provided by \var{btrigger} argument, by default the \code{hf.btrigger} parameter}
-      \item{\eqn{SSB}}{Spawning Stock Biomass (SSB)}
+      \item{\eqn{B_{trig}}}{Trigger biomass / individuals, provided by \var{btrigger} argument, by default the \code{hf.btrigger} parameter}
+      \item{\eqn{SS}}{Spawning Stock (SS)}
       \item{\eqn{S_{p}}}{Suitable proportion of prey \eqn{p}, as decided by \var{preyprop_fs}}
       \item{\eqn{N_p}}{Total abundance of prey \eqn{p}}
       \item{\eqn{N_p}}{Mean weight of prey \eqn{p}}
