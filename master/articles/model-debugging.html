@@ -113,40 +113,70 @@
 
     
     
+<p>There are several techniques available to help debug problems in
+gadget3 models. The following lists common errors and ways you can
+investigate further.</p>
 <div class="section level2">
-<h2 id="debugging-the-r-model">Debugging the R model<a class="anchor" aria-label="anchor" href="#debugging-the-r-model"></a>
+<h2 id="viewing-editing-model-code">Viewing &amp; editing model code<a class="anchor" aria-label="anchor" href="#viewing-editing-model-code"></a>
 </h2>
-<p>In theory, the TMB and R output of gadget3 should be
-identically-behaving functions, so instead of trying to decipher what
-the TMB model is doing wrong, you can use R function instead in a more
-familiar environment, for example using standard tools such as
-<code>options(error=recover)</code>.</p>
-<p>You can also use <code><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit()</a></code> to edit the R function directly
-and re-run the model:</p>
+<p>gadget3 models are converted to R or TMB source code, which is often
+useful to study to see what the model will do at any point. It is also
+possible to edit the source code and e.g. add debugging breaks with
+<code><a href="https://rdrr.io/r/utils/recover.html" class="external-link">recover()</a></code>.</p>
+<p>An R model function can be viewed / edited directly using the R
+<code><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit()</a></code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Model setup will look something like this</span></span>
-<span><span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Create model based on your actions</span></span>
+<span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_r.html">g3_to_r</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ling_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">ling_model</span><span class="op">)</span> ; <span class="fu">ling_model</span><span class="op">(</span><span class="va">ling_param</span><span class="op">)</span></span></code></pre></div>
-<p>…this is useful if you want to add trace <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>
-statements around a particular part of the model that’s failing, e.g. or
-insert a breakpoint by adding a <code><a href="https://rdrr.io/r/utils/recover.html" class="external-link">recover()</a></code> line.</p>
+<span><span class="co"># Edit source code &amp; re-run model</span></span>
+<span><span class="va">model_fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">model_fn</span><span class="op">)</span></span>
+<span><span class="fu">model_fn</span><span class="op">(</span><span class="va">params.in</span><span class="op">)</span></span></code></pre></div>
+<p>The TMB source code could also be inspected using
+<code><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit()</a></code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tmb_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Edit source code &amp; re-run model</span></span>
+<span><span class="va">tmb_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">tmb_model</span><span class="op">)</span></span>
+<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">tmb_model</span>, <span class="va">params.in</span>, Type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="va">obj.fn</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>As the R &amp; TMB model will be equivalent, you can view the source
+of whichever you are more comfortable with.</p>
 </div>
 <div class="section level2">
-<h2 id="debugging-the-tmb-model">Debugging the TMB model<a class="anchor" aria-label="anchor" href="#debugging-the-tmb-model"></a>
+<h2 id="nan-in-likelihood-reports">
+<code>NaN</code> in likelihood / reports<a class="anchor" aria-label="anchor" href="#nan-in-likelihood-reports"></a>
 </h2>
-<p>It’s possible to have a working R model that doesn’t compile using
-TMB, due to the relative strictness of the Eigen array library in
-comparison to R arrays, for example. In which case you’ll need to debug
-the TMB version.</p>
+<p>A non-finite value, once generated, will spread to all related parts
+of the model, so trying to debug by looking at the final result is often
+useless.</p>
+<p>To pinpoint where the problem is, you can add
+<code><a href="../reference/action_trace.html">g3a_trace_var()</a></code> to find where the problem originates. See
+the manpage for how to use it.</p>
 <div class="section level3">
-<h3 id="preserving-your-r-session-whilst-building">Preserving your R session whilst building<a class="anchor" aria-label="anchor" href="#preserving-your-r-session-whilst-building"></a>
+<h3 id="error-in-optim-initial-value-in-vmmin-is-not-finite">“Error in optim(…): initial value in ‘vmmin’ is not finite”<a class="anchor" aria-label="anchor" href="#error-in-optim-initial-value-in-vmmin-is-not-finite"></a>
 </h3>
+<p>The optimiser is telling you that the initial values you provided do
+not produce a finite likelihood. Add <code><a href="../reference/action_trace.html">g3a_trace_var()</a></code> and
+run your model outside the optimiser, with e.g:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tmb_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">actions</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/action_report.html">g3a_report_detail</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/action_trace.html">g3a_trace_var</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span>,</span>
+<span>  <span class="fu">gadget3</span><span class="fu">::</span><span class="fu"><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty</a></span><span class="op">(</span><span class="va">actions</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">tmb_model</span>, <span class="va">params.in</span>, Type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span>
+<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="va">obj.fn</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="tmb-model-crashes-your-r-session">TMB model crashes your R session<a class="anchor" aria-label="anchor" href="#tmb-model-crashes-your-r-session"></a>
+</h2>
 <p>If the model crashes whilst forming the TMB ADFun object, then it
-takes your R session with it. To prevent this, wrap
+takes your R session with it. If this is happening, wrap
 <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></code> with <code><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">TMB::gdbsource()</a></code> as
 follows:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Model setup will look something like this</span></span>
 <span><span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
 <span><span class="va">tmb_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">tmb_ling</span>, <span class="st">'parameter_template'</span><span class="op">)</span></span>
@@ -161,35 +191,14 @@ to, after compilation, write a temporary R script that will build the
 TMB ADFun object (and presumably crash in the process).
 <code><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">TMB::gdbsource()</a></code> in turn runs a provided R script in a
 fresh R session wrapped in gdb. By default it will print a stacktrace
-and quit, which should show you where the crash occured.</p>
+and quit.</p>
+<p>In the stacktrace you should see a line number for where the crash
+occured. You can then look at the TMB model source code, find the line
+number and thus the action that is currently failing.</p>
 </div>
-<div class="section level3">
-<h3 id="editing-c-code">Editing C++ code<a class="anchor" aria-label="anchor" href="#editing-c-code"></a>
-</h3>
-<p>As with the R model you can edit the raw C++ source before
-building:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tmb_ling</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">tmb_ling</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a></span><span class="op">(</span><span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span></span>
-<span>    <span class="va">tmb_ling</span>,</span>
-<span>    <span class="va">tmb_param</span>,</span>
-<span>    compile_flags <span class="op">=</span> <span class="st">"-g"</span>,</span>
-<span>    output_script <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Through this you can…</p>
-<ul>
-<li>Print the contents of single values with
-<code>std::cout &lt;&lt; ling__Linf &lt;&lt; std::endl;</code>
-</li>
-<li>Use <code>().cols()</code> and <code>().rows()</code> to get the
-size of an array expression</li>
-<li>Print the contents of array objects with
-<code>ling_imm__consratio.print()</code>
-</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="interactive-debugging">Interactive debugging<a class="anchor" aria-label="anchor" href="#interactive-debugging"></a>
-</h3>
+<div class="section level2">
+<h2 id="interactive-debugging-of-tmb-models">Interactive debugging of TMB models<a class="anchor" aria-label="anchor" href="#interactive-debugging-of-tmb-models"></a>
+</h2>
 <p>In theory you can use <code>interactive = TRUE</code> with
 <code><a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">TMB::gdbsource()</a></code>, however as this eats error messages it’s
 better to do this by hand:</p>
@@ -211,11 +220,20 @@ Array val: -nan -nan -nan -nan -nan
 
 (gdb) print cur_time
 $5 = 0</code></pre>
+<ul>
+<li>Print the contents of single values with
+<code>std::cout &lt;&lt; ling__Linf &lt;&lt; std::endl;</code>
+</li>
+<li>Use <code>().cols()</code> and <code>().rows()</code> to get the
+size of an array expression</li>
+<li>Print the contents of array objects with
+<code>ling_imm__consratio.print()</code>
+</li>
+</ul>
 <p>Note that for the <code>.print()</code> method to be available for
 arrays, it has to be referenced at least once in the model source,
 otherwise it won’t be compiled in. Use <code>edit(tmb_ling)</code> to
 add it somewhere first.</p>
-</div>
 <div class="section level3">
 <h3 id="random-effects">Random effects<a class="anchor" aria-label="anchor" href="#random-effects"></a>
 </h3>
@@ -225,7 +243,7 @@ add it somewhere first.</p>
 </h4>
 <p>Control arguments for the inner <code>TMB:::newton()</code> model can
 be provided to <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></code>, e.g. to add tracing:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">bounded_code</span>, <span class="va">params.in</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">3</span>, maxit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -236,7 +254,7 @@ be provided to <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></cod
 <p>…comes from TMB’s newton optimiser, and essentially says there is
 <code>NaN</code> in the hessian matrix. <code>m</code> in this case is
 equivalent to:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">spHess</span><span class="op">(</span>random <span class="op">=</span> <span class="cn">TRUE</span>, set_tail <span class="op">=</span> <span class="va">random</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">}</span>, envir <span class="op">=</span> <span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -253,19 +271,19 @@ various reasons, but likely <code>solveCholesky()</code> failed.</p>
 <p>Generally, <code>TMB:::newton()</code> is called from
 <code>obj.fn$env$ff</code>. You can extract the arguments provided by
 editing this function:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">ff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">ff</span><span class="op">)</span></span></code></pre></div>
 <p>Around line 16, add code to extract the arguments provided, e.g:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>        <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="st">"newt.args"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">eval</a></span><span class="op">(</span><span class="va">random.start</span><span class="op">)</span>,</span>
 <span>            fn <span class="op">=</span> <span class="va">f0</span>, gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">f0</span><span class="op">(</span><span class="va">x</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, he <span class="op">=</span> <span class="va">H0</span>,</span>
 <span>            env <span class="op">=</span> <span class="va">env</span><span class="op">)</span>, <span class="va">inner.control</span><span class="op">)</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Then you can perform a single run to extract arguments:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj.fn</span><span class="op">$</span><span class="fu">fn</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">:::</span><span class="va"><a href="https://rdrr.io/pkg/TMB/man/newton.html" class="external-link">newton</a></span>, <span class="va">newt.args</span><span class="op">)</span></span></code></pre></div>
 <p>…or modify the newton function:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newt</span> <span class="op">&lt;-</span> <span class="fu">TMB</span><span class="fu">:::</span><span class="va"><a href="https://rdrr.io/pkg/TMB/man/newton.html" class="external-link">newton</a></span></span>
 <span><span class="va">newt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">newt</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">newt</span>, <span class="va">newt.args</span><span class="op">)</span></span></code></pre></div>
