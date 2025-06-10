@@ -7,6 +7,9 @@
 * g3_quota_hockeyfleet not overreporting when handed multiple stocks #227
 * Allow for zero mean weight in weightjones #228 
 
+## New features
+* Add g3a_trace_var, based on g3experiments::g3a_trace_nan #231
+
 # gadget3 0.13-0:
 
 ## Bug fixes
