@@ -185,12 +185,12 @@ ok(cmp_code(
         # No common parts, so concatenate everything after sorting
         g3_parameterized('nocommon', by_stock = list(g3_stock(c("zz", "b"), 1), g3_stock(c("c", "d"), 1))),
     NULL), quote({
-        stock_prepend("st.m", g3_param("parp"))
+        stock_prepend("st_m", g3_param("parp"))
         stock_prepend("st", g3_param("parp"))
-        stock_prepend("st.f", g3_param_table("parp", expand.grid(
+        stock_prepend("st_f", g3_param_table("parp", expand.grid(
             age = seq(min(st_f_imm__minage, st_f_mat__minage), max(st_f_imm__maxage, st_f_mat__maxage))), select = list(age)))
         stock_prepend("comm", g3_param("mismatch"))
-        stock_prepend("c_d.zz_b", g3_param("nocommon"))
+        stock_prepend("c_d_zz_b", g3_param("nocommon"))
     NULL})), "Can give a list of stocks, in which case it works out name parts for you")
 
 ok(cmp_code(
@@ -265,3 +265,12 @@ ok(ut_cmp_identical(param_tmpl(
         NULL )), "prepend_extra: Used code / string / list of strings")
 
 ########## prepend_extra
+
+ok_group("stock_common_part", local({
+    scp <- function(...) gadget3:::stock_common_part(lapply(list(...), function (x) g3_stock(x, 1:10)))
+    ok(ut_cmp_identical(scp(c("a", "b")), g3_stock(c("a", "b"), 1)$name), "Common part of single item should match name")
+    ok(ut_cmp_identical(scp(c("a", "b"), c("a", "c")), "a"), "Single common part")
+    ok(ut_cmp_identical(scp(c("a", "b", "d"), c("a", "b")), "a_b"), "Multiple common parts")
+    ok(ut_cmp_identical(scp(c("a", "b"), c("a", "b")), "a_b"), "All common parts")
+    ok(ut_cmp_identical(scp(c("a", "b"), c("c", "d")), "a_b_c_d"), "No common parts")
+}))
