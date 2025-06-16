@@ -1,22 +1,26 @@
-g3_quota_hockeyfleet <- function (
+g3_quota_hockeystick <- function (
         predstocks,  # Predator / fleet stocks forming a name for quota
         preystocks,  # Mature spawning-stocks
         preyprop_fs = 1,  # NB: Doesn't have to sum to 1
-        btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
-        harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
-        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0)) {
+        trigger = g3_parameterized("hs.trigger", by_stock = predstocks),
+        target = g3_parameterized("hs.target", by_stock = predstocks),
+        stddev = g3_parameterized("hs.stddev", by_stock = predstocks, value = 0),
+        unit = c("harvest-rate-year", "biomass-year", "individuals-year") ) {
     if (g3_is_stock(predstocks)) predstocks <- list(predstocks)
     if (g3_is_stock(preystocks)) preystocks <- list(preystocks)
     stopifnot(is.list(predstocks) && all(sapply(predstocks, g3_is_stock)))
     stopifnot(is.list(preystocks) && all(sapply(preystocks, g3_is_stock)))
+    unit <- match.arg(unit)
 
     # totalssb: Total spawning-stock biomass
     # == sum(preyprop * preystock1__num * preystock1__wgt) + ...
+    ssb_c <- if (startsWith(unit, "individuals")) quote(stock__num) else quote(stock__num * stock__wgt)
     totalssb <- lapply(preystocks, function (preystock) {
         stock <- preystock
         g3_step(f_substitute(
-            ~stock_with(stock, hockeyfleet_mult_sum(stock__num * stock__wgt, preyprop)),
+            ~stock_with(stock, hockeystick_mult_sum(ssb_c, preyprop)),
             list(
+                ssb_c = ssb_c,
                 preyprop = resolve_stock_list(preyprop_fs, preystock) )), recursing = TRUE)
     })
     totalssb <- f_chain_op(do.call(c, totalssb), "+")
@@ -24,7 +28,7 @@ g3_quota_hockeyfleet <- function (
     # Work out function used to multiply & sum preyprop
     if (is.numeric(preyprop_fs) && length(preyprop_fs) == 1) {
         # preyprop_fs is just a constant, can use regular *
-        totalssb <- call_replace(totalssb, hockeyfleet_mult_sum = function (x) {
+        totalssb <- call_replace(totalssb, hockeystick_mult_sum = function (x) {
             substitute(sum(a * b), list(
                 a = x[[2]],
                 b = x[[3]] ))
@@ -34,7 +38,7 @@ g3_quota_hockeyfleet <- function (
         # NB: To use nonconform_mult() we'd need a template version accepting array+vector,
         #     which doesn't work for C++ template reasons, and would likely write the new
         #     array to memory just to sum it anyway.
-        environment(totalssb)$hockeyfleet_mult_sum <- g3_native(r = function (base_ar, extra_vec) {
+        environment(totalssb)$hockeystick_mult_sum <- g3_native(r = function (base_ar, extra_vec) {
             sum(base_ar * as.vector(extra_vec))
         }, cpp = '[](array<Type> base_ar, vector<Type> extra_vec) -> Type {
             assert(base_ar.size() % extra_vec.size() == 0);
@@ -43,10 +47,10 @@ g3_quota_hockeyfleet <- function (
     }
 
     out <- f_substitute(
-        ~harvest_rate * dif_pmin(totalssb / btrigger, 1, 1e3),
+        ~target * dif_pmin(totalssb / trigger, 1, 1e3),
         list(
-            btrigger = btrigger,
-            harvest_rate = harvest_rate ))
+            trigger = trigger,
+            target = target ))
 
     # If stddev provided, wrap in log-normal distribution
     if (!(is.numeric(stddev) && stddev == 0)) out <- f_substitute(
@@ -55,8 +59,27 @@ g3_quota_hockeyfleet <- function (
             stddev = stddev,
             out = out ))
 
-    attr(out, "quota_name") <- c("hockeyfleet", stock_common_part(predstocks, collapse = NULL))
-    attr(out, "catchability_unit") <- "harvest-rate-year"
+    attr(out, "quota_name") <- c("hockeystick", stock_common_part(predstocks, collapse = NULL))
+    attr(out, "catchability_unit") <- unit
+    return(out)
+}
+
+g3_quota_hockeyfleet <- function (
+        predstocks,  # Predator / fleet stocks forming a name for quota
+        preystocks,  # Mature spawning-stocks
+        preyprop_fs = 1,  # NB: Doesn't have to sum to 1
+        btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
+        harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
+        stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0) ) {
+    out <- g3_quota_hockeystick(
+        predstocks,
+        preystocks,
+        preyprop_fs,
+        trigger = btrigger,
+        target = harvest_rate,
+        stddev = stddev,
+        unit = "harvest-rate-year" )
+    attr(out, "quota_name") <- gsub("hockeystick", "hockeyfleet", attr(out, "quota_name"), fixed = TRUE)
     return(out)
 }
 
