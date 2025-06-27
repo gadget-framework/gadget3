@@ -170,7 +170,6 @@ params[["ling.recl"]] <- 12
 params[["ling.mat1"]] <- 70
 params[["ling.mat2"]] <- 75
 params[["ling.rec.scalar"]] <- 400
-params[["ling.rec.sd"]] <- 5
 params[["lingmat.M"]] <- 0.15
 params[["lingmat.init.scalar"]] <- 200
 params[["lingmat.init"]] <- rep(1, 15 - 5 + 1)
@@ -178,12 +177,6 @@ params[["lingmat.walpha"]] <- 2.27567436711055e-06
 params[["lingmat.wbeta"]] <- 3.20200445996187
 params[["ling.igfs.alpha"]] <- 0.5
 params[["ling.igfs.l50"]] <- 50
-params[["ling.lln.alpha"]] <- 0.5
-params[["ling.lln.l50"]] <- 50
-params[["ling.bmt.alpha"]] <- 0.5
-params[["ling.bmt.l50"]] <- 50
-params[["ling.gil.alpha"]] <- 0.5
-params[["ling.gil.l50"]] <- 50
 # Set recrutiment for every year
 params[paste('ling.rec', 1994:2018, sep = ".")] <- 1
 
@@ -211,11 +204,4 @@ tmb_param$value <- I(params[tmb_param$switch])
 # Run the model with debugging:
 # model_cpp <- edit(model_cpp) ; writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, tmb_param, compile_flags = c("-O0", "-g"), output_script = TRUE)))
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    print(system.time({model_tmb <- g3_tmb_adfun(model_cpp, tmb_param)}))
-    print(system.time(tmb_result <- model_tmb$fn()))
-
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

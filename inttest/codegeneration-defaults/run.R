@@ -134,5 +134,5 @@ ok(all(is.finite(r$detail_fish__suit_comm)), "detail_fish__suit_comm: finite")
 #    print(system.time({model_tmb <- g3_tmb_adfun(model_cpp, params)}))
 #    print(system.time(tmb_result <- model_tmb$fn()))
 #
-#    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params)
+#    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 #}
