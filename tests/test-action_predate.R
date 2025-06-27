@@ -147,8 +147,6 @@ actions <- list(
             REPORT(prey_a_fleet_bc__cons)
             REPORT(prey_b_fleet_bc__cons)
             REPORT(prey_c_fleet_bc__cons)
-
-            REPORT(nll)  # NB: This report triggers tmb_r_compare to compare nll
         }))
 actions <- c(actions, list(g3a_report_history(actions, ".*__cons$")))
 
