@@ -105,7 +105,7 @@ ok_group("g3l_distribution_sumofsquares", {
         length = seq(1, 5, by = 1),
         age = 3:4)  # NB: Only report age 3,4
     obsdata$number <- runif(nrow(obsdata))
-    model_fn <- g3_to_r(list(
+    actions <- list(
         # Keep TMB happy
         g3_formula({
             nll <- nll + g3_param("dummy", value = 0) 
@@ -119,13 +119,9 @@ ok_group("g3l_distribution_sumofsquares", {
             obsdata,
             function_f = g3l_distribution_sumofsquares(over = c("area", "length")),
             stocks = list(prey_a),
-            report = TRUE)))
-    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
-    if (Sys.getenv('G3_TEST_TMB') == "2") {
-        #model_cpp <- edit(model_cpp)
-        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
-        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
-    }
+            report = TRUE ))
+    model_fn <- g3_to_r(actions)
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     r <- model_fn(params)
@@ -140,7 +136,8 @@ ok_group("g3l_distribution_sumofsquares", {
         ) ** 2
     }
     ok(ut_cmp_equal(as.numeric(r), expected_nll), "g3l_distribution_sumofsquares statified over length")
-    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
 })
 
 ok_group("g3l_distribution:transform_fs", {
@@ -152,7 +149,7 @@ ok_group("g3l_distribution:transform_fs", {
         length = seq(1, 5, by = 1),
         age = 1:5)
     obsdata$number <- runif(nrow(obsdata))
-    model_fn <- g3_to_r(list(
+    actions <- list(
         g3a_time(2000, 2001),
         g3a_initialconditions(prey_a,
             num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
@@ -184,13 +181,9 @@ ok_group("g3l_distribution:transform_fs", {
             stocks = list(prey_a),
             report = TRUE),
         # Keep TMB happy
-        g3_formula( nll <- nll + g3_param("dummy", value = 0) )))
-    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
-    if (Sys.getenv('G3_TEST_TMB') == "2") {
-        #model_cpp <- edit(model_cpp)
-        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
-        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
-    }
+        g3_formula( nll <- nll + g3_param("dummy", value = 0) ))
+    model_fn <- g3_to_r(actions)
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     # Given results / params, apply matrix manually and make sure the results match
     do_test <- function (r, params, msg) {
@@ -217,7 +210,7 @@ ok_group("g3l_distribution:transform_fs", {
     params <- attr(model_fn, 'parameter_template')
     r <- model_fn(params)
     do_test(r, params, "Identity matrix")
-    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
 
     # Length vector applied for len
     ok(ut_cmp_equal(
@@ -232,7 +225,7 @@ ok_group("g3l_distribution:transform_fs", {
     params$reader1matrix[2,] <- c(0, 0.75, 0.25, 0, 0)
     r <- model_fn(params)
     do_test(r, params, "age1, age2 smeared")
-    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
 })
 
 # g3l_distribution_sumofsquaredlogratios
@@ -419,20 +412,7 @@ actions <- c(actions, list(
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    params <- attr(model_fn, 'parameter_template')
-    params$fleet_abc_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
-    params$fleet_abc_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
-    params$fleet_abc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
-
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-    model_cpp <- c()
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("Likelihood per step", {
     params <- attr(model_fn, 'parameter_template')
@@ -727,11 +707,7 @@ ok_group("Likelihood per step", {
             log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step2_nll)), "step3_nll: Sum of squares, including step2_nll")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("Likelihood per year", {
@@ -807,14 +783,7 @@ ok_group("Likelihood per year", {
 
     # Compile model
     model_fn <- g3_to_r(actions, trace = FALSE)
-    # model_fn <- edit(model_fn)
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-    } else {
-        writeLines("# skip: not compiling TMB model")
-    }
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     params$fleet_abc_a <- runif(10, min=0.1, max=0.9)
@@ -1001,9 +970,5 @@ ok_group("Likelihood per year", {
             log(g3_avoid_zero(r$adist_surveyindices_log_surveyindices_obs__num[,])))**2),
         r$step1_nll)), "step3_nll: Sum of squares, including step1_nll")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

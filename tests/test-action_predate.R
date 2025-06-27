@@ -177,27 +177,7 @@ ok_group("g3a_predate:predstock_list", {
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    params <- attr(model_fn, 'parameter_template')
-    params$fleet_ab_a <- c(0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0, 0)
-    params$fleet_ab_b <- c(0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0)
-    params$fleet_ab_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
-    params$amount_ab <- 100
-    params$fleet_bc_a <- c(0, 0, 0, 0, 0.1, 0.2, 0.1, 0, 0, 0)
-    params$fleet_bc_b <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
-    params$fleet_bc_c <- c(0, 0, 0, 0, 0, 0, 0.1, 0.2, 0.1, 0)
-    params$amount_bc <- 100
-    params$understocking_power <- 2
-    params$years <- 1
-    params$x<-1.0
-
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("No overconsumption", {
     params <- attr(model_fn, 'parameter_template')
@@ -211,7 +191,6 @@ ok_group("No overconsumption", {
     params$amount_bc <- 50
     params$understocking_power <- 2
     params$years <- 1
-    params$x<-1.0
 
     result <- model_fn(params)
     r <- attributes(result)
@@ -346,11 +325,7 @@ ok_group("No overconsumption", {
         c(15.00000, 25.00000, 35.00000, 45.00000, 55.00000, 65.00000, 74.96134, 84.91237, 94.95103, 105.00000),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 
@@ -366,7 +341,6 @@ ok_group("Overconsumption", {
     params$amount_bc <- 50
     params$understocking_power <- 1
     params$years <- 1
-    params$x<-1.0
 
     result <- model_fn(params)
     r <- attributes(result)
@@ -419,11 +393,7 @@ ok_group("Overconsumption", {
         c(15, 25, 35, 45, 55, 65, 74.96134, 84.91237, 94.95103, 105),
         tolerance = 1e-5), "prey_c__num: Taken out of circulation")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("run_f disabling", {
@@ -438,7 +408,6 @@ ok_group("run_f disabling", {
     params$amount_bc <- 10
     params$understocking_power <- 1
     params$years <- 4
-    params$x<-1.0
 
     result <- model_fn(params)
     r <- attributes(result)
@@ -464,10 +433,5 @@ ok_group("run_f disabling", {
         colSums(r$hist_prey_c_fleet_bc__cons[,area = 'c',]),
         c("2000-01" = 30, "2001-01" = 0, "2002-01" = 30, "2003-01" = 0) ), "hist_prey_c_fleet_bc__cons: Only fished on even years")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

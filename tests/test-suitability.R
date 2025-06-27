@@ -173,14 +173,7 @@ actions <- list(
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = TRUE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("exponentiall50", {
     params <- attr(model_fn, 'parameter_template')
@@ -197,11 +190,7 @@ ok_group("exponentiall50", {
     ok(all(r$input_stock__g3_suitability_exponentiall50[,,'age1'] == r$input_stock__g3_suitability_exponentiall50[,,'age2']), 'all of age1 = age2')
     ok(all(r$input_stock__g3_suitability_exponentiall50[,,'age2'] == r$input_stock__g3_suitability_exponentiall50[,,'age3']), 'all of age2 = age3')
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("compare_all", {
@@ -218,9 +207,5 @@ ok_group("compare_all", {
 
     # NB: Don't bother checking the values themselves, but make sure the end result matches in TMB
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

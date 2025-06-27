@@ -66,14 +66,7 @@ actions <- c(actions, list(
             
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("report", {
     params <- attr(model_fn, 'parameter_template')
@@ -164,11 +157,7 @@ ok_group("report", {
                4       4       5       7      10      14
   '), "hist_testreport_vec: History of vector")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        capture_warnings(gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template))
-    }
+    capture_warnings(gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params))
 })
 
 ok_group("adreport", {
@@ -181,6 +170,7 @@ ok_group("adreport", {
     # str(as.list(r), vec.len = 10000)
 
     if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
+        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
         sdrep <- TMB::sdreport(model_tmb)
         ok(ut_cmp_equal(
             summary(sdrep, 'report'),

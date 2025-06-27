@@ -256,14 +256,7 @@ actions <- list(
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
@@ -391,3 +384,5 @@ for (age in c('age6', 'age8', 'age9', 'age10')) {
             r$report_b__wgt[,age,year]), paste0("report_b__wgt: ", age, " doesn't grow in year ", year))
     }
 }
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

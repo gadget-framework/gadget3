@@ -70,6 +70,7 @@ ut_tmb_r_compare2 <- function (
         # Splice R parameters into parameter_template
         param_template <- attr(model_cpp, 'parameter_template')
         param_template$value[names(params)] <- params
+        param_template$random <- FALSE  # Comparing a fixed point, shouldn't be randomising anything since then par will use incorrect values
     }
 
     if (gdbsource) {

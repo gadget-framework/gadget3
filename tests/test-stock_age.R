@@ -89,7 +89,8 @@ actions <- list(
             return(nll)
         }))
 model_fn <- g3_to_r(actions)
-# model_fn <- edit(model_fn)
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
+
 params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
 r <- attributes(result)
@@ -155,18 +156,7 @@ ok(ut_cmp_identical(
     sum(1:3) * length(4:6) * 100000 + sum(4:6) * length(1:3)), "stock_interact_young_old_vars: Sum of each age combination")
 
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-    model_tmb_report <- model_tmb$report()
-
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-} else {
-    writeLines("# skip: not running TMB tests")
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
 ok_group("g3s_age is idempotent", {
     ok(ut_cmp_identical(

@@ -461,10 +461,10 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
         ok(!isTRUE(all.equal(
             I(value_inc_random[param_tbl[param_tbl$random, 'switch']]),
             param_tbl$value[param_tbl[param_tbl$random, 'switch']])), "value_random: Random parameters have been updated")
-        param_tbl$value <- value_inc_random
 
-        # NB: ut_tmb_r_compare will be using g3_tmb_par()
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_tbl)
+        param_tbl$value <- value_inc_random
+        param_tbl$random <- FALSE
+        gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, param_tbl)
     } else {
         writeLines("# skip: not compiling TMB model")
     }
@@ -1135,12 +1135,15 @@ for (n in ls(expecteds)) {
         attr(result$rv, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
+suppressWarnings(gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params))
 ok(ut_cmp_identical(result$warnings, expected_warnings_r), "Warnings from R as expected")
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     param_template <- attr(model_cpp, "parameter_template")
     param_template$value <- params[param_template$switch]
-    generated_warnings <- capture_warnings(gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template))$warnings
-    ok(ut_cmp_identical(generated_warnings, c(expected_warnings_r, expected_warnings_tmb)), "Warnings from R+TMB as expected")
+    # NB: Suppress the warnings when building the model, only look at the ones for the report
+    model_tmb <- suppressWarnings(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g")))
+    generated_warnings <- capture_warnings(model_tmb$report())$warnings
+    ok(ut_cmp_identical(generated_warnings, expected_warnings_tmb), "Warnings from TMB as expected")
 
     ok(ut_cmp_equal(model_tmb$report(), model_tmb$simulate()), "$simulate: Also produces named output, as $report")
 

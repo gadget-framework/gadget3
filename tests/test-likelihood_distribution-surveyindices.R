@@ -56,9 +56,4 @@ for (age in unique(obsdata$age)) {
 }
 ok(ut_cmp_equal(as.vector(r), exp_nll), "Total nll matches expected")
 
-if (Sys.getenv('G3_TEST_TMB') == "2") {
-    #model_cpp <- edit(model_cpp)
-    #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
-    model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, parameters = params, compile_flags = c("-O0", "-g"))
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)

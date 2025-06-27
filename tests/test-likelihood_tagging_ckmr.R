@@ -100,46 +100,25 @@ year parent_age offspring_age mo_pairs
     actions <- c(actions, list(
         g3a_report_history(actions, var_re = "tagging_ckmrmodel_(spawning|spawned|total|catch)$|__cons$|__suit$", out_prefix = "hist") ))
     model_fn <- g3_to_r(actions, trace = FALSE)
-    # model_fn <- edit(model_fn)
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-    } else {
-        writeLines("# skip: not compiling TMB model")
-        model_cpp <- c()
-    }
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     params$lingimm.init <- 1
     params$lingimm.init.scalar <- 100
-    params$lingimm.rec.scalar <- 100
     params$lingimm.M <- 0
     params$lingimm.walpha <- 1e-1
     params$lingimm.wbeta <- 2
     params$lingmat.init <- 1
     params$lingmat.init.scalar <- 100
-    params$lingmat.rec.scalar <- 100
     params$lingmat.M <- 0.95
     params$lingmat.walpha <- 1e-6
     params$lingmat.wbeta <- 2
-    params$ling.init.F <- 0.4
-    params$ling.mat.alpha <- 0.01
-    params$ling.mat.l50 <- 75
-    params$ling.mat.beta <- 0.01
-    params$ling.mat.a50 <- 7
     params$ling.Linf <- 160
-    params$ling.bbin <- 6
-    params$ling.k <- 10
     params$ricker.mu <- 1
     params$ricker.lambda <- 1e-6
     params$tagging_ckmr_weight <- 1.0
 
     # capture.output(print(attributes(model_fn(params))), file = 'gadget3/test-likelihood_tagging_ckmr.baseline')
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

@@ -15,7 +15,7 @@ ok_group("g3a_age:single_age", {
     prey_b <- g3_stock('prey_b', seq(20, 40, 4)) %>% g3s_age(11, 15)
     prey_c <- g3_stock('prey_c', seq(20, 40, 4)) %>% g3s_age(11, 15)
 
-    model_fn <- g3_to_r(c(
+    actions <- c(
         list("99999" = g3_formula({
             # Keep TMB happy
             nll <- nll + g3_param("dummy", value = 0)
@@ -27,13 +27,9 @@ ok_group("g3a_age:single_age", {
         g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
         g3a_initialconditions(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),
         g3a_age(prey_a, output_stocks = list(prey_b, prey_c), output_ratios = c(0.75, 0.25)),
-        g3a_time(2000, 2002)))
-    model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
-    if (Sys.getenv('G3_TEST_TMB') == "2") {
-        #model_cpp <- edit(model_cpp)
-        #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
-        model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
-    }
+        g3a_time(2000, 2002) )
+    model_fn <- g3_to_r(actions)
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     r <- model_fn(params)
@@ -50,7 +46,8 @@ ok_group("g3a_age:single_age", {
             attr(r, 'prey_c__num')[length=len_idx,],
             c(age11=0, age12=2.5, age13=0, age14=0, age15=0)), paste0("prey_c__num length=", len_idx))
     }
-    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
 })
 
 # NB: We start at 11 to make sure we age into the right bracket
@@ -90,13 +87,7 @@ actions <- list(
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
 # model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("age", {
     params <- attr(model_fn, 'parameter_template')
@@ -139,9 +130,5 @@ ok_group("age", {
     ok(ut_cmp_identical(as.vector(r$step3_prey_c__num), c(0, 0, 0, 20, 30, 0, 0)), "step3_prey_c__num: Final age of prey_b transferred, numbers rotated")
     ok(ut_cmp_equal(as.vector(r$step3_prey_c__wgt), c(0, 0, 0, 200, 300, 0, 0)), "step3_prey_c__wgt: Final age of prey_b transferred")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
