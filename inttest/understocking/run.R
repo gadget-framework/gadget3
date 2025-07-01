@@ -20,7 +20,10 @@ report_actions <- list(
 
 actions <- local({
     eval(g2to3_mainfile('inttest/understocking'))
-    c(actions, report_actions, list(g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__cons$")))
+    c(actions, report_actions, list(
+        g3a_report_history(actions, var_re = "__num$|__wgt$|__consratio$|__totalpredate$|__cons$"),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() ))
 })
 
 # Replace avoid_zero with a more accurate scale

@@ -145,6 +145,8 @@ likelihood_actions <- list(
 
 time <- list(
     g3a_time(start_year = 1994, end_year = 2018, c(3, 3, 3, 3), project_years = 0),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list())
 model_fn <- g3_to_r(c(
     ling_mat_actions,

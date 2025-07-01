@@ -24,6 +24,8 @@ actions <- list(
     g3a_initialconditions(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),
     g3a_initialconditions(stock_aggregated, ~age * 1000000 + stock_inbetween__minlen, ~0),
     g3a_initialconditions(stock_inbetween_old_aggregated, ~0 * stock_inbetween__minlen, ~0),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '5:stock_sum_young_noage' = gadget3:::g3_step(g3_formula({
             comment("stock_sum_young_noage")
@@ -85,7 +87,6 @@ actions <- list(
             REPORT(stock_old__num)
             REPORT(stock_inbetween__num)
             REPORT(stock_aggregated__num)
-            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         }))
 model_fn <- g3_to_r(actions)

@@ -7,11 +7,11 @@ year_range <- 1952:1953
 timestep <- c(3,3,3,3)
 
 time_actions <- list(
-  # Keep TMB happy
-  g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
   g3a_time(start_year = min(year_range),
            end_year = max(year_range),
            timestep),
+  # NB: Only required for testing
+  gadget3:::g3l_test_dummy_likelihood(),
   list())
 
 stock <-

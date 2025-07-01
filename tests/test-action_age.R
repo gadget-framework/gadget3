@@ -17,8 +17,6 @@ ok_group("g3a_age:single_age", {
 
     actions <- c(
         list("99999" = g3_formula({
-            # Keep TMB happy
-            nll <- nll + g3_param("dummy", value = 0)
             REPORT(prey_a__num)
             REPORT(prey_b__num)
             REPORT(prey_c__num)
@@ -27,6 +25,8 @@ ok_group("g3a_age:single_age", {
         g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
         g3a_initialconditions(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),
         g3a_age(prey_a, output_stocks = list(prey_b, prey_c), output_ratios = c(0.75, 0.25)),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         g3a_time(2000, 2002) )
     model_fn <- g3_to_r(actions)
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
@@ -82,7 +82,7 @@ actions <- list(
     g3a_age(prey_b, output_stocks = list(prey_c)),
     g3a_age(prey_c),
     report_action,
-    list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
+    list('999' = ~{ nll <- nll + g3_param('x', value = 0, optimise = TRUE) }))
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)

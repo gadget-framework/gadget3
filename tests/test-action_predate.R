@@ -123,6 +123,8 @@ actions <- list(
         list(prey_a, prey_b, prey_c),
         power_f = ~g3_param('understocking_power'),
         weight = 2),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             REPORT(prey_a__num)

@@ -47,6 +47,8 @@ actions <- list(
     list(
         g3a_time(1999, 1999),
         g3a_initialconditions(stock_a, ~100 + stock_a__minlen, ~0),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         '5:sum_fleet_stock_a' = gadget3:::g3_step(g3_formula({
             stock_iterate(fleet, stock_intersect(stock_a, {
                 sum_fleet_stock_a <- sum_fleet_stock_a + stock_ss(stock_a__num, vec = single)
@@ -82,7 +84,6 @@ actions <- list(
                 REPORT(stock_wonky__plusdl)
             })
 
-            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         })))
 

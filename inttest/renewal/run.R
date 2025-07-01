@@ -9,7 +9,10 @@ year_range <- 1982:1990
 
 actions <- local({
     eval(g2to3_mainfile('inttest/renewal'))
-    c(actions, list(g3a_report_history(actions)))
+    c(actions, list(
+        g3a_report_history(actions),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() ))
 })
 
 # Replace avoid_zero with a more accurate scale

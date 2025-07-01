@@ -5,6 +5,8 @@ library(gadget3)
 
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         "001:ut" = gadget3:::g3_step(g3_formula(
             quote( tvout[[1]] <- x ),

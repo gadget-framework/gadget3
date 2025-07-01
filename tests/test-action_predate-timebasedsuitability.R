@@ -30,8 +30,8 @@ actions <- list(
                 "2003" = g3_parameterized('com.l50.late') ))),
         catchability_f = g3a_predate_catchability_totalfleet(100) ),
 
-    # NB: Dummy parameter so model will compile in TMB
-    ~{nll <- nll + g3_param("x", value = 0)} )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(full_actions)

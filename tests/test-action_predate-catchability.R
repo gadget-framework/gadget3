@@ -45,7 +45,8 @@ actions <- list(
                 quota = I(list(~g3_param('quota.low', value = 1e-9), ~g3_param('quota.high', value = 1e-5)))),
             E = 2,
             recalc_f = ~cur_step == 1)),
-    list())
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_detail(actions) ))
 

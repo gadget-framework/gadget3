@@ -29,7 +29,9 @@ actions <- list(
         obsdata,
         function_f = g3l_distribution_surveyindices_linear(alpha = NULL, beta = 1.8),
         stocks = list(prey_a),
-        report = TRUE))
+        report = TRUE),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(g3a_report_detail(actions)))
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions)

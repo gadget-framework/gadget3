@@ -108,9 +108,8 @@ ok_group("g3_step:stock_reshape", {
             REPORT(dest_nolength__num)
         })))),
 
-        list('999' = ~{
-            nll <- nll + g3_param('x', value = 1.0)
-        }))
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
 
     # Compile model
     model_fn <- g3_to_r(actions)

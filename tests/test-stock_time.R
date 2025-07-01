@@ -57,6 +57,8 @@ actions <- list(
         step_lengths = c(6,6),
         final_year_steps = ~g3_param('final_year_steps', value = 2),
         project_years = ~g3_param('projectyears', value = 0)),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         "500:stock_time" = gadget3:::g3_step(~{
             stock_iterate(stock_timeyear, stock_ss(stock_timeyear__num) <- stock_ss(stock_timeyear__num) + stock_modeltime_iterator)

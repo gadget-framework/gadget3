@@ -45,8 +45,8 @@ actions <- list(
         g3a_grow_weight_weightjones(temperature = temperature),
         maxlengthgroupgrowth = 8 )),
 
-    # NB: Dummy parameter so model will compile in TMB
-    ~{nll <- nll + g3_param("x", value = 0)} )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_history(actions, var_re = "__num$|__wgt$", out_prefix = "late_"),
     g3a_report_detail(actions) ))

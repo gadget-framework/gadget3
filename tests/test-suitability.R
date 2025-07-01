@@ -164,11 +164,12 @@ actions <- list(
         ~g3_param("p_richards_p2"),
         ~g3_param("p_richards_p3"),
         ~g3_param("p_richards_p4"))),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list('999' = ~{
         REPORT(input_stock__num)
         REPORT(input_stock__wgt)
         REPORT(input_stock__midlen)
-        nll <- g3_param('x', value = 1.0)
     }))
 
 # Compile model

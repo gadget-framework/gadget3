@@ -506,10 +506,7 @@ actions <- list(g3a_time(1990, 1991))
 expecteds <- new.env(parent = emptyenv())
 expected_warnings_r <- c()
 expected_warnings_tmb <- c()
-params <- list(
-     retro_years = 0,
-     project_years = 0,
-     rv = 0 )
+params <- list()
 
 # Check constants can pass through cleanly
 constants_integer <- 999
@@ -1107,15 +1104,20 @@ for (i in seq_along(actions)) {
 }
 
 nll <- 0.0
+actions <- c(actions, gadget3:::g3l_test_dummy_likelihood())
 actions[['zzzzz']] <- ~{
     comment('done')
-    nll <- nll + g3_param('rv')
     return(nll)
 }
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
+
+# Plug expected params into parameter template to get defaults
+expected_params <- params
+params <- attr(model_fn, "parameter_template")
+params[names(expected_params)] <- expected_params
+
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)

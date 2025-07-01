@@ -83,6 +83,8 @@ year parent_age offspring_age mo_pairs
             fleets = list(fleet_ckmr),
             parent_stocks = list(ling_mat),
             offspring_stocks = list(ling_imm)),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         list())
 
     time_actions <- list(

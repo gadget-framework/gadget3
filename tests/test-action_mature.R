@@ -83,6 +83,8 @@ ok_group('g3a_mature', {
             list(stock_mat1, stock_mat2),
             output_ratios = list(~g3_param("ratio_mat1"), ~g3_param("ratio_mat2")),
             run_f = ~g3_param("run_f") == 1),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         list(
             '999' = ~{
                 REPORT(stock_imm__num)
@@ -91,7 +93,6 @@ ok_group('g3a_mature', {
                 REPORT(stock_mat1__wgt)
                 REPORT(stock_mat2__num)
                 REPORT(stock_mat2__wgt)
-                nll <- nll + g3_param('x')
                 return(nll)
             }))
 

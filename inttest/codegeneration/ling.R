@@ -59,6 +59,7 @@ structure(function (param = parameter_template)
     pt.ling.rec <- list(`1994` = param[["ling.rec.1994"]], `1995` = param[["ling.rec.1995"]], `1996` = param[["ling.rec.1996"]], `1997` = param[["ling.rec.1997"]], `1998` = param[["ling.rec.1998"]], `1999` = param[["ling.rec.1999"]], `2000` = param[["ling.rec.2000"]], `2001` = param[["ling.rec.2001"]], `2002` = param[["ling.rec.2002"]], `2003` = param[["ling.rec.2003"]], `2004` = param[["ling.rec.2004"]], `2005` = param[["ling.rec.2005"]], `2006` = param[["ling.rec.2006"]], `2007` = param[["ling.rec.2007"]], 
         `2008` = param[["ling.rec.2008"]], `2009` = param[["ling.rec.2009"]], `2010` = param[["ling.rec.2010"]], `2011` = param[["ling.rec.2011"]], `2012` = param[["ling.rec.2012"]], `2013` = param[["ling.rec.2013"]], `2014` = param[["ling.rec.2014"]], `2015` = param[["ling.rec.2015"]], `2016` = param[["ling.rec.2016"]], `2017` = param[["ling.rec.2017"]], `2018` = param[["ling.rec.2018"]])
     stopifnot("cdist_sumofsquares_ldist_lln_weight" %in% names(param))
+    stopifnot("x" %in% names(param))
     assert_msg <- function(expr, message) {
         if (isFALSE(expr)) {
             warning(message)
@@ -700,6 +701,10 @@ structure(function (param = parameter_template)
             }
         }
         {
+            comment("g3l_test_dummy_likelihood: Dummy likelihood so all tests have an optimisable parameter")
+            nll <- nll + 0 * param[["x"]]
+        }
+        {
             comment("Reset understocking total")
             g3l_understocking_total <- 0
         }
@@ -799,4 +804,4 @@ structure(function (param = parameter_template)
         }
     }
 }, class = c("g3_r", "function"), parameter_template = list(retro_years = 0, ling.Linf = 1, ling.K = 1, recage = 0, ling.recl = 0, lingimm.init.scalar = 0, lingimm.M = 0, ling.init.F = 0, lingimm.init = 0, lingimm.walpha = 0, lingimm.wbeta = 0, lingmat.init.scalar = 0, lingmat.M = 0, lingmat.init = 0, lingmat.walpha = 0, lingmat.wbeta = 0, ling.igfs.alpha = 0, ling.igfs.l50 = 0, ling.mat1 = 0, ling.mat2 = 0, ling.bbin = 0, ling.rec.scalar = 0, ling.rec.1994 = 0, ling.rec.1995 = 0, ling.rec.1996 = 0, 
-    ling.rec.1997 = 0, ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1))
+    ling.rec.1997 = 0, ling.rec.1998 = 0, ling.rec.1999 = 0, ling.rec.2000 = 0, ling.rec.2001 = 0, ling.rec.2002 = 0, ling.rec.2003 = 0, ling.rec.2004 = 0, ling.rec.2005 = 0, ling.rec.2006 = 0, ling.rec.2007 = 0, ling.rec.2008 = 0, ling.rec.2009 = 0, ling.rec.2010 = 0, ling.rec.2011 = 0, ling.rec.2012 = 0, ling.rec.2013 = 0, ling.rec.2014 = 0, ling.rec.2015 = 0, ling.rec.2016 = 0, ling.rec.2017 = 0, ling.rec.2018 = 0, cdist_sumofsquares_ldist_lln_weight = 1, x = 0))

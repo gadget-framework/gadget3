@@ -62,6 +62,8 @@ actions <- list(
         end_year = ~as_integer(g3_param('p_end_year', value = 1997)),
         step_lengths = ~g3_param_vector('step_lengths'),
         final_year_steps = ~as_integer(g3_param('final_year_steps', value = 3))),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             all_time[[cur_time + 1]] <- cur_time
@@ -77,8 +79,6 @@ actions <- list(
             REPORT(all_step_final)
             REPORT(all_cur_year_projection)
             REPORT(total_years)
-
-            nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over
         }))
 
 model_fn <- g3_to_r(actions)

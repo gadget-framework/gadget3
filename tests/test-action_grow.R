@@ -72,11 +72,12 @@ ok_group("g3a_grow_impl_bbinom", {
                 delta_wgt_f = g3a_grow_weightsimple(~g3_param('walpha', value = 3), ~g3_param('wbeta', value = 2)),
                 beta = ~g3_param('beta', value = 30),
                 maxlengthgroupgrowth = 4)),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         list(
             "999" = ~{
                 REPORT(teststock__growth_l)
                 REPORT(teststock__growth_w)
-                nll <- nll + g3_param('x', value = 1.0)
                 return(nll)
             }))
 
@@ -133,7 +134,7 @@ ok_group("g3a_growmature", {
             "999" = ~{
                 REPORT(teststock__num)
                 REPORT(teststock__wgt)
-                nll <- nll + g3_param('x')
+                nll <- nll + g3_param('x', value = 0, optimise = TRUE)
                 return(nll)
             }))
     params <- attr(model_fn, 'parameter_template')

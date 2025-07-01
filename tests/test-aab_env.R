@@ -128,16 +128,15 @@ expecteds$nonconform_outdiv_avz2a <- nonconform_inp2[,,1] / native_avz(as.vector
 ###############################################################################
 
 nll <- 0.0
-actions <- c(actions, ~{
+actions <- c(actions, gadget3:::g3l_test_dummy_likelihood(), ~{
     comment('done')
-    nll <- nll + g3_param('rv')
     return(nll)
 })
-params <- list(rv=0)
 
 # Compile model
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions)
+params <- attr(model_cpp, "parameter_template")
 
 # Compare everything we've been told to compare
 result <- model_fn(params)

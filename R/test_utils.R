@@ -1,5 +1,19 @@
 # Helpers for unit testing, not for general use
 
+# A TMB model needs at least one optimisable paramter, which a lot of tests won't be doing.
+g3l_test_dummy_likelihood <- function (
+        run_at = g3_action_order$likelihood) {
+    out <- new.env(parent = emptyenv())
+
+    out[[step_id(run_at, 'g3l_test_dummy_likelihood', 0)]] <- g3_step(f_substitute(~{
+        debug_label("g3l_test_dummy_likelihood: Dummy likelihood so all tests have an optimisable parameter")
+        nll <- nll + 0 * dummy_f
+    }, list(
+        dummy_f = g3_parameterized("x", value = 0.0, lower = -1, upper = 1),
+        end = NULL )))
+    return(as.list(out))
+}
+
 # Compare output of TMB & R model runs
 ut_tmb_r_compare2 <- function (
         model_fn,

@@ -60,7 +60,8 @@ actions <- list(
     }, testreport_vec = 1:4),
     g3a_report_stock(agg_report, prey_a, ~stock_ss(prey_a__num), include_adreport = TRUE),
     g3a_report_stock(raw_report, prey_a, ~stock_ss(input_stock__num)),  # NB: We can let g3_step rename it for us
-    list('999' = ~{ nll <- nll + g3_param('x', value = 1.0) }))
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_history(actions, '^prey_a__(num|wgt|midlen)|^testreport_') ))
             

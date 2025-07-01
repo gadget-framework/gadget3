@@ -9,7 +9,11 @@ year_range <- 1982:1990
 
 actions <- local({
     eval(g2to3_mainfile('inttest/maturity-continuous'))
-    c(actions, list(g3a_report_history(actions), g3a_report_history(actions, "__growth_[lw]$|stock__transitioning_(num|wgt)$", "growthinternals_")))
+    c(actions, list(
+        g3a_report_history(actions),
+        g3a_report_history(actions, "__growth_[lw]$|stock__transitioning_(num|wgt)$", "growthinternals_"),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() ))
 })
 
 # Replace avoid_zero with a more accurate scale

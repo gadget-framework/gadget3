@@ -50,7 +50,8 @@ ok_group("g3a_migrate", {
             run_f = ~cur_step == 4),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__wgt)),
-        list())
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
 
     # Compile model
     model_fn <- g3_to_r(actions)

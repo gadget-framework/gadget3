@@ -29,7 +29,8 @@ actions <- list(
             cur_step = 1:4), value = 0, random = TRUE),
         sigma_f = ~g3_param('walk_step_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_step_enabled', value = 0, optimise = FALSE)),
-    list('999' = ~{ nll <- nll + g3_param("x", optimise = TRUE) }))
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions, trace = FALSE)

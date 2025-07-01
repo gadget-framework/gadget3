@@ -244,14 +244,14 @@ actions <- list(
         run_f = ~age == 7),
     g3a_report_stock(stock_b_report, stock_b, ~stock_ss(stock_b__num)),
     g3a_report_stock(stock_b_report, stock_b, ~stock_ss(stock_b__wgt)),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             REPORT(stock_a__num)
             REPORT(stock_ac__num)
             REPORT(stock_a__wgt)
             REPORT(stock_ac__wgt)
-
-            nll <- nll + g3_param('x', value = 1.0)
         }))
 
 # Compile model

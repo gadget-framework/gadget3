@@ -29,7 +29,8 @@ actions <- list(
         list(prey_a),
         tagshed_f = log(8),  # i.e. 0.125 will loose their tag
         run_f = ~cur_year >= g3_param('tagshed_start', value = 2999)),
-    list())
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_history(actions, "__cons"),
     g3a_report_history(actions)))

@@ -31,6 +31,8 @@ actions <- list(
         # Spawning mortality, only for age 1, off by default
         g3a_naturalmortality_exp(g3_parameterized('spawn_mortality', value = 0, optimise = TRUE)),
         run_f = quote( age == 3 )),  # NB: Only for first age
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             if (cur_time == 0) {
@@ -56,8 +58,6 @@ actions <- list(
             }
             REPORT(step3_prey_a__num)
             REPORT(step3_prey_a__wgt)
-
-            nll <- nll + g3_param('x', value = 1.0)
         }))
 
 # Compile model

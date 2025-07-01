@@ -106,9 +106,7 @@ ok_group("g3l_distribution_sumofsquares", {
         age = 3:4)  # NB: Only report age 3,4
     obsdata$number <- runif(nrow(obsdata))
     actions <- list(
-        # Keep TMB happy
         g3_formula({
-            nll <- nll + g3_param("dummy", value = 0) 
             REPORT(prey_a__num)
         }),
         g3a_time(2000, 2001),
@@ -119,7 +117,9 @@ ok_group("g3l_distribution_sumofsquares", {
             obsdata,
             function_f = g3l_distribution_sumofsquares(over = c("area", "length")),
             stocks = list(prey_a),
-            report = TRUE ))
+            report = TRUE ),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
     model_fn <- g3_to_r(actions)
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
@@ -180,8 +180,8 @@ ok_group("g3l_distribution:transform_fs", {
             function_f = g3l_distribution_sumofsquares(),
             stocks = list(prey_a),
             report = TRUE),
-        # Keep TMB happy
-        g3_formula( nll <- nll + g3_param("dummy", value = 0) ))
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
     model_fn <- g3_to_r(actions)
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
@@ -366,7 +366,9 @@ base_actions <- list(
 
             # NB: In theory we could inspect the return value, but TMB doesn't give an easy public method for that
             REPORT(nll)
-        }))
+        }),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(base_actions, list(
     g3l_catchdistribution(
         'utcd',
