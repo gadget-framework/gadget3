@@ -47,6 +47,8 @@ actions <- list(
     list(
         g3a_time(1999, 1999),
         g3a_initialconditions(stock_a, ~100 + stock_a__minlen, ~0),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         '5:sum_fleet_stock_a' = gadget3:::g3_step(g3_formula({
             stock_iterate(fleet, stock_intersect(stock_a, {
                 sum_fleet_stock_a <- sum_fleet_stock_a + stock_ss(stock_a__num, vec = single)
@@ -82,20 +84,11 @@ actions <- list(
                 REPORT(stock_wonky__plusdl)
             })
 
-            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         })))
 
 model_fn <- g3_to_r(actions)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-    model_cpp <- c()
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 params <- attr(model_fn, 'parameter_template')
 result <- model_fn(params)
@@ -158,10 +151,4 @@ ok(ut_cmp_equal(
     r$stock_wonky__plusdl,
     10), "stock_wonky__plusdl")
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-} else {
-    writeLines("# skip: not running TMB tests")
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

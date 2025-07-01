@@ -72,25 +72,19 @@ ok_group("g3a_grow_impl_bbinom", {
                 delta_wgt_f = g3a_grow_weightsimple(~g3_param('walpha', value = 3), ~g3_param('wbeta', value = 2)),
                 beta = ~g3_param('beta', value = 30),
                 maxlengthgroupgrowth = 4)),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood(),
         list(
             "999" = ~{
                 REPORT(teststock__growth_l)
                 REPORT(teststock__growth_w)
-                nll <- nll + g3_param('x', value = 1.0)
                 return(nll)
             }))
 
     # Compile model
     # NB: Growth not valid, but not testing growth at this point
     model_fn <- g3_to_r(actions, trace = FALSE, strict = FALSE)
-    # model_fn <- edit(model_fn)
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp,  attr(model_fn, 'parameter_template'), compile_flags = c("-O0", "-g"))
-    } else {
-        writeLines("# skip: not compiling TMB model")
-    }
+    model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     result <- model_fn(params)
@@ -110,11 +104,7 @@ ok_group("g3a_grow_impl_bbinom", {
         .Dimnames = list(length = c("10:15", "15:20", "20:25", "25:30", "30:35", "35:Inf"), delta = c("0", "1", "2", "3", "4")),
         .Dim = c(length = 6, delta = 5)), tolerance = 1e-5), "Matches baseline")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
     # Try comparing with a few different inputs
     for (x in 1:10) ok_group("g3a_grow_impl_bbinom random params", {
@@ -125,11 +115,7 @@ ok_group("g3a_grow_impl_bbinom", {
         params$wbeta <- runif(1, 0.1, 2)
         params$beta <- runif(1, 10, 30)
         params$initial <- runif(6, 1000, 9000)
-        if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-            param_template <- attr(model_cpp, "parameter_template")
-            param_template$value <- params[param_template$switch]
-            gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-        }
+        gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
     })
 })
 
@@ -148,7 +134,7 @@ ok_group("g3a_growmature", {
             "999" = ~{
                 REPORT(teststock__num)
                 REPORT(teststock__wgt)
-                nll <- nll + g3_param('x')
+                nll <- nll + g3_param('x', value = 0, optimise = TRUE)
                 return(nll)
             }))
     params <- attr(model_fn, 'parameter_template')
@@ -160,14 +146,7 @@ ok_group("g3a_growmature", {
     # Compile model
     # NB: Our tests don't preserve counts, so we can't enable strict here
     model_fn <- g3_to_r(actions, trace = FALSE, strict = FALSE)
-    # model_fn <- edit(model_fn)
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-    } else {
-        writeLines("# skip: not compiling TMB model")
-    }
+    model_cpp <- g3_to_tmb(actions, trace = FALSE, strict = FALSE)
 
     gm <- array(c(
      # 10    15 20   25   30 35
@@ -202,9 +181,5 @@ ok_group("g3a_growmature", {
         (600 * 100000 + 500 * 10000*0.5 + 400 * 1000*0.5) / 105500,
         NULL), tolerance = 1e-5), "Weight scaled, didn't let weight go to infinity when dividing by zero")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

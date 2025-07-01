@@ -79,6 +79,8 @@ actions <- list(
     g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
     g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
     g3a_initialconditions(stock_1agg, ~area * 1 + stock_bcd__minlen, ~0),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '5:stock_sum_ac_noarea' = gadget3:::g3_step(g3_formula({
             comment("stock_sum_ac_noarea")
@@ -178,7 +180,6 @@ actions <- list(
             REPORT(stock_bcd_a_interactions)
             REPORT(stock_bcd_ac_interactions)
             REPORT(stock_bcd__interacttotals)
-            nll <- nll + g3_param('x', value = 1.0)
             return(nll)
         }))
 model_fn <- g3_to_r(actions)

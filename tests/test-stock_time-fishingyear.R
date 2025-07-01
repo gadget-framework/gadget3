@@ -29,7 +29,8 @@ fishingyear_test <- function (
             st__calend = g3_stock_instance(st, -99),
             calendar = as.array(c(idx = NA_integer_, fishingyear_step = NA_integer_, fishingyear_revstep = NA_integer_)),
             st = st ))),
-        quote( nll <- nll + g3_param("x", value = 0, optimise = TRUE) ) )
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
     full_actions <- c(actions, list(
         g3a_report_history(actions, "^calendar"),
         g3a_report_history(actions, "^quota__cal", out_prefix = NULL),

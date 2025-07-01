@@ -9,8 +9,8 @@ actions <- list(
         regression_linear_out <- regression_linear(linear_N, linear_I, g3_param("linear_intercept", value = 1), g3_param("linear_slope", value = 1))
         REPORT(regression_linear_out)
     }, linear_N = runif(10), linear_I = runif(10), regression_linear_out = c(nll = 0.0, intercept = 0.0, slope = 0.0), regression_linear = gadget3:::regression_linear),
-    # NB: Dummy parameter so model will compile in TMB
-    ~{nll <- nll + g3_param("x", value = 0)} )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_history(actions, var_re = "__num$|__wgt$"),
     NULL))

@@ -29,18 +29,11 @@ actions <- list(
             cur_step = 1:4), value = 0, random = TRUE),
         sigma_f = ~g3_param('walk_step_sigma', value = 1, optimise = FALSE),
         weight = ~g3_param('walk_step_enabled', value = 0, optimise = FALSE)),
-    list('999' = ~{}))
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 
 model_fn <- g3_to_r(actions)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-    model_cpp <- c()
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group('g3l_random_dnorm', {
     params <- attr(model_fn, 'parameter_template')
@@ -104,7 +97,7 @@ ok_group('g3l_random_dnorm', {
             'walk_year__1993',
             'walk_year__1994',
             NULL)), "env$random: TMB got expected random variables")
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+        gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
     } else {
         writeLines("# skip: not running TMB tests")
     }
@@ -147,15 +140,7 @@ ok_group('g3l_random_walk', {
             0)),
         tolerance = 1e-7), "nll matches both")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        # Reproduce model to include any unoptimised parameters
-        model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {

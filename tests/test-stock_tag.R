@@ -49,6 +49,8 @@ actions <- list(
     "0:stock_bcd" = gadget3:::g3_step(g3_formula({
         stock_iterate(stock_bcd, stock_ss(stock_bcd__num) <- tag * 100 + stock_bcd__minlen)
     }, stock_bcd = stock_bcd, stock_bcd__num = g3_stock_instance(stock_bcd, 0))),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '5:sum_ac_notag' = gadget3:::g3_step(g3_formula({
             comment("sum_ac_notag")
@@ -65,10 +67,7 @@ actions <- list(
                     sum(stock_ss(stock_notag__num)) + sum(stock_ss(stock_bcd__num))
             }))
             REPORT(sum_notag_bcd)
-        }, sum_notag_bcd = 0.0, stock_bcd = stock_bcd, stock_notag = stock_notag) ),
-
-        # NB: Dummy parameter so model will compile in TMB
-        ~{nll <- nll + g3_param("x", value = 0)} ))
+        }, sum_notag_bcd = 0.0, stock_bcd = stock_bcd, stock_notag = stock_notag) )))
 actions <- c(actions, list(
     g3a_report_history(actions, var_re = "__num$", out_prefix = NULL) ))
 model_fn <- g3_to_r(actions)

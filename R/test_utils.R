@@ -1,39 +1,20 @@
 # Helpers for unit testing, not for general use
 
-# Compare output of TMB & R model runs
-ut_tmb_r_compare <- function (model_fn, model_tmb, param_template, model_cpp = NULL) {
-    dearray <- function (x) {
-        # TMB Will produce 0/1 for TRUE/FALSE
-        if (is.logical(x)) {
-            oldattr <- attributes(x)
-            x <- as.numeric(x)
-            attributes(x) <- oldattr  # Preserve arrayness
-        }
-        return(x)
-    }
+# A TMB model needs at least one optimisable paramter, which a lot of tests won't be doing.
+g3l_test_dummy_likelihood <- function (
+        run_at = g3_action_order$likelihood) {
+    out <- new.env(parent = emptyenv())
 
-    if (!is.data.frame(param_template)) {
-        if (is.null(model_cpp)) stop("Provide model_cpp if param_template is a list")
-        pt <- attr(model_cpp, 'parameter_template')
-        pt$value <- param_template
-        param_template <- pt
-    }
-
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb_report <- model_tmb$report(g3_tmb_par(param_template))
-        r_result <- model_fn(param_template$value)
-        for (n in names(attributes(r_result))) {
-            unittest::ok(unittest::ut_cmp_equal(
-                dearray(model_tmb_report[[n]]),
-                dearray(attr(r_result, n)),
-                tolerance = 1e-5), paste("TMB and R match", n))
-        }
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    out[[step_id(run_at, 'g3l_test_dummy_likelihood', 0)]] <- g3_step(f_substitute(~{
+        debug_label("g3l_test_dummy_likelihood: Dummy likelihood so all tests have an optimisable parameter")
+        nll <- nll + 0 * dummy_f
+    }, list(
+        dummy_f = g3_parameterized("x", value = 0.0, lower = -1, upper = 1),
+        end = NULL )))
+    return(as.list(out))
 }
 
-# Re-implementation that can handle changing non-optimised parameters
+# Compare output of TMB & R model runs
 ut_tmb_r_compare2 <- function (
         model_fn,
         model_cpp,
@@ -62,6 +43,7 @@ ut_tmb_r_compare2 <- function (
         writeLines(paste("# skip: not running TMB tests", cur_g3_test_tmb, " < ", g3_test_tmb))
         return()
     }
+    work_dir <- Sys.getenv('G3_TEST_TMB_WORK_DIR', unset = getOption('gadget3.tmb.work_dir', default = tempdir()))
 
     if (is.data.frame(params)) {
         # Input params is already a parameter template
@@ -70,17 +52,18 @@ ut_tmb_r_compare2 <- function (
         # Splice R parameters into parameter_template
         param_template <- attr(model_cpp, 'parameter_template')
         param_template$value[names(params)] <- params
+        param_template$random <- FALSE  # Comparing a fixed point, shouldn't be randomising anything since then par will use incorrect values
     }
 
     if (gdbsource) {
-        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), output_script = TRUE))
+        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), work_dir = work_dir, output_script = TRUE))
         if (length(grep("\\[Inferior 1 .* exited normally\\]", out_lines)) == 0) {
             writeLines(out_lines)
             stop("Model run failed")
         }
     }
 
-    model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, param_template, work_dir = work_dir, compile_flags = c("-O0", "-g"))
 
     model_tmb_nll <- model_tmb$fn()
     model_tmb_report <- model_tmb$report()
@@ -190,7 +173,7 @@ vignette_test_output <- function (vign_name, model_code, params.out, tolerance =
     ut_tmb_r_compare2(
         model_fn,
         model_code,
-        params.out$value,
+        params.out,
         tolerance = tolerance )
 
     tbl <- utils::read.table(paste0(out_base, ".params"))

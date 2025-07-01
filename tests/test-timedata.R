@@ -229,23 +229,15 @@ expecteds$zero_key_3 <- -1
 ###############################################################################
 
 nll <- 0.0
-actions <- c(actions, ~{
+actions <- c(actions, gadget3:::g3l_test_dummy_likelihood(), ~{
     comment('done')
-    nll <- nll + g3_param('rv')
     return(nll)
 })
-params <- list(rv=0)
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
 model_cpp <- g3_to_tmb(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+params <- attr(model_cpp, "parameter_template")
 
 # Compare everything we've been told to compare
 result <- model_fn(params)
@@ -253,6 +245,4 @@ result <- model_fn(params)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(attr(result, n), expecteds[[n]]), n)
 }
-param_template <- attr(model_cpp, "parameter_template")
-param_template$value <- params[param_template$switch]
-gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

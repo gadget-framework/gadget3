@@ -50,28 +50,15 @@ ok_group("g3a_migrate", {
             run_f = ~cur_step == 4),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__num)),
         g3a_report_stock(g3s_clone(stock_acd, 'report_acd') %>% gadget3:::g3s_modeltime(), stock_acd, ~stock_ss(input_stock__wgt)),
-        list())
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
 
     # Compile model
     model_fn <- g3_to_r(actions)
-    # model_fn <- edit(model_fn)
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_cpp <- g3_to_tmb(actions, trace = FALSE)
-        # model_cpp <- edit(model_cpp)
-        model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-    } else {
-        writeLines("# skip: not compiling TMB model")
-    }
+    model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
     params <- attr(model_fn, 'parameter_template')
     result <- model_fn(params)
-
-    # Make sure the model produces identical output in TMB and R
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
 
     for (a in paste0('age', 4:7)) {
         ok(ut_cmp_equal(
@@ -113,4 +100,6 @@ ok_group("g3a_migrate", {
         ok(ut_cmp_equal(model_nums[,t], expected_nums), paste0("Model numbers matched expected, t = ", t))
         ok(ut_cmp_equal(model_wgts[,t], expected_wgts), paste0("Model weights matched expected, t = ", t))
     }
+
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

@@ -190,9 +190,14 @@ if (all(nzchar(Sys.which(c('gdb', 'R')))) && .Platform$OS.type !="windows") {
     g3_formula(quote( stop("This model is broken") )),
     time_action))
 
+  attr(cpp_broken, 'parameter_template') |>
+    g3_init_val("ling_imm.init.#", 1, lower = 0, upper = 1000) |>
+    identity() -> params_broken
+
   # Build the model in an isolated R session w/debugger
   writeLines(TMB::gdbsource(g3_tmb_adfun(
       cpp_broken,
+      params_broken,
       compile_flags = "-g",
       output_script = TRUE)))
 

@@ -9,7 +9,11 @@ year_range <- 1982:1990
 
 actions <- local({
     eval(g2to3_mainfile('inttest/maturity-continuous'))
-    c(actions, list(g3a_report_history(actions), g3a_report_history(actions, "__growth_[lw]$|stock__transitioning_(num|wgt)$", "growthinternals_")))
+    c(actions, list(
+        g3a_report_history(actions),
+        g3a_report_history(actions, "__growth_[lw]$|stock__transitioning_(num|wgt)$", "growthinternals_"),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() ))
 })
 
 # Replace avoid_zero with a more accurate scale
@@ -25,7 +29,9 @@ auto __fn__(X a) {
 ', depends = c("dif_pmax")) ), actions)
 
 model_fn <- g3_to_r(actions, strict = FALSE, trace = FALSE)
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 params <- local({eval(g2to3_params_r('inttest/maturity-continuous', 'params.in')) ; params.in})
+params <- params[names(attr(model_cpp, "parameter_template")$value)]
 
 # Run gadget3 model
 # model_fn <- edit(model_fn) ; model_fn(params)
@@ -33,15 +39,7 @@ r_result <- model_fn(params)
 g3_r <- attributes(r_result)
 
 # If enabled run a TMB version too
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params)
-
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
 # Run gadget2 model
 oldwd <- getwd()

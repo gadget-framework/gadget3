@@ -48,8 +48,8 @@ actions <- list(
         nll_breakdown = TRUE,
         report = TRUE ),
 
-    # NB: Dummy parameter so model will compile in TMB
-    ~{nll <- nll + g3_param("x", value = 0)} )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_detail(actions) ))
 model_fn <- g3_to_r(actions)

@@ -2,7 +2,6 @@ library(unittest)
 
 library(gadget3)
 
-params <- list()
 actions <- list()
 
 # NB: Should test under both CppAD and TMBAD
@@ -140,15 +139,15 @@ for (i in seq_along(actions)) {
         reports = reports))
 }
 
+actions <- c(actions, gadget3:::g3l_test_dummy_likelihood())
 actions[['z']] <- g3_formula({
     comment('done')
-    nll <- nll + g3_param('rv')
     return(nll)
 }, nll = 0.0)
-params$rv <- 0.0
 
 model_fn <- g3_to_r(actions)
 model_cpp <- g3_to_tmb(actions)
+params <- attr(model_cpp, "parameter_template")
 result <- model_fn(params)
 
 # Compare everything we've been told to compare

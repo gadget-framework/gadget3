@@ -34,7 +34,8 @@ ok_group("g3_quota_hockeyfleet: selectivity function preyprop_fs", {
         g3_step(g3_formula({
             REPORT(q_hf)
         }, q_hf = q_hf )),
-        NULL )
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
     full_actions <- c(actions, list(
         g3a_report_detail(actions),
         NULL))
@@ -89,7 +90,8 @@ actions <- list(
             # Use the quota when projecting, otherwise use landings parameters
             fl_quota,
             g3_parameterized("landings", value = 0, by_year = TRUE, by_predator = TRUE) )),
-    NULL )
+     # NB: Only required for testing
+     gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_detail(actions),
     g3a_report_history(actions, "__num$|__wgt$", out_prefix="dend_"),  # NB: Late reporting

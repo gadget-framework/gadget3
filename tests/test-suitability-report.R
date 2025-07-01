@@ -41,8 +41,8 @@ actions <- list(
             prey_a = g3_suitability_andersen(p0 = 0, p1 = log(2), p2 = 1, p4 = 0.1),
             prey_b = g3_suitability_andersen(p0 = quote( age ), p1 = log(2), p2 = 1, p4 = 0.1) ),
         catchability_f = g3a_predate_catchability_totalfleet(0) ),
-    # NB: Dummy parameter so model will compile in TMB
-    ~{nll <- nll + g3_param("x", value = 0)} )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_history(actions, "suit_.*__report"),
     g3a_report_detail(actions) ))

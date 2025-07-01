@@ -7,11 +7,11 @@ year_range <- 1952:1953
 timestep <- c(3,3,3,3)
 
 time_actions <- list(
-  # Keep TMB happy
-  g3_formula( nll <- nll + g3_param("dummy", value = 0) ),
   g3a_time(start_year = min(year_range),
            end_year = max(year_range),
            timestep),
+  # NB: Only required for testing
+  gadget3:::g3l_test_dummy_likelihood(),
   list())
 
 stock <-
@@ -46,12 +46,7 @@ numberfleet_actions <-
 actions <- c(time_actions, stock_actions, numberfleet_actions)
 
 model_fn <- g3_to_r(actions)
-model_cpp <- g3_to_tmb(attr(model_fn, 'actions'), trace = FALSE)
-if (Sys.getenv('G3_TEST_TMB') == "2") {
-    #model_cpp <- edit(model_cpp)
-    #writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = "-g", output_script = TRUE)))
-    model_tmb <- g3_tmb_adfun(model_cpp, trace = TRUE, compile_flags = c("-O0", "-g"))
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("g3a_predate_catchability_numberfleet", {
     params <- attr(model_fn, 'parameter_template')
@@ -65,5 +60,5 @@ ok_group("g3a_predate_catchability_numberfleet", {
     ok(all(!is.nan(attr(r, 'st__num'))), "st__num: Hasn't gone NaN")
     ok(all(!is.nan(attr(r, 'st__wgt'))), "st__wgt: Hasn't gone NaN")
 
-    if (Sys.getenv('G3_TEST_TMB') == "2") gadget3:::ut_tmb_r_compare(model_fn, model_tmb, params, model_cpp = model_cpp)
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
 })

@@ -45,20 +45,14 @@ actions <- list(
                 quota = I(list(~g3_param('quota.low', value = 1e-9), ~g3_param('quota.high', value = 1e-5)))),
             E = 2,
             recalc_f = ~cur_step == 1)),
-    list())
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 actions <- c(actions, list(
     g3a_report_detail(actions) ))
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("Catchability", {
     params <- attr(model_fn, 'parameter_template')
@@ -128,9 +122,5 @@ ok_group("Catchability", {
             (r$dstart_prey_b__num * r$dstart_prey_b__wgt * 0.5 * 0.1 * 1e-5 * 2)[,time_idx],
             tolerance = 1e6), paste0(time_lbl, "/prey_b/quotafleet: Total consumption proportion of overall stock (high quota)"))
     }
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

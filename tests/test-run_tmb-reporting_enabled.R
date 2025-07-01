@@ -3,7 +3,7 @@ library(unittest)
 
 library(gadget3)
 
-actions <- list( g3_formula({
+actions <- list(gadget3:::g3l_test_dummy_likelihood(), g3_formula({
     nll <- g3_param('init_nll', value = 1)
     nll <- nll + (1000 * reporting_enabled)
     REPORT(nll)
@@ -11,7 +11,7 @@ actions <- list( g3_formula({
 }, nll = 0.0) )
 
 fn <- g3_to_r(actions)
-ok(ut_cmp_equal(as.vector(fn(list(init_nll = 1))), 1001), "nll: reporting_enabled always 1 under R")
+ok(ut_cmp_equal(as.vector(fn()), 1001), "nll: reporting_enabled always 1 under R")
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     obj.fn <- g3_tmb_adfun(g3_to_tmb(actions))

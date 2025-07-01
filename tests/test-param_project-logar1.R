@@ -32,8 +32,8 @@ actions <- list(
             output_stocks = list(st_imm),
             run_step = 1 ),
 
-    # NB: Dummy parameter so model will compile in TMB
-    quote( nll <- nll + g3_param("x", value = 0) ) )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_detail(actions),
     g3a_report_history(actions, 'proj_.*', out_prefix = NULL),

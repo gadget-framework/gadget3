@@ -62,6 +62,8 @@ actions <- list(
         end_year = ~as_integer(g3_param('p_end_year', value = 1997)),
         step_lengths = ~g3_param_vector('step_lengths'),
         final_year_steps = ~as_integer(g3_param('final_year_steps', value = 3))),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             all_time[[cur_time + 1]] <- cur_time
@@ -77,23 +79,10 @@ actions <- list(
             REPORT(all_step_final)
             REPORT(all_cur_year_projection)
             REPORT(total_years)
-
-            nll <- nll + g3_param('x', value = 1.0)  # ...or TMB falls over
         }))
 
 model_fn <- g3_to_r(actions)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    params <- attr(model_fn, 'parameter_template')
-    params$step_lengths <- c(3,3,6)
-
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-    model_cpp <- c()
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 params <- attr(model_fn, 'parameter_template')
 params$step_lengths <- c(3,3,6)
@@ -121,13 +110,7 @@ ok(ut_cmp_identical(
     attr(result, 'total_years'),
     1997L - 1990L + 1L), "total_years populated")
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-} else {
-    writeLines("# skip: not running TMB tests")
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 
 ok_group('even steps', {
     params <- attr(model_fn, 'parameter_template')
@@ -161,14 +144,7 @@ ok_group('even steps', {
         attr(result, 'total_years'),
         1999L - 1992L + 1L), "total_years populated")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("projection: Project_years = 4", {
@@ -202,14 +178,7 @@ ok_group("projection: Project_years = 4", {
         attr(result, 'total_years'),
         1999L - 1992L + 1L + 4L), "total_years populated")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("projection: retro_years = 3", {
@@ -243,14 +212,7 @@ ok_group("projection: retro_years = 3", {
         attr(result, 'total_years'),
         1999L - 1992L + 1L - 3L), "total_years populated")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("retro_years, project_years must have correct sense", {
@@ -344,14 +306,7 @@ ok_group("Short final year: final_year_steps = 1", {
         attr(result, 'total_years'),
         as.integer(ceiling(test_total_steps / 3))), "total_years populated (NB: Ignores final_year_steps)")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("1 year forecast from 2nd retro peel: retro_years = 2, project_years = 1", {
@@ -394,12 +349,5 @@ ok_group("1 year forecast from 2nd retro peel: retro_years = 2, project_years = 
         attr(result, 'total_years'),
         as.integer(ceiling(test_total_steps / 3))), "total_years populated")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g"))
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    } else {
-        writeLines("# skip: not running TMB tests")
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

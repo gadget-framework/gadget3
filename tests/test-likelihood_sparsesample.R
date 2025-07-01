@@ -83,8 +83,8 @@ actions <- list(
         predstocks = list(fl),
         measurement_f = quote(wgt + length),
         function_f = g3l_sparsesample_sumsquares(weighting = 'obs_stddev') ),
-    # NB: Dummy parameter so model will compile in TMB
-    quote( nll <- nll + g3_param("x", value = 0) ) )
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_detail(actions),
     g3a_report_history(actions, var_re = "__num$|__wgt$|__cons$|^nll_.sparse_.+__(model|obs)_.+$"),

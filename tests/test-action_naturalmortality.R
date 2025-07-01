@@ -31,6 +31,8 @@ actions <- list(
         # Spawning mortality, only for age 1, off by default
         g3a_naturalmortality_exp(g3_parameterized('spawn_mortality', value = 0, optimise = TRUE)),
         run_f = quote( age == 3 )),  # NB: Only for first age
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         '999' = ~{
             if (cur_time == 0) {
@@ -56,20 +58,11 @@ actions <- list(
             }
             REPORT(step3_prey_a__num)
             REPORT(step3_prey_a__wgt)
-
-            nll <- nll + g3_param('x', value = 1.0)
         }))
 
 # Compile model
 model_fn <- g3_to_r(actions)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("natural mortality", {
     params <- attr(model_fn, 'parameter_template')
@@ -104,11 +97,7 @@ ok_group("natural mortality", {
         50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)) * exp(-0.1 * 1 * (1/12)))), "step3_prey_a__num: Reduced one more time, using another step size")
     ok(ut_cmp_identical(as.vector(r$step3_prey_a__wgt), c(300, 400, 500)), "step3_prey_a__wgt: Weight unchanged")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("Spawning natural mortality")
@@ -151,9 +140,5 @@ ok(ut_cmp_identical(as.vector(r$step3_prey_a__num), c(
     50 * exp(-0.1 * 3 * (1/12)) * exp(-0.1 * 5 * (1/12)) * exp(-0.1 * 1 * (1/12)))), "step3_prey_a__num: Reduced one more time, using another step size")
 ok(ut_cmp_identical(as.vector(r$step3_prey_a__wgt), c(300, 400, 500)), "step3_prey_a__wgt: Weight unchanged")
 
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
-    gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-}
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 #### ok_group("Spawning natural mortality")

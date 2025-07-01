@@ -39,7 +39,9 @@ actions <- list(
     run_f = quote( cur_step == 1 ) ),
   g3a_age(st_imm_f),
   g3a_age(st_imm_m),
-  g3a_age(st_mat) )
+  g3a_age(st_mat),
+  # NB: Only required for testing
+  gadget3:::g3l_test_dummy_likelihood() )
 
 # Compile model
 model_fn <- g3_to_r(c(actions, list(

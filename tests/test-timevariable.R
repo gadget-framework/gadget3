@@ -5,6 +5,8 @@ library(gadget3)
 
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
+    # NB: Only required for testing
+    gadget3:::g3l_test_dummy_likelihood(),
     list(
         "001:ut" = gadget3:::g3_step(g3_formula(
             quote( tvout[[1]] <- x ),
@@ -19,15 +21,7 @@ actions <- c(actions, list(g3a_report_history(actions, var_re = "^tvout$")))
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
-# model_fn <- edit(model_fn)
-if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
-    # model_cpp <- edit(model_cpp)
-    # writeLines(TMB::gdbsource(g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"), output_script = TRUE)))
-    model_tmb <- g3_tmb_adfun(model_cpp, compile_flags = c("-O0", "-g"))
-} else {
-    writeLines("# skip: not compiling TMB model")
-}
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("gadget3:::g3_timevariable", {
     params <- attr(model_fn, 'parameter_template')
@@ -42,9 +36,5 @@ ok_group("gadget3:::g3_timevariable", {
         "2003-02" = 18L, "2004-01" = 18L, "2004-02" = 18L, "2005-01" = 18L, "2005-02" = 18L,
         NULL)), "hist_tvout: Started with init, altered at relevant steps")
 
-    if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-        param_template <- attr(model_cpp, "parameter_template")
-        param_template$value <- params[param_template$switch]
-        gadget3:::ut_tmb_r_compare(model_fn, model_tmb, param_template)
-    }
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
