@@ -384,23 +384,23 @@ and <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()<
 <span><span class="co">##   80:90    NA   NA</span></span>
 <span><span class="co">##   90:100   NA   NA</span></span></code></pre>
 <p>gadget3 will also automatically read the aggregation attributes used
-by <code><a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">?mfdb::mfdb_sample_count</a></code>.</p>
+by <code>?mfdb::mfdb_sample_count</code>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import data into a temporary database</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mfdb</span><span class="op">)</span></span>
-<span><span class="va">mdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb.html" class="external-link">mfdb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".duckdb"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mdb</span> <span class="op">&lt;-</span> <span class="fu">mfdb</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext<span class="op">=</span><span class="st">".duckdb"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ldist.lln.raw</span><span class="op">$</span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">ldist.lln.raw</span><span class="op">$</span><span class="va">areacell</span> <span class="op">&lt;-</span> <span class="st">'all'</span>  <span class="co"># NB: We have to have an areacell mapping for MFDB</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb_import_taxonomy.html" class="external-link">mfdb_import_area</a></span><span class="op">(</span><span class="va">mdb</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'all'</span><span class="op">)</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb_import_data.html" class="external-link">mfdb_import_survey</a></span><span class="op">(</span><span class="va">mdb</span>, <span class="va">ldist.lln.raw</span><span class="op">)</span></span>
+<span><span class="fu">mfdb_import_area</span><span class="op">(</span><span class="va">mdb</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'all'</span><span class="op">)</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">mfdb_import_survey</span><span class="op">(</span><span class="va">mdb</span>, <span class="va">ldist.lln.raw</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Use mfdb_sample_count to extract &amp; group in the same manner as above</span></span>
-<span><span class="va">ldist.lln.agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">mfdb_sample_count</a></span><span class="op">(</span><span class="va">mdb</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'length'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="va">ldist.lln.agg</span> <span class="op">&lt;-</span> <span class="fu">mfdb_sample_count</span><span class="op">(</span><span class="va">mdb</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'length'</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    year<span class="op">=</span><span class="fl">1999</span><span class="op">:</span><span class="fl">2000</span>,</span>
-<span>    length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb_aggregate_interval.html" class="external-link">mfdb_interval</a></span><span class="op">(</span><span class="st">"len"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>    length <span class="op">=</span> <span class="fu">mfdb_interval</span><span class="op">(</span><span class="st">"len"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/likelihood_distribution.html">g3_distribution_preview</a></span><span class="op">(</span><span class="va">ldist.lln.agg</span>, area_group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>all<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/mfdb/man/mfdb.html" class="external-link">mfdb_disconnect</a></span><span class="op">(</span><span class="va">mdb</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">mfdb_disconnect</span><span class="op">(</span><span class="va">mdb</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="age-column-age-length-distribution-data">
@@ -454,7 +454,7 @@ column in a very similar manner to the <em>length</em> column:</p>
 is used to decide what to do with them.</p>
 <p>Again, gadget3 will also interpret aggregation generated by
 <code>group_by(age = cut(...))</code> or
-<code><a href="https://rdrr.io/pkg/mfdb/man/mfdb_queries.html" class="external-link">?mfdb::mfdb_sample_count</a></code>.</p>
+<code>?mfdb::mfdb_sample_count</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="area-column">
