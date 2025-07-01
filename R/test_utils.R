@@ -172,7 +172,7 @@ vignette_test_output <- function (vign_name, model_code, params.out, tolerance =
     ut_tmb_r_compare2(
         model_fn,
         model_code,
-        params.out$value,
+        params.out,
         tolerance = tolerance )
 
     tbl <- utils::read.table(paste0(out_base, ".params"))

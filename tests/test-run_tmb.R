@@ -46,7 +46,7 @@ mock(TMB::compile, function (...) {
         paste0(gsub("\\\\", "/", tempdir()), ".*\\.cpp$") ), "First argument is the cpp file")
 }, {
     # NB: This should fail since there'll be no .so to load
-    tryCatch(g3_tmb_adfun(g3_to_tmb(list(~{g3_param("x")}))), error = function (e) NULL)
+    tryCatch(g3_tmb_adfun(g3_to_tmb(list(~{g3_param("x", optimise = TRUE)}))), error = function (e) NULL)
     ok(grepl("-DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS", last_compile_call$flags, fixed = TRUE), "compile_flags: Internal flags set")
 })
 ########## g3_tmb_adfun:compile_args
@@ -96,9 +96,9 @@ ok(ut_cmp_error({
 
 ok_group('g3_tmb_par', {
     param <- attr(g3_to_tmb(list(~{
-        g3_param('param.b')
-        g3_param_vector('param_vec')
-        g3_param('aaparam')
+        g3_param('param.b', optimise = TRUE)
+        g3_param_vector('param_vec', optimise = TRUE)
+        g3_param('aaparam', optimise = TRUE)
         g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
     param$value <- I(list(
@@ -125,9 +125,9 @@ ok_group('g3_tmb_par', {
 
 ok_group('g3_tmb_lower', {
     param <- attr(g3_to_tmb(list(~{
-        g3_param('param.b')
-        g3_param_vector('param_vec')
-        g3_param('aaparam')
+        g3_param('param.b', optimise = TRUE)
+        g3_param_vector('param_vec', optimise = TRUE)
+        g3_param('aaparam', optimise = TRUE)
         # NB: Never visible
         g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
@@ -166,9 +166,9 @@ ok_group('g3_tmb_lower', {
 
 ok_group('g3_tmb_upper', {
     param <- attr(g3_to_tmb(list(~{
-        g3_param('param.b')
-        g3_param_vector('param_vec')
-        g3_param('aaparam')
+        g3_param('param.b', optimise = TRUE)
+        g3_param_vector('param_vec', optimise = TRUE)
+        g3_param('aaparam', optimise = TRUE)
         # NB: Never visible
         g3_param('randomparam', random = TRUE)
     })), 'parameter_template')
@@ -207,8 +207,8 @@ ok_group('g3_tmb_upper', {
 
 ok_group('g3_tmb_parscale', {
     param <- attr(g3_to_tmb(list(~{
-        g3_param('param.lu', lower = 4, upper = 8)
-        g3_param('param.ps', parscale = 22)
+        g3_param('param.lu', lower = 4, upper = 8)  # NB: Optimise = TRUE implicitly
+        g3_param('param.ps', parscale = 22, optimise = TRUE)
         g3_param('param.lups', lower = 4, upper = 8, parscale = 44)
     })), 'parameter_template')
     ok(ut_cmp_identical(g3_tmb_parscale(param), c(
@@ -219,11 +219,11 @@ ok_group('g3_tmb_parscale', {
 
 ok_group('g3_tmb_relist', {
     param <- attr(g3_to_tmb(list(~{
-        g3_param('param.b')
-        g3_param_vector('param_vec')
+        g3_param('param.b', optimise = TRUE)
+        g3_param_vector('param_vec', optimise = TRUE)
         g3_param('unopt_param', optimise = FALSE)
         g3_param('randomparam', random = TRUE)
-        g3_param('aaparam')
+        g3_param('aaparam', optimise = TRUE)
     })), 'parameter_template')
     param$value <- I(list(
         aaparam = 55,
@@ -278,7 +278,7 @@ ok_group('g3_tmb_relist', {
 
 ok_group('g3_param', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004), ~{
-        g3_param('a')
+        g3_param('a', optimise = TRUE)
         g3_param('b', value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
     })), 'parameter_template')
     ok(ut_cmp_identical(
@@ -301,7 +301,7 @@ ok_group('g3_param_table', {
     param <- attr(g3_to_tmb(list(g3a_time(2000, 2004, step_lengths = c(3,3,3,3)), ~{
         g3_param_table('pt', expand.grid(  # NB: We can use base R
             cur_year = seq(start_year, end_year),  # NB: We can use g3a_time's vars
-            cur_step = 2:3))
+            cur_step = 2:3), optimise = TRUE)
         g3_param_table('pg', expand.grid(
             cur_year = start_year,
             cur_step = 1:2), value = 4, optimise = FALSE, random = TRUE, lower = 5, upper = 10)
@@ -394,16 +394,16 @@ ok_group("g3_to_tmb: Can use random parameters without resorting to include_rand
             g3a_time(1990, 1991),
             g3l_random_dnorm("a",
                 ~g3_param('a', value=1, random=TRUE),
-                ~g3_param('mu.a', value=1),
-                ~g3_param('sigma.a', value=1), period="single"),
+                ~g3_param('mu.a', value=1, optimise = TRUE),
+                ~g3_param('sigma.a', value=1, optimse = TRUE), period="single"),
             g3l_random_dnorm("b",
                 ~g3_param('b', value=1, random=TRUE),
-                ~g3_param('mu.b', value=1),
-                ~g3_param('sigma.b', value=1), period="single"),
+                ~g3_param('mu.b', value=1, optimise = TRUE),
+                ~g3_param('sigma.b', value=1, optimise = TRUE), period="single"),
             g3l_random_dnorm("x",
                 ~x,
                 ~g3_param('a', value=1, random=TRUE) * t + g3_param('b', value=1, random=TRUE),
-                ~g3_param('sigma0', value=1), period="single" ))
+                ~g3_param('sigma0', value=1, optimise = TRUE), period="single" ))
     })
     model_fn <- g3_to_r(actions)
 

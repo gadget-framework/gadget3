@@ -746,10 +746,10 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
             df_template <- function (name, dims = c(1), sub_param_idx = NULL) {
                 # Extract named args from g3_param() call
                 value <- find_arg('value', 0, sub_param_idx = sub_param_idx)
-                optimise <- find_arg('optimise', !find_arg('random', FALSE))  # i.e. default is opposite of random
                 random <- find_arg('random', FALSE)
                 lower <- as.numeric(find_arg('lower', NA, sub_param_idx = sub_param_idx))
                 upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
+                optimise <- find_arg('optimise', is.finite(lower) && is.finite(upper) && isFALSE(random))
                 parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
                 source <- as.character(find_arg('source', as.character(NA)))
 
