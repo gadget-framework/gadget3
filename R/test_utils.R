@@ -43,6 +43,7 @@ ut_tmb_r_compare2 <- function (
         writeLines(paste("# skip: not running TMB tests", cur_g3_test_tmb, " < ", g3_test_tmb))
         return()
     }
+    work_dir <- Sys.getenv('G3_TEST_TMB_WORK_DIR', unset = getOption('gadget3.tmb.work_dir', default = tempdir()))
 
     if (is.data.frame(params)) {
         # Input params is already a parameter template
@@ -55,14 +56,14 @@ ut_tmb_r_compare2 <- function (
     }
 
     if (gdbsource) {
-        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), output_script = TRUE))
+        out_lines <- TMB::gdbsource(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"), work_dir = work_dir, output_script = TRUE))
         if (length(grep("\\[Inferior 1 .* exited normally\\]", out_lines)) == 0) {
             writeLines(out_lines)
             stop("Model run failed")
         }
     }
 
-    model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
+    model_tmb <- g3_tmb_adfun(model_cpp, param_template, work_dir = work_dir, compile_flags = c("-O0", "-g"))
 
     model_tmb_nll <- model_tmb$fn()
     model_tmb_report <- model_tmb$report()
