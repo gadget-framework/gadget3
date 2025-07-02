@@ -213,9 +213,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         # Add += operators if possible
         assign_op <- "="
         if (is.call(assign_rhs)
+                && length(assign_rhs) == 3  # NB: Do this first so x <- y() doesn't trip us up
                 && identical(assign_lhs, assign_rhs[[2]])
-                && as.character(assign_rhs[[1]]) %in% c("+", "-", "*", "/")
-                && length(assign_rhs) == 3) {
+                && as.character(assign_rhs[[1]]) %in% c("+", "-", "*", "/") ) {
             # Operating on iself, use a += operation
             assign_op <- paste0(assign_rhs[[1]], "=")
             assign_rhs <- assign_rhs[[3]]

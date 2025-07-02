@@ -631,6 +631,16 @@ actions <- c(actions, ~{
 expecteds$assign_right <- assign_subset[,2,2]
 expecteds$assign_leftright <- assign_subset[4,,2]
 
+# NB: The tests for += were tripping up over calls with length < 3
+assign_nullary_fn <- g3_native(function () { return(42.9) }, cpp = '[]() -> double { return 42.9; }')
+assign_nullary_out <- 0.0
+actions <- c(actions, ~{
+    comment('assign_nullary')
+    assign_nullary_out <- assign_nullary_fn()
+    REPORT(assign_nullary_out)
+})
+expecteds$assign_nullary_out <- 42.9
+
 cmp_inf <- array(c(5, Inf), dim = c(2))
 cmp_inf_out <- array(0, dim = c(4))
 actions <- c(actions, ~{
