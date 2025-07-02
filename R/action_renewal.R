@@ -87,7 +87,7 @@ g3a_initialconditions <- function (stock, num_f, wgt_f, run_f = ~cur_time == 0L,
 
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "g3a_initialconditions", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_initialconditions for ", stock)
         stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__num) <- num_f
@@ -127,7 +127,7 @@ g3a_initialconditions_normalparam <- function (
     # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3a_initialconditions(
+    out[[step_id(run_at, "g3a_initialconditions", stock, action_name)]] <- g3a_initialconditions(
         stock,
         num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
@@ -173,7 +173,7 @@ g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_action_
 
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_renewal for ", stock)
         stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__renewalnum) <- num_f
@@ -226,7 +226,7 @@ g3a_renewal_normalparam <- function (
     # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3a_renewal(
+    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3a_renewal(
         stock,
         num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
@@ -298,7 +298,7 @@ g3a_otherfood <- function (
     }
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "g3a_otherfood", stock, action_name)]] <- g3_step(f_substitute(~{
         debug_label("g3a_otherfood for ", stock)
         stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__num) <- num_f
@@ -334,7 +334,7 @@ g3a_otherfood_normalparam <- function (
     # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, stock, action_name)]] <- g3a_otherfood(
+    out[[step_id(run_at, "g3a_otherfood", stock, action_name)]] <- g3a_otherfood(
         stock,
         num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
