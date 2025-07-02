@@ -11,7 +11,8 @@
 * Add g3a_trace_var, based on g3experiments::g3a_trace_nan #231
 
 ## Breaking changes
-* optimise defaults to FALSE unless default bounds are provided #233 
+* optimise defaults to FALSE unless default bounds are provided #233
+* Don't generate TMB ADGrad function if random effects not used #234 
 
 # gadget3 0.13-0:
 
