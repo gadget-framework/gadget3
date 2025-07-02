@@ -1151,6 +1151,7 @@ g3_tmb_adfun <- function(
         tmb_random <- NULL
     } else {
         tmb_random <- cpp_escape_varname(parameters[parameters$random == TRUE, 'switch'])
+        if (length(tmb_random) == 0) tmb_random <- NULL
     }
 
     if (any(parameters$random & parameters$optimise)) {

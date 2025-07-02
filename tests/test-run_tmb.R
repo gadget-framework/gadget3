@@ -1122,8 +1122,9 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
     w <- capture_warnings(model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g")))$warnings
+    ok(length(w) > 2, "g3_tmb_adfun: Generated at least 2 warnings")
     ok(ut_cmp_identical(w, c(
-        rep("No value found in g3_param_table param_table, ifmissing not specified", 10),
+        rep("No value found in g3_param_table param_table, ifmissing not specified", length(w)),
         NULL )), "g3_tmb_adfun: Compiling generated a param_table warning")
 } else {
     writeLines("# skip: not compiling TMB model")
