@@ -66,7 +66,7 @@ g3a_time <- function(
     nll <- 0.0
 
     out <- new.env(parent = emptyenv())
-    out[[step_id(run_at)]] <- g3_step(f_substitute(~{
+    out[[step_id(run_at, "-")]] <- g3_step(f_substitute(~{
         debug_label("g3a_time: Start of time period")
         cur_time <- cur_time + 1L
         if (have_retro_years) if (cur_time == 0 && assert_msg(retro_years >= 0, "retro_years must be >= 0")) return(NaN)

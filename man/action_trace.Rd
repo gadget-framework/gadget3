@@ -1,10 +1,11 @@
 \name{action_trace}
 \alias{g3a_trace_var}
+\alias{g3a_trace_timings}
 \concept{G3 utilities}
 
-\title{Trace value of variables in a G3 model}
+\title{Tracing and debugging tools}
 \description{
-  Trace value of variables in a G3 model, warning if conditions are met
+  Tracing and debugging tools for a G3 model
 }
 
 \usage{
@@ -16,6 +17,10 @@ g3a_trace_var(
         on_error = c("continue", "browser", "stop"),
         print_var = FALSE,
         var_re = c("__num$", "__wgt$"))
+
+g3a_trace_timings(
+        actions,
+        action_re = NULL )
 }
 
 \arguments{
@@ -35,6 +40,9 @@ g3a_trace_var(
   }
   \item{var_re}{
     Regular expression(s), variable whose name matches will be traced.
+  }
+  \item{action_re}{
+    Regular expression(s), action step IDs that match will be traced (or all if NULL)
   }
 }
 
@@ -58,6 +66,10 @@ g3a_trace_var(
       }
     }
   }
+
+  \code{g3a_trace_timings} will report a variable, \code{trace_timings},
+  with the min/mean/max number of seconds spent computing each step in the model.
+  You can use \code{\link{g3_to_desc}} to extract more descriptive names for each step.
 }
 
 \seealso{
@@ -67,6 +79,9 @@ g3a_trace_var(
 \value{
   \subsection{g3_trace_var}{
     A list of actions that will report when variables stop being finite (e.g.)
+  }
+  \subsection{g3_trace_timings}{
+    A list of actions to report a \code{trace_timings} variable, with how long each step is taking
   }
 }
 
@@ -81,9 +96,10 @@ actions <- list(
         maxlengthgroupgrowth = 2L) ),
 
     NULL )
-model_fn <- g3_to_r(c(actions,
-    list(g3a_trace_var(actions)),
-    g3a_report_detail(actions) ))
+model_fn <- g3_to_r(c(actions, list(
+    g3a_trace_var(actions),
+    g3a_trace_timings(actions),
+    g3a_report_detail(actions) )))
 
 # Configure set of working parameters
 attr(model_fn, "parameter_template") |>
@@ -96,6 +112,12 @@ attr(model_fn, "parameter_template") |>
     g3_init_val("*.M.#", 0.01) |>
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+# Show timings of each step of model
+r$trace_timings
+
+# Find more informative names with g3_to_desc
+as.list(g3_to_desc(actions))
 
 # Try setting parameters to NaN and see what fails:
 r <- model_fn(params.in |> g3_init_val("*.t0", NaN))

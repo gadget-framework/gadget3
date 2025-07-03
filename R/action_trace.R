@@ -91,3 +91,67 @@ g3a_trace_var <- function (
 
     return(as.list(out))
 }
+
+g3a_trace_timings <- function (
+        actions,
+        action_re = NULL ) {
+    out <- new.env(parent = emptyenv())
+
+    trace_timings_timestamp <- g3_native(r = function () {
+        as.numeric(proc.time()['elapsed'])
+    }, cpp = '#include <chrono>
+
+double __fn__() {
+    // https://stackoverflow.com/a/2834294
+    // https://en.cppreference.com/w/cpp/chrono/system_clock.html
+    auto timestamp = std::chrono::system_clock::now().time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(timestamp);
+    return (double)millis.count() / 1000;
+}')
+
+    # Work out names of all actions to add tracing for
+    collated_actions <- g3_collate(actions)
+    target_actions <- names(collated_actions)
+    if (!is.null(action_re)) target_actions <- grepl(paste(action_re, collapse = "|"), target_actions)
+
+    trace_timings <- array(
+        NA,
+        dim = c(length(target_actions), 4),
+        dimnames = list(
+            target_actions,
+            c("total", "min", "max", "mean") ))
+    trace_timing_counter <- g3_global_formula(init_val = ~trace_timings_timestamp())
+
+    for (action_idx in seq_along(target_actions)) {
+        action_name <- target_actions[[action_idx]]
+        out[[step_id(g3_action_order$report_early, 0, "g3a_trace_timings")]] <- g3_step(f_substitute(~{
+            if (reporting_enabled > 0L && final_run_f) {
+                REPORT(trace_timings)
+            }
+        }, list(final_run_f = quote( cur_time > total_steps ))))
+
+        # Define trace_timings_duration at the start of each step
+        trace_timings_duration <- ~(trace_timings_timestamp() - trace_timing_counter)
+        out[[paste0(action_name, ":trace_timings")]] <- g3_step(f_substitute(~{
+            if (!is.finite(trace_timings[g3_idx(action_idx), g3_idx(1L)])) {
+                trace_timings[g3_idx(action_idx), g3_idx(1L)] <- trace_timings_duration
+            } else {
+                trace_timings[g3_idx(action_idx), g3_idx(1L)] <- trace_timings[g3_idx(action_idx), g3_idx(1L)] + trace_timings_duration
+            }
+            if (!is.finite(trace_timings[g3_idx(action_idx), g3_idx(2L)]) || trace_timings[g3_idx(action_idx), g3_idx(2L)] > trace_timings_duration) {
+                trace_timings[g3_idx(action_idx), g3_idx(2L)] <- trace_timings_duration
+            }
+            if (!is.finite(trace_timings[g3_idx(action_idx), g3_idx(3L)]) || trace_timings[g3_idx(action_idx), g3_idx(3L)] < trace_timings_duration) {
+                trace_timings[g3_idx(action_idx), g3_idx(3L)] <- trace_timings_duration
+            }
+            if (!is.finite(trace_timings[g3_idx(action_idx), g3_idx(4L)])) {
+                trace_timings[g3_idx(action_idx), g3_idx(4L)] <- trace_timings_duration  / (total_steps + 1L)
+            } else {
+                trace_timings[g3_idx(action_idx), g3_idx(4L)] <- trace_timings[g3_idx(action_idx), g3_idx(4L)] + trace_timings_duration  / (total_steps + 1L)
+            }
+            trace_timing_counter <- trace_timings_timestamp()
+        }, list(action_idx = action_idx)))
+    }
+
+    return(as.list(out))
+}
