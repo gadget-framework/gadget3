@@ -88,8 +88,8 @@ ok_group("Detect missing suitabilities", {
         fleet_bc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
-            prey_a = ~g3_param_vector("fleet_bc_a"),
-            prey_c = ~g3_param_vector("fleet_bc_c")),
+            prey_a = ~g3_param_vector("fleet_bc_a", value = rep(0, 10)),
+            prey_c = ~g3_param_vector("fleet_bc_c", value = rep(0, 10))),
         amount_f = ~g3_param('amount_bc') * area), "prey_b"), "Threw an error on missing suitability function")
 })
 
@@ -104,18 +104,18 @@ actions <- list(
         list(a = prey_a, b = prey_b, c = prey_c),
         suitabilities = list(
             # NB: 0 * stock__midlen hack to get suitability reports to work
-            prey_a = ~g3_param_vector("fleet_ab_a") + 0 * stock__midlen,
-            prey_b = ~g3_param_vector("fleet_ab_b") + 0 * stock__midlen,
-            prey_c = ~g3_param_vector("fleet_ab_c") + 0 * stock__midlen ),
+            prey_a = ~g3_param_vector("fleet_ab_a", value = rep(0, 10)) + 0 * stock__midlen,
+            prey_b = ~g3_param_vector("fleet_ab_b", value = rep(0, 10)) + 0 * stock__midlen,
+            prey_c = ~g3_param_vector("fleet_ab_c", value = rep(0, 10)) + 0 * stock__midlen ),
         catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_ab') * area) ),
     g3a_predate_fleet(
         fleet_bc,
         list(prey_a, prey_b, prey_c),
         suitabilities = list(
             # NB: 0 * stock__midlen hack to get suitability reports to work
-            prey_a = ~g3_param_vector("fleet_bc_a") + 0 * stock__midlen,
-            prey_b = ~g3_param_vector("fleet_bc_b") + 0 * stock__midlen,
-            prey_c = ~g3_param_vector("fleet_bc_c") + 0 * stock__midlen),
+            prey_a = ~g3_param_vector("fleet_bc_a", value = rep(0, 10)) + 0 * stock__midlen,
+            prey_b = ~g3_param_vector("fleet_bc_b", value = rep(0, 10)) + 0 * stock__midlen,
+            prey_c = ~g3_param_vector("fleet_bc_c", value = rep(0, 10)) + 0 * stock__midlen),
         catchability_f = g3a_predate_catchability_totalfleet(~g3_param('amount_bc') * area),
         # NB: Only run on even years
         run_f = ~cur_year %% 2L == 0L),

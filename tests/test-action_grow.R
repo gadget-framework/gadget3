@@ -123,13 +123,13 @@ ok_group("g3a_growmature", {
     actions <- list(
         g3a_time(2000, 2001, project_years = 0),
         g3a_initialconditions(teststock,
-            ~g3_param_vector("initial_num"),
-            ~g3_param_vector("initial_wgt")),
+            ~g3_param_vector("initial_num", value = rep(0, 6)),
+            ~g3_param_vector("initial_wgt", value = rep(0, 6))),
         g3a_growmature(teststock,
             impl_f = list(
                 delta_dim = as.character(0:6),
-                len = ~g3_param_array('growth_matrix'),
-                wgt = ~g3_param_array('weight_matrix'))),
+                len = ~g3_param_array('growth_matrix', value = array(0, dim = c(6,7))),
+                wgt = ~g3_param_array('weight_matrix', value = array(0, dim = c(6,7))))),
         list(
             "999" = ~{
                 REPORT(teststock__num)

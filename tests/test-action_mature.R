@@ -67,19 +67,19 @@ ok_group('g3a_mature', {
     stock_mat2 <- g3_stock('stock_mat2', seq(10, 40, 10)) %>% g3s_age(5, 7)
 
     ok(ut_cmp_error(
-        g3a_mature(stock_imm, ~g3_param_vector("maturity"), list(stock_mat1, stock_mat2), output_ratios = c(9,9,9)),
+        g3a_mature(stock_imm, ~g3_param_vector("maturity", value = rep(0, 4)), list(stock_mat1, stock_mat2), output_ratios = c(9,9,9)),
         "output_ratios"), "Length of output_ratios must match")
     ok(ut_cmp_error(
-        g3a_mature(stock_imm, ~g3_param_vector("maturity"), list(stock_mat1, stock_mat2), output_ratios = c(9,9)),
+        g3a_mature(stock_imm, ~g3_param_vector("maturity", value = rep(0, 4)), list(stock_mat1, stock_mat2), output_ratios = c(9,9)),
         "output_ratios"), "output_ratios must sum to 1")
 
     actions <- list(
         g3a_time(2000, 2000, project_years = 0),
-        g3a_initialconditions(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num"), ~g3_param_vector("imm_init_wgt")),
-        g3a_initialconditions(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num"), ~g3_param_vector("mat1_init_wgt")),
-        g3a_initialconditions(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num"), ~g3_param_vector("mat2_init_wgt")),
+        g3a_initialconditions(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num", value = rep(0, 4)), ~g3_param_vector("imm_init_wgt", value = rep(0, 4))),
+        g3a_initialconditions(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num", value = rep(0, 4)), ~g3_param_vector("mat1_init_wgt", value = rep(0, 4))),
+        g3a_initialconditions(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num", value = rep(0, 4)), ~g3_param_vector("mat2_init_wgt", value = rep(0, 4))),
         g3a_mature(stock_imm,
-            ~g3_param_vector("maturity"),
+            ~g3_param_vector("maturity", value = rep(0, 4)),
             list(stock_mat1, stock_mat2),
             output_ratios = list(~g3_param("ratio_mat1"), ~g3_param("ratio_mat2")),
             run_f = ~g3_param("run_f") == 1),

@@ -75,7 +75,7 @@ ok_group("g3_step:stock_reshape", {
     nll <- 0.0
     actions <- list(
         g3a_time(1999, 1999),
-        g3a_initialconditions(source, ~g3_param_vector("source_num"), ~g3_param_vector("source_wgt")),
+        g3a_initialconditions(source, ~g3_param_vector("source_num", value = rep(0, 4)), ~g3_param_vector("source_wgt", value = rep(0, 4))),
 
         list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
             stock_ss(dest_even__num) <- stock_reshape(dest_even, stock_ss(source__num))

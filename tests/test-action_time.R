@@ -60,7 +60,7 @@ actions <- list(
     g3a_time(
         start_year = ~as_integer(g3_param('p_start_year', value = 1990)),
         end_year = ~as_integer(g3_param('p_end_year', value = 1997)),
-        step_lengths = ~g3_param_vector('step_lengths'),
+        step_lengths = ~g3_param_vector('step_lengths', value = rep(0, 3)),
         final_year_steps = ~as_integer(g3_param('final_year_steps', value = 3))),
     # NB: Only required for testing
     gadget3:::g3l_test_dummy_likelihood(),
