@@ -1286,7 +1286,7 @@ g3_tmb_adfun <- function(
         report_patch(fn$orig_simulate(...))
     }
 
-    # With Type = "Fun", fn$par sometimes isn't set. Bodge around it
+    # With type = "Fun", fn$par sometimes isn't set. Bodge around it
     if (is.null(fn$par)) fn$par <- g3_tmb_par(parameters)
     return(fn)
 }

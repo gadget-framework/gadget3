@@ -42,7 +42,7 @@ tmb_model <- g3_to_tmb(actions)
 
 # Edit source code & re-run model
 tmb_model <- edit(tmb_model)
-obj.fn <- g3_tmb_adfun(tmb_model, params.in, Type = "Fun")
+obj.fn <- g3_tmb_adfun(tmb_model, params.in, type = "Fun")
 r <- obj.fn$report()
 ```
 As the R & TMB model will be equivalent, you can view the source of whichever you are more comfortable with.
@@ -65,7 +65,7 @@ tmb_model <- g3_to_tmb(c(actions, list(
   g3a_report_detail(actions),
   g3a_trace_var(actions),
   gadget3::g3l_bounds_penalty(actions) )))
-obj.fn <- g3_tmb_adfun(tmb_model, params.in, Type = "Fun")
+obj.fn <- g3_tmb_adfun(tmb_model, params.in, type = "Fun")
 r <- obj.fn$report()
 ```
 
