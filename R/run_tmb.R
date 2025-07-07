@@ -1292,6 +1292,56 @@ g3_tmb_adfun <- function(
     return(fn)
 }
 
+# Make a simple function only capable of double evaluation, for e.g. projections
+g3_tmb_fn <- function (
+        cpp_code,
+        parameters = attr(cpp_code, 'parameter_template'),
+        ... ) {
+    # Pretend we're optimising everything, so all parameters can be adjusted. There is no tape to worry about.
+    def.parameters <- parameters
+    def.parameters$optimise <- TRUE
+    def.parameters$random <- FALSE
+
+    obj.fn <- g3_tmb_adfun(cpp_code, def.parameters, type = "Fun", ...)
+
+    # Wrapping function that hides TMB magic, works like the R function
+    out <- function (par = NULL) {
+        params <- def.parameters
+
+        if (!is.null(par)) {
+            # Relist values into original parameter_template
+            if (is.data.frame(par)) par <- par$value
+            if (is.list(par)) par <- unlist(par)
+            names(par) <- cpp_escape_varname(names(par))  # Ensure names are cpp-escaped
+            params$value <- g3_tmb_relist(def.parameters, par)
+        }
+
+        # Run gen_dimnames & repopulate any dynamic dims, re-patching report_patch
+        # NB: We have to do this here, as the project_years parameter is reliant on this re-patching
+        #     (which ordinarily won't be optimise=TRUE, and you'd have to re-run g3_tmb_adfun)
+        dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(params))
+        report_dimnames <- attr(cpp_code, 'report_dimnames')
+
+        for (dimname in names(dyndims)) {
+            for (var_name in names(report_dimnames)) {
+                if (dimname %in% names(report_dimnames[[var_name]]) && is.null(report_dimnames[[var_name]][[dimname]])) {
+                    report_dimnames[[var_name]][[dimname]] <- dyndims[[dimname]]
+                }
+            }
+        }
+        environment(environment(obj.fn$report)$report_patch)$report_dimnames <- report_dimnames
+
+        # NB: Using $simulate instead of $report will
+        # * Enable SIMULATE blocks (which we don't use)
+        # * Save RNG state back to R after a run (which is slightly more intuitive than successive runs producing the same result)
+        obj.fn$simulate(g3_tmb_par(params), complete = FALSE)
+    }
+    class(out) <- c("g3_tmb_fn", class(out))
+    attr(out, 'parameter_template') <- def.parameters
+    attr(out, 'model_data') <- attr(cpp_code, "model_data")
+    return(out)
+}
+
 # Turn parameter template into vectors of upper/lower bounds
 g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising

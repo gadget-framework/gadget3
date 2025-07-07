@@ -1,6 +1,7 @@
 \name{run_tmb}
 \alias{g3_to_tmb}
 \alias{g3_tmb_adfun}
+\alias{g3_tmb_fn}
 \alias{g3_tmb_par}
 \alias{g3_tmb_lower}
 \alias{g3_tmb_upper}
@@ -27,6 +28,11 @@ g3_tmb_adfun(
         compile_args = list(
             framework = getOption("gadget3.tmb.framework", default = "TMBad") ),
         ...)
+
+g3_tmb_fn(
+        cpp_code,
+        parameters = attr(cpp_code, 'parameter_template'),
+        ... )
 
 g3_tmb_par(parameters, include_random = TRUE)
 
@@ -89,6 +95,7 @@ g3_tmb_relist(parameters, par)
   }
   \item{...}{
     Any other options handed directly to \link[TMB:MakeADFun]{MakeADFun}
+    or \code{\link{g3_tmb_adfun}} (for \code{\link{g3_tmb_fn}}).
   }
 }
 
@@ -100,6 +107,13 @@ g3_tmb_relist(parameters, par)
 
     If \link[TMB:MakeADFun]{MakeADFun} is crashing your R session, then you can use \var{output_script} to run
     in a separate R session. Use this with \link[TMB:gdbsource]{gdbsource} to debug your model.
+  }
+  \subsection{g3_tmb_fn}{
+    Wraps \code{\link{g3_tmb_adfun}} to produce a function suitable for single model runs or projection, like \code{\link{g3_to_r}}.
+    \var{optimise} & \var{random} are ignored, instead all values from the provided parameters will be used when calling the function.
+
+    Internally it uses \code{obj.fn$simulate}, so the R RNG is updated after the run is finished
+    (i.e. successive runs will produce different answers).
   }
 }
 
@@ -114,6 +128,12 @@ g3_tmb_relist(parameters, par)
     Use e.g. \code{attr(cpp_code, 'parameter_template')} to retrieve them.
   }
   \subsection{g3_tmb_adfun}{An ADFun as produced by TMB's \link[TMB:MakeADFun]{MakeADFun}, or location of temporary script if \var{output_script} is TRUE}
+  \subsection{g3_tmb_fn}{
+    An R function with the signature \code{function (par = NULL)}, where:
+    \var{par} can be \code{NULL} (use default parameter values), a parameter template \code{\link{data.frame}}, or a parameter list.
+
+    Returns a list with all report variables.
+  }
   \subsection{g3_tmb_par}{Values extracted from \var{parameters} table converted into a vector of values for \code{obj$fn(par)} or \code{nlminb}}
   \subsection{g3_tmb_lower}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
   \subsection{g3_tmb_upper}{Lower bounds extracted from \var{parameters} table converted into a vector of values for \code{nlminb}. Random parameters are always excluded}
@@ -234,13 +254,24 @@ if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
 }
 
 if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # Rebuild a simple function version for projection
+  proj.fn <- g3_tmb_fn(cpp)
+
+  # Get the reported results from a single run
+  result <- proj.fn(tmb_param)
+}
+
+if (!( nzchar(Sys.getenv('GITHUB_CI')) && .Platform$OS.type == "windows" )) {
+  # We can do similar to g3_tmb_fn() by using g3_tmb_adfun() directly
+
   # Rebuild, only including "Fun" (i.e. without auto-differentiation)
   # Result will only work for tmb$report
-  tmb <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
-  result <- tmb$report(g3_tmb_par(tmb_param, include_random = TRUE))
+  # NB: Only parameters with optimise=TRUE can be varied
+  obj.fn <- g3_tmb_adfun(cpp, tmb_param, type = "Fun")
+  result <- obj.fn$report(g3_tmb_par(tmb_param, include_random = TRUE))
 
-  # We can also use tmb$simulate
-  result <- tmb$simulate(g3_tmb_par(tmb_param, include_random = TRUE))
+  # We can also use obj.fn$simulate
+  result <- obj.fn$simulate(g3_tmb_par(tmb_param, include_random = TRUE))
 
   # NB: Before running simulations, you should use set.seed() to ensure random output
 }

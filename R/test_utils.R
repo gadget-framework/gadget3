@@ -21,6 +21,7 @@ ut_tmb_r_compare2 <- function (
         params,
         g3_test_tmb = 1,
         gdbsource = FALSE,
+        test_tmb_fn = TRUE,
         tolerance = 1e-5 ) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
@@ -79,6 +80,19 @@ ut_tmb_r_compare2 <- function (
             dearray(model_tmb_report[[n]]),
             dearray(attr(r_result, n)),
             tolerance = tolerance), paste("TMB and R match", n))
+    }
+
+    if (test_tmb_fn) {
+        tmb_fn <- g3_tmb_fn(model_cpp, work_dir = work_dir, compile_flags = c("-O0", "-g"))
+        # NB: Either raw values or a parameter template should work, choose one at random
+        tmb_fn_report <- tmb_fn(if (stats::runif(1) < 0.5) param_template$value else param_template)
+
+        for (n in names(attributes(r_result))) {
+            unittest::ok(unittest::ut_cmp_equal(
+                dearray(model_tmb_report[[n]]),
+                dearray(attr(r_result, n)),
+                tolerance = tolerance), paste("TMBfn and R match", n))
+        }
     }
 }
 

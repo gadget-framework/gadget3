@@ -166,6 +166,7 @@ S3method(print, g3_r)
 # R/run_tmb.R
 export(g3_to_tmb)
 export(g3_tmb_adfun)
+export(g3_tmb_fn)
 S3method(edit, g3_cpp)
 S3method(print, g3_cpp)
 export(g3_tmb_par)
