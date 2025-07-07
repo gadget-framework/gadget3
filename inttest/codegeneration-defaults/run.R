@@ -111,7 +111,9 @@ writeLines(deparse(model_fn, width.cutoff = 500L), con = 'inttest/codegeneration
 
 # Build and write out TMB-based model
 model_cpp <- g3_to_tmb(actions)
-writeLines(model_cpp, con = 'inttest/codegeneration-defaults/model.cpp')
+writeLines(
+    grep("// Model generated with", model_cpp, invert = TRUE, value = TRUE),
+    con = 'inttest/codegeneration-defaults/model.cpp' )
 
 # Write out default paramter_template
 params <- attr(model_cpp, 'parameter_template')

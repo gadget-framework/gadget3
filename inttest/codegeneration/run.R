@@ -193,7 +193,9 @@ model_cpp <- g3_to_tmb(c(
     igfs_actions,
     likelihood_actions,
     time), strict = TRUE)
-writeLines(model_cpp, con = 'inttest/codegeneration/ling.cpp')
+writeLines(
+    grep("// Model generated with", model_cpp, invert = TRUE, value = TRUE),
+    con = 'inttest/codegeneration/ling.cpp')
 
 # model_cpp <- edit(model_cpp)
 tmb_param <- attr(model_cpp, 'parameter_template')

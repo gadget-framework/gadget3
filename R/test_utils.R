@@ -158,7 +158,9 @@ vignette_base_dir <- function (extra) {
 
 vignette_test_output <- function (vign_name, model_code, params.out, tolerance = 1.5e-5) {
     out_base <- vignette_base_dir(vign_name)
-    writeLines(model_code, con = paste0(out_base, ".cpp"))
+    writeLines(
+        grep("// Model generated with", model_code, invert = TRUE, value = TRUE),
+        con = paste0(out_base, ".cpp") )
 
     if (!file.exists(paste0(out_base, '.params'))) {
         # Set baseline optimised params
