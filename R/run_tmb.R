@@ -1094,6 +1094,7 @@ g3_tmb_adfun <- function(
             framework = getOption("gadget3.tmb.framework", default = "TMBad") ),
         ...) {
     model_params <- attr(cpp_code, 'parameter_template')
+    if ("Type" %in% ...names()) warning("'Type' isn't a TMB::MakeADFun parameter, use 'type'")
 
     if (!dir.exists(work_dir)) dir.create(work_dir, showWarnings = FALSE, recursive = TRUE)
 
