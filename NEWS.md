@@ -9,7 +9,8 @@
 
 ## New features
 * Add g3a_trace_var, based on g3experiments::g3a_trace_nan #231
-* Add g3a_trace_timings, for investigating relative action speed #235 
+* Add g3a_trace_timings, for investigating relative action speed #235
+* Add g3_tmb_fn(), for projection runs & similar #237 
 
 ## Breaking changes
 * optimise defaults to FALSE unless default bounds are provided #233
