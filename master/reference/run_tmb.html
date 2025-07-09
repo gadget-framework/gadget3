@@ -100,6 +100,11 @@
 <span>            framework <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"gadget3.tmb.framework"</span>, default <span class="op">=</span> <span class="st">"TMBad"</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>        <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">g3_tmb_fn</span><span class="op">(</span></span>
+<span>        <span class="va">cpp_code</span>,</span>
+<span>        parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">'parameter_template'</span><span class="op">)</span>,</span>
+<span>        <span class="va">...</span> <span class="op">)</span></span>
+<span></span>
 <span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_tmb_lower</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span>
@@ -159,7 +164,8 @@
     This can then be directly used with <a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a> or <code><a href="https://callr.r-lib.org/reference/rscript.html" class="external-link">callr::rscript</a></code>.</p></dd>
 
   <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Any other options handed directly to <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a></p></dd>
+<dd><p>Any other options handed directly to <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a>
+    or <code>g3_tmb_adfun</code> (for <code>g3_tmb_fn</code>).</p></dd>
 
 </dl></div>
     <div id="details">
@@ -171,6 +177,12 @@
     won't be recompiled, so repeated calls to g3_tmb_adfun to change <var>parameters</var> are fast.</p>
 <p>If <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a> is crashing your R session, then you can use <var>output_script</var> to run
     in a separate R session. Use this with <a href="https://rdrr.io/pkg/TMB/man/gdbsource.html" class="external-link">gdbsource</a> to debug your model.</p>
+</div><p></p><div class="section">
+<h3 id="g-tmb-fn">g3_tmb_fn<a class="anchor" aria-label="anchor" href="#g-tmb-fn"></a></h3>
+<p>Wraps <code>g3_tmb_adfun</code> to produce a function suitable for single model runs or projection, like <code><a href="run_r.html">g3_to_r</a></code>.
+    <var>optimise</var> &amp; <var>random</var> are ignored, instead all values from the provided parameters will be used when calling the function.</p>
+<p>Internally it uses <code>obj.fn$simulate</code>, so the R RNG is updated after the run is finished
+    (i.e. successive runs will produce different answers).</p>
 </div>
 
     </div>
@@ -192,6 +204,11 @@
 </div><p></p><div class="section">
 <h3 id="g-tmb-adfun-1">g3_tmb_adfun<a class="anchor" aria-label="anchor" href="#g-tmb-adfun-1"></a></h3>
 <p>An ADFun as produced by TMB's <a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">MakeADFun</a>, or location of temporary script if <var>output_script</var> is TRUE</p>
+</div><p></p><div class="section">
+<h3 id="g-tmb-fn-1">g3_tmb_fn<a class="anchor" aria-label="anchor" href="#g-tmb-fn-1"></a></h3>
+<p>An R function with the signature <code>function (par = NULL)</code>, where:
+    <var>par</var> can be <code>NULL</code> (use default parameter values), a parameter template <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></code>, or a parameter list.</p>
+<p>Returns a list with all report variables.</p>
 </div><p></p><div class="section">
 <h3 id="g-tmb-par">g3_tmb_par<a class="anchor" aria-label="anchor" href="#g-tmb-par"></a></h3>
 <p>Values extracted from <var>parameters</var> table converted into a vector of values for <code>obj$fn(par)</code> or <code>nlminb</code></p>
@@ -322,13 +339,24 @@
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">'GITHUB_CI'</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span> <span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Rebuild a simple function version for projection</span></span></span>
+<span class="r-in"><span>  <span class="va">proj.fn</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_fn</span><span class="op">(</span><span class="va">cpp</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Get the reported results from a single run</span></span></span>
+<span class="r-in"><span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">proj.fn</span><span class="op">(</span><span class="va">tmb_param</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">'GITHUB_CI'</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="va">.Platform</span><span class="op">$</span><span class="va">OS.type</span> <span class="op">==</span> <span class="st">"windows"</span> <span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># We can do similar to g3_tmb_fn() by using g3_tmb_adfun() directly</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Rebuild, only including "Fun" (i.e. without auto-differentiation)</span></span></span>
 <span class="r-in"><span>  <span class="co"># Result will only work for tmb$report</span></span></span>
-<span class="r-in"><span>  <span class="va">tmb</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span>, type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># NB: Only parameters with optimise=TRUE can be varied</span></span></span>
+<span class="r-in"><span>  <span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu">g3_tmb_adfun</span><span class="op">(</span><span class="va">cpp</span>, <span class="va">tmb_param</span>, type <span class="op">=</span> <span class="st">"Fun"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="va">obj.fn</span><span class="op">$</span><span class="fu">report</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># We can also use tmb$simulate</span></span></span>
-<span class="r-in"><span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="va">tmb</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># We can also use obj.fn$simulate</span></span></span>
+<span class="r-in"><span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="va">obj.fn</span><span class="op">$</span><span class="fu">simulate</span><span class="op">(</span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">tmb_param</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># NB: Before running simulations, you should use set.seed() to ensure random output</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
