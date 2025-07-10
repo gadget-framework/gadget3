@@ -135,6 +135,14 @@ g3_array_agg <- function(
             margins,
             agg,
             simplify = TRUE )
+        # If simplify goes too far, turn back to an array
+        if (is.vector(ar)) {
+            ar <- as.array(ar)
+            # as.array() doesn't restore dimension names, so do that from margins
+            dn <- structure(dimnames(ar), names = margins[[1]])
+            dim(ar) <- vapply(dn, length, integer(1))
+            dimnames(ar) <- dn
+        }
     }
     return(ar)
 }
@@ -143,13 +151,14 @@ g3_array_combine <- function(
         arrays,
         agg = sum,
         init_val = 0 ) {
+    # Return something dimnames-ish, even for a vector
+    gac_dimnames <- function (ar) {
+        if (is.array(ar)) dimnames(ar) else list("__gac_vec" = names(ar))
+    }
+
     # Return sorted union of arrays
     uniondn <- function(args) {
         inner <- function (dn_a, dn_b) {
-            # Convert any arrays to dimnames
-            if (is.array(dn_a)) dn_a <- dimnames(dn_a)
-            if (is.array(dn_b)) dn_b <- dimnames(dn_b)
-
             sapply(names(dn_a), function(n) {
                 # Find out which of dn_a & dn_b contains the first item of the other
                 if (length(aidx <- which(dn_a[[n]] == dn_b[[n]][[1]])) > 0) {
@@ -195,12 +204,25 @@ g3_array_combine <- function(
             names(dim(arrays[[1]])) ))
     }
 
-    dn <- uniondn(arrays)
-    out <- array(init_val, dim = sapply(dn, length), dimnames = dn)
+    dn <- uniondn(lapply(arrays, gac_dimnames))
+    # Start with vector / array of init_val
+    out <- if (identical(names(dn), "__gac_vec")) structure(rep(init_val, length(dn[[1]])), names = dn[[1]]) else array(init_val, dim = sapply(dn, length), dimnames = dn)
     for (ar in arrays) {
-        # Convert ar's dimnames into a subset
-        subset <- as.call(c(list(as.symbol("["), quote(out)), dimnames(ar)))
-        eval(substitute(subset <- subset + ar, list(subset = subset)))
+        if (identical(gac_dimnames(ar), gac_dimnames(out))) {
+            out <- out + ar
+        } else {
+            # Convert ar's dimnames into a subset
+            subset <- as.call(c(list(as.symbol("["), quote(out)), gac_dimnames(ar) ))
+            eval(substitute(subset <- subset + ar, list(subset = subset)))
+        }
+    }
+    # If array-ness got dropped, put it back
+    if (is.vector(out) && !identical(names(dn), "__gac_vec")) {
+        out <- as.array(out)
+        # as.array() doesn't restore dimension names
+        dn <- structure(dimnames(ar), names = names(dn))
+        dim(ar) <- vapply(dn, length, integer(1))
+        dimnames(ar) <- dn
     }
     return(out)
 }

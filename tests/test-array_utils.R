@@ -116,6 +116,10 @@ ok(ut_cmp_vec(
         apply(ar[,,time = c("2003-01", "2003-02")], "length", sum),
         NULL ),
     end = NULL ), "Can filter/aggregate year at the same time")
+ok(ut_cmp_identical(g3_array_agg(ar, "length"), structure(
+    c(`50:60` = sum(ar[length = 1,,]), `60:70` = sum(ar[length = 2,,]), `70:Inf` = sum(ar[length = 3,,])),
+    dim = c(length = 3L),
+    dimnames = list(length = c("50:60", "60:70", "70:Inf")))), "Single aggregate is still an array, with naming")
 
 ok_group("length") ############################################################
 
@@ -181,6 +185,11 @@ for (t in seq_along(dimnames(ar1)$time)) ok(ut_cmp_equal(g3_array_combine(list(a
     age18 = 0 + ar2["age18", t],
     age19 = 0 + ar2["age19", t],
     age20 = 0 + ar2["age20", t] )), paste0("g3_array_combine: time ", t, " combined as expected"))
+ok(ut_cmp_equal(
+    g3_array_combine(list(
+        c("2000" = 20, "2001" = 21, "2002" = 22),
+        c("2001" = 100, "2002" = 200, "2003" = 300) )),
+    c("2000" = 20, "2001" = 121, "2002" = 222, "2003" = 300)) ,"g3_array_combine: Can combine vectors too")
 
 wtm <- function(ar, meas, ...) {
     x <- g3_array_agg(ar, meas, ..., opt_length_midlen = TRUE)
