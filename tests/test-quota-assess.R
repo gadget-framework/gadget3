@@ -149,11 +149,11 @@ for (yr in seq(1995, 2020, by = 5)) ok_group(paste0("Year = ", yr), {
 })
 
 ok(ut_cmp_equal(
-    g3_array_agg(r$detail_st_imm_surv_1__cons / r$dstart_st_imm__wgt, c("year"), age = 5, year = 1990:2019) +
+    as.vector(g3_array_agg(r$detail_st_imm_surv_1__cons / r$dstart_st_imm__wgt, c("year"), age = 5, year = 1990:2019) +
     g3_array_agg(r$detail_st_mat_surv_1__cons / r$dstart_st_mat__wgt, c("year"), age = 5, year = 1990:2019) +
     g3_array_agg(r$detail_st_imm_surv_2__cons / r$dstart_st_imm__wgt, c("year"), age = 5, year = 1990:2019) +
     g3_array_agg(r$detail_st_mat_surv_2__cons / r$dstart_st_mat__wgt, c("year"), age = 5, year = 1990:2019) +
-    0,
-    assess_outputs[["2020"]]$cn["age5", as.character(1990:2019)] ), "assess_outputs$2020$cn: Matches reporting output")
+    0),
+    as.vector(assess_outputs[["2020"]]$cn["age5", as.character(1990:2019)]) ), "assess_outputs$2020$cn: Matches reporting output")
 
 # NB: Not testing TMB, doesn't make sense to

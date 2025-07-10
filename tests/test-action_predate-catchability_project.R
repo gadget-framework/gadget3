@@ -91,7 +91,7 @@ attr(model_cpp, "parameter_template") |>
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
-    g3_array_agg(g3_array_combine(list(r$detail_st_imm_fl_biomass_step__cons, r$detail_st_mat_fl_biomass_step__cons)), "time"), c(
+    as.vector(g3_array_agg(g3_array_combine(list(r$detail_st_imm_fl_biomass_step__cons, r$detail_st_mat_fl_biomass_step__cons)), "time")), as.vector(c(
         "1990-01" = params.in$value$fl_biomass_step.landings,
         "1990-02" = params.in$value$fl_biomass_step.landings,
         "1990-03" = params.in$value$fl_biomass_step.landings,
@@ -108,15 +108,15 @@ ok(ut_cmp_equal(
         "1993-02" = params.in$value$fl_biomass_step.quota,
         "1993-03" = params.in$value$fl_biomass_step.quota,
         "1993-04" = params.in$value$fl_biomass_step.quota,
-        NULL)), "fl_biomass_step__cons: Used quota values evenly")
+        NULL))), "fl_biomass_step__cons: Used quota values evenly")
 
 ok(ut_cmp_equal(
-    g3_array_agg(g3_array_combine(list(r$detail_st_imm_fl_biomass_year__cons, r$detail_st_mat_fl_biomass_year__cons)), "year"), c(
+    as.vector(g3_array_agg(g3_array_combine(list(r$detail_st_imm_fl_biomass_year__cons, r$detail_st_mat_fl_biomass_year__cons)), "year")), as.vector(c(
         "1990" = params.in$value$fl_biomass_year.landings,
         "1991" = params.in$value$fl_biomass_year.landings,
         "1992" = params.in$value$fl_biomass_year.quota,
         "1993" = params.in$value$fl_biomass_year.quota,
-        NULL)), "fl_biomass_year__cons: Spread quota over entire year")
+        NULL))), "fl_biomass_year__cons: Spread quota over entire year")
 ok(ut_cmp_equal(
     as.vector(
         g3_array_agg(r$detail_st_imm_fl_biomass_year__cons, c("step")) /
@@ -124,9 +124,9 @@ ok(ut_cmp_equal(
     c(0, 0.25, 0.65, 0.10) ), "fl_biomass_year__cons: Used cons.step proportions")
 
 ok(ut_cmp_equal(
-    g3_array_agg(g3_array_combine(list(
+    as.vector(g3_array_agg(g3_array_combine(list(
         r$detail_st_imm_fl_individuals_step__cons / r$dstart_st_imm__wgt,
-        r$detail_st_mat_fl_individuals_step__cons / r$dstart_st_mat__wgt)), "time"), c(
+        r$detail_st_mat_fl_individuals_step__cons / r$dstart_st_mat__wgt)), "time")), as.vector(c(
         "1990-01" = params.in$value$fl_individuals_step.landings,
         "1990-02" = params.in$value$fl_individuals_step.landings,
         "1990-03" = params.in$value$fl_individuals_step.landings,
@@ -143,17 +143,17 @@ ok(ut_cmp_equal(
         "1993-02" = params.in$value$fl_individuals_step.quota,
         "1993-03" = params.in$value$fl_individuals_step.quota,
         "1993-04" = params.in$value$fl_individuals_step.quota,
-        NULL), tolerance = 1e-6), "fl_individuals_step__cons: Used quota values evenly")
+        NULL)), tolerance = 1e-6), "fl_individuals_step__cons: Used quota values evenly")
 
 ok(ut_cmp_equal(
-    g3_array_agg(g3_array_combine(list(
+    as.vector(g3_array_agg(g3_array_combine(list(
         r$detail_st_imm_fl_individuals_year__cons / r$dstart_st_imm__wgt,
-        r$detail_st_mat_fl_individuals_year__cons / r$dstart_st_mat__wgt)), "year"), c(
+        r$detail_st_mat_fl_individuals_year__cons / r$dstart_st_mat__wgt)), "year")), as.vector(c(
         "1990" = params.in$value$fl_individuals_year.landings,
         "1991" = params.in$value$fl_individuals_year.landings,
         "1992" = params.in$value$fl_individuals_year.quota,
         "1993" = params.in$value$fl_individuals_year.quota,
-        NULL), tolerance = 1e-6), "fl_individuals_year__cons: Spread quota over entire year")
+        NULL)), tolerance = 1e-6), "fl_individuals_year__cons: Spread quota over entire year")
 ok(ut_cmp_equal(
     as.vector(
         g3_array_agg(r$detail_st_imm_fl_individuals_year__cons, c("step")) /
