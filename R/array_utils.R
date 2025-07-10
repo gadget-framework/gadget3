@@ -26,6 +26,16 @@ g3_array_agg <- function(
         opt_time_split = !("time" %in% margins || "time" %in% ...names()),
         opt_length_midlen = FALSE,
         ... ) {
+    stopifnot(is.array(ar) || (is.list(ar) && all(sapply(ar, is.array))))
+    # If given a list of arrays, auto-lapply ourselves to it
+    if (is.list(ar)) return(lapply(ar, function (x) g3_array_agg(
+        x,
+        margins = margins,
+        agg = agg,
+        opt_time_split = opt_time_split,
+        opt_length_midlen = opt_length_midlen,
+        ... )))
+
     if (is.character(agg)) {
         to_vec <- function (x, meas) {
             # If more than one dimension, collapse down to just meas
