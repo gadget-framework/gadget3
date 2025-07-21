@@ -48,8 +48,9 @@ g3_param_project_ar1(
             prepend_extra = quote(param_name) ),
         level_f = g3_parameterized(
             "proj.ar1.level",
-            value = -1, optimise = FALSE,
-            prepend_extra = quote(param_name) ))
+            value = 0,
+            prepend_extra = quote(param_name) ),
+        lastx_f = 0L)
 
 g3_param_project_logar1(
         logphi_f = g3_parameterized(
@@ -62,8 +63,9 @@ g3_param_project_logar1(
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
             "proj.logar1.loglevel",
-            value = -1, optimise = FALSE,
-            prepend_extra = quote(param_name) ))
+            value = 0,
+            prepend_extra = quote(param_name) ),
+        lastx_f = 0L)
 
 g3_param_project(
         param_name,
@@ -85,9 +87,12 @@ g3_param_project(
   }
   \item{level_f, loglevel_f}{
     (logspace) level (or offset) applied on top of ar1/logar1 regression.
-    If negative, use the mean of the last (x) non-projection values as (log)level.
     Defaults to parameter with name \code{(by_stock).(param_name).proj.(level|loglevel)},
-    which itself defaults to -1 (i.e. use the last non-projection value)
+  }
+  \item{lastx_f}{
+    If \code{> 0}, the setting of \var{level_f} / \var{loglevel_f} will be ignored,
+    and the mean of the last (x) non-projection values are used as (log)level.
+    Defaults to 0L, i.e. disabled.
   }
   \item{param_name}{
     Character string used to name the parameters.
