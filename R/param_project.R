@@ -130,11 +130,20 @@ g3_param_project_ar1 <- function (
             prepend_extra = quote(param_name) ),
         level_f = g3_parameterized(
             "proj.ar1.level",
-            value = -1, optimise = FALSE,
-            prepend_extra = quote(param_name) )) {
-    g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev, level) {
+            value = 0,
+            prepend_extra = quote(param_name) ),
+        lastx_f = 0L ) {
+    if (!identical(lastx_f, 0L)) level_f <- NaN  # Disable loglevel parameter when lastx enabled
+
+    g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev, level, lastx) {
         noisemean <- 0
         noisestddev <- stddev
+
+        if (lastx > 0 && is.nan(level)) {
+            # level needs setting from previous values, if not enough assume 0
+            i <- length(var)  # NB: This should be the first projected value, but optimising a projection isnt a likely thing to want to do
+            level <- if ((i - lastx) >= 1) mean(var[(i - lastx):(i - 1)]) else 0
+        }
 
         lastvar <- head(var, -1)
         curvar <- tail(var, -1)
@@ -145,9 +154,15 @@ g3_param_project_ar1 <- function (
             # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
             max(noisestddev, 1e-7),
             log = TRUE ))
-    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level, int lastx) -> vector<Type> {
         Type noisemean = 0;
         Type noisestddev = stddev;
+
+        if (lastx > 0 && std::isnan(asDouble(level))) {
+            // level needs setting from previous values, if not enough assume 0
+            int i = var.size();  // NB: This should be the first projected value, but optimising a projection isnt a likely thing to want to do
+            level = (i - lastx) >= 0 ? var.segment(i - lastx, lastx).mean() : 0;
+        }
 
         array<Type> lastvar(var.size() - 1);
         array<Type> curvar(var.size() - 1);
@@ -164,7 +179,7 @@ g3_param_project_ar1 <- function (
             1 );
         return(nll);
     }')
-    g3_param_project_ar1 <- g3_native(r = function (var, phi, stddev, level) {
+    g3_param_project_ar1 <- g3_native(r = function (var, phi, stddev, level, lastx) {
         if (all(is.finite(var))) return(var)
         noisemean <- 0
         noisestddev <- stddev
@@ -172,9 +187,8 @@ g3_param_project_ar1 <- function (
         lastvar <- 0
         for (i in seq_along(var)) {
             if (!is.finite(var[[i]])) {  # Ignore non-projection values
-                if (level < 0) {
+                if (lastx > 0 && is.nan(level)) {
                     # level needs setting from previous values, if not enough assume 0
-                    lastx <- -round(level)
                     level <- if ((i - lastx) >= 1) mean(var[(i - lastx):(i - 1)]) else 0
                 }
                 var[[i]] <- phi * lastvar + (1 - phi) * level + rnorm(1, noisemean, noisestddev)
@@ -182,7 +196,7 @@ g3_param_project_ar1 <- function (
             lastvar <- var[[i]]
         }
         return(var)
-    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type phi, Type stddev, Type level, int lastx) -> vector<Type> {
         if (var.allFinite()) return var;
         Type noisemean = 0;
         Type noisestddev = stddev;
@@ -190,9 +204,8 @@ g3_param_project_ar1 <- function (
         Type lastvar = 0;
         for (int i = 0; i < var.size(); i++) {
             if (!var.segment(i, 1).allFinite()) {  // Ignore non-projection values
-                if (level < 0) {
+                if (lastx > 0 && std::isnan(asDouble(level))) {
                     // level needs setting from previous values, if not enough assume 0
-                    int lastx = -std::round(asDouble(level));
                     level = (i - lastx) >= 0 ? var.segment(i - lastx, lastx).mean() : 0;
                 }
                 var(i) = (Type)(phi * lastvar + (1 - phi) * level + rnorm(1, noisemean, noisestddev)(0));
@@ -206,11 +219,11 @@ g3_param_project_ar1 <- function (
         name = "ar1",
         # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
         nll = f_substitute(
-            ~sum(projstock__nll[] <- g3_param_project_nll_ar1(projstock__var, phi_f, stddev_f, level_f)),
-            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f) ),
+            ~sum(projstock__nll[] <- g3_param_project_nll_ar1(projstock__var, phi_f, stddev_f, level_f, as_integer(lastx_f))),
+            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f, lastx_f = lastx_f) ),
         project = f_substitute(
-            ~g3_param_project_ar1(projstock__var, phi_f, stddev_f, level_f),
-            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f) ))
+            ~g3_param_project_ar1(projstock__var, phi_f, stddev_f, level_f, as_integer(lastx_f)),
+            list(phi_f = phi_f, stddev_f = stddev_f, level_f = level_f, lastx_f = lastx_f) ))
 }
 
 g3_param_project_logar1 <- function (
@@ -224,27 +237,41 @@ g3_param_project_logar1 <- function (
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
             "proj.logar1.loglevel",
-            value = -1, optimise = FALSE,
-            prepend_extra = quote(param_name) )) {
-    g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel) {
+            value = 0,
+            prepend_extra = quote(param_name) ),
+        lastx_f = 0L) {
+    if (!identical(lastx_f, 0L)) loglevel_f <- NaN  # Disable loglevel parameter when lastx enabled
+
+    g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel, lastx) {
         logvar <- log(var)
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
 
+        if (lastx > 0L && is.nan(loglevel)) {
+            # Loglevel needs setting from previous values, if not enough assume 0
+            i <- length(logvar)  # NB: This should be the first projected value, but optimising a projection isnt a likely thing to want to do
+            loglevel <- if ((i - lastx) >= 1) mean(logvar[(i - lastx):(i - 1)]) else 0
+        }
+
         lastlogvar <- head(logvar, -1)
         curlogvar <- tail(logvar, -1)
         c(0, -dnorm(
-            # i.e. only try to account for loglevel when it's not derived from previous values
-            curlogvar - logphi * lastlogvar - (1 - logphi) * max(loglevel, 0),
+            curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel,
             noisemean,
             # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
             max(noisestddev, 1e-7),
             log = TRUE ))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
         array<Type> logvar(var.size());
         logvar = var.log();
         Type noisemean = 0 - exp(2*lstddev) / 2;
         Type noisestddev = exp(lstddev);
+
+        if (lastx > 0 && std::isnan(asDouble(loglevel))) {
+            // Loglevel needs setting from previous values, if not enough assume 0
+            int i = logvar.size();  // NB: This should be the first projected value, but optimising a projection isnt a likely thing to want to do
+            loglevel = (i - lastx) >= 0 ? logvar.segment(i - lastx, lastx).mean() : 0;
+        }
 
         array<Type> lastlogvar(logvar.size() - 1);
         array<Type> curlogvar(logvar.size() - 1);
@@ -253,15 +280,14 @@ g3_param_project_logar1 <- function (
         curlogvar = logvar.tail(logvar.size() - 1);
         nll(0) = 0;
         nll.tail(nll.size() - 1) = -dnorm(
-            // i.e. only try to account for loglevel when its not derived from previous values
-            (vector<Type>)(curlogvar - logphi * lastlogvar - (1 - logphi) * std::max(loglevel, (Type)0)),
+            (vector<Type>)(curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel),
             noisemean,
             // noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
             std::max(noisestddev, (Type)1e-7),
             1 );
         return(nll);
     }')
-    g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel) {
+    g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel, lastx) {
         if (all(is.finite(var))) return(var)
         logvar <- log(var)
         noisemean <- 0 - exp(2*lstddev) / 2
@@ -270,9 +296,8 @@ g3_param_project_logar1 <- function (
         lastlogvar <- 0
         for (i in seq_along(logvar)) {
             if (!is.finite(logvar[[i]])) {  # Ignore non-projection values
-                if (loglevel < 0) {
+                if (lastx > 0L && is.nan(loglevel)) {
                     # Loglevel needs setting from previous values, if not enough assume 0
-                    lastx <- -round(loglevel)
                     loglevel <- if ((i - lastx) >= 1) mean(logvar[(i - lastx):(i - 1)]) else 0
                 }
                 logvar[[i]] <- logphi * lastlogvar + (1 - logphi) * loglevel + rnorm(1, noisemean, noisestddev)
@@ -280,7 +305,7 @@ g3_param_project_logar1 <- function (
             lastlogvar <- logvar[[i]]
         }
         return(exp(logvar))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel) -> vector<Type> {
+    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
         if (var.allFinite()) return var;
         array<Type> logvar(var.size());
         logvar = var.log();
@@ -290,9 +315,8 @@ g3_param_project_logar1 <- function (
         Type lastlogvar = 0;
         for (int i = 0; i < logvar.size(); i++) {
             if (!logvar.segment(i, 1).allFinite()) {  // Ignore non-projection values
-                if (loglevel < 0) {
+                if (lastx > 0 && std::isnan(asDouble(loglevel))) {
                     // Loglevel needs setting from previous values, if not enough assume 0
-                    int lastx = -std::round(asDouble(loglevel));
                     loglevel = (i - lastx) >= 0 ? logvar.segment(i - lastx, lastx).mean() : 0;
                 }
                 logvar(i) = (Type)(logphi * lastlogvar + (1 - logphi) * loglevel + rnorm(1, noisemean, noisestddev)(0));
@@ -306,11 +330,11 @@ g3_param_project_logar1 <- function (
         name = "logar1",
         # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
         nll = f_substitute(
-            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f)),
-            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f) ),
+            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f))),
+            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f, lastx_f = lastx_f) ),
         project = f_substitute(
-            ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f),
-            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f) ))
+            ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f)),
+            list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f, lastx_f = lastx_f) ))
 }
 
 g3_param_project <- function (
