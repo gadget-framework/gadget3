@@ -121,8 +121,9 @@
 <span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>        level_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
 <span>            <span class="st">"proj.ar1.level"</span>,</span>
-<span>            value <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span>
+<span>            value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span>,</span>
+<span>        lastx_f <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_param_project_logar1</span><span class="op">(</span></span>
 <span>        logphi_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
@@ -135,8 +136,9 @@
 <span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span>,</span>
 <span>        loglevel_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span></span>
 <span>            <span class="st">"proj.logar1.loglevel"</span>,</span>
-<span>            value <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, optimise <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span><span class="op">)</span></span>
+<span>            value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            prepend_extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">)</span>,</span>
+<span>        lastx_f <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_param_project</span><span class="op">(</span></span>
 <span>        <span class="va">param_name</span>,</span>
@@ -160,9 +162,12 @@
 
   <dt id="arg-level-f-loglevel-f">level_f, loglevel_f<a class="anchor" aria-label="anchor" href="#arg-level-f-loglevel-f"></a></dt>
 <dd><p>(logspace) level (or offset) applied on top of ar1/logar1 regression.
-    If negative, use the mean of the last (x) non-projection values as (log)level.
-    Defaults to parameter with name <code>(by_stock).(param_name).proj.(level|loglevel)</code>,
-    which itself defaults to -1 (i.e. use the last non-projection value)</p></dd>
+    Defaults to parameter with name <code>(by_stock).(param_name).proj.(level|loglevel)</code>,</p></dd>
+
+  <dt id="arg-lastx-f">lastx_f<a class="anchor" aria-label="anchor" href="#arg-lastx-f"></a></dt>
+<dd><p>If <code>&gt; 0</code>, the setting of <var>level_f</var> / <var>loglevel_f</var> will be ignored,
+    and the mean of the last (x) non-projection values are used as (log)level.
+    Defaults to 0L, i.e. disabled.</p></dd>
 
   <dt id="arg-param-name">param_name<a class="anchor" aria-label="anchor" href="#arg-param-name"></a></dt>
 <dd><p>Character string used to name the parameters.</p></dd>
