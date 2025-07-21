@@ -1,4 +1,5 @@
 \name{quota}
+\alias{g3_quota_hockeystick}
 \alias{g3_quota_hockeyfleet}
 \alias{g3_quota_assess}
 \alias{g3_quota}
@@ -10,10 +11,19 @@
 }
 
 \usage{
+g3_quota_hockeystick(
+        predstocks,  # Predator / fleet stocks forming a name for quota
+        preystocks,  # Mature spawning-stocks
+        preyprop_fs = 1,  # NB: Doesn't have to sum to 1
+        trigger = g3_parameterized("hs.trigger", by_stock = predstocks),
+        target = g3_parameterized("hs.target", by_stock = predstocks),
+        stddev = g3_parameterized("hs.stddev", by_stock = predstocks, value = 0),
+        unit = c("harvest-rate-year", "biomass-year", "individuals-year") )
+
 g3_quota_hockeyfleet(
-        predstocks,
-        preystocks,
-        preyprop_fs = 1,
+        predstocks,  # Predator / fleet stocks forming a name for quota
+        preystocks,  # Mature spawning-stocks
+        preyprop_fs = 1,  # NB: Doesn't have to sum to 1
         btrigger = g3_parameterized("hf.btrigger", by_stock = predstocks),
         harvest_rate = g3_parameterized("hf.harvest_rate", by_stock = predstocks),
         stddev = g3_parameterized("hf.stddev", by_stock = predstocks, value = 0) )
@@ -53,11 +63,11 @@ g3_quota(
 
     Using a suitability function is also supported, e.g. \code{\link{g3_suitability_exponentiall50}}.
   }
-  \item{btrigger}{
-    Trigger biomass, see formula
+  \item{trigger, btrigger}{
+    Trigger biomass (or number of individuals, if \var{unit} is "individuals-year"), see formula
   }
-  \item{harvest_rate}{
-    Harvest rate, see formula
+  \item{target, harvest_rate}{
+    The maximum quota value to be returned, assuming the stock is healthy, and above \var{trigger}, see formula
   }
   \item{stddev}{
     If > 0, then apply log-normal noise to the output quota.
@@ -66,7 +76,9 @@ g3_quota(
     A formula that runs an assessment model & returns a quota. See vignette TODO:
   }
   \item{unit}{
-    A single string representing the unit of the value that \var{assess_f} returns.
+    A single string representing the returned quota's unit, as used by \code{\link{g3a_predate_catchability_project}}.
+    In \code{\link{g3_quota_hockeyfleet}}, the unit of both \var{harvest_rate} and \var{btrigger}
+    In \code{\link{g3_quota_assess}}, the value returned by \var{assess_f} will be assumed to have this unit.
   }
   \item{function_f}{
     Output of one of the \code{g3_quota_*} functions, responsible for choosing the next quota
@@ -140,19 +152,23 @@ g3_quota(
 }
 
 \value{
-  \subsection{g3_quota_hockeyfleet}{
+  \subsection{g3_quota_hockeystick}{
     A formula for use in \code{\link{g3_quota}}
 
-    \deqn{SSB = \sum^{preys}_{p}{S_p N_p W_p}}
-    \deqn{H {min}(\frac{SSB}{B_{trig}}, 1)}
+    \deqn{SS = \sum^{preys}_{p}{S_p N_p}} ... if unit = \code{"individuals-year"}
+    \deqn{SS = \sum^{preys}_{p}{S_p N_p W_p}} ... otherwise
+    \deqn{Tg {min}(\frac{SS}{Tr}, 1)}
     \describe{
-      \item{\eqn{H}}{Harvest rate, provided by \var{harvest_rate} argument, by default the \code{hf.harvest_rate} parameter}
-      \item{\eqn{B_{trig}}}{Trigger biomass, provided by \var{btrigger} argument, by default the \code{hf.btrigger} parameter}
-      \item{\eqn{SSB}}{Spawning Stock Biomass (SSB)}
+      \item{\eqn{Tg}}{Target consumption, provided by \var{target} argument, by default the \code{hs.target} parameter}
+      \item{\eqn{Tr}}{Trigger biomass / harvest-rate / individuals, provided by \var{trigger} argument, by default the \code{hs.trigger} parameter}
+      \item{\eqn{SS}}{Spawning Stock (SS) in biomass / individuals}
       \item{\eqn{S_{p}}}{Suitable proportion of prey \eqn{p}, as decided by \var{preyprop_fs}}
       \item{\eqn{N_p}}{Total abundance of prey \eqn{p}}
       \item{\eqn{N_p}}{Mean weight of prey \eqn{p}}
     }
+  }
+  \subsection{g3_quota_hockeyfleet}{
+    For backward-compatibility, essentially the same as \code{g3_quota_hockeystick(..., unit = "harvest-rate-year")}
   }
   \subsection{g3_quota_assess}{A formula for use in \code{\link{g3_quota}} }
   \subsection{g3_quota}{
@@ -165,14 +181,14 @@ g3_quota(
 \examples{
 st <- g3_stock("st", c(10))
 fleets <- list(
-    # NB: We break down our fleet names into parts, g3_quota_hockeyfleet() will
+    # NB: We break down our fleet names into parts, g3_quota_hockeystick() will
     # use the common name part (read: trawl) when naming parameters.
     nor = g3_fleet(c(type = "trawl", country = "nor")),
     oth = g3_fleet(c(type = "trawl", country = "oth")) )
 
 # Define quota for both fleets, with an assessment in spring, application in autumn
 fl_quota <- g3_quota(
-    g3_quota_hockeyfleet(fleets, list(st), preyprop_fs = 1),
+    g3_quota_hockeystick(fleets, list(st), preyprop_fs = 1, unit="harvest-rate"),
     start_step = 4L,
     run_revstep = -2L )
 
@@ -221,13 +237,16 @@ attr(model_fn, "parameter_template") |>
     g3_init_val("trawl_nor.quota.prop", 0.75) |>
     g3_init_val("trawl_oth.quota.prop", 0.25) |>
     # Hockefleet: harvest rate & trigger biomass (shared across trawl_nor & trawl_oth)
-    g3_init_val("trawl.hf.harvest_rate", 0.2) |>
-    g3_init_val("trawl.hf.btrigger", 7.2e6) |>
+    g3_init_val("trawl.hs.target", 0.2) |>
+    g3_init_val("trawl.hs.trigger", 7.2e6) |>
     identity() -> params.in
 r <- attributes(model_fn(params.in))
 
+## Total biomass at assessment point
+g3_array_agg(r$dend_st__num * r$dend_st__wgt, "year", step = 2)
+
 ## Quota values, inflection once total biomass falls below btrigger
-par(mar = c(6, 5, 1, 0)) ; barplot(r$quota_hockeyfleet_trawl__var, las = 2) ; abline(v=27.7)
+par(mar = c(6, 5, 1, 0)) ; barplot(r$quota_hockeystick_trawl__var, las = 2) ; abline(v=27.7)
 
 ## Consumption by fleet, demonstrating
 ##   (a) fixed landings before projections (landings_trawl_nor)

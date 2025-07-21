@@ -8,6 +8,8 @@ stocks_fl <- list(
     a = g3_fleet(c(type = 'fl', 'a')),
     # NB: We don't use this one, just added to ensure we alter names accordingly
     b = g3_fleet(c(type = 'fl', 'b')) )
+stocks_ind <- list(
+    x = g3_fleet(c(type = 'ind', 'x')) )
 
 # Define quota for the fleet, with an assessment in spring, application in autumn
 fl_quota <- g3_quota(
@@ -15,64 +17,16 @@ fl_quota <- g3_quota(
     start_step = 4L,
     run_revstep = -2L )
 
-ok_group("g3_quota_hockeyfleet: selectivity function preyprop_fs", {
-    g3_suitability_blueling <- function(){
-        ~1/(1+exp(-0.23*(stock__midlen - 91.5856)))
-    }
-    stocks <- list(
-        g3_stock(c("st", "male"), 0:10 * 10) |> g3s_age(1, 3),
-        g3_stock(c("st", "female"), 0:10 * 10) |> g3s_age(1, 3))
+# Define quota based on individuals caught
+fl_quota_ind <- g3_quota(
+    g3_quota_hockeystick(stocks_ind, list(st), unit = "individuals-year"),
+    start_step = 2L,
+    run_revstep = -1L )
 
-    q_hf <- g3_quota_hockeyfleet(
-            stocks_fl,
-            stocks,
-            preyprop_fs = g3_suitability_blueling() )
-
-    actions <- list(
-        g3a_time(1990, 1991),
-        lapply(stocks, g3a_initialconditions_normalcv),
-        g3_step(g3_formula({
-            REPORT(q_hf)
-        }, q_hf = q_hf )),
-        # NB: Only required for testing
-        gadget3:::g3l_test_dummy_likelihood() )
-    full_actions <- c(actions, list(
-        g3a_report_detail(actions),
-        NULL))
-    model_fn <- g3_to_r(full_actions)
-    model_cpp <- g3_to_tmb(full_actions)
-
-    attr(model_fn, "parameter_template") |>
-        g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
-        g3_init_val("st_male.Linf", 80, spread = 0.2) |>
-        g3_init_val("st_female.Linf", 105, spread = 0.2) |>
-        g3_init_val("*.t0", g3_stock_def(stocks[[1]], "minage") - 0.8, spread = 2) |>
-        g3_init_val("*.lencv", 0.1, optimise = FALSE) |>
-        g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
-        g3_init_val("*.wbeta", 3, optimise = FALSE) |>
-        g3_init_val("fl.hf.btrigger", 1000, optimise = FALSE) |>
-        g3_init_val("fl.hf.harvest_rate", 1000, optimise = FALSE) |>
-        identity() -> params.in
-    nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
-
-    # Work out expected ssb, show we've used it to calculate results
-    expectedssb <-
-        sum(r$dstart_st_male__num[,,1] * r$dstart_st_male__wgt[,,1] * 1/(1+exp(-0.23*((0:10 * 10 + 5) - 91.5856)))) +
-        sum(r$dstart_st_female__num[,,1] * r$dstart_st_female__wgt[,,1] * 1/(1+exp(-0.23*((0:10 * 10 + 5) - 91.5856))))
-    ok(ut_cmp_equal(
-        r$q_hf,
-        expectedssb), "r$q_hf: Matches expectedssb, as fl.hf.btrigger is greater than ssb")
-    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
-
-    params.in |>
-        g3_init_val("fl.hf.btrigger", expectedssb + 50, optimise = FALSE) |>
-        identity() -> params.in
-    nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
-    ok(ut_cmp_equal(
-        r$q_hf,
-        1000 * (expectedssb / (expectedssb + 50)) ), "r$q_hf: expectedssb below btrigger, so scaling result")
-    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
-})
+landings_ind <- expand.grid(
+    year = 1990:1995,
+    step = 2:3 )
+landings_ind$number <- 5
 
 actions <- list(
     g3a_time(1990, 1995, c(3,3,3,3)),
@@ -90,6 +44,16 @@ actions <- list(
             # Use the quota when projecting, otherwise use landings parameters
             fl_quota,
             g3_parameterized("landings", value = 0, by_year = TRUE, by_predator = TRUE) )),
+    # Predation based on number of indivduals
+    g3a_predate(
+        stocks_ind$x,
+        list(st),
+        suitabilities = 0.8,
+        catchability_f = g3a_predate_catchability_project(
+            quota_f = fl_quota_ind,
+            landings_f = g3_timeareadata("landings_ind", landings_ind, "number"),
+            # Set the unit for the landings (fl_quota_ind has it's own unit)
+            unit = "individuals" )),
      # NB: Only required for testing
      gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
@@ -100,7 +64,8 @@ full_actions <- c(actions, list(
 model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)
 
-attr(model_fn, "parameter_template") |>
+ok_group("Population above trigger") ########
+attr(model_cpp, "parameter_template") |>
     # Project for 30 years
     g3_init_val("project_years", 30) |>
     # Fishing generally occurs in spring/summer, none in winter
@@ -110,6 +75,10 @@ attr(model_fn, "parameter_template") |>
     # Hockefleet: harvest rate & trigger biomass
     g3_init_val("fl.hf.harvest_rate", 0.2) |>
     g3_init_val("fl.hf.btrigger", 7.8e6) |>
+    #
+    g3_init_val("ind_x.hs.target", 20) |>
+    g3_init_val("ind_x.hs.trigger", 100) |>
+    g3_init_val("ind_x.cons.step.#", c(0.1, 0.2, 0.3, 0.4)) |>
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
@@ -177,4 +146,115 @@ ok(ut_cmp_equal(
         r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 4) * tail(r$quota_hockeyfleet_fl__var * 0.1, -1)), -6)),
     tolerance = 1e-7), "detail_st_fl_a__cons[step = 4]: consumption based on quota")
 
+ok(all(tail(head(r$quota_hockeystick_ind_x__var, -1), -1) == params.in$value$ind_x.hs.target), "quota_hockeystick_ind_x__var: All equal to quota target (population not constrained)")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 1), -6)),
+    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.1, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 1]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 2), -6)),
+    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.2, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 2]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 3), -6)),
+    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.3, -2)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 3]: consumption based on quota, individuals-wise")
+ok(ut_cmp_equal(
+    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 4), -6)),
+    as.vector(tail(to_vect(head(tail(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.4, -1), -1)), -6)),
+    tolerance = 1e-7), "detail_st_ind_x__cons[step = 4]: consumption based on quota, individuals-wise")
+
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+######## Population above trigger
+
+ok_group("Population falls below trigger (ind)") ########
+attr(model_cpp, "parameter_template") |>
+    # Project for 30 years
+    g3_init_val("project_years", 30) |>
+    # Disable fl_a
+    g3_init_val("fl_a.cons.step.#", 0) |>
+    # Population will fall below btrigger during model
+    g3_init_val("ind_x.hs.target", 100) |>
+    g3_init_val("ind_x.hs.trigger", 8e5) |>
+    g3_init_val("ind_x.cons.step.#", c(0.25, 0.25, 0.5, 0)) |>
+    identity() -> params.in
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+# Individuals are assessed at step 1 each year
+assess_pop <- as.vector(g3_array_agg(r$dstart_st__num, "year", step = 1))
+
+# Remove interim top/tail of quota
+quota_var <- as.vector(head(tail(r$quota_hockeystick_ind_x__var, -1), -1))
+
+full_pop <- as.vector(g3_array_agg(r$dstart_st__num, "year", step = 1) > params.in$value$ind_x.hs.trigger)
+
+ok(any(assess_pop > params.in$value$ind_x.hs.trigger), "quota_hockeystick_ind_x__var: Contains some entries above trigger point")
+ok(any(assess_pop < params.in$value$ind_x.hs.trigger), "quota_hockeystick_ind_x__var: Contains some entries below trigger point")
+ok(ut_cmp_equal(
+    quota_var,
+    pmin(
+        assess_pop / params.in$value$ind_x.hs.trigger * params.in$value$ind_x.hs.target,
+        params.in$value$ind_x.hs.target ),
+    tolerance = 1e-3), "quota_hockeystick_ind_x__var: Matches recalculated version")
+
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+######## Population falls below trigger (ind)
+
+ok_group("g3_quota_hockeyfleet: selectivity function preyprop_fs", local({
+    g3_suitability_blueling <- function(){
+        ~1/(1+exp(-0.23*(stock__midlen - 91.5856)))
+    }
+    stocks <- list(
+        g3_stock(c("st", "male"), 0:10 * 10) |> g3s_age(1, 3),
+        g3_stock(c("st", "female"), 0:10 * 10) |> g3s_age(1, 3))
+
+    q_hf <- g3_quota_hockeyfleet(
+            stocks_fl,
+            stocks,
+            preyprop_fs = g3_suitability_blueling() )
+
+    actions <- list(
+        g3a_time(1990, 1991),
+        lapply(stocks, g3a_initialconditions_normalcv),
+        g3_step(g3_formula({
+            REPORT(q_hf)
+        }, q_hf = q_hf )),
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
+    full_actions <- c(actions, list(
+        g3a_report_detail(actions),
+        NULL))
+    model_fn <- g3_to_r(full_actions)
+    model_cpp <- g3_to_tmb(full_actions)
+
+    attr(model_fn, "parameter_template") |>
+        g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+        g3_init_val("st_male.Linf", 80, spread = 0.2) |>
+        g3_init_val("st_female.Linf", 105, spread = 0.2) |>
+        g3_init_val("*.t0", g3_stock_def(stocks[[1]], "minage") - 0.8, spread = 2) |>
+        g3_init_val("*.lencv", 0.1, optimise = FALSE) |>
+        g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+        g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+        g3_init_val("fl.hf.btrigger", 1000, optimise = FALSE) |>
+        g3_init_val("fl.hf.harvest_rate", 1000, optimise = FALSE) |>
+        identity() -> params.in
+    nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+
+    # Work out expected ssb, show we've used it to calculate results
+    expectedssb <-
+        sum(r$dstart_st_male__num[,,1] * r$dstart_st_male__wgt[,,1] * 1/(1+exp(-0.23*((0:10 * 10 + 5) - 91.5856)))) +
+        sum(r$dstart_st_female__num[,,1] * r$dstart_st_female__wgt[,,1] * 1/(1+exp(-0.23*((0:10 * 10 + 5) - 91.5856))))
+    ok(ut_cmp_equal(
+        r$q_hf,
+        expectedssb), "r$q_hf: Matches expectedssb, as fl.hf.btrigger is greater than ssb")
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+    params.in |>
+        g3_init_val("fl.hf.btrigger", expectedssb + 50, optimise = FALSE) |>
+        identity() -> params.in
+    nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+    ok(ut_cmp_equal(
+        r$q_hf,
+        1000 * (expectedssb / (expectedssb + 50)) ), "r$q_hf: expectedssb below btrigger, so scaling result")
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+}))

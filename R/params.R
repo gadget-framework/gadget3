@@ -1,4 +1,4 @@
-stock_common_part <- function (stocks, collapse = ".") {
+stock_common_part <- function (stocks, collapse = "_") {
     # Find common name_part, add that to our name
     for (i in seq_along(stocks)) {
         if (i == 1) {
