@@ -426,6 +426,13 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             return(inner)
         },
+        stock_hasdim = function (x) {  # Arguments: stock variable, dimension name
+            stock_var <- x[[2]]
+            stock <- if (is.symbol(stock_var)) get(as.character(stock_var), envir = orig_env) else NULL
+            dim_name <- x[[3]]
+
+            return(dim_name %in% names(stock$dim))
+        },
         stock_with = function (x) {  # Arguments: stock variable, inner code block
             return(repl_stock_fn(x, 'with'))
         },

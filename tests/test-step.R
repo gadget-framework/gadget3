@@ -432,6 +432,24 @@ ok_group("g3_step:stock_prepend:table", {
         }), "name_part can contain multiple name_parts, get used in order")
 })
 
+ok_group("g3_step:stock_hasdim", local({
+    st <- g3_stock("st_a", 1:10)
+    fl <- g3_fleet("fl_a") |> g3s_livesonareas(1)
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            if (stock_hasdim(st, "length")) "yes" else "no"
+            if (stock_hasdim(st, "area")) "yes" else "no"
+            if (stock_hasdim(fl, "length")) "yes" else "no"
+            if (stock_hasdim(fl, "area")) "yes" else "no"
+        }), ~{
+            "yes"
+            "no"
+            "no"
+            "yes"
+        }), "stock_hasdim: Stocks have length, fleet has area")
+}))
+
 ok_group("list_to_stock_switch", {
     # NB: Differing names, ordinarily stock_imm would be "prey_stock", e.g.
     stock_imm <- g3_stock('ling_imm', c(1))

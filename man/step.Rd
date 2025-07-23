@@ -162,6 +162,15 @@ g3_step(step_f, recursing = FALSE, orig_env = environment(step_f))
   Returns \var{param_call} with the additions made.
 }
 
+\section{stock_hasdim}{
+  \code{stock_hasdim(stock, dim_name)}
+
+  Returns \code{TRUE} iff \var{dim_name} is present in \var{stock}.
+
+  This is mostly useful to replace code depending on whether a dimension has been used.
+  When used as part of an if statement, the if statement and the unused branch will be optimised away.
+}
+
 \value{
   \subsection{g3_step}{
     A \link{formula} object with references to above functions replaced.
