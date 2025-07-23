@@ -948,15 +948,23 @@ expecteds$modulo_y <- 1
 sumprod_input <- runif(10)
 sumprod_sum <- 0
 sumprod_prod <- 0
+sumprod_sum_scalar <- 0
+sumprod_prod_scalar <- 0
 actions <- c(actions, ~{
     comment('sum/prod')
     sumprod_sum <- sum(sumprod_input)
     sumprod_prod <- prod(sumprod_input)
+    sumprod_sum_scalar <- sum(sumprod_input[[1]])
+    sumprod_prod_scalar <- prod(sumprod_input[[1]])
     REPORT(sumprod_sum)
     REPORT(sumprod_prod)
+    REPORT(sumprod_sum_scalar)
+    REPORT(sumprod_prod_scalar)
 })
 expecteds$sumprod_sum <- sum(sumprod_input)
 expecteds$sumprod_prod <- prod(sumprod_input)
+expecteds$sumprod_sum_scalar <- sumprod_input[[1]]
+expecteds$sumprod_prod_scalar <- sumprod_input[[1]]
 
 # g3_param_table()
 param_table_out <- array(rep(0, 6))

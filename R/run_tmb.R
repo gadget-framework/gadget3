@@ -607,10 +607,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "sum") {
         # NB: TMB has a sum(), but it doesn't work in all cases and this is all it does anyway.
+        if (value_is_scalar(in_call[[2]])) return(cpp_code(in_call[[2]], in_envir, next_indent))
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").sum()"))
     }
 
     if (call_name == "prod") {
+        if (value_is_scalar(in_call[[2]])) return(cpp_code(in_call[[2]], in_envir, next_indent))
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").prod()"))
     }
 
