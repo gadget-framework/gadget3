@@ -586,6 +586,7 @@ structure(function (param = parameter_template)
                   comment("Check stock has remained finite for this step")
                   if (age == fish__maxage) {
                     comment("Oldest fish is a plus-group, combine with younger individuals")
+                    comment("Add result to fish")
                     fish__wgt[, , fish__age_idx] <- ratio_add_vec(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
                     fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx] + fish__num[, , fish__age_idx - 1]
                   }

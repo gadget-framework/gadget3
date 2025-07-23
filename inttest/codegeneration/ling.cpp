@@ -708,6 +708,7 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                                 {
+                                    // Add result to ling_mat;
                                     ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                     ling_imm__transitioning_remainder.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
@@ -917,6 +918,7 @@ Type objective_function<Type>::operator() () {
                         // Check stock has remained finite for this step;
                         if (age == ling_mat__maxage) {
                             // Oldest ling_mat is a plus-group, combine with younger individuals;
+                            // Add result to ling_mat;
                             ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1));
                             ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1);
                         } else {
@@ -951,6 +953,7 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm_movement__age_idx = age - ling_imm_movement__minage + 1 - 1;
 
                                 {
+                                    // Add result to ling_mat;
                                     ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx), ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
                                 }

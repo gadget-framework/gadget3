@@ -584,6 +584,7 @@ structure(function (param = parameter_template)
                       if (cur_step_final) {
                         ling_imm__age_idx <- age - ling_imm__minage + 1L
                         {
+                          comment("Add result to ling_mat")
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ratio_add_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx])
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
                           ling_imm__transitioning_remainder[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__transitioning_remainder[, ling_imm__age_idx, ling_imm__area_idx] - ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
@@ -767,6 +768,7 @@ structure(function (param = parameter_template)
                     comment("Check stock has remained finite for this step")
                     if (age == ling_mat__maxage) {
                       comment("Oldest ling_mat is a plus-group, combine with younger individuals")
+                      comment("Add result to ling_mat")
                       ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ratio_add_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__wgt[, ling_mat__age_idx - 1, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx - 1, ling_mat__area_idx])
                       ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_mat__num[, ling_mat__age_idx - 1, ling_mat__area_idx]
                     }
@@ -796,6 +798,7 @@ structure(function (param = parameter_template)
                       if (cur_step_final) {
                         ling_imm_movement__age_idx <- age - ling_imm_movement__minage + 1L
                         {
+                          comment("Add result to ling_mat")
                           ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ratio_add_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_imm_movement__transitioning_wgt[, ling_imm_movement__age_idx, ling_imm_movement__area_idx], ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx])
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
                         }

@@ -1109,6 +1109,7 @@ Type objective_function<Type>::operator() () {
                             auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
                             {
+                                // Add result to fish_mat;
                                 fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx));
                                 fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
                                 fish_imm__transitioning_remainder.col(fish_imm__area_idx).col(fish_imm__age_idx) -= fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
@@ -2071,6 +2072,7 @@ Type objective_function<Type>::operator() () {
                         // Check stock has remained finite for this step;
                         if (age == fish_mat__maxage) {
                             // Oldest fish_mat is a plus-group, combine with younger individuals;
+                            // Add result to fish_mat;
                             fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
                             fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
                         } else {
@@ -2105,6 +2107,7 @@ Type objective_function<Type>::operator() () {
                                 auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
 
                                 {
+                                    // Add result to fish_mat;
                                     fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx), fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx));
                                     fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
                                 }

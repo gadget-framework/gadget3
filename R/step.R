@@ -194,7 +194,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
         comment_str <- paste(vapply(tail(x, -1), function (a) {
             if (is.symbol(a)) {
                 # Dereference symbols
-                a <- get(as.character(a), envir = environment(step_f))
+                a <- get(as.character(a), envir = orig_env)
                 # Stocks have a name attribute
                 if (is.list(a) && 'name' %in% names(a)) a <- a$name
             }
@@ -221,7 +221,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             comment_str <- paste(vapply(tail(x, -2), function (a) {
                 if (is.symbol(a)) {
                     # Dereference symbols
-                    a <- get(as.character(a), envir = environment(step_f))
+                    a <- get(as.character(a), envir = orig_env)
                     # Stocks have a name attribute
                     if (is.list(a) && 'name' %in% names(a)) a <- a$name
                 }
@@ -289,6 +289,58 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             # Add environment to formulae's environment, return inner call
             environment_merge(environment(step_f), rlang::f_env(out_f))
             return(rlang::f_rhs(out_f))
+        },
+        # Combine a subpop into the main stock population
+        stock_combine_subpop = function (x) {  # Arguments: stock_ss(stock__num), stock_ss(stock__renewalnum)
+            find_abund_var_name <- function (in_c) {
+                vars <- grep("(\\w+)__(\\w*)num$", all.vars(in_c), value = TRUE)
+                if (length(vars) == 0) stop("No abundance variable in ", deparse1(in_c))
+                return(vars[[1]])
+            }
+            # Extract stock_ss() call (ditching abundance scaling in the process), replace num$ with new_prefix
+            abund_to_measurement <- function(in_c, abund_varname, new_prefix) {
+                # Extract stock_ss() call from in_c
+                ss_c <- f_find(in_c, "stock_ss")
+                if (length(ss_c) == 0) stop("No stock_ss in ", deparse1(in_c))
+                ss_c <- ss_c[[1]]
+
+                # Replace num$ with new_prefix in first argument
+                ss_c[[2]] <- as.symbol(gsub("num$", new_prefix, ss_c[[2]]))
+                return(ss_c)
+            }
+
+            stopifnot(length(x) == 3)
+            mainpop_num_c <- x[[2]]
+            subpop_num_c <- x[[3]]
+
+            mainpop_varname <- find_abund_var_name(mainpop_num_c)
+            mainpop_stockname <- gsub("__.*$", "", mainpop_varname)
+            mainpop_wgt_c <- abund_to_measurement(mainpop_num_c, mainpop_varname, "wgt")
+
+            subpop_varname <- find_abund_var_name(subpop_num_c)
+            subpop_stockname <- gsub("__.*$", "", subpop_varname)
+            subpop_wgt_c <- abund_to_measurement(subpop_num_c, subpop_varname, "wgt")
+
+            # If stocks don't match, wrap in reshape calls
+            if (mainpop_stockname != subpop_stockname) {
+                subpop_num_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_num_c))
+                subpop_wgt_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_wgt_c))
+            }
+
+            out_c <- substitute({
+                debug_trace("Add result to ", mainpop_stock)
+                mainpop_wgt_c <- ratio_add_vec(
+                    mainpop_wgt_c, mainpop_num_c,
+                    subpop_wgt_c, subpop_num_c)
+                mainpop_num_c <- mainpop_num_c + subpop_num_c
+            }, list(
+                mainpop_stock = as.symbol(mainpop_stockname),
+                mainpop_num_c = mainpop_num_c,
+                mainpop_wgt_c = mainpop_wgt_c,
+                subpop_num_c = subpop_num_c,
+                subpop_wgt_c = subpop_wgt_c,
+                end = NULL ))
+            return(rlang::f_rhs(g3_step(out_c, recursing = TRUE, orig_env = orig_env)))
         },
         # stock_ss subsets stock data var, overriding any set expressions
         stock_ss = function (x) { # Arguments: stock data variable (i.e. stock__num), [dim_name = override expr, ...]

@@ -50,10 +50,9 @@ g3a_age <- function(
     if (length(output_stocks) == 0) {
         final_year_f <- ~{
             debug_trace("Oldest ", stock, " is a plus-group, combine with younger individuals")
-            stock_ss(stock__wgt, age = default, vec = age) <- ratio_add_vec(
-                stock_ss(stock__wgt, age = default, vec = age), stock_ss(stock__num, age = default, vec = age),
-                stock_ss(stock__wgt, age = default - 1, vec = age), stock_ss(stock__num, age = default - 1, vec = age))
-            stock_ss(stock__num, age = default, vec = age) <- stock_ss(stock__num, age = default, vec = age) + stock_ss(stock__num, age = default - 1, vec = age)
+            stock_combine_subpop(
+                stock_ss(stock__num, age = default, vec = age),
+                stock_ss(stock__num, age = default - 1, vec = age) )
         }
     } else {
         final_year_f <- ~stock_with(stock_movement, {

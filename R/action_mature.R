@@ -105,10 +105,7 @@ g3a_step_transition <- function(input_stock,
         f_substitute(~{
             debug_trace("Move ", instock ," to ", outstock)
             stock_iterate(outstock, stock_intersect(instock, if (run_f) {
-                stock_ss(outstock__wgt) <- ratio_add_vec(
-                    stock_ss(outstock__wgt), stock_ss(outstock__num),
-                    stock_reshape(outstock, stock_ss(instock__transitioning_wgt)), stock_reshape(outstock, stock_ss(instock__transitioning_num) * output_ratio))
-                stock_ss(outstock__num) <- stock_ss(outstock__num) + stock_reshape(outstock, stock_ss(instock__transitioning_num) * output_ratio)
+                stock_combine_subpop(stock_ss(outstock__num), stock_ss(instock__transitioning_num) * output_ratio)
 
                 # This age/whatever-group has been accounted for, discount from remainder
                 if (move_remainder) stock_ss(instock__transitioning_remainder) <- stock_ss(instock__transitioning_remainder) -

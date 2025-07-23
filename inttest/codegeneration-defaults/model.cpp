@@ -751,6 +751,7 @@ Type objective_function<Type>::operator() () {
                     // Check stock has remained finite for this step;
                     if (age == fish__maxage) {
                         // Oldest fish is a plus-group, combine with younger individuals;
+                        // Add result to fish;
                         fish__wgt.col(fish__age_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx), fish__num.col(fish__age_idx), fish__wgt.col(fish__age_idx - 1), fish__num.col(fish__age_idx - 1));
                         fish__num.col(fish__age_idx) += fish__num.col(fish__age_idx - 1);
                     } else {

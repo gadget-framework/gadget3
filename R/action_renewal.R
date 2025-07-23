@@ -179,11 +179,7 @@ g3a_renewal_manual <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_
             stock_ss(stock__renewalnum) <- num_f
             stock_ss(stock__renewalwgt) <- wgt_f
 
-            debug_trace("Add result to ", stock)
-            stock_ss(stock__wgt) <- ratio_add_vec(
-                stock_ss(stock__wgt), stock_ss(stock__num),
-                stock_ss(stock__renewalwgt), stock_ss(stock__renewalnum))
-            stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__renewalnum)
+            stock_combine_subpop(stock_ss(stock__num), stock_ss(stock__renewalnum))
         })
     }, list(
         num_f = num_f, wgt_f = wgt_f,
