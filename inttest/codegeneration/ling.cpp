@@ -325,6 +325,7 @@ Type objective_function<Type>::operator() () {
     Type ling_mat__plusdl = (double)(4);
     array<Type> ling_mat__growth_w(35,16);
     Type ling_mat__prevtotal = (double)(0);
+    array<Type> ling_imm__transitioning_remainder(35,8,1);
     array<Type> ling_imm__renewalnum(35,8,1); ling_imm__renewalnum.setZero();
     array<Type> ling_imm__renewalwgt(35,8,1); ling_imm__renewalwgt.setZero();
     int cdist_sumofsquares_ldist_lln_model__area = 1;
@@ -687,6 +688,9 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
+            if ( cur_step_final ) {
+                ling_imm__transitioning_remainder = ling_imm__transitioning_num;
+            }
             // Move ling_imm to ling_mat;
             {
                 auto area = ling_mat__area;
@@ -704,10 +708,9 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                                 {
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                    ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                                    ling_imm__transitioning_remainder.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                 }
                             }
                         }
@@ -716,7 +719,7 @@ Type objective_function<Type>::operator() () {
             }
             // Move any unclaimed stock back to ling_imm;
             if ( cur_step_final ) {
-                ling_imm__num += ling_imm__transitioning_num;
+                ling_imm__num += ling_imm__transitioning_remainder;
             }
         }
         {
@@ -948,9 +951,8 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm_movement__age_idx = age - ling_imm_movement__minage + 1 - 1;
 
                                 {
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx)*ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx), ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
                                 }
                             }
                         }

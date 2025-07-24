@@ -167,13 +167,13 @@ structure(function (param = parameter_template)
         growth.matrix.sum <- colSums(growth.matrix)
         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero(growth.matrix.sum)), dim = c(na, 2)))
     }
+    ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
+        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
+    }
     nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
             return(...elt(i))
         return(NULL)
-    }
-    ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
-        (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
     }
     cur_time <- -1L
     cur_year <- 0L
@@ -265,6 +265,8 @@ structure(function (param = parameter_template)
     ling_mat__growth_w <- array(NA, dim = c(length = 35L, delta = 16L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), delta = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
         "9", "10", "11", "12", "13", "14", "15")))
     ling_mat__prevtotal <- 0
+    ling_imm__transitioning_remainder <- array(NA, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", 
+        "age6", "age7", "age8", "age9", "age10"), area = "area1"))
     ling_imm__renewalnum <- array(0, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
         "age8", "age9", "age10"), area = "area1"))
     ling_imm__renewalwgt <- array(0, dim = c(length = 35L, age = 8L, area = 1L), dimnames = list(length = c("20:24", "24:28", "28:32", "32:36", "36:40", "40:44", "44:48", "48:52", "52:56", "56:60", "60:64", "64:68", "68:72", "72:76", "76:80", "80:84", "84:88", "88:92", "92:96", "96:100", "100:104", "104:108", "108:112", "112:116", "116:120", "120:124", "124:128", "128:132", "132:136", "136:140", "140:144", "144:148", "148:152", "152:156", "156:Inf"), age = c("age3", "age4", "age5", "age6", "age7", 
@@ -568,6 +570,8 @@ structure(function (param = parameter_template)
             }
         }
         {
+            if (cur_step_final) 
+                ling_imm__transitioning_remainder[] <- ling_imm__transitioning_num[]
             comment("Move ling_imm to ling_mat")
             {
                 area <- ling_mat__area
@@ -580,10 +584,9 @@ structure(function (param = parameter_template)
                       if (cur_step_final) {
                         ling_imm__age_idx <- age - ling_imm__minage + 1L
                         {
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx] * ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
+                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ratio_add_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_imm__transitioning_wgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx])
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
-                          ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx] - ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
+                          ling_imm__transitioning_remainder[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__transitioning_remainder[, ling_imm__age_idx, ling_imm__area_idx] - ling_imm__transitioning_num[, ling_imm__age_idx, ling_imm__area_idx]
                         }
                       }
                   }
@@ -591,7 +594,7 @@ structure(function (param = parameter_template)
             }
             comment("Move any unclaimed stock back to ling_imm")
             if (cur_step_final) 
-                ling_imm__num <- ling_imm__num + ling_imm__transitioning_num
+                ling_imm__num[] <- ling_imm__num[] + ling_imm__transitioning_remainder[]
         }
         {
             factor <- (param[["ling.rec.scalar"]] * nvl(pt.ling.rec[[paste(cur_year, sep = ".")]], {
@@ -793,9 +796,8 @@ structure(function (param = parameter_template)
                       if (cur_step_final) {
                         ling_imm_movement__age_idx <- age - ling_imm_movement__minage + 1L
                         {
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- (ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] * ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx]) + ling_imm_movement__transitioning_wgt[, ling_imm_movement__age_idx, ling_imm_movement__area_idx] * ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
+                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ratio_add_vec(ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx], ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx], ling_imm_movement__transitioning_wgt[, ling_imm_movement__age_idx, ling_imm_movement__area_idx], ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx])
                           ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] + ling_imm_movement__transitioning_num[, ling_imm_movement__age_idx, ling_imm_movement__area_idx]
-                          ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx]/avoid_zero(ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx])
                         }
                       }
                   }

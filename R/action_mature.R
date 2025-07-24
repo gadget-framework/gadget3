@@ -77,91 +77,63 @@ g3a_mature_constant <- function (alpha = NULL, l50 = NA, beta = NULL, a50 = NA, 
 # Finish a growth / age maturity step, add transitioned fish to new stock
 g3a_step_transition <- function(input_stock,
                            output_stocks,
-                           output_ratios = rep(1 / length(output_stocks), times = length(output_stocks)),
+                           output_ratios = 1 / length(output_stocks),
                            move_remainder = TRUE,
                            run_f = TRUE) {
-    input_stock__transitioning_remainder <- g3_stock_instance(input_stock)
 
-    if (length(output_stocks) == 1) {
-        # Simplified case for single output stock, no need to manage remainder
-        n <- 1
-        output_stock <- output_stocks[[n]]
-        output_stock__num <- g3_stock_instance(output_stock, 0)
-        output_stock__wgt <- g3_stock_instance(output_stock, 1)
+    # NB: Borrowed from likelihood_sparsesample.R, make a common version after the third usage
+    g3_step_foreach_stock <- function (stocks, inner, outer_f, predstocks = list()) {
+        if (length(predstocks) == 0) predstocks <- list(NULL)
+        inner_f <- f_concatenate(do.call(c, lapply(predstocks, function (predstock) lapply(stocks, function (stock) {
+            f <- inner(stock, predstock)
+            environment(f) <- rlang::env_clone(environment(f), parent = environment(outer_f))
 
-        return(g3_step(f_substitute(~{
-            debug_trace("Move ", input_stock ," to ", output_stock)
-            stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
-                # Total biomass
-                stock_ss(output_stock__wgt) <- (stock_ss(output_stock__wgt) * stock_ss(output_stock__num)) +
-                    stock_reshape(output_stock, stock_ss(input_stock__transitioning_wgt) * stock_ss(input_stock__transitioning_num) * output_ratio)
-                # Add numbers together
-                stock_ss(output_stock__num) <- stock_ss(output_stock__num) + stock_reshape(output_stock, stock_ss(input_stock__transitioning_num) * output_ratio)
-                # NB: Assuming that there won't be leftover length
-                if (move_remainder) stock_ss(input_stock__transitioning_num) <- stock_ss(input_stock__transitioning_num) - stock_ss(input_stock__transitioning_num) * output_ratio
-                # Back down to mean biomass
-                stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero(stock_ss(output_stock__num))
-            }))
-
-            if (move_remainder) {
-                debug_trace("Move any unclaimed stock back to ", input_stock)
-                stock_with(input_stock, if (run_f) {
-                    input_stock__num <- input_stock__num + input_stock__transitioning_num
-                })
-            }
-        }, list(
-            output_ratio = output_ratios[[n]],
-            move_remainder = move_remainder,
-            run_f = run_f))))
+            g3_step(f, recursing = TRUE)
+        }))))
+        outer_f <- g3_step(f_substitute(outer_f, list(inner_f = inner_f)))
+        return(outer_f)
     }
 
-    out <- c(
-        list(g3_step(f_substitute(~{
-            if (move_remainder) stock_with(input_stock, input_stock__transitioning_remainder <- input_stock__transitioning_num)
-        }, list(
-            move_remainder = move_remainder,
-            run_f = run_f)), recursing = TRUE)),
-        lapply(seq_along(output_stocks), function (n) {
-            # NB: Pull these from parent env so g3_step can find them
-            input_stock <- input_stock
-            output_stock <- output_stocks[[n]]
-            output_stock__num <- g3_stock_instance(output_stock, 0)
-            output_stock__wgt <- g3_stock_instance(output_stock, 1)
+    # Keep old behaviour of assuming order matches
+    if (length(output_ratios) == length(output_stocks) && is.null(names(output_ratios))) {
+        names(output_ratios) <- vapply(output_stocks, function (s) s$name, character(1))
+    }
 
-            g3_step(f_substitute(~{
-                debug_trace("Move ", input_stock ," to ", output_stock)
-                stock_iterate(output_stock, stock_intersect(input_stock, if (run_f) {
-                    # Total biomass
-                    stock_ss(output_stock__wgt) <- (stock_ss(output_stock__wgt) * stock_ss(output_stock__num)) +
-                        stock_reshape(output_stock, stock_ss(input_stock__transitioning_wgt) * stock_ss(input_stock__transitioning_num) * output_ratio)
-                    # Add numbers together
-                    stock_ss(output_stock__num) <- stock_ss(output_stock__num) + stock_reshape(output_stock, stock_ss(input_stock__transitioning_num) * output_ratio)
-                    # NB: Assuming that there won't be leftover length
-                    if (move_remainder) stock_ss(input_stock__transitioning_remainder) <- stock_ss(input_stock__transitioning_remainder) - stock_ss(input_stock__transitioning_num) * output_ratio
-                    # Back down to mean biomass
-                    stock_ss(output_stock__wgt) <- stock_ss(output_stock__wgt) / avoid_zero(stock_ss(output_stock__num))
-                }))
-            }, list(
-                output_ratio = output_ratios[[n]],
-                move_remainder = move_remainder,
-                run_f = run_f)), recursing = TRUE)
-        }),
-        list(g3_step(f_substitute(~{
-            if (move_remainder) {
-                debug_trace("Move any unclaimed stock back to ", input_stock)
-                stock_with(input_stock, if (run_f) {
-                    input_stock__num <- input_stock__num + input_stock__transitioning_remainder
-                })
-            }
+    input_stock__transitioning_remainder <- g3_stock_instance(input_stock, desc = "Remaining stock that can't mature (target age groups missing, e.g.)")
+    g3_step_foreach_stock(list(input_stock), predstocks = output_stocks, function (instock, outstock) {
+        instock__transitioning_remainder <- input_stock__transitioning_remainder  # Copy to inner env
+        f_substitute(~{
+            debug_trace("Move ", instock ," to ", outstock)
+            stock_iterate(outstock, stock_intersect(instock, if (run_f) {
+                stock_ss(outstock__wgt) <- ratio_add_vec(
+                    stock_ss(outstock__wgt), stock_ss(outstock__num),
+                    stock_reshape(outstock, stock_ss(instock__transitioning_wgt)), stock_reshape(outstock, stock_ss(instock__transitioning_num) * output_ratio))
+                stock_ss(outstock__num) <- stock_ss(outstock__num) + stock_reshape(outstock, stock_ss(instock__transitioning_num) * output_ratio)
+
+                # This age/whatever-group has been accounted for, discount from remainder
+                if (move_remainder) stock_ss(instock__transitioning_remainder) <- stock_ss(instock__transitioning_remainder) -
+                    stock_ss(instock__transitioning_num) * output_ratio
+            }))
         }, list(
+            output_ratio = resolve_stock_list(output_ratios, outstock),
+            run_f = run_f,
             move_remainder = move_remainder,
-            run_f = run_f)), recursing = TRUE)))
-    # Assign names to each part, and use f_substitute to combine them
-    if (length(out) > length(c(letters, LETTERS))) stop("Not enough temporary names to assign to each part")
-    names(out) <- c(letters, LETTERS)[1:length(out)]
-    g3_step(f_substitute(
-        as.call(c(as.symbol("{"), lapply(names(out), as.symbol))),  # }
-        out))
+            end = NULL ))
+    }, outer_f = f_substitute(~{
+        if (move_remainder) stock_with(input_stock, {
+            if (run_f) input_stock__transitioning_remainder[] <- input_stock__transitioning_num[]
+        })
+
+        inner_f
+
+        if (move_remainder) stock_with(input_stock, {
+            # If an age/whatever-group didn't get looped over in the above, there may be left-overs. Put them back again
+            debug_trace("Move any unclaimed stock back to ", input_stock)
+            if (run_f) input_stock__num[] <- input_stock__num[] + input_stock__transitioning_remainder[]
+        })
+    }, list(
+        move_remainder = move_remainder,
+        run_f = run_f )))
 }
 
 # Growth step for a stock
