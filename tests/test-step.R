@@ -586,4 +586,14 @@ ok_group("g3_step:resolve_stock_list", local({
     ok(gadget3:::ut_cmp_code(
         gadget3:::resolve_stock_list(g3_formula(1 + 1), st_c),
         g3_formula(1 + 1) ), "Single item / st_c (return regardless)")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(list(st_c = 44), st_c),
+        44 ), "Single named item / st_c (return without name)")
+
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(c(st_a = 1, st_b = 2, st_c = 3), st_b),
+        2 ), "Named vector (return unnamed value)")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(c(st_a = 1, st_b = 2, st_c = 3), st_c),
+        3 ), "Named vector (return unnamed value)")
 }))

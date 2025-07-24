@@ -539,8 +539,12 @@ list_to_stock_switch <- function(l, stock_var = "stock") {
 
 # Resolve stock_list (e.g. suitability) ahead of time, unlike list_to_stock_switch
 resolve_stock_list <- function (l, stock) {
+    # Convert numeric vectors into lists
+    if (is.numeric(l))  l <- as.list(l)
+
     # Only one option, return it
     if (!is.list(l)) return(l)
+    if (length(l) == 1) return(l[[1]])
 
     # If the one we want is present, return that
     if (stock$name %in% names(l)) return(l[[stock$name]])
