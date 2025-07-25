@@ -85,7 +85,6 @@ structure(function (param = parameter_template)
             as.vector(var)
         else var
     }
-    g3_cast_vector <- function(x) x
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -346,7 +345,7 @@ structure(function (param = parameter_template)
         ling_mat__totalpredate[] <- 0
         igfs__totalsuit[] <- 0
         {
-            suitability <- g3_cast_vector(suit_ling_imm_igfs__report[])
+            suitability <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_imm__midlen - param[["ling.igfs.l50"]]))))
             {
                 comment("g3a_predate for igfs predating ling_imm")
                 ling_imm_igfs__suit[] <- 0
@@ -368,7 +367,7 @@ structure(function (param = parameter_template)
             }
         }
         {
-            suitability <- g3_cast_vector(suit_ling_mat_igfs__report[])
+            suitability <- (1/(1 + exp(-param[["ling.igfs.alpha"]] * (ling_mat__midlen - param[["ling.igfs.l50"]]))))
             {
                 comment("g3a_predate for igfs predating ling_mat")
                 ling_mat_igfs__suit[] <- 0

@@ -479,7 +479,7 @@ Type objective_function<Type>::operator() () {
         fish__totalpredate.setZero();
         comm__totalsuit.setZero();
         {
-            auto suitability = (vector<Type>)(suit_fish_comm__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__comm__alpha*(fish__midlen - fish__comm__l50))));
 
             {
                 // g3a_predate for comm predating fish;

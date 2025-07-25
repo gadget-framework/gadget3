@@ -435,7 +435,7 @@ Type objective_function<Type>::operator() () {
         ling_mat__totalpredate.setZero();
         igfs__totalsuit.setZero();
         {
-            auto suitability = (vector<Type>)(suit_ling_imm_igfs__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
 
             {
                 // g3a_predate for igfs predating ling_imm;
@@ -464,7 +464,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto suitability = (vector<Type>)(suit_ling_mat_igfs__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))));
 
             {
                 // g3a_predate for igfs predating ling_mat;

@@ -91,7 +91,6 @@ structure(function (param = parameter_template)
             as.vector(var)
         else var
     }
-    g3_cast_vector <- function(x) x
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -348,7 +347,7 @@ structure(function (param = parameter_template)
         fish__totalpredate[] <- 0
         comm__totalsuit[] <- 0
         {
-            suitability <- g3_cast_vector(suit_fish_comm__report[])
+            suitability <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]]))))
             {
                 comment("g3a_predate for comm predating fish")
                 fish_comm__suit[] <- 0

@@ -853,7 +853,7 @@ Type objective_function<Type>::operator() () {
         fish_mat__totalpredate.setZero();
         f_surv__totalsuit.setZero();
         {
-            auto suitability = (vector<Type>)(suit_fish_imm_f_surv__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50))));
 
             {
                 // g3a_predate for f_surv predating fish_imm;
@@ -882,7 +882,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto suitability = (vector<Type>)(suit_fish_mat_f_surv__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_mat__midlen - fish__f_surv__l50))));
 
             {
                 // g3a_predate for f_surv predating fish_mat;
