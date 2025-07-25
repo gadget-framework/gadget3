@@ -10,10 +10,10 @@ fl <- g3_fleet(c("fl", "surv"))
 
 actions <- list(
     g3a_time(1990, 1994, c(6,6)),
-    g3a_initialconditions(st_imm,
+    gadget3:::g3a_initialconditions_manual(st_imm,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
-    g3a_initialconditions(st_mat,
+    gadget3:::g3a_initialconditions_manual(st_mat,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
     g3a_age(st_imm),
@@ -163,10 +163,10 @@ ok_group("lastx mode", local({ ################################################
 
     actions <- list(
         g3a_time(1990, 1994, c(6,6)),
-        g3a_initialconditions(st_imm,
+        gadget3:::g3a_initialconditions_manual(st_imm,
             quote( 100 + stock__minlen ),
             quote( 1e4 + 0 * stock__minlen ) ),
-        g3a_initialconditions(st_mat,
+        gadget3:::g3a_initialconditions_manual(st_mat,
             quote( 100 + stock__minlen ),
             quote( 1e4 + 0 * stock__minlen ) ),
         g3a_age(st_imm),

@@ -33,9 +33,9 @@ actions <- list(
     g3a_age(prey_a),
     g3a_age(prey_b),
     g3a_age(pred_a),
-    g3a_initialconditions(prey_a, ~1e10 + 0 * prey_a__midlen, ~100),
-    g3a_initialconditions(prey_b, ~2e10 + 0 * prey_b__midlen, ~200),
-    g3a_initialconditions(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~1e10 + 0 * prey_a__midlen, ~100),
+    gadget3:::g3a_initialconditions_manual(prey_b, ~2e10 + 0 * prey_b__midlen, ~200),
+    gadget3:::g3a_initialconditions_manual(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
     g3a_otherfood(otherfood, ~1e10 + 0 * otherfood__midlen, 100),
 
     g3a_predate(

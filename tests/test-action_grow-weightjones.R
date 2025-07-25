@@ -10,8 +10,8 @@ actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
     g3a_age(prey_a),
     g3a_age(pred_a),
-    g3a_initialconditions(prey_a, ~1e5 * prey_a__midlen, ~100),
-    g3a_initialconditions(pred_a, ~1e-2 * pred_a__midlen, ~1000),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~1e5 * prey_a__midlen, ~100),
+    gadget3:::g3a_initialconditions_manual(pred_a, ~1e-2 * pred_a__midlen, ~1000),
 
     g3a_growmature(prey_a, impl_f = gadget3::g3a_grow_impl_bbinom(
         maxlengthgroupgrowth = 2L) ),

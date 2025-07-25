@@ -68,7 +68,7 @@ g3a_weightloss(
 
   actions <- list(
     g3a_time(2000, 2005, step_lengths = c(3, 3, 3, 3)),
-    g3a_initialconditions(st,
+    gadget3:::g3a_initialconditions_manual(st,
         # Set initial abundance & weight based on age
         ~1e5 + 0 * st__midlen,
         ~1000 * age + 0 * st__midlen ),

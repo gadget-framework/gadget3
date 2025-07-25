@@ -21,9 +21,9 @@ ok_group("g3a_age:single_age", {
             REPORT(prey_b__num)
             REPORT(prey_c__num)
         })),
-        g3a_initialconditions(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
-        g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
-        g3a_initialconditions(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),
+        gadget3:::g3a_initialconditions_manual(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
+        gadget3:::g3a_initialconditions_manual(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
+        gadget3:::g3a_initialconditions_manual(prey_c, ~prey_c__midlen * 0, ~prey_c__midlen * 0),
         g3a_age(prey_a, output_stocks = list(prey_b, prey_c), output_ratios = c(0.75, 0.25)),
         # NB: Only required for testing
         gadget3:::g3l_test_dummy_likelihood(),
@@ -75,9 +75,9 @@ for (step in 0:3) for (s in list(prey_a, prey_b, prey_c)) {
 
 actions <- list(
     g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
-    g3a_initialconditions(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
-    g3a_initialconditions(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
-    g3a_initialconditions(prey_c, ~prey_b__midlen * 0, ~prey_b__midlen * 0),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~10 * (age-10) + prey_a__midlen * 0, ~100 * (age-10) + prey_a__midlen * 0),
+    gadget3:::g3a_initialconditions_manual(prey_b, ~10 * (age-10) + prey_b__midlen * 0, ~100 * (age-10) + prey_b__midlen * 0),
+    gadget3:::g3a_initialconditions_manual(prey_c, ~prey_b__midlen * 0, ~prey_b__midlen * 0),
     g3a_age(prey_a),
     g3a_age(prey_b, output_stocks = list(prey_c)),
     g3a_age(prey_c),

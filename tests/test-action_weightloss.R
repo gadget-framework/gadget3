@@ -14,7 +14,7 @@ abund_obs <- expand.grid(
 
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(3, 3, 6), project_years = 0),
-    g3a_initialconditions(st,
+    gadget3:::g3a_initialconditions_manual(st,
         ~1e5 + 0 * st__midlen,
         ~1000 * age + 0 * st__midlen ),
     g3a_age(st),

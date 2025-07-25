@@ -8,7 +8,7 @@ fl <- g3_fleet(c("fl", "surv"))
 
 actions <- list(
     g3a_time(1990, 1994, c(6,6)),
-    g3a_initialconditions(st,
+    gadget3:::g3a_initialconditions_manual(st,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
     g3a_naturalmortality(st, g3a_naturalmortality_exp(g3_param_project(

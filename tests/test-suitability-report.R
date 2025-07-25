@@ -13,9 +13,9 @@ pred_a <- g3_stock('pred_a', seq(50, 80, by = 10)) |> g3s_age(0, 10) |> g3s_live
 
 actions <- list(
     g3a_time(2000, 2002, step_lengths = c(6,6), project_years = 0),
-    g3a_initialconditions(prey_a, ~1e10 + 0 * prey_a__midlen, ~100),
-    g3a_initialconditions(prey_b, ~2e10 + 0 * prey_b__midlen, ~200),
-    g3a_initialconditions(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~1e10 + 0 * prey_a__midlen, ~100),
+    gadget3:::g3a_initialconditions_manual(prey_b, ~2e10 + 0 * prey_b__midlen, ~200),
+    gadget3:::g3a_initialconditions_manual(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
     # NB: Don't call g3a_suitability_report() directly, use g3a_predate() interface
     g3a_predate(
         fleet_a,

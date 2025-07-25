@@ -220,8 +220,8 @@ stock_b_report <- g3s_clone(stock_b, 'report_b') %>% g3s_time(year = 2000:2003)
     
 actions <- list(
     g3a_time(2000, 2003, project_years = 0),
-    g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
-    g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
+    gadget3:::g3a_initialconditions_manual(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
+    gadget3:::g3a_initialconditions_manual(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
     g3a_initialconditions_normalparam(stock_b,
         factor_f = ~g3_param("init.factor", value = 10),
         mean_f = ~g3_param("init.mean", value = 50),

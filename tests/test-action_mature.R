@@ -75,9 +75,9 @@ ok_group('g3a_mature', {
 
     actions <- list(
         g3a_time(2000, 2000, project_years = 0),
-        g3a_initialconditions(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num", value = rep(0, 4)), ~g3_param_vector("imm_init_wgt", value = rep(0, 4))),
-        g3a_initialconditions(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num", value = rep(0, 4)), ~g3_param_vector("mat1_init_wgt", value = rep(0, 4))),
-        g3a_initialconditions(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num", value = rep(0, 4)), ~g3_param_vector("mat2_init_wgt", value = rep(0, 4))),
+        gadget3:::g3a_initialconditions_manual(stock_imm, ~max(6L - age, 1L) * g3_param_vector("imm_init_num", value = rep(0, 4)), ~g3_param_vector("imm_init_wgt", value = rep(0, 4))),
+        gadget3:::g3a_initialconditions_manual(stock_mat1, ~max(6L - age, 1L) * g3_param_vector("mat1_init_num", value = rep(0, 4)), ~g3_param_vector("mat1_init_wgt", value = rep(0, 4))),
+        gadget3:::g3a_initialconditions_manual(stock_mat2, ~max(6L - age, 1L) * g3_param_vector("mat2_init_num", value = rep(0, 4)), ~g3_param_vector("mat2_init_wgt", value = rep(0, 4))),
         g3a_mature(stock_imm,
             ~g3_param_vector("maturity", value = rep(0, 4)),
             list(stock_mat1, stock_mat2),
