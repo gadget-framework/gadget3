@@ -5,7 +5,6 @@
 \alias{g3a_renewal_initabund}
 \alias{g3a_initialconditions_normalparam}
 \alias{g3a_initialconditions_normalcv}
-\alias{g3a_renewal}
 \alias{g3a_renewal_normalparam}
 \alias{g3a_renewal_normalcv}
 \alias{g3a_otherfood}
@@ -75,9 +74,6 @@ g3a_initialconditions_normalcv(
         run_at = g3_action_order$initial)
 
 ############################# g3a_renewal
-
-g3a_renewal(stock, num_f, wgt_f, run_f = ~TRUE,
-        run_at = g3_action_order$renewal)
 
 g3a_renewal_normalparam(
         stock,
@@ -274,7 +270,7 @@ g3a_otherfood_normalcv(
       \item{p}{\var{proportion} argument, by default \code{1}}
     }
   }
-  \subsection{g3a_renewal / g3a_otherfood}{
+  \subsection{g3a_otherfood}{
   An action (i.e. list of formula objects) that will, for the given \var{stock}, iterate over each
   area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using
   \var{num_f} and \var{wgt_f}.

@@ -164,7 +164,7 @@ g3a_initialconditions_normalcv <- function (
 }
 
 # Assign number / mean weight based on formulae
-g3a_renewal <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_action_order$renewal) {
+g3a_renewal_manual <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_action_order$renewal) {
     # See InitialCond::Initialise
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
@@ -226,7 +226,7 @@ g3a_renewal_normalparam <- function (
     # NB: Generate action name with our arguments
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3a_renewal(
+    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3a_renewal_manual(
         stock,
         num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
