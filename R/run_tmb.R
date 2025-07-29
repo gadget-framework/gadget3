@@ -221,6 +221,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             assign_rhs <- assign_rhs[[3]]
         }
 
+        if (value_is_scalar(assign_lhs) && !value_is_scalar(assign_rhs)) {
+            assign_rhs <- call("as_scalar", assign_rhs)
+        }
+
         return(paste(
             cpp_code(assign_lhs, in_envir, next_indent),  # NB: Should either be a sybol or a subset
             assign_op,
@@ -981,7 +985,8 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
     }  # End of var_defns
 
     # Define all vars, populating scope in process
-    all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
+    # TODO: Force as_scalar() to be part of the code, assuming it gets used at some point
+    all_actions_code <- var_defns(call("{", rlang::f_rhs(all_actions), quote(as_scalar(4))), rlang::f_env(all_actions))
 
     ss <- scope_split(scope)
 
