@@ -63,6 +63,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             return(TRUE)
         }
 
+        # Common functions returning scalar from any arrays
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("sum", "prod", "mean", "g3_idx")) {
+            return(TRUE)
+        }
+
+        # Operators that will return a same-length array
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("-", "+", "*", "/", "%/%", "%%")) return(all(vapply(
+            tail(c_val, -1),
+            value_is_scalar,
+            logical(1) )))
+
         # Dunno.
         return(fallback)
     }
