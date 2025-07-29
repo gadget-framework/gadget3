@@ -80,6 +80,24 @@ template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> ratio_add_pop(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -261,9 +279,6 @@ Type objective_function<Type>::operator() () {
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-};
-    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     int cur_time = -1;
     int cur_year = 0;
@@ -709,7 +724,7 @@ Type objective_function<Type>::operator() () {
 
                                 {
                                     // Add result to ling_mat;
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                     ling_imm__transitioning_remainder.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                 }
@@ -742,7 +757,7 @@ Type objective_function<Type>::operator() () {
                             ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
-                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
                             ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) += ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx);
                         }
                     }
@@ -768,7 +783,7 @@ Type objective_function<Type>::operator() () {
                             ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
-                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
                             ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) += ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx);
                         }
                     }
@@ -919,7 +934,7 @@ Type objective_function<Type>::operator() () {
                         if (age == ling_mat__maxage) {
                             // Oldest ling_mat is a plus-group, combine with younger individuals;
                             // Add result to ling_mat;
-                            ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1));
+                            ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1));
                             ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1);
                         } else {
                             if (age == ling_mat__minage) {
@@ -954,7 +969,7 @@ Type objective_function<Type>::operator() () {
 
                                 {
                                     // Add result to ling_mat;
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx), ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx));
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx), ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
                                 }
                             }

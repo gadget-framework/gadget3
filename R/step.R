@@ -329,7 +329,7 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
 
             out_c <- substitute({
                 debug_trace("Add result to ", mainpop_stock)
-                mainpop_wgt_c <- ratio_add_vec(
+                mainpop_wgt_c <- ratio_add_pop(
                     mainpop_wgt_c, mainpop_num_c,
                     subpop_wgt_c, subpop_num_c)
                 mainpop_num_c <- mainpop_num_c + subpop_num_c

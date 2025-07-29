@@ -80,6 +80,24 @@ template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> ratio_add_pop(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -406,9 +424,6 @@ Type objective_function<Type>::operator() () {
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-};
-    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     auto surveyindices_linreg = [](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
@@ -764,7 +779,7 @@ Type objective_function<Type>::operator() () {
                         fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                         fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                         // Add result to fish;
-                        fish__wgt.col(fish__age_idx).col(fish__area_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx).col(fish__area_idx), fish__num.col(fish__age_idx).col(fish__area_idx), fish__renewalwgt.col(fish__age_idx).col(fish__area_idx), fish__renewalnum.col(fish__age_idx).col(fish__area_idx));
+                        fish__wgt.col(fish__age_idx).col(fish__area_idx) = ratio_add_pop(fish__wgt.col(fish__age_idx).col(fish__area_idx), fish__num.col(fish__age_idx).col(fish__area_idx), fish__renewalwgt.col(fish__age_idx).col(fish__area_idx), fish__renewalnum.col(fish__age_idx).col(fish__area_idx));
                         fish__num.col(fish__age_idx).col(fish__area_idx) += fish__renewalnum.col(fish__age_idx).col(fish__area_idx);
                     }
                 }
@@ -1336,7 +1351,7 @@ Type objective_function<Type>::operator() () {
                     if (age == fish__maxage) {
                         // Oldest fish is a plus-group, combine with younger individuals;
                         // Add result to fish;
-                        fish__wgt.col(fish__age_idx) = ratio_add_vec(fish__wgt.col(fish__age_idx), fish__num.col(fish__age_idx), fish__wgt.col(fish__age_idx - 1), fish__num.col(fish__age_idx - 1));
+                        fish__wgt.col(fish__age_idx) = ratio_add_pop(fish__wgt.col(fish__age_idx), fish__num.col(fish__age_idx), fish__wgt.col(fish__age_idx - 1), fish__num.col(fish__age_idx - 1));
                         fish__num.col(fish__age_idx) += fish__num.col(fish__age_idx - 1);
                     } else {
                         if (age == fish__minage) {

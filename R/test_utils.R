@@ -35,6 +35,10 @@ ut_tmb_r_compare2 <- function (
             # fishingyear dimensions aren't preserved yet, we'd need to do more gen_dimnames magic
             dimnames(x)$fishingyear <- NULL
         }
+        if (is.array(x) && length(dim) == 1 && is.null(dimnames(x))) {
+            # TMB output won't preserve array-ness of 1-length vectors without dims (see ratio_add_pop tests)
+            x <- as.vector(x)
+        }
         return(x)
     }
 

@@ -49,8 +49,8 @@ g3_global_formula(f = quote(noop), init_val = NULL)
 }
 
 \examples{
-# The definition of g3_env$ratio_add_vec looks like:
-eg_ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount,
+# The definition of g3_env$ratio_add_pop looks like:
+eg_ratio_add_pop <- g3_native(r = function(orig_vec, orig_amount,
                                         new_vec, new_amount) {
     ((orig_vec * orig_amount + new_vec * new_amount)
       /
@@ -62,7 +62,7 @@ eg_ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount,
              /
            avoid_zero_vec(orig_amount + new_amount);
 }', depends = c('avoid_zero_vec'))
-# eg_ratio_add_vec() can then be used in formulas, both in R & TMB.
+# eg_ratio_add_pop() can then be used in formulas, both in R & TMB.
 
 # Define a random walk action, using g3_global_formula to keep track of
 # previous value. NB: my_randomwalk_prevrec must be unique in a model

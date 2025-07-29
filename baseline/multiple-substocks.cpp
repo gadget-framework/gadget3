@@ -86,6 +86,24 @@ auto dif_pminmax(X a, Y lower, Z upper, double scale) {
     out = dif_pmax(out, lower, scale);
     return out;
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> ratio_add_pop(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -507,9 +525,6 @@ Type objective_function<Type>::operator() () {
         }
     }
     return(growth_matrix);
-};
-    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     auto surveyindices_linreg = [](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
@@ -1110,7 +1125,7 @@ Type objective_function<Type>::operator() () {
 
                             {
                                 // Add result to fish_mat;
-                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx));
+                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx));
                                 fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
                                 fish_imm__transitioning_remainder.col(fish_imm__area_idx).col(fish_imm__age_idx) -= fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
                             }
@@ -1140,7 +1155,7 @@ Type objective_function<Type>::operator() () {
                             fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
                             fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
                             // Add result to fish_imm;
-                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = ratio_add_vec(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx));
+                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = ratio_add_pop(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx));
                             fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) += fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx);
                         }
                     }
@@ -2073,7 +2088,7 @@ Type objective_function<Type>::operator() () {
                         if (age == fish_mat__maxage) {
                             // Oldest fish_mat is a plus-group, combine with younger individuals;
                             // Add result to fish_mat;
-                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
+                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
                             fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
                         } else {
                             if (age == fish_mat__minage) {
@@ -2108,7 +2123,7 @@ Type objective_function<Type>::operator() () {
 
                                 {
                                     // Add result to fish_mat;
-                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx), fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx));
+                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx), fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx));
                                     fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
                                 }
                             }

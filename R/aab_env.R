@@ -130,12 +130,27 @@ g3_env$as_numeric_vec <- g3_native(r = function (x) x, cpp = '[](vector<Type> x)
 
 
 # Sum (orig_vec) & (new_vec) according to ratio of (orig_amount) & (new_amount)
-g3_env$ratio_add_vec <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {
+g3_env$ratio_add_pop <- g3_native(r = function(orig_vec, orig_amount, new_vec, new_amount) {
     (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount)
-}, cpp = '[](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
+}, cpp = '
+template<typename T, TYPE_IS_SCALAR(T)>
+T __fn__(T orig_vec, T orig_amount, T new_vec, T new_amount) {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
-}', depends = c('avoid_zero'))
-
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> __fn__(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> __fn__(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> __fn__(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/', depends = c('avoid_zero'))
 
 g3_env$nonconform_add <- g3_native(r = function (base_ar, extra_ar) {
     base_ar + as.vector(extra_ar)

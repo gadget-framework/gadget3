@@ -173,7 +173,7 @@ structure(function (param = parameter_template)
         growth.matrix.sum <- colSums(growth.matrix)
         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero(growth.matrix.sum)), dim = c(na, 2)))
     }
-    ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
+    ratio_add_pop <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
     }
     surveyindices_linreg <- function(N, I, fixed_alpha, fixed_beta) {
@@ -461,7 +461,7 @@ structure(function (param = parameter_template)
                     fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
                     comment("Add result to fish")
-                    fish__wgt[, fish__area_idx, fish__age_idx] <- ratio_add_vec(fish__wgt[, fish__area_idx, fish__age_idx], fish__num[, fish__area_idx, fish__age_idx], fish__renewalwgt[, fish__area_idx, fish__age_idx], fish__renewalnum[, fish__area_idx, fish__age_idx])
+                    fish__wgt[, fish__area_idx, fish__age_idx] <- ratio_add_pop(fish__wgt[, fish__area_idx, fish__age_idx], fish__num[, fish__area_idx, fish__age_idx], fish__renewalwgt[, fish__area_idx, fish__age_idx], fish__renewalnum[, fish__area_idx, fish__age_idx])
                     fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] + fish__renewalnum[, fish__area_idx, fish__age_idx]
                   }
                 }
@@ -587,7 +587,7 @@ structure(function (param = parameter_template)
                   if (age == fish__maxage) {
                     comment("Oldest fish is a plus-group, combine with younger individuals")
                     comment("Add result to fish")
-                    fish__wgt[, , fish__age_idx] <- ratio_add_vec(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
+                    fish__wgt[, , fish__age_idx] <- ratio_add_pop(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
                     fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx] + fish__num[, , fish__age_idx - 1]
                   }
                   else if (age == fish__minage) {
