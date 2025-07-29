@@ -192,7 +192,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
-            if (grepl('.transpose()', cpp_code(assign_lhs, in_envir, next_indent))) {
+            if (grepl('.transpose()', cpp_code(assign_lhs, in_envir, next_indent), fixed = TRUE)) {
                 stop("Can't assign to this subset under TMB (.transpose() isn't by reference): ", deparse1(assign_lhs))
             }
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
