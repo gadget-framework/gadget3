@@ -424,7 +424,7 @@ structure(function (param = parameter_template)
             else (fish__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
             growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_w
-            else (fish__growth_w[] <- (g3a_grow_vec_rotate(fish__midlen^param[["fish.wbeta"]], 5L + 1) - g3a_grow_vec_extrude(fish__midlen^param[["fish.wbeta"]], 5L + 1)) * param[["fish.walpha"]])
+            else (fish__growth_w[] <- (g3a_grow_vec_rotate(fish__midlen^param[["fish.wbeta"]], 5L + 1L) - g3a_grow_vec_extrude(fish__midlen^param[["fish.wbeta"]], 5L + 1L)) * param[["fish.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

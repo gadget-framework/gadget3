@@ -65,8 +65,8 @@ g3a_grow_weightsimple <- function (
     # growmemberfunctions.cc:61 - Make a l --> l' matrix of weight increases,
     # NB: Have to multiply by alpha_f last, otherwise TMB thinks the result should be scalar
     f_substitute(~(
-        g3a_grow_vec_rotate(stock__midlen^beta_f, maxlengthgroupgrowth + 1) -
-        g3a_grow_vec_extrude(stock__midlen^beta_f, maxlengthgroupgrowth + 1)
+        g3a_grow_vec_rotate(stock__midlen^beta_f, maxlengthgroupgrowth + 1L) -
+        g3a_grow_vec_extrude(stock__midlen^beta_f, maxlengthgroupgrowth + 1L)
     ) * (alpha_f), list(alpha_f = alpha_f, beta_f = beta_f))
 }
 
@@ -95,7 +95,7 @@ g3a_grow_weight_multspec <- function(
         p4 *
         (stock_ss(stock__wgt))^p5 *
         (stock_ss(stock__feedinglevel) - p6) *
-        (p7 * temperature + p8), maxlengthgroupgrowth + 1)
+        (p7 * temperature + p8), maxlengthgroupgrowth + 1L)
 }
 
 g3a_grow_length_weightjones <- function(
@@ -138,7 +138,7 @@ g3a_grow_weight_weightjones <- function(
     # NB: Pretty easy to have negative growth with nonsense parameters, thus avoid_zero()
     ~g3a_grow_vec_extrude(avoid_zero(cur_step_size * (
         ((max_consumption * stock_ss(stock__feedinglevel)) / (q0 * avoid_zero(stock_ss(stock__wgt))^q1)) -
-        q2 * (stock_ss(stock__wgt))^q3 * exp(q4 * temperature + q5) )), maxlengthgroupgrowth + 1)
+        q2 * (stock_ss(stock__wgt))^q3 * exp(q4 * temperature + q5) )), maxlengthgroupgrowth + 1L)
 }
 
 # Returns bbinom growth implementation formulae

@@ -498,7 +498,7 @@ structure(function (param = parameter_template)
             else (ling_imm__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_imm__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_imm__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_imm__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_imm__growth_w
-            else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1) - g3a_grow_vec_extrude(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1)) * param[["lingimm.walpha"]])
+            else (ling_imm__growth_w[] <- (g3a_grow_vec_rotate(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1L) - g3a_grow_vec_extrude(ling_imm__midlen^param[["lingimm.wbeta"]], 15L + 1L)) * param[["lingimm.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
@@ -543,7 +543,7 @@ structure(function (param = parameter_template)
             else (ling_mat__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["ling.Linf"]] - ling_mat__midlen) * (1 - exp(-((param[["ling.K"]] * 0.001)) * cur_step_size)))/ling_mat__plusdl), 15L, avoid_zero((param[["ling.bbin"]] * 10))))
             growth_delta_w <- if (ling_mat__growth_lastcalc == floor(cur_step_size * 12L)) 
                 ling_mat__growth_w
-            else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1) - g3a_grow_vec_extrude(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1)) * param[["lingmat.walpha"]])
+            else (ling_mat__growth_w[] <- (g3a_grow_vec_rotate(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1L) - g3a_grow_vec_extrude(ling_mat__midlen^param[["lingmat.wbeta"]], 15L + 1L)) * param[["lingmat.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {

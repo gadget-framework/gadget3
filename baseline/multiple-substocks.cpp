@@ -1046,7 +1046,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_l : (fish_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_imm__Linf - fish_imm__midlen)*((double)(1) - exp(-(fish_imm__K)*cur_step_size))) / fish_imm__plusdl), 4, avoid_zero(fish_imm__bbin))));
 
-            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)))*fish_imm__walpha));
+            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate((fish_imm__midlen).pow(fish_imm__wbeta), 4 + 1) - g3a_grow_vec_extrude((fish_imm__midlen).pow(fish_imm__wbeta), 4 + 1))*fish_imm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -1088,7 +1088,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_l : (fish_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_mat__Linf - fish_mat__midlen)*((double)(1) - exp(-(fish_mat__K)*cur_step_size))) / fish_mat__plusdl), 4, avoid_zero(fish_mat__bbin))));
 
-            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)))*fish_mat__walpha));
+            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate((fish_mat__midlen).pow(fish_mat__wbeta), 4 + 1) - g3a_grow_vec_extrude((fish_mat__midlen).pow(fish_mat__wbeta), 4 + 1))*fish_mat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 

@@ -580,7 +580,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_l : (fish__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish__Linf - fish__midlen)*((double)(1) - exp(-(fish__K)*cur_step_size))) / fish__plusdl), 5, avoid_zero(fish__bbin))));
 
-            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate((fish__midlen).pow(fish__wbeta), 5 + (double)(1)) - g3a_grow_vec_extrude((fish__midlen).pow(fish__wbeta), 5 + (double)(1)))*fish__walpha));
+            auto growth_delta_w = (fish__growth_lastcalc == std::floor(cur_step_size*12) ? fish__growth_w : (fish__growth_w = (g3a_grow_vec_rotate((fish__midlen).pow(fish__wbeta), 5 + 1) - g3a_grow_vec_extrude((fish__midlen).pow(fish__wbeta), 5 + 1))*fish__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
