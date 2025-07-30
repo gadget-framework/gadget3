@@ -4,9 +4,18 @@ g3a_grow_vec_rotate <- g3_native(r = function (vec, a) {
         function (i) vec[i:(i+length(vec) - 1)],
         numeric(length(vec)))
     out[is.na(out)] <- vec[length(vec)]  # Overflowed entries should be capped at the final one
-    out
-}, cpp = '[](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
+	    out
+}, cpp = '
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> __fn__(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> __fn__(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
     for (int i = 0 ; i < vec.size(); i++) {
         for (int j = 0 ; j < a; j++) {
             out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
@@ -16,8 +25,17 @@ g3a_grow_vec_rotate <- g3_native(r = function (vec, a) {
 }')
 g3a_grow_vec_extrude <- g3_native(r = function (vec, a) {
     array(vec, dim = c(length(vec), a))
-}, cpp = '[](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
+}, cpp = '
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> __fn__(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> __fn__(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
     out = vec.replicate(a, 1);
     return out;
 }')

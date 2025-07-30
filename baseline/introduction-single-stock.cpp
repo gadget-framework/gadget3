@@ -81,6 +81,36 @@ auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
 template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_rotate(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_rotate(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+        }
+    }
+    return out;
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_extrude(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_extrude(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    out = vec.replicate(a, 1);
+    return out;
+}
+template<typename T, TYPE_IS_SCALAR(T)>
 T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
     return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 }
@@ -356,20 +386,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    for (int i = 0 ; i < vec.size(); i++) {
-        for (int j = 0 ; j < a; j++) {
-            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-        }
-    }
-    return out;
-};
-    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    out = vec.replicate(a, 1);
-    return out;
-};
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_w = delta_w_ar.matrix();
