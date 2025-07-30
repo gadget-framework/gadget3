@@ -238,52 +238,51 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             inner_f <- call_to_formula(x[[3]], environment(step_f))
             inner_f <- g3_step(inner_f, recursing = TRUE, orig_env = orig_env)
 
-            if (!("length" %in% names(stock$dim))) {
-                # No length dimension, so sum everything
-                out_f <- f_substitute(quote( sum(inner_f) ), list(inner_f = inner_f))
-                environment_merge(environment(step_f), rlang::f_env(out_f))
-                return(rlang::f_rhs(out_f))
-            }
-
             # Find first (stock)__(instance)-named var in inner_f, assume that's source stock.
             source_stock_var <- grep("__", all.vars(inner_f), value = TRUE)
             source_stock_var <- sub('__.*$', '', source_stock_var[[1]])
             source_stock <- get(source_stock_var, envir = orig_env)
-            if (!("length" %in% names(source_stock$dim))) stop("Source stock ", source_stock$name, " has no length, can't resize")
-            source_lg <- g3_stock_def(source_stock, 'minlen')
 
-            dest_lg <- g3_stock_def(stock, 'minlen')
+            if (!("length" %in% names(stock$dim))) {
+                # No length dimension in destination, so sum everything
+                out_f <- f_substitute(quote( sum(inner_f) ), list(inner_f = inner_f))
+            } else if ("length" %in% names(stock$dim) && "length" %in% names(source_stock$dim)) {  # Lengthgroup in source & dest
+                source_lg <- g3_stock_def(source_stock, 'minlen')
+                dest_lg <- g3_stock_def(stock, 'minlen')
 
-            # Get upper bound for length groups, if infinite guess something that should work
-            # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
-            source_upperlen <- g3_stock_def(source_stock, 'upperlen')
-            if (is.infinite(source_upperlen)) source_upperlen <- tail(source_lg, 1) + 1
-            dest_upperlen <- g3_stock_def(stock, 'upperlen')
-            if (is.infinite(dest_upperlen)) dest_upperlen <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
+                # Get upper bound for length groups, if infinite guess something that should work
+                # NB: Assuming plus-group is one-long is cheating, but probably no easy general answers
+                source_upperlen <- g3_stock_def(source_stock, 'upperlen')
+                if (is.infinite(source_upperlen)) source_upperlen <- tail(source_lg, 1) + 1
+                dest_upperlen <- g3_stock_def(stock, 'upperlen')
+                if (is.infinite(dest_upperlen)) dest_upperlen <- max(tail(source_lg, 1), tail(dest_lg, 1)) + 1
 
-            # NB: The force_vector class stops all.equal() from ignoring int/num
-            if (isTRUE(all.equal(hide_force_vector(source_lg), hide_force_vector(dest_lg)))) {
-                # Source == dest, so no point doing a transform
-                out_f <- inner_f
+                # NB: The force_vector class stops all.equal() from ignoring int/num
+                if (isTRUE(all.equal(hide_force_vector(source_lg), hide_force_vector(dest_lg)))) {
+                    # Source == dest, so no point doing a transform
+                    out_f <- inner_f
+                } else {
+                    matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
+
+                    # Formulae to apply matrix
+                    out_f <- f_substitute(quote( as.vector(lg_matrix %*% inner_f) ), list(
+                        lg_matrix = as.symbol(matrix_name),
+                        inner_f = inner_f))
+
+                    # Generate a matrix to transform one to the other
+                    assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
+                        lower_s <- source_lg[[source_idx]]
+                        upper_s <- if (source_idx >= length(source_lg)) source_upperlen else source_lg[[source_idx + 1]]
+
+                        lower_d <- dest_lg[[dest_idx]]
+                        upper_d <- if (dest_idx >= length(dest_lg)) dest_upperlen else dest_lg[[dest_idx + 1]]
+
+                        intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
+                        return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
+                    }, numeric(1)))), envir = environment(out_f))
+                }
             } else {
-                matrix_name <- paste0(source_stock$name, '_', stock$name, '_lgmatrix')
-
-                # Formulae to apply matrix
-                out_f <- f_substitute(quote( as.vector(lg_matrix %*% inner_f) ), list(
-                    lg_matrix = as.symbol(matrix_name),
-                    inner_f = inner_f))
-
-                # Generate a matrix to transform one to the other
-                assign(matrix_name, do.call('rbind', lapply(seq_along(dest_lg), function (dest_idx) vapply(seq_along(source_lg), function (source_idx) {
-                    lower_s <- source_lg[[source_idx]]
-                    upper_s <- if (source_idx >= length(source_lg)) source_upperlen else source_lg[[source_idx + 1]]
-
-                    lower_d <- dest_lg[[dest_idx]]
-                    upper_d <- if (dest_idx >= length(dest_lg)) dest_upperlen else dest_lg[[dest_idx + 1]]
-
-                    intersect_size <- min(upper_s, upper_d) - max(lower_s, lower_d)
-                    return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
-                }, numeric(1)))), envir = environment(out_f))
+                stop("Cannot convert ", source_stock$name, " with dims ", paste(names(source_stock$dim), collapse = ", "), " to dims ", paste(names(stock$dim), collapse = ", "))
             }
 
             # Add environment to formulae's environment, return inner call
