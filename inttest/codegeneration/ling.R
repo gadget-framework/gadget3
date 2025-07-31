@@ -75,10 +75,10 @@ structure(function (param = parameter_template)
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
     }
-    as_integer <- as.integer
     normalize_vec <- function(a) {
         a/avoid_zero(sum(a))
     }
+    as_integer <- as.integer
     REPORT <- function(var) {
         var_name <- as.character(sys.call()[[2]])
         attr(nll, var_name) <<- if (var_name == "nll") 
@@ -302,10 +302,10 @@ structure(function (param = parameter_template)
                 ling_imm__area_idx <- (1L)
                 for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_time == 0L) {
                   ling_imm__age_idx <- age - ling_imm__minage + 1L
-                  ren_dnorm <- dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer((age - cur_step_size)) - 3 + 2]]))
+                  ren_dnorm <- normalize_vec(dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer((age - cur_step_size)) - 3 + 2]])))
                   factor <- (param[["lingimm.init.scalar"]] * exp(-1 * (param[["lingimm.M"]] + param[["ling.init.F"]]) * age) * param[["lingimm.init"]][[as_integer(age) - 3 + 1]])
                   {
-                    ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                    ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- ren_dnorm * 10000 * factor
                     ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                   }
                 }
@@ -318,10 +318,10 @@ structure(function (param = parameter_template)
                 ling_mat__area_idx <- (1L)
                 for (age in seq(ling_mat__minage, ling_mat__maxage, by = 1)) if (cur_time == 0L) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
-                  ren_dnorm <- dnorm(ling_mat__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_mat_stddev[[as_integer((age - cur_step_size)) - 5 + 2]]))
+                  ren_dnorm <- normalize_vec(dnorm(ling_mat__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * ((age - cur_step_size) - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_mat_stddev[[as_integer((age - cur_step_size)) - 5 + 2]])))
                   factor <- (param[["lingmat.init.scalar"]] * exp(-1 * (param[["lingmat.M"]] + param[["ling.init.F"]]) * age) * param[["lingmat.init"]][[as_integer(age) - 5 + 1]])
                   {
-                    ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                    ling_mat__num[, ling_mat__age_idx, ling_mat__area_idx] <- ren_dnorm * 10000 * factor
                     ling_mat__wgt[, ling_mat__age_idx, ling_mat__area_idx] <- param[["lingmat.walpha"]] * ling_mat__midlen^param[["lingmat.wbeta"]]
                   }
                 }
@@ -608,9 +608,9 @@ structure(function (param = parameter_template)
                   ling_imm__area_idx <- (1L)
                   for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 3) {
                     ling_imm__age_idx <- age - ling_imm__minage + 1L
-                    ren_dnorm <- dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer(age) - 3 + 1]]))
+                    ren_dnorm <- normalize_vec(dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer(age) - 3 + 1]])))
                     {
-                      ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                      ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx] <- ren_dnorm * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__age_idx, ling_imm__area_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                       comment("Add result to ling_imm")
                       ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ratio_add_pop(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__renewalwgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx])
@@ -632,9 +632,9 @@ structure(function (param = parameter_template)
                   ling_imm__area_idx <- (1L)
                   for (age in seq(ling_imm__minage, ling_imm__maxage, by = 1)) if (cur_step == 1 && age == 5) {
                     ling_imm__age_idx <- age - ling_imm__minage + 1L
-                    ren_dnorm <- dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer(age) - 3L + 1L]]))
+                    ren_dnorm <- normalize_vec(dnorm(ling_imm__midlen, (param[["ling.Linf"]] * (1 - exp(-1 * param[["ling.K"]] * (age - (param[["recage"]] + log(1 - param[["ling.recl"]]/param[["ling.Linf"]])/param[["ling.K"]]))))), avoid_zero(ling_imm_stddev[[as_integer(age) - 3L + 1L]])))
                     {
-                      ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                      ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx] <- ren_dnorm * 10000 * factor
                       ling_imm__renewalwgt[, ling_imm__age_idx, ling_imm__area_idx] <- param[["lingimm.walpha"]] * ling_imm__midlen^param[["lingimm.wbeta"]]
                       comment("Add result to ling_imm")
                       ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ratio_add_pop(ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__renewalwgt[, ling_imm__age_idx, ling_imm__area_idx], ling_imm__renewalnum[, ling_imm__age_idx, ling_imm__area_idx])

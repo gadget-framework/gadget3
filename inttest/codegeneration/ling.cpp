@@ -195,11 +195,11 @@ Type objective_function<Type>::operator() () {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
-    auto as_integer = [](Type v) -> int {
-    return std::floor(asDouble(v));
-};
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / avoid_zero(a.sum());
+};
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
 };
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -399,12 +399,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 )));
+                    auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 ))));
 
                     auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( as_integer(age) - 3 + 1 - 1 ));
 
                     {
-                        ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                         ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                     }
                 }
@@ -420,12 +420,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(ling_mat__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 )));
+                    auto ren_dnorm = normalize_vec(dnorm(ling_mat__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 ))));
 
                     auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( as_integer(age) - 5 + 1 - 1 ));
 
                     {
-                        ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = ren_dnorm*(double)(10000)*factor;
                         ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = lingmat__walpha*(ling_mat__midlen).pow(lingmat__wbeta);
                     }
                 }
@@ -767,10 +767,10 @@ Type objective_function<Type>::operator() () {
                     for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
                         auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 )));
+                        auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ))));
 
                         {
-                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
                             ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
@@ -793,10 +793,10 @@ Type objective_function<Type>::operator() () {
                     for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
                         auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 )));
+                        auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ))));
 
                         {
-                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
                             ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));

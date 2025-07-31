@@ -566,12 +566,12 @@ Type objective_function<Type>::operator() () {
 
                 auto fish__area_idx = 0;
 
-                auto ren_dnorm = dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv)));
+                auto ren_dnorm = normalize_vec(dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*((age - cur_step_size) - fish__t0))))*fish__lencv))));
 
                 auto factor = (fish__init__scalar*map_extras::at_throw(pt__fish__init, std::make_tuple(age), "fish.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish__M, std::make_tuple(age), "fish.M") + init__F)*(age - recage)));
 
                 {
-                    fish__num.col(fish__age_idx).col(fish__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                    fish__num.col(fish__age_idx).col(fish__area_idx) = ren_dnorm*(double)(10000)*factor;
                     fish__wgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                 }
             }
@@ -789,10 +789,10 @@ Type objective_function<Type>::operator() () {
 
                     auto fish__area_idx = 0;
 
-                    auto ren_dnorm = dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv)));
+                    auto ren_dnorm = normalize_vec(dnorm(fish__midlen, (fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0)))), avoid_zero(((fish__Linf*((double)(1) - exp(-(double)(1)*fish__K*(age - fish__t0))))*fish__lencv))));
 
                     {
-                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        fish__renewalnum.col(fish__age_idx).col(fish__area_idx) = ren_dnorm*(double)(10000)*factor;
                         fish__renewalwgt.col(fish__age_idx).col(fish__area_idx) = fish__walpha*(fish__midlen).pow(fish__wbeta);
                         // Add result to fish;
                         fish__wgt.col(fish__age_idx).col(fish__area_idx) = ratio_add_pop(fish__wgt.col(fish__age_idx).col(fish__area_idx), fish__num.col(fish__age_idx).col(fish__area_idx), fish__renewalwgt.col(fish__age_idx).col(fish__area_idx), fish__renewalnum.col(fish__age_idx).col(fish__area_idx));
