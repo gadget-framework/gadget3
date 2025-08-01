@@ -289,6 +289,8 @@ g3a_predate <- function (
         predprey <- predpreys[[stock$name]]
         predprey__cons <- predprey__conses[[stock$name]]
         predprey__suit <- predprey__suits[[stock$name]]
+        predprey__dynlen <- g3_stock_instance(predprey, desc = "Mean length")
+        predprey__dynlensd <- g3_stock_instance(predprey, desc = "Std.dev. of length")
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
@@ -302,12 +304,14 @@ g3a_predate <- function (
         })
 
         # Generate suitability reports for this stock
-        suitrep_step <- g3a_suitability_report(
-            predstock,
-            stock,
-            resolve_stock_list(suitabilities, stock) )
-        # Add suitability report steps to our list
-        for (i in seq_along(suitrep_step)) out[[names(suitrep_step)[[i]]]] <- suitrep_step[[i]]
+        if (!("dynlen" %in% names(stock$dim))) {
+            suitrep_step <- g3a_suitability_report(
+                predstock,
+                stock,
+                resolve_stock_list(suitabilities, stock) )
+            # Add suitability report steps to our list
+            for (i in seq_along(suitrep_step)) out[[names(suitrep_step)[[i]]]] <- suitrep_step[[i]]
+        }
 
         # Main predation step, iterate over prey and pull out everything this fleet needs
         catchability <- f_substitute(catchability_f$suit, list(suit_f = quote(suitability)))
@@ -319,6 +323,11 @@ g3a_predate <- function (
 
             stock_iterate(stock, stock_interact(predstock, stock_with(predprey, if (run_f) {
                 debug_trace("Collect all suitable ", stock, " biomass for ", predstock)
+                if (stock_hasdim(stock, "dynlen")) {
+                    # TODO: Better subsetting?
+                    stock_ss(predprey__dynlen) <- stock_ss(stock__dynlen)
+                    stock_ss(predprey__dynlensd) <- stock_ss(stock__dynlensd)
+                }
                 stock_ss(predprey__suit) <- catchability
                 stock_ss(predstock__totalsuit, vec = single) <- stock_ss(predstock__totalsuit, vec = single) + sum(stock_ss(predprey__suit))
             }), prefix = 'predator'))
