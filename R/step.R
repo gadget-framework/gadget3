@@ -326,29 +326,40 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
             mainpop_varname <- find_abund_var_name(mainpop_num_c)
             mainpop_stockname <- gsub("__.*$", "", mainpop_varname)
             mainpop_wgt_c <- abund_to_measurement(mainpop_num_c, mainpop_varname, "wgt")
+            mainpop_dynlen_c <- abund_to_measurement(mainpop_num_c, mainpop_varname, "dynlen")
 
             subpop_varname <- find_abund_var_name(subpop_num_c)
             subpop_stockname <- gsub("__.*$", "", subpop_varname)
             subpop_wgt_c <- abund_to_measurement(subpop_num_c, subpop_varname, "wgt")
+            subpop_dynlen_c <- abund_to_measurement(subpop_num_c, subpop_varname, "dynlen")
 
             # If stocks don't match, wrap in reshape calls
             if (mainpop_stockname != subpop_stockname) {
                 subpop_num_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_num_c))
                 subpop_wgt_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_wgt_c))
+                subpop_dynlen_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_dynlen_c))
             }
 
+            # TODO: dynlen
+            #     * Combine variance stock__renewallensd -> stock__lensd
+            #       https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
             out_c <- substitute({
                 debug_trace("Add result to ", mainpop_stock)
                 mainpop_wgt_c <- ratio_add_pop(
                     mainpop_wgt_c, mainpop_num_c,
                     subpop_wgt_c, subpop_num_c)
+                if (stock_hasdim(mainpop_stock, "dynlen")) mainpop_dynlen_c <- ratio_add_pop(
+                    mainpop_dynlen_c, mainpop_num_c,
+                    subpop_dynlen_c, subpop_num_c)
                 mainpop_num_c <- mainpop_num_c + subpop_num_c
             }, list(
                 mainpop_stock = as.symbol(mainpop_stockname),
                 mainpop_num_c = mainpop_num_c,
                 mainpop_wgt_c = mainpop_wgt_c,
+                mainpop_dynlen_c = mainpop_dynlen_c,
                 subpop_num_c = subpop_num_c,
                 subpop_wgt_c = subpop_wgt_c,
+                subpop_dynlen_c = subpop_dynlen_c,
                 end = NULL ))
             return(rlang::f_rhs(g3_step(out_c, recursing = TRUE, orig_env = orig_env)))
         },
