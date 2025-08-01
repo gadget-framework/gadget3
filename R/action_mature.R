@@ -29,6 +29,7 @@ g3a_mature_continuous <- function (
         return(out);
     }')
 
+    # TODO: stock__plusdl & growth_delta_l don't make sense in a dynlen world, don't really make sense full stop
     out <- f_substitute(~g3a_mature_continuous(stock__plusdl, M0, growth_delta_l, alpha, beta, cur_step_size), list(
         M0 = g3a_mature_constant(alpha, l50, beta, a50),
         alpha = alpha,
@@ -88,7 +89,7 @@ g3a_step_transition <- function(input_stock,
             f <- inner(stock, predstock)
             environment(f) <- rlang::env_clone(environment(f), parent = environment(outer_f))
 
-            g3_step(f, recursing = TRUE)
+            g3_step(f, recursing = FALSE)  # TODO: We need this for adding renamed stocks to environment?
         }))))
         outer_f <- g3_step(f_substitute(outer_f, list(inner_f = inner_f)))
         return(outer_f)
