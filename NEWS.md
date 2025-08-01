@@ -14,7 +14,8 @@
 
 ## Breaking changes
 * optimise defaults to FALSE unless default bounds are provided #233
-* Don't generate TMB ADGrad function if random effects not used #234 
+* Don't generate TMB ADGrad function if random effects not used #234
+* Hide g3a_initialconditions / g3a_renewal (*not* g3a_initialconditions_normalparam/cv) #240
 
 # gadget3 0.13-0:
 
