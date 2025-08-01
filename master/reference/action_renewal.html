@@ -111,9 +111,6 @@
 <span></span>
 <span><span class="co">############################# g3a_initialconditions</span></span>
 <span></span>
-<span><span class="fu">g3a_initialconditions</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="va">cur_time</span> <span class="op">==</span> <span class="fl">0L</span>,</span>
-<span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">initial</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">g3a_initialconditions_normalparam</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>
 <span>        factor_f <span class="op">=</span> <span class="fu">g3a_renewal_initabund</span><span class="op">(</span>by_stock <span class="op">=</span> <span class="va">by_stock</span><span class="op">)</span>,</span>
@@ -145,9 +142,6 @@
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">initial</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">############################# g3a_renewal</span></span>
-<span></span>
-<span><span class="fu">g3a_renewal</span><span class="op">(</span><span class="va">stock</span>, <span class="va">num_f</span>, <span class="va">wgt_f</span>, run_f <span class="op">=</span> <span class="op">~</span><span class="cn">TRUE</span>,</span>
-<span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">renewal</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3a_renewal_normalparam</span><span class="op">(</span></span>
 <span>        <span class="va">stock</span>,</span>
@@ -389,7 +383,7 @@
 
 </dl><p></p>
 </div><p></p><div class="section">
-<h3 id="g-a-initialconditions-g-a-renewal-g-a-otherfood">g3a_initialconditions / g3a_renewal / g3a_otherfood<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-g-a-renewal-g-a-otherfood"></a></h3>
+<h3 id="g-a-otherfood">g3a_otherfood<a class="anchor" aria-label="anchor" href="#g-a-otherfood"></a></h3>
 <p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>, iterate over each
   area/age/etc. combination, and generate a lengthgroup vector of new individuals and weights using
   <var>num_f</var> and <var>wgt_f</var>.</p>
@@ -397,7 +391,9 @@
   whereas initialconditions &amp; otherfood will replace any previous values.</p>
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam">g3a_initialconditions_normalparam / g3a_renewal_normalparam / g3a_otherfood_normalparam<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalparam-g-a-renewal-normalparam-g-a-otherfood-normalparam"></a></h3>
-<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
+<p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>, iterate over each
+    area/age/etc. combination, and generate new individuals.</p>
+<p>The following formulas are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
 <p>$$n = {dnorm}(L, \mu, \sigma)$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>
@@ -422,7 +418,9 @@
 </dl><p></p>
 </div><p></p><div class="section">
 <h3 id="g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv">g3a_initialconditions_normalcv / g3a_renewal_normalcv / g3a_otherfood_normalcv<a class="anchor" aria-label="anchor" href="#g-a-initialconditions-normalcv-g-a-renewal-normalcv-g-a-otherfood-normalcv"></a></h3>
-<p>As g3a_initialconditions / g3a_renewal, but the following formulae are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
+<p>An action (i.e. list of formula objects) that will, for the given <var>stock</var>, iterate over each
+    area/age/etc. combination, and generate new individuals.</p>
+<p>The following formulas are used to calculate abundance (\(N\)) and mean weight (\(W\)):</p>
 <p>$$n = {dnorm}(L, \mu, \mu * {CV})$$
     $$N = F 10000 \frac{n}{\sum n}$$
     $$W = \alpha L^{\beta}$$</p><dl><dt>\(L\)</dt>

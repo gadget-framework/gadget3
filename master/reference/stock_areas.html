@@ -163,7 +163,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     debug_trace("Clear name migration matrix")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__migratematrix[] &lt;- NaN</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55f586355380&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55d15d082e28&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`002:name                :002:f43e386b07dca64199ee`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ~{</span>
@@ -187,13 +187,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>             name__areas[[name__destarea_idx]]), `:=`(migrate_prop, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             name__migratematrix[[name__destarea_idx, name__area_idx]]), </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratewgt[, name__destarea_idx] &lt;- ratio_add_vec(name__postmigratewgt[, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 debug_trace("Add result to name")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratewgt[, name__destarea_idx] &lt;- ratio_add_pop(name__postmigratewgt[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx], name__postmigratenum[, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx], name__wgt[, name__area_idx], </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   migrate_prop * name__num[, name__area_idx])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__num[, name__area_idx] * migrate_prop)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 name__postmigratenum[, name__destarea_idx] &lt;- name__postmigratenum[, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx] + migrate_prop * name__num[, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__area_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   name__destarea_idx] + name__num[, name__area_idx] * </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   migrate_prop</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             })</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     else {</span>
@@ -207,7 +208,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__num &lt;- name__postmigratenum</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name__wgt &lt;- name__postmigratewgt</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55f586b29690&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: 0x55d15bba8888&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use stock_instance to see what the array would look like</span></span></span>
