@@ -196,7 +196,7 @@ g3a_report_detail <- function (actions,
             run_at = run_at),
         g3a_report_history(
             actions = actions,
-            var_re = c('__num$', '__wgt$'),
+            var_re = c('__num$', '__wgt$', '__dynlen$', 'dynlensd$'),
             out_prefix = if (abundance_run_at == g3_action_order$report_early) "dstart_" else "detail_",
             run_f = f_substitute(quote(cur_time <= total_steps && run_f), list(run_f = run_f)),
             run_at = abundance_run_at),
