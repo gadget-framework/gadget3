@@ -18,6 +18,10 @@ g3a_age <- function(
         g3_stock_def(stock, 'maxage') + 1)
     stock_movement__transitioning_num <- g3_stock_instance(stock_movement)
     stock_movement__transitioning_wgt <- g3_stock_instance(stock_movement)
+    # TODO: We only need __dynlen for the assignment in the stock loop.
+    stock_movement__dynlen <- g3_stock_instance(stock_movement, 0)
+    stock_movement__transitioning_dynlen <- g3_stock_instance(stock_movement, 0)
+    stock_movement__transitioning_dynlensd <- g3_stock_instance(stock_movement, 1)
 
     # Handle single-age special case separately
     if (g3_stock_def(stock, 'maxage') == g3_stock_def(stock, 'minage')) {
@@ -36,6 +40,10 @@ g3a_age <- function(
                 # NB: This relies on the dimension ordering between stock_movement & stock matching
                 stock_ss(stock_movement__transitioning_num, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__num, age = default, vec = age))
                 stock_ss(stock_movement__transitioning_wgt, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__wgt, age = default, vec = age))
+                if (stock_hasdim(stock_movement, "dynlen")) {
+                    stock_ss(stock_movement__dynlen, age = g3_idx(1), vec = age) <- stock_ss(stock_movement__transitioning_dynlen, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__dynlen, age = default, vec = age))
+                    stock_ss(stock_movement__transitioning_dynlensd, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__dynlensd, age = default, vec = age))
+                }
                 stock_ss(stock__num, age = default, vec = age) <- 0
             })))
         }, list(
@@ -63,6 +71,10 @@ g3a_age <- function(
             stock_ss(stock_movement__transitioning_wgt, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__wgt, age = default, vec = age))
             stock_ss(stock__num, age = default, vec = age) <- stock_ss(stock__num, age = default - 1, vec = age)
             stock_ss(stock__wgt, age = default, vec = age) <- stock_ss(stock__wgt, age = default - 1, vec = age)
+            if (stock_hasdim(stock_movement, "dynlen")) {
+                stock_ss(stock_movement__dynlen, age = g3_idx(1), vec = age) <- stock_ss(stock_movement__transitioning_dynlen, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__dynlen, age = default, vec = age))
+                stock_ss(stock_movement__transitioning_dynlensd, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__dynlensd, age = default, vec = age))
+            }
         })
         # NB: move_remainder = FALSE because it's pointless here (and we can't move back into stock_movement)
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, move_remainder = FALSE, run_f = run_f)
@@ -85,6 +97,10 @@ g3a_age <- function(
                 debug_trace("Move ", stock, " age-group to next one up")
                 stock_ss(stock__num, age = default, vec = age) <- stock_ss(stock__num, age = default - 1, vec = age)
                 stock_ss(stock__wgt, age = default, vec = age) <- stock_ss(stock__wgt, age = default - 1, vec = age)
+                if (stock_hasdim(stock_movement, "dynlen")) {
+                    stock_ss(stock__dynlen, age = default, vec = age) <- stock_ss(stock__dynlen, age = default - 1, vec = age)
+                    stock_ss(stock__dynlensd, age = default, vec = age) <- stock_ss(stock__dynlensd, age = default - 1, vec = age)
+                }
             }
         }))
     }, list(
