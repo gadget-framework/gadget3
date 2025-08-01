@@ -72,13 +72,13 @@ stock_bcd_a_interactions <- 0L
 stock_bcd_ac_interactions <- 0L
 actions <- list(
     g3a_time(1999, 1999),
-    g3a_initialconditions(stock_noarea, ~1 + stock_ac__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_noarea, ~1 + stock_ac__minlen, ~0),
     # NB: livesonareas will add area names to environment, so this works
-    g3a_initialconditions(stock_a, ~(if (area == area_a) 1 else if (area == area_b) 2 else if (area == area_c) 3  else if (area == area_d) 4 else 0) * 100 + stock_a__minlen, ~0),
-    g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
-    g3a_initialconditions(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
-    g3a_initialconditions(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
-    g3a_initialconditions(stock_1agg, ~area * 1 + stock_bcd__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_a, ~(if (area == area_a) 1 else if (area == area_b) 2 else if (area == area_c) 3  else if (area == area_d) 4 else 0) * 100 + stock_a__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_ac, ~area * 1000 + stock_ac__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_bcd, ~area * 10000 + stock_bcd__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_aggregated, ~area * 1 + stock_bcd__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_1agg, ~area * 1 + stock_bcd__minlen, ~0),
     # NB: Only required for testing
     gadget3:::g3l_test_dummy_likelihood(),
     list(

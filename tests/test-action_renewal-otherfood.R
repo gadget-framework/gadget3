@@ -32,7 +32,7 @@ actions <- list(
     g3a_otherfood_normalparam(other_np),
     g3a_otherfood_normalcv(other_cv),
     g3a_age(pred_a),
-    g3a_initialconditions(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
+    gadget3:::g3a_initialconditions_manual(pred_a, ~1e5 + 0 * pred_a__midlen, ~1000),
 
     g3a_predate(
         pred_a,

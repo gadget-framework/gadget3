@@ -63,6 +63,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             return(TRUE)
         }
 
+        # Common functions returning scalar from any arrays
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("sum", "prod", "mean", "g3_idx")) {
+            return(TRUE)
+        }
+
+        # Operators that will return a same-length array
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("-", "+", "*", "/", "%/%", "%%")) return(all(vapply(
+            tail(c_val, -1),
+            value_is_scalar,
+            logical(1) )))
+
         # Dunno.
         return(fallback)
     }
@@ -181,7 +192,7 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
         # Are we assigning to an array-like object?
         if (is.call(assign_lhs) && assign_lhs[[1]] == '[') {
-            if (grepl('.transpose()', cpp_code(assign_lhs, in_envir, next_indent))) {
+            if (grepl('.transpose()', cpp_code(assign_lhs, in_envir, next_indent), fixed = TRUE)) {
                 stop("Can't assign to this subset under TMB (.transpose() isn't by reference): ", deparse1(assign_lhs))
             }
             # i.e. there is at least one "missing" in the subset, i.e. we're not going to put a (0) on it
@@ -607,10 +618,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
 
     if (call_name == "sum") {
         # NB: TMB has a sum(), but it doesn't work in all cases and this is all it does anyway.
+        if (value_is_scalar(in_call[[2]])) return(cpp_code(in_call[[2]], in_envir, next_indent))
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").sum()"))
     }
 
     if (call_name == "prod") {
+        if (value_is_scalar(in_call[[2]])) return(cpp_code(in_call[[2]], in_envir, next_indent))
         return(paste0("(", cpp_code(in_call[[2]], in_envir, next_indent), ").prod()"))
     }
 

@@ -80,12 +80,60 @@ template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_rotate(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_rotate(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+        }
+    }
+    return out;
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_extrude(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_extrude(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    out = vec.replicate(a, 1);
+    return out;
+}
 template<typename X, typename Y, typename Z>
 auto dif_pminmax(X a, Y lower, Z upper, double scale) {
     auto out = dif_pmax(a, upper, -scale);
     out = dif_pmax(out, lower, scale);
     return out;
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> ratio_add_pop(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -427,20 +475,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    for (int i = 0 ; i < vec.size(); i++) {
-        for (int j = 0 ; j < a; j++) {
-            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-        }
-    }
-    return out;
-};
-    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    out = vec.replicate(a, 1);
-    return out;
-};
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_w = delta_w_ar.matrix();
@@ -507,9 +541,6 @@ Type objective_function<Type>::operator() () {
         }
     }
     return(growth_matrix);
-};
-    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     auto surveyindices_linreg = [](vector<Type> N, vector<Type> I, Type fixed_alpha, Type fixed_beta) -> vector<Type> {
         vector<Type> out(2);
@@ -612,6 +643,7 @@ Type objective_function<Type>::operator() () {
     Type fish_mat__plusdl = (double)(5);
     array<Type> fish_mat__growth_w(20,5);
     Type fish_mat__prevtotal = (double)(0);
+    array<Type> fish_imm__transitioning_remainder(20,5,1);
     array<Type> fish_imm__renewalnum(20,5,1); fish_imm__renewalnum.setZero();
     array<Type> fish_imm__renewalwgt(20,5,1); fish_imm__renewalwgt.setZero();
     int adist_surveyindices_log_dist_si_cpue_model__area = 1;
@@ -683,12 +715,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( cur_time == 0 ) {
                     auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv)));
+                    auto ren_dnorm = normalize_vec(dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*((age - cur_step_size) - fish_imm__t0))))*fish_imm__lencv))));
 
                     auto factor = (fish_imm__init__scalar*map_extras::at_throw(pt__fish_imm__init, std::make_tuple(age), "fish_imm.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_imm__M, std::make_tuple(age), "fish_imm.M") + init__F)*(age - recage)));
 
                     {
-                        fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                         fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
                     }
                 }
@@ -704,12 +736,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = fish_mat__minage; age <= fish_mat__maxage; age++) if ( cur_time == 0 ) {
                     auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv)));
+                    auto ren_dnorm = normalize_vec(dnorm(fish_mat__midlen, (fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0)))), avoid_zero(((fish_mat__Linf*((double)(1) - exp(-(double)(1)*fish_mat__K*((age - cur_step_size) - fish_mat__t0))))*fish_mat__lencv))));
 
                     auto factor = (fish_mat__init__scalar*map_extras::at_throw(pt__fish_mat__init, std::make_tuple(age), "fish_mat.init")*exp(-(double)(1)*(map_extras::at_throw(pt__fish_mat__M, std::make_tuple(age), "fish_mat.M") + init__F)*(age - recage)));
 
                     {
-                        fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) = ren_dnorm*(double)(10000)*factor;
                         fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat__walpha*(fish_mat__midlen).pow(fish_mat__wbeta);
                     }
                 }
@@ -837,7 +869,7 @@ Type objective_function<Type>::operator() () {
         fish_mat__totalpredate.setZero();
         f_surv__totalsuit.setZero();
         {
-            auto suitability = (vector<Type>)(suit_fish_imm_f_surv__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_imm__midlen - fish__f_surv__l50))));
 
             {
                 // g3a_predate for f_surv predating fish_imm;
@@ -866,7 +898,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto suitability = (vector<Type>)(suit_fish_mat_f_surv__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-fish__f_surv__alpha*(fish_mat__midlen - fish__f_surv__l50))));
 
             {
                 // g3a_predate for f_surv predating fish_mat;
@@ -1014,7 +1046,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_l : (fish_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_imm__Linf - fish_imm__midlen)*((double)(1) - exp(-(fish_imm__K)*cur_step_size))) / fish_imm__plusdl), 4, avoid_zero(fish_imm__bbin))));
 
-            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_imm__midlen).pow(fish_imm__wbeta), 4 + (double)(1)))*fish_imm__walpha));
+            auto growth_delta_w = (fish_imm__growth_lastcalc == std::floor(cur_step_size*12) ? fish_imm__growth_w : (fish_imm__growth_w = (g3a_grow_vec_rotate((fish_imm__midlen).pow(fish_imm__wbeta), 4 + 1) - g3a_grow_vec_extrude((fish_imm__midlen).pow(fish_imm__wbeta), 4 + 1))*fish_imm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -1056,7 +1088,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_l : (fish_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((fish_mat__Linf - fish_mat__midlen)*((double)(1) - exp(-(fish_mat__K)*cur_step_size))) / fish_mat__plusdl), 4, avoid_zero(fish_mat__bbin))));
 
-            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)) - g3a_grow_vec_extrude((fish_mat__midlen).pow(fish_mat__wbeta), 4 + (double)(1)))*fish_mat__walpha));
+            auto growth_delta_w = (fish_mat__growth_lastcalc == std::floor(cur_step_size*12) ? fish_mat__growth_w : (fish_mat__growth_w = (g3a_grow_vec_rotate((fish_mat__midlen).pow(fish_mat__wbeta), 4 + 1) - g3a_grow_vec_extrude((fish_mat__midlen).pow(fish_mat__wbeta), 4 + 1))*fish_mat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -1091,6 +1123,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
+            fish_imm__transitioning_remainder = fish_imm__transitioning_num;
             // Move fish_imm to fish_mat;
             {
                 auto area = fish_mat__area;
@@ -1107,17 +1140,17 @@ Type objective_function<Type>::operator() () {
                             auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
                             {
-                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = (fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)) + fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx)*fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                                // Add result to fish_mat;
+                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm__transitioning_wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx));
                                 fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
-                                fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx) -= fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
-                                fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) /= avoid_zero(fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx));
+                                fish_imm__transitioning_remainder.col(fish_imm__area_idx).col(fish_imm__age_idx) -= fish_imm__transitioning_num.col(fish_imm__area_idx).col(fish_imm__age_idx);
                             }
                         }
                     }
                 }
             }
             // Move any unclaimed stock back to fish_imm;
-            fish_imm__num += fish_imm__transitioning_num;
+            fish_imm__num += fish_imm__transitioning_remainder;
         }
         {
             auto factor = (map_extras::at_def(pt__fish_imm__rec, std::make_tuple(cur_year), (Type)(fish_imm__rec__proj))*fish_imm__rec__scalar);
@@ -1132,13 +1165,13 @@ Type objective_function<Type>::operator() () {
                     for (auto age = fish_imm__minage; age <= fish_imm__maxage; age++) if ( age == fish_imm__minage && cur_step == 1 ) {
                         auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
 
-                        auto ren_dnorm = dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0))))*fish_imm__lencv)));
+                        auto ren_dnorm = normalize_vec(dnorm(fish_imm__midlen, (fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0)))), avoid_zero(((fish_imm__Linf*((double)(1) - exp(-(double)(1)*fish_imm__K*(age - fish_imm__t0))))*fish_imm__lencv))));
 
                         {
-                            fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                             fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__walpha*(fish_imm__midlen).pow(fish_imm__wbeta);
                             // Add result to fish_imm;
-                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = ratio_add_vec(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx));
+                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = ratio_add_pop(fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalwgt.col(fish_imm__area_idx).col(fish_imm__age_idx), fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx));
                             fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) += fish_imm__renewalnum.col(fish_imm__area_idx).col(fish_imm__age_idx);
                         }
                     }
@@ -2070,7 +2103,8 @@ Type objective_function<Type>::operator() () {
                         // Check stock has remained finite for this step;
                         if (age == fish_mat__maxage) {
                             // Oldest fish_mat is a plus-group, combine with younger individuals;
-                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_vec(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
+                            // Add result to fish_mat;
+                            fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx - 1), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1));
                             fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx - 1);
                         } else {
                             if (age == fish_mat__minage) {
@@ -2104,9 +2138,9 @@ Type objective_function<Type>::operator() () {
                                 auto fish_imm_movement__age_idx = age - fish_imm_movement__minage + 1 - 1;
 
                                 {
-                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = (fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx)*fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx)) + fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx)*fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
+                                    // Add result to fish_mat;
+                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) = ratio_add_pop(fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx), fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx), fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx));
                                     fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx) += fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(fish_imm_movement__age_idx);
-                                    fish_mat__wgt.col(fish_mat__area_idx).col(fish_mat__age_idx) /= avoid_zero(fish_mat__num.col(fish_mat__area_idx).col(fish_mat__age_idx));
                                 }
                             }
                         }

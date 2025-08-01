@@ -80,6 +80,54 @@ template<typename X, typename Y>
 auto dif_pmin(X a, Y b, double scale) {
     return dif_pmax(a, b, -scale);
 }
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_rotate(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_rotate(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    for (int i = 0 ; i < vec.size(); i++) {
+        for (int j = 0 ; j < a; j++) {
+            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
+        }
+    }
+    return out;
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> g3a_grow_vec_extrude(T vec, int a) {
+    array<T> out(1, a);
+    // NB: Treat scalar as a 1x vector (for dynlen)
+    out.setConstant(vec);
+    return out;
+}
+template<typename T>
+array<typename T::value_type> g3a_grow_vec_extrude(const Eigen::DenseBase<T>& vec, int a) {
+    array<typename T::value_type> out(vec.size(), a);
+    out = vec.replicate(a, 1);
+    return out;
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+T ratio_add_pop(T orig_vec, T orig_amount, T new_vec, T new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T)>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, array<T> new_vec, array<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}
+template<typename T, TYPE_IS_SCALAR(T), typename NVT, typename NAT>
+array<T> ratio_add_pop(array<T> orig_vec, array<T> orig_amount, NVT new_vec, NAT new_amount) {
+    vector<T> new_amount2 = new_amount; // NB: Force to vector so we dont try to repeatedly use an Eigen derived vector
+    return (orig_vec * orig_amount + new_vec * new_amount2) / avoid_zero(orig_amount + new_amount);
+}
+/*
+template<typename T, TYPE_IS_SCALAR(T)>
+vector<T> ratio_add_pop(vector<T> orig_vec, vector<T> orig_amount, vector<T> new_vec, vector<T> new_amount) {
+    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
+}*/
 template<typename T> std::map<int, T> intlookup_zip(vector<int> keys, vector<T> values) {
             std::map<int, T> lookup = {};
 
@@ -147,11 +195,11 @@ Type objective_function<Type>::operator() () {
     if (!expr) { Rf_warning(message.c_str()); return TRUE; }
     return FALSE;
 };
-    auto as_integer = [](Type v) -> int {
-    return std::floor(asDouble(v));
-};
     auto normalize_vec = [](vector<Type> a) -> vector<Type> {
     return a / avoid_zero(a.sum());
+};
+    auto as_integer = [](Type v) -> int {
+    return std::floor(asDouble(v));
 };
     auto nonconform_add = [](array<Type> base_ar, array<Type> extra_ar) -> array<Type> {
     assert(base_ar.size() % extra_ar.size() == 0);
@@ -193,20 +241,6 @@ Type objective_function<Type>::operator() () {
             lgamma(alpha)).exp();
         return(val);
     };
-    auto g3a_grow_vec_rotate = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    for (int i = 0 ; i < vec.size(); i++) {
-        for (int j = 0 ; j < a; j++) {
-            out(i, j) = vec(j + i < vec.size() ? j + i : vec.size() - 1);
-        }
-    }
-    return out;
-};
-    auto g3a_grow_vec_extrude = [](vector<Type> vec, int a) -> array<Type> {
-    array<Type> out(vec.size(), a);
-    out = vec.replicate(a, 1);
-    return out;
-};
     auto g3a_grow_matrix_wgt = [](array<Type> delta_w_ar) {
     // Convert delta_l / delta_w to matrices to get 2 proper dimensions, most of this is row-based.
     matrix<Type> delta_w = delta_w_ar.matrix();
@@ -261,9 +295,6 @@ Type objective_function<Type>::operator() () {
     combined.col(0) = growth_matrix.colwise().sum();
     combined.col(1) = weight_matrix.colwise().sum().array().rowwise() / avoid_zero(growth_matrix.colwise().sum()).array().transpose();
     return combined;
-};
-    auto ratio_add_vec = [](vector<Type> orig_vec, vector<Type> orig_amount, vector<Type> new_vec, vector<Type> new_amount) -> vector<Type> {
-    return (orig_vec * orig_amount + new_vec * new_amount) / avoid_zero(orig_amount + new_amount);
 };
     int cur_time = -1;
     int cur_year = 0;
@@ -325,6 +356,7 @@ Type objective_function<Type>::operator() () {
     Type ling_mat__plusdl = (double)(4);
     array<Type> ling_mat__growth_w(35,16);
     Type ling_mat__prevtotal = (double)(0);
+    array<Type> ling_imm__transitioning_remainder(35,8,1);
     array<Type> ling_imm__renewalnum(35,8,1); ling_imm__renewalnum.setZero();
     array<Type> ling_imm__renewalwgt(35,8,1); ling_imm__renewalwgt.setZero();
     int cdist_sumofsquares_ldist_lln_model__area = 1;
@@ -367,12 +399,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 )));
+                    auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer((age - cur_step_size)) - 3 + 2 - 1 ))));
 
                     auto factor = (lingimm__init__scalar*exp(-(double)(1)*(lingimm__M + ling__init__F)*age)*lingimm__init ( as_integer(age) - 3 + 1 - 1 ));
 
                     {
-                        ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                         ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                     }
                 }
@@ -388,12 +420,12 @@ Type objective_function<Type>::operator() () {
                 for (auto age = ling_mat__minage; age <= ling_mat__maxage; age++) if ( cur_time == 0 ) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 
-                    auto ren_dnorm = dnorm(ling_mat__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 )));
+                    auto ren_dnorm = normalize_vec(dnorm(ling_mat__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*((age - cur_step_size) - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_mat_stddev ( as_integer((age - cur_step_size)) - 5 + 2 - 1 ))));
 
                     auto factor = (lingmat__init__scalar*exp(-(double)(1)*(lingmat__M + ling__init__F)*age)*lingmat__init ( as_integer(age) - 5 + 1 - 1 ));
 
                     {
-                        ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                        ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) = ren_dnorm*(double)(10000)*factor;
                         ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = lingmat__walpha*(ling_mat__midlen).pow(lingmat__wbeta);
                     }
                 }
@@ -419,7 +451,7 @@ Type objective_function<Type>::operator() () {
         ling_mat__totalpredate.setZero();
         igfs__totalsuit.setZero();
         {
-            auto suitability = (vector<Type>)(suit_ling_imm_igfs__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_imm__midlen - ling__igfs__l50))));
 
             {
                 // g3a_predate for igfs predating ling_imm;
@@ -448,7 +480,7 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
-            auto suitability = (vector<Type>)(suit_ling_mat_igfs__report);
+            auto suitability = ((double)(1) / ((double)(1) + exp(-ling__igfs__alpha*(ling_mat__midlen - ling__igfs__l50))));
 
             {
                 // g3a_predate for igfs predating ling_mat;
@@ -598,7 +630,7 @@ Type objective_function<Type>::operator() () {
 
             auto growth_delta_l = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_l : (ling_imm__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_imm__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_imm__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_imm__midlen).pow(lingimm__wbeta), 15 + (double)(1)))*lingimm__walpha));
+            auto growth_delta_w = (ling_imm__growth_lastcalc == std::floor(cur_step_size*12) ? ling_imm__growth_w : (ling_imm__growth_w = (g3a_grow_vec_rotate((ling_imm__midlen).pow(lingimm__wbeta), 15 + 1) - g3a_grow_vec_extrude((ling_imm__midlen).pow(lingimm__wbeta), 15 + 1))*lingimm__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -652,7 +684,7 @@ Type objective_function<Type>::operator() () {
         {
             auto growth_delta_l = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_l : (ling_mat__growth_l = growth_bbinom(avoid_zero(avoid_zero((ling__Linf - ling_mat__midlen)*((double)(1) - exp(-((ling__K*(double)(0.001)))*cur_step_size))) / ling_mat__plusdl), 15, avoid_zero((ling__bbin*(double)(10))))));
 
-            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)) - g3a_grow_vec_extrude((ling_mat__midlen).pow(lingmat__wbeta), 15 + (double)(1)))*lingmat__walpha));
+            auto growth_delta_w = (ling_mat__growth_lastcalc == std::floor(cur_step_size*12) ? ling_mat__growth_w : (ling_mat__growth_w = (g3a_grow_vec_rotate((ling_mat__midlen).pow(lingmat__wbeta), 15 + 1) - g3a_grow_vec_extrude((ling_mat__midlen).pow(lingmat__wbeta), 15 + 1))*lingmat__walpha));
 
             auto growthmat_w = g3a_grow_matrix_wgt(growth_delta_w);
 
@@ -687,6 +719,9 @@ Type objective_function<Type>::operator() () {
             }
         }
         {
+            if ( cur_step_final ) {
+                ling_imm__transitioning_remainder = ling_imm__transitioning_num;
+            }
             // Move ling_imm to ling_mat;
             {
                 auto area = ling_mat__area;
@@ -704,10 +739,10 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
                                 {
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx)*ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                                    // Add result to ling_mat;
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm__transitioning_wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                    ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
+                                    ling_imm__transitioning_remainder.col(ling_imm__area_idx).col(ling_imm__age_idx) -= ling_imm__transitioning_num.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                 }
                             }
                         }
@@ -716,7 +751,7 @@ Type objective_function<Type>::operator() () {
             }
             // Move any unclaimed stock back to ling_imm;
             if ( cur_step_final ) {
-                ling_imm__num += ling_imm__transitioning_num;
+                ling_imm__num += ling_imm__transitioning_remainder;
             }
         }
         {
@@ -732,13 +767,13 @@ Type objective_function<Type>::operator() () {
                     for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 3 ) {
                         auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 )));
+                        auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ))));
 
                         {
-                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
-                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
                             ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) += ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx);
                         }
                     }
@@ -758,13 +793,13 @@ Type objective_function<Type>::operator() () {
                     for (auto age = ling_imm__minage; age <= ling_imm__maxage; age++) if ( cur_step == 1 && age == 5 ) {
                         auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
 
-                        auto ren_dnorm = dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 )));
+                        auto ren_dnorm = normalize_vec(dnorm(ling_imm__midlen, (ling__Linf*((double)(1) - exp(-(double)(1)*ling__K*(age - (recage + log((double)(1) - ling__recl / ling__Linf) / ling__K))))), avoid_zero(ling_imm_stddev ( as_integer(age) - 3 + 1 - 1 ))));
 
                         {
-                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = normalize_vec(ren_dnorm)*(double)(10000)*factor;
+                            ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx) = ren_dnorm*(double)(10000)*factor;
                             ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = lingimm__walpha*(ling_imm__midlen).pow(lingimm__wbeta);
                             // Add result to ling_imm;
-                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_vec(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
+                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ratio_add_pop(ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalwgt.col(ling_imm__area_idx).col(ling_imm__age_idx), ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx));
                             ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) += ling_imm__renewalnum.col(ling_imm__area_idx).col(ling_imm__age_idx);
                         }
                     }
@@ -914,7 +949,8 @@ Type objective_function<Type>::operator() () {
                         // Check stock has remained finite for this step;
                         if (age == ling_mat__maxage) {
                             // Oldest ling_mat is a plus-group, combine with younger individuals;
-                            ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_vec(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1));
+                            // Add result to ling_mat;
+                            ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx - 1), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1));
                             ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx - 1);
                         } else {
                             if (age == ling_mat__minage) {
@@ -948,9 +984,9 @@ Type objective_function<Type>::operator() () {
                                 auto ling_imm_movement__age_idx = age - ling_imm_movement__minage + 1 - 1;
 
                                 {
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = (ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx)*ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx)) + ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx)*ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
+                                    // Add result to ling_mat;
+                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) = ratio_add_pop(ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx), ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx), ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx));
                                     ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx) += ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(ling_imm_movement__age_idx);
-                                    ling_mat__wgt.col(ling_mat__area_idx).col(ling_mat__age_idx) /= avoid_zero(ling_mat__num.col(ling_mat__area_idx).col(ling_mat__age_idx));
                                 }
                             }
                         }

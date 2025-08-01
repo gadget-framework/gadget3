@@ -264,13 +264,13 @@ st_Mdn <- g3_param_project(
 
 actions <- list(
     g3a_time(1990, 1994, c(6,6)),
-    g3a_initialconditions(st$imm,
+    gadget3:::g3a_initialconditions_manual(st$imm,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
-    g3a_initialconditions(st$mat,
+    gadget3:::g3a_initialconditions_manual(st$mat,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
-    g3a_initialconditions(st2,
+    gadget3:::g3a_initialconditions_manual(st2,
         quote( 100 + stock__minlen ),
         quote( 1e4 + 0 * stock__minlen ) ),
 

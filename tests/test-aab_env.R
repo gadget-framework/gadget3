@@ -36,22 +36,38 @@ actions <- c(actions, ~{
 })
 expecteds$normalize_vec_all_zero_out <- rep(0, 10)
 
-# ratio_add_vec()
-ratio_add_vec_inp_orig_vec <- runif(10) * 100
-ratio_add_vec_inp_orig_amount <- floor(runif(10) * 10)
-ratio_add_vec_inp_new_vec <- runif(10) * 100
-ratio_add_vec_inp_new_amount <- floor(runif(10) * 10)
-ratio_add_vec_output <- rep(0, 10)
+# ratio_add_pop()
+ratio_add_pop_inp_orig_ar <- as.array(runif(10) * 100)
+ratio_add_pop_inp_orig_amount <- as.array(floor(runif(10) * 10))
+ratio_add_pop_inp_new_ar <- as.array(runif(10) * 100)
+ratio_add_pop_inp_new_amount <- as.array(floor(runif(10) * 10))
+ratio_add_pop_output <- rep(0, 10)
+ratio_add_pop_output_derived <- rep(0, 10)
+ratio_add_pop_output_scalar <- 0
 actions <- c(actions, ~{
-    comment('ratio_add_vec')
-    ratio_add_vec_output <- ratio_add_vec(
-        ratio_add_vec_inp_orig_vec, ratio_add_vec_inp_orig_amount,
-        ratio_add_vec_inp_new_vec, ratio_add_vec_inp_new_amount)
-    REPORT(ratio_add_vec_output)
+    comment('ratio_add_pop')
+    ratio_add_pop_output <- ratio_add_pop(
+        ratio_add_pop_inp_orig_ar, ratio_add_pop_inp_orig_amount,
+        ratio_add_pop_inp_new_ar, ratio_add_pop_inp_new_amount)
+    ratio_add_pop_output_derived <- ratio_add_pop(
+        ratio_add_pop_inp_orig_ar, ratio_add_pop_inp_orig_amount,
+        ratio_add_pop_inp_new_ar, ratio_add_pop_inp_new_amount * ratio_add_pop_inp_orig_amount)
+    ratio_add_pop_output_scalar <- ratio_add_pop(
+        ratio_add_pop_inp_orig_ar[[2]], ratio_add_pop_inp_orig_amount[[2]],
+        ratio_add_pop_inp_new_ar[[2]], ratio_add_pop_inp_new_amount[[2]])
+    REPORT(ratio_add_pop_output)
+    REPORT(ratio_add_pop_output_derived)
+    REPORT(ratio_add_pop_output_scalar)
 })
-ratio_add_vec_total <- ratio_add_vec_inp_orig_amount + ratio_add_vec_inp_new_amount
-expecteds$ratio_add_vec_output <- ratio_add_vec_inp_orig_vec * (ratio_add_vec_inp_orig_amount / native_avz(ratio_add_vec_total)) +
-    ratio_add_vec_inp_new_vec * (ratio_add_vec_inp_new_amount / native_avz(ratio_add_vec_total))
+ratio_add_pop_total <- native_avz(ratio_add_pop_inp_orig_amount + ratio_add_pop_inp_new_amount)
+derived_total <- native_avz(ratio_add_pop_inp_orig_amount + (ratio_add_pop_inp_new_amount * ratio_add_pop_inp_orig_amount))
+expecteds$ratio_add_pop_output <- ratio_add_pop_inp_orig_ar * (ratio_add_pop_inp_orig_amount / ratio_add_pop_total) +
+    ratio_add_pop_inp_new_ar * (ratio_add_pop_inp_new_amount / ratio_add_pop_total)
+expecteds$ratio_add_pop_output_derived <-
+    ratio_add_pop_inp_orig_ar * (ratio_add_pop_inp_orig_amount / derived_total) +
+    ratio_add_pop_inp_new_ar * ((ratio_add_pop_inp_new_amount * ratio_add_pop_inp_orig_amount) / derived_total)
+expecteds$ratio_add_pop_output_scalar <- ratio_add_pop_inp_orig_ar[[2]] * (ratio_add_pop_inp_orig_amount[[2]] / ratio_add_pop_total[[2]]) +
+    ratio_add_pop_inp_new_ar[[2]] * (ratio_add_pop_inp_new_amount[[2]] / ratio_add_pop_total[[2]])
 
 # nonconform_mult
 nonconform_inp1 <- array(runif(4*3*2), dim = c(4,3,2))

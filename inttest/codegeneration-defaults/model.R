@@ -76,13 +76,13 @@ structure(function (param = parameter_template)
     avoid_zero <- function(a) {
         dif_pmax(a, 0, 1000)
     }
+    normalize_vec <- function(a) {
+        a/avoid_zero(sum(a))
+    }
     nvl <- function(...) {
         for (i in seq_len(...length())) if (!is.null(...elt(i))) 
             return(...elt(i))
         return(NULL)
-    }
-    normalize_vec <- function(a) {
-        a/avoid_zero(sum(a))
     }
     as_numeric_arr <- function(x) x
     REPORT <- function(var) {
@@ -91,7 +91,6 @@ structure(function (param = parameter_template)
             as.vector(var)
         else var
     }
-    g3_cast_vector <- function(x) x
     intlookup_getdefault <- function(lookup, key, def) {
         if (is.environment(lookup)) {
             out <- lookup[[as.character(key)]]
@@ -173,7 +172,7 @@ structure(function (param = parameter_template)
         growth.matrix.sum <- colSums(growth.matrix)
         return(array(c(growth.matrix.sum, colSums(wgt.matrix)/avoid_zero(growth.matrix.sum)), dim = c(na, 2)))
     }
-    ratio_add_vec <- function(orig_vec, orig_amount, new_vec, new_amount) {
+    ratio_add_pop <- function(orig_vec, orig_amount, new_vec, new_amount) {
         (orig_vec * orig_amount + new_vec * new_amount)/avoid_zero(orig_amount + new_amount)
     }
     surveyindices_linreg <- function(N, I, fixed_alpha, fixed_beta) {
@@ -283,7 +282,7 @@ structure(function (param = parameter_template)
                 fish__age_idx <- age - fish__minage + 1L
                 area <- fish__area
                 fish__area_idx <- (1L)
-                ren_dnorm <- dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]])))
+                ren_dnorm <- normalize_vec(dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * ((age - cur_step_size) - param[["fish.t0"]])))) * param[["fish.lencv"]]))))
                 factor <- (param[["fish.init.scalar"]] * nvl(pt.fish.init[[paste(age, sep = ".")]], {
                   warning("No value found in g3_param_table fish.init, ifmissing not specified")
                   NaN
@@ -292,7 +291,7 @@ structure(function (param = parameter_template)
                   NaN
                 }) + param[["init.F"]]) * (age - param[["recage"]])))
                 {
-                  fish__num[, fish__area_idx, fish__age_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                  fish__num[, fish__area_idx, fish__age_idx] <- ren_dnorm * 10000 * factor
                   fish__wgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
                 }
             }
@@ -348,7 +347,7 @@ structure(function (param = parameter_template)
         fish__totalpredate[] <- 0
         comm__totalsuit[] <- 0
         {
-            suitability <- g3_cast_vector(suit_fish_comm__report[])
+            suitability <- (1/(1 + exp(-param[["fish.comm.alpha"]] * (fish__midlen - param[["fish.comm.l50"]]))))
             {
                 comment("g3a_predate for comm predating fish")
                 fish_comm__suit[] <- 0
@@ -425,7 +424,7 @@ structure(function (param = parameter_template)
             else (fish__growth_l[] <- growth_bbinom(avoid_zero(avoid_zero((param[["fish.Linf"]] - fish__midlen) * (1 - exp(-(param[["fish.K"]]) * cur_step_size)))/fish__plusdl), 5L, avoid_zero(param[["fish.bbin"]])))
             growth_delta_w <- if (fish__growth_lastcalc == floor(cur_step_size * 12L)) 
                 fish__growth_w
-            else (fish__growth_w[] <- (g3a_grow_vec_rotate(fish__midlen^param[["fish.wbeta"]], 5L + 1) - g3a_grow_vec_extrude(fish__midlen^param[["fish.wbeta"]], 5L + 1)) * param[["fish.walpha"]])
+            else (fish__growth_w[] <- (g3a_grow_vec_rotate(fish__midlen^param[["fish.wbeta"]], 5L + 1L) - g3a_grow_vec_extrude(fish__midlen^param[["fish.wbeta"]], 5L + 1L)) * param[["fish.walpha"]])
             growthmat_w <- g3a_grow_matrix_wgt(growth_delta_w)
             growthmat_l <- g3a_grow_matrix_len(growth_delta_l)
             {
@@ -456,12 +455,12 @@ structure(function (param = parameter_template)
                   fish__age_idx <- age - fish__minage + 1L
                   area <- fish__area
                   fish__area_idx <- (1L)
-                  ren_dnorm <- dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]])))
+                  ren_dnorm <- normalize_vec(dnorm(fish__midlen, (param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))), avoid_zero(((param[["fish.Linf"]] * (1 - exp(-1 * param[["fish.K"]] * (age - param[["fish.t0"]])))) * param[["fish.lencv"]]))))
                   {
-                    fish__renewalnum[, fish__area_idx, fish__age_idx] <- normalize_vec(ren_dnorm) * 10000 * factor
+                    fish__renewalnum[, fish__area_idx, fish__age_idx] <- ren_dnorm * 10000 * factor
                     fish__renewalwgt[, fish__area_idx, fish__age_idx] <- param[["fish.walpha"]] * fish__midlen^param[["fish.wbeta"]]
                     comment("Add result to fish")
-                    fish__wgt[, fish__area_idx, fish__age_idx] <- ratio_add_vec(fish__wgt[, fish__area_idx, fish__age_idx], fish__num[, fish__area_idx, fish__age_idx], fish__renewalwgt[, fish__area_idx, fish__age_idx], fish__renewalnum[, fish__area_idx, fish__age_idx])
+                    fish__wgt[, fish__area_idx, fish__age_idx] <- ratio_add_pop(fish__wgt[, fish__area_idx, fish__age_idx], fish__num[, fish__area_idx, fish__age_idx], fish__renewalwgt[, fish__area_idx, fish__age_idx], fish__renewalnum[, fish__area_idx, fish__age_idx])
                     fish__num[, fish__area_idx, fish__age_idx] <- fish__num[, fish__area_idx, fish__age_idx] + fish__renewalnum[, fish__area_idx, fish__age_idx]
                   }
                 }
@@ -586,7 +585,8 @@ structure(function (param = parameter_template)
                   comment("Check stock has remained finite for this step")
                   if (age == fish__maxage) {
                     comment("Oldest fish is a plus-group, combine with younger individuals")
-                    fish__wgt[, , fish__age_idx] <- ratio_add_vec(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
+                    comment("Add result to fish")
+                    fish__wgt[, , fish__age_idx] <- ratio_add_pop(fish__wgt[, , fish__age_idx], fish__num[, , fish__age_idx], fish__wgt[, , fish__age_idx - 1], fish__num[, , fish__age_idx - 1])
                     fish__num[, , fish__age_idx] <- fish__num[, , fish__age_idx] + fish__num[, , fish__age_idx - 1]
                   }
                   else if (age == fish__minage) {

@@ -110,7 +110,7 @@ ok_group("g3l_distribution_sumofsquares", {
             REPORT(prey_a__num)
         }),
         g3a_time(2000, 2001),
-        g3a_initialconditions(prey_a,
+        gadget3:::g3a_initialconditions_manual(prey_a,
             num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
             wgt_f = 10),
         g3l_abundancedistribution("adist",
@@ -151,7 +151,7 @@ ok_group("g3l_distribution:transform_fs", {
     obsdata$number <- runif(nrow(obsdata))
     actions <- list(
         g3a_time(2000, 2001),
-        g3a_initialconditions(prey_a,
+        gadget3:::g3a_initialconditions_manual(prey_a,
             num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
             wgt_f = 10),
         g3l_abundancedistribution("wt",
@@ -307,9 +307,9 @@ report_step <- function (var_name, steps, initial_val) {
 
 base_actions <- list(
     g3a_time(1999,2000, step_lengths = c(6, 6), project_years = 0),
-    g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
-    g3a_initialconditions(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
-    g3a_initialconditions(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_b, ~10 * prey_b__midlen, ~100 * prey_b__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_c, ~10 * prey_c__midlen, ~100 * prey_c__midlen),
     g3a_predate_totalfleet(
         fleet_abc,
         list(prey_a, prey_b, prey_c),

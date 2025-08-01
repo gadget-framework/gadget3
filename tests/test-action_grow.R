@@ -65,7 +65,7 @@ ok_group("g3a_grow_impl_bbinom:zero-growth", {
 ok_group("g3a_grow_impl_bbinom", {
     actions <- list(  # dmu, lengthgrouplen, binn, beta
         g3a_time(2000, 2001, project_years = 0),
-        g3a_initialconditions(teststock, ~g3_param_vector("initial", value = c(10, 100, 1000, 1000, 10000, 100000)), ~0 * teststock__minlen),
+        gadget3:::g3a_initialconditions_manual(teststock, ~g3_param_vector("initial", value = c(10, 100, 1000, 1000, 10000, 100000)), ~0 * teststock__minlen),
         g3a_growmature(teststock,
             impl_f = g3a_grow_impl_bbinom(
                 delta_len_f = g3a_grow_lengthvbsimple(~g3_param('linf', value = 160), ~g3_param('kappa', value = 90)),
@@ -122,7 +122,7 @@ ok_group("g3a_grow_impl_bbinom", {
 ok_group("g3a_growmature", {
     actions <- list(
         g3a_time(2000, 2001, project_years = 0),
-        g3a_initialconditions(teststock,
+        gadget3:::g3a_initialconditions_manual(teststock,
             ~g3_param_vector("initial_num", value = rep(0, 6)),
             ~g3_param_vector("initial_wgt", value = rep(0, 6))),
         g3a_growmature(teststock,

@@ -32,9 +32,9 @@ g3a_weightloss <- function (
             abs_loss = abs_loss ),
         list(wl_f = wl_f) )
 
-    # If not applying to whole population, wrap in ratio_add_vec()
+    # If not applying to whole population, wrap in ratio_add_pop()
     if (!identical(apply_to_pop, quote( stock__num ))) wl_f <- f_substitute(
-        quote( ratio_add_vec(
+        quote( ratio_add_pop(
             stock_ss(stock__wgt),
             stock_ss(stock__num) - stock_ss(apply_to_pop),
             wl_f,

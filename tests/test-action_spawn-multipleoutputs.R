@@ -20,8 +20,8 @@ actions <- list(
   g3a_time(
     1980, 1995,
     step_lengths = c(6L, 6L)),
-  g3a_initialconditions(st_imm_f, quote( 0 * stock__midlen ), quote( 0 * stock__midlen )),
-  g3a_initialconditions(st_imm_m, quote( 0 * stock__midlen ), quote( 0 * stock__midlen )),
+  gadget3:::g3a_initialconditions_manual(st_imm_f, quote( 0 * stock__midlen ), quote( 0 * stock__midlen )),
+  gadget3:::g3a_initialconditions_manual(st_imm_m, quote( 0 * stock__midlen ), quote( 0 * stock__midlen )),
   g3a_initialconditions_normalcv(st_mat),
   g3a_spawn(
     st_mat,

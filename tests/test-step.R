@@ -75,7 +75,7 @@ ok_group("g3_step:stock_reshape", {
     nll <- 0.0
     actions <- list(
         g3a_time(1999, 1999),
-        g3a_initialconditions(source, ~g3_param_vector("source_num", value = rep(0, 4)), ~g3_param_vector("source_wgt", value = rep(0, 4))),
+        gadget3:::g3a_initialconditions_manual(source, ~g3_param_vector("source_num", value = rep(0, 4)), ~g3_param_vector("source_wgt", value = rep(0, 4))),
 
         list('900:dest_even' = gadget3:::g3_step(~stock_iterate(dest_even, stock_intersect(source, {
             stock_ss(dest_even__num) <- stock_reshape(dest_even, stock_ss(source__num))
@@ -432,6 +432,24 @@ ok_group("g3_step:stock_prepend:table", {
         }), "name_part can contain multiple name_parts, get used in order")
 })
 
+ok_group("g3_step:stock_hasdim", local({
+    st <- g3_stock("st_a", 1:10)
+    fl <- g3_fleet("fl_a") |> g3s_livesonareas(1)
+
+    ok(cmp_code(
+        gadget3:::g3_step(~{
+            if (stock_hasdim(st, "length")) "yes" else "no"
+            if (stock_hasdim(st, "area")) "yes" else "no"
+            if (stock_hasdim(fl, "length")) "yes" else "no"
+            if (stock_hasdim(fl, "area")) "yes" else "no"
+        }), ~{
+            "yes"
+            "no"
+            "no"
+            "yes"
+        }), "stock_hasdim: Stocks have length, fleet has area")
+}))
+
 ok_group("list_to_stock_switch", {
     # NB: Differing names, ordinarily stock_imm would be "prey_stock", e.g.
     stock_imm <- g3_stock('ling_imm', c(1))
@@ -568,4 +586,14 @@ ok_group("g3_step:resolve_stock_list", local({
     ok(gadget3:::ut_cmp_code(
         gadget3:::resolve_stock_list(g3_formula(1 + 1), st_c),
         g3_formula(1 + 1) ), "Single item / st_c (return regardless)")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(list(st_c = 44), st_c),
+        44 ), "Single named item / st_c (return without name)")
+
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(c(st_a = 1, st_b = 2, st_c = 3), st_b),
+        2 ), "Named vector (return unnamed value)")
+    ok(gadget3:::ut_cmp_code(
+        gadget3:::resolve_stock_list(c(st_a = 1, st_b = 2, st_c = 3), st_c),
+        3 ), "Named vector (return unnamed value)")
 }))

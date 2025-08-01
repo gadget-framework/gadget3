@@ -46,7 +46,7 @@ nll <- 0.0
 actions <- list(
     list(
         g3a_time(1999, 1999),
-        g3a_initialconditions(stock_a, ~100 + stock_a__minlen, ~0),
+        gadget3:::g3a_initialconditions_manual(stock_a, ~100 + stock_a__minlen, ~0),
         # NB: Only required for testing
         gadget3:::g3l_test_dummy_likelihood(),
         '5:sum_fleet_stock_a' = gadget3:::g3_step(g3_formula({

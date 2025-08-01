@@ -53,7 +53,7 @@ raw_report <- g3s_clone(prey_a, 'raw_report') %>%
 
 actions <- list(
     g3a_time(2000, 2002, step_lengths = c(6, 6), project_years = 0),
-    g3a_initialconditions(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~10 * age + prey_a__midlen * 0, ~100 * age + prey_a__midlen * 0),
     g3a_age(prey_a),
     "5:testreport_vec" = g3_formula({
         testreport_vec <- testreport_vec + cur_time

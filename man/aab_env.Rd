@@ -14,7 +14,7 @@
 \alias{normalize_vec}
 \alias{nvl}
 \alias{print_array}
-\alias{ratio_add_vec}
+\alias{ratio_add_pop}
 \alias{REPORT}
 \alias{REprintf}
 \alias{Rprintf}
@@ -90,7 +90,7 @@
   Utility to pretty-print array \var{ar}
 }
 
-\section{ratio_add_vec}{
+\section{ratio_add_pop}{
   Sum \var{orig_vec} & \var{new_vec} according to ratio of \var{orig_amount} & \var{new_amount}
 }
 

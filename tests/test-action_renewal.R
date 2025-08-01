@@ -125,10 +125,10 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
         mean_f = quote(m_f),
         stddev_f = quote(stddev)))
     ok(gadget3:::ut_cmp_code(out_f, quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             m_f,
-            avoid_zero(stddev) )
+            avoid_zero(stddev) ))
     )), "mean_f = m_f, nothing to replace")
 
     out_f <- extract_dnorm(g3a_initialconditions_normalparam(
@@ -136,10 +136,10 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
         mean_f = quote(m_f + age - 4),
         stddev_f = quote(stddev)))
     ok(gadget3:::ut_cmp_code(out_f, quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (m_f + (age - cur_step_size) - 4),
-            avoid_zero(stddev) )
+            avoid_zero(stddev) ))
     )), "mean_f = m_f + age - 4, replaced inner age")
 
     out_f <- extract_dnorm(g3a_initialconditions_normalparam(
@@ -148,10 +148,10 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
         age_offset = 99,
         stddev_f = quote(stddev)))
     ok(gadget3:::ut_cmp_code(out_f, quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (m_f + (age - 99) - 4),
-            avoid_zero(stddev) )
+            avoid_zero(stddev) ))
     )), "mean_f = m_f + age - 4, overrode age_offset")
 
     out_f <- extract_dnorm(g3a_initialconditions_normalparam(
@@ -160,20 +160,20 @@ ok_group('g3a_initialconditions_normalparam:age_offset', {
         age_offset = NULL,
         stddev_f = quote(stddev)))
     ok(gadget3:::ut_cmp_code(out_f, quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (m_f + age - 4),
-            avoid_zero(stddev) )
+            avoid_zero(stddev) ))
     )), "mean_f = m_f + age - 4, disabled age_offset")
 
     out_f <- extract_dnorm(g3a_initialconditions_normalcv(
         fish,
         mean_f = quote(m_f + age)))
     ok(gadget3:::ut_cmp_code(out_f, quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (m_f + (age - cur_step_size)),
-            avoid_zero(((m_f + (age - cur_step_size)) * g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_initialconditions_normalparam") )))
+            avoid_zero(((m_f + (age - cur_step_size)) * g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_initialconditions_normalparam") ))))
     )), "normalcv: Replaced age in both mean_f & stddev_f")
 })
 
@@ -187,28 +187,28 @@ ok_group('g3a_initialconditions_cv', {
     fish <- g3s_age(g3_stock('fish', seq(20, 156, 4)), 3, 10)
 
     ok(gadget3:::ut_cmp_code(extract_dnorm(g3a_initialconditions_normalparam(fish)), quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (g3_param("fish.Linf", value = 1, source = "g3a_renewal_vonb_t0") * (1 - exp(-1 * g3_param("fish.K", value = 1, source = "g3a_renewal_vonb_t0") * ((age - cur_step_size) - g3_param("fish.t0", source = "g3a_renewal_vonb_t0"))))),
-            avoid_zero(g3_param("fish.init.sd", value = 10, source = "g3a_initialconditions_normalparam")) )
+            avoid_zero(g3_param("fish.init.sd", value = 10, source = "g3a_initialconditions_normalparam")) ))
     )), "g3a_initialconditions_normalparam default")
 
     ok(gadget3:::ut_cmp_code(extract_dnorm(g3a_initialconditions_normalcv(fish)), quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (g3_param("fish.Linf", value = 1, source = "g3a_renewal_vonb_t0") * (1 - exp(-1 * g3_param("fish.K", value = 1, source = "g3a_renewal_vonb_t0") * ((age - cur_step_size) - g3_param("fish.t0", source = "g3a_renewal_vonb_t0"))))),
             avoid_zero(((g3_param("fish.Linf", value = 1, source = "g3a_renewal_vonb_t0") * (1 - exp(-1 * g3_param("fish.K", value = 1, source = "g3a_renewal_vonb_t0") * ((age - cur_step_size) - g3_param("fish.t0", source = "g3a_renewal_vonb_t0")))))
               *
-            g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_initialconditions_normalparam"))) )
+            g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_initialconditions_normalparam"))) ))
     )), "g3a_initialconditions_normalcv default")
 
     ok(gadget3:::ut_cmp_code(extract_dnorm(g3a_renewal_normalcv(fish)), quote(
-        dnorm(
+        normalize_vec(dnorm(
             fish__midlen,
             (g3_param("fish.Linf", value = 1, source = "g3a_renewal_vonb_t0") * (1 - exp(-1 * g3_param("fish.K", value = 1, source = "g3a_renewal_vonb_t0") * (age - g3_param("fish.t0", source = "g3a_renewal_vonb_t0"))))),
             avoid_zero(((g3_param("fish.Linf", value = 1, source = "g3a_renewal_vonb_t0") * (1 - exp(-1 * g3_param("fish.K", value = 1, source = "g3a_renewal_vonb_t0") * (age - g3_param("fish.t0", source = "g3a_renewal_vonb_t0")))))
               *
-            g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_renewal_len_dnorm"))) )
+            g3_param("fish.lencv", value = 0.1, optimise = FALSE, source = "g3a_renewal_len_dnorm"))) ))
     )), "g3a_renewal_normalcv default")
 })
 
@@ -220,8 +220,8 @@ stock_b_report <- g3s_clone(stock_b, 'report_b') %>% g3s_time(year = 2000:2003)
     
 actions <- list(
     g3a_time(2000, 2003, project_years = 0),
-    g3a_initialconditions(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
-    g3a_initialconditions(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
+    gadget3:::g3a_initialconditions_manual(stock_a, ~area * 100 + stock_a__minlen, ~stock_a__minlen + 100),
+    gadget3:::g3a_initialconditions_manual(stock_ac, ~area * 1000 + stock_ac__minlen, ~stock_a__minlen + 200),
     g3a_initialconditions_normalparam(stock_b,
         factor_f = ~g3_param("init.factor", value = 10),
         mean_f = ~g3_param("init.mean", value = 50),

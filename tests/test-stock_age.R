@@ -18,12 +18,12 @@ stock_interact_young_old_vars <- 0.0
 nll <- 0.0
 actions <- list(
     g3a_time(1999, 1999),
-    g3a_initialconditions(stock_noage, ~100 + stock_young__minlen, ~0),
-    g3a_initialconditions(stock_young, ~age * 100 + stock_young__minlen, ~0),
-    g3a_initialconditions(stock_old, ~age * 1000 + stock_old__minlen, ~0),
-    g3a_initialconditions(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),
-    g3a_initialconditions(stock_aggregated, ~age * 1000000 + stock_inbetween__minlen, ~0),
-    g3a_initialconditions(stock_inbetween_old_aggregated, ~0 * stock_inbetween__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_noage, ~100 + stock_young__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_young, ~age * 100 + stock_young__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_old, ~age * 1000 + stock_old__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_inbetween, ~age * 10000 + stock_inbetween__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_aggregated, ~age * 1000000 + stock_inbetween__minlen, ~0),
+    gadget3:::g3a_initialconditions_manual(stock_inbetween_old_aggregated, ~0 * stock_inbetween__minlen, ~0),
     # NB: Only required for testing
     gadget3:::g3l_test_dummy_likelihood(),
     list(

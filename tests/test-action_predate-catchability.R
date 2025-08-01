@@ -13,8 +13,8 @@ fleet_quotafleet <- g3_fleet('fleet_quotafleet')
 
 actions <- list(
     g3a_time(2000, 2005, step_lengths = c(6,6), project_years = 0),
-    g3a_initialconditions(prey_a, ~1e10 * prey_a__midlen, ~100 * prey_a__midlen),
-    g3a_initialconditions(prey_b, ~2e10 * prey_b__midlen, ~200 * prey_b__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~1e10 * prey_a__midlen, ~100 * prey_a__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_b, ~2e10 * prey_b__midlen, ~200 * prey_b__midlen),
     g3a_predate_fleet(
         fleet_totalfleet,
         list(prey_a, prey_b),

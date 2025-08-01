@@ -11,7 +11,7 @@ fleet_a <- g3_fleet('fleet_a')
 
 actions <- list(
     g3a_time(2000, ~2000 + g3_param('years', value = 1) - 1, step_lengths = c(6,6), project_years = 0),
-    g3a_initialconditions(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
+    gadget3:::g3a_initialconditions_manual(prey_a, ~10 * prey_a__midlen, ~100 * prey_a__midlen),
     g3a_predate_tagrelease(
         fleet_a,
         list(prey_a),

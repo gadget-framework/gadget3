@@ -34,7 +34,7 @@ ok_group("g3a_migrate_normalize", {
 ok_group("g3a_migrate", {
     actions <- list(
         g3a_time(start_year = 2000, end_year = 2004, step_lengths = c(3,3,3,3), project_years = 0),
-        g3a_initialconditions(stock_acd,
+        gadget3:::g3a_initialconditions_manual(stock_acd,
             ~area * 100 + stock_acd__minlen,
             ~area * 10 + stock_acd__minlen),
         g3a_migrate(
@@ -71,11 +71,11 @@ ok_group("g3a_migrate", {
     model_wgts <- attr(result, 'report_acd__wgt')[length = '10:20', age = 'age3',,]
     expected_nums <- model_nums[,1]
     expected_wgts <- model_wgts[,1]
-    ratio_add_vec <- function (orig_vec, orig_amount, new_vec, new_amount) (orig_vec * orig_amount + new_vec * new_amount)/(orig_amount + new_amount)
+    ratio_add_pop <- function (orig_vec, orig_amount, new_vec, new_amount) (orig_vec * orig_amount + new_vec * new_amount)/(orig_amount + new_amount)
     for (t in 1:((2004 - 2000) * 3)) {
         if ((t-1) %% 4 == 1) {
             # Spring migration, apply it ourselves
-            expected_wgts['a'] <- ratio_add_vec(
+            expected_wgts['a'] <- ratio_add_pop(
                 expected_wgts['a'], expected_nums['a'],
                 expected_wgts['d'], expected_nums['d'] * 0.4)
             expected_nums['a'] <- expected_nums['a'] + expected_nums['d'] * 0.4
@@ -85,13 +85,13 @@ ok_group("g3a_migrate", {
             # Autumn migration, apply it ourselves
             # NB: We shouldn't be migrating anything direct a -> d
             # c -> d
-            expected_wgts['d'] <- ratio_add_vec(
+            expected_wgts['d'] <- ratio_add_pop(
                 expected_wgts['d'], expected_nums['d'],
                 expected_wgts['c'], expected_nums['c'] * 0.6)
             expected_nums['d'] <- expected_nums['d'] + expected_nums['c'] * 0.6
             expected_nums['c'] <- expected_nums['c'] - expected_nums['c'] * 0.6
             # a -> c
-            expected_wgts['c'] <- ratio_add_vec(
+            expected_wgts['c'] <- ratio_add_pop(
                 expected_wgts['c'], expected_nums['c'],
                 expected_wgts['a'], expected_nums['a'] * 0.6)
             expected_nums['c'] <- expected_nums['c'] + expected_nums['a'] * 0.6

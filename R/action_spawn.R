@@ -188,6 +188,7 @@ g3a_spawn <- function(
         stock <- output_stocks[[i]]
         output_ratio <- output_ratios[[i]]
         stock__spawnednum <- g3_stock_instance(stock, desc = "Individuals spawned by parent")
+        stock__spawnedwgt <- g3_stock_instance(stock, desc = "Mean weight of individuals spawned by parent")
 
         out_f <<- g3_step(f_substitute(~{
             debug_trace("Generate normal distribution for spawned ", stock)
@@ -203,12 +204,8 @@ g3a_spawn <- function(
             stock_with(parent_stock, stock_with(stock,
                 stock__spawnednum <- (stock__spawnednum / avoid_zero(sum(stock__spawnednum))) * sum(parent_stock__offspringnum) * output_ratio))
             stock_iterate(stock, if (run_f && renew_into_f && output_stock_cond) {
-                stock_ss(stock__wgt) <- ratio_add_vec(
-                    stock_ss(stock__wgt),
-                    stock_ss(stock__num),
-                    (alpha_f) * stock__midlen ** (beta_f),
-                    stock_ss(stock__spawnednum))
-                stock_ss(stock__num) <- stock_ss(stock__num) + stock_ss(stock__spawnednum)
+                stock_ss(stock__spawnedwgt) <- (alpha_f) * stock__midlen ** (beta_f)
+                stock_combine_subpop(stock_ss(stock__num), stock_ss(stock__spawnednum))
             })
         }, list(
             mean_f = mean_f,

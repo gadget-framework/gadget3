@@ -15,7 +15,7 @@ obsdata$number <- runif(nrow(obsdata)) * 10000
 
 actions <- list(
     g3a_time(2000, 2005, c(6L, 6L)),
-    g3a_initialconditions(
+    gadget3:::g3a_initialconditions_manual(
         prey_a,
         num_f = g3_formula(stock_ss(prey_a__init), prey_a__init = prey_a__init),
         wgt_f = 10),
