@@ -25,7 +25,8 @@ st_mat <- gadget3:::g3_storage(c(species = "fish", 'mat')) |> gadget3:::g3s_dynl
 stocks = list(imm = st_imm, mat = st_mat)
 
 actions_st_imm <- list(
-  gadget3:::g3a_growmature_dynlen(st_imm,
+  g3a_growmature(st_imm,
+    impl_f = gadget3:::g3a_growmature_impl_dynlen(),
     maturity_f = g3a_mature_constant(),
     output_stocks = list(st_mat),
     transition_f = ~TRUE ),
@@ -36,7 +37,7 @@ actions_st_imm <- list(
   NULL)
 
 actions_st_mat <- list(
-  gadget3:::g3a_growmature_dynlen(st_mat),
+  g3a_growmature(st_mat, impl_f = gadget3:::g3a_growmature_impl_dynlen()),
   g3a_naturalmortality(st_mat),
   g3a_initialconditions_normalcv(st_mat),
   g3a_age(st_mat),

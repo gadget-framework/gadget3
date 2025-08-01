@@ -229,6 +229,21 @@ g3a_grow_impl_bbinom <- function (
                 maxlengthgroupgrowth = maxlengthgroupgrowth)))
 }
 
+g3a_growmature_impl_dynlen <- function(
+        delta_len_f = g3a_grow_lengthvbsimple(by_stock = by_stock),
+        delta_wgt_f = g3a_grow_weightsimple(by_stock = by_stock),
+        by_stock = TRUE) {
+
+    impl_f <- list(
+        delta_dim = 0,
+        # Add on extra single dimension (roughly what bbinom would be doing)
+        len = f_substitute( quote(g3a_grow_vec_extrude(dlf, 1)), list(dlf = delta_len_f)),
+        wgt = delta_wgt_f )
+    # maxlengthgroupgrowth doesn't make sense, short-circuit by setting to 0
+    environment(impl_f$len)$maxlengthgroupgrowth <- 0L
+    environment(impl_f$wgt)$maxlengthgroupgrowth <- 0L
+    return(impl_f)
+}
 
 g3a_grow_matrix_len <- g3_native(r = function (delta_l) {
     na <- dim(delta_l)[[1]]  # Number of length groups
@@ -358,15 +373,20 @@ g3a_growmature <- function(stock,
     stock__prevtotal <- 0
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
+    stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
+    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
     stock__growth_num <- g3_stock_instance(stock)
+    len_dim <- if ("length" %in% names(stock$dim)) stock$dim$length else 1
     stock__growth_l <- array(
-        dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
+        dim = c(length = len_dim, delta = length(impl_f$delta_dim)),
         dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
     stock__growth_w <- array(
-        dim = c(length = stock$dim$length, delta = length(impl_f$delta_dim)),
+        dim = c(length = len_dim, delta = length(impl_f$delta_dim)),
         dimnames = list(length = stock$dimnames$length, delta = impl_f$delta_dim))
     stock__transitioning_num <- g3_stock_instance(stock, 0)
     stock__transitioning_wgt <- g3_stock_instance(stock)
+    stock__transitioning_dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
+    stock__transitioning_dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
@@ -377,6 +397,10 @@ g3a_growmature <- function(stock,
             debug_trace("Reset transitioning arrays")
             stock_with(stock, stock__transitioning_num[] <- 0)
             stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
+            if (stock_hasdim(stock, "dynlen")) {
+                stock_with(stock, stock__transitioning_dynlen[] <- stock__dynlen[])
+                stock_with(stock, stock__transitioning_dynlensd[] <- stock__dynlensd[])
+            }
         }, list(
             transition_f = transition_f)))
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
@@ -393,7 +417,9 @@ g3a_growmature <- function(stock,
         c(all.vars(growth_delta_l), all.vars(growth_delta_w)),
         # Filter out known constants (hacky but conservative, will fail by being slow)
         c('stock', 'stock__growth_l', 'stock__growth_w', 'stock__dl', 'stock__plusdl', 'stock__midlen')))
-    if (length(growth_dependent_vars) == 0) {
+    if ("dynlen" %in% names(stock$dim)) {
+        # dynlen, don't bother trying to cache growth calculations
+    } else if (length(growth_dependent_vars) == 0) {
         # Growth is a constant, only do it once
         growth_delta_l <- f_substitute(quote(if (cur_time > 0) stock__growth_l else growth_delta_l), list(growth_delta_l = growth_delta_l))
         growth_delta_w <- f_substitute(quote(if (cur_time > 0) stock__growth_w else growth_delta_w), list(growth_delta_w = growth_delta_w))
@@ -417,7 +443,9 @@ g3a_growmature <- function(stock,
     maturity_ratio <- maturity_f
 
     # NB: Apply maturity in different places, depending if stock__growth_l is mentioned in formluae (and thus a len x deltal matrix)
-    if ("growth_delta_l" %in% all.vars(maturity_f)) {
+    if ("dynlen" %in% names(stock$dim)) {
+        # dynlen, will apply growth separately
+    } else if ("growth_delta_l" %in% all.vars(maturity_f)) {
         growthimmresult <- ~g3a_grow_apply(
             # Recalculate growth matrix each time, using maturitybygrowth result
             g3a_grow_matrix_len(growth_delta_l * (1 - maturity_ratio)),
@@ -462,7 +490,17 @@ g3a_growmature <- function(stock,
         stock_iterate(stock, if (run_f) {
             if (strict_mode) stock__prevtotal <- sum(stock_ss(stock__num))
 
-            if (transition_f) {
+            if (stock_hasdim(stock, "dynlen") && transition_f) {
+                debug_trace("Grow and separate maturing ", stock)
+                stock_ss(stock__num) <- stock_ss(stock__num) * (1 - maturity_ratio)
+                stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_ratio
+                stock_ss(stock__transitioning_dynlen) <- stock_ss(stock__dynlen) <- stock_ss(stock__dynlen) + growth_delta_l[[1, 1]]
+                stock_ss(stock__transitioning_wgt) <- stock_ss(stock__wgt) <- stock_ss(stock__wgt) + growth_delta_w[[1, 1]]
+            } else if (stock_hasdim(stock, "dynlen")) {
+                debug_trace("Update ", stock, " using delta matrices")
+                stock_ss(stock__dynlen) <- stock_ss(stock__dynlen) + growth_delta_l[[1,1]]
+                stock_ss(stock__wgt) <- stock_ss(stock__wgt) + growth_delta_w[[1, 1]]
+            } else if (transition_f) {
                 debug_trace("Grow and separate maturing ", stock)
                 stock_ss(stock__transitioning_num) <- growthmatresult[,g3_idx(1)]
                 stock_ss(stock__transitioning_wgt) <- growthmatresult[,g3_idx(2)]
@@ -492,82 +530,6 @@ g3a_growmature <- function(stock,
             run_f = run_f,
             post_growth_f = post_growth_f,
             maturity_f = maturity_f,
-            transition_f = transition_f)))
-    return(as.list(out))
-}
-
-g3a_growmature_dynlen <- function (
-        stock,
-        delta_len_f = g3a_grow_lengthvbsimple(by_stock = by_stock),
-        delta_wgt_f = g3a_grow_weightsimple(by_stock = by_stock),
-        maturity_f = ~0,
-        output_stocks = list(),
-        output_ratios = 1 / length(output_stocks),
-        transition_f = ~cur_step_final,
-        by_stock = TRUE,
-        run_f = ~TRUE,
-        run_at = g3_action_order$grow,
-        transition_at = g3_action_order$mature) {
-    out <- new.env(parent = emptyenv())
-    action_name <- unique_action_name()
-
-    maxlengthgroupgrowth <- 0L  # NB: Add to environment
-    stock__num <- g3_stock_instance(stock, 0)
-    stock__wgt <- g3_stock_instance(stock, 1)
-    stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
-    # NB: Traditionally lengthgroups x delta_jumps, thus 1x1 array
-    stock__growth_l <- array(0.0, dim = c(1, 1))
-    stock__growth_w <- array(1.0, dim = c(1, 1))
-    stock__transitioning_num <- g3_stock_instance(stock, 0)
-    stock__transitioning_wgt <- g3_stock_instance(stock)
-    stock__transitioning_dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__transitioning_dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
-
-    # Add transition steps if output_stocks provided
-    if (length(output_stocks) == 0) {
-        # NB: This will ensure all maturity code is thrown away below
-        transition_f <- FALSE
-    } else {
-        out[[step_id(run_at, stock)]] <- g3_step(f_substitute(~if (transition_f) {
-            debug_trace("Reset transitioning arrays")
-            stock_with(stock, stock__transitioning_num[] <- 0)
-            stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
-        }, list(
-            transition_f = transition_f)))
-        out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock, output_stocks, output_ratios, run_f = transition_f)
-    }
-
-    impl_f <- list(
-        # Add on extra single dimension (roughly what bbinom would be doing)
-        len = f_substitute( quote(g3a_grow_vec_extrude(dlf, 1)), list(dlf = delta_len_f)),
-        wgt = delta_wgt_f )
-
-    # Set local growth_delta_(x) based on global value, recalculating if necessary
-    growth_delta_l <- f_substitute(~stock_with(stock, (stock__growth_l <- f)), list(f = impl_f$len))
-    growth_delta_w <- f_substitute(~stock_with(stock, (stock__growth_w <- f)), list(f = impl_f$wgt))
-
-    # Rename maturity_f for below
-    maturity_ratio <- maturity_f
-
-    out[[step_id(run_at, stock, action_name)]] <- g3_step(f_substitute(~{
-        debug_label("g3a_grow_dynlen for ", stock)
-
-        stock_iterate(stock, if (run_f) {
-            if (transition_f) {
-                debug_trace("Grow and separate maturing ", stock)
-                stock_ss(stock__num) <- stock_ss(stock__num) * (1 - maturity_ratio)
-                stock_ss(stock__transitioning_num) <- stock_ss(stock__num) * maturity_ratio
-                stock_ss(stock__transitioning_dynlen) <- stock_ss(stock__dynlen) <- stock_ss(stock__dynlen) + growth_delta_l[[1, 1]]
-                stock_ss(stock__transitioning_wgt) <- stock_ss(stock__wgt) <- stock_ss(stock__wgt) + growth_delta_w[[1, 1]]
-            } else {
-                debug_trace("Update ", stock, " using delta matrices")
-                stock_ss(stock__dynlen) <- stock_ss(stock__dynlen) + growth_delta_l[[1,1]]
-                stock_ss(stock__wgt) <- stock_ss(stock__wgt) + growth_delta_w[[1, 1]]
-            }
-        })
-    }, list(
-            run_f = run_f,
             transition_f = transition_f)))
     return(as.list(out))
 }
