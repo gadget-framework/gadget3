@@ -61,7 +61,7 @@ g3a_renewal_len_dnorm <- function(
         by_stock = TRUE,
         by_age = FALSE) {
     g3_formula(
-        quote( ren_dnorm * 10000 * factor ),
+        quote( (if (stock_hasdim(stock, "length")) ren_dnorm else 1.0) * 10000 * factor ),
         ren_dnorm = f_substitute(
             quote( normalize_vec(dnorm(stock__midlen, mean_f, avoid_zero(stddev_f))) ),
             list(mean_f = mean_f, stddev_f = stddev_f) ),
@@ -123,15 +123,30 @@ g3a_initialconditions_normalparam <- function (
         stddev_f <- f_substitute(stddev_f, list(age = age_offset))
     }
 
-    # NB: Generate action name with our arguments
+    stock__num <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
+    stock__wgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
+    stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
+    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
+
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, "g3a_initialconditions", stock, action_name)]] <- g3a_initialconditions_manual(
-        stock,
-        num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
+    out[[step_id(run_at, "g3a_initialconditions", stock, action_name)]] <- g3_step(f_substitute(~{
+        debug_label("g3a_initialconditions for ", stock)
+        stock_iterate(stock, if (run_f && renew_into_f) {
+            if (stock_hasdim(stock, "dynlen")) {
+                stock_ss(stock__dynlen) <- mean_f
+                stock_ss(stock__dynlensd) <- stddev_f
+            }
+            stock_ss(stock__num) <- len_dnorm_f
+            stock_ss(stock__wgt) <- wgt_f
+        })
+    }, list(
+        mean_f = mean_f,
+        stddev_f = stddev_f,
+        len_dnorm_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
-        run_f = run_f,
-        run_at = run_at)[[1]]
+        renew_into_f = renewal_into(stock),
+        run_f = run_f)))
     return(out)
 }
 
@@ -160,31 +175,6 @@ g3a_initialconditions_normalcv <- function (
         age_offset = age_offset,
         run_f = run_f,
         run_at = run_at)
-}
-
-# Assign number / mean weight based on formulae
-g3a_renewal_manual <- function (stock, num_f, wgt_f, run_f = ~TRUE, run_at = g3_action_order$renewal) {
-    # See InitialCond::Initialise
-    stock__num <- g3_stock_instance(stock, 0)
-    stock__wgt <- g3_stock_instance(stock, 1)
-    stock__renewalnum <- g3_stock_instance(stock, 0)
-    stock__renewalwgt <- g3_stock_instance(stock, 0)
-
-    out <- list()
-    action_name <- unique_action_name()
-    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3_step(f_substitute(~{
-        debug_label("g3a_renewal for ", stock)
-        stock_iterate(stock, if (run_f && renew_into_f) {
-            stock_ss(stock__renewalnum) <- num_f
-            stock_ss(stock__renewalwgt) <- wgt_f
-
-            stock_combine_subpop(stock_ss(stock__num), stock_ss(stock__renewalnum))
-        })
-    }, list(
-        num_f = num_f, wgt_f = wgt_f,
-        renew_into_f = renewal_into(stock),
-        run_f = run_f)))
-    return(out)
 }
 
 # Steps to set up renewal of stocks on any stock
@@ -218,15 +208,38 @@ g3a_renewal_normalparam <- function (
         proj = (if (isFALSE(run_projection)) quote(!cur_year_projection) else TRUE),
         end = NULL))
 
-    # NB: Generate action name with our arguments
+    stock__num <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
+    stock__wgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
+    stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
+    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
+    # TODO: Better descriptions
+    stock__renewalnum <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
+    stock__renewalwgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
+    stock__renewaldynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
+    stock__renewaldynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
+
     out <- list()
     action_name <- unique_action_name()
-    out[[step_id(run_at, "g3a_renewal", stock, action_name)]] <- g3a_renewal_manual(
-        stock,
-        num_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
+    out[[step_id(run_at, "g3a_initialconditions", stock, action_name)]] <- g3_step(f_substitute(~{
+        debug_label("g3a_renewal for ", stock)
+        if (stock_hasdim(stock, "dynlen")) stock_iterate(stock, if (run_f && renew_into_f) {
+            stock_ss(stock__renewaldynlen) <- mean_f
+            stock_ss(stock__renewaldynlensd) <- stddev_f
+        })
+        stock_iterate(stock, if (run_f && renew_into_f) {
+            stock_ss(stock__renewalnum) <- len_dnorm_f
+            stock_ss(stock__renewalwgt) <- wgt_f
+
+            stock_combine_subpop(stock_ss(stock__num), stock_ss(stock__renewalnum))
+        })
+    }, list(
+        mean_f = mean_f,
+        stddev_f = stddev_f,
+        len_dnorm_f = g3a_renewal_len_dnorm(mean_f, stddev_f, factor_f),
         wgt_f = g3a_renewal_wgt_wl(alpha_f, beta_f),
-        run_f = run_f,
-        run_at = run_at)[[1]]
+        renew_into_f = renewal_into(stock),
+        run_f = run_f)))
+
     return(out)
 }
 
