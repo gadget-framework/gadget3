@@ -281,6 +281,17 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                         return(if (intersect_size > 0) intersect_size / (upper_s - lower_s) else 0)
                     }, numeric(1)))), envir = environment(out_f))
                 }
+            } else if ("length" %in% names(stock$dim) && "dynlen" %in% names(source_stock$dim)) {  # dynlen source, lengthgroup dest
+                dest_midlen_var <- as.symbol(paste0(stock_var, "__midlen"))
+                # TODO: This won't cover any other subpopulations, bad?
+                source_dynlen_var <- as.symbol(paste0(source_stock_var, "__dynlen"))
+                source_dynlensd_var <- as.symbol(paste0(source_stock_var, "__dynlensd"))
+
+                out_f <- f_substitute(quote( inner_f * normalize_vec(dnorm(dest_midlen, mean, sd)) ), list(
+                    inner_f = inner_f,
+                    dest_midlen = dest_midlen_var,
+                    mean = g3_step(call("stock_ss", source_dynlen_var), recursing = TRUE, orig_env = orig_env),
+                    sd = g3_step(call("stock_ss", source_dynlensd_var), recursing = TRUE, orig_env = orig_env) ))
             } else {
                 stop("Cannot convert ", source_stock$name, " with dims ", paste(names(source_stock$dim), collapse = ", "), " to dims ", paste(names(stock$dim), collapse = ", "))
             }
