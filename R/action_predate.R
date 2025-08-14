@@ -3,7 +3,7 @@ g3a_predate_catchability_totalfleet <- function (E) {
         suit_unit = "total biomass",
         suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
         cons = f_substitute(
-            ~stock_ss(predprey__suit) * (E / total_predsuit),
+            ~stock_ss(predprey__suit) * (E / avoid_zero(total_predsuit)),  # TODO: So we don't fall over with no fish
             list(E = E)) )
 }
 
@@ -12,7 +12,7 @@ g3a_predate_catchability_numberfleet <- function (E) {
         suit_unit = "number of individuals",
         suit = quote( suit_f * stock_ss(stock__num) ),
         cons = f_substitute(
-            ~stock_ss(predprey__suit) * (E / total_predsuit) * stock_ss(stock__wgt),
+            ~stock_ss(predprey__suit) * (E / avoid_zero(total_predsuit)) * stock_ss(stock__wgt),
             list(E = E)) )
 }
 
