@@ -52,11 +52,11 @@ g3a_predate_catchability_project <- function (
         if (startsWith(unit, "biomass")) {
             # Scale f by proportion of all suitable stock in this lengthgroup
             if (suit_unit == "individuals") stop("Cannot use a quota in biomass with landings in individuals")
-            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / total_predsuit) ), list(f = f))
+            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / avoid_zero(total_predsuit)) ), list(f = f))
         } else if (startsWith(unit, "individuals")) {
             # Scale f by proportion of all suitable stock in this lengthgroup
             if (suit_unit == "biomass") stop("Cannot use a quota in individuals with landings in biomass")
-            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / total_predsuit) ), list(f = f))
+            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / avoid_zero(total_predsuit)) ), list(f = f))
         } else if (startsWith(unit, "harvest-rate")) {
             # Scale suitable stock in this lengthgroup by f
             f <- f_substitute(quote( stock_ss(predprey__suit) * f ), list(f = f))
