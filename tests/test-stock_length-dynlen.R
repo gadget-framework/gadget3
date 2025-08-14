@@ -172,44 +172,46 @@ actions <- c(actions, actions_likelihood_si_cpue)
 # Create model objective function ####################
 
 model_code <- g3_to_tmb(c(actions, list(
-    g3a_trace_var(actions, var_re = "."),
+    g3a_trace_var(actions, var_re = "__(num|wgt|dynlen.*|cons|suit|totalsuit|totalpredate|consratio|feedinglevel)$"),
+    g3a_report_detail(actions),
+    g3l_bounds_penalty(actions) )))
+model_fn <- g3_to_r(c(actions, list(
+    g3a_trace_var(actions, var_re = "__(cons|suit|totalsuit|totalpredate|consratio|feedinglevel)$"),
+    g3a_trace_var(actions, var_re = "__(num|wgt|dynlen.*)$", check_positive = TRUE, on_error = "stop"),
     g3a_report_detail(actions),
     g3l_bounds_penalty(actions) )))
 
-load("/tmp/params.out.Rdata", verbose = T)
-
 attr(model_code, "parameter_template") |>
+  g3_init_val("*.rec|init.scalar", 1000, optimise = FALSE) |>
+  g3_init_val("*.init.#", 10, lower = 0.001, upper = 10) |>
+  g3_init_val("*.rec.#", 100, lower = 1e-6, upper = 1000) |>
+  g3_init_val("*.rec.proj", 0.002) |>
+  g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 10) |>
+  g3_init_val("init.F", 0.5, lower = 0.1, upper = 10) |>
+  g3_init_val("*.Linf", 148.2, spread = 2) |>
+  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+  g3_init_val("*.t0", 0.2, optimise = FALSE) |>
+  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+  g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 1.8) |>
+  g3_init_val("*.*.l50", 80, spread = 1.5) |>
   identity() -> params.in
-params.in$value <- params.out[params.in$switch, "value"]
-
-fn <- g3_tmb_fn(model_code)
-r <- fn(params.in)
-
-
-## Guess l50 / linf based on stock sizes
-#estimate_l50 <- g3_stock_def(st_imm, "midlen")[[length(g3_stock_def(st_imm, "midlen")) / 2]]
-#estimate_linf <- tail(g3_stock_def(st_imm, "midlen"), 3)[[1]]
-#estimate_t0 <- g3_stock_def(st_imm, "minage") - 0.8
-#
-#attr(model_code, "parameter_template") |>
-#  g3_init_val("*.rec|init.scalar", 1000, optimise = FALSE) |>
-#  g3_init_val("*.init.#", 10, lower = 0.001, upper = 10) |>
-#  g3_init_val("*.rec.#", 100, lower = 1e-6, upper = 1000) |>
-#  g3_init_val("*.rec.proj", 0.002) |>
-#  g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 10) |>
-#  g3_init_val("init.F", 0.5, lower = 0.1, upper = 10) |>
-#  g3_init_val("*.Linf", estimate_linf, spread = 2) |>
-#  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
-#  g3_init_val("*.t0", estimate_t0, optimise = FALSE) |>
-#  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
-#  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
-#  g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 1.8) |>
-#  g3_init_val("*.*.l50", estimate_l50, spread = 1.5) |>
-#  # Treat maturity alpha/l50 separately
-#  g3_init_val("*.mat.alpha", 0.07, lower = 0.0001, upper = 1.8) |>
-#  g3_init_val("*.mat.l50", estimate_l50, spread = 3.5) |>
-#  g3_init_val("*.bbin", 100, lower = 1e-05, upper = 1500) |>
-#  identity() -> params.in
-
 # Optimise model ################################
-#obj.fn <- g3_tmb_adfun(model_code, params.in)
+obj.fn <- g3_tmb_adfun(model_code, params.in)
+
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = list(
+        fleet = c("ldist_f_surv", "aldist_f_surv", "matp_f_surv"),
+        abund = c("dist_si_cpue")),
+    method = "BFGS",
+    control = list(maxit = 1000, reltol = 1e-10),
+    cv_floor = 0.05)
+nll <- model_fn(params.out) ; r <- attributes(nll)
+
+# Abundance
+g3_array_agg(r$dstart_fish_imm__num, c('age', 'year'))
+g3_array_agg(r$dstart_fish_imm__dynlen, c('age', 'year'), agg = mean)
+g3_array_agg(r$dstart_fish_imm__dynlensd, c('age', 'year'), agg = mean)
