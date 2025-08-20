@@ -146,7 +146,52 @@ ok_group("g3_step:stock_reshape", {
         as.vector(attr(result, 'dest_nolength__num')),
         sum(11, 22, 33, 44)), "dest_nolength__num")
 
-    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params, g3_test_tmb = 2)
+})
+
+ok_group("g3_step:stock_combine_subpop", {
+    source_dw <- g3_stock('source_dw', c(10, 20, 30, 40)) |> g3s_age(1,1)
+    subpop_dw <- g3_stock('subpop_dw', c(20, 40, 80)) |> g3s_age(1,1)  # Wider top and bottom
+
+    actions <- list(
+        g3a_time(2000, 2001),
+        gadget3:::g3a_initialconditions_normalcv(source_dw),
+        gadget3:::g3a_initialconditions_normalcv(subpop_dw),
+
+        list('900:subpop_dw' = gadget3:::g3_step(~stock_iterate(subpop_dw, stock_intersect(source_dw, {
+            stock_combine_subpop(stock_ss(source_dw__num), stock_ss(subpop_dw__num))
+        })))),
+
+        # NB: Only required for testing
+        gadget3:::g3l_test_dummy_likelihood() )
+    full_actions <- c(actions, list(
+        g3a_report_detail(actions),
+        NULL ))
+    model_fn <- g3_to_r(full_actions)
+    model_cpp <- g3_to_tmb(full_actions)
+
+    attr(model_cpp, "parameter_template") |>
+          g3_init_val("source_dw.Linf", 80) |>
+          g3_init_val("subpop_dw.Linf", 80) |>
+          g3_init_val("*.K", 0.3) |>
+          g3_init_val("*.t0", -0.8) |>
+          g3_init_val("*.t0", -0.8) |>
+          g3_init_val("*.walpha", 0.01) |>
+          g3_init_val("*.wbeta", 3) |>
+        identity() -> params.in
+
+    r <- attributes(model_fn(params.in))
+
+    ok(!isTRUE(all.equal(r$dstart_source_dw__num[,,1], r$dstart_source_dw__num[,,2])), "dstart_source_dw__num: Changed during model")
+    ok(ut_cmp_equal(
+        r$dstart_source_dw__num[,,1] + c(
+            0,  # 10:20 not represented in subpop
+            r$dstart_subpop_dw__num[1,,1] / 2,  # 20:30 has half of 20:40
+            r$dstart_subpop_dw__num[1,,1] / 2,  # 30:40 has half of 20:40
+            r$dstart_subpop_dw__num[2,,1] + r$dstart_subpop_dw__num[3,,1] ),
+        r$dstart_source_dw__num[,,2] ), "dstart_source_dw__num: Has dstart_subpop_dw__num summed onto it")
+
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in, g3_test_tmb = 2)
 })
 
 ok_group("g3_step:stock_ss", {
