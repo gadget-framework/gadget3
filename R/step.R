@@ -339,7 +339,12 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 subpop_num_c = subpop_num_c,
                 subpop_wgt_c = subpop_wgt_c,
                 end = NULL ))
-            return(rlang::f_rhs(g3_step(out_c, recursing = TRUE, orig_env = orig_env)))
+            # Run g3_step again to fix up dependents that got added
+            out_f <- g3_step(out_c, recursing = TRUE, orig_env = orig_env)
+
+            # Add environment to formulae's environment, return inner call
+            environment_merge(environment(step_f), rlang::f_env(out_f))
+            return(rlang::f_rhs(out_f))
         },
         # stock_ss subsets stock data var, overriding any set expressions
         stock_ss = function (x) { # Arguments: stock data variable (i.e. stock__num), [dim_name = override expr, ...]

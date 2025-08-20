@@ -73,6 +73,9 @@ f_substitute <- function (f, env) {
         if (is.call(o) && !rlang::is_formula(o)) {  # Bare code (no environment)
             # Add brackets if appropriate
             assign(n, explicit_bracket(o), envir = env)
+        } else if (rlang::is_formula(o) && is.null(rlang::f_rhs(o))) {  # ~NULL
+            # NB: Handle ~NULL separately, as rlang::f_rhs(o) <- NULL will produce nonsense
+            assign(n, NULL, envir = env)
         } else if (rlang::is_formula(o)) {  # Formula
             # Add brackets if appropriate
             rlang::f_rhs(o) <- explicit_bracket(rlang::f_rhs(o))
