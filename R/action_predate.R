@@ -250,6 +250,12 @@ g3a_predate <- function (
 
     stopifnot(g3_is_stock(predstock))
     stopifnot(is.list(prey_stocks) && all(sapply(prey_stocks, g3_is_stock)))
+    if (rlang::is_formula(catchability_f)) catchability_f <- list(
+        # Back-compatibility, for e.g. g3experiments::g3a_predate_catchability_hockeyfleet()
+        suit_unit = "total biomass",
+        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
+        cons = catchability_f )
+    stopifnot(is.list(catchability_f) && all(c("cons", "suit", "suit_unit") %in% names(catchability_f)))
 
     # Variables used:
     # stock__totalpredate: Biomass of total consumed (prey_stock) (prey matrix)
