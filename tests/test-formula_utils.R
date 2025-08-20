@@ -128,6 +128,10 @@ ok(cmp_code(
         a = as.formula(call("~", call("<-", quote(q), 2))))),
     ~{z <- 1 ; q <- 2}), "f_substitute: No extra brackets for assignment")
 
+ok(cmp_code(
+    gadget3:::f_substitute(~x + 2, list(x = ~NULL)),
+    ~NULL + 2 ), "f_substitute: Can substitute a ~NULL formula")
+
 ### f_chain_conditional
 
 out <- gadget3:::f_chain_conditional(list(g3_formula(x*2, x = 4), ~b), age = c(1,2), area = c(4,5))
