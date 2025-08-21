@@ -51,9 +51,9 @@ g3_param_project_dnorm <- function (
 
     # NB: Only real purpose is to cast the var to .vec()
     g3_param_project_nll_dnorm <- g3_native(r = function (var, mean, stddev) {
-        return(dnorm(var, mean = mean, sd = stddev))
+        return(-dnorm(var, mean = mean, sd = stddev))
     }, cpp = '[](array<Type> var, Type mean, Type stddev) -> vector<Type> {
-        return(dnorm(var.vec(), mean, stddev, 0));
+        return(-dnorm(var.vec(), mean, stddev, 0));
     }')
     g3_param_project_dnorm <- g3_native(r = function (var, mean, stddev) {
         var[!is.finite(var)] <- rnorm(length(var[!is.finite(var)]), mean = mean, sd = stddev)
