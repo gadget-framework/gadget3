@@ -87,12 +87,12 @@ g3_param_project_rwalk <- function (
             prepend_extra = quote(param_name) )) {
     g3_param_project_nll_rwalk <- g3_native(r = function (var, mean, stddev) {
         d <- c(0, diff(var))
-        return(dnorm(d, mean = mean, sd = stddev))
+        return(-dnorm(d, mean = mean, sd = stddev))
     }, cpp = '[](array<Type> var, Type mean, Type stddev) -> vector<Type> {
         array<Type> d(var.size());
         std::adjacent_difference(var.begin(), var.end(), d.begin());
         d(0) = 0;  // NB: Starting difference should be 0, not first value
-        return(dnorm(d.vec(), mean, stddev, 0));
+        return(-dnorm(d.vec(), mean, stddev, 0));
     }')
     g3_param_project_rwalk <- g3_native(r = function (var, mean, stddev) {
         var[!is.finite(var)] <- as.vector(tail(var[is.finite(var)], 1)) +
