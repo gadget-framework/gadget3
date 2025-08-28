@@ -69,6 +69,23 @@ obj.fn <- g3_tmb_adfun(tmb_model, params.in, type = "Fun")
 r <- obj.fn$report()
 ```
 
+## Increasing objective function verbosity
+
+TMB objective functions have several options to increase logging output
+
+```{r, eval=FALSE}
+obj.fn <- g3_tmb_adfun(
+    model_cpp,
+    params.in,
+    # control allows you to tweak trace level for outer optimiser, see "?stats::optim"
+    control = list(trace = 2),
+    # inner.control allows you to increase trace level for the random effect optimiser, see "?TMB::newton"
+    inner.control = list(trace = 3, maxit = 1000, tol = 1e-7) )
+obj.fn$env$tracepar <- TRUE  # Print result of every likelihood evaluation
+obj.fn$env$tracemgc <- TRUE  # Print maximum gradient at every gradient evaluation
+obj.fn$env$silent <- FALSE  # Show/hide tracing messages
+```
+
 ## TMB model crashes your R session
 
 If the model crashes whilst forming the TMB ADFun object, then it takes your R
