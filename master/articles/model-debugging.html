@@ -247,6 +247,14 @@ be provided to <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></cod
 <code class="sourceCode R"><span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">bounded_code</span>, <span class="va">params.in</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">3</span>, maxit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
+<h4 id="logging-messages">Logging messages<a class="anchor" aria-label="anchor" href="#logging-messages"></a>
+</h4>
+<pre><code>Trying early exit - PD Hess?</code></pre>
+<p>Not much improvement to the solution has been found, so TMB checks to
+see if the current solution has a <a href="https://en.wikipedia.org/wiki/Second_partial_derivative_test#Functions_of_many_variables" class="external-link">positive-definite
+hessian</a>. If yes, we can stop here.</p>
+</div>
+<div class="section level4">
 <h4 id="missing-value-for-m">Missing value for <code>m</code><a class="anchor" aria-label="anchor" href="#missing-value-for-m"></a>
 </h4>
 <p>The error:</p>
@@ -254,7 +262,7 @@ be provided to <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></cod
 <p>…comes from TMB’s newton optimiser, and essentially says there is
 <code>NaN</code> in the hessian matrix. <code>m</code> in this case is
 equivalent to:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu">spHess</span><span class="op">(</span>random <span class="op">=</span> <span class="cn">TRUE</span>, set_tail <span class="op">=</span> <span class="va">random</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">}</span>, envir <span class="op">=</span> <span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -271,19 +279,19 @@ various reasons, but likely <code>solveCholesky()</code> failed.</p>
 <p>Generally, <code>TMB:::newton()</code> is called from
 <code>obj.fn$env$ff</code>. You can extract the arguments provided by
 editing this function:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">ff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">obj.fn</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">ff</span><span class="op">)</span></span></code></pre></div>
 <p>Around line 16, add code to extract the arguments provided, e.g:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>        <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="st">"newt.args"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">eval</a></span><span class="op">(</span><span class="va">random.start</span><span class="op">)</span>,</span>
 <span>            fn <span class="op">=</span> <span class="va">f0</span>, gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">f0</span><span class="op">(</span><span class="va">x</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, he <span class="op">=</span> <span class="va">H0</span>,</span>
 <span>            env <span class="op">=</span> <span class="va">env</span><span class="op">)</span>, <span class="va">inner.control</span><span class="op">)</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Then you can perform a single run to extract arguments:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">obj.fn</span><span class="op">$</span><span class="fu">fn</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="fu">TMB</span><span class="fu">:::</span><span class="va"><a href="https://rdrr.io/pkg/TMB/man/newton.html" class="external-link">newton</a></span>, <span class="va">newt.args</span><span class="op">)</span></span></code></pre></div>
 <p>…or modify the newton function:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newt</span> <span class="op">&lt;-</span> <span class="fu">TMB</span><span class="fu">:::</span><span class="va"><a href="https://rdrr.io/pkg/TMB/man/newton.html" class="external-link">newton</a></span></span>
 <span><span class="va">newt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/edit.html" class="external-link">edit</a></span><span class="op">(</span><span class="va">newt</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">newt</span>, <span class="va">newt.args</span><span class="op">)</span></span></code></pre></div>
