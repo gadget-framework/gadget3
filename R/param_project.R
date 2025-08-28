@@ -390,7 +390,7 @@ g3_param_project <- function (
         environment(project_fs$nll)$projstock__nll <- g3_stock_instance(projstock, NaN, desc = paste0("nll for ", projstock$name, " deviants"))
     }
 
-    environment(out)[[step_id(g3_action_order$initial, "g3a_project_param", param_name)]] <- g3_step(f_substitute(~{
+    environment(out)[[step_id(g3_action_order$initial, "g3a_project_param", project_fs$name, paste(param_name, collapse = "_"))]] <- g3_step(f_substitute(~{
         debug_label("g3_param_project: generate projections for ", projstock)
         stock_with(projstock, {
             if (cur_time > total_steps) {
