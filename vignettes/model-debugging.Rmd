@@ -142,6 +142,16 @@ e.g. to add tracing:
 obj.fn <- g3_tmb_adfun(bounded_code, params.in, inner.control = list(trace = 3, maxit = 100))
 ```
 
+#### Logging messages
+
+```
+Trying early exit - PD Hess?
+```
+
+Not much improvement to the solution has been found, so TMB checks to see if the current solution has a
+[positive-definite hessian](https://en.wikipedia.org/wiki/Second_partial_derivative_test#Functions_of_many_variables).
+If yes, we can stop here.
+
 #### Missing value for ``m``
 
 The error:
