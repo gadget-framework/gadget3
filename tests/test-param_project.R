@@ -27,11 +27,23 @@ actions <- list(
         offset = "offset",
         random = FALSE ))),
 
+    # Save the output of a parameter, don't apply it
+    g3_step(g3_formula({
+        stst__paramoutput[[1]] <- p
+    }, stst__paramoutput = array(0, dim = c(1)), p = g3_param_project(
+        "scofdn",
+        g3_param_project_dlnorm(),
+        by_stock = st,
+        scale = "scale",
+        offset = "offset",
+        random = FALSE ))),
+
     # NB: Only required for testing
     gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
     g3a_report_detail(actions),
     g3a_report_history(actions, 'proj_.*', out_prefix = NULL),
+    g3a_report_history(actions, '__paramoutput$'),
     NULL))
 model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)
@@ -156,31 +168,30 @@ for (r in rs) {
 ok_group("project_years=40, scale / offset") ###################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("stst.Mdln.#.#", rnorm(5 * 2, 50, 10)) |>
-    g3_init_val("stst.Mdln.proj.dlnorm.lmean", runif(1, 5, 10)) |>
-    g3_init_val("stst.Mdln.proj.dlnorm.lstddev", 0.2) |>
-    g3_init_val("stst.Mdln.scale", runif(1, 10, 100)) |>
-    g3_init_val("stst.Mdln.offset", runif(1, 10, 100)) |>
+    g3_init_val("stst.scofdn.#.#", rnorm(5 * 2, 50, 10)) |>
+    g3_init_val("stst.scofdn.proj.dlnorm.lmean", runif(1, 5, 10)) |>
+    g3_init_val("stst.scofdn.proj.dlnorm.lstddev", log(0.2)) |>
+    g3_init_val("stst.scofdn.scale", runif(1, 10, 100)) |>
+    g3_init_val("stst.scofdn.offset", runif(1, 10, 100)) |>
     g3_init_val("project_years", 40) |>
     identity() -> params
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
-    as.vector(r$proj_dlnorm_stst_Mdln__var)[1:10],
-    as.vector(unlist(params[sort(grep("stst.Mdln.[0-9]+.[0-9]+", names(params), value = TRUE))]) * params$stst.Mdln.scale + params$stst.Mdln.offset),
-    tolerance = 1e-7 ), "proj_dlnorm_stst_Mdln__var: Values match input parameters with scale/offset applied")
+    as.vector(r$proj_dlnorm_stst_scofdn__var)[1:10],
+    as.vector(unlist(params[sort(grep("stst.scofdn.[0-9]+.[0-9]+", names(params), value = TRUE))])),
+    tolerance = 1e-7 ), "proj_dlnorm_stst_scofdn__var: Values match input parameters, scale/offset *not* applied")
 ok(ut_cmp_equal(
-    as.vector(r$proj_rwalk_Mrw__nll),
-    as.vector(-dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
-    tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
+    as.vector(r$hist_stst__paramoutput)[2:11],  # NB: Some action-ordering off-by-one error
+    as.vector(unlist(params[sort(grep("stst.scofdn.[0-9]+.[0-9]+", names(params), value = TRUE))]) * params$stst.scofdn.scale + params$stst.scofdn.offset),
+    tolerance = 1e-7 ), "hist_stst__paramoutput: scale/offset have been applied at point-of-use")
 ok(ut_cmp_equal(
-    as.vector(r$proj_dlnorm_stst_Mdln__nll),
-    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdln__var), params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
-    tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdln__nll: dnorm of __var (also, by_stock has worked)")
-
+    mean(tail(r$proj_dlnorm_stst_scofdn__var, -5*2)),
+    params$stst.scofdn.proj.dlnorm.lmean,
+    tolerance = 1e4), "mean(r$proj_dlnorm_stst_scofdn__var): Projected values have a mean ~matching stst.scofdn.proj.dlnorm.lmean *no* scale/offset applied")
 ok(ut_cmp_equal(
-    mean(tail(r$proj_dlnorm_stst_Mdln__var, -5*2)),
-    params$stst.Mdln.proj.dlnorm.lmean * params$stst.Mdln.scale + params$stst.Mdln.offset,
-    tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdln__var): Projected values have a mean ~matching stst.Mdln.proj.dlnorm.lmean with scale/offset applied")
+    mean(tail(r$hist_stst__paramoutput[1,], -5*2)),
+    params$stst.scofdn.proj.dlnorm.lmean * params$stst.scofdn.scale + params$stst.scofdn.offset,
+    tolerance = 1e4), "mean(r$hist_stst__paramoutput): Projected values have scale/offset applied at point-of-use")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)

@@ -381,8 +381,10 @@ g3_param_project <- function (
     projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name))
 
     out <- g3_step(f_substitute(~(
-        stock_with(projstock, stock_ss(projstock__var, vec = single))
+        stock_with(projstock, stock_ss(projstock__var, vec = single) * scale + offset)
     ), list(
+        scale = scale,
+        offset = offset,
         end = NULL )), recursing = TRUE)
 
     # If nll formula doesn't define projstock__nll, generate a stock instance for it to use
@@ -397,11 +399,10 @@ g3_param_project <- function (
                 if (weight > 0) nll <- nll + weight * nll_f
             } else if (cur_year_projection) {
                 if (is.nan(stock_ss(projstock__var, vec = single))) {
-                    projstock__var <- (projstock__var - offset) / scale  # Unapply scale/offset from below
-                    projstock__var <- project_f * scale + offset
+                    projstock__var <- project_f
                 }
             } else {
-                stock_ss(projstock__var, vec = single) <- param_tbl * scale + offset
+                stock_ss(projstock__var, vec = single) <- param_tbl
             }
         })
     }, list(
@@ -410,8 +411,6 @@ g3_param_project <- function (
         nll_f = project_fs$nll,
         param_tbl = param_tbl,
         weight = weight,
-        scale = scale,
-        offset = offset,
         end = NULL )))
     return(out)
 }
