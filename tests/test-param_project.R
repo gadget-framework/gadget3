@@ -141,12 +141,18 @@ for (r in rs) {
     ok(ut_cmp_equal(
         length(r$proj_rwalk_Mrw__var),
         5 * 2 + params$project_years * 2 ), "length(r$proj_rwalk_Mrw__var): 5 normal years, 20 projection years, 2 steps for each")
-
-    ok(ut_cmp_equal(signif(mean(head(r$proj_rwalk_Mrw__var, 5*2)), 1), 0.2), "mean(r$proj_rwalk_Mrw__var): Same as param input, for first 10")
-    ok(ut_cmp_equal(signif(mean(head(r$proj_dlnorm_stst_Mdln__var, 5*2)), 1), 0.5), "mean(r$proj_dlnorm_stst_Mdln__var): Same as param input, for first 10")
     ok(ut_cmp_equal(
-        signif(mean(head(r$proj_dnorm_Mdn__var, 5*2)), 1),
-        params[["Mdn.proj.dnorm.mean"]] ), "mean(r$proj_dnorm_stst_Mdn__var): Same as param input, for first 10")
+        as.vector(head(r$proj_rwalk_Mrw__var, 5*2)),
+        as.numeric(params[sort(grep("^Mrw\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
+        end = NULL), "proj_rwalk_Mrw__var: Same as param input, for first 10")
+    ok(ut_cmp_equal(
+        as.vector(head(r$proj_dlnorm_stst_Mdln__var, 5*2)),
+        as.numeric(params[sort(grep("^stst.Mdln\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
+        end = NULL), "proj_dlnorm_stst_Mdln__var: Same as param input, for first 10")
+    ok(ut_cmp_equal(
+        as.vector(head(r$proj_dnorm_Mdn__var, 5*2)),
+        as.numeric(params[sort(grep("^Mdn\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
+        end = NULL), "proj_dnorm_stst_Mdn__var: Same as param input, for first 10")
 
     ok(ut_cmp_equal(
         mean(tail(r$proj_dlnorm_stst_Mdln__var, -5*2)),
