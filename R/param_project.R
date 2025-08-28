@@ -1,9 +1,9 @@
 g3_param_project_dlnorm <- function (
         lmean_f = g3_parameterized("proj.dlnorm.lmean",
-            value = 0, optimise = FALSE,
+            value = log(1e-5), optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
-            value = 1e5, optimise = FALSE,
+            value = log(0.2), optimise = FALSE,
             prepend_extra = quote(param_name) )) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(var))
@@ -233,7 +233,7 @@ g3_param_project_logar1 <- function (
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
             "proj.logar1.lstddev",
-            value = 1, optimise = FALSE,
+            value = log(0.2), optimise = FALSE,
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
             "proj.logar1.loglevel",
