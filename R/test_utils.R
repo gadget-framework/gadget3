@@ -22,6 +22,7 @@ ut_tmb_r_compare2 <- function (
         g3_test_tmb = 1,
         gdbsource = FALSE,
         test_tmb_fn = TRUE,
+        skip_re = NULL,
         tolerance = 1e-5 ) {
     dearray <- function (x) {
         # TMB Will produce 0/1 for TRUE/FALSE
@@ -40,6 +41,21 @@ ut_tmb_r_compare2 <- function (
             x <- as.vector(x)
         }
         return(x)
+    }
+    val_test <- function (n, ...) {
+        vals <- list(...)
+        msg <- paste0(
+            paste(names(vals), collapse = " and "),
+            " match: ",
+            n )
+        if (!is.null(skip_re) && grepl(skip_re, n)) {
+            writeLines(paste0("# skip: ", msg))
+            return(TRUE)
+        }
+        unittest::ok(unittest::ut_cmp_equal(
+            vals[[1]],
+            vals[[2]],
+            tolerance = tolerance ), msg)
     }
 
     cur_g3_test_tmb <- as.integer(Sys.getenv('G3_TEST_TMB'))
@@ -74,16 +90,9 @@ ut_tmb_r_compare2 <- function (
     model_tmb_report <- model_tmb$report()
     r_result <- model_fn(param_template)
 
-    unittest::ok(unittest::ut_cmp_equal(
-        model_tmb_nll,
-        as.vector(r_result),
-        tolerance = tolerance ), "TMB and R match nll")
-
+    val_test("nll", TMB = model_tmb_nll, R = as.vector(r_result))
     for (n in names(attributes(r_result))) {
-        unittest::ok(unittest::ut_cmp_equal(
-            dearray(model_tmb_report[[n]]),
-            dearray(attr(r_result, n)),
-            tolerance = tolerance), paste("TMB and R match", n))
+        val_test(n, TMB = dearray(model_tmb_report[[n]]), R = dearray(attr(r_result, n)))
     }
 
     if (test_tmb_fn) {
@@ -92,10 +101,7 @@ ut_tmb_r_compare2 <- function (
         tmb_fn_report <- tmb_fn(if (stats::runif(1) < 0.5) param_template$value else param_template)
 
         for (n in names(attributes(r_result))) {
-            unittest::ok(unittest::ut_cmp_equal(
-                dearray(model_tmb_report[[n]]),
-                dearray(attr(r_result, n)),
-                tolerance = tolerance), paste("TMBfn and R match", n))
+            val_test(n, TMBfn = dearray(model_tmb_report[[n]]), R = dearray(attr(r_result, n)))
         }
     }
 }

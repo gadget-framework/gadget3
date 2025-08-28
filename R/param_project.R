@@ -1,9 +1,9 @@
 g3_param_project_dlnorm <- function (
         lmean_f = g3_parameterized("proj.dlnorm.lmean",
-            value = 0, optimise = FALSE,
+            value = log(1e-5), optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
-            value = 1e5, optimise = FALSE,
+            value = log(0.2), optimise = FALSE,
             prepend_extra = quote(param_name) )) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(var))
@@ -51,9 +51,9 @@ g3_param_project_dnorm <- function (
 
     # NB: Only real purpose is to cast the var to .vec()
     g3_param_project_nll_dnorm <- g3_native(r = function (var, mean, stddev) {
-        return(-dnorm(var, mean = mean, sd = stddev))
+        return(-dnorm(var, mean = mean, sd = stddev, log = TRUE))
     }, cpp = '[](array<Type> var, Type mean, Type stddev) -> vector<Type> {
-        return(-dnorm(var.vec(), mean, stddev, 0));
+        return(-dnorm(var.vec(), mean, stddev, 1));
     }')
     g3_param_project_dnorm <- g3_native(r = function (var, mean, stddev) {
         var[!is.finite(var)] <- rnorm(length(var[!is.finite(var)]), mean = mean, sd = stddev)
@@ -87,12 +87,12 @@ g3_param_project_rwalk <- function (
             prepend_extra = quote(param_name) )) {
     g3_param_project_nll_rwalk <- g3_native(r = function (var, mean, stddev) {
         d <- c(0, diff(var))
-        return(-dnorm(d, mean = mean, sd = stddev))
+        return(-dnorm(d, mean = mean, sd = stddev, log = TRUE))
     }, cpp = '[](array<Type> var, Type mean, Type stddev) -> vector<Type> {
         array<Type> d(var.size());
         std::adjacent_difference(var.begin(), var.end(), d.begin());
         d(0) = 0;  // NB: Starting difference should be 0, not first value
-        return(-dnorm(d.vec(), mean, stddev, 0));
+        return(-dnorm(d.vec(), mean, stddev, 1));
     }')
     g3_param_project_rwalk <- g3_native(r = function (var, mean, stddev) {
         var[!is.finite(var)] <- as.vector(tail(var[is.finite(var)], 1)) +
@@ -233,7 +233,7 @@ g3_param_project_logar1 <- function (
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
             "proj.logar1.lstddev",
-            value = 1, optimise = FALSE,
+            value = log(0.2), optimise = FALSE,
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
             "proj.logar1.loglevel",
@@ -258,8 +258,7 @@ g3_param_project_logar1 <- function (
         c(0, -dnorm(
             curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel,
             noisemean,
-            # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
-            max(noisestddev, 1e-7),
+            noisestddev,
             log = TRUE ))
     }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
         array<Type> logvar(var.size());
@@ -282,8 +281,7 @@ g3_param_project_logar1 <- function (
         nll.tail(nll.size() - 1) = -dnorm(
             (vector<Type>)(curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel),
             noisemean,
-            // noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
-            std::max(noisestddev, (Type)1e-7),
+            noisestddev,
             1 );
         return(nll);
     }')
@@ -383,8 +381,10 @@ g3_param_project <- function (
     projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name))
 
     out <- g3_step(f_substitute(~(
-        stock_with(projstock, stock_ss(projstock__var, vec = single))
+        stock_with(projstock, stock_ss(projstock__var, vec = single) * scale + offset)
     ), list(
+        scale = scale,
+        offset = offset,
         end = NULL )), recursing = TRUE)
 
     # If nll formula doesn't define projstock__nll, generate a stock instance for it to use
@@ -392,18 +392,17 @@ g3_param_project <- function (
         environment(project_fs$nll)$projstock__nll <- g3_stock_instance(projstock, NaN, desc = paste0("nll for ", projstock$name, " deviants"))
     }
 
-    environment(out)[[step_id(g3_action_order$initial, "g3a_project_param", param_name)]] <- g3_step(f_substitute(~{
+    environment(out)[[step_id(g3_action_order$initial, "g3a_project_param", project_fs$name, paste(param_name, collapse = "_"))]] <- g3_step(f_substitute(~{
         debug_label("g3_param_project: generate projections for ", projstock)
         stock_with(projstock, {
             if (cur_time > total_steps) {
                 if (weight > 0) nll <- nll + weight * nll_f
             } else if (cur_year_projection) {
                 if (is.nan(stock_ss(projstock__var, vec = single))) {
-                    projstock__var <- (projstock__var - offset) / scale  # Unapply scale/offset from below
-                    projstock__var <- project_f * scale + offset
+                    projstock__var <- project_f
                 }
             } else {
-                stock_ss(projstock__var, vec = single) <- param_tbl * scale + offset
+                stock_ss(projstock__var, vec = single) <- param_tbl
             }
         })
     }, list(
@@ -412,8 +411,6 @@ g3_param_project <- function (
         nll_f = project_fs$nll,
         param_tbl = param_tbl,
         weight = weight,
-        scale = scale,
-        offset = offset,
         end = NULL )))
     return(out)
 }
