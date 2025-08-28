@@ -69,7 +69,7 @@ ok(ut_cmp_equal(signif(mean(r$proj_dlnorm_stst_Mdln__var), 2), 18), "mean(r$proj
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
-    as.vector(-dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
+    as.vector(-dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev, log = TRUE)),
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdln__nll),
@@ -77,7 +77,7 @@ ok(ut_cmp_equal(
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdln__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dnorm_Mdn__nll),
-    as.vector(-dnorm(r$proj_dnorm_Mdn__var, mean = params$Mdn.proj.dnorm.mean, sd = params$Mdn.proj.dnorm.stddev)),
+    as.vector(-dnorm(r$proj_dnorm_Mdn__var, mean = params$Mdn.proj.dnorm.mean, sd = params$Mdn.proj.dnorm.stddev, log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dnorm_Mdn__nll: dnorm of __var")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
@@ -98,7 +98,7 @@ nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
-    as.vector(-dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev)),
+    as.vector(-dnorm(c("1990-01" = 0, diff(r$proj_rwalk_Mrw__var)), mean = params$Mrw.proj.rwalk.mean, sd = params$Mrw.proj.rwalk.stddev, log = TRUE)),
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdln__nll),
