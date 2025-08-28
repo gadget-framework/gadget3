@@ -36,6 +36,7 @@ examples: install
 
 vignettes: install
 	Rscript -e 'tools::buildVignettes(dir=".")'
+	Rscript -e 'for (f in Sys.glob("./vignettes/articles/*.Rmd")) tools::buildVignette(f, dir="vignettes/")'
 
 serve-docs:
 	[ -d docs ] && rm -r docs || true
