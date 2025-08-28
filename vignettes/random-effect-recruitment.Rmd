@@ -1,0 +1,178 @@
+---
+# Source vignette in R session:
+#   Sys.setenv(G3_TEST_TMB=1)
+#   knitr::purl('gadget3/vignettes/random-effect-recruitment.Rmd', output="/tmp/vign.R") ; source("/tmp/vign.R", echo = T)
+title: "Using random effects for recruitment"
+output:
+  html_document:
+    toc: true
+    theme: null
+vignette: >
+  %\VignetteIndexEntry{Random effects in recruitment}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, message=FALSE, echo=FALSE}
+library(unittest)
+# Redirect ok() output to stderr
+options(unittest.output = stderr())
+
+library(gadget3)
+set.seed(123)
+if (nzchar(Sys.getenv('G3_TEST_TMB'))) options(gadget3.tmb.work_dir = gadget3:::vignette_base_dir('work_dir'))
+```
+
+```{r, eval=nzchar(Sys.getenv('G3_TEST_TMB'))}
+library(gadget3)
+
+stocks <- list(
+    imm = g3_stock(c(species = "fish", "imm"), 1:10 * 10) |> g3s_age(1, 5) )
+
+## Generate some abundnace data for ages 4 & 5, the stock should be stable, however the data is noisy
+old.seed <- mget(c(".Random.seed"), envir = globalenv(), ifnotfound = list(NULL))[[1]]
+set.seed(42)
+dist_age4 <- expand.grid(year = 2000:2030, step = 1, age = 4, number = NA)
+dist_age4$number <- rnorm(nrow(dist_age4), 1.75e7, 2e6)
+dist_age5 <- expand.grid(year = 2000:2030, step = 1, age = 5, number = NA)
+dist_age5$number <- rnorm(nrow(dist_age5), 3.75e7, 2e6)
+set.seed(old.seed)
+
+## Single stock model, using our generated data as an abundance index
+actions <- list(
+    g3a_time(2000, 2030, step_lengths = c(6,6)),
+    g3a_age(stocks$imm),
+    # TODO: The fit is much poorer than you'd hope, which helps generate a pretty projection but not great otherwise.
+    #       I suspect this is to do with g3a_renewal_initabund()
+    g3a_initialconditions_normalcv(stocks$imm),
+    g3a_naturalmortality(stocks$imm),
+    g3a_growmature(stocks$imm, g3a_grow_impl_bbinom(maxlengthgroupgrowth = 4L)),
+    g3a_renewal_normalparam(
+      stocks$imm,
+      factor_f = g3_param_project(
+        "rec",
+        g3_param_project_logar1(),
+        scale = "scalar",
+        by_stock = stocks,
+        by_step = FALSE ),
+      run_step = 1 ),
+
+    g3l_abundancedistribution(
+        "dist_older",
+        rbind(dist_age4, dist_age5),
+        stocks = stocks,
+        # NB: Fix alpha/beta, abundance should match given values absolutely
+        function_f = g3l_distribution_surveyindices_log(alpha = 0, beta = 1),
+        report = TRUE,
+        nll_breakdown = TRUE),
+    NULL )
+
+full_actions <- c(actions, list(
+    g3a_report_detail(actions),
+    g3a_report_history(actions, "__num$|__wgt$", out_prefix="dend_"),  # NB: Late reporting
+    g3l_bounds_penalty(actions),
+    NULL ))
+model_fn <- g3_to_r(full_actions)
+model_cpp <- g3_to_tmb(full_actions)
+fn <- g3_tmb_fn(model_cpp)
+
+## Define baseline parameters / fixed-effects
+attr(model_cpp, "parameter_template") |>
+  g3_init_val("*.init.scalar", 10, optimise = FALSE) |>
+  g3_init_val("*.init.#", 10, lower = 1e1, upper = 1e8) |>
+  g3_init_val("*.M.#", 0.5, lower = 0.1, upper = 1) |>
+  g3_init_val("init.F", 0.5, lower = 0.1, upper = 10) |>
+  g3_init_val("*_imm.Linf", 144.645) |>
+  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+  # NB: We don't optimise here since the model defines no length/weight structure, only counts
+  g3_init_val("*.t0", -0.8, optimise = FALSE) |>
+  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+  g3_init_val("*.rec.scalar", 10, optimise = FALSE) |>
+  g3_init_val("fish_imm.rec.proj.logar1.loglevel", value = log(2e3), lower = log(1e1), upper = log(5e5)) |> 
+  g3_init_val("fish_imm.rec.proj.logar1.lstddev", value = log(1), lower = log(1e-15), upper = log(1e4)) |> 
+  # TODO: Relative weight is important, but any rule of thumbs?
+  g3_init_val("proj_logar1_fish_imm_weight.proj_logar1_rec_weight", 1e0) |>
+  identity() -> params.in
+
+## Optimise model with recruitment as fixed-effect
+params.in |>
+  # NB: loglevel = log(init value), to be internally consistent
+  # TODO: Currently we default to random = TRUE for param_project, I think this is a bad idea in retrospect?
+  g3_init_val("*.rec.#", value = log(2e3), lower = log(1e1), upper = log(1e6), random = FALSE) |>
+  identity() -> params.fixed
+obj.fix <- g3_tmb_adfun(model_cpp, params.fixed)
+params.fixout <- gadgetutils::g3_optim(obj.fix, params.fixed)
+stopifnot(attr(params.fixout, "summary")$convergence)
+
+## Optimise same model, but using random effects for recruitment
+params.in |>
+    # TODO: Should this value be in logspace, and a logspace column tells g3_tmb_*() to log()/exp() as appropriate?
+    # NB: By setting random = TRUE, any previous bounds will be cleared
+    g3_init_val("*.rec.#", value = log(2e3), random = TRUE) |>
+    identity() -> params.rnd
+obj.rnd <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 3, maxit = 1000, tol = 1e-7))
+params.rndout <- gadgetutils::g3_optim(obj.rnd, params.rnd)
+stopifnot(attr(params.rndout, "summary")$convergence)
+
+## Print parameters from fixed-effect & random-effect optimisation, and nll
+print(cbind(params.fixout$value, params.rndout$value))
+print(c(
+    fixout = attr(params.fixout, "summary")$score,
+    # TODO: obj.fix$fn(obj.rnd$env$last.par.best) != attr(params.rndout, "summary")$score, even though newton trace reports the former?
+    #       Some sublety post-inner-optimisation I've not figured out.
+    rndout = attr(params.rndout, "summary")$score ))
+
+## Print mean abundance for latter years
+print(signif(rowMeans(g3_array_agg(fn(params.fixout |> g3_init_val("project_years", 40))$dend_fish_imm__num, c('age', 'year'), age = c(4, 5), year = 2040:2060, step = 1)), 3))
+print(signif(rowMeans(g3_array_agg(fn(params.rndout |> g3_init_val("project_years", 40))$dend_fish_imm__num, c('age', 'year'), age = c(4, 5), year = 2040:2060, step = 1)), 3))
+
+## Generate SD report from random-effects model
+# TODO: TMB::sdreport only works with nlminb(), not g3_optim(), or optim(), but we're getting false convergence
+obj.rndnlm <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 3, maxit = 1000, tol = 1e-7))
+nlmfit <- nlminb(obj.rndnlm$par, obj.rndnlm$fn, obj.rndnlm$gr, lower = g3_tmb_lower(params.rndout), upper = g3_tmb_upper(params.rnd),
+    control = list(eval.max = 1000, iter.max = 1000))
+summary(TMB::sdreport(obj.rndnlm))
+
+## Plot abundance for years 4 & 5, with 40 years projection, using loglevel/lstddev chosen by optimiser
+r <- fn(params.rndout |> g3_init_val("project_years", 40))
+# signif(g3_array_agg(r$dend_fish_imm__num, c('age', 'year'), step = 1, age = c(4, 5)), 3)
+g3_array_plot(t(g3_array_agg(r$dend_fish_imm__num, c('age', 'year'), age = c(4, 5), step = 1)))
+
+## Plot 20 iterations of projecting 40 years
+proj_iters <- do.call(cbind, lapply(1:20, function (i) {
+    proj <- t(g3_array_agg(
+        fn(params.rndout |> g3_init_val("project_years", 40))$dend_fish_imm__num,
+        c('age', 'year'),
+        year = 2025:2060,  # NB: Skip the first years when the model is settling
+        age = 5,
+        step = 1 ))
+    dimnames(proj)[[2]] <- paste0("proj ", i)
+    return(proj)
+}))
+g3_array_plot(proj_iters)
+
+## Plot change in recruitment given selection of parameters
+comment('
+obj_fn_plot <- function (model_code, params, par_name, from = min(params[par_name, "lower"]),
+    to = max(params[par_name, "upper"]), ...) {
+  stopifnot(par_name %in% rownames(params))
+  params$optimise <- FALSE
+  params$random <- FALSE
+  params[par_name, "optimise"] <- TRUE
+
+  # TODO: Just "Fun" is failing, maybe because theres only one param?
+  obj.fn <- g3_tmb_adfun(model_code, params, type = c("ADFun", "Fun"))
+  fn <- Vectorize(function (x) { params[par_name, "value"] <- list(x) ; obj.fn$fn(g3_tmb_par(params)) })
+  curve(fn(x), from = from, to = to, ...)
+}
+
+obj_fn_plot(model_cpp, params.rndout |>
+    #g3_init_val("proj_rwalk_fish_imm_weight.proj_rwalk_rec_weight", 0) |>
+    #g3_init_val("fish_imm.rec.proj.rwalk.stddev", 2e3) |>
+    #g3_init_val("fish_imm.rec.proj.rwalk.mean", 0) |>
+    identity(), "fish_imm.rec.2010", log(1e0), log(1e10))
+
+obj_fn_plot(model_cpp, params.rndout, "fish_imm.init.4", 0, 1e6)
+')
+```
