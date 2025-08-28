@@ -49,6 +49,7 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
     g3_init_val("stst.rec.proj.logar1.loglevel", log(round(runif(1, 10, 20)))) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
+    g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)
 
     g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
     g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
@@ -69,17 +70,8 @@ ok(ut_cmp_equal(
     as.vector( r$proj_logar1_stst_rec__var ),
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
-ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
-ok(ut_cmp_equal(
-    as.vector(r$proj_logar1_stst_rec__nll),
-    as.vector(c(0, -dnorm(
-        tail(log(r$proj_logar1_stst_rec__var), -1) -
-        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
-        0.2 * params.in[["stst.rec.proj.logar1.loglevel"]],
-        0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
-        1e-7,  # i.e. using hard-coded minimum stddev
-        1 ))),
-    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, minimum stddev")
+ok(ut_cmp_equal(nll, 0), "nll: 0, as we disabled it with weight")
+ok(all(!is.finite(r$proj_logar1_stst_rec__nll)), "r$proj_logar1_stst_rec__nll: lstddev 0, so nll infinite")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
@@ -204,6 +196,7 @@ ok_group("lastx mode", local({ ################################################
         g3_init_val("stst.rec.proj.logar1.logphi", 0) |>
         g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
         g3_init_val("lastx", floor(runif(1, 1, 4))) |>
+        g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)
 
         g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
         g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
@@ -217,7 +210,7 @@ ok_group("lastx mode", local({ ################################################
 
     ok(!("stst.rec.proj.logar1.loglevel" %in% names(params.in)), "loglevel parameter disabled")
 
-    ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
+    ok(ut_cmp_equal(nll, 0), "nll: 0, as we disabled it with weight")
     ok(ut_cmp_equal(
         as.vector( r$proj_logar1_stst_rec__var[length(r$proj_logar1_stst_rec__var)] ),
         as.vector( exp(mean(log(r$proj_logar1_stst_rec__var[as.character(seq(1994 - params.in$lastx + 1, 1994))]))) ),

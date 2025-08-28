@@ -258,8 +258,7 @@ g3_param_project_logar1 <- function (
         c(0, -dnorm(
             curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel,
             noisemean,
-            # noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
-            max(noisestddev, 1e-7),
+            noisestddev,
             log = TRUE ))
     }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
         array<Type> logvar(var.size());
@@ -282,8 +281,7 @@ g3_param_project_logar1 <- function (
         nll.tail(nll.size() - 1) = -dnorm(
             (vector<Type>)(curlogvar - logphi * lastlogvar - (1 - logphi) * loglevel),
             noisemean,
-            // noisestddev needs to be > 0, or nll is inf. Optimiser will need a curve of some kind to work with
-            std::max(noisestddev, (Type)1e-7),
+            noisestddev,
             1 );
         return(nll);
     }')
