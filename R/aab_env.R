@@ -69,7 +69,7 @@ g3_env$REPORT <- g3_native(r = function(var) {
 
 # Placeholder definition for ADREPORT in R
 g3_env$ADREPORT <- g3_native(r = function(...) {
-    warning("No ADREPORT functionality available in R")
+    # NB: No ADREPORT functionality available in R
 }, cpp = NULL)
 
 # Rprintf equivalent for R
