@@ -13,16 +13,6 @@ cmp_array <- function (ar, table_text) {
     ut_cmp_identical(as.data.frame.table(ar, stringsAsFactors = FALSE), tbl)
 }
 
-capture_warnings <- function(x, full_object = FALSE) {
-    all_warnings <- list()
-    rv <- withCallingHandlers(x, warning = function (w) {
-        all_warnings <<- c(all_warnings, list(w))
-        invokeRestart("muffleWarning")
-    })
-    if (!full_object) all_warnings <- vapply(all_warnings, function (w) w$message, character(1))
-    return(list(rv = rv, warnings = all_warnings))
-}
-
 ok_group("action_reports")
 ok(ut_cmp_equal(
     gadget3:::action_reports(list(g3_formula(quote({
@@ -71,9 +61,7 @@ model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 ok_group("report", {
     params <- attr(model_fn, 'parameter_template')
-    result <- capture_warnings(model_fn(params))
-    ok(ut_cmp_identical(result$warnings, "No ADREPORT functionality available in R"), "Tried to ADREPORT, moved on")
-    result <- result$rv
+    result <- model_fn(params)
     r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
@@ -158,14 +146,12 @@ ok_group("report", {
                4       4       5       7      10      14
   '), "hist_testreport_vec: History of vector")
 
-    capture_warnings(gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params))
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
 
 ok_group("adreport", {
     params <- attr(model_fn, 'parameter_template')
-    result <- capture_warnings(model_fn(params))
-    ok(ut_cmp_identical(result$warnings, "No ADREPORT functionality available in R"), "Tried to ADREPORT, moved on")
-    result <- result$rv
+    result <- model_fn(params)
     r <- attributes(result)
     # str(result)
     # str(as.list(r), vec.len = 10000)
