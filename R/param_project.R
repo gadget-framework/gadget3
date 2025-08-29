@@ -398,6 +398,9 @@ g3_param_project <- function (
         stock_with(projstock, {
             if (cur_time > total_steps) {
                 if (weight > 0) nll <- nll + weight * nll_f
+
+                if (uses_var) stock_with(projstock, ADREPORT(sum(projstock__var)))
+                if (uses_lvar) stock_with(projstock, ADREPORT(sum(exp(projstock__lvar))))
             } else if (cur_year_projection) {
                 if (uses_var) if (is.nan(stock_ss(projstock__var, vec = single))) {
                     projstock__var <- project_f
