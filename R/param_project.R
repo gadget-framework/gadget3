@@ -242,8 +242,7 @@ g3_param_project_logar1 <- function (
         lastx_f = 0L) {
     if (!identical(lastx_f, 0L)) loglevel_f <- NaN  # Disable loglevel parameter when lastx enabled
 
-    g3_param_project_nll_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel, lastx) {
-        logvar <- log(var)
+    g3_param_project_nll_logar1 <- g3_native(r = function (logvar, logphi, lstddev, loglevel, lastx) {
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
 
@@ -260,9 +259,7 @@ g3_param_project_logar1 <- function (
             noisemean,
             noisestddev,
             log = TRUE ))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
-        array<Type> logvar(var.size());
-        logvar = var.log();
+    }, cpp = '[](array<Type> logvar, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
         Type noisemean = 0 - exp(2*lstddev) / 2;
         Type noisestddev = exp(lstddev);
 
@@ -285,9 +282,8 @@ g3_param_project_logar1 <- function (
             1 );
         return(nll);
     }')
-    g3_param_project_logar1 <- g3_native(r = function (var, logphi, lstddev, loglevel, lastx) {
-        if (all(is.finite(var))) return(var)
-        logvar <- log(var)
+    g3_param_project_logar1 <- g3_native(r = function (logvar, logphi, lstddev, loglevel, lastx) {
+        if (all(is.finite(logvar))) return(logvar)
         noisemean <- 0 - exp(2*lstddev) / 2
         noisestddev <- exp(lstddev)
 
@@ -302,11 +298,9 @@ g3_param_project_logar1 <- function (
             }
             lastlogvar <- logvar[[i]]
         }
-        return(exp(logvar))
-    }, cpp = '[](array<Type> var, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
-        if (var.allFinite()) return var;
-        array<Type> logvar(var.size());
-        logvar = var.log();
+        return(logvar)
+    }, cpp = '[](array<Type> logvar, Type logphi, Type lstddev, Type loglevel, int lastx) -> vector<Type> {
+        if (logvar.allFinite()) return logvar;
         Type noisemean = 0 - exp(2*lstddev) / 2;
         Type noisestddev = exp(lstddev);
 
@@ -321,17 +315,17 @@ g3_param_project_logar1 <- function (
             }
             lastlogvar = logvar(i);
         }
-        return (logvar).exp();
+        return logvar;
     }')
 
     list(
         name = "logar1",
         # NB: We don't define projstock__nll, so g3_param_project will define a g3_stock_instance()
         nll = f_substitute(
-            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f))),
+            ~sum(projstock__nll[] <- g3_param_project_nll_logar1(projstock__lvar, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f))),
             list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f, lastx_f = lastx_f) ),
         project = f_substitute(
-            ~g3_param_project_logar1(projstock__var, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f)),
+            ~g3_param_project_logar1(projstock__lvar, logphi_f, lstddev_f, loglevel_f, as_integer(lastx_f)),
             list(logphi_f = logphi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f, lastx_f = lastx_f) ))
 }
 
@@ -379,10 +373,17 @@ g3_param_project <- function (
         random = random,
         ifmissing = NaN )
     projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name))
+    projstock__lvar <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name, " in logspace"))
+    uses_var <- "projstock__var" %in% all.names(project_fs$project)
+    uses_lvar <- "projstock__lvar" %in% all.names(project_fs$project)
 
     out <- g3_step(f_substitute(~(
-        stock_with(projstock, stock_ss(projstock__var, vec = single) * scale + offset)
+        stock_with(projstock, (if (uses_var) stock_ss(projstock__var, vec = single) * scale else 0) +
+                              (if (uses_lvar) exp(stock_ss(projstock__lvar, vec = single)) * scale else 0) +
+                              offset)
     ), list(
+        uses_var = uses_var,
+        uses_lvar = uses_lvar,
         scale = scale,
         offset = offset,
         end = NULL )), recursing = TRUE)
@@ -398,11 +399,15 @@ g3_param_project <- function (
             if (cur_time > total_steps) {
                 if (weight > 0) nll <- nll + weight * nll_f
             } else if (cur_year_projection) {
-                if (is.nan(stock_ss(projstock__var, vec = single))) {
+                if (uses_var) if (is.nan(stock_ss(projstock__var, vec = single))) {
                     projstock__var <- project_f
                 }
+                if (uses_lvar) if (is.nan(stock_ss(projstock__lvar, vec = single))) {
+                    projstock__lvar <- project_f
+                }
             } else {
-                stock_ss(projstock__var, vec = single) <- param_tbl
+                if (uses_var) { stock_ss(projstock__var, vec = single) <- param_tbl }
+                if (uses_lvar) { stock_ss(projstock__lvar, vec = single) <- param_tbl }
             }
         })
     }, list(
@@ -410,6 +415,8 @@ g3_param_project <- function (
         project_f = project_fs$project,
         nll_f = project_fs$nll,
         param_tbl = param_tbl,
+        uses_var = uses_var,
+        uses_lvar = uses_lvar,
         weight = weight,
         end = NULL )))
     return(out)

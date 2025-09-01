@@ -44,7 +44,7 @@ model_cpp <- g3_to_tmb(full_actions)
 ok_group("No noise, fixed loglevel") ##########################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
     g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
     g3_init_val("stst.rec.proj.logar1.loglevel", log(round(runif(1, 10, 20)))) |>
@@ -62,12 +62,12 @@ attr(model_fn, 'parameter_template') |>
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
-    as.vector(tail(r$proj_logar1_stst_rec__var, 10)),
-    rep(exp(params.in$stst.rec.proj.logar1.loglevel), 10),
-    end = NULL ), "proj_logar1_stst_rec__var: Settles to loglevel in projection, regardless of initial value")
+    as.vector(tail(r$proj_logar1_stst_rec__lvar, 10)),
+    rep(params.in$stst.rec.proj.logar1.loglevel, 10),
+    end = NULL ), "proj_logar1_stst_rec__lvar: Settles to loglevel in projection, regardless of initial value")
 ok(ut_cmp_equal(
     as.vector( g3_array_agg(r$detail_stst_imm__spawnednum, c("year"), step = 1, age = 0) ),
-    as.vector( r$proj_logar1_stst_rec__var ),
+    as.vector( exp(r$proj_logar1_stst_rec__lvar) ),
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
 ok(ut_cmp_equal(nll, 0), "nll: 0, as we disabled it with weight")
@@ -80,7 +80,7 @@ ok_group("With noise, no projection") #########################################
 old_seed <- .Random.seed
 set.seed(1234)  # Fix seed so we always choose the same stst.rec.#
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
     g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
@@ -100,20 +100,20 @@ ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$
 ok(ut_cmp_equal(
     as.vector(r$proj_logar1_stst_rec__nll),
     as.vector(c(0, -dnorm(
-        tail(log(r$proj_logar1_stst_rec__var), -1) -
-        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        tail(log(r$proj_logar1_stst_rec__lvar), -1) -
+        0.8 * head(log(r$proj_logar1_stst_rec__lvar), -1) -
         0.2 * 0,  # level not accounted for as it's negative
         0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
         exp(params.in[["stst.rec.proj.logar1.lstddev"]]),
         1 ))),
-    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var, level not accounted for")
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__lvar, level not accounted for")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("With noise") ########################################################
 
 attr(model_fn, 'parameter_template') |>
-    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
     g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
     g3_init_val("stst.rec.proj.logar1.loglevel", log(1e5)) |>
@@ -131,24 +131,24 @@ nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector( g3_array_agg(r$detail_stst_imm__spawnednum, c("year"), step = 1, age = 0) ),
-    as.vector( r$proj_logar1_stst_rec__var ),
+    as.vector( exp(r$proj_logar1_stst_rec__lvar) ),
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 
-ok(all(r$proj_logar1_stst_rec__var > 1e4), "r$proj_logar1_stst_rec__var: Noise not high enough for value to drop below 1e4")
+ok(all(exp(r$proj_logar1_stst_rec__lvar) > 1e4), "r$proj_logar1_stst_rec__lvar: Noise not high enough for value to drop below 1e4")
 
 ok(ut_cmp_equal(nll, sum(r$proj_logar1_stst_rec__nll)), "nll: Consistent with r$proj_logar1_stst_rec__nll (sums to same values)")
 ok(ut_cmp_equal(
     as.vector(r$proj_logar1_stst_rec__nll),
     as.vector(c(0, -dnorm(
-        tail(log(r$proj_logar1_stst_rec__var), -1) -
-        0.8 * head(log(r$proj_logar1_stst_rec__var), -1) -
+        tail(r$proj_logar1_stst_rec__lvar, -1) -
+        0.8 * head(r$proj_logar1_stst_rec__lvar, -1) -
         0.2 * params.in[["stst.rec.proj.logar1.loglevel"]],
         0 - exp(2*-exp(params.in[["stst.rec.proj.logar1.lstddev"]])) / 2,
         exp(params.in[["stst.rec.proj.logar1.lstddev"]]),
         1 ))),
-    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__var")
+    tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__lvar")
 
-# plot(r$proj_logar1_stst_rec__var)
+# plot(r$proj_logar1_stst_rec__lvar)
 
 ok_group("lastx mode", local({ ################################################
 
@@ -191,7 +191,7 @@ ok_group("lastx mode", local({ ################################################
     model_cpp <- g3_to_tmb(full_actions)
 
     attr(model_fn, 'parameter_template') |>
-        g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+        g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
         g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
         g3_init_val("stst.rec.proj.logar1.logphi", 0) |>
         g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
@@ -212,9 +212,9 @@ ok_group("lastx mode", local({ ################################################
 
     ok(ut_cmp_equal(nll, 0), "nll: 0, as we disabled it with weight")
     ok(ut_cmp_equal(
-        as.vector( r$proj_logar1_stst_rec__var[length(r$proj_logar1_stst_rec__var)] ),
-        as.vector( exp(mean(log(r$proj_logar1_stst_rec__var[as.character(seq(1994 - params.in$lastx + 1, 1994))]))) ),
-        tolerance = 1e-7 ), paste0("proj_logar1_stst_rec__var: Settled to mean of lastx (", params.in$lastx, ")"))
+        as.vector( r$proj_logar1_stst_rec__lvar[length(r$proj_logar1_stst_rec__lvar)] ),
+        as.vector( mean(r$proj_logar1_stst_rec__lvar[as.character(seq(1994 - params.in$lastx + 1, 1994))]) ),
+        tolerance = 1e-7 ), paste0("proj_logar1_stst_rec__lvar: Settled to mean of lastx (", params.in$lastx, ")"))
 
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 }))
