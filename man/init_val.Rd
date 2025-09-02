@@ -55,6 +55,7 @@ g3_init_val(
   }
   \item{random}{
     Boolean value to set for 'random' column in template.
+    If set to TRUE, any existing optimise/lower/upper/parscale values will be cleared.
     Original value left if NULL
   }
   \item{auto_exponentiate}{

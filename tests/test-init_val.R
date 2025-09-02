@@ -168,6 +168,14 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, random = TRUE),
     parscale = 6,
     optimise = FALSE,
     random = TRUE)), "random = TRUE --> optimise = FALSE (as you can't have both)")
+ok(ut_cmp_equal( as.list(g3_init_val(g3_init_val(default_pt("x"), "x", 4.5, lower = 4, upper = 5), "x", random = TRUE)), list(
+    switch = "x",
+    value = I(list(4.5)),
+    lower = NA_real_,
+    upper = NA_real_,
+    parscale = NA_real_,
+    optimise = FALSE,
+    random = TRUE)), "random = TRUE clears previous lower/upper/parscale (unless explicitly set as above)")
 
 ok(ut_cmp_equal(iv_options('x', value = 10, spread = 0.5), list(
     switch = "x",
