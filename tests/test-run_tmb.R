@@ -1,3 +1,4 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 library(magrittr)
 library(unittest)
 
@@ -1166,9 +1167,9 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
     generated_warnings <- capture_warnings(model_tmb$report())$warnings
     ok(ut_cmp_identical(generated_warnings, expected_warnings_tmb), "Warnings from TMB as expected")
 
-    ok(ut_cmp_equal(model_tmb$report(), model_tmb$simulate()), "$simulate: Also produces named output, as $report")
+    ok(suppressWarnings(ut_cmp_equal(model_tmb$report(), model_tmb$simulate())), "$simulate: Also produces named output, as $report")
 
-    out_simcomplete <- model_tmb$simulate(complete = TRUE)
-    ok(ut_cmp_equal(model_tmb$report(), out_simcomplete[names(model_tmb$report())]), "$simulate(complete=TRUE): Contains named output")
+    out_simcomplete <- suppressWarnings(model_tmb$simulate(complete = TRUE))
+    ok(suppressWarnings(ut_cmp_equal(model_tmb$report(), out_simcomplete[names(model_tmb$report())])), "$simulate(complete=TRUE): Contains named output")
     ok(ut_cmp_equal(model_tmb$env$data$slice_vec_set_in, out_simcomplete$slice_vec_set_in), "$simulate(complete=TRUE): Also contains data")
 }
