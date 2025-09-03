@@ -65,7 +65,7 @@ attr(model_fn, 'parameter_template') |>
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(signif(mean(r$proj_rwalk_Mrw__var), 1), 0.2), "mean(r$proj_dnorm_Mrw__var): Same as param input")
-ok(ut_cmp_equal(signif(mean(r$proj_dlnorm_stst_Mdln__var), 2), 18), "mean(r$proj_dlnorm_stst_Mdln__var): Same as param input")
+ok(ut_cmp_equal(signif(mean(r$proj_dlnorm_stst_Mdln__lvar), 2), 18), "mean(r$proj_dlnorm_stst_Mdln__lvar): Same as param input")
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
@@ -73,7 +73,7 @@ ok(ut_cmp_equal(
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdln__nll),
-    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdln__var), params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
+    as.vector(-dnorm(r$proj_dlnorm_stst_Mdln__lvar, params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdln__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dnorm_Mdn__nll),
@@ -102,7 +102,7 @@ ok(ut_cmp_equal(
     tolerance = 1e-7 ), "r$proj_rwalk_Mrw__nll: dnorm of __var")
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_Mdln__nll),
-    as.vector(-dnorm(log(r$proj_dlnorm_stst_Mdln__var), params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
+    as.vector(-dnorm(r$proj_dlnorm_stst_Mdln__lvar, params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdln__nll: dnorm of __var (also, by_stock has worked)")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
@@ -146,19 +146,19 @@ for (r in rs) {
         as.numeric(params[sort(grep("^Mrw\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
         end = NULL), "proj_rwalk_Mrw__var: Same as param input, for first 10")
     ok(ut_cmp_equal(
-        as.vector(head(r$proj_dlnorm_stst_Mdln__var, 5*2)),
+        as.vector(head(r$proj_dlnorm_stst_Mdln__lvar, 5*2)),
         as.numeric(params[sort(grep("^stst.Mdln\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
-        end = NULL), "proj_dlnorm_stst_Mdln__var: Same as param input, for first 10")
+        end = NULL), "proj_dlnorm_stst_Mdln__lvar: Same as param input, for first 10")
     ok(ut_cmp_equal(
         as.vector(head(r$proj_dnorm_Mdn__var, 5*2)),
         as.numeric(params[sort(grep("^Mdn\\.[0-9]{4}\\.[0-9]$", names(params), value = TRUE))]),
         end = NULL), "proj_dnorm_stst_Mdn__var: Same as param input, for first 10")
 
     ok(ut_cmp_equal(
-        mean(tail(r$proj_dlnorm_stst_Mdln__var, -5*2)),
+        mean(tail(exp(r$proj_dlnorm_stst_Mdln__lvar), -5*2)),
         params$stst.Mdln.proj.dlnorm.lmean,
-        tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdln__var): Projected values have a mean ~matching stst.Mdln.proj.dlnorm.lmean")
-    ok(sd(tail(r$proj_dlnorm_stst_Mdln__var, -5*2)) > 0, "sd(r$proj_dlnorm_stst_Mdln__var): sd greater than 0 (values not equal)")
+        tolerance = 1e4), "mean(r$proj_dlnorm_stst_Mdln__lvar): Projected values have a mean ~matching stst.Mdln.proj.dlnorm.lmean")
+    ok(sd(tail(exp(r$proj_dlnorm_stst_Mdln__lvar), -5*2)) > 0, "sd(r$proj_dlnorm_stst_Mdln__lvar): sd greater than 0 (values not equal)")
     ok(ut_cmp_equal(
         mean(diff(c(0, tail(r$proj_rwalk_Mrw__var, -5*2)))),
         params$Mrw.proj.rwalk.mean,
@@ -184,17 +184,17 @@ attr(model_fn, 'parameter_template') |>
 nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
-    as.vector(r$proj_dlnorm_stst_scofdn__var)[1:10],
+    as.vector(r$proj_dlnorm_stst_scofdn__lvar)[1:10],
     as.vector(unlist(params[sort(grep("stst.scofdn.[0-9]+.[0-9]+", names(params), value = TRUE))])),
-    tolerance = 1e-7 ), "proj_dlnorm_stst_scofdn__var: Values match input parameters, scale/offset *not* applied")
+    tolerance = 1e-7 ), "proj_dlnorm_stst_scofdn__lvar: Values match input parameters, scale/offset *not* applied")
 ok(ut_cmp_equal(
     as.vector(r$hist_stst__paramoutput)[2:11],  # NB: Some action-ordering off-by-one error
-    as.vector(unlist(params[sort(grep("stst.scofdn.[0-9]+.[0-9]+", names(params), value = TRUE))]) * params$stst.scofdn.scale + params$stst.scofdn.offset),
+    as.vector(exp(unlist(params[sort(grep("stst.scofdn.[0-9]+.[0-9]+", names(params), value = TRUE))])) * params$stst.scofdn.scale + params$stst.scofdn.offset),
     tolerance = 1e-7 ), "hist_stst__paramoutput: scale/offset have been applied at point-of-use")
 ok(ut_cmp_equal(
-    mean(tail(r$proj_dlnorm_stst_scofdn__var, -5*2)),
+    mean(tail(r$proj_dlnorm_stst_scofdn__lvar, -5*2)),
     params$stst.scofdn.proj.dlnorm.lmean,
-    tolerance = 1e4), "mean(r$proj_dlnorm_stst_scofdn__var): Projected values have a mean ~matching stst.scofdn.proj.dlnorm.lmean *no* scale/offset applied")
+    tolerance = 1e4), "mean(r$proj_dlnorm_stst_scofdn__lvar): Projected values have a mean ~matching stst.scofdn.proj.dlnorm.lmean *no* scale/offset applied")
 ok(ut_cmp_equal(
     mean(tail(r$hist_stst__paramoutput[1,], -5*2)),
     params$stst.scofdn.proj.dlnorm.lmean * params$stst.scofdn.scale + params$stst.scofdn.offset,

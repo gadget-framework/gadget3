@@ -125,6 +125,7 @@ g3_param_project(
   The actions will define the following variables in your model, which could be reported with \code{\link{g3a_report_history}}:
   \describe{
     \item{proj_(dnorm|rwalk)_(param_name)__var}{Vector of all values, both parameters & projected, by time}
+    \item{proj_(dnorm|rwalk)_(param_name)__lvar}{Vector of all values, both parameters & projected, by time (logarithmic scale)}
     \item{proj_(dnorm|rwalk)_(param_name)__nll}{Likelihood of each value}
   }
 }
@@ -220,7 +221,7 @@ g3_param_project(
   }
 
   \subsection{g3_param_project}{
-    Returns a \link{formula} to choose the current value from the \code{__var} vector.
+    Returns a \link{formula} to choose the current value from the \code{__var} / \code{__lvar} vector.
 
     An extra G3 action will:
     \enumerate{
@@ -343,9 +344,9 @@ attr(model_fn, 'parameter_template') |>
 
 par(mfrow=c(3, 1))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1.001)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1.001)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1e-1)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-1)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1e-2)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-2)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 }
