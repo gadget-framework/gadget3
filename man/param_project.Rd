@@ -14,11 +14,11 @@
 
 \usage{
 g3_param_project_dlnorm(
-        lmean_f = g3_parameterized("proj.dlnorm.lmean",
-            value = log(1e-5), optimise = FALSE,
+        lmean_f = g3_parameterized("proj.dlnorm.mean",
+            value = 1e-5, optimise = FALSE, logarithmic = TRUE,
             prepend_extra = quote(param_name) ),
-        lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
-            value = log(0.2), optimise = FALSE,
+        lstddev_f = g3_parameterized("proj.dlnorm.stddev",
+            value = 0.2, optimise = FALSE, logarithmic = TRUE,
             prepend_extra = quote(param_name) ))
 
 g3_param_project_dnorm(
@@ -58,12 +58,12 @@ g3_param_project_logar1(
             value = 0.8, lower = 0, upper = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
-            "proj.logar1.lstddev",
-            value = log(0.2), optimise = FALSE,
+            "proj.logar1.stddev",
+            value = 0.2, optimise = FALSE, logarithmic = TRUE,
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
-            "proj.logar1.loglevel",
-            value = 0,
+            "proj.logar1.level",
+            value = 1, logarithmic = TRUE,
             prepend_extra = quote(param_name) ),
         lastx_f = 0L)
 

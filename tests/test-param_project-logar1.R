@@ -44,10 +44,10 @@ model_cpp <- g3_to_tmb(full_actions)
 ok_group("No noise, fixed loglevel") ##########################################
 
 attr(model_cpp, 'parameter_template') |>
-    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
-    g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.stddev", 1e-20) |>  # i.e. no noise
     g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
-    g3_init_val("stst.rec.proj.logar1.loglevel", log(round(runif(1, 10, 20)))) |>
+    g3_init_val("stst.rec.proj.logar1.level", round(runif(1, 10, 20))) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
     g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)
 
@@ -63,7 +63,7 @@ nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector(tail(r$proj_logar1_stst_rec__lvar, 10)),
-    rep(params.in["stst.rec.proj.logar1.loglevel", "value"][[1]], 10),
+    rep(log(params.in["stst.rec.proj.logar1.level", "value"][[1]]), 10),
     end = NULL ), "proj_logar1_stst_rec__lvar: Settles to loglevel in projection, regardless of initial value")
 ok(ut_cmp_equal(
     as.vector( g3_array_agg(r$detail_stst_imm__spawnednum, c("year"), step = 1, age = 0) ),
@@ -80,8 +80,8 @@ ok_group("With noise, no projection") #########################################
 old_seed <- .Random.seed
 set.seed(1234)  # Fix seed so we always choose the same stst.rec.#
 attr(model_cpp, 'parameter_template') |>
-    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
-    g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.stddev", 0.0003) |>
     g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
 
@@ -102,9 +102,9 @@ ok(ut_cmp_equal(
     as.vector(c(0, -dnorm(
         tail(log(r$proj_logar1_stst_rec__lvar), -1) -
         0.8 * head(log(r$proj_logar1_stst_rec__lvar), -1) -
-        0.2 * 0,  # level not accounted for as it's negative
-        0 - exp(2*-exp(params.in["stst.rec.proj.logar1.lstddev", "value"][[1]])) / 2,
-        exp(params.in["stst.rec.proj.logar1.lstddev", "value"][[1]]),
+        0.2 * log(params.in["stst.rec.proj.logar1.level", "value"][[1]]),
+        0 - exp(2*-params.in["stst.rec.proj.logar1.stddev", "value"][[1]]) / 2,
+        params.in["stst.rec.proj.logar1.stddev", "value"][[1]],
         1 ))),
     tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__lvar, level not accounted for")
 
@@ -113,10 +113,10 @@ gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 ok_group("With noise") ########################################################
 
 attr(model_cpp, 'parameter_template') |>
-    g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
-    g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.proj.logar1.stddev", exp(-8)) |>
     g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
-    g3_init_val("stst.rec.proj.logar1.loglevel", log(1e5)) |>
+    g3_init_val("stst.rec.proj.logar1.level", 1e5) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
 
     g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
@@ -142,9 +142,9 @@ ok(ut_cmp_equal(
     as.vector(c(0, -dnorm(
         tail(r$proj_logar1_stst_rec__lvar, -1) -
         0.8 * head(r$proj_logar1_stst_rec__lvar, -1) -
-        0.2 * params.in["stst.rec.proj.logar1.loglevel", "value"][[1]],
-        0 - exp(2*-exp(params.in["stst.rec.proj.logar1.lstddev", "value"][[1]])) / 2,
-        exp(params.in["stst.rec.proj.logar1.lstddev", "value"][[1]]),
+        0.2 * log(params.in["stst.rec.proj.logar1.level", "value"][[1]]),
+        0 - exp(2*-params.in["stst.rec.proj.logar1.stddev", "value"][[1]]) / 2,
+        params.in["stst.rec.proj.logar1.stddev", "value"][[1]],
         1 ))),
     tolerance = 1e7), "r$proj_logar1_stst_rec__nll: Consistent with proj_logar1_stst_rec__lvar")
 
@@ -191,8 +191,8 @@ ok_group("lastx mode", local({ ################################################
     model_cpp <- g3_to_tmb(full_actions)
 
     attr(model_cpp, 'parameter_template') |>
-        g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
-        g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
+        g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+        g3_init_val("stst.rec.proj.logar1.stddev", 1e-20) |>  # i.e. no noise
         g3_init_val("stst.rec.proj.logar1.phi", 0) |>
         g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
         g3_init_val("lastx", floor(runif(1, 1, 4))) |>
@@ -208,7 +208,7 @@ ok_group("lastx mode", local({ ################################################
         identity() -> params.in
     nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
-    ok(!("stst.rec.proj.logar1.loglevel" %in% names(params.in)), "loglevel parameter disabled")
+    ok(!("stst.rec.proj.logar1.level" %in% names(params.in)), "level parameter disabled")
 
     ok(ut_cmp_equal(nll, 0), "nll: 0, as we disabled it with weight")
     ok(ut_cmp_equal(
