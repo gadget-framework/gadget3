@@ -3,6 +3,7 @@ structure(function (param = parameter_template)
     if (is.data.frame(param)) {
         param_lower <- structure(param$lower, names = param$switch)
         param_upper <- structure(param$upper, names = param$switch)
+        param$value[param$logarithmic] <- lapply(param[param$logarithmic, "value"], log)
         param <- structure(param$value, names = param$switch)
     }
     else {

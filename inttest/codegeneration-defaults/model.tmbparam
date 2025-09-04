@@ -1,51 +1,51 @@
-                                                                                   switch type value optimise random lower upper parscale                    source
-retro_years                                                                   retro_years          0    FALSE  FALSE    NA    NA       NA                  g3a_time
-fish.Linf                                                                       fish.Linf          1    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
-fish.K                                                                             fish.K          1    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
-fish.t0                                                                           fish.t0          0    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
-fish.lencv                                                                     fish.lencv        0.1    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.init.scalar                                                         fish.init.scalar          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.1                                                                   fish.init.1          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.2                                                                   fish.init.2          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.3                                                                   fish.init.3          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.4                                                                   fish.init.4          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.5                                                                   fish.init.5          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.6                                                                   fish.init.6          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.7                                                                   fish.init.7          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.8                                                                   fish.init.8          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.9                                                                   fish.init.9          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.init.10                                                                 fish.init.10          1    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.M.1                                                                         fish.M.1          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.2                                                                         fish.M.2          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.3                                                                         fish.M.3          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.4                                                                         fish.M.4          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.5                                                                         fish.M.5          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.6                                                                         fish.M.6          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.7                                                                         fish.M.7          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.8                                                                         fish.M.8          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.9                                                                         fish.M.9          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-fish.M.10                                                                       fish.M.10          0    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
-init.F                                                                             init.F          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-recage                                                                             recage          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
-fish.walpha                                                                   fish.walpha          0    FALSE  FALSE    NA    NA       NA        g3a_renewal_wgt_wl
-fish.wbeta                                                                     fish.wbeta          0    FALSE  FALSE    NA    NA       NA        g3a_renewal_wgt_wl
-report_detail                                                               report_detail          0    FALSE  FALSE    NA    NA       NA         g3a_report_detail
-fish.comm.alpha                                                           fish.comm.alpha          0    FALSE  FALSE    NA    NA       NA               g3a_predate
-fish.comm.l50                                                               fish.comm.l50          0    FALSE  FALSE    NA    NA       NA               g3a_predate
-fish.bbin                                                                       fish.bbin          0    FALSE  FALSE    NA    NA       NA      g3a_grow_impl_bbinom
-fish.rec.proj                                                               fish.rec.proj          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1990                                                               fish.rec.1990          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1991                                                               fish.rec.1991          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1992                                                               fish.rec.1992          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1993                                                               fish.rec.1993          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1994                                                               fish.rec.1994          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1995                                                               fish.rec.1995          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1996                                                               fish.rec.1996          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1997                                                               fish.rec.1997          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1998                                                               fish.rec.1998          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.1999                                                               fish.rec.1999          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.2000                                                               fish.rec.2000          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-fish.rec.scalar                                                           fish.rec.scalar          0    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
-adist_surveyindices_log_acoustic_dist_weight adist_surveyindices_log_acoustic_dist_weight          1    FALSE  FALSE    NA    NA       NA g3l_abundancedistribution
-cdist_sumofsquares_comm_ldist_weight                 cdist_sumofsquares_comm_ldist_weight          1    FALSE  FALSE    NA    NA       NA     g3l_catchdistribution
-project_years                                                               project_years          0    FALSE  FALSE    NA    NA       NA                  g3a_time
+                                                                                   switch type value logarithmic optimise random lower upper parscale                    source
+retro_years                                                                   retro_years          0       FALSE    FALSE  FALSE    NA    NA       NA                  g3a_time
+fish.Linf                                                                       fish.Linf          1       FALSE    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
+fish.K                                                                             fish.K          1       FALSE    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
+fish.t0                                                                           fish.t0          0       FALSE    FALSE  FALSE    NA    NA       NA       g3a_renewal_vonb_t0
+fish.lencv                                                                     fish.lencv        0.1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.init.scalar                                                         fish.init.scalar          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.1                                                                   fish.init.1          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.2                                                                   fish.init.2          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.3                                                                   fish.init.3          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.4                                                                   fish.init.4          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.5                                                                   fish.init.5          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.6                                                                   fish.init.6          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.7                                                                   fish.init.7          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.8                                                                   fish.init.8          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.9                                                                   fish.init.9          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.init.10                                                                 fish.init.10          1       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.M.1                                                                         fish.M.1          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.2                                                                         fish.M.2          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.3                                                                         fish.M.3          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.4                                                                         fish.M.4          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.5                                                                         fish.M.5          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.6                                                                         fish.M.6          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.7                                                                         fish.M.7          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.8                                                                         fish.M.8          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.9                                                                         fish.M.9          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+fish.M.10                                                                       fish.M.10          0       FALSE    FALSE  FALSE    NA    NA       NA  g3a_naturalmortality_exp
+init.F                                                                             init.F          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+recage                                                                             recage          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_initabund
+fish.walpha                                                                   fish.walpha          0       FALSE    FALSE  FALSE    NA    NA       NA        g3a_renewal_wgt_wl
+fish.wbeta                                                                     fish.wbeta          0       FALSE    FALSE  FALSE    NA    NA       NA        g3a_renewal_wgt_wl
+report_detail                                                               report_detail          0       FALSE    FALSE  FALSE    NA    NA       NA         g3a_report_detail
+fish.comm.alpha                                                           fish.comm.alpha          0       FALSE    FALSE  FALSE    NA    NA       NA               g3a_predate
+fish.comm.l50                                                               fish.comm.l50          0       FALSE    FALSE  FALSE    NA    NA       NA               g3a_predate
+fish.bbin                                                                       fish.bbin          0       FALSE    FALSE  FALSE    NA    NA       NA      g3a_grow_impl_bbinom
+fish.rec.proj                                                               fish.rec.proj          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1990                                                               fish.rec.1990          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1991                                                               fish.rec.1991          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1992                                                               fish.rec.1992          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1993                                                               fish.rec.1993          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1994                                                               fish.rec.1994          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1995                                                               fish.rec.1995          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1996                                                               fish.rec.1996          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1997                                                               fish.rec.1997          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1998                                                               fish.rec.1998          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.1999                                                               fish.rec.1999          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.2000                                                               fish.rec.2000          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+fish.rec.scalar                                                           fish.rec.scalar          0       FALSE    FALSE  FALSE    NA    NA       NA     g3a_renewal_len_dnorm
+adist_surveyindices_log_acoustic_dist_weight adist_surveyindices_log_acoustic_dist_weight          1       FALSE    FALSE  FALSE    NA    NA       NA g3l_abundancedistribution
+cdist_sumofsquares_comm_ldist_weight                 cdist_sumofsquares_comm_ldist_weight          1       FALSE    FALSE  FALSE    NA    NA       NA     g3l_catchdistribution
+project_years                                                               project_years          0       FALSE    FALSE  FALSE    NA    NA       NA                  g3a_time

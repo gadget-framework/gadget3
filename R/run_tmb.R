@@ -764,6 +764,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
                 optimise <- find_arg('optimise', is.finite(lower) && is.finite(upper) && isFALSE(random))
                 parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
+                logarithmic <- as.logical(find_arg('logarithmic', FALSE))
                 source <- as.character(find_arg('source', as.character(NA)))
 
                 data.frame(
@@ -773,6 +774,7 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                         # NB: Has to be a list column because values might be vectors
                         list(if (identical(dims, c(1))) value else array(value, dim = dims)),
                         names = name)),
+                    logarithmic = if (dims[[1]] > 0) logarithmic else logical(0),
                     optimise = if (dims[[1]] > 0) optimise else logical(0),
                     random = if (dims[[1]] > 0) random else logical(0),
                     lower = if (dims[[1]] > 0) lower else numeric(0),
@@ -1152,6 +1154,7 @@ g3_tmb_adfun <- function(
     tmb_parameters <- structure(
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
+    tmb_parameters[parameters$logarithmic] <- lapply(tmb_parameters[parameters$logarithmic], log)
 
     # optimise=F & random=F parameters should be added to fixed map.
     tmb_map <- lapply(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'], function (n) {
@@ -1357,7 +1360,7 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
     p <- parameters[
         (if (include_random) parameters$random else FALSE) |
-        parameters$optimise, c('switch', 'value', bound)]
+        parameters$optimise, c('switch', 'value', bound, 'logarithmic')]
 
     if (bound == 'value') {
         out <- p$value
@@ -1369,6 +1372,9 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
         out <- lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len']))
     }
     names(out) <- cpp_escape_varname(p$switch)
+
+    # Take the log of any logarithmic parameters
+    out[p$logarithmic] <- lapply(out[p$logarithmic], log)
 
     # Unlist the result to condense list back to vector
     unlist(out)
@@ -1413,5 +1419,9 @@ g3_tmb_relist <- function (parameters, par) {
         parameters$optimise)], out)
     # Re-order to match template list
     out <- out[names(parameters$value)]
+
+    # Convert any logarithmic params back to linear space
+    out[parameters$logarithmic] <- lapply(out[parameters$logarithmic], exp)
+
     return(out)
 }

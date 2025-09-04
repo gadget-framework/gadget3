@@ -217,6 +217,23 @@ ok(ut_cmp_equal(
     g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = FALSE)$value,
     I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works")
 
+#### logarithmic
+pt <- default_pt(c("moo"))
+pt$logarithmic <- TRUE
+
+ok(ut_cmp_error(
+    g3_init_val(pt, "moo", -1),
+    "value.*moo"), "logarithmic: Not allowed to set negative value")
+ok(ut_cmp_error(
+    g3_init_val(pt, "moo", 99, lower = -1, upper = 100),
+    "lower.*moo"), "logarithmic: Not allowed to set negative lower-bound")
+ok(ut_cmp_error(
+    suppressWarnings(g3_init_val(pt, "moo", 99, lower = 10, upper = -1)),
+    "upper.*moo"), "logarithmic: Not allowed to set negative upper-bound")
+ok(ut_cmp_equal(
+    g3_init_val(pt, "moo", 99)$value,
+    I(list(99)) ), "logarithmic: Can set positive values")
+
 #### Warning
 
 cmp_contains <- function (a, b) {

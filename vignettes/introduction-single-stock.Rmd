@@ -627,6 +627,7 @@ The TMB parameter template has the following columns:
 * *lower*: A lower bound for this parameter
 * *upper*: An upper bound for this parameter
 * *parscale*: Relative scale for this parameter vs. others
+* *logarithmic*: Value will be converted to log-space inside the model, and exponentiated when reported
 * *source*: The action in which the parameter was defined. Look at the help for this function for more information on what the parameter does
 
 The model is expecting 5 parameters, ``fish.M.1`` to ``fish.M.5``, for each age group.
