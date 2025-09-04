@@ -1,9 +1,9 @@
 g3_param_project_dlnorm <- function (
-        lmean_f = g3_parameterized("proj.dlnorm.lmean",
-            value = log(1e-5), optimise = FALSE,
+        lmean_f = g3_parameterized("proj.dlnorm.mean",
+            value = 1e-5, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ),
-        lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
-            value = log(0.2), optimise = FALSE,
+        lstddev_f = g3_parameterized("proj.dlnorm.stddev",
+            value = 0.2, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) )) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(exp(lvar)))
@@ -133,7 +133,7 @@ g3_param_project_ar1 <- function (
             value = 0,
             prepend_extra = quote(param_name) ),
         lastx_f = 0L ) {
-    if (!identical(lastx_f, 0L)) level_f <- NaN  # Disable loglevel parameter when lastx enabled
+    if (!identical(lastx_f, 0L)) level_f <- NaN  # Disable level parameter when lastx enabled
 
     g3_param_project_nll_ar1 <- g3_native(r = function (var, phi, stddev, level, lastx) {
         noisemean <- 0
@@ -232,12 +232,12 @@ g3_param_project_logar1 <- function (
             value = 0.8, lower = 0, upper = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
-            "proj.logar1.lstddev",
-            value = log(0.2), optimise = FALSE,
+            "proj.logar1.stddev",
+            value = 0.2, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
-            "proj.logar1.loglevel",
-            value = 0,
+            "proj.logar1.level",
+            value = 1, type = "LOG",
             prepend_extra = quote(param_name) ),
         lastx_f = 0L) {
     if (!identical(lastx_f, 0L)) loglevel_f <- NaN  # Disable loglevel parameter when lastx enabled
@@ -371,6 +371,7 @@ g3_param_project <- function (
         by_year = TRUE,
         by_step = isTRUE(by_step),
         random = random,
+        type = (if ("projstock__lvar" %in% all.names(project_fs$project)) "LOG" else ""),
         ifmissing = NaN )
     projstock__var <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name))
     projstock__lvar <- g3_stock_instance(projstock, NaN, desc = paste0("Projected values for ", projstock$name, " in logspace"))
