@@ -46,7 +46,7 @@ ok_group("No noise, fixed loglevel") ##########################################
 attr(model_fn, 'parameter_template') |>
     g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
-    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
     g3_init_val("stst.rec.proj.logar1.loglevel", log(round(runif(1, 10, 20)))) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
     g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)
@@ -82,7 +82,7 @@ set.seed(1234)  # Fix seed so we always choose the same stst.rec.#
 attr(model_fn, 'parameter_template') |>
     g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
-    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
 
     g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
@@ -115,7 +115,7 @@ ok_group("With noise") ########################################################
 attr(model_fn, 'parameter_template') |>
     g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
     g3_init_val("stst.rec.proj.logar1.lstddev", -8) |>
-    g3_init_val("stst.rec.proj.logar1.logphi", 0.8) |>
+    g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
     g3_init_val("stst.rec.proj.logar1.loglevel", log(1e5)) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
 
@@ -193,7 +193,7 @@ ok_group("lastx mode", local({ ################################################
     attr(model_fn, 'parameter_template') |>
         g3_init_val("stst.rec.#", log(rnorm(5, 1e5, 500))) |>
         g3_init_val("stst.rec.proj.logar1.lstddev", -1e6) |>  # i.e. no noise
-        g3_init_val("stst.rec.proj.logar1.logphi", 0) |>
+        g3_init_val("stst.rec.proj.logar1.phi", 0) |>
         g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
         g3_init_val("lastx", floor(runif(1, 1, 4))) |>
         g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)

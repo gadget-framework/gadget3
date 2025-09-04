@@ -53,8 +53,8 @@ g3_param_project_ar1(
         lastx_f = 0L)
 
 g3_param_project_logar1(
-        logphi_f = g3_parameterized(
-            "proj.logar1.logphi",
+        phi_f = g3_parameterized(
+            "proj.logar1.phi",
             value = 0.8, lower = 0, upper = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
@@ -81,7 +81,7 @@ g3_param_project(
 }
 
 \arguments{
-  \item{mean_f, stddev_f, phi_f, lmean_f, lstddev_f, logphi_f}{
+  \item{mean_f, stddev_f, phi_f, lmean_f, lstddev_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
     Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
   }
@@ -212,7 +212,7 @@ g3_param_project(
     \deqn{ V_t = \Phi V_{t-1} + (1 - \Phi) \Theta + \epsilon_{0 - \frac{e^{2*\Sigma}}{2},\Sigma} }
     \deqn{ v = exp(V) }
     \describe{
-      \item{\eqn{\Phi}}{\var{logphi_f} / \code{(by_stock).(param_name).proj.logphi} parameter}
+      \item{\eqn{\Phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
       \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
       \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
