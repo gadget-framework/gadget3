@@ -108,6 +108,19 @@ g3_init_val <- function (
         if (any(m)) {
             warning("Initial parameter values above upper bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
         }
+        logarithmic <- grepl("(^|:)LOG(:|$)", param_template$type)
+        m <- unlist(param_template[matches & logarithmic, 'value']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic values: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
+        m <- unlist(param_template[matches & logarithmic, 'lower']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic lower-bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
+        m <- unlist(param_template[matches & logarithmic, 'upper']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic upper-bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
     } else {  # is.list
         if (!is.null(value)) {
             param_template[matches] <- value

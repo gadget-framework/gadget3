@@ -764,11 +764,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
                 optimise <- find_arg('optimise', is.finite(lower) && is.finite(upper) && isFALSE(random))
                 parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
+                type <- as.character(find_arg('type', character(0)))
                 source <- as.character(find_arg('source', as.character(NA)))
+
+                if (x[[1]] == "g3_param_array") type <- c(type, "ARRAY")
+                if (x[[1]] == "g3_param_vector") type <- c(type, "VECTOR")
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
-                    type = if (x[[1]] == "g3_param_array") "ARRAY" else if (x[[1]] == "g3_param_vector") "VECTOR" else "",
+                    type = paste(type, collapse = ":"),
                     value = I(structure(
                         # NB: Has to be a list column because values might be vectors
                         list(if (identical(dims, c(1))) value else array(value, dim = dims)),
@@ -1139,10 +1143,8 @@ g3_tmb_adfun <- function(
 
     for (i in seq_len(nrow(parameters))) {
         val <- parameters[i, 'value'][[1]]
-        if (parameters[i, 'type'] == "ARRAY" && !is.array(val)) stop("Parameter ", parameters[i, 'switch'], " not an array")
-        if (parameters[i, 'type'] == "MATRIX" && !is.matrix(val)) stop("Parameter ", parameters[i, 'switch'], " not a matrix")
-        # What can we test if parameters[n, 'type'] == "VECTOR"?
-        if (parameters[i, 'type'] == "" && length(val) != 1) stop("Parameter ", parameters[i, 'switch'], " should be a single value")
+        if (grepl("(^|:)ARRAY(:|$)", parameters[i, 'type']) && !is.array(val)) stop("Parameter ", parameters[i, 'switch'], " not an array")
+        if (grepl("(^|:)MATRIX(:|$)", parameters[i, 'type']) && !is.matrix(val)) stop("Parameter ", parameters[i, 'switch'], " not a matrix")
     }
 
     if (!any(parameters$optimise) && !any(parameters$random)) {
@@ -1152,6 +1154,8 @@ g3_tmb_adfun <- function(
     tmb_parameters <- structure(
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
+    logarithmic <- grepl("(^|:)LOG(:|$)", parameters$type)
+    tmb_parameters[logarithmic] <- lapply(tmb_parameters[logarithmic], log)
 
     # optimise=F & random=F parameters should be added to fixed map.
     tmb_map <- lapply(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'], function (n) {
@@ -1357,7 +1361,7 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
     p <- parameters[
         (if (include_random) parameters$random else FALSE) |
-        parameters$optimise, c('switch', 'value', bound)]
+        parameters$optimise, c('switch', 'value', bound, 'type')]
 
     if (bound == 'value') {
         out <- p$value
@@ -1369,6 +1373,10 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
         out <- lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len']))
     }
     names(out) <- cpp_escape_varname(p$switch)
+
+    # Take the log of any logarithmic parameters
+    logarithmic <- grepl("(^|:)LOG(:|$)", p$type)
+    out[logarithmic] <- lapply(out[logarithmic], log)
 
     # Unlist the result to condense list back to vector
     unlist(out)
@@ -1413,5 +1421,10 @@ g3_tmb_relist <- function (parameters, par) {
         parameters$optimise)], out)
     # Re-order to match template list
     out <- out[names(parameters$value)]
+
+    # Convert any logarithmic params back to linear space
+    logarithmic <- grepl("(^|:)LOG(:|$)", parameters$type)
+    out[logarithmic] <- lapply(out[logarithmic], exp)
+
     return(out)
 }

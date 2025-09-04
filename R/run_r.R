@@ -221,6 +221,10 @@ g3_to_r <- function(
         list(quote( if (is.data.frame(param)) {
             param_lower <- structure(param$lower, names = param$switch)
             param_upper <- structure(param$upper, names = param$switch)
+            logarithmic <- grepl("(^|:)LOG(:|$)", param$type)
+            param$value[logarithmic] <- lapply(param[logarithmic, "value"], log)
+            param_lower[logarithmic] <- lapply(param_lower[logarithmic], log)
+            param_upper[logarithmic] <- lapply(param_upper[logarithmic], log)
             param <- structure(param$value, names = param$switch)
         } else {
             # No bounds, map to NA
