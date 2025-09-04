@@ -43,7 +43,7 @@ model_cpp <- g3_to_tmb(full_actions)
 
 ok_group("No noise, fixed loglevel") ##########################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
     g3_init_val("stst.rec.proj.ar1.stddev", 0) |>  # i.e. no noise
     g3_init_val("stst.rec.proj.ar1.phi", 0.8) |>
@@ -66,7 +66,7 @@ ok(ut_cmp_equal(
     as.vector(c(0, -dnorm(
         tail(r$proj_ar1_stst_rec__var, -1) -
         0.8 * head(r$proj_ar1_stst_rec__var, -1) -
-        0.2 * params.in[["stst.rec.proj.ar1.level"]],
+        0.2 * params.in["stst.rec.proj.ar1.level", "value"][[1]],
         0,
         1e-7,  # NB: Used hard-coded minimum stddev
         1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var, use minimum stddev, account for level")
@@ -77,7 +77,7 @@ ok(ut_cmp_equal(
     end = NULL), "r$detail_stst_imm__spawnednum: projection variable used for recruitment")
 ok(ut_cmp_equal(
     as.vector(tail(r$proj_ar1_stst_rec__var, 5)),
-    rep(params.in$stst.rec.proj.ar1.level, 5),
+    rep(params.in["stst.rec.proj.ar1.level", "value"][[1]], 5),
     end = NULL ), "proj_ar1_stst_rec__var: Settles to loglevel in projection, regardless of initial value")
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
@@ -86,7 +86,7 @@ ok_group("With noise, no projection") #########################################
 
 old_seed <- .Random.seed
 set.seed(1234)  # Fix seed so we always choose the same stst.rec.#
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
     g3_init_val("stst.rec.proj.ar1.stddev", 0.1) |>
     g3_init_val("stst.rec.proj.ar1.phi", 0.8) |>
@@ -110,7 +110,7 @@ ok(ut_cmp_equal(
     as.vector(c(0, -dnorm(
         tail(r$proj_ar1_stst_rec__var, -1) -
         0.8 * head(r$proj_ar1_stst_rec__var, -1) -
-        0.2 * params.in[["stst.rec.proj.ar1.level"]],
+        0.2 * params.in["stst.rec.proj.ar1.level", "value"][[1]],
         0,
         0.1,
         1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var")
@@ -119,7 +119,7 @@ gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("With noise") ########################################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
     g3_init_val("stst.rec.proj.ar1.stddev", 1) |>
     g3_init_val("stst.rec.proj.ar1.level", 1e5) |>
@@ -149,9 +149,9 @@ ok(ut_cmp_equal(
     as.vector(c(0, -dnorm(
         tail(r$proj_ar1_stst_rec__var, -1) -
         0.8 * head(r$proj_ar1_stst_rec__var, -1) -
-        0.2 * params.in[["stst.rec.proj.ar1.level"]],
+        0.2 * params.in["stst.rec.proj.ar1.level", "value"][[1]],
         0,
-        params.in[["stst.rec.proj.ar1.stddev"]],
+        params.in["stst.rec.proj.ar1.stddev", "value"][[1]],
         1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var")
 
 ok_group("lastx mode", local({ ################################################
@@ -194,7 +194,7 @@ ok_group("lastx mode", local({ ################################################
     model_fn <- g3_to_r(full_actions)
     model_cpp <- g3_to_tmb(full_actions)
 
-    attr(model_fn, 'parameter_template') |>
+    attr(model_cpp, 'parameter_template') |>
         g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
         g3_init_val("stst.rec.proj.ar1.stddev", 0) |>  # i.e. no noise
         g3_init_val("stst.rec.proj.ar1.phi", 0) |>
@@ -216,7 +216,7 @@ ok_group("lastx mode", local({ ################################################
     ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll (sums to same values)")
     ok(ut_cmp_equal(
         as.vector( r$proj_ar1_stst_rec__var[length(r$proj_ar1_stst_rec__var)] ),
-        as.vector( mean(r$proj_ar1_stst_rec__var[as.character(seq(1994 - params.in$lastx + 1, 1994))]) ),
+        as.vector( mean(r$proj_ar1_stst_rec__var[as.character(seq(1994 - params.in["lastx", "value"][[1]] + 1, 1994))]) ),
         tolerance = 1e-6 ), paste0("proj_ar1_stst_rec__var: Settled to mean of lastx (", params.in$lastx, ")"))
 
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)

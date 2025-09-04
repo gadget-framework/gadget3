@@ -50,7 +50,7 @@ model_cpp <- g3_to_tmb(full_actions)
 
 ok_group("project_years=0") ###################################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("Mrw.proj.rwalk.mean", runif(1, 0.001, 0.1)) |>
     g3_init_val("Mrw.proj.rwalk.stddev", 0.001) |>
     g3_init_val("Mrw.#.#", rnorm(5 * 2, 0.2, 0.001)) |>
@@ -61,8 +61,9 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("Mdn.proj.dnorm.stddev", 5) |>
     g3_init_val("Mdn.#.#", rnorm(5 * 2, 50, 10)) |>
     g3_init_val("project_years", 0) |>
-    identity() -> params
-nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
+    identity() -> params.in
+params <- params.in$value
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(signif(mean(r$proj_rwalk_Mrw__var), 1), 0.2), "mean(r$proj_dnorm_Mrw__var): Same as param input")
 ok(ut_cmp_equal(signif(mean(r$proj_dlnorm_stst_Mdln__lvar), 2), 18), "mean(r$proj_dlnorm_stst_Mdln__lvar): Same as param input")
@@ -80,11 +81,11 @@ ok(ut_cmp_equal(
     as.vector(-dnorm(r$proj_dnorm_Mdn__var, mean = params$Mdn.proj.dnorm.mean, sd = params$Mdn.proj.dnorm.stddev, log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dnorm_Mdn__nll: dnorm of __var")
 
-gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("project_years=0, high sd") ##########################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.Mdln.#.#", rnorm(5 * 2, 50, 10)) |>
     g3_init_val("stst.Mdln.proj.dlnorm.lmean", runif(1, 5, 10)) |>
     g3_init_val("stst.Mdln.proj.dlnorm.lstddev", 0.2) |>
@@ -93,8 +94,9 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("Mrw.proj.rwalk.mean", runif(1, 0.001, 0.1)) |>
     g3_init_val("Mrw.proj.rwalk.stddev", 0.001) |>
     g3_init_val("project_years", 0) |>
-    identity() -> params
-nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
+    identity() -> params.in
+params <- params.in$value
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector(r$proj_rwalk_Mrw__nll),
@@ -105,11 +107,11 @@ ok(ut_cmp_equal(
     as.vector(-dnorm(r$proj_dlnorm_stst_Mdln__lvar, params$stst.Mdln.proj.dlnorm.lmean - exp(2 * params$stst.Mdln.proj.dlnorm.lstddev)/2, exp(params$stst.Mdln.proj.dlnorm.lstddev), log = TRUE)),
     tolerance = 1e-7 ), "r$proj_dlnorm_stst_Mdln__nll: dnorm of __var (also, by_stock has worked)")
 
-gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 
 ok_group("project_years=20") ##################################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.Mdln.#.#", rnorm(5 * 2, 0.5, 0.001)) |>
     g3_init_val("stst.Mdln.proj.dlnorm.lmean", runif(1, 0.001, 0.1)) |>
     g3_init_val("stst.Mdln.proj.dlnorm.lstddev", 0.2) |>
@@ -120,16 +122,17 @@ attr(model_fn, 'parameter_template') |>
     g3_init_val("Mdn.proj.dnorm.stddev", 5) |>
     g3_init_val("Mdn.#.#", rnorm(5 * 2, 50, 10)) |>
     g3_init_val("project_years", 20) |>
-    identity() -> params
+    identity() -> params.in
+params <- params.in$value
 
 # NB: Projections mean values between runs shouldn't match, so build list of values & compare all
 rs <- list(
-    attributes(model_fn(params)),
-    attributes(model_fn(params)),
-    attributes(model_fn(params)) )
+    attributes(model_fn(params.in)),
+    attributes(model_fn(params.in)),
+    attributes(model_fn(params.in)) )
 if (nzchar(Sys.getenv("G3_TEST_TMB"))) {
     param_template <- attr(model_cpp, "parameter_template")
-    param_template$value[names(params)] <- params
+    param_template$value[names(params.in$value)] <- params.in$value
     model_tmb <- g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g"))
     rs <- c(rs, list(
         model_tmb$report(),
@@ -173,15 +176,16 @@ for (r in rs) {
 
 ok_group("project_years=40, scale / offset") ###################################
 
-attr(model_fn, 'parameter_template') |>
+attr(model_cpp, 'parameter_template') |>
     g3_init_val("stst.scofdn.#.#", rnorm(5 * 2, 50, 10)) |>
     g3_init_val("stst.scofdn.proj.dlnorm.lmean", runif(1, 5, 10)) |>
     g3_init_val("stst.scofdn.proj.dlnorm.lstddev", log(0.2)) |>
     g3_init_val("stst.scofdn.scale", runif(1, 10, 100)) |>
     g3_init_val("stst.scofdn.offset", runif(1, 10, 100)) |>
     g3_init_val("project_years", 40) |>
-    identity() -> params
-nll <- model_fn(params) ; r <- attributes(nll) ; nll <- as.vector(nll)
+    identity() -> params.in
+params <- params.in$value
+nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_equal(
     as.vector(r$proj_dlnorm_stst_scofdn__lvar)[1:10],
@@ -200,4 +204,4 @@ ok(ut_cmp_equal(
     params$stst.scofdn.proj.dlnorm.lmean * params$stst.scofdn.scale + params$stst.scofdn.offset,
     tolerance = 1e4), "mean(r$hist_stst__paramoutput): Projected values have scale/offset applied at point-of-use")
 
-gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
