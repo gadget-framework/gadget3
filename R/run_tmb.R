@@ -1308,31 +1308,28 @@ g3_tmb_adfun <- function(
 # Make a simple function only capable of double evaluation, for e.g. projections
 g3_tmb_fn <- function (
         cpp_code,
-        parameters = attr(cpp_code, 'parameter_template'),
+        def.parameters = attr(cpp_code, 'parameter_template'),
         ... ) {
     # Pretend we're optimising everything, so all parameters can be adjusted. There is no tape to worry about.
-    def.parameters <- parameters
     def.parameters$optimise <- TRUE
     def.parameters$random <- FALSE
 
     obj.fn <- g3_tmb_adfun(cpp_code, def.parameters, type = "Fun", ...)
 
     # Wrapping function that hides TMB magic, works like the R function
-    out <- function (par = NULL) {
-        params <- def.parameters
-
-        if (!is.null(par)) {
-            # Relist values into original parameter_template
-            if (is.data.frame(par)) par <- par$value
-            if (is.list(par)) par <- unlist(par)
-            names(par) <- cpp_escape_varname(names(par))  # Ensure names are cpp-escaped
-            params$value <- g3_tmb_relist(def.parameters, par)
+    out <- function (parameters = NULL) {
+        p <- def.parameters
+        if (!is.null(parameters)) {
+            # Splice in provided parameters, after converting back to list
+            if (is.data.frame(parameters)) parameters <- parameters$value
+            if (!is.list(parameters)) parameters <- g3_tmb_relist(def.parameters, parameters)
+            p$value[names(parameters)] <- parameters
         }
 
         # Run gen_dimnames & repopulate any dynamic dims, re-patching report_patch
         # NB: We have to do this here, as the project_years parameter is reliant on this re-patching
         #     (which ordinarily won't be optimise=TRUE, and you'd have to re-run g3_tmb_adfun)
-        dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(params))
+        dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(p))
         report_dimnames <- attr(cpp_code, 'report_dimnames')
 
         for (dimname in names(dyndims)) {
@@ -1347,7 +1344,7 @@ g3_tmb_fn <- function (
         # NB: Using $simulate instead of $report will
         # * Enable SIMULATE blocks (which we don't use)
         # * Save RNG state back to R after a run (which is slightly more intuitive than successive runs producing the same result)
-        obj.fn$simulate(g3_tmb_par(params), complete = FALSE)
+        obj.fn$simulate(g3_tmb_par(p), complete = FALSE)
     }
     class(out) <- c("g3_tmb_fn", class(out))
     attr(out, 'parameter_template') <- def.parameters
