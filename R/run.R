@@ -97,7 +97,7 @@ update_data_bounds <- function (model_data, param_tmpl) {
                 if (!exists(data_var, envir = model_data)) next
 
                 data_val <- param_tmpl[i, param_type]
-                model_data[[data_var]] <- if (is.na(data_val)) NaN else data_val
+                model_data[[data_var]] <- if (is.na(data_val)) NaN else if (param_tmpl[i, 'logarithmic']) log(data_val) else data_val
             }
         }
     } else {

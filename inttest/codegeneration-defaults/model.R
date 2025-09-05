@@ -4,6 +4,8 @@ structure(function (param = parameter_template)
         param_lower <- structure(param$lower, names = param$switch)
         param_upper <- structure(param$upper, names = param$switch)
         param$value[param$logarithmic] <- lapply(param[param$logarithmic, "value"], log)
+        param_lower[param$logarithmic] <- lapply(param_lower[param$logarithmic], log)
+        param_upper[param$logarithmic] <- lapply(param_upper[param$logarithmic], log)
         param <- structure(param$value, names = param$switch)
     }
     else {

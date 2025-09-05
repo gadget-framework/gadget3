@@ -3,6 +3,50 @@ library(unittest)
 
 library(gadget3)
 
+actions <- list(
+    g3a_time(2000, 2001),
+    g3_formula({
+        pr_out <- g3_param("param_real", value = 50, lower = 20, upper = 80)
+        pl_out <- g3_param("param_log", value = 50, lower = 20, upper = 80, logarithmic = TRUE)
+        REPORT(pr_out)
+        REPORT(pl_out)
+    }, pr_out = 0.0, pl_out = 0.0),
+
+    gadget3:::g3l_test_dummy_likelihood() )
+full_actions <- c(actions, list(
+    g3l_bounds_penalty(actions) ))
+model_fn <- g3_to_r(full_actions)
+model_cpp <- g3_to_tmb(full_actions)
+
+params.in <- attr(model_cpp, "parameter_template")
+ok(ut_cmp_equal(as.vector(model_fn(params.in)), 0), "nll: start off inside bounds")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template")
+params.in["param_real", "value"] <- 81
+ok(model_fn(params.in) > 1e8, "nll: param_real outside initial upper bound")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template")
+params.in["param_real", "upper"] <- 49
+ok(model_fn(params.in) > 1e8, "nll: param_real outside new upper bound")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template")
+params.in["param_real", "lower"] <- 51
+ok(model_fn(params.in) > 1e8, "nll: param_real outside new lower bound")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template")
+params.in["param_log", "upper"] <- 49
+ok(model_fn(params.in) > 1e8, "nll: param_log outside new upper bound")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template")
+params.in["param_log", "lower"] <- 51
+ok(model_fn(params.in) > 1e8, "nll: param_log outside new lower bound")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
 ############# Tests for parameter_template mode (old, should be removed)
 
 actions <- list()
