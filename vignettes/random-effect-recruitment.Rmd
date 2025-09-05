@@ -42,8 +42,6 @@ set.seed(old.seed)
 actions <- list(
     g3a_time(2000, 2030, step_lengths = c(6,6)),
     g3a_age(stocks$imm),
-    # TODO: The fit is much poorer than you'd hope, which helps generate a pretty projection but not great otherwise.
-    #       I suspect this is to do with g3a_renewal_initabund()
     g3a_initialconditions_normalcv(stocks$imm),
     g3a_naturalmortality(stocks$imm),
     g3a_growmature(stocks$imm, g3a_grow_impl_bbinom(maxlengthgroupgrowth = 4L)),
@@ -89,27 +87,25 @@ attr(model_cpp, "parameter_template") |>
   g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
   g3_init_val("*.wbeta", 3, optimise = FALSE) |>
   g3_init_val("*.rec.scalar", 10, optimise = FALSE) |>
-  g3_init_val("fish_imm.rec.proj.logar1.loglevel", value = log(2e3), lower = log(1e1), upper = log(5e5)) |> 
-  g3_init_val("fish_imm.rec.proj.logar1.lstddev", value = log(1), lower = log(1e-15), upper = log(1e4)) |> 
+  g3_init_val("fish_imm.rec.proj.logar1.level", value = 2e3, lower = 1e1, upper = 5e5) |> 
+  g3_init_val("fish_imm.rec.proj.logar1.stddev", value = 1, lower = 1e-15, upper = 1e4) |> 
   # TODO: Relative weight is important, but any rule of thumbs?
   g3_init_val("proj_logar1_fish_imm_weight.proj_logar1_rec_weight", 1e0) |>
   identity() -> params.in
 
 ## Optimise model with recruitment as fixed-effect
 params.in |>
-  # NB: loglevel = log(init value), to be internally consistent
-  # TODO: Currently we default to random = TRUE for param_project, I think this is a bad idea in retrospect?
-  g3_init_val("*.rec.#", value = log(2e3), lower = log(1e1), upper = log(1e6), random = FALSE) |>
+  # NB: level = init value, to be internally consistent
+  g3_init_val("*.rec.#", value = 2e3, lower = 1e1, upper = 1e6, random = FALSE) |>
   identity() -> params.fixed
 obj.fix <- g3_tmb_adfun(model_cpp, params.fixed)
-params.fixout <- gadgetutils::g3_optim(obj.fix, params.fixed)
+params.fixout <- gadgetutils::g3_optim(obj.fix, params.fixed, control = list(maxit = 2000))
 stopifnot(attr(params.fixout, "summary")$convergence)
 
 ## Optimise same model, but using random effects for recruitment
 params.in |>
-    # TODO: Should this value be in logspace, and a logspace column tells g3_tmb_*() to log()/exp() as appropriate?
     # NB: By setting random = TRUE, any previous bounds will be cleared
-    g3_init_val("*.rec.#", value = log(2e3), random = TRUE) |>
+    g3_init_val("*.rec.#", value = 2e3, random = TRUE) |>
     identity() -> params.rnd
 obj.rnd <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 3, maxit = 1000, tol = 1e-7))
 params.rndout <- gadgetutils::g3_optim(obj.rnd, params.rnd)
@@ -134,7 +130,7 @@ nlmfit <- nlminb(obj.rndnlm$par, obj.rndnlm$fn, obj.rndnlm$gr, lower = g3_tmb_lo
     control = list(eval.max = 1000, iter.max = 1000))
 summary(TMB::sdreport(obj.rndnlm))
 
-## Plot abundance for years 4 & 5, with 40 years projection, using loglevel/lstddev chosen by optimiser
+## Plot abundance for years 4 & 5, with 40 years projection, using level/stddev chosen by optimiser
 r <- fn(params.rndout |> g3_init_val("project_years", 40))
 # signif(g3_array_agg(r$dend_fish_imm__num, c('age', 'year'), step = 1, age = c(4, 5)), 3)
 g3_array_plot(t(g3_array_agg(r$dend_fish_imm__num, c('age', 'year'), age = c(4, 5), step = 1)))
@@ -171,7 +167,7 @@ obj_fn_plot(model_cpp, params.rndout |>
     #g3_init_val("proj_rwalk_fish_imm_weight.proj_rwalk_rec_weight", 0) |>
     #g3_init_val("fish_imm.rec.proj.rwalk.stddev", 2e3) |>
     #g3_init_val("fish_imm.rec.proj.rwalk.mean", 0) |>
-    identity(), "fish_imm.rec.2010", log(1e0), log(1e10))
+    identity(), "fish_imm.rec.proj.logar1.level", 1e0, 1e6)
 
 obj_fn_plot(model_cpp, params.rndout, "fish_imm.init.4", 0, 1e6)
 ')
