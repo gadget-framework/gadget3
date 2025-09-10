@@ -5,6 +5,7 @@ on:
   push:
      branches:
        - master
+       - ghptest
   workflow_dispatch:
 
 name: Render development documentation
@@ -21,7 +22,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: |
+            github::gadget-framework/gadgetutils
+            github::gadget-framework/gadgetplots
+            any::pkgdown
+            local::.
           needs: website
 
       - name: Build site
