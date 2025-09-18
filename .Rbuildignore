@@ -25,6 +25,7 @@ core
 ^vignettes/WGTS/
 ^vignettes/figs/
 ^vignettes/.*_files/
+^vignettes/articles/
 ^baseline/
 ^WGTS/
 ^figs/

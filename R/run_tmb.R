@@ -764,11 +764,15 @@ g3_to_tmb <- function(actions, trace = FALSE, strict = FALSE) {
                 upper <- as.numeric(find_arg('upper', NA, sub_param_idx = sub_param_idx))
                 optimise <- find_arg('optimise', is.finite(lower) && is.finite(upper) && isFALSE(random))
                 parscale <- as.numeric(find_arg('parscale', NA, sub_param_idx = sub_param_idx))
+                type <- as.character(find_arg('type', character(0)))
                 source <- as.character(find_arg('source', as.character(NA)))
+
+                if (x[[1]] == "g3_param_array") type <- c(type, "ARRAY")
+                if (x[[1]] == "g3_param_vector") type <- c(type, "VECTOR")
 
                 data.frame(
                     switch = name,  # NB: This should be pre-C++ mangling
-                    type = if (x[[1]] == "g3_param_array") "ARRAY" else if (x[[1]] == "g3_param_vector") "VECTOR" else "",
+                    type = paste(type, collapse = ":"),
                     value = I(structure(
                         # NB: Has to be a list column because values might be vectors
                         list(if (identical(dims, c(1))) value else array(value, dim = dims)),
@@ -1139,10 +1143,8 @@ g3_tmb_adfun <- function(
 
     for (i in seq_len(nrow(parameters))) {
         val <- parameters[i, 'value'][[1]]
-        if (parameters[i, 'type'] == "ARRAY" && !is.array(val)) stop("Parameter ", parameters[i, 'switch'], " not an array")
-        if (parameters[i, 'type'] == "MATRIX" && !is.matrix(val)) stop("Parameter ", parameters[i, 'switch'], " not a matrix")
-        # What can we test if parameters[n, 'type'] == "VECTOR"?
-        if (parameters[i, 'type'] == "" && length(val) != 1) stop("Parameter ", parameters[i, 'switch'], " should be a single value")
+        if (grepl("(^|:)ARRAY(:|$)", parameters[i, 'type']) && !is.array(val)) stop("Parameter ", parameters[i, 'switch'], " not an array")
+        if (grepl("(^|:)MATRIX(:|$)", parameters[i, 'type']) && !is.matrix(val)) stop("Parameter ", parameters[i, 'switch'], " not a matrix")
     }
 
     if (!any(parameters$optimise) && !any(parameters$random)) {
@@ -1152,6 +1154,8 @@ g3_tmb_adfun <- function(
     tmb_parameters <- structure(
         parameters$value,
         names = cpp_escape_varname(parameters$switch))
+    logarithmic <- grepl("(^|:)LOG(:|$)", parameters$type)
+    tmb_parameters[logarithmic] <- lapply(tmb_parameters[logarithmic], log)
 
     # optimise=F & random=F parameters should be added to fixed map.
     tmb_map <- lapply(parameters[parameters$optimise == FALSE & parameters$random == FALSE, 'switch'], function (n) {
@@ -1308,31 +1312,28 @@ g3_tmb_adfun <- function(
 # Make a simple function only capable of double evaluation, for e.g. projections
 g3_tmb_fn <- function (
         cpp_code,
-        parameters = attr(cpp_code, 'parameter_template'),
+        def.parameters = attr(cpp_code, 'parameter_template'),
         ... ) {
     # Pretend we're optimising everything, so all parameters can be adjusted. There is no tape to worry about.
-    def.parameters <- parameters
     def.parameters$optimise <- TRUE
     def.parameters$random <- FALSE
 
     obj.fn <- g3_tmb_adfun(cpp_code, def.parameters, type = "Fun", ...)
 
     # Wrapping function that hides TMB magic, works like the R function
-    out <- function (par = NULL) {
-        params <- def.parameters
-
-        if (!is.null(par)) {
-            # Relist values into original parameter_template
-            if (is.data.frame(par)) par <- par$value
-            if (is.list(par)) par <- unlist(par)
-            names(par) <- cpp_escape_varname(names(par))  # Ensure names are cpp-escaped
-            params$value <- g3_tmb_relist(def.parameters, par)
+    out <- function (parameters = NULL) {
+        p <- def.parameters
+        if (!is.null(parameters)) {
+            # Splice in provided parameters, after converting back to list
+            if (is.data.frame(parameters)) parameters <- parameters$value
+            if (!is.list(parameters)) parameters <- g3_tmb_relist(def.parameters, parameters)
+            p$value[names(parameters)] <- parameters
         }
 
         # Run gen_dimnames & repopulate any dynamic dims, re-patching report_patch
         # NB: We have to do this here, as the project_years parameter is reliant on this re-patching
         #     (which ordinarily won't be optimise=TRUE, and you'd have to re-run g3_tmb_adfun)
-        dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(params))
+        dyndims <- attributes(attr(cpp_code, 'report_gen_dimnames')(p))
         report_dimnames <- attr(cpp_code, 'report_dimnames')
 
         for (dimname in names(dyndims)) {
@@ -1347,7 +1348,7 @@ g3_tmb_fn <- function (
         # NB: Using $simulate instead of $report will
         # * Enable SIMULATE blocks (which we don't use)
         # * Save RNG state back to R after a run (which is slightly more intuitive than successive runs producing the same result)
-        obj.fn$simulate(g3_tmb_par(params), complete = FALSE)
+        obj.fn$simulate(g3_tmb_par(p), complete = FALSE)
     }
     class(out) <- c("g3_tmb_fn", class(out))
     attr(out, 'parameter_template') <- def.parameters
@@ -1360,7 +1361,7 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
     # Get all parameters we're thinking of optimising
     p <- parameters[
         (if (include_random) parameters$random else FALSE) |
-        parameters$optimise, c('switch', 'value', bound)]
+        parameters$optimise, c('switch', 'value', bound, 'type')]
 
     if (bound == 'value') {
         out <- p$value
@@ -1372,6 +1373,10 @@ g3_tmb_bound <- function (parameters, bound, include_random = FALSE) {
         out <- lapply(seq_len(nrow(p)), function (i) rep(p[i, bound], p[i, 'val_len']))
     }
     names(out) <- cpp_escape_varname(p$switch)
+
+    # Take the log of any logarithmic parameters
+    logarithmic <- grepl("(^|:)LOG(:|$)", p$type)
+    out[logarithmic] <- lapply(out[logarithmic], log)
 
     # Unlist the result to condense list back to vector
     unlist(out)
@@ -1416,5 +1421,10 @@ g3_tmb_relist <- function (parameters, par) {
         parameters$optimise)], out)
     # Re-order to match template list
     out <- out[names(parameters$value)]
+
+    # Convert any logarithmic params back to linear space
+    logarithmic <- grepl("(^|:)LOG(:|$)", parameters$type)
+    out[logarithmic] <- lapply(out[logarithmic], exp)
+
     return(out)
 }

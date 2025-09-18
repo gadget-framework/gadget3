@@ -31,7 +31,7 @@ g3_tmb_adfun(
 
 g3_tmb_fn(
         cpp_code,
-        parameters = attr(cpp_code, 'parameter_template'),
+        def.parameters = attr(cpp_code, 'parameter_template'),
         ... )
 
 g3_tmb_par(parameters, include_random = TRUE)
@@ -60,7 +60,7 @@ g3_tmb_relist(parameters, par)
   \item{cpp_code}{
     cpp_code as produced by \var{g3_to_tmb}.
   }
-  \item{parameters}{
+  \item{parameters, def.parameters}{
     Parameter table as produced by \code{attr(g3_to_tmb(...), 'parameter_template')},
     modified to provide initial conditions, etc.
   }

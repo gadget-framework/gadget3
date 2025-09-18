@@ -1,3 +1,4 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 library(magrittr)
 library(unittest)
 
@@ -121,6 +122,9 @@ ok_group('g3_tmb_par', {
         param__b = 66,
         aaparam = 55,
         randomparam = 2)), "g3_tmb_par: randomparam visible if include_random on")
+
+    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, type = "LOG"))), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_par(pt), c(x = log(15)) ), "g3_tmb_par: logarithmic value converted to log-space")
 })
 
 ok_group('g3_tmb_lower', {
@@ -162,6 +166,9 @@ ok_group('g3_tmb_lower', {
     ok(ut_cmp_identical(
         names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
+
+    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, type = "LOG"))), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_lower(pt), c(x = log(10)) ), "g3_tmb_lower: logarithmic value converted to log-space")
 })
 
 ok_group('g3_tmb_upper', {
@@ -203,6 +210,9 @@ ok_group('g3_tmb_upper', {
     ok(ut_cmp_identical(
         names(g3_tmb_par(param, include_random = FALSE)),
         names(g3_tmb_lower(param))), "g3_tmb_lower: Structure matches par after setting param.b")
+
+    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, type = "LOG"))), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_upper(pt), c(x = log(25)) ), "g3_tmb_upper: logarithmic value converted to log-space")
 })
 
 ok_group('g3_tmb_parscale', {
@@ -215,6 +225,9 @@ ok_group('g3_tmb_parscale', {
         param__lu = NA,
         param__ps = 22,
         param__lups = 44)), "We populate parscale")
+
+    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, parscale = 44, type = "LOG"))), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_parscale(pt), c(x = log(44)) ), "g3_tmb_parscale: logarithmic value converted to log-space")
 })
 
 ok_group('g3_tmb_relist', {
@@ -274,6 +287,9 @@ ok_group('g3_tmb_relist', {
             "unopt_param" = 95,
             "randomparam" = 2,
             "aaparam" = 550)), "g3_tmb_relist: Works without param.b set, use initial table value")
+
+    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, parscale = 44, type = "LOG"))), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_relist(pt, c(x = log(17))), list(x = 17) ), "g3_tmb_relist: exp'ed logarithmic values")
 })
 
 ok_group('g3_param', {
@@ -966,6 +982,15 @@ expecteds$sumprod_prod <- prod(sumprod_input)
 expecteds$sumprod_sum_scalar <- sumprod_input[[1]]
 expecteds$sumprod_prod_scalar <- sumprod_input[[1]]
 
+# g3_param(type = "LOG")
+actions <- c(actions, g3_formula({
+    comment("g3_param(type = LOG)")
+    g3_param_log_out <- g3_param("param_log", type = "LOG")
+    REPORT(g3_param_log_out)
+}, g3_param_log_out = 0.0))
+params[['param_log']] <- runif(1, 10, 20)
+expecteds$g3_param_log_out <- log(params[['param_log']])
+
 # g3_param_table()
 param_table_out <- array(rep(0, 6))
 actions <- c(actions, ~{
@@ -1130,16 +1155,15 @@ actions[['zzzzz']] <- ~{
 
 # Compile model
 model_fn <- g3_to_r(actions, trace = FALSE)
+model_cpp <- g3_to_tmb(actions, trace = FALSE)
 
 # Plug expected params into parameter template to get defaults
-expected_params <- params
-params <- attr(model_fn, "parameter_template")
-params[names(expected_params)] <- expected_params
+params.in <- attr(model_cpp, "parameter_template")
+params.in$value[names(params)] <- params
 
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    model_cpp <- g3_to_tmb(actions, trace = FALSE)
     # model_cpp <- edit(model_cpp)
-    w <- capture_warnings(model_tmb <- g3_tmb_adfun(model_cpp, params, compile_flags = c("-O0", "-g")))$warnings
+    w <- capture_warnings(model_tmb <- g3_tmb_adfun(model_cpp, params.in, compile_flags = c("-O0", "-g")))$warnings
     ok(length(w) > 2, "g3_tmb_adfun: Generated at least 2 warnings")
     ok(ut_cmp_identical(w, c(
         rep("No value found in g3_param_table param_table, ifmissing not specified", length(w)),
@@ -1149,26 +1173,24 @@ if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
 }
 
 # Compare everything we've been told to compare
-result <- capture_warnings(model_fn(params))
+result <- capture_warnings(model_fn(params.in))
 # str(attributes(result), vec.len = 10000)
 for (n in ls(expecteds)) {
     ok(ut_cmp_equal(
         attr(result$rv, n),
         expecteds[[n]], tolerance = 1e-6), n)
 }
-suppressWarnings(gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params))
+suppressWarnings(gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in))
 ok(ut_cmp_identical(result$warnings, expected_warnings_r), "Warnings from R as expected")
 if (nzchar(Sys.getenv('G3_TEST_TMB'))) {
-    param_template <- attr(model_cpp, "parameter_template")
-    param_template$value <- params[param_template$switch]
     # NB: Suppress the warnings when building the model, only look at the ones for the report
-    model_tmb <- suppressWarnings(g3_tmb_adfun(model_cpp, param_template, compile_flags = c("-O0", "-g")))
+    model_tmb <- suppressWarnings(g3_tmb_adfun(model_cpp, params.in, compile_flags = c("-O0", "-g")))
     generated_warnings <- capture_warnings(model_tmb$report())$warnings
     ok(ut_cmp_identical(generated_warnings, expected_warnings_tmb), "Warnings from TMB as expected")
 
-    ok(ut_cmp_equal(model_tmb$report(), model_tmb$simulate()), "$simulate: Also produces named output, as $report")
+    ok(suppressWarnings(ut_cmp_equal(model_tmb$report(), model_tmb$simulate())), "$simulate: Also produces named output, as $report")
 
-    out_simcomplete <- model_tmb$simulate(complete = TRUE)
-    ok(ut_cmp_equal(model_tmb$report(), out_simcomplete[names(model_tmb$report())]), "$simulate(complete=TRUE): Contains named output")
+    out_simcomplete <- suppressWarnings(model_tmb$simulate(complete = TRUE))
+    ok(suppressWarnings(ut_cmp_equal(model_tmb$report(), out_simcomplete[names(model_tmb$report())])), "$simulate(complete=TRUE): Contains named output")
     ok(ut_cmp_equal(model_tmb$env$data$slice_vec_set_in, out_simcomplete$slice_vec_set_in), "$simulate(complete=TRUE): Also contains data")
 }

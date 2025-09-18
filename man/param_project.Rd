@@ -14,11 +14,11 @@
 
 \usage{
 g3_param_project_dlnorm(
-        lmean_f = g3_parameterized("proj.dlnorm.lmean",
-            value = log(1e-5), optimise = FALSE,
+        lmean_f = g3_parameterized("proj.dlnorm.mean",
+            value = 1e-5, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ),
-        lstddev_f = g3_parameterized("proj.dlnorm.lstddev",
-            value = log(0.2), optimise = FALSE,
+        lstddev_f = g3_parameterized("proj.dlnorm.stddev",
+            value = 0.2, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ))
 
 g3_param_project_dnorm(
@@ -53,17 +53,17 @@ g3_param_project_ar1(
         lastx_f = 0L)
 
 g3_param_project_logar1(
-        logphi_f = g3_parameterized(
-            "proj.logar1.logphi",
+        phi_f = g3_parameterized(
+            "proj.logar1.phi",
             value = 0.8, lower = 0, upper = 1, optimise = FALSE,
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized(
-            "proj.logar1.lstddev",
-            value = log(0.2), optimise = FALSE,
+            "proj.logar1.stddev",
+            value = 0.2, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ),
         loglevel_f = g3_parameterized(
-            "proj.logar1.loglevel",
-            value = 0,
+            "proj.logar1.level",
+            value = 1, type = "LOG",
             prepend_extra = quote(param_name) ),
         lastx_f = 0L)
 
@@ -81,7 +81,7 @@ g3_param_project(
 }
 
 \arguments{
-  \item{mean_f, stddev_f, phi_f, lmean_f, lstddev_f, logphi_f}{
+  \item{mean_f, stddev_f, phi_f, lmean_f, lstddev_f}{
     mean / stddev in normal / logspace used for both the likelihood of deviates & to project future values.
     Defaults to parameters with names \code{(by_stock).(param_name).proj.(mean|stddev)}
   }
@@ -125,6 +125,7 @@ g3_param_project(
   The actions will define the following variables in your model, which could be reported with \code{\link{g3a_report_history}}:
   \describe{
     \item{proj_(dnorm|rwalk)_(param_name)__var}{Vector of all values, both parameters & projected, by time}
+    \item{proj_(dnorm|rwalk)_(param_name)__lvar}{Vector of all values, both parameters & projected, by time (logarithmic scale)}
     \item{proj_(dnorm|rwalk)_(param_name)__nll}{Likelihood of each value}
   }
 }
@@ -211,7 +212,7 @@ g3_param_project(
     \deqn{ V_t = \Phi V_{t-1} + (1 - \Phi) \Theta + \epsilon_{0 - \frac{e^{2*\Sigma}}{2},\Sigma} }
     \deqn{ v = exp(V) }
     \describe{
-      \item{\eqn{\Phi}}{\var{logphi_f} / \code{(by_stock).(param_name).proj.logphi} parameter}
+      \item{\eqn{\Phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
       \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
       \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
@@ -220,7 +221,7 @@ g3_param_project(
   }
 
   \subsection{g3_param_project}{
-    Returns a \link{formula} to choose the current value from the \code{__var} vector.
+    Returns a \link{formula} to choose the current value from the \code{__var} / \code{__lvar} vector.
 
     An extra G3 action will:
     \enumerate{
@@ -343,9 +344,9 @@ attr(model_fn, 'parameter_template') |>
 
 par(mfrow=c(3, 1))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1.001)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1.001)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1e-1)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-1)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 plot(attr(model_fn(params |>
-    g3_init_val("M.proj.dlnorm.lstddev", log(1e-2)) ), "proj_dlnorm_M__var"), ylim = c(15, 25))
+    g3_init_val("M.proj.dlnorm.lstddev", log(1e-2)) ), "proj_dlnorm_M__lvar"), ylim = c(15, 25))
 }

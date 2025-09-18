@@ -620,7 +620,8 @@ attr(simple_code, 'parameter_template')
 The TMB parameter template has the following columns:
 
 * *switch*: The parameter name
-* *type*: Is the parameter a vector? Currently unused
+* *type*: A colon-separtated list of keywords describing the behaviour of the parameter
+  * ``LOG``: Value will be converted to log-space inside the model, and back after optimisation
 * *value*: The initial value for this parameter
 * *optimise*: Should this parameter be optimised or fixed
 * *random*: Should random effects be applied to this parameter? See `vignette('random-effects')`

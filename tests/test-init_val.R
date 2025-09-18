@@ -168,6 +168,14 @@ ok(ut_cmp_equal(iv_options('x', value = 4, lower = 2, upper = 8, random = TRUE),
     parscale = 6,
     optimise = FALSE,
     random = TRUE)), "random = TRUE --> optimise = FALSE (as you can't have both)")
+ok(ut_cmp_equal( as.list(g3_init_val(g3_init_val(default_pt("x"), "x", 4.5, lower = 4, upper = 5), "x", random = TRUE)), list(
+    switch = "x",
+    value = I(list(4.5)),
+    lower = NA_real_,
+    upper = NA_real_,
+    parscale = NA_real_,
+    optimise = FALSE,
+    random = TRUE)), "random = TRUE clears previous lower/upper/parscale (unless explicitly set as above)")
 
 ok(ut_cmp_equal(iv_options('x', value = 10, spread = 0.5), list(
     switch = "x",
@@ -208,6 +216,23 @@ ok(ut_cmp_equal(
 ok(ut_cmp_equal(
     g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = FALSE)$value,
     I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works")
+
+#### type="LOG"
+pt <- default_pt(c("moo"))
+pt$type <- "LOG"
+
+ok(ut_cmp_error(
+    g3_init_val(pt, "moo", -1),
+    "value.*moo"), "logarithmic: Not allowed to set negative value")
+ok(ut_cmp_error(
+    g3_init_val(pt, "moo", 99, lower = -1, upper = 100),
+    "lower.*moo"), "logarithmic: Not allowed to set negative lower-bound")
+ok(ut_cmp_error(
+    suppressWarnings(g3_init_val(pt, "moo", 99, lower = 10, upper = -1)),
+    "upper.*moo"), "logarithmic: Not allowed to set negative upper-bound")
+ok(ut_cmp_equal(
+    g3_init_val(pt, "moo", 99)$value,
+    I(list(99)) ), "logarithmic: Can set positive values")
 
 #### Warning
 

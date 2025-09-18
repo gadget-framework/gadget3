@@ -79,8 +79,16 @@ g3_init_val <- function (
             param_template[matches, 'upper'] <- upper
             if (any(auto_exp)) param_template[auto_exp, 'upper'] <- log(param_template[auto_exp, 'upper'])
         }
-        # NB: Can't set optimise & random
-        if (!is.null(random)) param_template[matches, 'random'] <- random
+        if (!is.null(random)) {
+            param_template[matches, 'random'] <- random
+            if (isTRUE(random)) {
+                # If random is explicitly set, optimise should be off, lower/upper also make little sense
+                if (is.null(optimise)) param_template[matches, 'optimise'] <- FALSE
+                if (is.null(lower)) param_template[matches, 'lower'] <- NA
+                if (is.null(upper)) param_template[matches, 'upper'] <- NA
+                if (is.null(parscale)) param_template[matches, 'parscale'] <- NA
+            }
+        }
         if (!is.null(optimise)) param_template[matches, 'optimise'] <- optimise & !param_template[matches, 'random']
         if (identical(parscale, 'auto')) {
             # NB: Happens post-auto_exp, so don't need to apply it
@@ -99,6 +107,19 @@ g3_init_val <- function (
             param_template[matches, 'upper'] < unlist(param_template[matches, 'value'])
         if (any(m)) {
             warning("Initial parameter values above upper bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
+        logarithmic <- grepl("(^|:)LOG(:|$)", param_template$type)
+        m <- unlist(param_template[matches & logarithmic, 'value']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic values: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
+        m <- unlist(param_template[matches & logarithmic, 'lower']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic lower-bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
+        }
+        m <- unlist(param_template[matches & logarithmic, 'upper']) < 0
+        if (any(m, na.rm = TRUE)) {
+            stop("Negative logarithmic upper-bound: ", paste(param_template[matches, 'switch'][m], collapse = ", "))
         }
     } else {  # is.list
         if (!is.null(value)) {

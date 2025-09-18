@@ -41,7 +41,7 @@ articles:
   - incorporating-observation-data
   - multiple-substocks
   - model-customisation
-  - random-effects
+  - articles/random-effect-recruitment
   - model-debugging
 
 - title: Advanced documentation

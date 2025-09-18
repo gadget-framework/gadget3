@@ -38,6 +38,13 @@ ok_group('print.g3_r', {
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
         "        param_upper <- structure(param$upper, names = param$switch)",
+        "        logarithmic <- grepl(\"(^|:)LOG(:|$)\", param$type)",
+        "        param$value[logarithmic] <- lapply(param[logarithmic, ",
+        "            \"value\"], log)",
+        "        param_lower[logarithmic] <- lapply(param_lower[logarithmic], ",
+        "            log)",
+        "        param_upper[logarithmic] <- lapply(param_upper[logarithmic], ",
+        "            log)",
         "        param <- structure(param$value, names = param$switch)",
         "    }",
         "    else {",
@@ -59,6 +66,13 @@ ok_group('print.g3_r', {
         "    if (is.data.frame(param)) {",
         "        param_lower <- structure(param$lower, names = param$switch)",
         "        param_upper <- structure(param$upper, names = param$switch)",
+        "        logarithmic <- grepl(\"(^|:)LOG(:|$)\", param$type)",
+        "        param$value[logarithmic] <- lapply(param[logarithmic, ",
+        "            \"value\"], log)",
+        "        param_lower[logarithmic] <- lapply(param_lower[logarithmic], ",
+        "            log)",
+        "        param_upper[logarithmic] <- lapply(param_upper[logarithmic], ",
+        "            log)",
         "        param <- structure(param$value, names = param$switch)",
         "    }",
         "    else {",
@@ -219,6 +233,6 @@ ok_group('parameter data.frame', {
     # We can also hand model_fn a data.frame, in which case the value column is used
     model_fn <- g3_to_r(~return(g3_param("archibald", value = 45)))
 
-    df <- data.frame(switch = c("archibald"), lower = 0, upper = 100, value = I(list(floor(runif(1, 100, 200)))))
+    df <- data.frame(switch = c("archibald"), type = "", lower = 0, upper = 100, value = I(list(floor(runif(1, 100, 200)))))
     ok(ut_cmp_equal(as.numeric(model_fn(df)), as.numeric(df$value)), "data.frame accepted as input")
 })
