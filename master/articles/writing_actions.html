@@ -63,7 +63,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -297,6 +297,13 @@ For example:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -317,8 +324,8 @@ For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x563d1c03e9c0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x563d1af7f540&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x55755ed8a670&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x55755d9f5640&gt;</span></span></code></pre>
 <p>The attached step gets inserted at the beginning of the model, and a
 new random number is chosen for <code>parrot</code> at each model
 timestep.</p>

@@ -8,9 +8,9 @@ articles:
   model-debugging: model-debugging.html
   model-structure: model-structure.html
   multiple-substocks: multiple-substocks.html
-  random-effects: random-effects.html
+  articles/random-effect-recruitment: random-effect-recruitment.html
   writing_actions: writing_actions.html
-last_built: 2025-08-28T18:07Z
+last_built: 2025-09-18T18:31Z
 urls:
   reference: https://gadget-framework.github.io/gadget3/reference
   article: https://gadget-framework.github.io/gadget3/articles

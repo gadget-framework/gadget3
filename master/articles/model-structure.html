@@ -63,7 +63,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -141,7 +141,7 @@ make some:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Class 'formula'  language ~cows + pigs</span></span>
-<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x564494603458&gt;</span></span></code></pre>
+<span><span class="co">##   ..- attr(*, ".Environment")=&lt;environment: 0x561f8c2b5ac0&gt;</span></span></code></pre>
 <p>We can look into this environment, and see the values that got set
 for cows &amp; pigs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -175,6 +175,13 @@ an R function:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -187,8 +194,8 @@ an R function:</p>
 <span><span class="co">##         cows + pigs</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x564490c28ad8&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x564495c117c8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x561f87b38c28&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f8d8c0430&gt;</span></span></code></pre>
 <p>…or a TMB template:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -258,14 +265,14 @@ reached. For example:</p>
 <span><span class="co">##     cur_step_size &lt;- step_lengths[[cur_step]]/12</span></span>
 <span><span class="co">##     cur_step_final &lt;- cur_step == step_count</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x564492fd4740&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f8b064ca8&gt;</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## $`001`</span></span>
 <span><span class="co">## ~{</span></span>
 <span><span class="co">##     if (cur_time &gt; total_steps) </span></span>
 <span><span class="co">##         return(nll)</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;environment: 0x56448e5336f8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x561f8a7e4f98&gt;</span></span></code></pre>
 <p>Like in the example above, the definitions are part of the formula’s
 environment, and if we compile it we see our years ending up in the
 code.</p>
@@ -276,6 +283,13 @@ code.</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -330,8 +344,8 @@ code.</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x5644940dd918&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x56448fe750d8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x561f8dd75e70&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f8add6420&gt;</span></span></code></pre>
 <p>In this case our years have been hard-coded, but their definitions
 could themselves be formula and the end result will be added to the
 model. For example:</p>
@@ -342,6 +356,13 @@ model. For example:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -396,8 +417,8 @@ model. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x564492f23fb0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x5644942ff7f8&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x561f8c108800&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f88736b30&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="stocks">Stocks<a class="anchor" aria-label="anchor" href="#stocks"></a>
@@ -484,6 +505,13 @@ example:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -630,8 +658,8 @@ example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x564493191148&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x564494340758&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x561f8d0883e8&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f879502a8&gt;</span></span></code></pre>
 <p>…you can see our provided formula have been used to calculate
 <code>ling_imm__growth_l</code> and <code>ling_imm__growth_w</code>, and
 <code>age</code> and <code>area</code> are available to us thanks to the
@@ -655,6 +683,13 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -806,8 +841,8 @@ definitions into the code where appropriate. For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x564494f122a0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x564495de5000&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x561f8a8872c0&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x561f8b30c6e8&gt;</span></span></code></pre>
 <p>Note that <code>custom_delta_l</code> is recalculated every loop,
 since it uses <code>area</code>, whereas <code>custom_delta_w</code> is
 calculated once for the step.</p>

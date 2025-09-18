@@ -63,7 +63,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -243,6 +243,13 @@ will count years &amp; steps:</p>
     if (is.data.frame(param)) {
         param_lower &lt;- structure(param$lower, names = param$switch)
         param_upper &lt;- structure(param$upper, names = param$switch)
+        logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)
+        param$value[logarithmic] &lt;- lapply(param[logarithmic, 
+            "value"], log)
+        param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], 
+            log)
+        param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], 
+            log)
         param &lt;- structure(param$value, names = param$switch)
     }
     else {
@@ -296,8 +303,8 @@ will count years &amp; steps:</p>
         }
     }
 }
-&lt;bytecode: 0x558f9e07ee10&gt;
-&lt;environment: 0x558f9efbc118&gt;</code></pre>
+&lt;bytecode: 0x558616bfa0f8&gt;
+&lt;environment: 0x5586178e3398&gt;</code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>// Model generated with gadget3 0.13-0-999
@@ -919,8 +926,8 @@ based on the actions already within it:</p>
 <ul>
 <li>
 <code><a href="../reference/action_report.html">g3a_report_detail()</a></code>: Adds abundance / catch reporting
-suitable for use with <code>gadgetutils::g3_fit()</code> and
-<code>gadgetplots::gadget_plots()</code>
+suitable for use with <code><a href="https://rdrr.io/pkg/gadgetutils/man/g3_fit.html" class="external-link">gadgetutils::g3_fit()</a></code> and
+<code><a href="https://gadget-framework.github.io/gadgetplots/reference/gadget_plots.html" class="external-link">gadgetplots::gadget_plots()</a></code>
 </li>
 <li>
 <code><a href="../reference/likelihood_bounds.html">g3l_bounds_penalty()</a></code>: Adds a large likelihood penalty
@@ -958,14 +965,21 @@ do the same, however the template is more complex:</p>
 <li>
 <em>switch</em>: The parameter name</li>
 <li>
-<em>type</em>: Is the parameter a vector? Currently unused</li>
+<em>type</em>: A colon-separtated list of keywords describing the
+behaviour of the parameter
+<ul>
+<li>
+<code>LOG</code>: Value will be converted to log-space inside the
+model, and back after optimisation</li>
+</ul>
+</li>
 <li>
 <em>value</em>: The initial value for this parameter</li>
 <li>
 <em>optimise</em>: Should this parameter be optimised or fixed</li>
 <li>
 <em>random</em>: Should random effects be applied to this parameter?
-See <code><a href="../articles/random-effects.html">vignette('random-effects')</a></code>
+See <code>vignette('random-effects')</code>
 </li>
 <li>
 <em>lower</em>: A lower bound for this parameter</li>
@@ -1095,14 +1109,14 @@ stock/fleet naming:</p>
 <code><a href="../reference/run_tmb.html">g3_tmb_adfun()</a></code> is a wrapper around
 <code><a href="https://rdrr.io/pkg/TMB/man/MakeADFun.html" class="external-link">TMB::MakeADFun()</a></code> and <code><a href="https://rdrr.io/pkg/TMB/man/compile.html" class="external-link">TMB::compile</a></code>, producing a
 TMB <em>objective function</em>.
-<code>gadgetutils::g3_iterative()</code> then optimises based on
+<code><a href="https://rdrr.io/pkg/gadgetutils/man/g3_iterative.html" class="external-link">gadgetutils::g3_iterative()</a></code> then optimises based on
 iterative reweighting</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Optimise model ################################</span></span>
 <span><span class="va">obj.fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.in</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">params.out</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_iterative</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span><span class="va">params.out</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gadgetutils/man/g3_iterative.html" class="external-link">g3_iterative</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    wgts <span class="op">=</span> <span class="st">"WGTS"</span>,</span>
 <span>    model <span class="op">=</span> <span class="va">model_code</span>,</span>
 <span>    params.in <span class="op">=</span> <span class="va">params.in</span>,</span>
@@ -1114,12 +1128,12 @@ iterative reweighting</p>
 <span>    cv_floor <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Once this has finished, we can view the output using
-<code>gadgetplots::gadget_plots()</code>.</p>
+<code><a href="https://gadget-framework.github.io/gadgetplots/reference/gadget_plots.html" class="external-link">gadgetplots::gadget_plots()</a></code>.</p>
 <div class="modelScript">
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate detailed report ######################</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu">g3_fit</span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span>
-<span><span class="fu">gadgetplots</span><span class="fu">::</span><span class="fu">gadget_plots</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"figs"</span>, file_type <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gadgetutils/man/g3_fit.html" class="external-link">g3_fit</a></span><span class="op">(</span><span class="va">model_code</span>, <span class="va">params.out</span><span class="op">)</span></span>
+<span><span class="fu">gadgetplots</span><span class="fu">::</span><span class="fu"><a href="https://gadget-framework.github.io/gadgetplots/reference/gadget_plots.html" class="external-link">gadget_plots</a></span><span class="op">(</span><span class="va">fit</span>, <span class="st">"figs"</span>, file_type <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Once finished, you can view the output in your web browser:</p>
 <div class="modelScript">

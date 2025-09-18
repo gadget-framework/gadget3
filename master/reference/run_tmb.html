@@ -44,7 +44,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -102,7 +102,7 @@
 <span></span>
 <span><span class="fu">g3_tmb_fn</span><span class="op">(</span></span>
 <span>        <span class="va">cpp_code</span>,</span>
-<span>        parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">'parameter_template'</span><span class="op">)</span>,</span>
+<span>        def.parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">cpp_code</span>, <span class="st">'parameter_template'</span><span class="op">)</span>,</span>
 <span>        <span class="va">...</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu">g3_tmb_par</span><span class="op">(</span><span class="va">parameters</span>, include_random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -132,7 +132,7 @@
   <dt id="arg-cpp-code">cpp_code<a class="anchor" aria-label="anchor" href="#arg-cpp-code"></a></dt>
 <dd><p>cpp_code as produced by <var>g3_to_tmb</var>.</p></dd>
 
-  <dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
+  <dt id="arg-parameters-def-parameters">parameters, def.parameters<a class="anchor" aria-label="anchor" href="#arg-parameters-def-parameters"></a></dt>
 <dd><p>Parameter table as produced by <code>attr(g3_to_tmb(...), 'parameter_template')</code>,
     modified to provide initial conditions, etc.</p></dd>
 
