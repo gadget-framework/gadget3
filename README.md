@@ -18,6 +18,11 @@ This package is part of suite of tools, including:
 * [gadget2to3](https://github.com/gadget-framework/gadget2to3): Convert gadget2 model configuration to gadget3
 * [mfdb](https://github.com/gadget-framework/mfdb): Marine ecosystem data management tool
 
+## Publications
+
+* [WGSAM 2025 presentation introducing gadget3](https://presentations.shuttlethread.com/2025-10-09-gadget3-mice)
+* [ICES 2024 poster](https://gadget-framework.github.io/publications/2024-09-ices-asc-gadget3-evolution-of-gadget-modelling-framework.pdf)
+
 ## Installation
 
 gadget3 is available on CRAN:
