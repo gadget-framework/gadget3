@@ -128,12 +128,14 @@ expecteds$single_named_area_1 <- 0
 expecteds$single_named_area_2 <- 198321
 
 # no-area form works as expected
-no_area_lookup_gen <- g3_timeareadata('no_area_lookup', read.table(header = TRUE, text = "
+no_area_df <- read.table(header = TRUE, text = "
 year	step	total_weight
 1983	1	198311
 1983	2	198321
 1984	1	198411
-"))
+")
+# NB: Ideally enable this, but ducking CRAN checks: no_area_df <- tibble::as_tibble(no_area_df)
+no_area_lookup_gen <- g3_timeareadata('no_area_lookup', no_area_df)
 
 no_area_1 <- 0
 no_area_2 <- 0
