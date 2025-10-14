@@ -103,7 +103,7 @@ g3_timeareadata <- function(lookup_name, df, value_field = 'total_weight', areas
     }
 
     # Single area --> move condition outside table
-    if (length(df$area) > 0 && length(unique(df$area)) == 1) {
+    if ('area' %in% names(df) && length(unique(df$area)) == 1) {
         our_area <- df$area[[1]]
         df$area <- NULL
     } else {
