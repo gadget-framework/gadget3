@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14-0</span>
       </span>
     </div>
 
@@ -62,7 +62,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -105,7 +105,7 @@
       <h1 data-toc-skip>Writing G3 Actions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.13-0/vignettes/writing_actions.Rmd" class="external-link"><code>vignettes/writing_actions.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.14-0/vignettes/writing_actions.Rmd" class="external-link"><code>vignettes/writing_actions.Rmd</code></a></small>
       <div class="hidden name"><code>writing_actions.Rmd</code></div>
 
     </div>
@@ -296,6 +296,13 @@ For example:</p>
 <span><span class="co">##     if (is.data.frame(param)) {</span></span>
 <span><span class="co">##         param_lower &lt;- structure(param$lower, names = param$switch)</span></span>
 <span><span class="co">##         param_upper &lt;- structure(param$upper, names = param$switch)</span></span>
+<span><span class="co">##         logarithmic &lt;- grepl("(^|:)LOG(:|$)", param$type)</span></span>
+<span><span class="co">##         param$value[logarithmic] &lt;- lapply(param[logarithmic, </span></span>
+<span><span class="co">##             "value"], log)</span></span>
+<span><span class="co">##         param_lower[logarithmic] &lt;- lapply(param_lower[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
+<span><span class="co">##         param_upper[logarithmic] &lt;- lapply(param_upper[logarithmic], </span></span>
+<span><span class="co">##             log)</span></span>
 <span><span class="co">##         param &lt;- structure(param$value, names = param$switch)</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">##     else {</span></span>
@@ -316,8 +323,8 @@ For example:</p>
 <span><span class="co">##         }</span></span>
 <span><span class="co">##     }</span></span>
 <span><span class="co">## }</span></span>
-<span><span class="co">## &lt;bytecode: 0x55b3315e8ca0&gt;</span></span>
-<span><span class="co">## &lt;environment: 0x55b33052c920&gt;</span></span></code></pre>
+<span><span class="co">## &lt;bytecode: 0x563928bf4b30&gt;</span></span>
+<span><span class="co">## &lt;environment: 0x563927863880&gt;</span></span></code></pre>
 <p>The attached step gets inserted at the beginning of the model, and a
 new random number is chosen for <code>parrot</code> at each model
 timestep.</p>
@@ -339,7 +346,7 @@ timestep.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer>

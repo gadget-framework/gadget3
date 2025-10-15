@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14-0</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -254,7 +254,7 @@
 <span class="r-in"><span><span class="co"># Not 'by' anything, so we add a single parameter value</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   switch type value optimise random lower upper parscale               source</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> K      K          0     TRUE  FALSE    NA    NA       NA g3a_naturalmortality</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> K      K          0    FALSE  FALSE    NA    NA       NA g3a_naturalmortality</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Can set defaults for the parameter template when defining a parameter</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, value <span class="op">=</span> <span class="fl">5</span>, lower <span class="op">=</span> <span class="fl">2</span>,</span></span>
@@ -265,33 +265,33 @@
 <span class="r-in"><span><span class="co"># by_stock, so the parameters will have the stock name prepended</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  switch type value optimise random lower upper parscale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K stock_imm.K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K stock_imm.K          0    FALSE  FALSE    NA    NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K g3a_naturalmortality</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Similarly, we can prepend year &amp; age</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                switch type value optimise random lower upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.1 stock_imm.K.1990.1          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.1 stock_imm.K.1991.1          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.1 stock_imm.K.1992.1          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.1 stock_imm.K.1993.1          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.1 stock_imm.K.1994.1          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.2 stock_imm.K.1990.2          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.2 stock_imm.K.1991.2          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.2 stock_imm.K.1992.2          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.2 stock_imm.K.1993.2          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.2 stock_imm.K.1994.2          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.3 stock_imm.K.1990.3          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.3 stock_imm.K.1991.3          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.3 stock_imm.K.1992.3          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.3 stock_imm.K.1993.3          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.3 stock_imm.K.1994.3          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.4 stock_imm.K.1990.4          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.4 stock_imm.K.1991.4          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.4 stock_imm.K.1992.4          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.4 stock_imm.K.1993.4          0     TRUE  FALSE    NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.4 stock_imm.K.1994.4          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.1 stock_imm.K.1990.1          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.1 stock_imm.K.1991.1          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.1 stock_imm.K.1992.1          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.1 stock_imm.K.1993.1          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.1 stock_imm.K.1994.1          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.2 stock_imm.K.1990.2          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.2 stock_imm.K.1991.2          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.2 stock_imm.K.1992.2          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.2 stock_imm.K.1993.2          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.2 stock_imm.K.1994.2          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.3 stock_imm.K.1990.3          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.3 stock_imm.K.1991.3          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.3 stock_imm.K.1992.3          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.3 stock_imm.K.1993.3          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.3 stock_imm.K.1994.3          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.4 stock_imm.K.1990.4          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.4 stock_imm.K.1991.4          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1992.4 stock_imm.K.1992.4          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1993.4 stock_imm.K.1993.4          0    FALSE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1994.4 stock_imm.K.1994.4          0    FALSE  FALSE    NA    NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    parscale               source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1990.1       NA g3a_naturalmortality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K.1991.1       NA g3a_naturalmortality</span>
@@ -318,11 +318,11 @@
 <span class="r-in"><span><span class="co"># e.g. if a parameter should be shared between mature and immature:</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="st">'species'</span>, by_year <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    switch type value optimise random lower upper parscale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1990 stock.K.1990          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1991 stock.K.1991          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1992 stock.K.1992          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1993 stock.K.1993          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1994 stock.K.1994          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1990 stock.K.1990          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1991 stock.K.1991          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1992 stock.K.1992          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1993 stock.K.1993          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1994 stock.K.1994          0    FALSE  FALSE    NA    NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                            source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1990 g3a_naturalmortality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1991 g3a_naturalmortality</span>
@@ -333,17 +333,17 @@
 <span class="r-in"><span><span class="co"># Can give a list of stocks, in which case it works out name parts for you</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_imm</span>, <span class="va">stock_mat</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          switch type value optimise random lower upper parscale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K stock.K          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K stock.K          0    FALSE  FALSE    NA    NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock.K g3a_naturalmortality</span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">stock_imm</span>, <span class="va">stock_mat</span><span class="op">)</span>, by_age <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              switch type value optimise random lower upper parscale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1 stock.K.1          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.2 stock.K.2          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.3 stock.K.3          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.4 stock.K.4          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.5 stock.K.5          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.6 stock.K.6          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1 stock.K.1          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.2 stock.K.2          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.3 stock.K.3          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.4 stock.K.4          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.5 stock.K.5          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.6 stock.K.6          0    FALSE  FALSE    NA    NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.1 g3a_naturalmortality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock.K.2 g3a_naturalmortality</span>
@@ -357,9 +357,9 @@
 <span class="r-in"><span>    <span class="st">'btrigger'</span>,</span></span>
 <span class="r-in"><span>    by_stock <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">"surv"</span><span class="op">)</span>, <span class="fu"><a href="stock.html">g3_fleet</a></span><span class="op">(</span><span class="st">"comm"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                switch type value optimise random lower upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comm.surv.btrigger comm.surv.btrigger          0     TRUE  FALSE    NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comm_surv.btrigger comm_surv.btrigger          0    FALSE  FALSE    NA    NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    parscale               source</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> comm.surv.btrigger       NA g3a_naturalmortality</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> comm_surv.btrigger       NA g3a_naturalmortality</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># You can set fixed scale/offset for the parameter</span></span></span>
 <span class="r-in"><span><span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, scale <span class="op">=</span> <span class="fl">5</span>, offset <span class="op">=</span> <span class="fl">9</span><span class="op">)</span></span></span>
@@ -368,9 +368,9 @@
 <span class="r-in"><span><span class="co"># ...or give names and they will also be parameters, sharing the by_stock setting</span></span></span>
 <span class="r-in"><span><span class="fu">param_template_for</span><span class="op">(</span> <span class="fu">g3_parameterized</span><span class="op">(</span><span class="st">'K'</span>, by_stock <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="st">"sc"</span>, offset <span class="op">=</span> <span class="st">"offs"</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                        switch type value optimise random lower upper parscale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K       stock_imm.K          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.sc     stock_imm.sc          0     TRUE  FALSE    NA    NA       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.offs stock_imm.offs          0     TRUE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K       stock_imm.K          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.sc     stock_imm.sc          0    FALSE  FALSE    NA    NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.offs stock_imm.offs          0    FALSE  FALSE    NA    NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                              source</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.K    g3a_naturalmortality</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> stock_imm.sc   g3a_naturalmortality</span>
@@ -390,7 +390,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

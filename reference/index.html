@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14-0</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -136,7 +136,7 @@
         </td>
         <td><p>Gadget3 predation actions</p></td>
       </tr><tr><td>
-          <p><code><a href="action_renewal.html">g3a_renewal_vonb_recl()</a></code> <code><a href="action_renewal.html">g3a_renewal_vonb_t0()</a></code> <code><a href="action_renewal.html">g3a_renewal_initabund()</a></code> <code><a href="action_renewal.html">g3a_initialconditions()</a></code> <code><a href="action_renewal.html">g3a_initialconditions_normalparam()</a></code> <code><a href="action_renewal.html">g3a_initialconditions_normalcv()</a></code> <code><a href="action_renewal.html">g3a_renewal()</a></code> <code><a href="action_renewal.html">g3a_renewal_normalparam()</a></code> <code><a href="action_renewal.html">g3a_renewal_normalcv()</a></code> <code><a href="action_renewal.html">g3a_otherfood()</a></code> <code><a href="action_renewal.html">g3a_otherfood_normalparam()</a></code> <code><a href="action_renewal.html">g3a_otherfood_normalcv()</a></code> </p>
+          <p><code><a href="action_renewal.html">g3a_renewal_vonb_recl()</a></code> <code><a href="action_renewal.html">g3a_renewal_vonb_t0()</a></code> <code><a href="action_renewal.html">g3a_renewal_initabund()</a></code> <code><a href="action_renewal.html">g3a_initialconditions_normalparam()</a></code> <code><a href="action_renewal.html">g3a_initialconditions_normalcv()</a></code> <code><a href="action_renewal.html">g3a_renewal_normalparam()</a></code> <code><a href="action_renewal.html">g3a_renewal_normalcv()</a></code> <code><a href="action_renewal.html">g3a_otherfood()</a></code> <code><a href="action_renewal.html">g3a_otherfood_normalparam()</a></code> <code><a href="action_renewal.html">g3a_otherfood_normalcv()</a></code> </p>
         </td>
         <td><p>Gadget3 renewal actions</p></td>
       </tr><tr><td>
@@ -196,7 +196,7 @@
         </td>
         <td><p>Gadget3 projected parameters</p></td>
       </tr><tr><td>
-          <p><code><a href="quota.html">g3_quota_hockeyfleet()</a></code> <code><a href="quota.html">g3_quota_assess()</a></code> <code><a href="quota.html">g3_quota()</a></code> </p>
+          <p><code><a href="quota.html">g3_quota_hockeystick()</a></code> <code><a href="quota.html">g3_quota_hockeyfleet()</a></code> <code><a href="quota.html">g3_quota_assess()</a></code> <code><a href="quota.html">g3_quota()</a></code> </p>
         </td>
         <td><p>Gadget3 projected quotas</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
@@ -204,6 +204,10 @@
           <p class="section-desc"></p><p>Tools to aid customising G3 actions, applicable to many actions</p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="action_trace.html">g3a_trace_var()</a></code> <code><a href="action_trace.html">g3a_trace_timings()</a></code> </p>
+        </td>
+        <td><p>Tracing and debugging tools</p></td>
+      </tr><tr><td>
           <p><code><a href="array_utils.html">g3_array_agg()</a></code> <code><a href="array_utils.html">g3_array_combine()</a></code> <code><a href="array_utils.html">g3_array_plot()</a></code> </p>
         </td>
         <td><p>Gadget3 array-handling utilities</p></td>
@@ -248,7 +252,7 @@
         </td>
         <td><p>Gadget3 actions into R code</p></td>
       </tr><tr><td>
-          <p><code><a href="run_tmb.html">g3_to_tmb()</a></code> <code><a href="run_tmb.html">g3_tmb_adfun()</a></code> <code><a href="run_tmb.html">g3_tmb_par()</a></code> <code><a href="run_tmb.html">g3_tmb_lower()</a></code> <code><a href="run_tmb.html">g3_tmb_upper()</a></code> <code><a href="run_tmb.html">g3_tmb_parscale()</a></code> <code><a href="run_tmb.html">g3_tmb_relist()</a></code> </p>
+          <p><code><a href="run_tmb.html">g3_to_tmb()</a></code> <code><a href="run_tmb.html">g3_tmb_adfun()</a></code> <code><a href="run_tmb.html">g3_tmb_fn()</a></code> <code><a href="run_tmb.html">g3_tmb_par()</a></code> <code><a href="run_tmb.html">g3_tmb_lower()</a></code> <code><a href="run_tmb.html">g3_tmb_upper()</a></code> <code><a href="run_tmb.html">g3_tmb_parscale()</a></code> <code><a href="run_tmb.html">g3_tmb_relist()</a></code> </p>
         </td>
         <td><p>Gadget3 actions into TMB code</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
@@ -260,7 +264,7 @@
         </td>
         <td><p>Gadget3 language utilities</p></td>
       </tr><tr><td>
-          <p><code><a href="aab_env.html">g3_env</a></code> <code><a href="aab_env.html">ADREPORT</a></code> <code><a href="aab_env.html">as_integer</a></code> <code><a href="aab_env.html">as.numeric</a></code> <code><a href="aab_env.html">assert_msg</a></code> <code><a href="aab_env.html">avoid_zero</a></code> <code><a href="aab_env.html">avoid_zero_vec</a></code> <code><a href="aab_env.html">bounded</a></code> <code><a href="aab_env.html">bounded_vec</a></code> <code><a href="aab_env.html">g3_matrix_vec</a></code> <code><a href="aab_env.html">lgamma_vec</a></code> <code><a href="aab_env.html">logspace_add</a></code> <code><a href="aab_env.html">normalize_vec</a></code> <code><a href="aab_env.html">nvl</a></code> <code><a href="aab_env.html">print_array</a></code> <code><a href="aab_env.html">ratio_add_vec</a></code> <code><a href="aab_env.html">REPORT</a></code> <code><a href="aab_env.html">REprintf</a></code> <code><a href="aab_env.html">Rprintf</a></code> <code><a href="aab_env.html">nonconform_mult</a></code> <code><a href="aab_env.html">nonconform_add</a></code> <code><a href="aab_env.html">nonconform_div</a></code> <code><a href="aab_env.html">nonconform_divavz</a></code> </p>
+          <p><code><a href="aab_env.html">g3_env</a></code> <code><a href="aab_env.html">ADREPORT</a></code> <code><a href="aab_env.html">as_integer</a></code> <code><a href="aab_env.html">as.numeric</a></code> <code><a href="aab_env.html">assert_msg</a></code> <code><a href="aab_env.html">avoid_zero</a></code> <code><a href="aab_env.html">avoid_zero_vec</a></code> <code><a href="aab_env.html">bounded</a></code> <code><a href="aab_env.html">bounded_vec</a></code> <code><a href="aab_env.html">g3_matrix_vec</a></code> <code><a href="aab_env.html">lgamma_vec</a></code> <code><a href="aab_env.html">logspace_add</a></code> <code><a href="aab_env.html">normalize_vec</a></code> <code><a href="aab_env.html">nvl</a></code> <code><a href="aab_env.html">print_array</a></code> <code><a href="aab_env.html">ratio_add_pop</a></code> <code><a href="aab_env.html">REPORT</a></code> <code><a href="aab_env.html">REprintf</a></code> <code><a href="aab_env.html">Rprintf</a></code> <code><a href="aab_env.html">nonconform_mult</a></code> <code><a href="aab_env.html">nonconform_add</a></code> <code><a href="aab_env.html">nonconform_div</a></code> <code><a href="aab_env.html">nonconform_divavz</a></code> </p>
         </td>
         <td><p>Gadget3 global environment</p></td>
       </tr><tr><td>
@@ -288,7 +292,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

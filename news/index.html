@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">gadget3</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.13-0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.14-0</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
       <a href="../articles/model-customisation.html">Model customisation</a>
     </li>
     <li>
-      <a href="../articles/random-effects.html">Spawning &amp; Random effects</a>
+      <a href="../articles/random-effect-recruitment.html">Random effects &amp; projections</a>
     </li>
     <li>
       <a href="../articles/model-debugging.html">Debugging a gadget3 model</a>
@@ -77,11 +77,36 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.13-0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/gadget-framework/gadget3/blob/v0.14-0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.13-0" id="gadget3-013-0">gadget3 0.13-0:<a class="anchor" aria-label="anchor" href="#gadget3-013-0"></a></h2>
+<h2 class="page-header" data-toc-text="0.14-0" id="gadget3-014-0">gadget3 0.14-0:<a class="anchor" aria-label="anchor" href="#gadget3-014-0"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-14-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-14-0"></a></h3>
+<ul><li>g3a_predate_catchability_project now correctly scales when quotas are expressed in individuals <a href="https://github.com/gadget-framework/gadget3/issues/222" class="external-link">#222</a></li>
+<li>gadget3 resistant to packages (re)defining head/tail S3 methods, e.g. reformulas <a href="https://github.com/gadget-framework/gadget3/issues/224" class="external-link">#224</a></li>
+<li>g3_param_project projections tending to zero in some cases <a href="https://github.com/gadget-framework/gadget3/issues/226" class="external-link">#226</a></li>
+<li>g3_quota_hockeyfleet not overreporting when handed multiple stocks <a href="https://github.com/gadget-framework/gadget3/issues/227" class="external-link">#227</a></li>
+<li>Allow for zero mean weight in weightjones <a href="https://github.com/gadget-framework/gadget3/issues/228" class="external-link">#228</a></li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-14-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-14-0"></a></h3>
+<ul><li>Add g3a_trace_var, based on g3experiments::g3a_trace_nan <a href="https://github.com/gadget-framework/gadget3/issues/231" class="external-link">#231</a></li>
+<li>Add g3a_trace_timings, for investigating relative action speed <a href="https://github.com/gadget-framework/gadget3/issues/235" class="external-link">#235</a></li>
+<li>Add g3_tmb_fn(), for projection runs &amp; similar <a href="https://github.com/gadget-framework/gadget3/issues/237" class="external-link">#237</a></li>
+<li>Parameters can be set as type=“LOG”, for optimisation in logspace <a href="https://github.com/gadget-framework/gadget3/issues/251" class="external-link">#251</a></li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-0-14-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-14-0"></a></h3>
+<ul><li>optimise defaults to FALSE unless default bounds are provided <a href="https://github.com/gadget-framework/gadget3/issues/233" class="external-link">#233</a></li>
+<li>Don’t generate TMB ADGrad function if random effects not used <a href="https://github.com/gadget-framework/gadget3/issues/234" class="external-link">#234</a></li>
+<li>Hide g3a_initialconditions / g3a_renewal (<em>not</em> g3a_initialconditions_normalparam/cv) <a href="https://github.com/gadget-framework/gadget3/issues/240" class="external-link">#240</a></li>
+<li>g3_param_project_dlnorm() / _logar1() accept parameters in linear space, not log <a href="https://github.com/gadget-framework/gadget3/issues/251" class="external-link">#251</a></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.13-0" id="gadget3-013-0">gadget3 0.13-0:<small>2025-04-19</small><a class="anchor" aria-label="anchor" href="#gadget3-013-0"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes-0-13-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-13-0"></a></h3>
 <ul><li>All-zero lengthgroups in initialconditions / &gt; 1 maturity ratios no longer result in NaN <a href="https://github.com/gadget-framework/gadget3/issues/187" class="external-link">#187</a> <a href="https://github.com/gadget-framework/gadget3/issues/182" class="external-link">#182</a></li>
@@ -145,7 +170,7 @@
 <li>Defaults for <code>g3_suitability_exponentiall50</code>
 </li>
 <li>Support cut() formatted character columns as well as factor columns in likelihood observation data.</li>
-<li>Add <code><a href="../reference/init_val.html">g3_init_val()</a></code> helper, to replace <code>gadgetutils::g3_init_guess()</code>
+<li>Add <code><a href="../reference/init_val.html">g3_init_val()</a></code> helper, to replace <code><a href="https://rdrr.io/pkg/gadgetutils/man/g3_init_guess.html" class="external-link">gadgetutils::g3_init_guess()</a></code>
 </li>
 <li>Add <code><a href="../reference/stock_areas.html">g3_areas()</a></code> helper to create numbered area vectors</li>
 <li>Add <code><a href="../reference/likelihood_distribution.html">g3_distribution_preview()</a></code> helper to see how observatation data will be converted to array</li>
@@ -241,7 +266,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

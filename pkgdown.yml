@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   incorporating-observation-data: incorporating-observation-data.html
@@ -8,9 +8,9 @@ articles:
   model-debugging: model-debugging.html
   model-structure: model-structure.html
   multiple-substocks: multiple-substocks.html
-  random-effects: random-effects.html
+  articles/random-effect-recruitment: random-effect-recruitment.html
   writing_actions: writing_actions.html
-last_built: 2025-04-19T10:15Z
+last_built: 2025-10-15T09:58Z
 urls:
   reference: https://gadget-framework.github.io/gadget3/reference
   article: https://gadget-framework.github.io/gadget3/articles
