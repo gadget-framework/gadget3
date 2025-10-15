@@ -1,5 +1,18 @@
 # https://cran.r-project.org/submit.html
 
+==== 0.14-0
+
+New release of existing package.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v0.14-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.13-1...v0.14-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/18525031827
+
 ==== 0.13-0
 
 New release of existing package.
