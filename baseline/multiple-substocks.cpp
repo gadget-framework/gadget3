@@ -1781,7 +1781,11 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_dist_si_cpue_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_dist_si_cpue_model__params = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? adist_surveyindices_log_dist_si_cpue_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1)));
+                                if (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx) {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = adist_surveyindices_log_dist_si_cpue_model__params;
+                                    } else {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1));
+                                    }
                                 {
                                     auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
 
