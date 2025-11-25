@@ -1,29 +1,20 @@
 g3a_predate_catchability_totalfleet <- function (E) {
-    list(
-        suit_unit = "total biomass",
-        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
-        cons = f_substitute(
-            ~stock_ss(predprey__suit) * (E / total_predsuit),
-            list(E = E)) )
+    g3a_predate_catchability_project(
+        landings_f = E,
+        unit = "biomass" )
 }
 
 g3a_predate_catchability_numberfleet <- function (E) {
-    list(
-        suit_unit = "number of individuals",
-        suit = quote( suit_f * stock_ss(stock__num) ),
-        cons = f_substitute(
-            ~stock_ss(predprey__suit) * (E / total_predsuit) * stock_ss(stock__wgt),
-            list(E = E)) )
+    g3a_predate_catchability_project(
+        landings_f = E,
+        unit = "individuals" )
 }
 
 g3a_predate_catchability_linearfleet <- function (E) {
-    list(
-        suit_unit = "total biomass",
-        suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
-        cons = f_substitute(
-            # NB: Divide by cur_step_size, assuming E is per-year
-            ~E * cur_step_size * stock_ss(predprey__suit),
-            list(E = E)) )
+    g3a_predate_catchability_project(
+        landings_f = E,
+        cons_step = quote( cur_step_size ),
+        unit = "harvest-rate-year" )
 }
 
 g3a_predate_catchability_project <- function (
