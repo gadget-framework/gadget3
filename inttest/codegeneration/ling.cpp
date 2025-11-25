@@ -525,7 +525,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = igfs__totalsuit(igfs__area_idx);
 
-                    ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_imm_igfs__cons.col(ling_imm__area_idx).col(ling_imm__age_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0)))*(ling_imm_igfs__suit.col(ling_imm__area_idx).col(ling_imm__age_idx) / total_predsuit);
                 }
             }
             ling_imm__totalpredate = nonconform_add(ling_imm__totalpredate, ling_imm_igfs__cons);
@@ -547,7 +547,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = igfs__totalsuit(igfs__area_idx);
 
-                    ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) = ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    ling_mat_igfs__cons.col(ling_mat__area_idx).col(ling_mat__age_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(igfs_totaldata, (cur_year*100 + cur_step), (double)(0)))*(ling_mat_igfs__suit.col(ling_mat__area_idx).col(ling_mat__age_idx) / total_predsuit);
                 }
             }
             ling_mat__totalpredate = nonconform_add(ling_mat__totalpredate, ling_mat_igfs__cons);

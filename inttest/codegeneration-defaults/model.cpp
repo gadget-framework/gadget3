@@ -540,7 +540,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = comm__totalsuit(comm__area_idx);
 
-                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = fish_comm__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0))) / total_predsuit)*fish__wgt.col(fish__age_idx).col(fish__area_idx);
+                    fish_comm__cons.col(fish__age_idx).col(fish__area_idx) = ((area != 1 ? (double)(0) : intlookup_getdefault(comm_landings, cur_year, (double)(0)))*(fish_comm__suit.col(fish__age_idx).col(fish__area_idx) / total_predsuit))*fish__wgt.col(fish__age_idx).col(fish__area_idx);
                 }
             }
             fish__totalpredate = nonconform_add(fish__totalpredate, fish_comm__cons);
@@ -674,7 +674,11 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_acoustic_dist_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_acoustic_dist_model__params = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? adist_surveyindices_log_acoustic_dist_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))), log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx))), NAN, (double)(1)));
+                                if (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx) {
+                                        adist_surveyindices_log_acoustic_dist_model__params = adist_surveyindices_log_acoustic_dist_model__params;
+                                    } else {
+                                        adist_surveyindices_log_acoustic_dist_model__params = surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))), log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx))), NAN, (double)(1));
+                                    }
                                 {
                                     auto cur_cdist_nll = (adist_surveyindices_log_acoustic_dist_model__time_idx != adist_surveyindices_log_acoustic_dist_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_acoustic_dist_model__params ( 0 ) + adist_surveyindices_log_acoustic_dist_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_acoustic_dist_model__wgt.col(adist_surveyindices_log_acoustic_dist_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_acoustic_dist_obs__wgt.col(adist_surveyindices_log_acoustic_dist_obs__area_idx)))), (Type)(double)(2))).sum());
 

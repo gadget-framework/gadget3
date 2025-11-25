@@ -943,7 +943,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm_f_surv__suit.col(fish_imm__area_idx).col(fish_imm__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_imm_f_surv__cons.col(fish_imm__area_idx).col(fish_imm__age_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0)))*(fish_imm_f_surv__suit.col(fish_imm__area_idx).col(fish_imm__age_idx) / total_predsuit);
                 }
             }
             fish_imm__totalpredate = nonconform_add(fish_imm__totalpredate, fish_imm_f_surv__cons);
@@ -965,7 +965,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) = fish_mat_f_surv__suit.col(fish_mat__area_idx).col(fish_mat__age_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_mat_f_surv__cons.col(fish_mat__area_idx).col(fish_mat__age_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0)))*(fish_mat_f_surv__suit.col(fish_mat__area_idx).col(fish_mat__age_idx) / total_predsuit);
                 }
             }
             fish_mat__totalpredate = nonconform_add(fish_mat__totalpredate, fish_mat_f_surv__cons);
@@ -1781,7 +1781,11 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_dist_si_cpue_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_dist_si_cpue_model__params = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? adist_surveyindices_log_dist_si_cpue_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1)));
+                                if (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx) {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = adist_surveyindices_log_dist_si_cpue_model__params;
+                                    } else {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1));
+                                    }
                                 {
                                     auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
 

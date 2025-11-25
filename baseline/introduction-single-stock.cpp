@@ -705,7 +705,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_f_surv__cons.col(fish__age_idx).col(fish__area_idx) = fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_f_surv__cons.col(fish__age_idx).col(fish__area_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0)))*(fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx) / total_predsuit);
                 }
             }
             fish__totalpredate = nonconform_add(fish__totalpredate, fish_f_surv__cons);
@@ -1217,7 +1217,11 @@ Type objective_function<Type>::operator() () {
                             auto adist_surveyindices_log_dist_si_cpue_obs__area_idx = 0;
 
                             {
-                                adist_surveyindices_log_dist_si_cpue_model__params = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? adist_surveyindices_log_dist_si_cpue_model__params : surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1)));
+                                if (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx) {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = adist_surveyindices_log_dist_si_cpue_model__params;
+                                    } else {
+                                        adist_surveyindices_log_dist_si_cpue_model__params = surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1));
+                                    }
                                 {
                                     auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
 

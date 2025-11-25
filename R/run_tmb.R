@@ -232,6 +232,17 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
             assign_rhs <- assign_rhs[[3]]
         }
 
+        # Turn top-level tertiary operators inside-out, to duck eigen type mismatches
+        if (is.call(assign_rhs)
+                && statement
+                && length(assign_rhs) == 4  # NB: Do this first so x <- y() doesn't trip us up
+                && identical(assign_rhs[[1]], as.symbol("if"))) {
+            return(cpp_code(call(
+                "if", assign_rhs[[2]],
+                call("<-", assign_lhs, assign_rhs[[3]]),
+                call("<-", assign_lhs, assign_rhs[[4]]) ), in_envir, next_indent, statement = TRUE))
+        }
+
         return(paste(
             cpp_code(assign_lhs, in_envir, next_indent),  # NB: Should either be a sybol or a subset
             assign_op,
