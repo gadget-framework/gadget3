@@ -705,7 +705,7 @@ Type objective_function<Type>::operator() () {
 
                     auto total_predsuit = f_surv__totalsuit(f_surv__area_idx);
 
-                    fish_f_surv__cons.col(fish__age_idx).col(fish__area_idx) = fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx)*((area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0))) / total_predsuit);
+                    fish_f_surv__cons.col(fish__age_idx).col(fish__area_idx) = (area != 1 ? (double)(0) : intlookup_getdefault(landings_f_surv, (cur_year*100 + cur_step), (double)(0)))*(fish_f_surv__suit.col(fish__age_idx).col(fish__area_idx) / total_predsuit);
                 }
             }
             fish__totalpredate = nonconform_add(fish__totalpredate, fish_f_surv__cons);

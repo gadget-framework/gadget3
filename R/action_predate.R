@@ -44,17 +44,27 @@ g3a_predate_catchability_project <- function (
     adapt <- function (f, unit) {
         if (is.null(f)) return(f)
 
-        # if f returns biomass / individuals
         if (startsWith(unit, "biomass")) {
+            # Scale f by proportion of all suitable stock in this lengthgroup
             if (suit_unit == "individuals") stop("Cannot use a quota in biomass with landings in individuals")
-            f <- f_substitute(quote( f / total_predsuit ), list(f = f))
-        }
-        if (startsWith(unit, "individuals")) {
+            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / total_predsuit) ), list(f = f))
+        } else if (startsWith(unit, "individuals")) {
+            # Scale f by proportion of all suitable stock in this lengthgroup
             if (suit_unit == "biomass") stop("Cannot use a quota in individuals with landings in biomass")
-            f <- f_substitute(quote( f / total_predsuit ), list(f = f))
+            f <- f_substitute(quote( f * (stock_ss(predprey__suit) / total_predsuit) ), list(f = f))
+        } else if (startsWith(unit, "harvest-rate")) {
+            # Scale suitable stock in this lengthgroup by f
+            f <- f_substitute(quote( stock_ss(predprey__suit) * f ), list(f = f))
+        } else {
+            stop("Unknown unit string ", unit)
         }
         if (endsWith(unit, "-year")) {
             f <- f_substitute(quote( f * cons_step ), list(f = f, cons_step = cons_step))
+        }
+
+        if (suit_unit == "individuals") {
+            # Suitability is in individuals, so f will be at this point. Convert back to biomass
+            f <- f_substitute(quote( f * stock_ss(stock__wgt) ), list(f = f))
         }
         return(f)
     }
@@ -79,16 +89,12 @@ g3a_predate_catchability_project <- function (
         list(
             suit_unit = "total biomass",
             suit = quote( suit_f * stock_ss(stock__num) * stock_ss(stock__wgt) ),
-            cons = f_substitute(
-                quote( stock_ss(predprey__suit) * combined_f ),
-                list(combined_f = combined_f)) )
+            cons = combined_f )
     } else if (suit_unit == "individuals") {
         list(
             suit_unit = "number of individuals",
             suit = quote( suit_f * stock_ss(stock__num) ),
-            cons = f_substitute(
-                quote( stock_ss(predprey__suit) * combined_f * stock_ss(stock__wgt) ),
-                list(combined_f = combined_f)) )
+            cons = combined_f )
     } else stop("Unknown suitability unit ", suit_unit)
 }
 
