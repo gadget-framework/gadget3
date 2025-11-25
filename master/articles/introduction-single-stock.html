@@ -303,8 +303,8 @@ will count years &amp; steps:</p>
         }
     }
 }
-&lt;bytecode: 0x563084944e08&gt;
-&lt;environment: 0x563085644e28&gt;</code></pre>
+&lt;bytecode: 0x5563bae981b0&gt;
+&lt;environment: 0x5563bbc4ea78&gt;</code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/run_tmb.html">g3_to_tmb</a></span><span class="op">(</span><span class="va">actions_time</span><span class="op">)</span></span></code></pre></div>
 <pre><code>// Model generated with gadget3 0.14-0-999
@@ -567,7 +567,7 @@ model, we will cover it’s use later.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>,</span>
 <span>    time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="700"></p>
 <p>Altering K results in corresponding changes to the stock
 structure:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -576,7 +576,7 @@ structure:</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu">simple_fn</span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"dstart_fish__num"</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'length'</span><span class="op">)</span>,</span>
 <span>    time <span class="op">=</span> <span class="st">"1990-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" width="700"></p>
 </div>
 </div>
 <div class="section level3">
@@ -651,7 +651,7 @@ figures:</p>
 <span><span class="co">## 34 2023    2  IXa 1087.8133</span></span></code></pre>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">landings_f_surv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'year'</span>, <span class="st">'weight'</span><span class="op">)</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2000</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" width="700"></p>
 <p>Note that we haven’t provided data for all years/steps, as we’ll
 assume this fleet only works in spring. For more information on how this
 works, see <code><a href="../articles/incorporating-observation-data.html">vignette("incorporating-observation-data")</a></code>.</p>
@@ -724,7 +724,7 @@ result into a <em>number</em> column. The end result looks like:</p>
 <code class="sourceCode R"><span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">1990</span><span class="op">:</span><span class="fl">1994</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">y</span> <span class="kw">in</span> <span class="va">years</span><span class="op">)</span> <span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="va">number</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">year</span>, <span class="va">ldist_f_surv</span><span class="op">)</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-24-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="age-length-distribution-data">Age-length distribution data<a class="anchor" aria-label="anchor" href="#age-length-distribution-data"></a>
@@ -766,7 +766,7 @@ age-length data:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">y</span> <span class="kw">in</span> <span class="va">years</span><span class="op">)</span> <span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="va">number</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">year</span>, <span class="va">aldist_f_surv</span><span class="op">)</span><span class="op">[</span>,,<span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-26-1.png" width="700"></p>
+<p><img src="introduction-single-stock_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" width="700"></p>
 </div>
 <div class="section level4">
 <h4 id="fleet-definition">Fleet definition<a class="anchor" aria-label="anchor" href="#fleet-definition"></a>
@@ -1171,7 +1171,7 @@ document.write(
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

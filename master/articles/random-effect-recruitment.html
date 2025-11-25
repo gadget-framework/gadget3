@@ -375,7 +375,7 @@ level/stddev chosen by optimiser:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu">fn</span><span class="op">(</span><span class="va">params.rndout</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"project_years"</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="../reference/array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">dend_fish_imm__num</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'age'</span>, <span class="st">'year'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="random-effect-recruitment_files/figure-html/proj-plot-all-years-1.png" width="700"></p>
+<p><img src="random-effect-recruitment_files/figure-html/proj-plot-all-years-1.png" class="r-plt" width="700"></p>
 <p>Successive calls will choose different values for the projections.
 Plot 20 iterations of projecting 40 years:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -393,7 +393,7 @@ Plot 20 iterations of projecting 40 years:</p>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">proj</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/array_utils.html">g3_array_plot</a></span><span class="op">(</span><span class="va">proj_iters</span><span class="op">)</span></span></code></pre></div>
-<p><img src="random-effect-recruitment_files/figure-html/proj-plot-20-iters-1.png" width="700"></p>
+<p><img src="random-effect-recruitment_files/figure-html/proj-plot-20-iters-1.png" class="r-plt" width="700"></p>
 </div>
   </div>
 
@@ -412,7 +412,7 @@ Plot 20 iterations of projecting 40 years:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>
