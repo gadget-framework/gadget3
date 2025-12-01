@@ -1410,21 +1410,25 @@ g3_tmb_relist <- function (parameters, par) {
         stop("Names of values in par don't match names of parameters$value")
     }
 
+    # Subset type to only include vars in par (we shouldn't transform fixed params, as we're not replacing them)
+    out_type <- unclass(parameters$type[
+        (if (include_random) parameters$random else FALSE) |
+        parameters$optimise])
+
     # Relist based on table's value
     # NB: Subset should match eqivalent operation in g3_tmb_par()
     out <- utils::relist(par, unclass(parameters$value[
         (if (include_random) parameters$random else FALSE) |
         parameters$optimise]))
+    # Convert any logarithmic params back to linear space
+    logarithmic <- grepl("(^|:)LOG(:|$)", out_type)
+    out[logarithmic] <- lapply(out[logarithmic], exp)
     # Copy unoptimised parameters from table
     out <- c(parameters$value[!(
         (if (include_random) parameters$random else FALSE) |
         parameters$optimise)], out)
     # Re-order to match template list
     out <- out[names(parameters$value)]
-
-    # Convert any logarithmic params back to linear space
-    logarithmic <- grepl("(^|:)LOG(:|$)", parameters$type)
-    out[logarithmic] <- lapply(out[logarithmic], exp)
 
     return(out)
 }
