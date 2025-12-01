@@ -288,8 +288,11 @@ ok_group('g3_tmb_relist', {
             "randomparam" = 2,
             "aaparam" = 550)), "g3_tmb_relist: Works without param.b set, use initial table value")
 
-    pt <- attr(g3_to_tmb(list(~g3_param('x', value = 15, lower = 10, upper = 25, parscale = 44, type = "LOG"))), 'parameter_template')
-    ok(ut_cmp_equal(g3_tmb_relist(pt, c(x = log(17))), list(x = 17) ), "g3_tmb_relist: exp'ed logarithmic values")
+    pt <- attr(g3_to_tmb(list(~{
+      g3_param('x', value = 15, lower = 10, upper = 25, parscale = 44, type = "LOG")
+      g3_param('y', value = 16, type = "LOG")
+    })), 'parameter_template')
+    ok(ut_cmp_equal(g3_tmb_relist(pt, c(x = log(17))), list(x = 17, y = 16) ), "g3_tmb_relist: exp'ed logarithmic values")
 })
 
 ok_group('g3_param', {

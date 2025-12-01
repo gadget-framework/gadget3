@@ -44,10 +44,10 @@ model_cpp <- g3_to_tmb(full_actions)
 ok_group("No noise, fixed loglevel") ##########################################
 
 attr(model_cpp, 'parameter_template') |>
-    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500)) |>
+    g3_init_val("stst.rec.#", rnorm(5, 1e5, 500), lower = 10000, upper = 110000) |>
     g3_init_val("stst.rec.proj.logar1.stddev", 1e-20) |>  # i.e. no noise
     g3_init_val("stst.rec.proj.logar1.phi", 0.8) |>
-    g3_init_val("stst.rec.proj.logar1.level", round(runif(1, 10, 20))) |>
+    g3_init_val("stst.rec.proj.logar1.level", round(runif(1, 10, 20)), lower = 10, upper = 20) |>
     g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
     g3_init_val("proj_logar1_stst_weight.proj_logar1_rec_weight", 0) |>  # i.e. disable nll output (it'll be Inf)
 
