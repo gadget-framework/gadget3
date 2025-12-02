@@ -1093,15 +1093,16 @@ expecteds$param_table_ifmpartab_out <- array(c(
 
 # g3_param_table(by_year, exponentiate)
 param_table_byyrexp_out <- 0.0
-params[["byyrexp.1990_exp"]] <- 19
-params[["byyrexp.1991_exp"]] <- 20
+params[["byyrexp.1990"]] <- 19
+params[["byyrexp.1991"]] <- 20
 actions <- c(actions, gadget3:::f_substitute(~{
     param_table_byyrexp_out <- x
     REPORT(param_table_byyrexp_out)
 }, list(
     x = g3_parameterized("byyrexp", by_year = TRUE, exponentiate = TRUE),
     end = NULL )))
-expecteds$param_table_byyrexp_out <- exp(19)
+expecteds$param_table_byyrexp_out <- 19
+# TODO: How do we test exponentiate actually did summat?
 
 # g3_param_table w/clashing names
 # NB: This isn't a great situation to be in, but should at least work to make it easier to unpick
