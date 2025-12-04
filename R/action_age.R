@@ -47,23 +47,7 @@ g3a_age <- function(
     }
 
     # Add transition steps if output_stocks provided
-    if (length(output_stocks) == 0) {
-        final_year_f <- ~{
-            debug_trace("Oldest ", stock, " is a plus-group, combine with younger individuals")
-            stock_combine_subpop(
-                stock_ss(stock__num, age = default, vec = age),
-                stock_ss(stock__num, age = default - 1, vec = age) )
-        }
-    } else {
-        final_year_f <- ~stock_with(stock_movement, {
-            debug_trace("Move oldest ", stock, " into ", stock_movement)
-            # NB: We should be doing this once in a normal iterate case, but here there's only one loop so doesn't matter
-            # NB: This relies on the dimension ordering between stock_movement & stock matching
-            stock_ss(stock_movement__transitioning_num, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__num, age = default, vec = age))
-            stock_ss(stock_movement__transitioning_wgt, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__wgt, age = default, vec = age))
-            stock_ss(stock__num, age = default, vec = age) <- stock_ss(stock__num, age = default - 1, vec = age)
-            stock_ss(stock__wgt, age = default, vec = age) <- stock_ss(stock__wgt, age = default - 1, vec = age)
-        })
+    if (length(output_stocks) > 0) {
         # NB: move_remainder = FALSE because it's pointless here (and we can't move back into stock_movement)
         out[[step_id(transition_at, 90, stock)]] <- g3a_step_transition(stock_movement, output_stocks, output_ratios, move_remainder = FALSE, run_f = run_f)
     }
@@ -76,7 +60,20 @@ g3a_age <- function(
             debug_trace("Check stock has remained finite for this step")
 
             if (age == stock__maxage) {
-                final_year_f
+                if (have_output_stocks) stock_with(stock_movement, {
+                    debug_trace("Move oldest ", stock, " into ", stock_movement)
+                    # NB: We should be doing this once in a normal iterate case, but here there's only one loop so doesn't matter
+                    # NB: This relies on the dimension ordering between stock_movement & stock matching
+                    stock_ss(stock_movement__transitioning_num, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__num, age = default, vec = age))
+                    stock_ss(stock_movement__transitioning_wgt, age = g3_idx(1), vec = age) <- stock_reshape(stock_movement, stock_ss(stock__wgt, age = default, vec = age))
+                    stock_ss(stock__num, age = default, vec = age) <- stock_ss(stock__num, age = default - 1, vec = age)
+                    stock_ss(stock__wgt, age = default, vec = age) <- stock_ss(stock__wgt, age = default - 1, vec = age)
+                }) else {
+                    debug_trace("Oldest ", stock, " is a plus-group, combine with younger individuals")
+                    stock_combine_subpop(
+                        stock_ss(stock__num, age = default, vec = age),
+                        stock_ss(stock__num, age = default - 1, vec = age) )
+                }
             } else if (age == stock__minage) {
                 debug_trace("Empty youngest ", stock, " age-group")
                 stock_ss(stock__num, age = default, vec = age) <- 0
@@ -88,7 +85,7 @@ g3a_age <- function(
             }
         }))
     }, list(
-        final_year_f = final_year_f,
+        have_output_stocks = length(output_stocks) > 0,
         run_f = run_f )))
 
     return(as.list(out))
