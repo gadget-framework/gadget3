@@ -290,17 +290,18 @@ f_optimize <- function (f) {
                 return(f_optimize(x))
             }
             # Regular if, descend either side of expression
-            x[[2]] <- f_optimize(x[[2]])
-            x[[3]] <- f_optimize(x[[3]])
+            if (length(x) > 1) x[2] <- list(f_optimize(x[[2]]))
+            if (length(x) > 2) x[3] <- list(f_optimize(x[[3]]))
             if (length(x) > 3) {
                 if (is.call(x[[3]]) && identical(x[[3]][[1]], as.symbol("if"))) {
                     # Have to brace an inner if, otherwise it'll steal our else
                     x[[3]] <- call("{", x[[3]])  # }
                 }
-                x[[4]] <- f_optimize(x[[4]])
+                # NB: x[4] <- list(...) won't remove list item when NULL
+                x[4] <- list(f_optimize(x[[4]]))
 
                 # If else condition is empty, remove it
-                if (is_empty_brace(x[[4]])) x[[4]] <- NULL
+                if (length(x) > 3 && is_empty_brace(x[[4]])) x[[4]] <- NULL
             }
 
             # If codepaths out of if are empty, then if statement is pointless

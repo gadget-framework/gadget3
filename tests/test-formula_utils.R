@@ -245,6 +245,9 @@ ok(gadget3:::ut_cmp_code(
 ok(gadget3:::ut_cmp_code(
     gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { }),
     ~{}), "f_optimize:if: Removed statement with pointless output codepaths")
+ok(gadget3:::ut_cmp_code(
+    gadget3:::f_optimize(~if (is.nan(NULL)) "camels" else NULL),
+    ~if (is.nan(NULL)) "camels" else NULL), "f_optimize:if: Kept explicit NULL")
 ok(ut_cmp_equal(
     gadget3:::f_optimize(~if (x > 3) { if (FALSE) 2 } else { baa }),
     ~if (x > 3) { } else baa), "f_optimize:if: Don't remove if statment if one codepath is nonempty")
