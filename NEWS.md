@@ -2,6 +2,7 @@
 
 ## Bug fixes
 * g3_tmb_relist() was double exp()ing fixed parameters #260
+* Support multiple areas in g3a_age() #262
 
 # gadget3 0.14-0:
 
