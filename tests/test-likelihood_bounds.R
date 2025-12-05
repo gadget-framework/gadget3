@@ -14,7 +14,7 @@ actions <- list(
 
     gadget3:::g3l_test_dummy_likelihood() )
 full_actions <- c(actions, list(
-    g3l_bounds_penalty(actions) ))
+    g3l_bounds_penalty(actions, scale = g3_parameterized("bound_scale", value = 1e6)) ))
 model_fn <- g3_to_r(full_actions)
 model_cpp <- g3_to_tmb(full_actions)
 
@@ -46,6 +46,15 @@ params.in <- attr(model_cpp, "parameter_template")
 params.in["param_log", "lower"] <- 51
 ok(model_fn(params.in) > 1e8, "nll: param_log outside new lower bound")
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+params.in <- attr(model_cpp, "parameter_template") |>
+    suppressWarnings(g3_init_val("param_log", lower = 51)) |>
+    g3_init_val("bound_scale", value = 1)
+ok(model_fn(params.in) > 0 && model_fn(params.in) < 3, "nll: param_log outside new lower bound, but small due to scale")
+gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+#params.in <- attr(model_cpp, "parameter_template")
+#g3experiments::g3exp_tmb_fn_plot(model_cpp, params.in |> g3_init_val("bound_scale", 1e1), "param_real", 20, 80) ; stop("erk")
 
 ############# Tests for parameter_template mode (old, should be removed)
 

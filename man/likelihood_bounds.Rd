@@ -11,6 +11,7 @@
 g3l_bounds_penalty(
         actions_or_parameter_template,
         weight = 1,
+        scale = 1e6,
         run_at = g3_action_order$likelihood)
 }
 
@@ -25,6 +26,9 @@ g3l_bounds_penalty(
   }
   \item{weight}{
     Weighting applied to this likelihood component.
+  }
+  \item{scale}{
+    Influences the sharpness of inflection points, smaller values mean a more gentle transition.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
