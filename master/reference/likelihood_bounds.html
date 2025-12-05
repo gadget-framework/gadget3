@@ -89,6 +89,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">g3l_bounds_penalty</span><span class="op">(</span></span>
 <span>        <span class="va">actions_or_parameter_template</span>,</span>
 <span>        weight <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        scale <span class="op">=</span> <span class="fl">1e6</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">likelihood</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -103,6 +104,9 @@
 
   <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
 <dd><p>Weighting applied to this likelihood component.</p></dd>
+
+  <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
+<dd><p>Influences the sharpness of inflection points, smaller values mean a more gentle transition.</p></dd>
 
   <dt id="arg-run-at">run_at<a class="anchor" aria-label="anchor" href="#arg-run-at"></a></dt>
 <dd><p>Integer order that actions will be run within model, see <code><a href="action_order.html">g3_action_order</a></code>.</p></dd>
