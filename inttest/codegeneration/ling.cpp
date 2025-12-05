@@ -908,29 +908,33 @@ Type objective_function<Type>::operator() () {
         if ( cur_step_final ) {
             auto ling_imm_movement__area_idx = 0;
 
-            auto ling_imm__area_idx = 0;
-
             {
                 // g3a_age for ling_imm;
-                for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
-                    auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+                {
+                    auto area = ling_imm__area;
 
-                    {
-                        // Check stock has remained finite for this step;
-                        if (age == ling_imm__maxage) {
-                            // Move oldest ling_imm into ling_imm_movement;
-                            ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(0) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                            ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(0) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
-                            ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
-                            ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
-                        } else {
-                            if (age == ling_imm__minage) {
-                                // Empty youngest ling_imm age-group;
-                                ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx).setZero();
-                            } else {
-                                // Move ling_imm age-group to next one up;
+                    auto ling_imm__area_idx = 0;
+
+                    for (auto age = ling_imm__maxage; age >= ling_imm__minage; age--) {
+                        auto ling_imm__age_idx = age - ling_imm__minage + 1 - 1;
+
+                        {
+                            // Check stock has remained finite for this step;
+                            if (age == ling_imm__maxage) {
+                                // Move oldest ling_imm into ling_imm_movement;
+                                ling_imm_movement__transitioning_num.col(ling_imm_movement__area_idx).col(0) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx);
+                                ling_imm_movement__transitioning_wgt.col(ling_imm_movement__area_idx).col(0) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx);
                                 ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
                                 ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
+                            } else {
+                                if (age == ling_imm__minage) {
+                                    // Empty youngest ling_imm age-group;
+                                    ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx).setZero();
+                                } else {
+                                    // Move ling_imm age-group to next one up;
+                                    ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__num.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
+                                    ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx) = ling_imm__wgt.col(ling_imm__area_idx).col(ling_imm__age_idx - 1);
+                                }
                             }
                         }
                     }
@@ -938,10 +942,12 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( cur_step_final ) {
-            auto ling_mat__area_idx = 0;
-
+            // g3a_age for ling_mat;
             {
-                // g3a_age for ling_mat;
+                auto area = ling_mat__area;
+
+                auto ling_mat__area_idx = 0;
+
                 for (auto age = ling_mat__maxage; age >= ling_mat__minage; age--) {
                     auto ling_mat__age_idx = age - ling_mat__minage + 1 - 1;
 

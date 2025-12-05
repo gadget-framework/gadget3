@@ -734,37 +734,41 @@ structure(function (param = parameter_template)
         }
         if (cur_step_final) {
             ling_imm_movement__area_idx <- (1)
-            ling_imm__area_idx <- (1)
             {
                 comment("g3a_age for ling_imm")
-                for (age in seq(ling_imm__maxage, ling_imm__minage, by = -1)) {
-                  ling_imm__age_idx <- age - ling_imm__minage + 1L
-                  {
-                    comment("Check stock has remained finite for this step")
-                    if (age == ling_imm__maxage) {
-                      comment("Move oldest ling_imm into ling_imm_movement")
-                      ling_imm_movement__transitioning_num[, (1), ling_imm_movement__area_idx] <- ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx]
-                      ling_imm_movement__transitioning_wgt[, (1), ling_imm_movement__area_idx] <- ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]
-                      ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__num[, ling_imm__age_idx - 1, ling_imm__area_idx]
-                      ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__wgt[, ling_imm__age_idx - 1, ling_imm__area_idx]
-                    }
-                    else if (age == ling_imm__minage) {
-                      comment("Empty youngest ling_imm age-group")
-                      ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- 0
-                    }
-                    else {
-                      comment("Move ling_imm age-group to next one up")
-                      ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__num[, ling_imm__age_idx - 1, ling_imm__area_idx]
-                      ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__wgt[, ling_imm__age_idx - 1, ling_imm__area_idx]
+                {
+                  area <- ling_imm__area
+                  ling_imm__area_idx <- (1L)
+                  for (age in seq(ling_imm__maxage, ling_imm__minage, by = -1)) {
+                    ling_imm__age_idx <- age - ling_imm__minage + 1L
+                    {
+                      comment("Check stock has remained finite for this step")
+                      if (age == ling_imm__maxage) {
+                        comment("Move oldest ling_imm into ling_imm_movement")
+                        ling_imm_movement__transitioning_num[, (1), ling_imm_movement__area_idx] <- ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx]
+                        ling_imm_movement__transitioning_wgt[, (1), ling_imm_movement__area_idx] <- ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx]
+                        ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__num[, ling_imm__age_idx - 1, ling_imm__area_idx]
+                        ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__wgt[, ling_imm__age_idx - 1, ling_imm__area_idx]
+                      }
+                      else if (age == ling_imm__minage) {
+                        comment("Empty youngest ling_imm age-group")
+                        ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- 0
+                      }
+                      else {
+                        comment("Move ling_imm age-group to next one up")
+                        ling_imm__num[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__num[, ling_imm__age_idx - 1, ling_imm__area_idx]
+                        ling_imm__wgt[, ling_imm__age_idx, ling_imm__area_idx] <- ling_imm__wgt[, ling_imm__age_idx - 1, ling_imm__area_idx]
+                      }
                     }
                   }
                 }
             }
         }
         if (cur_step_final) {
-            ling_mat__area_idx <- (1)
+            comment("g3a_age for ling_mat")
             {
-                comment("g3a_age for ling_mat")
+                area <- ling_mat__area
+                ling_mat__area_idx <- (1L)
                 for (age in seq(ling_mat__maxage, ling_mat__minage, by = -1)) {
                   ling_mat__age_idx <- age - ling_mat__minage + 1L
                   {

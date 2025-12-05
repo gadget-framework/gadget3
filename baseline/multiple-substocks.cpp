@@ -2066,29 +2066,33 @@ Type objective_function<Type>::operator() () {
         if ( cur_step_final ) {
             auto fish_imm_movement__area_idx = 0;
 
-            auto fish_imm__area_idx = 0;
-
             {
                 // g3a_age for fish_imm;
-                for (auto age = fish_imm__maxage; age >= fish_imm__minage; age--) {
-                    auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+                {
+                    auto area = fish_imm__area;
 
-                    {
-                        // Check stock has remained finite for this step;
-                        if (age == fish_imm__maxage) {
-                            // Move oldest fish_imm into fish_imm_movement;
-                            fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(0) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx);
-                            fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(0) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx);
-                            fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
-                            fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
-                        } else {
-                            if (age == fish_imm__minage) {
-                                // Empty youngest fish_imm age-group;
-                                fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx).setZero();
-                            } else {
-                                // Move fish_imm age-group to next one up;
+                    auto fish_imm__area_idx = 0;
+
+                    for (auto age = fish_imm__maxage; age >= fish_imm__minage; age--) {
+                        auto fish_imm__age_idx = age - fish_imm__minage + 1 - 1;
+
+                        {
+                            // Check stock has remained finite for this step;
+                            if (age == fish_imm__maxage) {
+                                // Move oldest fish_imm into fish_imm_movement;
+                                fish_imm_movement__transitioning_num.col(fish_imm_movement__area_idx).col(0) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx);
+                                fish_imm_movement__transitioning_wgt.col(fish_imm_movement__area_idx).col(0) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx);
                                 fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
                                 fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                            } else {
+                                if (age == fish_imm__minage) {
+                                    // Empty youngest fish_imm age-group;
+                                    fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx).setZero();
+                                } else {
+                                    // Move fish_imm age-group to next one up;
+                                    fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__num.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                                    fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx) = fish_imm__wgt.col(fish_imm__area_idx).col(fish_imm__age_idx - 1);
+                                }
                             }
                         }
                     }
@@ -2096,10 +2100,12 @@ Type objective_function<Type>::operator() () {
             }
         }
         if ( cur_step_final ) {
-            auto fish_mat__area_idx = 0;
-
+            // g3a_age for fish_mat;
             {
-                // g3a_age for fish_mat;
+                auto area = fish_mat__area;
+
+                auto fish_mat__area_idx = 0;
+
                 for (auto age = fish_mat__maxage; age >= fish_mat__minage; age--) {
                     auto fish_mat__age_idx = age - fish_mat__minage + 1 - 1;
 
