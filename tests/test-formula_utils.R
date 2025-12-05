@@ -57,6 +57,14 @@ ok_group("call_replace", {
     ok(ut_cmp_equal(
         call_replace(~c(1, potato(c(2, potato(3), 4))), potato = function (x) call("parsnip", x[2])),
         ~c(1, parsnip(c(2, potato(3), 4)()))), "Make no attempt to recurse implictly---replacement function would have to call_replace too")
+
+    ok(ut_cmp_equal(
+        gadget3:::call_replace(~1 + (2 - 3 * 4 / (5 + 6)), "+" = function (x, recurse) {
+            x[[1]] <- as.symbol("%/%")
+            for (i in seq_len(length(x))) x[[i]] <- recurse(x[[i]])
+            return(x)
+        }),
+        ~1%/%(2 - 3 * 4/(5%/%6)) ), "If accept a recurse helper, then it will get used")
 })
 
 ### g3_formula
