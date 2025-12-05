@@ -127,6 +127,10 @@ call_replace <- function (f, ...) {
             # TODO: Do this using function signatures,
             #       "moo" = function (fn, arg1, arg2, ...) { ... }
             #       "moo" = function (sym) { ... }
+            if (!is.null(formals(modify_fn)$recurse)) {
+                old_modify_fn <- modify_fn
+                modify_fn <- function (f) old_modify_fn(f, recurse = function (sub_f) call_replace(sub_f, ...))
+            }
             f <- modify_fn(f)
         }
 
@@ -139,6 +143,10 @@ call_replace <- function (f, ...) {
     # NB: Use deparse() to generate useful output for, e.g. Matrix::Matrix
     modify_fn <- modify_call_fns[[deparse(f[[1]])]]
     if (length(modify_fn) > 0) {
+        if (!is.null(formals(modify_fn)$recurse)) {
+            old_modify_fn <- modify_fn
+            modify_fn <- function (f) old_modify_fn(f, recurse = function (sub_f) call_replace(sub_f, ...))
+        }
         f <- modify_fn(f)
         return(f)
     }
