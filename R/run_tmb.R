@@ -243,8 +243,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 && identical(assign_rhs[[1]], as.symbol("if"))) {
             return(cpp_code(call(
                 "if", assign_rhs[[2]],
-                call("<-", assign_lhs, assign_rhs[[3]]),
-                call("<-", assign_lhs, assign_rhs[[4]]) ), in_envir, next_indent, statement = TRUE))
+                # NB: f_optimize() will get rid of any braces, which out of context are surplus to requriements
+                call("<-", assign_lhs, f_optimize(assign_rhs[[3]])),
+                call("<-", assign_lhs, f_optimize(assign_rhs[[4]])) ), in_envir, next_indent, statement = TRUE))
         }
 
         return(paste(
