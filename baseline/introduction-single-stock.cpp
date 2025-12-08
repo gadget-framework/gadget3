@@ -1223,7 +1223,7 @@ Type objective_function<Type>::operator() () {
                                         adist_surveyindices_log_dist_si_cpue_model__params = surveyindices_linreg(log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))), log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))), NAN, (double)(1));
                                     }
                                 {
-                                    auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (pow((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx)))), (Type)(double)(2))).sum());
+                                    auto cur_cdist_nll = (adist_surveyindices_log_dist_si_cpue_model__time_idx != adist_surveyindices_log_dist_si_cpue_model__max_time_idx ? (double)(0) : (((adist_surveyindices_log_dist_si_cpue_model__params ( 0 ) + adist_surveyindices_log_dist_si_cpue_model__params ( 1 )*log(avoid_zero(adist_surveyindices_log_dist_si_cpue_model__wgt.col(adist_surveyindices_log_dist_si_cpue_model__area_idx))) - log(avoid_zero(adist_surveyindices_log_dist_si_cpue_obs__wgt.col(adist_surveyindices_log_dist_si_cpue_obs__area_idx))))).pow((double)(2))).sum());
 
                                     {
                                         nll += adist_surveyindices_log_dist_si_cpue_weight*cur_cdist_nll;
@@ -1279,7 +1279,7 @@ Type objective_function<Type>::operator() () {
 
                                 auto cdist_sumofsquares_aldist_f_surv_obs__sstotal = avoid_zero((cdist_sumofsquares_aldist_f_surv_obs__num.col(cdist_sumofsquares_aldist_f_surv_obs__time_idx)).sum());
 
-                                auto cur_cdist_nll = ((pow(((cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) / cdist_sumofsquares_aldist_f_surv_model__sstotal) - (cdist_sumofsquares_aldist_f_surv_obs__num.col(cdist_sumofsquares_aldist_f_surv_obs__time_idx).col(cdist_sumofsquares_aldist_f_surv_obs__age_idx) / cdist_sumofsquares_aldist_f_surv_obs__sstotal)), (Type)(double)(2)))).sum();
+                                auto cur_cdist_nll = (((((cdist_sumofsquares_aldist_f_surv_model__num.col(cdist_sumofsquares_aldist_f_surv_model__time_idx).col(cdist_sumofsquares_aldist_f_surv_model__age_idx) / cdist_sumofsquares_aldist_f_surv_model__sstotal) - (cdist_sumofsquares_aldist_f_surv_obs__num.col(cdist_sumofsquares_aldist_f_surv_obs__time_idx).col(cdist_sumofsquares_aldist_f_surv_obs__age_idx) / cdist_sumofsquares_aldist_f_surv_obs__sstotal))).pow((double)(2)))).sum();
 
                                 {
                                     nll += cdist_sumofsquares_aldist_f_surv_weight*cur_cdist_nll;
@@ -1322,7 +1322,7 @@ Type objective_function<Type>::operator() () {
                     if ( cdist_sumofsquares_ldist_f_surv_obs__time_idx >= 0 ) {
                         auto cdist_sumofsquares_ldist_f_surv_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_f_surv_obs__num.col(cdist_sumofsquares_ldist_f_surv_obs__time_idx)).sum());
 
-                        auto cur_cdist_nll = ((pow(((cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) / cdist_sumofsquares_ldist_f_surv_model__sstotal) - (cdist_sumofsquares_ldist_f_surv_obs__num.col(cdist_sumofsquares_ldist_f_surv_obs__time_idx) / cdist_sumofsquares_ldist_f_surv_obs__sstotal)), (Type)(double)(2)))).sum();
+                        auto cur_cdist_nll = (((((cdist_sumofsquares_ldist_f_surv_model__num.col(cdist_sumofsquares_ldist_f_surv_model__time_idx) / cdist_sumofsquares_ldist_f_surv_model__sstotal) - (cdist_sumofsquares_ldist_f_surv_obs__num.col(cdist_sumofsquares_ldist_f_surv_obs__time_idx) / cdist_sumofsquares_ldist_f_surv_obs__sstotal))).pow((double)(2)))).sum();
 
                         {
                             nll += cdist_sumofsquares_ldist_f_surv_weight*cur_cdist_nll;
