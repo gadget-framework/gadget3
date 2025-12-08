@@ -21,7 +21,7 @@ do_fishing_calendar <- function(wall_calendar, fishing_calendar) {
     capture.output({ r <- model_fn() })
 }
 
-ok_group("interim_value", {
+ok_group("init_val", {
     out <- do_fishing_calendar(wall_calendar = list(
         start_year = 2019,
         end_year = 2024,
@@ -30,7 +30,6 @@ ok_group("interim_value", {
     ), fishing_calendar = list(
         year_length = 1L,
         start_step = 4L,
-        interim_value = "interim",
         run_revstep = -3L ))
     ok(ut_cmp_identical(out, c(
         "2019 1 landings", "2019 2 landings", "2019 3 landings", "2019 4 landings",
@@ -39,7 +38,7 @@ ok_group("interim_value", {
         "2022 1 landings", "2022 2 landings", "2022 3 landings", "2022 4 landings",
         "2023 1 landings", "2023 2 landings", "2023 3 landings", "2023 4 landings",
         "2024 1 landings", "2024 2 landings", "2024 3 landings", "2024 4 landings",
-        "2025 1 interim", "2025 2 interim", "2025 3 interim",
+        "2025 1 NaN", "2025 2 NaN", "2025 3 NaN",
         "2025 4 20251", "2026 1 20251", "2026 2 20251", "2026 3 20251",
         "2026 4 20261", "2027 1 20261", "2027 2 20261", "2027 3 20261",
         "2027 4 20271", "2028 1 20271", "2028 2 20271", "2028 3 20271",
@@ -49,7 +48,7 @@ ok_group("interim_value", {
         "2031 4 20311", "2032 1 20311", "2032 2 20311", "2032 3 20311",
         "2032 4 20321", "2033 1 20321", "2033 2 20321", "2033 3 20321",
         "2033 4 20331", "2034 1 20331", "2034 2 20331", "2034 3 20331",
-        "2034 4 20341")), "Fishing calendar with interim value")
+        "2034 4 20341")), "Fishing calendar with init_val showing in the interim")
 
     out <- do_fishing_calendar(wall_calendar = list(
         start_year = 2019,
@@ -58,12 +57,12 @@ ok_group("interim_value", {
         project_years = 10,
         step_lengths = rep(3L, 4)
     ), fishing_calendar = list(
+        init_val = 99,
         year_length = 1L,
         start_step = 4L,
-        interim_value = "interim",
         run_revstep = -3L ))
     ok(ut_cmp_identical(out, c(
-        "2019 1 0", "2019 2 0", "2019 3 0",
+        "2019 1 99", "2019 2 99", "2019 3 99",
         "2019 4 20191", "2020 1 20191", "2020 2 20191", "2020 3 20191",
         "2020 4 20201", "2021 1 20201", "2021 2 20201", "2021 3 20201",
         "2021 4 20211", "2022 1 20211", "2022 2 20211", "2022 3 20211",
@@ -73,5 +72,5 @@ ok_group("interim_value", {
         "2025 4 20251", "2026 1 20251", "2026 2 20251", "2026 3 20251",
         "2026 4 20261", "2027 1 20261", "2027 2 20261", "2027 3 20261",
         "2027 4 20271", "2028 1 20271", "2028 2 20271", "2028 3 20271",
-        "2028 4 20281")), "interim_value doesn't apply when model is all-projection (we have to wait for first quota-run, possibly a bug)")
+        "2028 4 20281")), "init_val also applied before any assessment was run in all-projection model")
 })
