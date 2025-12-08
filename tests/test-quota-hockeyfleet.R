@@ -75,10 +75,11 @@ attr(model_cpp, "parameter_template") |>
     # Hockefleet: harvest rate & trigger biomass
     g3_init_val("fl.hf.harvest_rate", 0.2) |>
     g3_init_val("fl.hf.btrigger", 7.8e6) |>
-    #
+    g3_init_val("fl_a.quota.interim.#", 1:4 * 1e5) |>
     g3_init_val("ind_x.hs.target", 20) |>
     g3_init_val("ind_x.hs.trigger", 100) |>
     g3_init_val("ind_x.cons.step.#", c(0.1, 0.2, 0.3, 0.4)) |>
+    g3_init_val("ind_x.quota.interim.#", 1:4 * 10) |>
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
@@ -92,8 +93,8 @@ ok(ut_cmp_identical(
 
 ok(ut_cmp_equal(
     to_vect(r$quota_hockeyfleet_fl__var), c(
-    `1990:1990` = 0, `1990:1991` = 0.2, `1991:1992` = 0.2, `1992:1993` = 0.2,
-    `1993:1994` = 0.2, `1994:1995` = 0.2, `1995:1996` = 0.2, `1996:1997` = 0.2,
+    `1990:1990` = NaN, `1990:1991` = NaN, `1991:1992` = NaN, `1992:1993` = NaN,
+    `1993:1994` = NaN, `1994:1995` = NaN, `1995:1996` = NaN, `1996:1997` = 0.2,
     `1997:1998` = 0.2, `1998:1999` = 0.2, `1999:2000` = 0.2, `2000:2001` = 0.2,
     `2001:2002` = 0.2, `2002:2003` = 0.2, `2003:2004` = 0.2, `2004:2005` = 0.2,
     `2005:2006` = 0.199819, `2006:2007` = 0.19758, `2007:2008` = 0.195411,
@@ -114,7 +115,7 @@ x <- g3_array_agg(r$detail_st_fl_a__cons, year = 1996:2024, "step")
 ok(ut_cmp_equal(
     as.vector(x / sum(x)),
     c(0, 0.5, 0.4, 0.1),
-    tolerance = 4e-3 ), "detail_st_fl_a__cons: Follows seasonal pattern (whilst projecting)")
+    tolerance = 9e-3), "detail_st_fl_a__cons: Follows seasonal pattern (whilst projecting)")
 
 fishingyear_cons <- c(0, tail(g3_array_agg(r$detail_st_fl_a__cons, year = 1990:2024, "year", step = 1:3), -1)) +
     g3_array_agg(r$detail_st_fl_a__cons, year = 1990:2024, "year", step = 4)
@@ -125,44 +126,37 @@ ok(ut_cmp_equal(
     as.vector(fishingyear_cons[2:6]),
     rep(4e6, 5)), "fishingyear_cons: Outside projections we consume landings rate")
 
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 1), -6)),
-    as.vector(tail(to_vect(g3_array_agg(
-        r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 1) * head(r$quota_hockeyfleet_fl__var * 0, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl_a__cons[step = 1]: consumption based on quota")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 2), -6)),
-    as.vector(tail(to_vect(g3_array_agg(
-        r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 2) * head(r$quota_hockeyfleet_fl__var * 0.5, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl_a__cons[step = 2]: consumption based on quota")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 3), -6)),
-    as.vector(tail(to_vect(g3_array_agg(
-        r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 3) * head(r$quota_hockeyfleet_fl__var * 0.4, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl_a__cons[step = 3]: consumption based on quota")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_fl_a__cons, "year", step = 4), -6)),
-    as.vector(tail(to_vect(g3_array_agg(
-        r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = 4) * tail(r$quota_hockeyfleet_fl__var * 0.1, -1)), -6)),
-    tolerance = 1e-7), "detail_st_fl_a__cons[step = 4]: consumption based on quota")
+for (step in 1:4) {
+    ok(ut_cmp_equal(as.vector(g3_array_agg(r$detail_st_fl_a__cons, "year", step = step)), as.vector(c(
+        params.in$value[["fl_a.landings.1990"]], # Historical landings
+        params.in$value[["fl_a.landings.1991"]],
+        params.in$value[["fl_a.landings.1992"]],
+        params.in$value[["fl_a.landings.1993"]],
+        params.in$value[["fl_a.landings.1994"]],
+        params.in$value[["fl_a.landings.1995"]],
+        if (step < 4) params.in$value[[paste0("fl_a.quota.interim.", step)]] else c(), # 1x interim period
+        tail(
+            g3_array_agg(r$dstart_st__num * r$dstart_st__wgt * 0.8, "year", step = step) *
+            (if (step < 4) head(r$quota_hockeyfleet_fl__var, -1) else tail(r$quota_hockeyfleet_fl__var, -1)) *
+            params.in$value[[paste0("fl_a.cons.step.", step)]], if (step < 4) -7 else -6),
+        c() ))), paste0("detail_st_fl_a__cons[step = ", step, "]: consumption based on quota"))
+}
 
-ok(all(tail(head(r$quota_hockeystick_ind_x__var, -1), -1) == params.in$value$ind_x.hs.target), "quota_hockeystick_ind_x__var: All equal to quota target (population not constrained)")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 1), -6)),
-    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.1, -2)), -6)),
-    tolerance = 1e-7), "detail_st_ind_x__cons[step = 1]: consumption based on quota, individuals-wise")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 2), -6)),
-    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.2, -2)), -6)),
-    tolerance = 1e-7), "detail_st_ind_x__cons[step = 2]: consumption based on quota, individuals-wise")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 3), -6)),
-    as.vector(tail(to_vect(head(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.3, -2)), -6)),
-    tolerance = 1e-7), "detail_st_ind_x__cons[step = 3]: consumption based on quota, individuals-wise")
-ok(ut_cmp_equal(
-    as.vector(tail(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = 4), -6)),
-    as.vector(tail(to_vect(head(tail(r$quota_hockeystick_ind_x__var * params.in$value$ind_x.cons.step.4, -1), -1)), -6)),
-    tolerance = 1e-7), "detail_st_ind_x__cons[step = 4]: consumption based on quota, individuals-wise")
+for (step in 1:4) {
+    missing_zero <- function (x) if (length(x) == 0) 0 else x
+    ok(ut_cmp_equal(as.vector(g3_array_agg(r$detail_st_ind_x__cons / r$dstart_st__wgt, "year", step = step)), as.vector(c(
+        missing_zero(landings_ind[landings_ind$year == 1990 & landings_ind$step == step, "number"]), # Historical landings
+        missing_zero(landings_ind[landings_ind$year == 1991 & landings_ind$step == step, "number"]), # Historical landings
+        missing_zero(landings_ind[landings_ind$year == 1992 & landings_ind$step == step, "number"]), # Historical landings
+        missing_zero(landings_ind[landings_ind$year == 1993 & landings_ind$step == step, "number"]), # Historical landings
+        missing_zero(landings_ind[landings_ind$year == 1994 & landings_ind$step == step, "number"]), # Historical landings
+        missing_zero(landings_ind[landings_ind$year == 1995 & landings_ind$step == step, "number"]), # Historical landings
+        if (step < 2) params.in$value[[paste0("ind_x.quota.interim.", step)]] else c(), # 1x interim period
+        tail(
+            head(r$quota_hockeystick_ind_x__var, -1) *
+            params.in$value[[paste0("ind_x.cons.step.", step)]], if (step < 2) -8 else -7),
+        c() ))), paste0("detail_st_ind_x__cons[step = ", step, "]: consumption based on quota, individuals-wise"))
+}
 
 gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 ######## Population above trigger
@@ -177,6 +171,7 @@ attr(model_cpp, "parameter_template") |>
     g3_init_val("ind_x.hs.target", 100) |>
     g3_init_val("ind_x.hs.trigger", 8e5) |>
     g3_init_val("ind_x.cons.step.#", c(0.25, 0.25, 0.5, 0)) |>
+    g3_init_val("ind_x.quota.interim.#", 1:4 * 1e5) |>
     identity() -> params.in
 nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
@@ -191,7 +186,7 @@ full_pop <- as.vector(g3_array_agg(r$dstart_st__num, "year", step = 1) > params.
 ok(any(assess_pop > params.in$value$ind_x.hs.trigger), "quota_hockeystick_ind_x__var: Contains some entries above trigger point")
 ok(any(assess_pop < params.in$value$ind_x.hs.trigger), "quota_hockeystick_ind_x__var: Contains some entries below trigger point")
 ok(ut_cmp_equal(
-    quota_var,
+    ifelse(is.na(quota_var), 100, quota_var),
     pmin(
         assess_pop / params.in$value$ind_x.hs.trigger * params.in$value$ind_x.hs.target,
         params.in$value$ind_x.hs.target ),

@@ -119,10 +119,9 @@ nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
 
 ok(ut_cmp_identical(
     names(assess_outputs),
-    c("1990", "1995", "2000", "2005", "2010", "2015", "2020") ), "assess_outputs: Ran assessment according to fishing year")
+    c("1995", "2000", "2005", "2010", "2015", "2020") ), "assess_outputs: Ran assessment according to fishing year")
 
 ok(ut_cmp_identical(sapply(assess_outputs, function (x) dimnames(x$mattotal)$year), list(
-    "1990" = as.character(seq(1990, 1990)),
     "1995" = as.character(seq(1990, 1995)),
     "2000" = as.character(seq(1990, 2000)),
     "2005" = as.character(seq(1990, 2005)),
@@ -130,8 +129,8 @@ ok(ut_cmp_identical(sapply(assess_outputs, function (x) dimnames(x$mattotal)$yea
     "2015" = as.character(seq(1990, 2015)),
     "2020" = as.character(seq(1990, 2020)) )), "assess_outputs$mattotal: Correct years aggreagated")
 
-for (yr in seq(1995, 2020, by = 5)) ok_group(paste0("Year = ", yr), {
-    if (yr > 1995) {
+for (yr in seq(2000, 2020, by = 5)) ok_group(paste0("Year = ", yr), {
+    if (yr > 2000) {
         x <- assess_outputs[[as.character(yr - 5)]]$cn[,as.character(seq(1990, yr - 6)), drop = FALSE]
         y <- assess_outputs[[as.character(yr)]]$cn[,as.character(seq(1990, yr - 6)), drop = FALSE]
         ok(ut_cmp_equal(x, y), paste0("assess_outputs$cn$", yr, ": Matches previous year, bar final year"))

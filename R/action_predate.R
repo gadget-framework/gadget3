@@ -20,11 +20,14 @@ g3a_predate_catchability_linearfleet <- function (E) {
 g3a_predate_catchability_project <- function (
     quota_f = NULL,
     landings_f = NULL,
+    interim_f = g3_parameterized("quota.interim", value = 0,
+        by_predator = TRUE, by_step = TRUE),
     # Proportion of quota assigned to predator
     quota_prop = g3_parameterized("quota.prop", by_predator = TRUE, value = 1),
     # Proportion of predator yearly quota assigned to which step
     cons_step = g3_parameterized("cons.step", by_predator = TRUE, by_step = TRUE,
         value = quote( step_lengths / 12.0 )),
+    interim_unit = unit,
     unit = c("biomass", "biomass-year", "harvest-rate", "harvest-rate-year",
              "individuals", "individuals-year") ) {
 
@@ -32,6 +35,8 @@ g3a_predate_catchability_project <- function (
     landings_unit <- match.arg(unit)
     # Unit quota_f is expressed in
     quota_unit <- match.arg(attr(quota_f, "catchability_unit"), eval(formals()$unit))
+    # Unit interim_f is expresed in
+    interim_unit <- match.arg(unit)
     # Unit suitability / total_predsuit will be expressed in
     suit_unit <- if (startsWith(landings_unit, "individuals")) "individuals" else "biomass"
 
@@ -68,20 +73,31 @@ g3a_predate_catchability_project <- function (
         }
         return(f)
     }
+    pre_scale_quota_f <- quota_f
     quota_f <- adapt(quota_f, quota_unit)
     landings_f <- adapt(landings_f, landings_unit)
+    interim_f <-  adapt(interim_f, interim_unit)
 
     # Combine quota/landings into a single formula
     if (is.null(quota_f)) {
         combined_f <- landings_f
-    } else if (is.null(landings_f)) {
-        combined_f <- quota_f
     } else {
-        combined_f <- f_substitute(
-            quote( if (cur_year_projection) quota_f else landings_f ),
-            list(
+        combined_f <- quota_f
+        if (!is.null(interim_f)) {
+            combined_f <- f_substitute(quote(
+                if (is.nan(pre_scale_quota_f)) interim_f else combined_f
+            ), list(
+                pre_scale_quota_f = pre_scale_quota_f,
+                interim_f = interim_f,
+                combined_f = combined_f ))
+        }
+        if (!is.null(landings_f)) {
+            combined_f <- f_substitute(quote(
+                if (cur_year_projection) combined_f else landings_f
+            ), list(
                 landings_f = landings_f,
-                quota_f = quota_f ))
+                combined_f = combined_f ))
+        }
     }
 
     # Return catchablity based on suit_unit

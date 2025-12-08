@@ -27,9 +27,12 @@ g3a_predate_catchability_linearfleet(E)
 g3a_predate_catchability_project(
     quota_f = NULL,
     landings_f = NULL,
+    interim_f = g3_parameterized("quota.interim", value = 0,
+        by_predator = TRUE, by_step = TRUE),
     quota_prop = g3_parameterized("quota.prop", by_predator = TRUE, value = 1),
     cons_step = g3_parameterized("cons.step", by_predator = TRUE, by_step = TRUE,
         value = quote( step_lengths / 12.0 )),
+    interim_unit = unit,
     unit = c("biomass", "biomass-year", "harvest-rate", "harvest-rate-year",
              "individuals", "individuals-year") )
 
@@ -108,6 +111,9 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     A per-year quota for use during projection time periods, or for the whole model if \var{landings_f} is \code{NULL}.
     Generally, this will be produced by \code{\link{g3_quota}}.
   }
+  \item{interim_f}{
+    A \link{formula} used to determine catch in the gap between landings data & a quota calculated from projections.
+  }
   \item{quota_prop}{
     A quota can apply to multiple fleets, in which case use this parameter to assign the proportion of quota available to the current fleet.
     Note that ideally all \var{quota_prop} values sum to 1, but this doesn't have to be the case (e.g. over/under-utilisation of quotas).
@@ -116,9 +122,10 @@ g3a_predate_totalfleet(fleet_stock, prey_stocks, suitabilities, amount_f,
     The proportion of the per-year quota that is used in each step.
     As with \var{quota_prop} ideally all values sum to 1.
   }
-  \item{unit}{
-    The unit that \var{quota_f} / \var{landings_f} is provided in.
+  \item{unit, interim_unit}{
+    The unit that \var{landings_f} / \var{interim_f} is provided in.
     "biomass", "effort", "individuals" are equivalent to totalfleet / linearfleet & numberfleet respectively.
+    (the default quota functions supply their own unit via. an attribute).
   }
   \item{catchability_fs}{
     Either a list of stock names to \link{formula} objects, with an optional unnamed
