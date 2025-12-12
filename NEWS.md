@@ -5,7 +5,10 @@
 * Support multiple areas in g3a_age() #262
 
 ## New features
-* Configurable scale for g3l_bounds_penalty() #263 
+* Configurable scale for g3l_bounds_penalty() #263
+
+## Breaking changes
+* Re-work interim_value to be per-fleet, parameter by default #264 
 
 # gadget3 0.14-0:
 
