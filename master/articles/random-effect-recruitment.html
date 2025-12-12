@@ -267,84 +267,103 @@ recruitment:</p>
 <span>    <span class="co"># NB: By setting random = TRUE, any previous bounds will be cleared</span></span>
 <span>    <span class="fu"><a href="../reference/init_val.html">g3_init_val</a></span><span class="op">(</span><span class="st">"*.rec.#"</span>, value <span class="op">=</span> <span class="fl">2e3</span>, random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">params.rnd</span></span>
-<span><span class="va">obj.rnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_cpp</span>, <span class="va">params.rnd</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">0</span>, maxit <span class="op">=</span> <span class="fl">1000</span>, tol <span class="op">=</span> <span class="fl">1e-7</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">obj.rnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_tmb.html">g3_tmb_adfun</a></span><span class="op">(</span><span class="va">model_cpp</span>, <span class="va">params.rnd</span>, inner.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>trace <span class="op">=</span> <span class="fl">0</span>, maxit <span class="op">=</span> <span class="fl">1000</span>, tol <span class="op">=</span> <span class="fl">1e-3</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">params.rndout</span> <span class="op">&lt;-</span> <span class="fu">gadgetutils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gadgetutils/man/g3_optim.html" class="external-link">g3_optim</a></span><span class="op">(</span><span class="va">obj.rnd</span>, <span class="va">params.rnd</span>, trace <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## initial  value 406.457084 </span></span>
-<span><span class="co">## iter  10 value 56.336685</span></span>
-<span><span class="co">## iter  20 value 7.747918</span></span>
-<span><span class="co">## iter  30 value 1.200197</span></span>
-<span><span class="co">## iter  40 value 0.930482</span></span>
-<span><span class="co">## iter  50 value 0.894538</span></span>
-<span><span class="co">## iter  60 value 0.886271</span></span>
-<span><span class="co">## iter  70 value 0.881776</span></span>
-<span><span class="co">## final  value 0.881775 </span></span>
+<span><span class="co">## iter  10 value 56.373102</span></span>
+<span><span class="co">## iter  20 value 10.773300</span></span>
+<span><span class="co">## iter  30 value 1.464854</span></span>
+<span><span class="co">## iter  40 value 0.884632</span></span>
+<span><span class="co">## iter  50 value 0.877144</span></span>
+<span><span class="co">## iter  60 value 0.867324</span></span>
+<span><span class="co">## iter  70 value 0.866582</span></span>
+<span><span class="co">## iter  80 value 0.866061</span></span>
+<span><span class="co">## iter  90 value 0.865989</span></span>
+<span><span class="co">## iter 100 value 0.865963</span></span>
+<span><span class="co">## iter 100 value 0.865963</span></span>
+<span><span class="co">## iter 110 value 0.865962</span></span>
+<span><span class="co">## iter 110 value 0.865962</span></span>
+<span><span class="co">## iter 120 value 0.865961</span></span>
+<span><span class="co">## iter 120 value 0.865961</span></span>
+<span><span class="co">## iter 130 value 0.865961</span></span>
+<span><span class="co">## iter 130 value 0.865961</span></span>
+<span><span class="co">## iter 140 value 0.865961</span></span>
+<span><span class="co">## iter 140 value 0.865961</span></span>
+<span><span class="co">## iter 150 value 0.865960</span></span>
+<span><span class="co">## iter 150 value 0.865960</span></span>
+<span><span class="co">## iter 160 value 0.865960</span></span>
+<span><span class="co">## iter 160 value 0.865960</span></span>
+<span><span class="co">## iter 170 value 0.865960</span></span>
+<span><span class="co">## iter 170 value 0.865960</span></span>
+<span><span class="co">## iter 180 value 0.865960</span></span>
+<span><span class="co">## final  value 0.865960 </span></span>
 <span><span class="co">## converged</span></span></code></pre>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">params.rndout</span>, <span class="st">"summary"</span><span class="op">)</span><span class="op">$</span><span class="va">convergence</span><span class="op">)</span></span></code></pre></div>
 <p>Both models have ended up with similar solutions:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">params.fixout</span><span class="op">$</span><span class="va">value</span>, <span class="va">params.rndout</span><span class="op">$</span><span class="va">value</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##                                                    [,1]         [,2]        </span></span>
-<span><span class="co">## retro_years                                        0            0           </span></span>
-<span><span class="co">## fish_imm.Linf                                      144.645      144.645     </span></span>
-<span><span class="co">## fish_imm.K                                         0.3          0.3         </span></span>
-<span><span class="co">## fish_imm.t0                                        -0.8         -0.8        </span></span>
-<span><span class="co">## fish_imm.lencv                                     0.1          0.1         </span></span>
-<span><span class="co">## fish_imm.init.scalar                               10           10          </span></span>
-<span><span class="co">## fish_imm.init.1                                    631.3684     1246.163    </span></span>
-<span><span class="co">## fish_imm.init.2                                    9778.214     17214.09    </span></span>
-<span><span class="co">## fish_imm.init.3                                    1135.981     9931.249    </span></span>
-<span><span class="co">## fish_imm.init.4                                    8305.526     57666.91    </span></span>
-<span><span class="co">## fish_imm.init.5                                    6539.932     95448.38    </span></span>
-<span><span class="co">## fish_imm.M.1                                       0.9438641    0.9730494   </span></span>
-<span><span class="co">## fish_imm.M.2                                       0.9980344    0.801599    </span></span>
-<span><span class="co">## fish_imm.M.3                                       0.2635327    0.4103087   </span></span>
-<span><span class="co">## fish_imm.M.4                                       0.6802546    0.6129333   </span></span>
-<span><span class="co">## fish_imm.M.5                                       0.3469061    0.345459    </span></span>
-<span><span class="co">## init.F                                             0.1791403    0.7280994   </span></span>
-<span><span class="co">## recage                                             0            0           </span></span>
-<span><span class="co">## fish_imm.walpha                                    0.01         0.01        </span></span>
-<span><span class="co">## fish_imm.wbeta                                     3            3           </span></span>
-<span><span class="co">## proj_logar1_fish_imm_weight.proj_logar1_rec_weight 1            1           </span></span>
-<span><span class="co">## fish_imm.rec.proj.logar1.phi                       0.8          0.8         </span></span>
-<span><span class="co">## fish_imm.rec.proj.logar1.stddev                    1.342989e-09 6.401645e-06</span></span>
-<span><span class="co">## fish_imm.rec.proj.logar1.level                     1365.874     1289.954    </span></span>
-<span><span class="co">## fish_imm.rec.2000                                  1397.306     1315.177    </span></span>
-<span><span class="co">## fish_imm.rec.2001                                  1390.963     1310.094    </span></span>
-<span><span class="co">## fish_imm.rec.2002                                  1385.908     1306.041    </span></span>
-<span><span class="co">## fish_imm.rec.2003                                  1381.878     1302.807    </span></span>
-<span><span class="co">## fish_imm.rec.2004                                  1378.662     1300.226    </span></span>
-<span><span class="co">## fish_imm.rec.2005                                  1376.095     1298.165    </span></span>
-<span><span class="co">## fish_imm.rec.2006                                  1374.045     1296.519    </span></span>
-<span><span class="co">## fish_imm.rec.2007                                  1372.407     1295.203    </span></span>
-<span><span class="co">## fish_imm.rec.2008                                  1371.098     1294.152    </span></span>
-<span><span class="co">## fish_imm.rec.2009                                  1370.052     1293.311    </span></span>
-<span><span class="co">## fish_imm.rec.2010                                  1369.215     1292.639    </span></span>
-<span><span class="co">## fish_imm.rec.2011                                  1368.546     1292.101    </span></span>
-<span><span class="co">## fish_imm.rec.2012                                  1368.012     1291.672    </span></span>
-<span><span class="co">## fish_imm.rec.2013                                  1367.584     1291.328    </span></span>
-<span><span class="co">## fish_imm.rec.2014                                  1367.242     1291.053    </span></span>
-<span><span class="co">## fish_imm.rec.2015                                  1366.968     1290.833    </span></span>
-<span><span class="co">## fish_imm.rec.2016                                  1366.749     1290.657    </span></span>
-<span><span class="co">## fish_imm.rec.2017                                  1366.574     1290.516    </span></span>
-<span><span class="co">## fish_imm.rec.2018                                  1366.434     1290.404    </span></span>
-<span><span class="co">## fish_imm.rec.2019                                  1366.322     1290.314    </span></span>
-<span><span class="co">## fish_imm.rec.2020                                  1366.233     1290.242    </span></span>
-<span><span class="co">## fish_imm.rec.2021                                  1366.161     1290.184    </span></span>
-<span><span class="co">## fish_imm.rec.2022                                  1366.104     1290.138    </span></span>
-<span><span class="co">## fish_imm.rec.2023                                  1366.058     1290.101    </span></span>
-<span><span class="co">## fish_imm.rec.2024                                  1366.021     1290.072    </span></span>
-<span><span class="co">## fish_imm.rec.2025                                  1365.992     1290.048    </span></span>
-<span><span class="co">## fish_imm.rec.2026                                  1365.968     1290.029    </span></span>
-<span><span class="co">## fish_imm.rec.2027                                  1365.95      1290.014    </span></span>
-<span><span class="co">## fish_imm.rec.2028                                  1365.935     1290.002    </span></span>
-<span><span class="co">## fish_imm.rec.2029                                  1365.923     1289.992    </span></span>
-<span><span class="co">## fish_imm.rec.2030                                  1365.913     1289.985    </span></span>
-<span><span class="co">## report_detail                                      1            1           </span></span>
-<span><span class="co">## fish_imm.bbin                                      0            0           </span></span>
-<span><span class="co">## fish_imm.rec.scalar                                10           10          </span></span>
-<span><span class="co">## fish_imm.rec.sd                                    10           10          </span></span>
-<span><span class="co">## adist_surveyindices_log_dist_older_weight          1            1           </span></span>
+<pre><code><span><span class="co">##                                                    [,1]         [,2]       </span></span>
+<span><span class="co">## retro_years                                        0            0          </span></span>
+<span><span class="co">## fish_imm.Linf                                      144.645      144.645    </span></span>
+<span><span class="co">## fish_imm.K                                         0.3          0.3        </span></span>
+<span><span class="co">## fish_imm.t0                                        -0.8         -0.8       </span></span>
+<span><span class="co">## fish_imm.lencv                                     0.1          0.1        </span></span>
+<span><span class="co">## fish_imm.init.scalar                               10           10         </span></span>
+<span><span class="co">## fish_imm.init.1                                    631.3684     631.0477   </span></span>
+<span><span class="co">## fish_imm.init.2                                    9778.214     5459.456   </span></span>
+<span><span class="co">## fish_imm.init.3                                    1135.981     6337.343   </span></span>
+<span><span class="co">## fish_imm.init.4                                    8305.526     256640.4   </span></span>
+<span><span class="co">## fish_imm.init.5                                    6539.932     49753.38   </span></span>
+<span><span class="co">## fish_imm.M.1                                       0.9438641    0.7839087  </span></span>
+<span><span class="co">## fish_imm.M.2                                       0.9980344    0.4345986  </span></span>
+<span><span class="co">## fish_imm.M.3                                       0.2635327    0.2957015  </span></span>
+<span><span class="co">## fish_imm.M.4                                       0.6802546    0.9999458  </span></span>
+<span><span class="co">## fish_imm.M.5                                       0.3469061    0.284863   </span></span>
+<span><span class="co">## init.F                                             0.1791403    0.6657289  </span></span>
+<span><span class="co">## recage                                             0            0          </span></span>
+<span><span class="co">## fish_imm.walpha                                    0.01         0.01       </span></span>
+<span><span class="co">## fish_imm.wbeta                                     3            3          </span></span>
+<span><span class="co">## proj_logar1_fish_imm_weight.proj_logar1_rec_weight 1            1          </span></span>
+<span><span class="co">## fish_imm.rec.proj.logar1.phi                       0.8          0.8        </span></span>
+<span><span class="co">## fish_imm.rec.proj.logar1.stddev                    1.342989e-09 1.36305e-06</span></span>
+<span><span class="co">## fish_imm.rec.proj.logar1.level                     1365.874     878.5721   </span></span>
+<span><span class="co">## fish_imm.rec.2000                                  1397.306     900.4161   </span></span>
+<span><span class="co">## fish_imm.rec.2001                                  1390.963     896.0043   </span></span>
+<span><span class="co">## fish_imm.rec.2002                                  1385.908     892.4904   </span></span>
+<span><span class="co">## fish_imm.rec.2003                                  1381.878     889.6892   </span></span>
+<span><span class="co">## fish_imm.rec.2004                                  1378.662     887.4546   </span></span>
+<span><span class="co">## fish_imm.rec.2005                                  1376.095     885.6709   </span></span>
+<span><span class="co">## fish_imm.rec.2006                                  1374.045     884.2466   </span></span>
+<span><span class="co">## fish_imm.rec.2007                                  1372.407     883.1087   </span></span>
+<span><span class="co">## fish_imm.rec.2008                                  1371.098     882.1995   </span></span>
+<span><span class="co">## fish_imm.rec.2009                                  1370.052     881.4728   </span></span>
+<span><span class="co">## fish_imm.rec.2010                                  1369.215     880.8919   </span></span>
+<span><span class="co">## fish_imm.rec.2011                                  1368.546     880.4275   </span></span>
+<span><span class="co">## fish_imm.rec.2012                                  1368.012     880.0561   </span></span>
+<span><span class="co">## fish_imm.rec.2013                                  1367.584     879.7591   </span></span>
+<span><span class="co">## fish_imm.rec.2014                                  1367.242     879.5215   </span></span>
+<span><span class="co">## fish_imm.rec.2015                                  1366.968     879.3316   </span></span>
+<span><span class="co">## fish_imm.rec.2016                                  1366.749     879.1796   </span></span>
+<span><span class="co">## fish_imm.rec.2017                                  1366.574     879.0581   </span></span>
+<span><span class="co">## fish_imm.rec.2018                                  1366.434     878.9608   </span></span>
+<span><span class="co">## fish_imm.rec.2019                                  1366.322     878.8831   </span></span>
+<span><span class="co">## fish_imm.rec.2020                                  1366.233     878.8209   </span></span>
+<span><span class="co">## fish_imm.rec.2021                                  1366.161     878.7711   </span></span>
+<span><span class="co">## fish_imm.rec.2022                                  1366.104     878.7313   </span></span>
+<span><span class="co">## fish_imm.rec.2023                                  1366.058     878.6994   </span></span>
+<span><span class="co">## fish_imm.rec.2024                                  1366.021     878.674    </span></span>
+<span><span class="co">## fish_imm.rec.2025                                  1365.992     878.6536   </span></span>
+<span><span class="co">## fish_imm.rec.2026                                  1365.968     878.6373   </span></span>
+<span><span class="co">## fish_imm.rec.2027                                  1365.95      878.6242   </span></span>
+<span><span class="co">## fish_imm.rec.2028                                  1365.935     878.6138   </span></span>
+<span><span class="co">## fish_imm.rec.2029                                  1365.923     878.6054   </span></span>
+<span><span class="co">## fish_imm.rec.2030                                  1365.913     878.5988   </span></span>
+<span><span class="co">## report_detail                                      1            1          </span></span>
+<span><span class="co">## fish_imm.bbin                                      0            0          </span></span>
+<span><span class="co">## fish_imm.rec.scalar                                10           10         </span></span>
+<span><span class="co">## fish_imm.rec.sd                                    10           10         </span></span>
+<span><span class="co">## adist_surveyindices_log_dist_older_weight          1            1          </span></span>
 <span><span class="co">## project_years                                      0            0</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -369,7 +388,7 @@ point we expect:</p>
 <span>    step <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">abund</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##     age4     age5 </span></span>
-<span><span class="co">## 17400000 36800000</span></span></code></pre>
+<span><span class="co">## 17300000 36800000</span></span></code></pre>
 <p>Plot abundance for years 4 &amp; 5, with 40 years projection, using
 level/stddev chosen by optimiser:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">

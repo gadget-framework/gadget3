@@ -95,9 +95,12 @@
 <span><span class="fu">g3a_predate_catchability_project</span><span class="op">(</span></span>
 <span>    quota_f <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    landings_f <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    interim_f <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"quota.interim"</span>, value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        by_predator <span class="op">=</span> <span class="cn">TRUE</span>, by_step <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>    quota_prop <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"quota.prop"</span>, by_predator <span class="op">=</span> <span class="cn">TRUE</span>, value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>    cons_step <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"cons.step"</span>, by_predator <span class="op">=</span> <span class="cn">TRUE</span>, by_step <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="va">step_lengths</span> <span class="op">/</span> <span class="fl">12.0</span> <span class="op">)</span><span class="op">)</span>,</span>
+<span>    interim_unit <span class="op">=</span> <span class="va">unit</span>,</span>
 <span>    unit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"biomass"</span>, <span class="st">"biomass-year"</span>, <span class="st">"harvest-rate"</span>, <span class="st">"harvest-rate-year"</span>,</span>
 <span>             <span class="st">"individuals"</span>, <span class="st">"individuals-year"</span><span class="op">)</span> <span class="op">)</span></span>
 <span></span>
@@ -177,6 +180,9 @@
 <dd><p>A per-year quota for use during projection time periods, or for the whole model if <var>landings_f</var> is <code>NULL</code>.
     Generally, this will be produced by <code><a href="quota.html">g3_quota</a></code>.</p></dd>
 
+  <dt id="arg-interim-f">interim_f<a class="anchor" aria-label="anchor" href="#arg-interim-f"></a></dt>
+<dd><p>A <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> used to determine catch in the gap between landings data &amp; a quota calculated from projections.</p></dd>
+
   <dt id="arg-quota-prop">quota_prop<a class="anchor" aria-label="anchor" href="#arg-quota-prop"></a></dt>
 <dd><p>A quota can apply to multiple fleets, in which case use this parameter to assign the proportion of quota available to the current fleet.
     Note that ideally all <var>quota_prop</var> values sum to 1, but this doesn't have to be the case (e.g. over/under-utilisation of quotas).</p></dd>
@@ -185,9 +191,10 @@
 <dd><p>The proportion of the per-year quota that is used in each step.
     As with <var>quota_prop</var> ideally all values sum to 1.</p></dd>
 
-  <dt id="arg-unit">unit<a class="anchor" aria-label="anchor" href="#arg-unit"></a></dt>
-<dd><p>The unit that <var>quota_f</var> / <var>landings_f</var> is provided in.
-    "biomass", "effort", "individuals" are equivalent to totalfleet / linearfleet &amp; numberfleet respectively.</p></dd>
+  <dt id="arg-unit-interim-unit">unit, interim_unit<a class="anchor" aria-label="anchor" href="#arg-unit-interim-unit"></a></dt>
+<dd><p>The unit that <var>landings_f</var> / <var>interim_f</var> is provided in.
+    "biomass", "effort", "individuals" are equivalent to totalfleet / linearfleet &amp; numberfleet respectively.
+    (the default quota functions supply their own unit via. an attribute).</p></dd>
 
   <dt id="arg-catchability-fs">catchability_fs<a class="anchor" aria-label="anchor" href="#arg-catchability-fs"></a></dt>
 <dd><p>Either a list of stock names to <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a> objects, with an optional unnamed

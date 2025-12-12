@@ -113,10 +113,11 @@
 <span><span class="fu">g3_quota</span><span class="op">(</span></span>
 <span>        <span class="va">function_f</span>,</span>
 <span>        quota_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">function_f</span>, <span class="st">'quota_name'</span><span class="op">)</span>,</span>
+<span>        init_val <span class="op">=</span> <span class="cn">NaN</span>,</span>
 <span>        year_length <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>        start_step <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>        interim_value <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>        run_revstep <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
+<span>        run_historical <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>        run_f <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        run_at <span class="op">=</span> <span class="va">g3_action_order</span><span class="op">$</span><span class="va">quota</span> <span class="op">)</span></span></code></pre></div>
     </div>
@@ -162,6 +163,11 @@
   <dt id="arg-quota-name">quota_name<a class="anchor" aria-label="anchor" href="#arg-quota-name"></a></dt>
 <dd><p>A name used to refer to the quota internally, by default a combination of the quota function and the stocks used.</p></dd>
 
+  <dt id="arg-init-val">init_val<a class="anchor" aria-label="anchor" href="#arg-init-val"></a></dt>
+<dd><p>Pre-fill the quota with this value on the start of the model,
+    will be used if no quota assessment has run for the current fishing year.
+    This needs to be <code>NaN</code> for <code><a href="action_predate.html">g3a_predate_catchability_project</a></code> to detect interim periods.</p></dd>
+
   <dt id="arg-year-length">year_length<a class="anchor" aria-label="anchor" href="#arg-year-length"></a></dt>
 <dd><p>The length of the <em>fishing year</em>, in years, see details.</p></dd>
 
@@ -170,15 +176,17 @@
     This can be used to offset the fishing year from the calendar year for, if your fishing year should run autumn–autum.
     It can also offset from the start of the model, if your model starts at 1998 and your fishing year should run 2000–2005.</p></dd>
 
+  <dt id="arg-run-historical">run_historical<a class="anchor" aria-label="anchor" href="#arg-run-historical"></a></dt>
+<dd><p>Boolean. Should the quota be calculated for historical periods?
+    Default <code>FALSE</code>, assuming <code><a href="action_predate.html">g3a_predate_catchability_project</a></code> will be supplying landings data
+    and any quota would be unused. Requied to be FALSE to detect interim periods.</p></dd>
+
   <dt id="arg-run-revstep">run_revstep<a class="anchor" aria-label="anchor" href="#arg-run-revstep"></a></dt>
 <dd><p>A negative integer, defining which step in the <em>fishing year</em> an assessment for next year is performed.
     If <code>NULL</code>, run every step.</p></dd>
 
   <dt id="arg-run-f">run_f<a class="anchor" aria-label="anchor" href="#arg-run-f"></a></dt>
 <dd><p>When the quota should be recalculated, in addition to any condition defined by <var>run_revstep</var>.</p></dd>
-
-  <dt id="arg-interim-value">interim_value<a class="anchor" aria-label="anchor" href="#arg-interim-value"></a></dt>
-<dd><p>A formula that provides the interim value to bridge the gap between historical landings &amp; projected quota values, see examples.</p></dd>
 
   <dt id="arg-run-at">run_at<a class="anchor" aria-label="anchor" href="#arg-run-at"></a></dt>
 <dd><p>Integer order that actions will be run within model, see <code><a href="action_order.html">g3_action_order</a></code>.</p></dd>
@@ -339,7 +347,7 @@
 <span class="r-in"><span><span class="fu"><a href="array_utils.html">g3_array_agg</a></span><span class="op">(</span><span class="va">r</span><span class="op">$</span><span class="va">dend_st__num</span> <span class="op">*</span> <span class="va">r</span><span class="op">$</span><span class="va">dend_st__wgt</span>, <span class="st">"year"</span>, step <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> year</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    1990    1991    1992    1993    1994    1995    1996    1997    1998    1999 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  500000  495000  490000  485000  480000  475000 9350389 8556000 8464000 8372000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  500000  495000  490000  485000  480000  475000 9400000 8556000 8464000 8372000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2000    2001    2002    2003    2004    2005    2006    2007    2008    2009 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8280000 8188000 8096000 8004000 7912000 7820000 7728000 7636000 7544000 7452000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2010    2011    2012    2013    2014    2015    2016    2017    2018    2019 </span>
@@ -362,9 +370,10 @@
 <span class="r-in"><span><span class="va">fl_quota</span> <span class="op">&lt;-</span> <span class="fu">g3_quota</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="co"># Our quota values are year/step at the assessment time step</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span> <span class="va">cur_year</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">+</span> <span class="va">cur_step</span> <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="co"># "init_val" will be used in the interim period, replaced by g3a_predate_catchability_project()</span></span></span>
+<span class="r-in"><span>    init_val <span class="op">=</span> <span class="fl">99</span>,</span></span>
 <span class="r-in"><span>    year_length <span class="op">=</span> <span class="fl">1L</span>,</span></span>
 <span class="r-in"><span>    start_step <span class="op">=</span> <span class="fl">4L</span>,</span></span>
-<span class="r-in"><span>    interim_value <span class="op">=</span> <span class="fu"><a href="params.html">g3_parameterized</a></span><span class="op">(</span><span class="st">"interim_value"</span>, value <span class="op">=</span> <span class="fl">99</span>, optimize <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    run_revstep <span class="op">=</span> <span class="op">-</span><span class="fl">3L</span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">yr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">actions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
@@ -445,7 +454,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2034 4 20341</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fishingyear</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2019:2019 2019:2020 2020:2021 2021:2022 2022:2023 2023:2024 2024:2025 2025:2026 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         0        99        99        99        99        99        99     20251 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        99        99        99        99        99        99        99     20251 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2026:2027 2027:2028 2028:2029 2029:2030 2030:2031 2031:2032 2032:2033 2033:2034 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     20261     20271     20281     20291     20301     20311     20321     20331 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2034:2035 </span>
