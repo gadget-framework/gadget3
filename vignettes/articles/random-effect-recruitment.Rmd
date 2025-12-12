@@ -150,7 +150,7 @@ params.in |>
     # NB: By setting random = TRUE, any previous bounds will be cleared
     g3_init_val("*.rec.#", value = 2e3, random = TRUE) |>
     identity() -> params.rnd
-obj.rnd <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 0, maxit = 1000, tol = 1e-7), silent = TRUE)
+obj.rnd <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 0, maxit = 1000, tol = 1e-3), silent = TRUE)
 params.rndout <- gadgetutils::g3_optim(obj.rnd, params.rnd, trace = 0)
 stopifnot(attr(params.rndout, "summary")$convergence)
 ```
@@ -163,7 +163,7 @@ print(cbind(params.fixout$value, params.rndout$value))
 
 ```{r, sdreport, eval=FALSE, echo=FALSE}
 # TODO: TMB::sdreport only works with nlminb(), not g3_optim(), or optim(), but we're getting false convergence
-obj.rndnlm <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 0, maxit = 1000, tol = 1e-7))
+obj.rndnlm <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 0, maxit = 1000, tol = 1e-3))
 nlmfit <- nlminb(obj.rndnlm$par, obj.rndnlm$fn, obj.rndnlm$gr, lower = g3_tmb_lower(params.rndout), upper = g3_tmb_upper(params.rnd),
     control = list(eval.max = 2000, iter.max = 2000, trace = 0))
 summary(TMB::sdreport(obj.rndnlm))

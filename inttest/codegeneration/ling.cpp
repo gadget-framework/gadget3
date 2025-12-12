@@ -866,7 +866,7 @@ Type objective_function<Type>::operator() () {
                         if ( cdist_sumofsquares_ldist_lln_obs__time_idx >= 0 ) {
                             auto cdist_sumofsquares_ldist_lln_obs__sstotal = avoid_zero((cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx)).sum());
 
-                            auto cur_cdist_nll = ((pow(((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) / cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx) / cdist_sumofsquares_ldist_lln_obs__sstotal)), (Type)(double)(2)))).sum();
+                            auto cur_cdist_nll = (((((cdist_sumofsquares_ldist_lln_model__num.col(cdist_sumofsquares_ldist_lln_model__area_idx) / cdist_sumofsquares_ldist_lln_model__sstotal) - (cdist_sumofsquares_ldist_lln_obs__num.col(cdist_sumofsquares_ldist_lln_obs__area_idx).col(cdist_sumofsquares_ldist_lln_obs__time_idx) / cdist_sumofsquares_ldist_lln_obs__sstotal))).pow((double)(2)))).sum();
 
                             {
                                 nll += cdist_sumofsquares_ldist_lln_weight*cur_cdist_nll;

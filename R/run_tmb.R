@@ -48,6 +48,10 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 # When considering a global formula, consider the init condition
                 env_defn <- attr(env_defn, "g3_global_init_val")
             }
+            if (is.call(env_defn)) {
+                # If defined with code, recurse into definition
+                return(value_is_scalar(if (rlang::is_formula(env_defn)) rlang::f_rhs(env_defn) else env_defn, fallback = fallback))
+            }
             return(is.numeric(env_defn) && !is.array(env_defn) && !is_force_vector(env_defn))
         }
 
@@ -64,12 +68,12 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
         }
 
         # Common functions returning scalar from any arrays
-        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("sum", "prod", "mean", "g3_idx")) {
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("sum", "prod", "mean", "g3_idx", "g3_param", "logspace_add")) {
             return(TRUE)
         }
 
         # Operators that will return a same-length array
-        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("-", "+", "*", "/", "%/%", "%%")) return(all(vapply(
+        if (is.call(c_val) && as.character(c_val[[1]]) %in% c("(", "-", "+", "*", "/", "%/%", "%%")) return(all(vapply(
             tail(c_val, -1),
             value_is_scalar,
             logical(1) )))
@@ -239,8 +243,9 @@ cpp_code <- function(in_call, in_envir, indent = "\n    ", statement = FALSE, ex
                 && identical(assign_rhs[[1]], as.symbol("if"))) {
             return(cpp_code(call(
                 "if", assign_rhs[[2]],
-                call("<-", assign_lhs, assign_rhs[[3]]),
-                call("<-", assign_lhs, assign_rhs[[4]]) ), in_envir, next_indent, statement = TRUE))
+                # NB: f_optimize() will get rid of any braces, which out of context are surplus to requriements
+                call("<-", assign_lhs, f_optimize(assign_rhs[[3]])),
+                call("<-", assign_lhs, f_optimize(assign_rhs[[4]])) ), in_envir, next_indent, statement = TRUE))
         }
 
         return(paste(

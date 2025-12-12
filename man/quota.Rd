@@ -38,10 +38,11 @@ g3_quota_assess(
 g3_quota(
         function_f,
         quota_name = attr(function_f, 'quota_name'),
+        init_val = NaN,
         year_length = 1L,
         start_step = 1L,
-        interim_value = NULL,
         run_revstep = -1,
+        run_historical = FALSE,
         run_f = TRUE,
         run_at = g3_action_order$quota )
 }
@@ -86,6 +87,11 @@ g3_quota(
   \item{quota_name}{
     A name used to refer to the quota internally, by default a combination of the quota function and the stocks used.
   }
+  \item{init_val}{
+    Pre-fill the quota with this value on the start of the model,
+    will be used if no quota assessment has run for the current fishing year.
+    This needs to be \code{NaN} for \code{\link{g3a_predate_catchability_project}} to detect interim periods.
+  }
   \item{year_length}{
     The length of the \emph{fishing year}, in years, see details.
   }
@@ -94,15 +100,17 @@ g3_quota(
     This can be used to offset the fishing year from the calendar year for, if your fishing year should run autumn--autum.
     It can also offset from the start of the model, if your model starts at 1998 and your fishing year should run 2000--2005.
   }
+  \item{run_historical}{
+    Boolean. Should the quota be calculated for historical periods?
+    Default \code{FALSE}, assuming \code{\link{g3a_predate_catchability_project}} will be supplying landings data
+    and any quota would be unused. Requied to be FALSE to detect interim periods.
+  }
   \item{run_revstep}{
     A negative integer, defining which step in the \emph{fishing year} an assessment for next year is performed.
     If \code{NULL}, run every step.
   }
   \item{run_f}{
     When the quota should be recalculated, in addition to any condition defined by \var{run_revstep}.
-  }
-  \item{interim_value}{
-    A formula that provides the interim value to bridge the gap between historical landings & projected quota values, see examples.
   }
   \item{run_at}{
     Integer order that actions will be run within model, see \code{\link{g3_action_order}}.
@@ -258,9 +266,10 @@ barplot(g3_array_agg(r$detail_st_trawl_nor__cons, "time"), las = 2)
 fl_quota <- g3_quota(
     # Our quota values are year/step at the assessment time step
     quote( cur_year * 10 + cur_step ),
+    # "init_val" will be used in the interim period, replaced by g3a_predate_catchability_project()
+    init_val = 99,
     year_length = 1L,
     start_step = 4L,
-    interim_value = g3_parameterized("interim_value", value = 99, optimize = FALSE),
     run_revstep = -3L )
 yr <- as.integer(format(Sys.Date(), "\%Y"))
 actions <- list(

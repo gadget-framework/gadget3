@@ -120,20 +120,26 @@ g3_quota_assess <- function (
 g3_quota <- function (
         function_f,
         quota_name = attr(function_f, 'quota_name'),
+        init_val = NaN,
         year_length = 1L,
         start_step = 1L,
-        interim_value = NULL,
         run_revstep = -1,
+        run_historical = FALSE,
         run_f = TRUE,
         run_at = g3_action_order$quota ) {
 
-    if (!is.null(run_revstep)) run_f <- f_substitute(quote(quotastock__fishingyear_revstep == x && run_f), list(
-        run_f = run_f,
-        x = as.integer(run_revstep) ))
+    run_f <- f_substitute(quote(
+        run_historical && run_revstep && run_f
+    ), list(
+        run_historical = if (isTRUE(run_historical)) TRUE else quote( cur_year_projection ),
+        run_revstep = if (!is.null(run_revstep)) substitute(
+            quotastock__fishingyear_revstep == x,
+            list(x = as.integer(run_revstep)) ) else TRUE,
+        run_f = run_f ))
 
     quotastock <- g3_storage(c('quota', quota_name))
     quotastock <- g3s_modeltime_fishingyear(quotastock, year_length = year_length, start_step = start_step)
-    quotastock__var <- g3_stock_instance(quotastock, 0.0, desc = paste0("Quota values for ", quotastock$name))
+    quotastock__var <- g3_stock_instance(quotastock, init_val, desc = paste0("Quota values for ", quotastock$name))
 
     # Formula to select current quota value, for use in catchability
     out <- g3_step(f_substitute(~(
@@ -141,12 +147,6 @@ g3_quota <- function (
     ), list(
         end = NULL )), recursing = TRUE)
     attr(out, "catchability_unit") <- attr(function_f, "catchability_unit")
-
-    if (!is.null(interim_value)) {
-        function_f <- f_substitute(quote(
-            if (cur_year_projection) f else i
-        ), list(f = function_f, i = interim_value))
-    }
 
     # Ancillary step to calculate quota at assessent step
     environment(out)[[step_id(run_at, "g3a_quota", quotastock)]] <- g3_step(f_substitute(~{
