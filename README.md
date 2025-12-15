@@ -20,6 +20,7 @@ This package is part of suite of tools, including:
 
 ## Publications
 
+* [Mini-CAPAM 2025 presentation on length-based processes](https://gadget-framework.github.io/publications/2025-12-11-miniCAPAM.html)
 * [WGSAM 2025 presentation introducing gadget3](https://presentations.shuttlethread.com/2025-10-09-gadget3-mice)
 * [ICES 2024 poster](https://gadget-framework.github.io/publications/2024-09-ices-asc-gadget3-evolution-of-gadget-modelling-framework.pdf)
 
