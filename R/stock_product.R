@@ -33,7 +33,7 @@ g3s_stockproduct <- function(..., ignore_dims = c()) {
         with = list(),
         # NB: We need at least stock__minlen && stock__upperlen for stock_reshape() to work
         #     This will need more thought if we ever do early stock__ renaming.
-        env = as.environment(as.list(stocks[[1]]$env)[grepl('len$', names(stocks[[1]]$env))]),
+        env = as.environment(as.list(stocks[[1]]$env)[grepl('len(cv)?$', names(stocks[[1]]$env))]),
         name_parts = c(
             stocks[[1]]$name,
             stocks[[2]]$name,

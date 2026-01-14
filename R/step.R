@@ -285,13 +285,18 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 dest_midlen_var <- as.symbol(paste0(stock_var, "__midlen"))
                 # TODO: This won't cover any other subpopulations, bad?
                 source_dynlen_var <- as.symbol(paste0(source_stock_var, "__dynlen"))
-                source_dynlensd_var <- as.symbol(paste0(source_stock_var, "__dynlensd"))
+                sd_f <- f_substitute(quote(
+                    stock_ss(source_dynlen_var) * dlcv
+                ), list(
+                    source_dynlen_var = source_dynlen_var,
+                    dlcv = g3_stock_def(source_stock, 'prop_lencv'),
+                    end = NULL ))
 
                 out_f <- f_substitute(quote( inner_f * normalize_vec(dnorm(dest_midlen, mean, sd)) ), list(
                     inner_f = inner_f,
                     dest_midlen = dest_midlen_var,
                     mean = g3_step(call("stock_ss", source_dynlen_var), recursing = TRUE, orig_env = orig_env),
-                    sd = g3_step(call("stock_ss", source_dynlensd_var), recursing = TRUE, orig_env = orig_env) ))
+                    sd = g3_step(sd_f, recursing = TRUE, orig_env = orig_env) ))
             } else {
                 stop("Cannot convert ", source_stock$name, " with dims ", paste(names(source_stock$dim), collapse = ", "), " to dims ", paste(names(stock$dim), collapse = ", "))
             }
@@ -340,9 +345,6 @@ g3_step <- function(step_f, recursing = FALSE, orig_env = environment(step_f)) {
                 subpop_dynlen_c <- substitute(stock_reshape(main, x), list(main = mainpop_stockname, x = subpop_dynlen_c))
             }
 
-            # TODO: dynlen
-            #     * Combine variance stock__renewallensd -> stock__lensd
-            #       https://www.emathzone.com/tutorials/basic-statistics/combined-variance.html
             out_c <- substitute({
                 debug_trace("Add result to ", mainpop_stock)
                 mainpop_wgt_c <- ratio_add_pop(

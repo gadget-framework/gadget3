@@ -126,7 +126,6 @@ g3a_initialconditions_normalparam <- function (
     stock__num <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
     stock__wgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
     stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
 
     out <- list()
     action_name <- unique_action_name()
@@ -135,7 +134,6 @@ g3a_initialconditions_normalparam <- function (
         stock_iterate(stock, if (run_f && renew_into_f) {
             if (stock_hasdim(stock, "dynlen")) {
                 stock_ss(stock__dynlen) <- mean_f
-                stock_ss(stock__dynlensd) <- stddev_f
             }
             stock_ss(stock__num) <- len_dnorm_f
             stock_ss(stock__wgt) <- wgt_f
@@ -211,12 +209,10 @@ g3a_renewal_normalparam <- function (
     stock__num <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
     stock__wgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
     stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
     # TODO: Better descriptions
     stock__renewalnum <- g3_stock_instance(stock, 0, desc = "Abundance in number of individuals")
     stock__renewalwgt <- g3_stock_instance(stock, 1, desc = "Mean weight")
     stock__renewaldynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__renewaldynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
 
     out <- list()
     action_name <- unique_action_name()
@@ -224,7 +220,6 @@ g3a_renewal_normalparam <- function (
         debug_label("g3a_renewal for ", stock)
         if (stock_hasdim(stock, "dynlen")) stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__renewaldynlen) <- mean_f
-            stock_ss(stock__renewaldynlensd) <- stddev_f
         })
         stock_iterate(stock, if (run_f && renew_into_f) {
             stock_ss(stock__renewalnum) <- len_dnorm_f

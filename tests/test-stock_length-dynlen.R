@@ -15,11 +15,13 @@ actions_time <- list(
 actions <- c(actions, actions_time)
 
 # Create stock definition for fish ####################
-st_imm <- gadget3:::g3_storage(c(species = "fish", 'imm')) |> gadget3:::g3s_dynlen() |>
+st_imm <- gadget3:::g3_storage(c(species = "fish", 'imm')) |>
+  gadget3:::g3s_dynlen(cv = g3_parameterized("lencv", by_stock = TRUE, by_age = TRUE, value = 0.2)) |>
   g3s_age(1L, 5L) |>
   g3s_livesonareas(area_names["IXa"])
 
-st_mat <- gadget3:::g3_storage(c(species = "fish", 'mat')) |> gadget3:::g3s_dynlen() |>
+st_mat <- gadget3:::g3_storage(c(species = "fish", 'mat')) |>
+  gadget3:::g3s_dynlen(cv = g3_parameterized("lencv", by_stock = TRUE, by_age = TRUE, value = 0.2)) |>
   g3s_age(3L, 10L) |>
   g3s_livesonareas(area_names["IXa"])
 stocks = list(imm = st_imm, mat = st_mat)
@@ -214,4 +216,3 @@ nll <- model_fn(params.out) ; r <- attributes(nll)
 # Abundance
 g3_array_agg(r$dstart_fish_imm__num, c('age', 'year'))
 g3_array_agg(r$dstart_fish_imm__dynlen, c('age', 'year'), agg = mean)
-g3_array_agg(r$dstart_fish_imm__dynlensd, c('age', 'year'), agg = mean)

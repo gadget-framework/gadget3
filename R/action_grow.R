@@ -374,7 +374,6 @@ g3a_growmature <- function(stock,
     stock__num <- g3_stock_instance(stock, 0)
     stock__wgt <- g3_stock_instance(stock, 1)
     stock__dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
     stock__growth_num <- g3_stock_instance(stock)
     len_dim <- if ("length" %in% names(stock$dim)) stock$dim$length else 1
     stock__growth_l <- array(
@@ -386,7 +385,6 @@ g3a_growmature <- function(stock,
     stock__transitioning_num <- g3_stock_instance(stock, 0)
     stock__transitioning_wgt <- g3_stock_instance(stock)
     stock__transitioning_dynlen <- g3_stock_instance(stock, 0, desc = "Mean length")
-    stock__transitioning_dynlensd <- g3_stock_instance(stock, 1, desc = "Std.dev. of length")
 
     # Add transition steps if output_stocks provided
     if (length(output_stocks) == 0) {
@@ -399,7 +397,6 @@ g3a_growmature <- function(stock,
             stock_with(stock, stock__transitioning_wgt[] <- stock__wgt[])
             if (stock_hasdim(stock, "dynlen")) {
                 stock_with(stock, stock__transitioning_dynlen[] <- stock__dynlen[])
-                stock_with(stock, stock__transitioning_dynlensd[] <- stock__dynlensd[])
             }
         }, list(
             transition_f = transition_f)))

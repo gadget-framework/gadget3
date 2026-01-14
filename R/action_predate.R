@@ -309,7 +309,6 @@ g3a_predate <- function (
         predprey__cons <- predprey__conses[[stock$name]]
         predprey__suit <- predprey__suits[[stock$name]]
         predprey__dynlen <- g3_stock_instance(predprey, desc = "Mean length")
-        predprey__dynlensd <- g3_stock_instance(predprey, desc = "Std.dev. of length")
 
         # Make sure the counter for this prey is zeroed
         # NB: We only have one of these per-prey (we replace it a few times though)
@@ -345,7 +344,6 @@ g3a_predate <- function (
                 if (stock_hasdim(stock, "dynlen")) {
                     # TODO: Better subsetting?
                     stock_ss(predprey__dynlen) <- stock_ss(stock__dynlen)
-                    stock_ss(predprey__dynlensd) <- stock_ss(stock__dynlensd)
                 }
                 stock_ss(predprey__suit) <- catchability
                 stock_ss(predstock__totalsuit, vec = single) <- stock_ss(predstock__totalsuit, vec = single) + sum(stock_ss(predprey__suit))

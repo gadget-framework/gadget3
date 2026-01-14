@@ -1,4 +1,6 @@
-g3s_dynlen <- function (inner_stock) {
+g3s_dynlen <- function (
+    inner_stock,
+    cv = g3_parameterized("lencv", by_stock = TRUE, by_age = TRUE, value = 0.2) ) {
 
     structure(list(
         dim = c(inner_stock$dim, list(
@@ -37,8 +39,7 @@ g3s_dynlen <- function (inner_stock) {
             )),
         with = c(inner_stock$with, dynlen = quote(extension_point)),
         env = as.environment(c(as.list(inner_stock$env), list(
-            ))),   # TODO: ?
+            stock__prop_lencv = cv ))),
         name_parts = inner_stock$name_parts,
         name = inner_stock$name), class = c("g3_stock", "list"))
 }
-
