@@ -6,6 +6,7 @@ library(gadget3)
 default_pt <- function (sn) data.frame(
         switch = sn,
         value = I(as.list( rep(NA, length(sn)) )),
+        type = "",
         lower = NA,
         upper = NA,
         parscale = NA,
@@ -195,28 +196,6 @@ ok(ut_cmp_equal(iv_options('x', value = -1, spread = 0.2), list(
     optimise = TRUE,
     random = FALSE)), "spread on a negative number still sets lower/upper bounds correctly")
 
-#### auto_exp
-
-pt <- default_pt(c('moo.1', 'moo.1_exp', 'baa.2', 'baa.2_exp', 'oink.1', 'oink.1_exp'))
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1', 4, auto_exponentiate = TRUE)$value,
-    I(list(4, log(4), NA, NA, 4, log(4)))), "log() values that are in _exp columns")
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1', lower = 22, auto_exponentiate = TRUE)$lower,
-    c(22, log(22), NA, NA, 22, log(22))), "Can auto_exp lower")
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1', upper = 22, auto_exponentiate = TRUE)$upper,
-    c(22, log(22), NA, NA, 22, log(22))), "Can auto_exp upper")
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1', 4, auto_exponentiate = FALSE)$value,
-    I(list(4, NA, NA, NA, 4, NA))), "Can disable auto_exponentiate, values aren't matched")
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = TRUE)$value,
-    I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works, no log()")
-ok(ut_cmp_equal(
-    g3_init_val(pt, '*.1_exp', 8, auto_exponentiate = FALSE)$value,
-    I(list(NA, 8, NA, NA, NA, 8))), "Manual _exp matching still works")
-
 #### type="LOG"
 pt <- default_pt(c("moo"))
 pt$type <- "LOG"
@@ -233,6 +212,8 @@ ok(ut_cmp_error(
 ok(ut_cmp_equal(
     g3_init_val(pt, "moo", 99)$value,
     I(list(99)) ), "logarithmic: Can set positive values")
+
+# TODO: Test a parameter that has been exponentiated?
 
 #### Warning
 

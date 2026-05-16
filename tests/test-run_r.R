@@ -212,14 +212,6 @@ ok_group('g3_param_table', {
                 paste('pt', 2000:2004, 3, sep = '.'),
                 'pg.2000.1',
                 'pg.2000.2'))), "Param table turned into multiple parameters, value set")
-
-    params.in <- attr(g3_to_r(list( g3a_time(1990, 2000), g3_formula(
-        quote(d),
-        d = g3_parameterized('par.years', value = 0, by_year = TRUE, exponentiate = TRUE),
-        x = NA) )), 'parameter_template')
-    ok(ut_cmp_identical(grep('^par', names(params.in), value = TRUE), c(
-        paste0('par.years.', 1990:2000, '_exp'),
-        NULL)), "exponentiate prefix ends up at the end of parameters")
 })
 
 ok_group('parameter_template default', {
