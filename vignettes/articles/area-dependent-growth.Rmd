@@ -1,0 +1,114 @@
+---
+# Source vignette in R session:
+#   Sys.setenv(G3_TEST_TMB=1)
+#   knitr::purl('gadget3/vignettes/random-effect-recruitment.Rmd', output="/tmp/vign.R") ; source("/tmp/vign.R", echo = T)
+title: "Area-dependent growth"
+output:
+  html_document:
+    toc: true
+    theme: null
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, message=FALSE, echo=FALSE}
+library(unittest)
+# Redirect ok() output to stderr
+options(unittest.output = stderr())
+
+library(gadget3)
+
+set.seed(123)
+```
+
+```{r}
+library(gadget3)
+
+# Core years the model will run for
+year_range <- 1975:1980
+
+areas <- g3_areas(c('a', 'b', 'c'))
+
+actions_time <- list(
+  g3a_time(start_year = min(year_range), end_year = max(year_range))
+)
+
+### Configure stocks & stock dynamics #########################################
+
+stocks <- list(
+  imm = g3_stock(c(species = 'bli', maturity = 'imm'), 1:10 * 10) |>
+    g3s_age(minage = 2, maxage = 7) |>
+    g3s_livesonareas(areas[c('a', 'b', 'c')])
+)
+
+temperature_df <- rbind(
+  data.frame(year = year_range, area = 'a', temp = 0),
+  data.frame(year = year_range, area = 'b', temp = 5),
+  data.frame(year = year_range, area = 'c', temp = 10)
+)
+
+actions_time <- list(
+  g3a_time(start_year = min(year_range),
+           end_year = max(year_range),
+           step_lengths = rep(3L, 4) ))
+
+# Define actions for immature stocks
+actions_imm <- list(
+  g3a_initialconditions_normalcv(stocks$imm, cv_f = g3_parameterized('lencv', by_stock = stocks, by_age = TRUE), by_stock = stocks),
+  g3a_naturalmortality(stocks$imm, g3a_naturalmortality_exp(by_stock = stocks)),
+  g3a_age(stocks$imm),
+
+  g3a_growmature(stocks$imm,
+    impl_f = g3a_grow_impl_bbinom(
+      delta_len_f = g3a_grow_lengthvbsimple(
+      kappa_f = g3_formula(
+        Ka * sum(stock_ss(stock__num, area = default, vec = 'area')) * cur_temp + Kb,
+        Ka = g3_parameterized('Ka', by_stock = stocks),
+        Kb = g3_parameterized('Kb', by_stock = stocks),
+        cur_temp = g3_timeareadata('temperature', temperature_df, value_field = "temp", areas = areas)
+      ),
+      maxlengthgroupgrowth = 4,
+      by_stock = stocks
+    )
+  ),
+  g3a_renewal_normalcv(stocks$imm,
+      by_stock = stocks
+  )
+)
+
+actions <- c(
+  actions_time,
+  actions_imm,
+  NULL )
+model_fn <- g3_to_r(c(actions, list(
+  g3a_report_detail(actions),
+  g3l_bounds_penalty(actions) )))
+
+params.in <-
+  attr(model_fn, 'parameter_template') |>
+
+  # Recruitment and initial conditions
+  g3_init_val("recage", 2) |>
+  g3_init_val('*.rec.#', 2) |>
+  g3_init_val('*.init.#', 0.01) |>
+  g3_init_val('*.rec.scalar', 50) |>
+  g3_init_val('*.init.scalar', 43) |>
+  g3_init_val('*.lencv.#', 0.1) |>
+
+  # Growth
+  g3_init_val('*.Linf', 125.1648) |>
+  g3_init_val('*.K', 0.1264) |>
+  g3_init_val('*.t0', 0) |>
+  g3_init_val('*.bbin', 3.32) |>
+  g3_init_val('*.M.#', 0.15) |>
+
+  # Weight-length relationship
+  g3_init_val('*.walpha', 8.511e-07) |>
+  g3_init_val('*.wbeta', 3.3264) |>
+
+  identity()
+
+r <- attributes(model_fn(params.in))
+g3_array_plot(g3_array_agg(r$dstart_bli_imm__num, c("area", "length"), year = 1980, step = 1))
+```
