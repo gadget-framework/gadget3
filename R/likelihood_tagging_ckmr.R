@@ -93,7 +93,7 @@ g3l_tagging_ckmr <- function (
                   parent_age := as_integer(obsdata_pairs[[g3_idx(2), pairs_idx]]),
                   modelhist__parent_idx := g3_idx(parent_age - modelhist__minage + 1),
                   offspring_age := as_integer(obsdata_pairs[[g3_idx(3), pairs_idx]]),
-                  modelhist__offspring_idx := g3_idx(offspring_age - modelhist__minage + 1),
+                  modelhist__offspring_idx := g3_idx(cur_year - offspring_age - start_year + 1L),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
                   n_comparisons := as_integer(obsdata_pairs[[g3_idx(5), pairs_idx]]),
                   # i.e. # spawned per-parent at this time
