@@ -13,12 +13,12 @@ g3l_tagging_ckmr <- function (
     stopifnot(is.list(offspring_stocks) && all(sapply(offspring_stocks, g3_is_stock)))
 
     # Convert obsdata into an array
-    stopifnot(colnames(obs_data) == c('year', 'parent_age', 'offspring_age', 'mo_pairs'))
+    stopifnot(colnames(obs_data) == c('year', 'parent_age', 'offspring_age', 'mo_pairs', 'n_comparisons'))
     obsdata_pairs_var_name <- paste0(nll_name, '_obspairs')
     assign(obsdata_pairs_var_name, t(array(
-        as.integer(c(obs_data$year, obs_data$parent_age, obs_data$offspring_age, obs_data$mo_pairs)),
-        dim = c(length(obs_data$year), 4),
-        dimnames = list(NULL, c('year', 'parent_age', 'offspring_age', 'mo_pairs')))))
+        as.integer(c(obs_data$year, obs_data$parent_age, obs_data$offspring_age, obs_data$mo_pairs, obs_data$n_comparisons)),
+        dim = c(length(obs_data$year), 5),
+        dimnames = list(NULL, c('year', 'parent_age', 'offspring_age', 'mo_pairs', 'n_comparisons')))))
 
     # Get definition for all stocks provided
     stock_definitions <- function (var_name, stocks) {
@@ -95,13 +95,12 @@ g3l_tagging_ckmr <- function (
                   offspring_age := as_integer(obsdata_pairs[[g3_idx(3), pairs_idx]]),
                   modelhist__offspring_idx := g3_idx(offspring_age - modelhist__minage + 1),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
+                  n_comparisons := as_integer(obsdata_pairs[[g3_idx(5), pairs_idx]]),
                   # i.e. # spawned per-parent at this time
                   fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__spawning[,modelhist__offspring_idx]),
                   # Convert to a probability using (3.4):-
                   cur_ckmr_p := (fecundity_of_parents[[modelhist__parent_idx]] / modelhist__catch[[modelhist__parent_idx]]) / sum(fecundity_of_parents), {
-                    # Pseudo-likelihood as per (4.1)
-                    nll <- nll + (weight) * log((mopairs) * unname(cur_ckmr_p))
-                    # TODO: Consider (4.2) here too?
+                    nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(cur_ckmr_p), log = TRUE)
                 })
             }
         })
