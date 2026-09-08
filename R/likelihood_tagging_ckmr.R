@@ -99,7 +99,7 @@ g3l_tagging_ckmr <- function (
                   # i.e. # spawned per-parent at this time
                   fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__spawning[,modelhist__offspring_idx]),
                   # Convert to a probability using (3.4):-
-                  cur_ckmr_p := (fecundity_of_parents[[modelhist__parent_idx]] / modelhist__catch[[modelhist__parent_idx]]) / sum(fecundity_of_parents), {
+                  cur_ckmr_p := (fecundity_of_parents[[modelhist__parent_idx]] / modelhist__catch[[modelhist__parent_idx]]) / avoid_zero(sum(modelhist__spawned[, modelhist__offspring_idx])), {
                     nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(cur_ckmr_p), log = TRUE)
                 })
             }
