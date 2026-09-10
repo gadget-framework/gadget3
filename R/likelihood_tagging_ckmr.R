@@ -35,7 +35,7 @@ g3l_tagging_ckmr <- function (
         min(stock_definitions('minage', c(parent_stocks, offspring_stocks))),
         max(stock_definitions('maxage', c(parent_stocks, offspring_stocks))))
     modelhist <- g3s_modeltime(modelhist, by_year = TRUE)
-    modelhist__spawning <- g3_stock_instance(modelhist, 0, desc = "Total number of spawning parents by year, parent age")
+    modelhist__num <- g3_stock_instance(modelhist, 0, desc = "Total number of parents by year, age")
     modelhist__spawned <- g3_stock_instance(modelhist, 0, desc = "Total number of offspring by year, parent age")
 
     out <- new.env(parent = emptyenv())
@@ -47,9 +47,9 @@ g3l_tagging_ckmr <- function (
         step_f <- f_concatenate(list(step_f, g3_step(~{
             if (sum(stock_with(parent_stock, parent_stock__spawningnum)) > 0) {  # i.e. currently in a spawning step. TODO: Safe? Better way?
                 stock_iterate(parent_stock, stock_intersect(modelhist, {
-                    debug_trace("Collect total numbers of spawning / spawned for year")
-                    stock_ss(modelhist__spawning) <- stock_ss(modelhist__spawning) +
-                        stock_reshape(modelhist, stock_ss(parent_stock__spawningnum))
+                    debug_trace("Collect total numbers of parents / spawned for year")
+                    stock_ss(modelhist__num) <- stock_ss(modelhist__num) +
+                        stock_reshape(modelhist, stock_ss(parent_stock__num))
                     # TODO: We don't actually count offspring_stocks. Kinda stupid for these to be different, but should make this obvious.
                     stock_ss(modelhist__spawned) <- stock_ss(modelhist__spawned) +
                         stock_reshape(modelhist, stock_ss(parent_stock__offspringnum))
@@ -74,8 +74,8 @@ g3l_tagging_ckmr <- function (
                   modelhist__offspring_idx := g3_idx(cur_year - offspring_age - start_year + 1L),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
                   n_comparisons := as_integer(obsdata_pairs[[g3_idx(5), pairs_idx]]),
-                  # i.e. # spawned per-parent at this time, at their age in the birth year
-                  fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__spawning[,modelhist__offspring_idx]),
+                  # expected fecundity per individual in parent stock at birth year, by age
+                  fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__num[,modelhist__offspring_idx]),
                   # Convert to a probability using (3.4):-
                   pr_pop_bya := fecundity_of_parents[[birth_parent_age_idx]] / avoid_zero(sum(modelhist__spawned[, modelhist__offspring_idx])), {
                     nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(pr_pop_bya), log = TRUE)
