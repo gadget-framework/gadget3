@@ -57,7 +57,7 @@ g3l_tagging_ckmr <- function (
             }
         })))
     }
-    out[[step_id(run_at, 'g3l_tagging', nll_name, 1)]] <- step_f
+    out[[step_id(g3_action_order$spawn, 'g3l_tagging', nll_name, 1)]] <- step_f
 
     nll <- 0.0
 
