@@ -11,7 +11,6 @@
 g3l_tagging_ckmr(
         nll_name,
         obs_data,
-        fleets,
         parent_stocks,
         offspring_stocks,
         weight = g3_parameterized(paste0(nll_name, "_weight"),
@@ -25,9 +24,6 @@ g3l_tagging_ckmr(
   }
   \item{obs_data}{
     Data.frame of observed mother-offspring pairs with columns year / parent_age / offspring_age / mo_pairs
-  }
-  \item{fleets}{
-    A list of \code{\link{g3_stock}} objects to collect catch data for.
   }
   \item{parent_stocks}{
     A list of \code{\link{g3_stock}} objects that are parents in a \link{g3a_spawn} action

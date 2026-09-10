@@ -1,14 +1,12 @@
 g3l_tagging_ckmr <- function (
         nll_name,
         obs_data,
-        fleets,
         parent_stocks,
         offspring_stocks,
         weight = g3_parameterized(paste0(nll_name, "_weight"),
             optimise = FALSE, value = 1),
         run_at = g3_action_order$likelihood) {
     stopifnot(is.character(nll_name))
-    stopifnot(is.list(fleets) && all(sapply(fleets, g3_is_stock)))
     stopifnot(is.list(parent_stocks) && all(sapply(parent_stocks, g3_is_stock)))
     stopifnot(is.list(offspring_stocks) && all(sapply(offspring_stocks, g3_is_stock)))
 
@@ -39,8 +37,6 @@ g3l_tagging_ckmr <- function (
     modelhist <- g3s_modeltime(modelhist, by_year = TRUE)
     modelhist__spawning <- g3_stock_instance(modelhist, 0, desc = "Total number of spawning parents by year, parent age")
     modelhist__spawned <- g3_stock_instance(modelhist, 0, desc = "Total number of offspring by year, parent age")
-    modelhist__total <- g3_stock_instance(modelhist, 0, desc = "Total adults (spawning and not), by year, parent age")
-    modelhist__catch <- g3_stock_instance(modelhist, 0, desc = "Individuals caught by fleet, by age")
 
     out <- new.env(parent = emptyenv())
     step_f <- g3_step(~{
@@ -51,33 +47,15 @@ g3l_tagging_ckmr <- function (
         step_f <- f_concatenate(list(step_f, g3_step(~{
             if (sum(stock_with(parent_stock, parent_stock__spawningnum)) > 0) {  # i.e. currently in a spawning step. TODO: Safe? Better way?
                 stock_iterate(parent_stock, stock_intersect(modelhist, {
-                    debug_trace("Collect total numbers of spawning / spawned / total for year")
+                    debug_trace("Collect total numbers of spawning / spawned for year")
                     stock_ss(modelhist__spawning) <- stock_ss(modelhist__spawning) +
                         stock_reshape(modelhist, stock_ss(parent_stock__spawningnum))
                     # TODO: We don't actually count offspring_stocks. Kinda stupid for these to be different, but should make this obvious.
-                    stock_ss(modelhist__spawned) <- stock_ss(modelhist__spawned) + 
+                    stock_ss(modelhist__spawned) <- stock_ss(modelhist__spawned) +
                         stock_reshape(modelhist, stock_ss(parent_stock__offspringnum))
-                    stock_ss(modelhist__total) <- stock_ss(modelhist__total) +
-                        stock_reshape(modelhist, stock_ss(parent_stock__num))
                 }))
             }
         })))
-    }
-    for (predstock in fleets) {
-        for (prey_stock in c(parent_stocks, offspring_stocks)) {
-            # NB: In lockstep with action_predate()
-            predprey <- g3s_stockproduct(prey_stock, predator = predstock, ignore_dims = c('predator_area'))
-            predprey__cons <- g3_stock_instance(predprey, desc = paste0("Total biomass consumption of ", predprey$name))
-
-            step_f <- f_concatenate(list(step_f, g3_step(f_substitute(~{
-                stock_iterate(prey_stock, stock_interact(predstock, stock_intersect(modelhist, stock_with(predprey, {
-                    stock_with(predstock, debug_trace("Convert ", predstock, " catch of ", prey_stock, " to numbers, add it to our total"))
-                    stock_ss(modelhist__catch) <- stock_ss(modelhist__catch) +
-                        stock_reshape(modelhist, stock_ss(predprey__cons) / avoid_zero(stock_ss(prey_stock__wgt)))
-                }))))
-            }, list(
-                end = NULL)))))
-        }
     }
     out[[step_id(run_at, 'g3l_tagging', nll_name, 1)]] <- step_f
 
@@ -91,16 +69,16 @@ g3l_tagging_ckmr <- function (
             for (pairs_idx in seq(g3_idx(1), g3_idx(ncol(obsdata_pairs)), by = 1)) if (as_integer(obsdata_pairs[[g3_idx(1), pairs_idx]]) == cur_year) {
                 g3_with(
                   parent_age := as_integer(obsdata_pairs[[g3_idx(2), pairs_idx]]),
-                  modelhist__parent_idx := g3_idx(parent_age - modelhist__minage + 1),
                   offspring_age := as_integer(obsdata_pairs[[g3_idx(3), pairs_idx]]),
+                  birth_parent_age_idx := g3_idx(parent_age - offspring_age - modelhist__minage + 1),
                   modelhist__offspring_idx := g3_idx(cur_year - offspring_age - start_year + 1L),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
                   n_comparisons := as_integer(obsdata_pairs[[g3_idx(5), pairs_idx]]),
-                  # i.e. # spawned per-parent at this time
+                  # i.e. # spawned per-parent at this time, at their age in the birth year
                   fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__spawning[,modelhist__offspring_idx]),
                   # Convert to a probability using (3.4):-
-                  cur_ckmr_p := (fecundity_of_parents[[modelhist__parent_idx]] / modelhist__catch[[modelhist__parent_idx]]) / avoid_zero(sum(modelhist__spawned[, modelhist__offspring_idx])), {
-                    nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(cur_ckmr_p), log = TRUE)
+                  pr_pop_bya := fecundity_of_parents[[birth_parent_age_idx]] / avoid_zero(sum(modelhist__spawned[, modelhist__offspring_idx])), {
+                    nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(pr_pop_bya), log = TRUE)
                 })
             }
         })
