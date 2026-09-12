@@ -74,7 +74,7 @@ g3l_tagging_ckmr <- function (
                   modelhist__offspring_idx := g3_idx(cur_year - offspring_age - start_year + 1L),
                   mopairs := as_integer(obsdata_pairs[[g3_idx(4), pairs_idx]]),
                   n_comparisons := as_integer(obsdata_pairs[[g3_idx(5), pairs_idx]]), {
-                    if (birth_parent_age_idx >= g3_idx(1) && modelhist__offspring_idx >= g3_idx(1)) g3_with(
+                    if (birth_parent_age_idx >= g3_idx(1) && modelhist__offspring_idx >= g3_idx(1) && mopairs > 0) g3_with(
                       # expected fecundity per individual in parent stock at birth year, by age
                       fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__num[,modelhist__offspring_idx]),
                       # Convert to a probability using (3.4):-
