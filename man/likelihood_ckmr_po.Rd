@@ -20,10 +20,10 @@ g3l_ckmr_po(
 
 \arguments{
   \item{nll_name}{
-    Character string, used to define the variable name for \var{obsstock} and \var{modelstock}.
+    Character string, used as a prefix for model history storage (\var{nll_name}model) and observed data variable names.
   }
   \item{obs_data}{
-    Data.frame of observed mother-offspring pairs with columns year / parent_age / offspring_age / mo_pairs
+    Data.frame of observed mother-offspring pairs with columns year / parent_age / offspring_age / mo_pairs / n_comparisons
   }
   \item{parent_stocks}{
     A list of \code{\link{g3_stock}} objects that are parents in a \link{g3a_spawn} action
@@ -49,7 +49,7 @@ g3l_ckmr_po(
 
   \subsection{obs_data}{
     The \var{obs_data} data.frame provides observed pairs. Unlike other likelihood
-    mehthods, it has a fixed structure:
+    methods, it has a fixed structure:
 
     \describe{
       \item{year}{
@@ -62,7 +62,10 @@ g3l_ckmr_po(
         Age of the offspring in an observed parent-offspring pair.
       }
       \item{mo_pairs}{
-        Number of pairs observed with these ages.
+        Number of mother-offspring pairs observed with these ages.
+      }
+      \item{n_comparisons}{
+        Total number of comparisons made to find \var{mo_pairs}.
       }
     }
   }
@@ -75,9 +78,40 @@ g3l_ckmr_po(
 
 \value{
   \subsection{g3l_ckmr_po}{An action (i.e. list of formula objects) that will...\enumerate{
-    \item{For all \var{parent_stocks} and \var{offspring_stocks}, collect spawing rate into
-    \var{modelhist}__spawning and \var{modelhist}__spawned, total number of parents and total number of spawned offspring respectively}
-    \item{For all \var{fleets}, collect catch data into \var{modelhist}__catch}
-    \item{For any observed pairs that year, include the probability of that event happening into \code{nll}}
+    \item{During each spawning step, for all \var{parent_stocks}, accumulate total parent numbers into
+    \var{modelhist}__num and total spawned offspring into \var{modelhist}__spawned by year and age}
+    \item{For any observed pairs in that year, compute the Poisson pseudo-likelihood of the observed
+    mother-offspring pairs and add to \code{nll}}
   }}
+}
+
+\examples{
+stocks <- list(
+  mat = g3_stock(c("cod", "mat"), seq(20, 100, 10)) |> g3s_age(3, 10),
+  imm = g3_stock(c("cod", "imm"), seq(5, 40, 5)) |> g3s_age(0, 2)
+)
+
+# Observed mother-offspring pairs: year / parent_age / offspring_age / mo_pairs / n_comparisons
+obs_data <- data.frame(
+    year          = c(2000L, 2001L),
+    parent_age    = c(   6L,    7L),
+    offspring_age = c(   1L,    1L),
+    mo_pairs      = c(   3L,    1L),
+    n_comparisons = c( 500L,  500L))
+
+actions <- list(
+    g3a_time(2000, 2002, c(6, 6), project_years = 0),
+    g3a_initialconditions_normalcv(stocks$mat),
+    g3a_initialconditions_normalcv(stocks$imm),
+    g3a_age(stocks$mat),
+    g3a_age(stocks$imm),
+    g3a_spawn(
+        stocks$mat,
+        recruitment_f = g3a_spawn_recruitment_fecundity(
+            p0 = 1, p1 = 0, p2 = 0, p3 = 1, p4 = 0),
+        output_stocks = list(stocks$imm),
+        run_step = 1),
+    g3l_ckmr_po("ckmr", obs_data,
+        parent_stocks = list(stocks$mat),
+        offspring_stocks = list(stocks$imm)))
 }
