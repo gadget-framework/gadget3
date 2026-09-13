@@ -77,7 +77,6 @@ g3l_tagging_ckmr <- function (
                     if (birth_parent_age_idx >= g3_idx(1) && modelhist__offspring_idx >= g3_idx(1) && mopairs > 0) g3_with(
                       # expected fecundity per individual in parent stock at birth year, by age
                       fecundity_of_parents := modelhist__spawned[,modelhist__offspring_idx] / avoid_zero(modelhist__num[,modelhist__offspring_idx]),
-                      # Convert to a probability using (3.4):-
                       pr_pop_bya := fecundity_of_parents[[birth_parent_age_idx]] / avoid_zero(sum(modelhist__spawned[, modelhist__offspring_idx])), {
                         nll <- nll - (weight) * dpois(mopairs, n_comparisons * unname(pr_pop_bya), log = TRUE)
                       })
