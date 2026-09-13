@@ -1,4 +1,4 @@
-g3l_tagging_ckmr <- function (
+g3l_ckmr_po <- function (
         nll_name,
         obs_data,
         parent_stocks,
@@ -40,7 +40,7 @@ g3l_tagging_ckmr <- function (
 
     out <- new.env(parent = emptyenv())
     step_f <- g3_step(~{
-        debug_label("g3l_tagging_ckmr: Gather historical record of spawning / spawned stock")
+        debug_label("g3l_ckmr_po: Gather historical record of spawning / spawned stock")
     })
     for (parent_stock in parent_stocks) {
         # TODO: f_concatenate won't do what we want here, environment won't be merged, see R/action_mature.R
@@ -62,7 +62,7 @@ g3l_tagging_ckmr <- function (
     nll <- 0.0
 
     out[[step_id(run_at, 'g3l_tagging', nll_name, 2)]] <- g3_step(f_substitute(~{
-        debug_label("g3l_tagging_ckmr: Work out expected pairs and compare to existing data")
+        debug_label("g3l_ckmr_po: Work out expected pairs and compare to existing data")
 
         # Iterate over sensible spawning_year / offspring_age / parent_age combinations
         stock_with(modelhist, if (cur_step_final) {

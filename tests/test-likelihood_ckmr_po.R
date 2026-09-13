@@ -3,7 +3,7 @@ library(unittest)
 
 library(gadget3)
 
-ok_group("g3l_tagging_ckmr", {
+ok_group("g3l_ckmr_po", {
     # Length groups chosen so VonB (Linf=100, K=0.15, t0=0) places fish within range:
     #   age 5 -> ~42 cm, age 10 -> ~62 cm, offspring ages 0-4 -> 0-35 cm
     parent_st <- g3_stock("parent", seq(20, 100, 10)) |> g3s_age(5, 10)
@@ -32,7 +32,7 @@ ok_group("g3l_tagging_ckmr", {
                 p0 = 1, p1 = 0, p2 = 0, p3 = 1, p4 = 0),
             output_stocks = list(offspring_st),
             run_step = 1),
-        g3l_tagging_ckmr(
+        g3l_ckmr_po(
             "ckmr",
             obs_data,
             parent_stocks = list(parent_st),

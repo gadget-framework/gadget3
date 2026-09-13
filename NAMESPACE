@@ -131,8 +131,8 @@ export(g3l_sparsesample)
 export(g3l_random_dnorm)
 export(g3l_random_walk)
 
-# R/likelihood_tagging_ckmr.R
-export(g3l_tagging_ckmr)
+# R/likelihood_ckmr_po.R
+export(g3l_ckmr_po)
 
 # R/likelihood_understocking.R
 export(g3l_understocking)

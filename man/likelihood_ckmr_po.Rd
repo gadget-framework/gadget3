@@ -1,5 +1,5 @@
-\name{likelihood_tagging_ckmr}
-\alias{g3l_tagging_ckmr}
+\name{likelihood_ckmr_po}
+\alias{g3l_ckmr_po}
 \concept{G3 action}
 
 \title{Gadget3 CKMR likelihood}
@@ -8,7 +8,7 @@
 }
 
 \usage{
-g3l_tagging_ckmr(
+g3l_ckmr_po(
         nll_name,
         obs_data,
         parent_stocks,
@@ -74,7 +74,7 @@ g3l_tagging_ckmr(
 }
 
 \value{
-  \subsection{g3l_tagging_ckmr}{An action (i.e. list of formula objects) that will...\enumerate{
+  \subsection{g3l_ckmr_po}{An action (i.e. list of formula objects) that will...\enumerate{
     \item{For all \var{parent_stocks} and \var{offspring_stocks}, collect spawing rate into
     \var{modelhist}__spawning and \var{modelhist}__spawned, total number of parents and total number of spawned offspring respectively}
     \item{For all \var{fleets}, collect catch data into \var{modelhist}__catch}
