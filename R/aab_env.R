@@ -2,6 +2,9 @@
 # NB: baseenv() is above this to allow evaluating of g3_param_table expressions
 g3_env <- new.env(parent = baseenv())
 
+# dpois() has to have matching Type arguments, double won't be implicitly cast
+g3_env$dpois <- g3_native(r = "dpois", cpp = list("dpois", "Type", "Type", "int"))
+
 # Redefine lgamma for vectors with stricter types
 # NB: VECTORIZE1_t-ed lgamma needs a single vector to work (i.e. not
 #     an expression). Eigen evaluates lazily, and any expression needs
