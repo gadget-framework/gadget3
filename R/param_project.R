@@ -331,6 +331,85 @@ g3_param_project_logar1 <- function (
             list(phi_f = phi_f, lstddev_f = lstddev_f, loglevel_f = loglevel_f, lastx_f = lastx_f) ))
 }
 
+g3_param_project_bootstrap <- function (
+        from_year_f = quote(start_year),
+        to_year_f = quote(end_year),
+        block_size_f = 1L ) {
+    # NB: from_y / to_y are 0-based year offsets from start_year, block_size is in years
+    #     Whole years are copied, so per-step values keep their within-year pattern
+    g3_param_project_bootstrap <- g3_native(r = function (logvar, from_y, to_y, block_size, total_years, step_count) {
+        # logvar: log-space values by year (or year/step), finite for years from parameters, NaN for years to project
+        if (all(is.finite(logvar))) return(logvar)
+        epy <- if (length(logvar) == total_years) 1L else step_count  # Entries per year
+
+        # Only sample from years before projection starts (also excludes retro years)
+        first_proj_y <- (which(!is.finite(logvar))[[1]] - 1L) %/% epy
+        from_y <- max(from_y, 0L)
+        to_y <- min(to_y, first_proj_y - 1L)
+        pool_size <- to_y - from_y + 1L
+        if (pool_size < 1L || block_size < 1L) return(logvar)  # Nothing to sample from, leave as NaN
+        block_size <- min(block_size, pool_size)  # Blocks can't be longer than the pool
+
+        y <- first_proj_y
+        while (y < total_years) {
+            # Start a new block at a random year in the pool, such that the whole block fits within the pool
+            start <- floor(stats::runif(1) * (pool_size - block_size + 1L))
+            for (j in seq_len(min(block_size, total_years - y)) - 1L) {
+                src_y <- from_y + start + j
+                for (s in seq_len(epy)) {
+                    # logvar[y, s] = logvar[src_y, s], i.e. copy whole year. Final year may be truncated, so check dst
+                    dst <- y * epy + s
+                    if (dst <= length(logvar) && !is.finite(logvar[[dst]])) logvar[[dst]] <- logvar[[src_y * epy + s]]
+                }
+                y <- y + 1L
+            }
+        }
+        return(logvar)
+    }, cpp = '[](array<Type> logvar, int from_y, int to_y, int block_size, int total_years, int step_count) -> vector<Type> {
+        // logvar: log-space values by year (or year/step), finite for years from parameters, NaN for years to project
+        if (logvar.allFinite()) return logvar;
+        int epy = logvar.size() == total_years ? 1 : step_count;  // Entries per year
+
+        // Only sample from years before projection starts (also excludes retro years)
+        int first_proj = 0;
+        while (logvar.segment(first_proj, 1).allFinite()) first_proj++;
+        int first_proj_y = first_proj / epy;
+        if (from_y < 0) from_y = 0;
+        if (to_y > first_proj_y - 1) to_y = first_proj_y - 1;
+        int pool_size = to_y - from_y + 1;
+        if (pool_size < 1 || block_size < 1) return logvar;  // Nothing to sample from, leave as NaN
+        if (block_size > pool_size) block_size = pool_size;  // Blocks cannot be longer than the pool
+
+        int y = first_proj_y;
+        while (y < total_years) {
+            // Start a new block at a random year in the pool, such that the whole block fits within the pool
+            int start = (int)floor(asDouble(runif(Type(0), Type(1))) * (pool_size - block_size + 1));
+            for (int j = 0; j < block_size && y < total_years; j++, y++) {
+                int src_y = from_y + start + j;
+                for (int s = 0; s < epy; s++) {
+                    // logvar[y, s] = logvar[src_y, s], i.e. copy whole year. Final year may be truncated, so check dst
+                    int dst = y * epy + s;
+                    if (dst < logvar.size() && !logvar.segment(dst, 1).allFinite()) logvar(dst) = logvar(src_y * epy + s);
+                }
+            }
+        }
+        return logvar;
+    }')
+
+    list(
+        name = "bootstrap",
+        nll = ~0,
+        project = f_substitute(
+            ~g3_param_project_bootstrap(
+                projstock__lvar,
+                as_integer(from_year_f - start_year),
+                as_integer(to_year_f - start_year),
+                as_integer(block_size_f),
+                as_integer(total_years),
+                as_integer(step_count) ),
+            list(from_year_f = from_year_f, to_year_f = to_year_f, block_size_f = block_size_f) ))
+}
+
 g3_param_project <- function (
         param_name,
         project_fs = g3_param_project_rwalk(),

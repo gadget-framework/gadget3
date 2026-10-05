@@ -3,6 +3,9 @@
 ## Bug fixes
 * g3_to_r(): Convert logarithmic (type = "LOG") parameters to log space when given a list of parameters, as with a data.frame
 
+## New features
+* g3_param_project_bootstrap(): Project by (block) bootstrap resampling of existing values
+
 # gadget3 0.15-0:
 
 ## Bug fixes
