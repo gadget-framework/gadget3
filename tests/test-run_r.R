@@ -48,6 +48,8 @@ ok_group('print.g3_r', {
         "        param <- structure(param$value, names = param$switch)",
         "    }",
         "    else {",
+        "        logarithmic <- intersect(character(0), names(param))",
+        "        param[logarithmic] <- lapply(param[logarithmic], log)",
         "        param_lower <- lapply(param, function(x) NA)",
         "        param_upper <- lapply(param, function(x) NA)",
         "    }",
@@ -76,6 +78,8 @@ ok_group('print.g3_r', {
         "        param <- structure(param$value, names = param$switch)",
         "    }",
         "    else {",
+        "        logarithmic <- intersect(character(0), names(param))",
+        "        param[logarithmic] <- lapply(param[logarithmic], log)",
         "        param_lower <- lapply(param, function(x) NA)",
         "        param_upper <- lapply(param, function(x) NA)",
         "    }",
@@ -235,4 +239,22 @@ ok_group('parameter data.frame', {
 
     df <- data.frame(switch = c("archibald"), type = "", lower = 0, upper = 100, value = I(list(floor(runif(1, 100, 200)))))
     ok(ut_cmp_equal(as.numeric(model_fn(df)), as.numeric(df$value)), "data.frame accepted as input")
+})
+
+ok_group('logarithmic parameters', {
+    actions <- list(g3_formula(
+        return(c(x, y, z)),
+        x = quote( g3_param("parx", value = 45, type = "LOG") ),
+        y = quote( g3_param("pary", value = 10) ),
+        z = quote( g3_param_table("pt", expand.grid(cur_year = 2000), value = 4, type = "LOG") ),
+        cur_year = 2000L ))
+    model_fn <- g3_to_r(actions)
+    df <- attr(g3_to_tmb(actions), 'parameter_template')
+
+    ok(ut_cmp_identical(
+        attr(model_fn, 'parameter_template')[c('parx', 'pary', 'pt.2000')],
+        list(parx = 45, pary = 10, pt.2000 = 4) ), "parameter_template: Logarithmic parameters in linear space")
+    ok(ut_cmp_equal(model_fn(), c(log(45), 10, log(4))), "Default parameter_template: Logarithmic parameters converted to log space")
+    ok(ut_cmp_equal(model_fn(list(parx = 99, pary = 99, pt.2000 = 99)), c(log(99), 99, log(99))), "List parameters: Logarithmic parameters converted to log space")
+    ok(ut_cmp_equal(model_fn(df), model_fn()), "data.frame parameters: Same as list parameters")
 })

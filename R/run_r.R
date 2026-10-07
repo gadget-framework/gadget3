@@ -47,8 +47,10 @@ g3_to_r <- function(
             df_template <- function (name, dims = c(1), sub_param_idx = NULL) {
                 # Extract named args from g3_param() call
                 value <- find_arg('value', 0, sub_param_idx = sub_param_idx)
+                type <- find_arg('type', "")
 
-                structure(list(value), names = name)
+                # NB: Record logarithmic parameters, so list parameters can be converted at runtime
+                structure(list(value), names = name, logarithmic = grepl("(^|:)LOG(:|$)", type))
             }
             if (length(x) < 2 || !is.character(x[[2]])) stop("You must supply a name for the g3_param in ", deparse(x))
             if (x[[1]] == 'g3_param_table') {
@@ -206,6 +208,12 @@ g3_to_r <- function(
     # Define all vars, populating scope as side effect
     all_actions_code <- var_defns(rlang::f_rhs(all_actions), rlang::f_env(all_actions))
 
+    # Names of all logarithmic parameters, which need converting to log space
+    log_params <- as.character(unlist(lapply(scope, function (val) {
+        tmpl <- attr(val, 'param_template')
+        if (isTRUE(attr(tmpl, 'logarithmic'))) names(tmpl) else NULL
+    })))
+
     # Bodge gen_dimnames into environment
     # NB: That we need to do this is a bug
     if (exists('gen_dimnames', environment(all_actions), inherits = TRUE)) {
@@ -218,7 +226,7 @@ g3_to_r <- function(
     out <- call("function", pairlist(param = quote( parameter_template )), as.call(c(
         list(as.symbol(open_curly_bracket)),
         # Prefix with df -> list converstion, if needed
-        list(quote( if (is.data.frame(param)) {
+        list(substitute( if (is.data.frame(param)) {
             param_lower <- structure(param$lower, names = param$switch)
             param_upper <- structure(param$upper, names = param$switch)
             logarithmic <- grepl("(^|:)LOG(:|$)", param$type)
@@ -227,10 +235,13 @@ g3_to_r <- function(
             param_upper[logarithmic] <- lapply(param_upper[logarithmic], log)
             param <- structure(param$value, names = param$switch)
         } else {
+            # Take the log of any logarithmic parameters, as with data.frame above
+            logarithmic <- intersect(log_params, names(param))
+            param[logarithmic] <- lapply(param[logarithmic], log)
             # No bounds, map to NA
             param_lower <- lapply(param, function (x) NA)
             param_upper <- lapply(param, function (x) NA)
-        } )),
+        }, list(log_params = log_params) )),
         scope,
         all_actions_code )))
 
