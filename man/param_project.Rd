@@ -55,7 +55,8 @@ g3_param_project_ar1(
             "proj.ar1.level",
             value = 0,
             prepend_extra = quote(param_name) ),
-        lastx_f = 0L)
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_logar1(
         phi_f = g3_parameterized(
@@ -70,7 +71,8 @@ g3_param_project_logar1(
             "proj.logar1.level",
             value = 1, type = "LOG",
             prepend_extra = quote(param_name) ),
-        lastx_f = 0L)
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_bootstrap(
         from_year_f = quote(start_year),
@@ -99,18 +101,15 @@ g3_param_project(
     (logspace) level (or offset) applied on top of ar1/logar1 regression.
     Defaults to parameter with name \code{(by_stock).(param_name).proj.(level|loglevel)},
   }
-  \item{lastx_f}{
-    If \code{> 0}, the setting of \var{level_f} / \var{loglevel_f} will be ignored,
-    and the mean of the last (x) non-projection values are used as (log)level.
-    Defaults to 0L, i.e. disabled.
-  }
   \item{from_year_f, to_year_f}{
     First / last year (inclusive) of existing values to sample from (\code{g3_param_project_bootstrap}),
-    or to use the mean of (\code{g3_param_project_dlnorm}, \code{g3_param_project_dnorm}).
+    or to use the mean of (\code{g3_param_project_dlnorm}, \code{g3_param_project_dnorm},
+    \code{g3_param_project_ar1}, \code{g3_param_project_logar1}).
     Years from \var{to_year_f} onwards that are projected (e.g. removed by \var{retro_years}) are never used.
     For \code{g3_param_project_bootstrap}, defaults to the whole non-projected model period.
-    For \code{g3_param_project_dlnorm} / \code{g3_param_project_dnorm}, defaults to \code{NULL}, i.e. use \var{lmean_f} / \var{mean_f}.
-    If either is set, \var{lmean_f} / \var{mean_f} is ignored, and the other defaults to the start / end of the model period.
+    For the others, defaults to \code{NULL}, i.e. use \var{lmean_f} / \var{mean_f} / \var{level_f} / \var{loglevel_f}.
+    If either is set, \var{lmean_f} / \var{mean_f} / \var{level_f} / \var{loglevel_f} is ignored,
+    and the other defaults to the start / end of the model period.
   }
   \item{block_size_f}{
     Number of consecutive years to copy for each sample, i.e. a block bootstrap.
@@ -230,7 +229,8 @@ g3_param_project(
     \deqn{ v_t = \phi v_{t-1} + (1 - \phi) \theta + \epsilon_{0,\sigma} }
     \describe{
       \item{\eqn{\phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
-      \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter}
+      \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, the mean of existing values between them}
       \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
@@ -245,7 +245,8 @@ g3_param_project(
     \deqn{ v = exp(V) }
     \describe{
       \item{\eqn{\Phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
-      \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
+      \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, \eqn{log(mean(v_t))} for existing values between them}
       \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}

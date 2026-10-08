@@ -5,7 +5,12 @@
 
 ## New features
 * g3_param_project_bootstrap(): Project by (block) bootstrap resampling of existing values
-* g3_param_project_dlnorm() / g3_param_project_dnorm(): from_year_f / to_year_f to use the mean of existing values instead of lmean_f / mean_f
+* g3_param_project_dlnorm() / g3_param_project_dnorm() / g3_param_project_ar1() / g3_param_project_logar1(): from_year_f / to_year_f to use the mean of existing values instead of lmean_f / mean_f / level_f / loglevel_f
+
+## Breaking changes
+* g3_param_project_ar1() / g3_param_project_logar1(): lastx_f removed, use from_year_f / to_year_f instead. lastx_f's nll used a different level in R & TMB, and included projected values.
+  For g3_param_project_logar1(), the level is now the log of the arithmetic mean, not the mean of logs, as with g3_param_project_dlnorm()
+* g3_param_project_ar1(): Negative levels are no longer clamped to 0 when calculating nll
 
 # gadget3 0.15-0:
 

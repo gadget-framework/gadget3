@@ -154,7 +154,7 @@ ok(ut_cmp_equal(
         params.in["stst.rec.proj.ar1.stddev", "value"][[1]],
         1 )))), "r$proj_ar1_stst_rec__nll: Consistent with proj_ar1_stst_rec__var")
 
-ok_group("lastx mode", local({ ################################################
+ok_group("from_year_f / to_year_f mode", local({ ##############################
 
     st_imm <- g3_stock(c("stst", maturity = "imm"), c(10, 20, 30)) |> g3s_age(0, 5)
     st_mat <- g3_stock(c("stst", maturity = "mat"), c(10, 20, 30)) |> g3s_age(3, 15)
@@ -177,7 +177,7 @@ ok_group("lastx mode", local({ ################################################
             g3a_spawn_recruitment_hockeystick(
                 r0 = g3_param_project(
                     "rec",
-                    g3_param_project_ar1(lastx_f = g3_parameterized("lastx", value = 2)),
+                    g3_param_project_ar1(from_year_f = g3_parameterized("pool_from", value = 1992L, optimise = FALSE)),
                     random = FALSE,
                     scale = "rec.scalar",
                     by_stock = stocks_st,
@@ -199,7 +199,7 @@ ok_group("lastx mode", local({ ################################################
         g3_init_val("stst.rec.proj.ar1.stddev", 0) |>  # i.e. no noise
         g3_init_val("stst.rec.proj.ar1.phi", 0) |>
         g3_init_val("stst_mat.spawn.blim", 1e2) |>  # blim too low to trigger
-        g3_init_val("lastx", floor(runif(1, 1, 4))) |>
+        g3_init_val("pool_from", 1990L + floor(runif(1, 0, 4))) |>  # i.e. to_year_f defaults to 1994
 
         g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
         g3_init_val("*.Linf", max(g3_stock_def(st_imm, "midlen")), spread = 0.2) |>
@@ -210,14 +210,30 @@ ok_group("lastx mode", local({ ################################################
         g3_init_val("project_years", 100) |>
         identity() -> params.in
     nll <- model_fn(params.in) ; r <- attributes(nll) ; nll <- as.vector(nll)
+    pool_years <- as.character(seq(params.in["pool_from", "value"][[1]], 1994))
 
     ok(!("stst.rec.proj.ar1.level" %in% names(params.in)), "level parameter disabled")
 
     ok(ut_cmp_equal(nll, sum(r$proj_ar1_stst_rec__nll)), "nll: Consistent with r$proj_ar1_stst_rec__nll (sums to same values)")
     ok(ut_cmp_equal(
         as.vector( r$proj_ar1_stst_rec__var[length(r$proj_ar1_stst_rec__var)] ),
-        as.vector( mean(r$proj_ar1_stst_rec__var[as.character(seq(1994 - params.in["lastx", "value"][[1]] + 1, 1994))]) ),
-        tolerance = 1e-6 ), paste0("proj_ar1_stst_rec__var: Settled to mean of lastx (", params.in$lastx, ")"))
+        as.vector( mean(r$proj_ar1_stst_rec__var[pool_years]) ),
+        tolerance = 1e-6 ), paste0("proj_ar1_stst_rec__var: Settled to mean of ", params.in["pool_from", "value"][[1]], "..1994"))
 
+    gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
+
+    # nll uses the mean of from_year_f..to_year_f as level
+    params.in <- params.in |>
+        g3_init_val("stst.rec.proj.ar1.stddev", 5000) |>
+        g3_init_val("stst.rec.proj.ar1.phi", 0.5) |>
+        g3_init_val("proj_ar1_stst_weight.proj_ar1_rec_weight", 1) |>
+        g3_init_val("project_years", 5)
+    r <- attributes(model_fn(params.in))
+    v <- r$proj_ar1_stst_rec__var ; names(v) <- substr(names(v), 1, 4)
+    lvl <- mean(v[pool_years])
+    ok(ut_cmp_equal(
+        as.vector(r$proj_ar1_stst_rec__nll),
+        as.vector(c(0, -dnorm(tail(v, -1) - 0.5 * head(v, -1) - (1 - 0.5) * lvl, 0, 5000, log = TRUE))),
+        tolerance = 1e-7 ), "proj_ar1_stst_rec__nll: Level is the mean of pool years")
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params.in)
 }))
