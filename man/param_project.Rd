@@ -20,7 +20,9 @@ g3_param_project_dlnorm(
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized("proj.dlnorm.stddev",
             value = 0.2, optimise = FALSE, type = "LOG",
-            prepend_extra = quote(param_name) ))
+            prepend_extra = quote(param_name) ),
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_dnorm(
         mean_f = g3_parameterized("proj.dnorm.mean",
@@ -28,7 +30,9 @@ g3_param_project_dnorm(
             prepend_extra = quote(param_name) ),
         stddev_f = g3_parameterized("proj.dnorm.stddev",
             value = 1, optimise = FALSE,
-            prepend_extra = quote(param_name) ))
+            prepend_extra = quote(param_name) ),
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_rwalk(
         mean_f = g3_parameterized("proj.rwalk.mean",
@@ -51,7 +55,8 @@ g3_param_project_ar1(
             "proj.ar1.level",
             value = 0,
             prepend_extra = quote(param_name) ),
-        lastx_f = 0L)
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_logar1(
         phi_f = g3_parameterized(
@@ -66,7 +71,8 @@ g3_param_project_logar1(
             "proj.logar1.level",
             value = 1, type = "LOG",
             prepend_extra = quote(param_name) ),
-        lastx_f = 0L)
+        from_year_f = NULL,
+        to_year_f = NULL )
 
 g3_param_project_bootstrap(
         from_year_f = quote(start_year),
@@ -95,15 +101,15 @@ g3_param_project(
     (logspace) level (or offset) applied on top of ar1/logar1 regression.
     Defaults to parameter with name \code{(by_stock).(param_name).proj.(level|loglevel)},
   }
-  \item{lastx_f}{
-    If \code{> 0}, the setting of \var{level_f} / \var{loglevel_f} will be ignored,
-    and the mean of the last (x) non-projection values are used as (log)level.
-    Defaults to 0L, i.e. disabled.
-  }
   \item{from_year_f, to_year_f}{
-    First / last year (inclusive) of existing values to sample from.
-    Years from \var{to_year_f} onwards that are projected (e.g. removed by \var{retro_years}) are never sampled.
-    Defaults to the whole non-projected model period.
+    First / last year (inclusive) of existing values to sample from (\code{g3_param_project_bootstrap}),
+    or to use the mean of (\code{g3_param_project_dlnorm}, \code{g3_param_project_dnorm},
+    \code{g3_param_project_ar1}, \code{g3_param_project_logar1}).
+    Years from \var{to_year_f} onwards that are projected (e.g. removed by \var{retro_years}) are never used.
+    For \code{g3_param_project_bootstrap}, defaults to the whole non-projected model period.
+    For the others, defaults to \code{NULL}, i.e. use \var{lmean_f} / \var{mean_f} / \var{level_f} / \var{loglevel_f}.
+    If either is set, \var{lmean_f} / \var{mean_f} / \var{level_f} / \var{loglevel_f} is ignored,
+    and the other defaults to the start / end of the model period.
   }
   \item{block_size_f}{
     Number of consecutive years to copy for each sample, i.e. a block bootstrap.
@@ -158,11 +164,16 @@ g3_param_project(
     \deqn{ V_t = \epsilon_{M - \frac{e^{2*\Sigma}}{2},\Sigma} }
     \deqn{ v = exp(V) }
     \describe{
-      \item{\eqn{M}}{\var{lmean_f} / \code{(by_stock).(param_name).proj.lmean} parameter}
+      \item{\eqn{M}}{\var{lmean_f} / \code{(by_stock).(param_name).proj.lmean} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, \eqn{log(mean(v_t))} for existing values between them}
       \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
     }
+    With \var{from_year_f} / \var{to_year_f} and a \var{lstddev_f} of 0 (i.e. \eqn{\Sigma = -\infty}),
+    projected values are a constant arithmetic mean of existing values.
+    The nll is then infinite, so this is only useful for projections, not fitting.
+    When computing nll, the mean also includes any projected values within \var{from_year_f} / \var{to_year_f}.
 
     \describe{
       \item{nll}{Compare values against \code{dnorm(x, mean_f, stddev_f)}}
@@ -176,11 +187,16 @@ g3_param_project(
     The functions compare / generate log-normal deviates around a mean, i.e:
     \deqn{ v_t = \epsilon_{\mu,\sigma} }
     \describe{
-      \item{\eqn{\mu}}{\var{mean_f} / \code{(by_stock).(param_name).proj.mean} parameter}
+      \item{\eqn{\mu}}{\var{mean_f} / \code{(by_stock).(param_name).proj.mean} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, the mean of existing values between them}
       \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
     }
+    With \var{from_year_f} / \var{to_year_f} and a \var{stddev_f} of 0,
+    projected values are a constant mean of existing values.
+    The nll is then infinite, so this is only useful for projections, not fitting.
+    When computing nll, the mean also includes any projected values within \var{from_year_f} / \var{to_year_f}.
 
     \describe{
       \item{nll}{Compare values against \code{dnorm(x, mean_f, stddev_f)}}
@@ -213,7 +229,8 @@ g3_param_project(
     \deqn{ v_t = \phi v_{t-1} + (1 - \phi) \theta + \epsilon_{0,\sigma} }
     \describe{
       \item{\eqn{\phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
-      \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter}
+      \item{\eqn{\theta}}{\var{level_f} / \code{(by_stock).(param_name).proj.level} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, the mean of existing values between them}
       \item{\eqn{\sigma}}{\var{stddev_f} / \code{(by_stock).(param_name).proj.stddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
@@ -228,7 +245,8 @@ g3_param_project(
     \deqn{ v = exp(V) }
     \describe{
       \item{\eqn{\Phi}}{\var{phi_f} / \code{(by_stock).(param_name).proj.phi} parameter}
-      \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter}
+      \item{\eqn{\Theta}}{\var{loglevel_f} / \code{(by_stock).(param_name).proj.loglevel} parameter,
+        or if \var{from_year_f} / \var{to_year_f} are set, \eqn{log(mean(v_t))} for existing values between them}
       \item{\eqn{\Sigma}}{\var{lstddev_f} / \code{(by_stock).(param_name).proj.lstddev} parameter, if 0 1e-7 is used, so we don't return Inf}
       \item{\eqn{\epsilon_{\mu,\sigma}}}{Normally distributed noise generated using \code{\link{rnorm}}}
       \item{\eqn{v}}{Output time series}
