@@ -5,6 +5,7 @@
 
 ## New features
 * g3_param_project_bootstrap(): Project by (block) bootstrap resampling of existing values
+* g3_param_project_dlnorm() / g3_param_project_dnorm(): from_year_f / to_year_f to use the mean of existing values instead of lmean_f / mean_f
 
 # gadget3 0.15-0:
 

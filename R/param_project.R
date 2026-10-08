@@ -1,13 +1,67 @@
+# Mean of existing (finite) values for years from_y..to_y (0-based offsets from start_year), for
+# g3_param_project_dlnorm/dnorm(from_year_f, to_year_f). If logspace, values are log, and the
+# result is the log of the arithmetic mean, i.e. log(mean(exp(var))).
+# NB: Projected values haven't been generated yet when projecting, so are NaN and ignored,
+#     which also excludes years removed by retro_years
+g3_env$param_project_pool_mean <- g3_native(r = function (var, from_y, to_y, total_years, step_count, logspace) {
+    epy <- if (length(var) == total_years) 1L else step_count  # Entries per year
+    from_y <- max(from_y, 0L)
+    idx <- seq_len(max(to_y - from_y + 1L, 0L) * epy) + from_y * epy
+    x <- var[idx[idx <= length(var)]]
+    x <- x[is.finite(x)]
+    if (logspace) log(mean(exp(x))) else mean(x)
+}, cpp = '[](array<Type> var, int from_y, int to_y, int total_years, int step_count, int logspace) -> Type {
+    int epy = var.size() == total_years ? 1 : step_count;  // Entries per year
+    if (from_y < 0) from_y = 0;
+
+    Type total = 0;
+    int n = 0;
+    for (int i = from_y * epy; i < (to_y + 1) * epy && i < var.size(); i++) {
+        if (!var.segment(i, 1).allFinite()) continue;
+        total += logspace ? (Type)exp(var(i)) : var(i);
+        n++;
+    }
+    if (n == 0) return R_NaN;  // Nothing in pool, as R mean(c())
+    return logspace ? (Type)log(total / n) : (Type)(total / n);
+}')
+
+# Formula for the mean of existing values in var_sym between from_year_f & to_year_f, see param_project_pool_mean
+# from_year_f & to_year_f default to the whole model period
+param_project_pool_mean_f <- function (var_sym, from_year_f, to_year_f, logspace) {
+    if (is.null(from_year_f)) from_year_f <- quote(start_year)
+    if (is.null(to_year_f)) to_year_f <- quote(end_year)
+    f_substitute(
+        ~param_project_pool_mean(
+            var_sym,
+            as_integer(from_year_f - start_year),
+            as_integer(to_year_f - start_year),
+            as_integer(total_years),
+            as_integer(step_count),
+            logspace ),
+        list(
+            var_sym = var_sym,
+            from_year_f = from_year_f,
+            to_year_f = to_year_f,
+            logspace = if (logspace) 1L else 0L ))
+}
+
 g3_param_project_dlnorm <- function (
         lmean_f = g3_parameterized("proj.dlnorm.mean",
             value = 1e-5, optimise = FALSE, type = "LOG",
             prepend_extra = quote(param_name) ),
         lstddev_f = g3_parameterized("proj.dlnorm.stddev",
             value = 0.2, optimise = FALSE, type = "LOG",
-            prepend_extra = quote(param_name) )) {
+            prepend_extra = quote(param_name) ),
+        from_year_f = NULL,
+        to_year_f = NULL ) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
     # lmean_f = log(mean(exp(lvar)))
     # lstddev_f = log(sd(lvar))
+
+    # Use the (log) arithmetic mean of existing values from_year_f..to_year_f instead of lmean_f
+    if (!is.null(from_year_f) || !is.null(to_year_f)) {
+        lmean_f <- param_project_pool_mean_f(quote(projstock__lvar), from_year_f, to_year_f, logspace = TRUE)
+    }
 
     # NB: Only real purpose is to cast the var to .vec()
     g3_param_project_nll_dlnorm <- g3_native(r = function (lvar, lmean, lstddev) {
@@ -46,8 +100,15 @@ g3_param_project_dnorm <- function (
             prepend_extra = quote(param_name) ),
         stddev_f = g3_parameterized("proj.dnorm.stddev",
             value = 1, optimise = FALSE,
-            prepend_extra = quote(param_name) )) {
+            prepend_extra = quote(param_name) ),
+        from_year_f = NULL,
+        to_year_f = NULL ) {
     # https://eigen.tuxfamily.org/dox/group__TutorialSlicingIndexing.html
+
+    # Use the mean of existing values from_year_f..to_year_f instead of mean_f
+    if (!is.null(from_year_f) || !is.null(to_year_f)) {
+        mean_f <- param_project_pool_mean_f(quote(projstock__var), from_year_f, to_year_f, logspace = FALSE)
+    }
 
     # NB: Only real purpose is to cast the var to .vec()
     g3_param_project_nll_dnorm <- g3_native(r = function (var, mean, stddev) {
