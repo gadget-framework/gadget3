@@ -20,6 +20,7 @@ Encoding: UTF-8
 Depends: R (>= 4.2.0)
 Imports:
     digest,
+    RcppEigen,
     rlang (>= 0.4.5),
     stats,
     TMB (>= 1.7.0),
