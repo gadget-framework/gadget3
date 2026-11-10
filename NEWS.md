@@ -1,5 +1,8 @@
 # gadget3 0.15-1-999:
 
+The 1.0 release coincides with the publishing of the introductory gadget3 paper
+"gadget3: An evolution of the gadget modelling framework": https://doi.org/10.1016/j.fishres.2026.107903.
+
 # gadget3 0.15-0:
 
 ## Bug fixes
