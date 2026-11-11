@@ -1,3 +1,5 @@
+# gadget3 1.0-0-999:
+
 # gadget3 1.0-0:
 
 The 1.0 release coincides with the publishing of the introductory gadget3 paper
