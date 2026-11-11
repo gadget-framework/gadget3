@@ -1,0 +1,64 @@
+# Build a source tarball for any versioned release, attach it to a GitHub release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+name: Build release tarball
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::mfdb
+          needs: build
+
+      - name: Build tarball
+        id: build
+        run: |
+          R CMD build .
+          PACKAGE="$(awk '/^Package: / { print $2 }' DESCRIPTION)"
+          VERSION="$(awk '/^Version: / { print $2 }' DESCRIPTION)"
+          TARBALL="${PACKAGE}_${VERSION}.tar.gz"
+          [ "v${VERSION}" = "${GITHUB_REF_NAME}" ] || { echo "::error::Tag ${GITHUB_REF_NAME} doesn't match DESCRIPTION version ${VERSION}"; exit 1; }
+          [ -f "${TARBALL}" ]
+          echo "tarball=${TARBALL}" >> "$GITHUB_OUTPUT"
+          # Release notes are the first section of NEWS.md, minus the header
+          awk 'NR > 1 && /^# / { exit } NR > 1 { print }' NEWS.md > release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.tarball }}
+          path: ${{ steps.build.outputs.tarball }}
+
+      - name: Create / update GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${{ steps.build.outputs.tarball }}" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "${{ steps.build.outputs.tarball }}" \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file release-notes.md \
+              --verify-tag
+          fi
