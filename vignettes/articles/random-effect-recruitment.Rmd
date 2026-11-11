@@ -71,8 +71,15 @@ set.seed(old.seed)
 actions <- list(
     g3a_time(2000, 2030, step_lengths = c(6,6)),
     g3a_age(stocks$imm),
-    g3a_initialconditions_normalcv(stocks$imm),
-    g3a_naturalmortality(stocks$imm),
+    g3a_initialconditions_normalcv(stocks$imm, factor_f = g3a_renewal_initabund(
+        # Single initial abundance, age structure then comes from M & init.F, rather than a free parameter per age
+        init = g3_parameterized("init", by_stock = TRUE),
+        # Single M, not per-age. Not enough data to inform the model otherwise
+        M = g3_parameterized("M", by_stock = TRUE),
+        # Age 1 is recruited in the first year, so would be confounded with renewal
+        proportion_f = ~if (age < 2) 0 else 1 )),
+    g3a_naturalmortality(stocks$imm, g3a_naturalmortality_exp(
+        g3_parameterized("M", by_stock = TRUE) )),
     g3a_growmature(stocks$imm, g3a_grow_impl_bbinom(maxlengthgroupgrowth = 4L)),
     g3a_renewal_normalparam(
       stocks$imm,
@@ -113,9 +120,10 @@ the inner optimistation will choose values that meet the distribution.
 ## Define baseline parameters / fixed-effects
 attr(model_cpp, "parameter_template") |>
   g3_init_val("*.init.scalar", 10, optimise = FALSE) |>
-  g3_init_val("*.init.#", 10, lower = 1e1, upper = 1e8) |>
-  g3_init_val("*.M.#", 0.5, lower = 0.1, upper = 1) |>
-  g3_init_val("init.F", 0.5, lower = 0.1, upper = 10) |>
+  g3_init_val("*.init", 1e4, lower = 1e1, upper = 1e8) |>
+  g3_init_val("*.M", 0.5, lower = 0.1, upper = 1) |>
+  # NB: Fix init.F, otherwise the optimiser would trade it off against M
+  g3_init_val("init.F", 0.1, optimise = FALSE) |>
   g3_init_val("*_imm.Linf", 144.645) |>
   g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
   # NB: We don't optimise here since the model defines no length/weight structure, only counts
@@ -123,8 +131,8 @@ attr(model_cpp, "parameter_template") |>
   g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
   g3_init_val("*.wbeta", 3, optimise = FALSE) |>
   g3_init_val("*.rec.scalar", 10, optimise = FALSE) |>
-  g3_init_val("fish_imm.rec.proj.logar1.level", value = 2e3, lower = 1e1, upper = 5e5) |>
-  g3_init_val("fish_imm.rec.proj.logar1.stddev", value = 1, lower = 1e-15, upper = 1e4) |>
+  g3_init_val("fish_imm.rec.proj.logar1.level", value = 5e2, lower = 1e1, upper = 5e5) |>
+  g3_init_val("fish_imm.rec.proj.logar1.stddev", value = 0.1, lower = 1e-15, upper = 1e4) |>
   # NB: Relative weight is important, but g3_iterative isn't handling this for you yet
   g3_init_val("proj_logar1_fish_imm_weight.proj_logar1_rec_weight", 1e0) |>
   identity() -> params.in
@@ -136,7 +144,7 @@ which should still work, as the score for fixed & random effects is combined:
 ```{r, optimisation-fixed, cache=FALSE}
 params.in |>
   # NB: level = init value, to be internally consistent
-  g3_init_val("*.rec.#", value = 2e3, lower = 1e1, upper = 1e6, random = FALSE) |>
+  g3_init_val("*.rec.#", value = 5e2, lower = 1e1, upper = 1e6, random = FALSE) |>
   identity() -> params.fixed
 obj.fix <- g3_tmb_adfun(model_cpp, params.fixed, silent = TRUE)
 params.fixout <- gadgetutils::g3_optim(obj.fix, params.fixed, control = list(maxit = 2000, trace = 0))
@@ -148,7 +156,7 @@ Next, optimise the same model but using random effects for recruitment:
 ```{r, optimisation-random, cache=FALSE}
 params.in |>
     # NB: By setting random = TRUE, any previous bounds will be cleared
-    g3_init_val("*.rec.#", value = 2e3, random = TRUE) |>
+    g3_init_val("*.rec.#", value = 5e2, random = TRUE) |>
     identity() -> params.rnd
 obj.rnd <- g3_tmb_adfun(model_cpp, params.rnd, inner.control = list(trace = 0, maxit = 1000, tol = 1e-3), silent = TRUE)
 params.rndout <- gadgetutils::g3_optim(obj.rnd, params.rnd, trace = 0)
@@ -214,7 +222,7 @@ proj_iters <- do.call(cbind, lapply(1:20, function (i) {
     proj <- t(g3_array_agg(
         r$dend_fish_imm__num,
         c('age', 'year'),
-        year = 2025:2060,  # NB: Skip the first years when the model is settling
+        year = 2000:2060,
         age = 4,
         step = 1 ))
     dimnames(proj)[[2]] <- paste0("proj ", i)

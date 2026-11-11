@@ -1,4 +1,8 @@
 importFrom("stats", "as.formula", "formula", "dnorm", "rnorm", "lag")
+# Not actually used:
+# * TMB::compile() needs RcppEigen's headers but TMB only has it as LinkingTo. Binary installations won't install it
+# * We Import, and the below quells the CRAN warnings about not needing it
+importFrom("RcppEigen", "fastLmPure")
 
 # R/aaa_lang.R
 export(g3_native)

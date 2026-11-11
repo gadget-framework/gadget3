@@ -94,26 +94,26 @@ ok_group("g3s_modeltime", {
         r$stock_timeyear__num,
         structure(
             c(104 + 105, 108 + 109),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2002", "2004")))), "stock_timeyear__num: 2002, 2004")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2002", "2004")))), "stock_timeyear__num: 2002, 2004")
     ok(ut_cmp_identical(
         r$stock_timestep__num,
         structure(
             c(100, 107),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2000-01", "2003-02")))), "stock_timestep__num: 2000-01, 2003-02")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2000-01", "2003-02")))), "stock_timestep__num: 2000-01, 2003-02")
     ok(ut_cmp_identical(
         r$stock_timebigstep__num,
         structure(
             c(102, 0),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2001-01", "2003-12")))), "stock_timebigstep__num: 2001-01")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2001-01", "2003-12")))), "stock_timebigstep__num: 2001-01")
     ok(ut_cmp_identical(
         r$stock_modeltime__num,
         structure(
             c(100, 101, 102, 103, 104, 105, 106, 107, 108, 109),
-            .Dim = c(length = 1L, time = 10L),
-            .Dimnames = list(
+            dim = c(length = 1L, time = 10L),
+            dimnames = list(
                 length = "1:Inf",
                 time = c("2000-01", "2000-02", "2001-01", "2001-02", "2002-01", "2002-02", "2003-01",
                     "2003-02", "2004-01", "2004-02")))), "stock_modeltime__num: One of each iterator")
@@ -122,8 +122,8 @@ ok_group("g3s_modeltime", {
         r$stock_modelyear__num,
         structure(
             c(201, 205, 209, 213, 217),
-            .Dim = c(length = 1L, year = 5L),
-            .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year")
+            dim = c(length = 1L, year = 5L),
+            dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year")
 
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
@@ -141,8 +141,8 @@ ok_group("g3s_modeltime:project", {
         r$stock_modeltime__num,
         structure(
             c(100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113),
-            .Dim = c(length = 1L, time = 14L),
-            .Dimnames = list(
+            dim = c(length = 1L, time = 14L),
+            dimnames = list(
                 length = "1:Inf",
                 time = c("2000-01", "2000-02", "2001-01", "2001-02", "2002-01", "2002-02", "2003-01",
                     "2003-02", "2004-01", "2004-02", "2005-01", "2005-02", "2006-01", "2006-02")))), "stock_modeltime__num: One of each iterator")
@@ -151,8 +151,8 @@ ok_group("g3s_modeltime:project", {
         r$stock_modelyear__num,
         structure(
             c(201, 205, 209, 213, 217, 221, 225),
-            .Dim = c(length = 1L, year = 7L),
-            .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004", "2005", "2006")))), "stock_modelyear__num: Aggregated by year")
+            dim = c(length = 1L, year = 7L),
+            dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004", "2005", "2006")))), "stock_modelyear__num: Aggregated by year")
 
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })
@@ -169,26 +169,26 @@ ok_group("g3s_modeltime:final_year_steps", {
         r$stock_timeyear__num,
         structure(
             c(104 + 105, 108),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2002", "2004")))), "stock_timeyear__num: 2002, 2004-01")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2002", "2004")))), "stock_timeyear__num: 2002, 2004-01")
     ok(ut_cmp_identical(
         r$stock_timestep__num,
         structure(
             c(100, 107),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2000-01", "2003-02")))), "stock_timestep__num: 2000-01, 2003-02")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2000-01", "2003-02")))), "stock_timestep__num: 2000-01, 2003-02")
     ok(ut_cmp_identical(
         r$stock_timebigstep__num,
         structure(
             c(102, 0),
-            .Dim = structure(1:2, .Names = c("length", "time")),
-            .Dimnames = list(length = "1:Inf", time = c("2001-01", "2003-12")))), "stock_timebigstep__num: 2001-01")
+            dim = c(length = 1L, time = 2L),
+            dimnames = list(length = "1:Inf", time = c("2001-01", "2003-12")))), "stock_timebigstep__num: 2001-01")
     ok(ut_cmp_identical(
         r$stock_modeltime__num,
         structure(
             c(100, 101, 102, 103, 104, 105, 106, 107, 108),
-            .Dim = c(length = 1L, time = 9L),
-            .Dimnames = list(
+            dim = c(length = 1L, time = 9L),
+            dimnames = list(
                 length = "1:Inf",
                 time = c("2000-01", "2000-02", "2001-01", "2001-02", "2002-01", "2002-02", "2003-01",
                     "2003-02", "2004-01")))), "stock_modeltime__num: One of each iterator, 2004 a short year")
@@ -197,8 +197,8 @@ ok_group("g3s_modeltime:final_year_steps", {
         r$stock_modelyear__num,
         structure(
             c(201, 205, 209, 213, 108),
-            .Dim = c(length = 1L, year = 5L),
-            .Dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year (2004 short)")
+            dim = c(length = 1L, year = 5L),
+            dimnames = list(length = "1:Inf", year = c("2000", "2001", "2002", "2003", "2004")))), "stock_modelyear__num: Aggregated by year (2004 short)")
 
     gadget3:::ut_tmb_r_compare2(model_fn, model_cpp, params)
 })

@@ -1,6 +1,19 @@
 # make release NEW_VERSION=0.x-0
 # https://cran.r-project.org/submit.html
 
+==== 1.0-0
+
+New release of existing package.
+
+Differences since the previous submission:
+
+  https://github.com/gadget-framework/gadget3/blob/v1.0-0/NEWS.md
+  https://github.com/gadget-framework/gadget3/compare/v0.15-1...v1.0-0
+
+CI test reports can be found here:
+
+  https://github.com/gadget-framework/gadget3/actions/runs/42995859624
+
 ==== 0.15-1
 
 Re-release to fix following NOTEs
