@@ -114,8 +114,6 @@ g3_parameterized <- function(
         return(name_part)
     }
 
-    if (exponentiate) name <- paste0(name, '_exp')
-
     table_defn <- list()
     stock_extra <- NULL
 
@@ -178,6 +176,9 @@ g3_parameterized <- function(
     } else {
         out <- substitute(g3_param(x), list(x = name))
     }
+
+    # log() parameters going into model (we'll exp them further down)
+    if (exponentiate) out$type <- "LOG"
 
     # Add ifmissing to output, turning strings into parameters
     if (!is.null(ifmissing)) {

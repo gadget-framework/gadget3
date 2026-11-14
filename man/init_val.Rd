@@ -17,8 +17,7 @@ g3_init_val(
         upper = if (!is.null(spread)) max(value * (1-spread), value * (1+spread)),
         optimise = !is.null(lower) & !is.null(upper),
         parscale = if (is.null(lower) || is.null(upper)) NULL else 'auto',
-        random = NULL,
-        auto_exponentiate = TRUE)
+        random = NULL)
 }
 
 \arguments{
@@ -57,10 +56,6 @@ g3_init_val(
     Boolean value to set for 'random' column in template.
     If set to TRUE, any existing optimise/lower/upper/parscale values will be cleared.
     Original value left if NULL
-  }
-  \item{auto_exponentiate}{
-    If TRUE, will implicitly match parameters ending with "_exp",
-    and if this is the case \code{log} all \var{value}/\var{lower}/\var{upper} values
   }
 }
 

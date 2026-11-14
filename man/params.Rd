@@ -86,7 +86,7 @@ g3_parameterized(
     Either a numeric constant or character.
     If character, add another parameter for ifmissing, using the same \var{by_stock} value.
   }
-  \item{exponentiate}{Use \code{exp(value)} instead of the raw parameter value. Will add "_exp" to the parameter name.}
+  \item{exponentiate}{Optimise value in log space. Set \code{type="LOG"} on the parameter, and convert back to real space in the model}
   \item{avoid_zero}{If TRUE, wrap parameter with \code{avoid_zero}}
   \item{scale}{
     Use \code{scale * value} instead of the raw parameter value.
