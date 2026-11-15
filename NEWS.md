@@ -1,21 +1,21 @@
 # gadget3 1.0-0-999:
 
+## Bug fixes
+* g3_to_r(): Convert logarithmic (type = "LOG") parameters to log space when given a list of parameters, as with a data.frame #272
+
+## New features
+* g3_param_project_bootstrap(): Project by (block) bootstrap resampling of existing values #272
+* g3_param_project_*(): from_year_f / to_year_f to use the mean of existing values #273
+
+## Breaking changes
+* g3l_tagging_ckmr() renamed to g3l_ckmr_po() #271
+* g3_param_project_ar1() / g3_param_project_logar1(): lastx_f removed, use from_year_f / to_year_f instead. lastx_f's nll used a different level in R & TMB, and included projected values #273
+* g3_param_project_ar1(): Negative levels are no longer clamped to 0 when calculating nll #273
+
 # gadget3 1.0-0:
 
 The 1.0 release coincides with the publishing of the introductory gadget3 paper
 "gadget3: An evolution of the gadget modelling framework": https://doi.org/10.1016/j.fishres.2026.107903.
-
-## Bug fixes
-* g3_to_r(): Convert logarithmic (type = "LOG") parameters to log space when given a list of parameters, as with a data.frame
-
-## New features
-* g3_param_project_bootstrap(): Project by (block) bootstrap resampling of existing values
-* g3_param_project_dlnorm() / g3_param_project_dnorm() / g3_param_project_ar1() / g3_param_project_logar1(): from_year_f / to_year_f to use the mean of existing values instead of lmean_f / mean_f / level_f / loglevel_f
-
-## Breaking changes
-* g3_param_project_ar1() / g3_param_project_logar1(): lastx_f removed, use from_year_f / to_year_f instead. lastx_f's nll used a different level in R & TMB, and included projected values.
-  For g3_param_project_logar1(), the level is now the log of the arithmetic mean, not the mean of logs, as with g3_param_project_dlnorm()
-* g3_param_project_ar1(): Negative levels are no longer clamped to 0 when calculating nll
 
 # gadget3 0.15-0:
 
