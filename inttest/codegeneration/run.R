@@ -42,13 +42,13 @@ ling_imm_actions <- list(
     g3a_initialconditions_normalparam(ling_imm,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingimm.init.scalar") * exp(-1 * (g3_param("lingimm.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingimm.init", value = rep(0, 10 - 3 + 1))[[as_integer(age) - 3 + 1]],
-        mean_f = g3a_renewal_vonb(by_stock = 'species'),
+        mean_f = g3a_renewal_vonb_recl(by_stock = 'species'),
         stddev_f = ~ling_imm_stddev[[as_integer(age) - 3 + 2]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta")),
     g3a_renewal_normalparam(ling_imm,
         factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
-        mean_f = g3a_renewal_vonb(by_stock = 'species'),
+        mean_f = g3a_renewal_vonb_recl(by_stock = 'species'),
         stddev_f = ~ling_imm_stddev[[as_integer(age) - 3 + 1]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
@@ -56,7 +56,7 @@ ling_imm_actions <- list(
     # Additional renewal for age 5
     g3a_renewal_normalparam(ling_imm,
         factor_f = ~g3_param("ling.rec.scalar") * g3_param_table("ling.rec", data.frame(cur_year = seq(start_year, end_year))),
-        mean_f = g3a_renewal_vonb(by_stock = 'species'),
+        mean_f = g3a_renewal_vonb_recl(by_stock = 'species'),
         stddev_f = ~ling_imm_stddev[[as_integer(age) - 3L + 1L]],
         alpha_f = ~g3_param("lingimm.walpha"),
         beta_f = ~g3_param("lingimm.wbeta"),
@@ -97,7 +97,7 @@ ling_mat_actions <- list(
     g3a_initialconditions_normalparam(ling_mat,
         # NB: area & age factor together (gadget2 just multiplied them)
         factor_f = ~g3_param("lingmat.init.scalar") * exp(-1 * (g3_param("lingmat.M") + g3_param("ling.init.F")) * age) * g3_param_vector("lingmat.init", value = rep(0, 15 - 5 + 1))[[as_integer(age) - 5 + 1]],
-        mean_f = g3a_renewal_vonb(by_stock = 'species'),
+        mean_f = g3a_renewal_vonb_recl(by_stock = 'species'),
         stddev_f = ~ling_mat_stddev[[as_integer(age) - 5 + 2]],
         alpha_f = ~g3_param("lingmat.walpha"),
         beta_f = ~g3_param("lingmat.wbeta")),

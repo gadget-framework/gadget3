@@ -31,7 +31,6 @@ g3a_renewal_vonb_t0 <- function(
             K = K,
             t0 = t0))
 }
-g3a_renewal_vonb <- g3a_renewal_vonb_recl  # NB: Default to _recl for backwards-compatibility
 
 g3a_renewal_initabund <- function(
     scalar = g3_parameterized('init.scalar', value = 1, by_stock = by_stock),
