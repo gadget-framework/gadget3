@@ -1,4 +1,4 @@
-# gadget3 1.0-0-999:
+# gadget3 1.1-0:
 
 ## Bug fixes
 * g3_to_r(): Convert logarithmic (type = "LOG") parameters to log space when given a list of parameters, as with a data.frame #272
