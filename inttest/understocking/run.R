@@ -183,13 +183,15 @@ ok(all.equal(
     g3_r$hist_lingimm__totalpredate[,area=1,,],
     tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm_igfs__cons")
 
+# NB: Understocking weight isn't reported, use g3l_understocking() default
+g3_understocking_weight <- eval(formals(g3l_understocking)$weight)
 ok(all.equal(
     sum(g3_r$nll_report),
     sum(
-        1 * sum(g3_r[['nll_adist_surveyindices_log_si.100-120__num']]),
-        10 * sum(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
-        10 * sum(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
-        10 * sum(g3_r$nll_understocking__wgt)),
+        g3_r[['nll_adist_surveyindices_log_si.100-120__num']] * g3_r[['nll_adist_surveyindices_log_si.100-120__weight']],
+        g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num * g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__weight,
+        g3_r$nll_cdist_multinomial_ldist.igfs.mn__num * g3_r$nll_cdist_multinomial_ldist.igfs.mn__weight,
+        g3_r$nll_understocking__wgt * g3_understocking_weight),
     tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num/g3_r$nll_understocking__wgt consistent with each other")
 ok(ut_cmp_identical(
     dim(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
@@ -205,16 +207,12 @@ ok(ut_cmp_identical(
 g2_nll <- Rgadget::read.gadget.file('inttest/understocking', 'likelihood.out')[[1]]
 g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_understocking$likelihood_value[is.na(g2_nll_understocking$likelihood_value)] <- 0
-g2_nll_understocking$weight[is.na(g2_nll_understocking$weight)] <- 0
 g2_nll_ldist_ss.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.ss',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_ldist_ss.igfs$likelihood_value[is.na(g2_nll_ldist_ss.igfs$likelihood_value)] <- 0
-g2_nll_ldist_ss.igfs$weight[is.na(g2_nll_ldist_ss.igfs$weight)] <- 0
 g2_nll_ldist_mn.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.mn',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_ldist_mn.igfs$likelihood_value[is.na(g2_nll_ldist_mn.igfs$likelihood_value)] <- 0
-g2_nll_ldist_mn.igfs$weight[is.na(g2_nll_ldist_mn.igfs$weight)] <- 0
 # NB: SI not broken down here
 g2_nll_si_likelihood_value <- g2_nll[g2_nll$component == 'si.100-120', 'likelihood_value']
-g2_nll_si_weight <- g2_nll[g2_nll$component == 'si.100-120', 'weight']
 
 
 ok(all.equal(
@@ -226,10 +224,11 @@ ok(all.equal(
     as.vector(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
     tolerance = 1e-4), "g3_r$nll_cdist_multinomial_ldist.igfs.mn__num - ldist.igfs matches")
 ok(all.equal(
-    as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
-        g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
-        g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight +
-        g2_nll_si_likelihood_value * g2_nll_si_weight,
+    as.vector(g3_r$nll_understocking__wgt) * g3_understocking_weight +  # NB: Ignoring g2 understocking, using our own
+        g2_nll_ldist_ss.igfs$likelihood_value * as.vector(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__weight) +
+        g2_nll_ldist_mn.igfs$likelihood_value * as.vector(g3_r$nll_cdist_multinomial_ldist.igfs.mn__weight) +
+        # NB: g2 SI isn't broken down by timestep, use our own (total compared below)
+        as.vector(g3_r[['nll_adist_surveyindices_log_si.100-120__num']] * g3_r[['nll_adist_surveyindices_log_si.100-120__weight']]),
     as.vector(g3_r$nll_report),
     tolerance = 1e-6), "g3_r$nll_report - ldist.igfs in total sum")
 
