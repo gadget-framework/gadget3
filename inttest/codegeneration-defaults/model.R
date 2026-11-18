@@ -10,6 +10,8 @@ structure(function (param = parameter_template)
         param <- structure(param$value, names = param$switch)
     }
     else {
+        logarithmic <- intersect(character(0), names(param))
+        param[logarithmic] <- lapply(param[logarithmic], log)
         param_lower <- lapply(param, function(x) NA)
         param_upper <- lapply(param, function(x) NA)
     }
