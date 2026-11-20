@@ -1,7 +1,6 @@
 \name{action_renewal}
 \alias{g3a_renewal_vonb_recl}
 \alias{g3a_renewal_vonb_t0}
-\alias{g3a_renewal_vonb}
 \alias{g3a_renewal_initabund}
 \alias{g3a_initialconditions_normalparam}
 \alias{g3a_initialconditions_normalcv}
@@ -258,7 +257,6 @@ g3a_otherfood_normalcv(
     }
     \strong{NB:} \code{\link{g3a_initialconditions_normalparam}} will replace \eqn{a} with \eqn{a - \Delta{t}}, see \var{age_offset}
   }
-  \subsection{g3a_renewal_vonb}{An alias for \code{g3a_renewal_vonb_recl}()}
   \subsection{g3a_renewal_initabund}{A \link{formula} object representing
     \deqn{ p s_{0} s_{a} e^{-1 (M + F_{0}) (a - a_{0})} }
     \describe{

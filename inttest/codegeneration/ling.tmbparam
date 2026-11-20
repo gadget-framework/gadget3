@@ -1,9 +1,9 @@
                                                                  switch   type        value optimise random lower upper parscale                source
 retro_years                                                 retro_years                   0    FALSE  FALSE    NA    NA       NA              g3a_time
-ling.Linf                                                     ling.Linf                   1    FALSE  FALSE    NA    NA       NA      g3a_renewal_vonb
-ling.K                                                           ling.K                   1    FALSE  FALSE    NA    NA       NA      g3a_renewal_vonb
-recage                                                           recage                   0    FALSE  FALSE    NA    NA       NA      g3a_renewal_vonb
-ling.recl                                                     ling.recl                   0    FALSE  FALSE    NA    NA       NA      g3a_renewal_vonb
+ling.Linf                                                     ling.Linf                   1    FALSE  FALSE    NA    NA       NA g3a_renewal_vonb_recl
+ling.K                                                           ling.K                   1    FALSE  FALSE    NA    NA       NA g3a_renewal_vonb_recl
+recage                                                           recage                   0    FALSE  FALSE    NA    NA       NA g3a_renewal_vonb_recl
+ling.recl                                                     ling.recl                   0    FALSE  FALSE    NA    NA       NA g3a_renewal_vonb_recl
 lingimm.init.scalar                                 lingimm.init.scalar                   0    FALSE  FALSE    NA    NA       NA                  <NA>
 lingimm.M                                                     lingimm.M                   0    FALSE  FALSE    NA    NA       NA                  <NA>
 ling.init.F                                                 ling.init.F                   0    FALSE  FALSE    NA    NA       NA                  <NA>

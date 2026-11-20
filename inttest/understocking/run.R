@@ -183,14 +183,23 @@ ok(all.equal(
     g3_r$hist_lingimm__totalpredate[,area=1,,],
     tolerance = 1e-7), "hist_lingimm__totalpredate: Matches hist_lingimm_igfs__cons")
 
-ok(all.equal(
-    sum(g3_r$nll_report),
-    sum(
-        1 * sum(g3_r[['nll_adist_surveyindices_log_si.100-120__num']]),
-        10 * sum(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
-        10 * sum(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
-        10 * sum(g3_r$nll_understocking__wgt)),
-    tolerance = 1e-7), "g3_r$nll_report/g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num/g3_r$nll_understocking__wgt consistent with each other")
+# Weighted nll components, as gadget3 adds them to nll
+# NB: Understocking weight isn't reported, use g3l_understocking() default
+g3_understocking_weight <- eval(formals(g3l_understocking)$weight)
+g3_nll_weighted <- function (n) as.vector(g3_r[[paste0(n, '__num')]] * g3_r[[paste0(n, '__weight')]])
+g3_nll_understocking <- as.vector(g3_r$nll_understocking__wgt) * g3_understocking_weight
+g3_nll_ldist_ss.igfs <- g3_nll_weighted('nll_cdist_sumofsquares_ldist.igfs.ss')
+g3_nll_ldist_mn.igfs <- g3_nll_weighted('nll_cdist_multinomial_ldist.igfs.mn')
+g3_nll_si <- g3_nll_weighted('nll_adist_surveyindices_log_si.100-120')
+
+# NB: Compare individual timesteps, otherwise understocking in later timesteps swamps everything else
+#     nll_report is a difference of cumulative nll, so is only accurate to rounding error of the total.
+#     Scale tiny values to 1, so this becomes an absolute comparison
+for (t in seq_along(g3_r$nll_report)) ok(all.equal(
+    g3_r$nll_report[[t]],
+    g3_nll_understocking[[t]] + g3_nll_ldist_ss.igfs[[t]] + g3_nll_ldist_mn.igfs[[t]] + g3_nll_si[[t]],
+    scale = max(abs(g3_r$nll_report[[t]]), 1),
+    tolerance = 1e-7), paste0("g3_r$nll_report: ", t, " - Sum of weighted nll components"))
 ok(ut_cmp_identical(
     dim(g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num),
     c(time = as.integer(length(year_range) * 4))), "g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__num: Broken up into individual timesteps")
@@ -205,16 +214,12 @@ ok(ut_cmp_identical(
 g2_nll <- Rgadget::read.gadget.file('inttest/understocking', 'likelihood.out')[[1]]
 g2_nll_understocking <- merge(g2_nll[g2_nll$component == 'understocking',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_understocking$likelihood_value[is.na(g2_nll_understocking$likelihood_value)] <- 0
-g2_nll_understocking$weight[is.na(g2_nll_understocking$weight)] <- 0
 g2_nll_ldist_ss.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.ss',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_ldist_ss.igfs$likelihood_value[is.na(g2_nll_ldist_ss.igfs$likelihood_value)] <- 0
-g2_nll_ldist_ss.igfs$weight[is.na(g2_nll_ldist_ss.igfs$weight)] <- 0
 g2_nll_ldist_mn.igfs <- merge(g2_nll[g2_nll$component == 'ldist.igfs.mn',], expand.grid(step=1:4, year=year_range), all.y = T)
 g2_nll_ldist_mn.igfs$likelihood_value[is.na(g2_nll_ldist_mn.igfs$likelihood_value)] <- 0
-g2_nll_ldist_mn.igfs$weight[is.na(g2_nll_ldist_mn.igfs$weight)] <- 0
 # NB: SI not broken down here
 g2_nll_si_likelihood_value <- g2_nll[g2_nll$component == 'si.100-120', 'likelihood_value']
-g2_nll_si_weight <- g2_nll[g2_nll$component == 'si.100-120', 'weight']
 
 
 ok(all.equal(
@@ -225,13 +230,14 @@ ok(all.equal(
     g2_nll_ldist_mn.igfs$likelihood_value,
     as.vector(g3_r$nll_cdist_multinomial_ldist.igfs.mn__num),
     tolerance = 1e-4), "g3_r$nll_cdist_multinomial_ldist.igfs.mn__num - ldist.igfs matches")
-ok(all.equal(
-    as.vector(g3_r$nll_understocking__wgt) * 10 +  # NB: Ignoring g2 understocking, using our own
-        g2_nll_ldist_ss.igfs$likelihood_value * g2_nll_ldist_ss.igfs$weight +
-        g2_nll_ldist_mn.igfs$likelihood_value * g2_nll_ldist_mn.igfs$weight +
-        g2_nll_si_likelihood_value * g2_nll_si_weight,
-    as.vector(g3_r$nll_report),
-    tolerance = 1e-6), "g3_r$nll_report - ldist.igfs in total sum")
+for (t in seq_along(g3_r$nll_report)) ok(all.equal(
+    g3_nll_understocking[[t]] +  # NB: Ignoring g2 understocking, using our own
+        g2_nll_ldist_ss.igfs$likelihood_value[[t]] * g3_r$nll_cdist_sumofsquares_ldist.igfs.ss__weight[[t]] +
+        g2_nll_ldist_mn.igfs$likelihood_value[[t]] * g3_r$nll_cdist_multinomial_ldist.igfs.mn__weight[[t]] +
+        g3_nll_si[[t]],  # NB: g2 SI isn't broken down by timestep, use our own (total compared below)
+    g3_r$nll_report[[t]],
+    scale = max(abs(g3_r$nll_report[[t]]), 1),
+    tolerance = 1e-6), paste0("g3_r$nll_report: ", t, " - g2 ldist.igfs with g3 weights in total sum"))
 
 # NB: A fully depleted stock in gadget2 isn't reported as understocked, but gadget3 does.
 #     So ignore the rest of the nll entries that g3 produces.
