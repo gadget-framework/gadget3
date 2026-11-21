@@ -1,5 +1,6 @@
 \name{deprecated}
 \alias{g3a_renewal_vonb}
+\concept{G3 internals}
 
 \title{Deprecated gadget3 functions}
 \description{
