@@ -5,6 +5,9 @@ on:
   push:
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 name: Render release documentation
@@ -33,6 +36,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Deploy
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
